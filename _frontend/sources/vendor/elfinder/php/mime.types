@@ -271,7 +271,7 @@ application/x-tar tar
 application/x-tarz tar.Z
 application/x-tex-gf gf
 application/x-tex-pk k
-application/x-tgif obj
+application/x-tgif get
 application/x-theme theme
 application/x-toc toc
 application/x-toutdoux
