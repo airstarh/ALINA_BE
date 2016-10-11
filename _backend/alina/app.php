@@ -61,21 +61,14 @@ class app
     {
         $_this = static::get();
         $cfg   = $_this->config;
-        if (is_array($path)) {
-            return getArrayValueByPath($path, $cfg);
-        }
-        return getArrayValueByStringPath($path, $cfg);
-
+        return getArrayValue($path, $cfg);
     }
 
     static public function getConfigDefault($path)
     {
         $_this = static::get();
         $cfg   = $_this->configDefault;
-        if (is_array($path)) {
-            return getArrayValueByPath($path, $cfg);
-        }
-        return getArrayValueByStringPath($path, $cfg);
+        return getArrayValue($path, $cfg);
     }
 
     #endregion Config manipulations
