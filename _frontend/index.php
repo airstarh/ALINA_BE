@@ -16,6 +16,7 @@ switch (ALINA_ENV) {
         define('PATH_TO_ALINA_BACKEND_DIR', 'E:\___projects\alina\_backend\alina');
         define('PATH_TO_APP_DIR', 'E:\___projects\alina\_backend\_aplications\zero');
         define('PATH_TO_APP_CONFIG_FILE', 'E:\___projects\alina\_backend\_aplications\zero\configs\default.php');
+        define('PATH_TO_FRONT_END_ROOT', __DIR__);
         break;
 }
 
@@ -62,9 +63,9 @@ spl_autoload_register(function ($class) use ($config) {
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
 
 
-echo '<pre>';
 print_r('<h1>FROM INDEX:::</h1>');
-echo '</pre>';
+$alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+print_r("<h2>Time spent: $alinaTimeSpent</h2>");
 echo '<pre>';
 print_r(\alina\app::get()->router);
 echo '</pre>';

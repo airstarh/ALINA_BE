@@ -1,11 +1,12 @@
 <?php
 #region Getters & Setters
 #region Getters
-function getArrayValue($path, array $array, $delimiter='/')
+function getArrayValue($path, array $array, $delimiter = '/')
 {
     if (is_array($path)) {
         return getArrayValueByArrayPath($path, $array);
     }
+
     return getArrayValueByStringPath($path, $array, $delimiter);
 }
 
@@ -20,23 +21,26 @@ function getArrayValueByArrayPath(array $path = [], array $array)
             throw new \Exception("No section $section in Array");
         }
     }
+
     return $temp;
 }
 
 function getArrayValueByStringPath($path, array $array, $delimiter = '/')
 {
     $path = explode($delimiter, $path);
+
     return getArrayValueByArrayPath($path, $array);
 }
 
 #endregion Getters
 
 #region Setters
-function setArrayValue($path, $value, array &$array, $delimiter='/')
+function setArrayValue($path, $value, array &$array, $delimiter = '/')
 {
     if (is_array($path)) {
         return setArrayValueByArrayPath($path, $value, $array);
     }
+
     return setArrayValueByStringPath($path, $value, $array, $delimiter);
 }
 
@@ -47,14 +51,17 @@ function setArrayValueByArrayPath(array $path, $value, array &$array)
         $temp = &$temp[$p];
     }
     $temp = $value;
+
     return TRUE;
 }
 
 function setArrayValueByStringPath($path, $value, array &$array, $delimiter = '/')
 {
     $path = explode($delimiter, $path);
+
     return setArrayValueByArrayPath($path, $value, $array);
 }
+
 #endregion Setters
 
 #region Path checker
@@ -76,22 +83,26 @@ function checkArrayPathByArray(array $path, array $array)
         else
             return FALSE;
     }
+
     return TRUE;
 }
 
 function checkArrayPathByString($path, array $array, $delimiter = '/')
 {
     $path = explode($delimiter, $path);
+
     return checkArrayPathByArray($path, $array);
 }
+
 #endregion Path checker
 
 #region Unsetter
-function unsetArrayPath($path, array &$array, $delimiter='/')
+function unsetArrayPath($path, array &$array, $delimiter = '/')
 {
     if (is_array($path)) {
         return unsetArrayPathByArrayPath($path, $array);
     }
+
     return unsetArrayPathByStringPath($path, $array, $delimiter);
 }
 
@@ -105,14 +116,17 @@ function unsetArrayPathByArrayPath(array $path, array &$array)
     }
     if ($previousElement !== NULL && isset($p))
         unset($previousElement[$p]);
+
     return $array;
 }
 
 function unsetArrayPathByStringPath($path, array &$array, $delimiter = '/')
 {
     $path = explode($delimiter, $path);
+
     return unsetArrayPathByArrayPath($path, $array);
 }
+
 #endregion Unsetter
 
 #endregion Getters & Setters
@@ -120,6 +134,7 @@ function firstArrayKey($array)
 {
     reset($array);
     list($key, $value) = each($array);
+
     return $key;
 }
 
@@ -127,6 +142,7 @@ function firstArrayValue($array)
 {
     reset($array);
     list($key, $value) = each($array);
+
     return $value;
 }
 

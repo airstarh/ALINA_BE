@@ -114,7 +114,9 @@ class cookie
         $_this->httponly = $httponly;
         $apply           = $_this->apply();
         if ($apply) {
-            $_COOKIE[$name] = $value;
+            if ($_this->expire > ALINA_TIME) {
+                $_COOKIE[$name] = $value;
+            }
         }
 
         return $apply;
