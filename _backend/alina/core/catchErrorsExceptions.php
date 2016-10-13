@@ -2,12 +2,11 @@
 
 namespace alina\core;
 
-
 class catchErrorsExceptions
 {
-    static protected $instance = null;
-    protected $exit = false;
-    protected $message = '';
+    static protected $instance = NULL;
+    protected        $exit     = FALSE;
+    protected        $message  = '';
 
     /** @var array
      *
@@ -17,139 +16,198 @@ class catchErrorsExceptions
      * 'errline' => string,
      * 'error_trace' => string,
      */
-    protected $message_params = array();
+    protected $messageParams = [];
+
+    public $eLevel  = '';
+    public $eString = '';
+    public $eFile   = '';
+    public $eLine   = '';
+    public $eTrace  = '';
+
+    public $messageString = '';
+    public $messageHtml   = '';
 
     protected function __construct()
     {
 
     }
 
+
     /**
      * $return static object
      */
     static public function obj()
     {
-        if (null === static::$instance) {
+        if (NULL === static::$instance) {
             static::$instance = new static;
         }
+
         return static::$instance;
     }
 
-    public function error($errno, $errstr, $errfile, $errline)
+    public function error($eLevel, $eString, $eFile, $eLine, $eContext)
     {
-        switch ($errno) {
-            case E_NOTICE:
-            case E_USER_NOTICE:
-            case E_DEPRECATED:
-            case E_USER_DEPRECATED:
-            case E_STRICT:
-                $error_level = "NOTICE";
-                break;
-
-            case E_WARNING:
-            case E_USER_WARNING:
-                $error_level = "WARNING";
-                break;
-
+        fDebug($this, 0);
+        switch ($eLevel) {
             case E_ERROR:
+                throw new \ErrorException            ($eString, 0, $eLevel, $eString, $eLine);
+            case E_WARNING:
+                throw new WarningException          ($eString, 0, $eLevel, $eString, $eLine);
+            case E_PARSE:
+                throw new ParseException            ($eString, 0, $eLevel, $eString, $eLine);
+            case E_NOTICE:
+                throw new NoticeException           ($eString, 0, $eLevel, $eString, $eLine);
+            case E_CORE_ERROR:
+                throw new CoreErrorException        ($eString, 0, $eLevel, $eString, $eLine);
+            case E_CORE_WARNING:
+                throw new CoreWarningException      ($eString, 0, $eLevel, $eString, $eLine);
+            case E_COMPILE_ERROR:
+                throw new CompileErrorException     ($eString, 0, $eLevel, $eString, $eLine);
+            case E_COMPILE_WARNING:
+                throw new CoreWarningException      ($eString, 0, $eLevel, $eString, $eLine);
             case E_USER_ERROR:
-                $error_level = "FATAL";
-                $this->exit = true;
-                break;
-
+                throw new UserErrorException        ($eString, 0, $eLevel, $eString, $eLine);
+            case E_USER_WARNING:
+                throw new UserWarningException      ($eString, 0, $eLevel, $eString, $eLine);
+            case E_USER_NOTICE:
+                throw new UserNoticeException       ($eString, 0, $eLevel, $eString, $eLine);
+            case E_STRICT:
+                throw new StrictException           ($eString, 0, $eLevel, $eString, $eLine);
+            case E_RECOVERABLE_ERROR:
+                throw new RecoverableErrorException ($eString, 0, $eLevel, $eString, $eLine);
+            case E_DEPRECATED:
+                throw new DeprecatedException       ($eString, 0, $eLevel, $eString, $eLine);
+            case E_USER_DEPRECATED:
+                throw new UserDeprecatedException   ($eString, 0, $eLevel, $eString, $eLine);
             default:
-                $error_level = "UNKNOWN";
-                $this->exit = true;
-        }
+                $eLevel = "UNKNOWN ($eLevel)";
+                throw new \ErrorException            ($eString, 0, $eLevel, $eString, $eLine);
 
-        $this->message = 'Error handled: %s, %s, in %s at line %d.';
-        $this->message_params = array(
-            'error_level' => $error_level,
-            'errstr' => $errstr,
-            'errfile' => $errfile,
-            'errline' => $errline,
-            //'error_trace' => string,
-        );
-        $this->parse_error();
+        }
     }
 
     public function exception($exception)
     {
-        $error_message = method_exists($exception, 'getMessage')
+        $this->eLevel = get_class($exception);
+
+        $this->eString = method_exists($exception, 'getMessage')
             ? $exception->getMessage()
             : 'Unknown error';
 
-        $error_file = method_exists($exception, 'getFile')
+        $this->eFile = method_exists($exception, 'getFile')
             ? $exception->getFile()
             : 'Unknown place';
 
-        $error_line = method_exists($exception, 'getLine')
+        $this->eLine = method_exists($exception, 'getLine')
             ? $exception->getLine()
             : -1;
 
-        $error_trace = method_exists($exception, 'getTraceAsString')
+        $this->eTrace = method_exists($exception, 'getTraceAsString')
             ? $exception->getTraceAsString()
             : 'Trace is unavailable';
 
-        $this->message = 'Exception thrown: %s, %s, in %s at line %d. Trace: '.PHP_EOL.'%s';
-        $this->message_params = array(
-            'error_level' => get_class($exception) . ' class',
-            'errstr' => $error_message,
-            'errfile' => $error_file,
-            'errline' => $error_line,
-            'error_trace' => $error_trace,
-        );
+        $this->message       = 'Exception thrown: %s, %s, in %s at line %d. Trace: ' . PHP_EOL . '%s';
+        $this->messageParams = [
+            $this->eLevel,
+            $this->eString,
+            $this->eFile,
+            $this->eLine,
+            $this->eTrace,
+        ];
 
-        $this->parse_error();
+        $this->prepareError();
 
-        // In the case of exception, all render functions are stopped.
-        // Thus it is good way to redirect user to the special page,
-        // where all eerror messages are visible.
         // ToDo: may be a condition is needed.
-        \base\router::redirect('/controller/SystemException');
+        \alina\app::get()->mvcGo('root', 'Exception', $this);
     }
 
-    public function parse_error()
+    public function prepareError()
     {
-        $appDebugSettings = \base\application::getConfig('debug');
-        if (in_array(true, $appDebugSettings)) {
+        $this->messageString = vsprintf($this->message, $this->messageParams);
+        \alina\core\message::set($this->message, $this->messageParams, 'red');
 
-            $error_message =  vsprintf($this->message, $this->message_params);
-            $additional_info = (isset($this->message_params['error_trace']))
-                ? $this->message_params['error_trace']
-                : '' ;
+        $config = \alina\app::getConfig('debug');
+        if (in_array(TRUE, $config)) {
 
-            if ($appDebugSettings['toDb']) {
-                debug::toDb(
-                    $error_message,
-                    $this->message_params['error_level'],
-                    $additional_info
-                );
+            if (isset($config['toDb']) && $config['toDb']) {
+                // ToDo: Save to DB.
             }
-            if ($appDebugSettings['toPage']) {
-                $errString = '';
-                $errString .= $this->message_params['error_level'].'<br/>';
-                $errString .= $this->message_params['errstr'].'<br/>';
-                $errString .= $this->message_params['errfile'].'<br/>';
-                $errString .= $this->message_params['errline'].'<br/>';
-                if (isset($this->message_params['error_trace']) && !empty($this->message_params['error_trace'])) {
-                    $errString .= $this->message_params['error_trace'].'<br/>';
-                }
-                $errString .= '<br/>';
 
-                \base\model\message::set(
-                    $errString,
-                    'error'
-                );
+            if (isset($config['toPage']) && $config['toPage']) {
+                // ToDo: Show on Page.
+            }
+
+            if (isset($config['toFile']) && $config['toFile']) {
+                $this->messageHtml = '<br/>';
+                $this->messageHtml .= $this->eLevel . '<br/>' . PHP_EOL;
+                $this->messageHtml .= $this->eString . '<br/>' . PHP_EOL;
+                $this->messageHtml .= $this->eFile . '<br/>' . PHP_EOL;
+                $this->messageHtml .= $this->eLine . '<br/>' . PHP_EOL;
+                $this->messageHtml .= $this->eTrace . '<br/>' . PHP_EOL;
+                $this->messageHtml .= '<br/>';
+                fDebug($this->messageHtml);
             }
         }
 
-        $this->message = '';
-        $this->message_params = '';
-
         if ($this->exit) {
-            $this->exit = false;
+            $this->exit = FALSE;
             exit();
         }
     }
+}
+
+class WarningException extends \ErrorException
+{
+}
+
+class ParseException extends \ErrorException
+{
+}
+
+class NoticeException extends \ErrorException
+{
+}
+
+class CoreErrorException extends \ErrorException
+{
+}
+
+class CoreWarningException extends \ErrorException
+{
+}
+
+class CompileErrorException extends \ErrorException
+{
+}
+
+class CompileWarningException extends \ErrorException
+{
+}
+
+class UserErrorException extends \ErrorException
+{
+}
+
+class UserWarningException extends \ErrorException
+{
+}
+
+class UserNoticeException extends \ErrorException
+{
+}
+
+class StrictException extends \ErrorException
+{
+}
+
+class RecoverableErrorException extends \ErrorException
+{
+}
+
+class DeprecatedException extends \ErrorException
+{
+}
+
+class UserDeprecatedException extends \ErrorException
+{
 }

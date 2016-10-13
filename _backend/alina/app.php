@@ -12,7 +12,54 @@ class app
     #region Initiation
     protected function __construct($config = [])
     {
+        $this->init();
+        $this->autoload($config);
         $this->setConfig($config);
+        set_exception_handler([\alina\core\catchErrorsExceptions::obj(), 'exception']);
+        set_error_handler([\alina\core\catchErrorsExceptions::obj(), 'error']);
+    }
+
+    public function init()
+    {
+        // Fasade functions
+        require_once PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_independent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
+        require_once PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
+    }
+
+    public function autoload($config)
+    {
+        spl_autoload_extensions(".php");
+        spl_autoload_register();
+        // Fix of PHP bug. Please, see: https://bugs.php.net/bug.php?id=52339
+        //spl_autoload_register(function(){});
+        spl_autoload_register(function ($class) use ($config) {
+            $extension = '.php';
+
+            // For Alina
+            $className = ltrim($class, '\\');
+            $className = ltrim($className, 'alina');
+            $className = ltrim($className, '\\');
+            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+            $classFile = $className . $extension;
+            $classPath = PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . $classFile;
+            if (file_exists($classPath)) {
+                require_once $classPath;
+            }
+
+            // For Application
+            if (!isset($config['appNamespace']) || empty($config['appNamespace'])) {
+                return NULL;
+            }
+            $className = ltrim($class, '\\');
+            $className = ltrim($className, $config['appNamespace']);
+            $className = ltrim($className, '\\');
+            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+            $classFile = $className . $extension;
+            $classPath = PATH_TO_APP_DIR . DIRECTORY_SEPARATOR . $classFile;
+            if (file_exists($classPath)) {
+                require_once $classPath;
+            }
+        });
     }
 
     public $config        = [];
@@ -25,12 +72,13 @@ class app
         $this->configDefault = $defaultConfig;
         $this->config        = arrayMergeRecursive($this->configDefault, $config);
         static::$instance    = $this;
+
         return $this;
     }
     #endregion Initiation
 
     #region Instantiation
-    static public $instance = null;
+    static public $instance = NULL;
 
     /**
      * @return \alina\app
@@ -40,6 +88,7 @@ class app
         if (!isset(static::$instance) || !is_a(static::$instance, '\alina\app')) {
             throw new \Exception("App is not set");
         }
+
         return static::$instance;
     }
 
@@ -52,6 +101,7 @@ class app
             throw new \Exception("App is set already.");
         }
         $_this = new static($config);
+
         return $_this;
     }
     #endregion Instantiation
@@ -61,6 +111,7 @@ class app
     {
         $_this = static::get();
         $cfg   = $_this->config;
+
         return getArrayValue($path, $cfg);
     }
 
@@ -68,6 +119,7 @@ class app
     {
         $_this = static::get();
         $cfg   = $_this->configDefault;
+
         return getArrayValue($path, $cfg);
     }
 
@@ -94,6 +146,7 @@ class app
                 }
             }
         }
+
         return $this;
     }
     #endregion Routes
@@ -115,11 +168,11 @@ class app
         return static::ACTION_PREFIX . ucfirst($name);
     }
 
-    public function mvcGo()
+    public function mvcGo($controller = NULL, $action = NULL, $params = NULL)
     {
-        $this->controller   = $this->router->controller;
-        $this->action       = $this->router->action;
-        $this->actionParams = $this->router->pathParameter;
+        $this->controller   = (isset($controller)) ? $controller : $this->router->controller;
+        $this->action       = (isset($action)) ? $action : $this->router->action;
+        $this->actionParams = (isset($params)) ? $params : $this->router->pathParameter;
 
         if (empty($this->controller) && empty($this->action)) {
             return $this->mvcDefaultPage();
@@ -139,6 +192,7 @@ class app
             $controller     = fullClassName($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName($this->action);
             $params         = $this->actionParams;
+
             return $this->mvcControllerAction($controller, $action, $params);
         }
         catch (\Exception $e) {
@@ -169,6 +223,7 @@ class app
             $controller     = static::getConfig('mvc/pageNotFoundController');
             $controller     = fullClassName($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
+
             return $this->mvcControllerAction($controller, $action);
         }
         catch (\Exception $e) {
@@ -179,6 +234,7 @@ class app
                 $controller     = static::getConfigDefault('mvc/pageNotFoundController');
                 $controller     = fullClassName($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
+
                 return $this->mvcControllerAction($controller, $action);
             }
             catch (\Exception $e) {
@@ -197,6 +253,7 @@ class app
             $controller     = static::getConfig('mvc/defaultController');
             $controller     = fullClassName($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
+
             return $this->mvcControllerAction($controller, $action);
         }
         catch (\Exception $e) {
@@ -207,6 +264,7 @@ class app
                 $controller     = static::getConfigDefault('mvc/defaultController');
                 $controller     = fullClassName($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
+
                 return $this->mvcControllerAction($controller, $action);
             }
             catch (\Exception $e) {

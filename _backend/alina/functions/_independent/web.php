@@ -4,16 +4,18 @@ function ref($url)
 {
     if (startsWith($url, 'http://')
         || startsWith($url, 'https://')
-    ) return $url;
+    )
+        return $url;
     $url = ltrim($url, '/');
+
     return "//{$_SERVER['HTTP_HOST']}/{$url}";
 }
 
-function l($ref, $text = '', $configuration = array())
+function l($ref, $text = '', $configuration = [])
 {
     $href     = '';
     $get      = '';
-    $getArray = array();
+    $getArray = [];
     $hash     = '';
 
     if (isset($configuration['get']) && !empty($configuration['get'])) {
@@ -32,10 +34,11 @@ function l($ref, $text = '', $configuration = array())
     $href .= ref($ref) . $get . $hash;
 
     $configuration['href'] = $href;
+
     return tag('a', $text, $configuration);
 }
 
-function tag($tagName, $text = '', $configuration = array())
+function tag($tagName, $text = '', $configuration = [])
 {
     $additionalContentBefore = '';
     // For fieldset
@@ -49,6 +52,7 @@ function tag($tagName, $text = '', $configuration = array())
     }
 
     $attributes = convertAttributesArrayToString($configuration);
+
     return "<$tagName $attributes>$additionalContentBefore $text</$tagName>";
 }
 
@@ -56,15 +60,17 @@ function convertAttributesArrayToString($attributes)
 {
     $attributeString = '';
     foreach ($attributes as $attribute => $value) {
-        if (is_array($value)) $value = implode(' ', $value);
+        if (is_array($value))
+            $value = implode(' ', $value);
         $attributeString .= " $attribute='$value'";
     }
+
     return $attributeString;
 }
 
 function wrapToDiv($content)
 {
-    return tag('div', $content, array('class' => array('wrapped-item')));
+    return tag('div', $content, ['class' => ['wrapped-item']]);
 }
 
 function redirect($page, $code = 301)
@@ -72,17 +78,17 @@ function redirect($page, $code = 301)
     if (startsWith($page, 'http://')
         || startsWith($page, 'https://')
     ) {
-        header("Location: $page", true, $code);
+        header("Location: $page", TRUE, $code);
         die();
     }
 
     $page = ref($page);
-    header("Location: $page", true, $code);
+    header("Location: $page", TRUE, $code);
     die();
 }
 
 #region URL's, Aliases, Routes
-function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = true)
+function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = TRUE)
 {
     foreach ($vocabulary as $aliasMask => $urlMask) {
 
@@ -99,6 +105,7 @@ function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = tru
             }
         }
     }
+
     return $url;
 }
 
@@ -106,9 +113,9 @@ function routeRegExp($string)
 {
     $parts = explode('/', $string);
 
-    $regularExpression = array();
+    $regularExpression = [];
     foreach ($parts as $v) {
-        if ($v === ':p' || false !== strpos($v, ':p')) {
+        if ($v === ':p' || FALSE !== strpos($v, ':p')) {
             $regularExpression[] = '.+?';
         }
         else {
@@ -145,22 +152,49 @@ function routeConverter($fromMask, $source, $toMask)
     $sourceArray   = explode('/', $source);
     $toMaskArray   = explode('/', $toMask);
 
-    $_parameters = array();
+    $_parameters = [];
     foreach ($fromMaskArray as $i => $pN) {
-        if (false !== strpos($pN, ':p')) {
+        if (FALSE !== strpos($pN, ':p')) {
             $_parameters[$pN] = $sourceArray[$i];
         }
     }
 
-    $convertedResult = array();
+    $convertedResult = [];
     foreach ($toMaskArray as $i => $pN) {
-        if (false !== strpos($pN, ':p')) {
+        if (FALSE !== strpos($pN, ':p')) {
             $convertedResult[] = $_parameters[$pN];
         }
         else {
             $convertedResult[] = $pN;
         }
     }
+
     return implode('/', $convertedResult);
 }
+
 #endregion URL's, Aliases, Routes
+
+function alinaGetTemplate($fileFullPath, $data = NULL)
+{
+    ob_start();
+    ob_implicit_flush(FALSE);
+    require($fileFullPath);
+    $output = ob_get_clean();
+
+    return $output;
+}
+
+function isAjax()
+{
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        return TRUE;
+    }
+    if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
+        return TRUE;
+    }
+    if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
+        return TRUE;
+    }
+
+    return FALSE;
+}

@@ -34,10 +34,9 @@ switch (ALINA_ENV) {
             ],
 
             'debug' => [
-                'toPage' => TRUE,
-                'toDb'   => TRUE,
-                // ToDo: Implement log error information to file,
-                //'toFile' => false,
+                //'toPage' => TRUE,
+                //'toDb'   => TRUE,
+                'toFile' => TRUE,
             ],
 
             'page' => [

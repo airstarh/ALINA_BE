@@ -5,7 +5,7 @@ function requireAllFromDir($dir)
 
 }
 
-function fDebug($data, $fPath = NULL)
+function fDebug($data, $flags = FILE_APPEND, $fPath = NULL)
 {
     if (!isset($fPath) || empty($fPath)) {
         $fPath = PATH_TO_FRONT_END_ROOT.DIRECTORY_SEPARATOR.'deleteOnProdDebug.html';
@@ -18,7 +18,7 @@ function fDebug($data, $fPath = NULL)
     echo PHP_EOL;
     echo '</pre>';
     $output = ob_get_clean();
-    file_put_contents($fPath, $output, FILE_APPEND);
+    file_put_contents($fPath, $output, $flags);
     file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
 }
 

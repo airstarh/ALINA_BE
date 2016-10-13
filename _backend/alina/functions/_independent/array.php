@@ -73,7 +73,7 @@ function arrayHasPath($path, array $array, $delimiter = '/')
     else return checkArrayPathByString($path, $array, $delimiter);
 }
 
-function checkArrayPathByArray(array $path, array $array)
+function checkArrayPathByArray(array $path, array $array, &$value = NULL)
 {
     $temp = &$array;
     foreach ($path as $p) {
@@ -83,6 +83,8 @@ function checkArrayPathByArray(array $path, array $array)
         else
             return FALSE;
     }
+
+    $value = $temp;
 
     return TRUE;
 }

@@ -8,7 +8,7 @@ class session
     static public function set($path, $value)
     {
         static::start();
-        setArrayValue($path, $value, $_SESSION);
+        return setArrayValue($path, $value, $_SESSION);
     }
 
     static public function get($path)
@@ -17,11 +17,18 @@ class session
         return getArrayValue($path, $_SESSION);
     }
 
+    static public function has($path)
+    {
+        static::start();
+        return arrayHasPath($path, $_SESSION);
+    }
+
     static public function start()
     {
         if (!headers_sent()) {
-            if (!static::isStarted())
+            if (!static::isStarted()) {
                 session_start();
+            }
         }
     }
 

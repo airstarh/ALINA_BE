@@ -1,6 +1,6 @@
 <?php
-define('ALINA_TIME', time());
 define('ALINA_MICROTIME', microtime(TRUE));
+define('ALINA_TIME', time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
 
 // Make sure we see all available errors
@@ -13,6 +13,7 @@ error_reporting(E_ALL | E_STRICT);
 define('ALINA_ENV', 'HOME');
 switch (ALINA_ENV) {
     case 'HOME':
+        define('ALINA_MODE', 'dev');
         define('PATH_TO_ALINA_BACKEND_DIR', 'E:\___projects\alina\_backend\alina');
         define('PATH_TO_APP_DIR', 'E:\___projects\alina\_backend\_aplications\zero');
         define('PATH_TO_APP_CONFIG_FILE', 'E:\___projects\alina\_backend\_aplications\zero\configs\default.php');
@@ -20,52 +21,16 @@ switch (ALINA_ENV) {
         break;
 }
 
-// Fasade functions
-require_once PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_independent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
-require_once PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
-
+require_once PATH_TO_ALINA_BACKEND_DIR.DIRECTORY_SEPARATOR.'app.php';
 $config = require(PATH_TO_APP_CONFIG_FILE);
-
-spl_autoload_extensions(".php");
-spl_autoload_register();
-// Fix of PHP bug. Please, see: https://bugs.php.net/bug.php?id=52339
-//spl_autoload_register(function(){});
-spl_autoload_register(function ($class) use ($config) {
-    $extension = '.php';
-
-    // For Alina
-    $className = ltrim($class, '\\');
-    $className = ltrim($className, 'alina');
-    $className = ltrim($className, '\\');
-    $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-    $classFile = $className . $extension;
-    $classPath = PATH_TO_ALINA_BACKEND_DIR . DIRECTORY_SEPARATOR . $classFile;
-    if (file_exists($classPath)) {
-        require_once $classPath;
-    }
-
-    // For Application
-    if (!isset($config['appNamespace']) || empty($config['appNamespace'])) {
-        return NULL;
-    }
-    $className = ltrim($class, '\\');
-    $className = ltrim($className, $config['appNamespace']);
-    $className = ltrim($className, '\\');
-    $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-    $classFile = $className . $extension;
-    $classPath = PATH_TO_APP_DIR . DIRECTORY_SEPARATOR . $classFile;
-    if (file_exists($classPath)) {
-        require_once $classPath;
-    }
-});
-
-//$app = new \alina\app($config);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
 
 
-print_r('<h1>FROM INDEX:::</h1>');
-$alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-print_r("<h2>Time spent: $alinaTimeSpent</h2>");
-echo '<pre>';
-print_r(\alina\app::get()->router);
-echo '</pre>';
+if (ALINA_MODE !== 'PROD') {
+    print_r('<h1>FROM INDEX:::</h1>');
+    echo '<pre>';
+    print_r(\alina\app::get()->router);
+    echo '</pre>';
+    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+    print_r("<h2>Time spent: $alinaTimeSpent</h2>");
+}
