@@ -37,6 +37,14 @@ class root
         print_r(func_get_args());
         echo '</pre>';
 
+        print_r('<h2>Message Collection</h2>');
+        echo '<pre>';
+        print_r([
+                    '$flagCollectionInSession' => \alina\core\message::$flagCollectionInSession,
+                    '$collection' => \alina\core\message::$collection,
+                ]);
+        echo '</pre>';
+
         print_r('<h2>$_SESSION</h2>');
         echo '<pre>';
         print_r($_SESSION);
@@ -54,12 +62,12 @@ class root
 
         print_r('<h2>$_POST</h2>');
         echo '<pre>';
-        print_r($_SERVER);
+        print_r($_POST);
         echo '</pre>';
 
         print_r('<h2>$_GET</h2>');
         echo '<pre>';
-        print_r($_SERVER);
+        print_r($_GET);
         echo '</pre>';
     }
 }

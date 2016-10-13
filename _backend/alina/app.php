@@ -160,7 +160,18 @@ class app
 
     public function mvcControllerAction($controller, $action, $params = [])
     {
-        return returnClassMethod($controller, $action, $params);
+        if (!class_exists($controller, TRUE))
+            throw new \alina\core\exception("No Class: $controller");
+
+        $go = new $controller();
+
+        if (!method_exists($go, $action))
+            throw new \alina\core\exception("No Method: $action");
+
+        if (!is_array($params))
+            $params = [$params];
+
+        return call_user_func_array([$go, $action], $params);
     }
 
     public function fullActionName($name)
@@ -195,7 +206,7 @@ class app
 
             return $this->mvcControllerAction($controller, $action, $params);
         }
-        catch (\Exception $e) {
+        catch (\alina\core\exception $e) {
             // Defined by route in Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -204,13 +215,44 @@ class app
                 $controller     = fullClassName($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName($this->action);;
                 $params = $this->actionParams;
+
                 return $this->mvcControllerAction($controller, $action, $params);
 
             }
-            catch (\Exception $e) {
+            catch (\alina\core\exception $e) {
                 return $this->mvcPageNotFound();
             }
         }
+    }
+
+    public function mvcDefaultPage()
+    {
+        // Default page of user app
+        try {
+            $namespace      = static::getConfig('appNamespace');
+            $controllerPath = static::getConfig('mvc/structure/controller');
+            $controller     = static::getConfig('mvc/defaultController');
+            $controller     = fullClassName($namespace, $controllerPath, $controller);
+            $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
+
+            return $this->mvcControllerAction($controller, $action);
+        }
+        catch (\alina\core\exception $e) {
+            // Default page of Alina
+            try {
+                $namespace      = static::getConfigDefault(['appNamespace']);
+                $controllerPath = static::getConfigDefault('mvc/structure/controller');
+                $controller     = static::getConfigDefault('mvc/defaultController');
+                $controller     = fullClassName($namespace, $controllerPath, $controller);
+                $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
+
+                return $this->mvcControllerAction($controller, $action);
+            }
+            catch (\alina\core\exception $e) {
+                throw new \alina\core\exception('No index page');
+            }
+        }
+
     }
 
     public function mvcPageNotFound()
@@ -226,7 +268,7 @@ class app
 
             return $this->mvcControllerAction($controller, $action);
         }
-        catch (\Exception $e) {
+        catch (\alina\core\exception $e) {
             // 404 of Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -237,38 +279,8 @@ class app
 
                 return $this->mvcControllerAction($controller, $action);
             }
-            catch (\Exception $e) {
+            catch (\alina\core\exception $e) {
                 throw new \Exception('Total Fail');
-            }
-        }
-
-    }
-
-    public function mvcDefaultPage()
-    {
-        // Default page of user app
-        try {
-            $namespace      = static::getConfig('appNamespace');
-            $controllerPath = static::getConfig('mvc/structure/controller');
-            $controller     = static::getConfig('mvc/defaultController');
-            $controller     = fullClassName($namespace, $controllerPath, $controller);
-            $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
-
-            return $this->mvcControllerAction($controller, $action);
-        }
-        catch (\Exception $e) {
-            // Default page of Alina
-            try {
-                $namespace      = static::getConfigDefault(['appNamespace']);
-                $controllerPath = static::getConfigDefault('mvc/structure/controller');
-                $controller     = static::getConfigDefault('mvc/defaultController');
-                $controller     = fullClassName($namespace, $controllerPath, $controller);
-                $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
-
-                return $this->mvcControllerAction($controller, $action);
-            }
-            catch (\Exception $e) {
-                throw new \Exception('No index page');
             }
         }
 

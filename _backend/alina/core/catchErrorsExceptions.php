@@ -47,47 +47,13 @@ class catchErrorsExceptions
 
     public function error($eLevel, $eString, $eFile, $eLine, $eContext)
     {
-        fDebug($this, 0);
-        switch ($eLevel) {
-            case E_ERROR:
-                throw new \ErrorException            ($eString, 0, $eLevel, $eString, $eLine);
-            case E_WARNING:
-                throw new WarningException          ($eString, 0, $eLevel, $eString, $eLine);
-            case E_PARSE:
-                throw new ParseException            ($eString, 0, $eLevel, $eString, $eLine);
-            case E_NOTICE:
-                throw new NoticeException           ($eString, 0, $eLevel, $eString, $eLine);
-            case E_CORE_ERROR:
-                throw new CoreErrorException        ($eString, 0, $eLevel, $eString, $eLine);
-            case E_CORE_WARNING:
-                throw new CoreWarningException      ($eString, 0, $eLevel, $eString, $eLine);
-            case E_COMPILE_ERROR:
-                throw new CompileErrorException     ($eString, 0, $eLevel, $eString, $eLine);
-            case E_COMPILE_WARNING:
-                throw new CoreWarningException      ($eString, 0, $eLevel, $eString, $eLine);
-            case E_USER_ERROR:
-                throw new UserErrorException        ($eString, 0, $eLevel, $eString, $eLine);
-            case E_USER_WARNING:
-                throw new UserWarningException      ($eString, 0, $eLevel, $eString, $eLine);
-            case E_USER_NOTICE:
-                throw new UserNoticeException       ($eString, 0, $eLevel, $eString, $eLine);
-            case E_STRICT:
-                throw new StrictException           ($eString, 0, $eLevel, $eString, $eLine);
-            case E_RECOVERABLE_ERROR:
-                throw new RecoverableErrorException ($eString, 0, $eLevel, $eString, $eLine);
-            case E_DEPRECATED:
-                throw new DeprecatedException       ($eString, 0, $eLevel, $eString, $eLine);
-            case E_USER_DEPRECATED:
-                throw new UserDeprecatedException   ($eString, 0, $eLevel, $eString, $eLine);
-            default:
-                $eLevel = "UNKNOWN ($eLevel)";
-                throw new \ErrorException            ($eString, 0, $eLevel, $eString, $eLine);
-
-        }
+        throw new \ErrorException            ($eString, 0, $eLevel, $eFile, $eLine);
     }
 
     public function exception($exception)
     {
+        fDebug($exception);
+
         $this->eLevel = get_class($exception);
 
         $this->eString = method_exists($exception, 'getMessage')
