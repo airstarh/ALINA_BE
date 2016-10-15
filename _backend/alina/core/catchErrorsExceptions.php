@@ -47,7 +47,7 @@ class catchErrorsExceptions
 
     public function error($eLevel, $eString, $eFile, $eLine, $eContext)
     {
-        throw new \ErrorException            ($eString, 0, $eLevel, $eFile, $eLine);
+        throw new \ErrorException ($eString, 0, $eLevel, $eFile, $eLine);
     }
 
     public function exception($exception)
@@ -68,11 +68,11 @@ class catchErrorsExceptions
             ? $exception->getLine()
             : -1;
 
-        $this->eTrace = method_exists($exception, 'getTraceAsString')
+        $this->eTrace        = method_exists($exception, 'getTraceAsString')
             ? $exception->getTraceAsString()
             : 'Trace is unavailable';
-
-        $this->message       = 'Exception thrown: %s, %s, in %s at line %d. Trace: ' . PHP_EOL . '%s';
+        $NL                  = PHP_EOL;
+        $this->message       = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
         $this->messageParams = [
             $this->eLevel,
             $this->eString,

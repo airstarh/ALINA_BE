@@ -5,14 +5,16 @@
  * If path does not exist, creates the path too.
  * PHP mkdir() cannot create a subdirectory if upper directory does not exist.
  */
-function mkChainedDirIfNotExists($fullPath) {
-    $fullPath = normalPath($fullPath);
+function mkChainedDirIfNotExists($fullPath)
+{
+    $fullPath = normalizePath($fullPath);
 
     $pathParts = explode(DIRECTORY_SEPARATOR, $fullPath);
-    $chain = array();
+    $chain     = [];
     foreach ($pathParts as $dir) {
-        if (empty($dir)) continue;
-        $chain[] = $dir;
+        if (empty($dir))
+            continue;
+        $chain[]   = $dir;
         $chainPath = implode(DIRECTORY_SEPARATOR, $chain);
         if (!is_dir($chainPath)) {
             mkdir($chainPath);
@@ -20,7 +22,7 @@ function mkChainedDirIfNotExists($fullPath) {
     }
 
     if (!is_dir($fullPath)) {
-        mkdir($fullPath, 0777, true);
+        mkdir($fullPath, 0777, TRUE);
     }
 }
 
@@ -28,9 +30,11 @@ function mkChainedDirIfNotExists($fullPath) {
  * Path adaptation for Windows AND (*nix OR Mac).
  * Normalize path string for various path separators.
  */
-function normalPath($path) {
+function normalizePath($path)
+{
     $path = str_replace('\\', DIRECTORY_SEPARATOR, $path);
     $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+
     return $path;
 }
 
@@ -38,11 +42,14 @@ function normalPath($path) {
  * Remove even not empty directories.
  * PHP rmdir() cannot delete not empty directory.
  */
-function rmDirCompletely($path) {
-    foreach(scandir($path) as $file) {
-        if ('.' === $file || '..' === $file) continue;
-        $curPath = $path.DIRECTORY_SEPARATOR.$file;
-        if (is_dir($curPath)) rmDirCompletely($curPath);
+function rmDirCompletely($path)
+{
+    foreach (scandir($path) as $file) {
+        if ('.' === $file || '..' === $file)
+            continue;
+        $curPath = $path . DIRECTORY_SEPARATOR . $file;
+        if (is_dir($curPath))
+            rmDirCompletely($curPath);
         else unlink($curPath);
     }
     rmdir($path);
@@ -53,27 +60,28 @@ function rmDirCompletely($path) {
  * If yes: add microtime suffix to file name until name becomes unique.
  * @return string file name.
  */
-function unifyFileName($dir, $fileName) {
-    $dir = normalPath($dir);
+function unifyFileName($dir, $fileName)
+{
+    $dir            = normalizePath($dir);
     $uniqueFileName = $fileName;
-    $repeat = TRUE;
+    $repeat         = TRUE;
     do {
-        $dirFile = $dir.DIRECTORY_SEPARATOR.$uniqueFileName;
+        $dirFile = $dir . DIRECTORY_SEPARATOR . $uniqueFileName;
         if (file_exists($dirFile)) {
 
             // Build suffix
             list($usec, $sec) = explode(" ", microtime());
             $suffix = $sec;
             $suffix .= '-';
-            $suffix .= str_replace(array('.',','), '', $usec);
+            $suffix .= str_replace(['.', ','], '', $usec);
 
             // Build new file name
-            $fileParts = pathinfo($fileName);
-            $newFileName  = '';
+            $fileParts   = pathinfo($fileName);
+            $newFileName = '';
             $newFileName .= $fileParts['filename'];
             $newFileName .= '-';
             $newFileName .= $suffix;
-            $newFileName .= (isset($fileParts['extension'])) ? '.'.$fileParts['extension'] : '';
+            $newFileName .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
 
             $uniqueFileName = $newFileName;
         }
@@ -81,6 +89,7 @@ function unifyFileName($dir, $fileName) {
             $repeat = FALSE;
         }
     } while ($repeat);
+
     return $uniqueFileName;
 }
 
@@ -88,9 +97,23 @@ function unifyFileName($dir, $fileName) {
  * Retrieve file extension in upper case
  * or empty string '';
  */
-function fileEXT($filePath) {
+function fileEXT($filePath)
+{
     $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-    return strtoupper($extension);
-}
-#end region Real file system
 
+    return strtolower($extension);
+}
+
+function mkFileIfNotExists($path)
+{
+    $path     = normalizePath($path);
+    if (!file_exists($path)) {
+        $pathInfo = pathinfo($path);
+        $dir      = $pathInfo['dirname'];
+        mkChainedDirIfNotExists($dir);
+        if (FALSE === file_put_contents($path, NULL)) {
+            throw new \Exception("Unable to create file {$pathInfo}");
+        }
+    }
+    return realpath($path);
+}

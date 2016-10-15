@@ -41,7 +41,7 @@ class root
         echo '<pre>';
         print_r([
                     '$flagCollectionInSession' => \alina\core\message::$flagCollectionInSession,
-                    '$collection' => \alina\core\message::$collection,
+                    '$collection' => \alina\core\message::returnAllHtmlString(),
                 ]);
         echo '</pre>';
 

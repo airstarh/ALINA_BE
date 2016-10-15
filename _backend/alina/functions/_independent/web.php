@@ -174,7 +174,7 @@ function routeConverter($fromMask, $source, $toMask)
 
 #endregion URL's, Aliases, Routes
 
-function alinaGetTemplate($fileFullPath, $data = NULL)
+function template($fileFullPath, $data = NULL)
 {
     ob_start();
     ob_implicit_flush(FALSE);

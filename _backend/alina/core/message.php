@@ -5,13 +5,7 @@ class message
 {
     const MESSAGES = 'ALINA_MESSAGES';
 
-    public $id;
-    public $text     = '';
-    public $params   = [];
-    public $status   = 'green';
-    public $statuses = ['green', 'yellow', 'red'];
-    public $isShown  = FALSE;
-
+    #region Fasade (Collection)
     /**
      * @property array
      * Contains array of \alina\core\message objects
@@ -30,7 +24,43 @@ class message
         $_this->addToCollection();
     }
 
-    public function getCollection()
+    static public function returnAllHtmlString()
+    {
+        $collection = static::getCollection();
+
+        $all = '';
+        /** @var \alina\core\message $message */
+        foreach ($collection as $pseudoId => $message) {
+            if (!$message->isShown) {
+                $all .= $message->messageHtml();
+                $message->isShown = TRUE;
+            }
+        }
+
+        return $all;
+    }
+
+    static public function returnAllJsonString()
+    {
+        $collection = static::getCollection();
+
+        $all = [];
+        /** @var \alina\core\message $message */
+        foreach ($collection as $pseudoId => $message) {
+            if (!$message->isShown) {
+                $all[]            = [
+                    'text'   => $message->messageRawText(),
+                    'status' => $message->status,
+                    'id'     => $message->id,
+                ];
+                $message->isShown = TRUE;
+            }
+        }
+
+        return json_encode($all);
+    }
+
+    static public function getCollection()
     {
         try {
             if (\alina\core\session::has(static::MESSAGES)) {
@@ -48,7 +78,7 @@ class message
         return static::$collection;
     }
 
-    protected function setCollectionToSession()
+    static protected function setCollectionToSession()
     {
         try {
             if (\alina\core\session::set(static::MESSAGES, static::$collection))
@@ -59,13 +89,51 @@ class message
         }
     }
 
+    static public function removeAll(){
+        static::$collection = static::getCollection();
+        static::$collection = [];
+        static::setCollectionToSession();
+    }
+
+    static public function removeById($id){
+        static::$collection = static::getCollection();
+        foreach (static::$collection as $pseudoId => $message) {
+            if ($message->id == $id) {
+                unset(static::$collection[$pseudoId]);
+                static::setCollectionToSession();
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+    #endregion Fasade (Collection)
+
+    #region Message Object
+    public $id;
+    public $text     = '';
+    public $params   = [];
+    public $status   = 'green';
+    public $statuses = ['green', 'yellow', 'red'];
+    public $isShown  = FALSE;
+
     public function addToCollection()
     {
-        static::$collection   = $this->getCollection();
+        static::$collection   = static::getCollection();
         static::$collection[] = $this;
         $lastId               = end(static::$collection);
         $lastId               = key(static::$collection);
         $this->id             = $lastId;
-        $this->setCollectionToSession();
+        static::setCollectionToSession();
     }
+
+    public function messageRawText()
+    {
+        return vsprintf($this->text, $this->params);
+    }
+
+    public function messageHtml()
+    {
+        return template(PATH_TO_ALINA_BACKEND_DIR . '/core/mvc/template/_system/message.php', $this);
+    }
+    #endregion Message Object
 }

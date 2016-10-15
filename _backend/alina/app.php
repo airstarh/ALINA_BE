@@ -67,7 +67,7 @@ class app
 
     protected function setConfig($config = [])
     {
-        $defaultConfigPath   = normalPath(__DIR__ . '/configs/default.php');
+        $defaultConfigPath   = normalizePath(__DIR__ . '/configs/default.php');
         $defaultConfig       = require($defaultConfigPath);
         $this->configDefault = $defaultConfig;
         $this->config        = arrayMergeRecursive($this->configDefault, $config);
