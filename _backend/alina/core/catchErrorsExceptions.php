@@ -1,6 +1,6 @@
 <?php
 
-namespace alina\core;
+namespace alina;
 
 class catchErrorsExceptions
 {
@@ -90,7 +90,7 @@ class catchErrorsExceptions
     public function prepareError()
     {
         $this->messageString = vsprintf($this->message, $this->messageParams);
-        \alina\core\message::set($this->message, $this->messageParams, 'red');
+        \alina\message::set($this->message, $this->messageParams, 'red');
 
         $config = \alina\app::getConfig('debug');
         if (in_array(TRUE, $config)) {

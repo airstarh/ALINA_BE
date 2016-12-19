@@ -1,5 +1,5 @@
 <?php
-namespace alina\core;
+namespace alina;
 
 class router
 {
@@ -62,7 +62,7 @@ class router
      */
     static public function obj()
     {
-        if (!isset(static::$instance) || !is_a(static::$instance, '\alina\core\router')) {
+        if (!isset(static::$instance) || !is_a(static::$instance, '\alina\router')) {
             static::$instance = new static();
         }
         return static::$instance;

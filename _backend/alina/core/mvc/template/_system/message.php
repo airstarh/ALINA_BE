@@ -1,8 +1,8 @@
-<?php /** @var \alina\core\message $data */ ?>
+<?php /** @var \alina\message $data */ ?>
 <div class="<?= $data->status ?>" id="message-id-<?= $data->id ?>">
     <pre><?= $data->messageRawText() ?></pre>
 </div>
 
 <?php
-\alina\core\message::removeById($data->id);
+\alina\message::removeById($data->id);
 ?>

@@ -1,6 +1,6 @@
 <?php
 
-namespace alina\core\mvc\controller;
+namespace alina\mvc\controller;
 
 
 class root
@@ -40,8 +40,8 @@ class root
         print_r('<h2>Message Collection</h2>');
         echo '<pre>';
         print_r([
-                    '$flagCollectionInSession' => \alina\core\message::$flagCollectionInSession,
-                    '$collection' => \alina\core\message::returnAllHtmlString(),
+                    '$flagCollectionInSession' => \alina\message::$flagCollectionInSession,
+                    '$collection' => \alina\message::returnAllHtmlString(),
                 ]);
         echo '</pre>';
 

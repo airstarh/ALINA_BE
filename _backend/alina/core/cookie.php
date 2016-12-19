@@ -1,6 +1,6 @@
 <?php
 
-namespace alina\core;
+namespace alina;
 
 
 class cookie

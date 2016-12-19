@@ -1,5 +1,5 @@
 <?php
 
-namespace alina\core;
+namespace alina;
 
 class exception extends \ErrorException {}

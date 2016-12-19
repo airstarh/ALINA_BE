@@ -1,5 +1,5 @@
 <?php
-namespace alina\core;
+namespace alina;
 
 class message
 {
@@ -8,7 +8,7 @@ class message
     #region Fasade (Collection)
     /**
      * @property array
-     * Contains array of \alina\core\message objects
+     * Contains array of \alina\message objects
      **/
     static public $collection                = [];
     static public $flagCollectionInSession   = FALSE;
@@ -29,7 +29,7 @@ class message
         $collection = static::getCollection();
 
         $all = '';
-        /** @var \alina\core\message $message */
+        /** @var \alina\message $message */
         foreach ($collection as $pseudoId => $message) {
             if (!$message->isShown) {
                 $all .= $message->messageHtml();
@@ -45,7 +45,7 @@ class message
         $collection = static::getCollection();
 
         $all = [];
-        /** @var \alina\core\message $message */
+        /** @var \alina\message $message */
         foreach ($collection as $pseudoId => $message) {
             if (!$message->isShown) {
                 $all[]            = [
@@ -63,8 +63,8 @@ class message
     static public function getCollection()
     {
         try {
-            if (\alina\core\session::has(static::MESSAGES)) {
-                static::$collection              = \alina\core\session::get(static::MESSAGES);
+            if (\alina\session::has(static::MESSAGES)) {
+                static::$collection              = \alina\session::get(static::MESSAGES);
                 static::$flagCollectionInSession = TRUE;
             }
             else {
@@ -81,7 +81,7 @@ class message
     static protected function setCollectionToSession()
     {
         try {
-            if (\alina\core\session::set(static::MESSAGES, static::$collection))
+            if (\alina\session::set(static::MESSAGES, static::$collection))
                 static::$flagCollectionInSession = TRUE;
         }
         catch (\Exception $e) {

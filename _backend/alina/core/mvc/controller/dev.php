@@ -1,6 +1,6 @@
 <?php
 
-namespace alina\core\mvc\controller;
+namespace alina\mvc\controller;
 
 
 class dev
@@ -25,10 +25,10 @@ class dev
 
     public function actionTestCookie()
     {
-        \alina\core\cookie::setPath('a/b/c/a1', 111);
-        \alina\core\cookie::setPath('a/b/c/a2', 222);
-        \alina\core\cookie::setPath('a/b/c1/a1', 333);
-        \alina\core\cookie::deletePath('a/b/c');
+        \alina\cookie::setPath('a/b/c/a1', 111);
+        \alina\cookie::setPath('a/b/c/a2', 222);
+        \alina\cookie::setPath('a/b/c1/a1', 333);
+        \alina\cookie::deletePath('a/b/c');
 
         echo '<pre>';
         print_r($_COOKIE);
