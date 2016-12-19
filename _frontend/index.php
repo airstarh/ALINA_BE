@@ -14,9 +14,9 @@ define('ALINA_ENV', 'HOME');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
-        define('PATH_TO_ALINA_BACKEND_DIR', 'E:\___projects\alina\_backend\alina');
-        define('PATH_TO_APP_DIR', 'E:\___projects\alina\_backend\_aplications\zero');
-        define('PATH_TO_APP_CONFIG_FILE', 'E:\___projects\alina\_backend\_aplications\zero\configs\default.php');
+        define('PATH_TO_ALINA_BACKEND_DIR', 'G:\_repositories\alina\_backend\alina');
+        define('PATH_TO_APP_DIR', 'G:\_repositories\alina\_backend\_aplications\zero');
+        define('PATH_TO_APP_CONFIG_FILE', 'G:\_repositories\alina\_backend\_aplications\zero\configs\default.php');
         define('PATH_TO_FRONT_END_ROOT', __DIR__);
         break;
 }
@@ -26,6 +26,7 @@ $config = require(PATH_TO_APP_CONFIG_FILE);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
 
 
+// ToDo: Delete later
 if (ALINA_MODE !== 'PROD') {
     print_r('<h1>FROM INDEX:::</h1>');
     echo '<pre>';
