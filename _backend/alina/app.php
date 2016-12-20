@@ -15,8 +15,8 @@ class app
         $this->init();
         $this->autoload($config);
         $this->setConfig($config);
-        set_exception_handler([\alina\catchErrorsExceptions::obj(), 'exception']);
-        set_error_handler([\alina\catchErrorsExceptions::obj(), 'error']);
+        set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
+        set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
     }
 
     public function init()

@@ -2,9 +2,8 @@
 
 namespace alina;
 
-class catchErrorsExceptions
+class exceptionCatcher
 {
-    static protected $instance = NULL;
     protected        $exit     = FALSE;
     protected        $message  = '';
 
@@ -34,15 +33,11 @@ class catchErrorsExceptions
 
 
     /**
-     * $return static object
+     * @return static object
      */
     static public function obj()
     {
-        if (NULL === static::$instance) {
-            static::$instance = new static;
-        }
-
-        return static::$instance;
+        return new static;
     }
 
     public function error($eLevel, $eString, $eFile, $eLine, $eContext)
@@ -52,8 +47,6 @@ class catchErrorsExceptions
 
     public function exception($exception)
     {
-        fDebug($exception);
-
         $this->eLevel = get_class($exception);
 
         $this->eString = method_exists($exception, 'getMessage')

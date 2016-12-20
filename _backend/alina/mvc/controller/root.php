@@ -40,9 +40,9 @@ class root
         print_r('<h2>Message Collection</h2>');
         echo '<pre>';
         print_r([
-                    '$flagCollectionInSession' => \alina\message::$flagCollectionInSession,
-                    '$collection' => \alina\message::returnAllHtmlString(),
-                ]);
+            '$flagCollectionInSession' => \alina\message::$flagCollectionInSession,
+            '$collection'              => \alina\message::returnAllHtmlString(),
+        ]);
         echo '</pre>';
 
         print_r('<h2>$_SESSION</h2>');
