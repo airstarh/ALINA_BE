@@ -1,7 +1,6 @@
 <?php
 
-namespace zero\core\mvc\controller;
-
+namespace zero\mvc\controller;
 
 class main
 {

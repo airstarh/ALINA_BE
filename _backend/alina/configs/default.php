@@ -21,10 +21,10 @@ switch (ALINA_ENV) {
                 'pageExceptionController' => 'root',
                 'pageExceptionAction'     => 'Exception',
                 'structure'               => [
-                    'controller' => 'core\\mvc\\controller',
-                    'model'      => 'core\\mvc\\model',
-                    'view'       => 'core\\mvc\\view',
-                    'template'   => 'core\\mvc\\template',
+                    'controller' => 'mvc\\controller',
+                    'model'      => 'mvc\\model',
+                    'view'       => 'mvc\\view',
+                    'template'   => 'mvc\\template',
                 ],
             ],
 
