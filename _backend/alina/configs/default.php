@@ -5,7 +5,7 @@ switch (ALINA_ENV) {
             'db'           => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
-                'database'  => 'database',
+                'database'  => 'alina',
                 'username'  => 'root',
                 'password'  => '',
                 'charset'   => 'utf8',

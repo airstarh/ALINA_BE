@@ -77,12 +77,8 @@ class router
             if (isset($path[$order])) {
                 return $path[$order];
             }
-            else {
-                return FALSE;
-            }
         }
-        else {
-            return FALSE;
-        }
+
+        return FALSE;
     }
 }

@@ -93,6 +93,7 @@ class app
     }
 
     /**
+     * @param array $config
      * @return \alina\app
      */
     static public function set($config)
