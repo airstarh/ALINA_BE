@@ -3,15 +3,9 @@
 namespace alina\mvc\controller;
 
 
-class example
+class exampleCookie
 {
-    public function actionTest()
-    {
-
-    }
-
-
-    public function actionTestCookie()
+    public function actionCookie()
     {
         \alina\cookie::setPath('a/b/c/a1', 111);
         \alina\cookie::setPath('a/b/c/a2', 222);

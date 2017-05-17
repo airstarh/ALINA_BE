@@ -16,7 +16,7 @@ switch (ALINA_ENV) {
         define('ALINA_MODE', 'dev');
         define('PATH_TO_ALINA_BACKEND_DIR', 'C:\_REPO\ALINA\_backend\alina');
         define('PATH_TO_APP_DIR', 'C:\_REPO\ALINA\_backend\_aplications\zero');
-        define('PATH_TO_APP_CONFIG_FILE', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php');
+        define('PATH_TO_APP_CONFIG_FILE', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
         define('PATH_TO_FRONT_END_ROOT', __DIR__);
         break;
 }

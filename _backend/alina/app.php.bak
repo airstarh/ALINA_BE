@@ -59,18 +59,7 @@ class app
             if (file_exists($classPath)) {
                 require_once $classPath;
             }
-
-            // For Vendors
-//            $className = ltrim($class, '\\');
-//            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-//            $classFile = $className . $extension;
-//            $classPath = PATH_TO_ALINA_BACKEND_DIR .DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . $classFile;
-//            if (file_exists($classPath)) {
-//                require_once $classPath;
-//            }
         });
-
-        require_once  __DIR__ . '/vendor/autoload.php';
     }
 
     public $config        = [];
@@ -105,7 +94,6 @@ class app
 
     /**
      * @param array $config
-     * @return \alina\app
      */
     static public function set($config)
     {

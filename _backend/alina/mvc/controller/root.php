@@ -15,15 +15,15 @@ class root
     public function action404()
     {
         echo '<pre>';
-        print_r('404 Page not found.');
+        print_r('Alina core 404. Page not found.');
         echo '</pre>';
     }
 
     public function actionException()
     {
 
+        echo json_encode(func_get_args());
         if (isAjax()) {
-            echo json_encode(func_get_args());
 
             return TRUE;
         }
@@ -44,6 +44,10 @@ class root
             '$collection'              => \alina\message::returnAllHtmlString(),
         ]);
         echo '</pre>';
+
+        if (ALINA_MODE === 'PROD') {
+            return NULL;
+        }
 
         print_r('<h2>$_SESSION</h2>');
         echo '<pre>';
