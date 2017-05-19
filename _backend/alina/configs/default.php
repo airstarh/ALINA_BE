@@ -2,6 +2,8 @@
 switch (ALINA_ENV) {
     case  'HOME':
         return [
+            'appNamespace' => 'alina',
+            'title' => 'Alina: another PHP framework. Powered by OrcTechService.',
             'db'           => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
@@ -12,7 +14,6 @@ switch (ALINA_ENV) {
                 'collation' => 'utf8_unicode_ci',
                 'prefix'    => '',
             ],
-            'appNamespace' => 'alina',
             'mvc'          => [
                 'defaultController'       => 'root',
                 'defaultAction'           => 'Index',
@@ -20,14 +21,18 @@ switch (ALINA_ENV) {
                 'pageNotFoundAction'      => '404',
                 'pageExceptionController' => 'root',
                 'pageExceptionAction'     => 'Exception',
+
+                // Relative Class Namespace Path.
                 'structure'               => [
-                    'controller' => 'mvc\\controller',
-                    'model'      => 'mvc\\model',
-                    'view'       => 'mvc\\view',
-                    'template'   => 'mvc\\template',
+                    'controller' => 'mvc\controller',
+                    'model'      => 'mvc\model',
+                    'view'       => 'mvc\view',
+                    'template'   => 'mvc\template',
                 ],
             ],
 
+
+            // Routes, Aliases.
             'forceSysPathToAlias' => TRUE,
             'vocAliasUrl'         => [
                 'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
@@ -39,13 +44,7 @@ switch (ALINA_ENV) {
                 'toFile' => TRUE,
             ],
 
-            'page' => [
-                // All templates are stored:
-                'templateDir'           => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'template',
-                // Controller template directory name.
-                'templateDirController' => '', // Is set by Controller's constructor.
-
-                'template' => 'layout',
+            'html' => [
                 'css'      => [
                     // jQ UI
                     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css',

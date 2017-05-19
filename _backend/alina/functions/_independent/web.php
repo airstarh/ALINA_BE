@@ -2,10 +2,9 @@
 
 function ref($url)
 {
-    if (startsWith($url, 'http://')
-        || startsWith($url, 'https://')
-    )
+    if (startsWith($url, 'http://') || startsWith($url, 'https://'))
         return $url;
+
     $url = ltrim($url, '/');
 
     return "//{$_SERVER['HTTP_HOST']}/{$url}";
@@ -99,8 +98,7 @@ function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = TRU
 
             if ($aliasToSystemRoute) {
                 return aliasToUrl($aliasMask, $url, $urlMask);
-            }
-            else {
+            } else {
                 return urlToAlias($urlMask, $url, $aliasMask);
             }
         }
@@ -117,8 +115,7 @@ function routeRegExp($string)
     foreach ($parts as $v) {
         if ($v === ':p' || FALSE !== strpos($v, ':p')) {
             $regularExpression[] = '.+?';
-        }
-        else {
+        } else {
             $regularExpression[] = $v;
         }
     }
@@ -163,8 +160,7 @@ function routeConverter($fromMask, $source, $toMask)
     foreach ($toMaskArray as $i => $pN) {
         if (FALSE !== strpos($pN, ':p')) {
             $convertedResult[] = $_parameters[$pN];
-        }
-        else {
+        } else {
             $convertedResult[] = $pN;
         }
     }

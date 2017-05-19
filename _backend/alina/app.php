@@ -70,7 +70,7 @@ class app
 //            }
         });
 
-        require_once  __DIR__ . '/vendor/autoload.php';
+        require_once __DIR__ . '/vendor/autoload.php';
     }
 
     public $config        = [];
@@ -137,6 +137,53 @@ class app
 
     #endregion Config manipulations
 
+    #region Namespace Resolver
+    public function resolveClassName($nsPath)
+    {
+        $ns       = static::getConfig('appNamespace');
+        $fullPath = buildClassNameFromBlocks($ns, $nsPath);
+        if (class_exists($fullPath)) {
+            return $fullPath;
+        }
+
+        $ns       = static::getConfigDefault('appNamespace');
+        $fullPath = buildClassNameFromBlocks($ns, $nsPath);
+        if (class_exists($fullPath)) {
+            return $fullPath;
+        }
+
+        if (class_exists($nsPath)) {
+            return $nsPath;
+        }
+
+        throw new \ErrorException("Relative Class {$nsPath} is not defined.");
+    }
+    #endregion Namespace Resolver
+
+    #region Paths Resolver
+    public function resolvePath($path)
+    {
+        // -Check if Path exists in User Application directory.
+        $fullPath = buildPathFromBlocks(PATH_TO_APP_DIR, $path);
+        if (FALSE !== ($rp = realpath($fullPath))) {
+            return $rp;
+        }
+
+        // -Check if Path exists in Alina directory.
+        $fullPath = buildPathFromBlocks(PATH_TO_ALINA_BACKEND_DIR, $path);
+        if (FALSE !== ($rp = realpath($fullPath))) {
+            return $rp;
+        }
+
+        // -Check if Path exists as is.
+        if (FALSE !== ($rp = realpath($path))) {
+            return $rp;
+        }
+
+        throw new \ErrorException("Relative Path {$path} is not defined.");
+    }
+    #endregion Paths Resolver
+
     #region Routes
     /** @var \alina\router */
     public $router;
@@ -188,6 +235,7 @@ class app
 
     public function fullActionName($name)
     {
+        //ToDo: Case sensitive methods!
         return static::ACTION_PREFIX . ucfirst($name);
     }
 
@@ -292,7 +340,7 @@ class app
                 return $this->mvcControllerAction($controller, $action);
             }
             catch (\alina\exception $e) {
-                throw new \Exception('Total Fail');
+                throw new \Exception('Alina Total Fail');
             }
         }
 

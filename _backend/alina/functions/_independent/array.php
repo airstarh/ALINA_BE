@@ -153,7 +153,7 @@ function arrayMergeRecursive(array $array1, array $array2)
     $merged = $array1;
 
     foreach ($array2 as $key => & $value) {
-        if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+        if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && !is_numeric($key)) {
             $merged[$key] = arrayMergeRecursive($merged[$key], $value);
         }
         else if (is_numeric($key)) {

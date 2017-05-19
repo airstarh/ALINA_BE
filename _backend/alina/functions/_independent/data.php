@@ -23,7 +23,6 @@ function toArray($v)
 
 function toObject($v)
 {
-
     if (is_object($v))
         return $v;
 

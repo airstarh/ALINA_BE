@@ -84,8 +84,7 @@ function unifyFileName($dir, $fileName)
             $newFileName .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
 
             $uniqueFileName = $newFileName;
-        }
-        else {
+        } else {
             $repeat = FALSE;
         }
     } while ($repeat);
@@ -106,7 +105,7 @@ function fileEXT($filePath)
 
 function mkFileIfNotExists($path)
 {
-    $path     = normalizePath($path);
+    $path = normalizePath($path);
     if (!file_exists($path)) {
         $pathInfo = pathinfo($path);
         $dir      = $pathInfo['dirname'];
@@ -115,5 +114,31 @@ function mkFileIfNotExists($path)
             throw new \Exception("Unable to create file {$pathInfo}");
         }
     }
+
     return realpath($path);
+}
+
+/**
+ * @see buildClassNameFromBlocks
+ */
+function buildPathFromBlocks()
+{
+    $args = func_get_args();
+    $blocks  = [];
+    foreach ($args as $block) {
+        if (is_array($block)) {
+            $blocks = array_merge($blocks, $block);
+        } else {
+            $blocks[] = $block;
+        }
+    }
+
+    foreach ($blocks as $i => $block) {
+        $blocks[$i] = normalizePath($block);
+        $blocks[$i] = trim($block, DIRECTORY_SEPARATOR);
+    }
+
+    $path = implode(DIRECTORY_SEPARATOR, $blocks);
+
+    return $path;
 }

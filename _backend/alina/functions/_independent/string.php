@@ -3,7 +3,7 @@
 function startsWith($haystack, $needle)
 {
     $length = strlen($needle);
-    return (substr($haystack, 0, $length) === (string)$needle);
+    return (mb_substr($haystack, 0, $length) === (string)$needle);
 }
 
 function endsWith($haystack, $needle)
@@ -13,5 +13,5 @@ function endsWith($haystack, $needle)
         return true;
     }
 
-    return (substr($haystack, -$length) === (string)$needle);
+    return (mb_substr($haystack, -$length) === (string)$needle);
 }
