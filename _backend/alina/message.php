@@ -1,18 +1,19 @@
 <?php
+// ToDo: Think when to use static::removeById($message->id);
+
 namespace alina;
 
 class message
 {
     const MESSAGES = 'ALINA_MESSAGES';
 
-    #region Fasade (Collection)
+    #region Facade (Collection)
     /**
      * @property array
      * Contains array of \alina\message objects
      **/
-    static public $collection                = [];
-    static public $flagCollectionInSession   = FALSE;
-    static public $flagCollectionHasMessages = FALSE;
+    static protected $collection              = [];
+    static public    $flagCollectionInSession = FALSE;
 
     static public function set($text, $params = [], $status = 'green')
     {
@@ -43,8 +44,7 @@ class message
     static public function returnAllJsonString()
     {
         $collection = static::getCollection();
-
-        $all = [];
+        $all        = [];
         /** @var \alina\message $message */
         foreach ($collection as $pseudoId => $message) {
             if (!$message->isShown) {
@@ -54,6 +54,7 @@ class message
                     'id'     => $message->id,
                 ];
                 $message->isShown = TRUE;
+                static::removeById($message->id);
             }
         }
 
@@ -62,16 +63,10 @@ class message
 
     static public function getCollection()
     {
-        try {
-            if (\alina\session::has(static::MESSAGES)) {
-                static::$collection              = \alina\session::get(static::MESSAGES);
-                static::$flagCollectionInSession = TRUE;
-            }
-            else {
-                static::$flagCollectionInSession = FALSE;
-            }
-        }
-        catch (\Exception $e) {
+        if (\alina\session::has(static::MESSAGES)) {
+            static::$collection              = \alina\session::get(static::MESSAGES);
+            static::$flagCollectionInSession = TRUE;
+        } else {
             static::$flagCollectionInSession = FALSE;
         }
 
@@ -89,24 +84,26 @@ class message
         }
     }
 
-    static public function removeAll(){
+    static public function removeAll()
+    {
         static::$collection = static::getCollection();
         static::$collection = [];
         static::setCollectionToSession();
     }
 
-    static public function removeById($id){
+    static public function removeById($id)
+    {
         static::$collection = static::getCollection();
-        foreach (static::$collection as $pseudoId => $message) {
-            if ($message->id == $id) {
-                unset(static::$collection[$pseudoId]);
-                static::setCollectionToSession();
-                return TRUE;
-            }
+        if (array_key_exists($id, static::$collection)) {
+            unset(static::$collection[$id]);
+            static::setCollectionToSession();
+
+            return TRUE;
         }
+
         return FALSE;
     }
-    #endregion Fasade (Collection)
+    #endregion Facade (Collection)
 
     #region Message Object
     public $id;
@@ -133,7 +130,7 @@ class message
 
     public function messageHtml()
     {
-        return template(PATH_TO_ALINA_BACKEND_DIR . '/mvc/template/_system/message.php', $this);
+        return template(PATH_TO_ALINA_BACKEND_DIR . '/mvc/template/_system/html/message.php', $this);
     }
     #endregion Message Object
 }

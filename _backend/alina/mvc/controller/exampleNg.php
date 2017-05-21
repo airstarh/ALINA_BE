@@ -7,7 +7,7 @@ class exampleNg
 {
     public function actionIndex()
     {
-        $p = 'exampleNg/index.php';
+        $p = 'exampleNg/fullHtmlLayout.php';
         echo (new \alina\mvc\view\html)->piece($p);
     }
 

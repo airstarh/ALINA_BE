@@ -1,9 +1,9 @@
-<?php  /** @var $data \alina\mvc\view\html */ ?>
+<?php /** @var $data \alina\mvc\view\html */ ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
     <title><?= \alina\app::getConfig('title'); ?></title>
     <?= $data->css(); ?>
     <?= $data->js(); ?>
@@ -12,14 +12,28 @@
 <div class="body_wrapper">
     <div class="page-content">
         <h1><?= \alina\app::getConfig('title'); ?></h1>
-        <br/>
-        <h2>
-            <a href="<?= ref('/'); ?>">Go Home Page</a>
-        </h2>
-        <br/>
+        <div><a href="<?= ref('/'); ?>">Go Home</a></div>
+        <?= $data->messages(); ?>
         <?= $data->content; ?>
-        <br/>
     </div>
+</div>
+<div>
+    <?php
+    // ToDo: Delete on PROD.
+    if (ALINA_MODE !== 'PROD') {
+        print_r('<h1>FROM INDEX:::</h1>');
+        echo '<pre>';
+        print_r(\alina\app::get()->router);
+        echo '</pre>';
+
+        echo '<pre>';
+        print_r([
+                'currentController' => \alina\app::get()->currentController,
+                'currentAction' => \alina\app::get()->currentAction,
+        ]);
+        echo '</pre>';
+    }
+    ?>
 </div>
 </body>
 </html>

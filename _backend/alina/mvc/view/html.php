@@ -23,8 +23,8 @@ class html
     public function __construct()
     {
         $this->mvcTemplateRoot   = \alina\app::getConfig('mvc/structure/template');
-        $this->currentController = \alina\app::get()->router->controller;
-        $this->currentAction     = \alina\app::get()->router->action;
+        $this->currentController = shortClassName(\alina\app::get()->currentController);
+        $this->currentAction     = \alina\app::get()->currentAction;
     }
     #endregion Init
 
@@ -43,14 +43,17 @@ class html
         return TRUE;
     }
 
+    // ToDo: Case-sensitive file systems?
     public function controllerAction($data = NULL, $blockLayout = FALSE)
     {
         if (empty($blockLayout)) {
             $c = $this->currentController;
-            $a = $this->currentAction ? $this->currentAction : \alina\app::getConfig('mvc/defaultAction');
+            $a = $this->currentAction;
             $a .= ".{$this->ext}";
+
             $blockLayout = buildPathFromBlocks($c, $a);
         }
+
 
         return $this->piece($blockLayout, $data);
     }
@@ -71,7 +74,12 @@ class html
     #endregion Blocks Generation
 
     #region HTML page specials (css, js, etc.)
-    public function css() {return '';}
-    public function js() {return '';}
+    // ToDo: Complete.
+    public function css() { return ''; }
+
+    // ToDo: Complete.
+    public function js() { return ''; }
+
+    public function messages() { return \alina\message::returnAllHtmlString(); }
     #endregion HTML page specials (css, js, etc.)
 }

@@ -17,6 +17,12 @@ class session
         return getArrayValue($path, $_SESSION);
     }
 
+    static public function delete($path)
+    {
+        static::start();
+        return unsetArrayPath($path, $_SESSION);
+    }
+
     static public function has($path)
     {
         static::start();

@@ -70,6 +70,7 @@ class app
 //            }
         });
 
+        // ToDo: Resolve for Application!!!
         require_once __DIR__ . '/vendor/autoload.php';
     }
 
@@ -213,9 +214,10 @@ class app
     #region MVC
     public $controller;
     public $action;
-    public $actionParams = [];
-    const ACTION_PREFIX  = 'action';
-    const DEFAULT_ACTION = 'index';
+    public $actionParams      = [];
+    public $currentController = '';
+    public $currentAction     = '';
+    const ACTION_PREFIX = 'action';
 
     public function mvcControllerAction($controller, $action, $params = [])
     {
@@ -229,6 +231,9 @@ class app
 
         if (!is_array($params))
             $params = [$params];
+
+        $this->currentController = $controller;
+        $this->currentAction     = $action;
 
         return call_user_func_array([$go, $action], $params);
     }
@@ -252,7 +257,7 @@ class app
             return $this->mvcPageNotFound();
         }
         if (empty($this->action)) {
-            $this->action = static::DEFAULT_ACTION;
+            $this->action = static::getConfigDefault('mvc/defaultAction');
         }
 
         // Defined by route in user app.

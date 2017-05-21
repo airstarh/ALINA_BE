@@ -5,7 +5,7 @@ namespace alina;
 class exceptionCatcher
 {
     protected        $exit     = FALSE;
-    protected        $message  = '';
+    protected $messageTmplt = '';
 
     /** @var array
      *
@@ -65,7 +65,7 @@ class exceptionCatcher
             ? $exception->getTraceAsString()
             : 'Trace is unavailable';
         $NL                  = PHP_EOL;
-        $this->message       = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
+        $this->messageTmplt       = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
         $this->messageParams = [
             $this->eLevel,
             $this->eString,
@@ -82,8 +82,8 @@ class exceptionCatcher
 
     public function prepareError()
     {
-        $this->messageString = vsprintf($this->message, $this->messageParams);
-        \alina\message::set($this->message, $this->messageParams, 'red');
+        $this->messageString = vsprintf($this->messageTmplt, $this->messageParams);
+        \alina\message::set($this->messageTmplt, $this->messageParams, 'red');
 
         $config = \alina\app::getConfig('debug');
         if (in_array(TRUE, $config)) {

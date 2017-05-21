@@ -7,9 +7,7 @@ class root
 {
     public function actionIndex()
     {
-        echo '<pre>';
-        print_r('Helow from Alina');
-        echo '</pre>';
+        echo (new \alina\mvc\view\html)->page();
     }
 
     public function action404()
@@ -21,57 +19,14 @@ class root
 
     public function actionException()
     {
-
-        echo json_encode(func_get_args());
         if (isAjax()) {
+            echo \alina\message::returnAllJsonString();
 
             return TRUE;
         }
 
-        echo '<pre>';
-        print_r('<h1>System Exception occurred</h1>');
-        echo '</pre>';
+        echo (new \alina\mvc\view\html)->page(null, 'root/actionException.php');
 
-        print_r('<h2>Arguments</h2>');
-        echo '<pre>';
-        print_r(func_get_args());
-        echo '</pre>';
-
-        print_r('<h2>Message Collection</h2>');
-        echo '<pre>';
-        print_r([
-            '$flagCollectionInSession' => \alina\message::$flagCollectionInSession,
-            '$collection'              => \alina\message::returnAllHtmlString(),
-        ]);
-        echo '</pre>';
-
-        if (ALINA_MODE === 'PROD') {
-            return NULL;
-        }
-
-        print_r('<h2>$_SESSION</h2>');
-        echo '<pre>';
-        print_r($_SESSION);
-        echo '</pre>';
-
-        print_r('<h2>$_COOKIE</h2>');
-        echo '<pre>';
-        print_r($_COOKIE);
-        echo '</pre>';
-
-        print_r('<h2>$_SERVER</h2>');
-        echo '<pre>';
-        print_r($_SERVER);
-        echo '</pre>';
-
-        print_r('<h2>$_POST</h2>');
-        echo '<pre>';
-        print_r($_POST);
-        echo '</pre>';
-
-        print_r('<h2>$_GET</h2>');
-        echo '<pre>';
-        print_r($_GET);
-        echo '</pre>';
+        return TRUE;
     }
 }
