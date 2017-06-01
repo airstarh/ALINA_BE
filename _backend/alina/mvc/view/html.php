@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ladmin
- * Date: 19.05.2017
- * Time: 6:05
- */
 
 namespace alina\mvc\view;
 
@@ -13,8 +7,6 @@ class html
 {
     #region Init
     public $mvcTemplateRoot   = '';
-    public $currentController = '';
-    public $currentAction     = '';
     public $ext               = 'php';
 
     public $htmlLayout    = '_system/html/htmlLayout.php';
@@ -23,8 +15,6 @@ class html
     public function __construct()
     {
         $this->mvcTemplateRoot   = \alina\app::getConfig('mvc/structure/template');
-        $this->currentController = shortClassName(\alina\app::get()->currentController);
-        $this->currentAction     = \alina\app::get()->currentAction;
     }
     #endregion Init
 
@@ -47,8 +37,8 @@ class html
     public function controllerAction($data = NULL, $blockLayout = FALSE)
     {
         if (empty($blockLayout)) {
-            $c = $this->currentController;
-            $a = $this->currentAction;
+            $c = shortClassName(\alina\app::get()->currentController);
+            $a = \alina\app::get()->currentAction;
             $a .= ".{$this->ext}";
 
             $blockLayout = buildPathFromBlocks($c, $a);

@@ -25,7 +25,7 @@ class root
             return TRUE;
         }
 
-        echo (new \alina\mvc\view\html)->page(null, 'root/actionException.php');
+        echo (new \alina\mvc\view\html)->page();
 
         return TRUE;
     }

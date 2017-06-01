@@ -159,6 +159,21 @@ class app
 
         throw new \ErrorException("Relative Class {$nsPath} is not defined.");
     }
+
+    /**
+     * Resolve Method Name in proper Case-Sensitive name.
+     */
+    public function resolveMethodName($classNameOrObject, $metodName)
+    {
+        $methods = get_class_methods($classNameOrObject);
+        foreach ($methods as $meth) {
+            if (strtolower($meth) === strtolower($metodName)) {
+                return $meth;
+            }
+        }
+
+        return FALSE;
+    }
     #endregion Namespace Resolver
 
     #region Paths Resolver
@@ -181,7 +196,7 @@ class app
             return $rp;
         }
 
-        throw new \ErrorException("Relative Path {$path} is not defined.");
+        throw new \ErrorException("Path {$path} is not defined.");
     }
     #endregion Paths Resolver
 
@@ -214,26 +229,30 @@ class app
     #region MVC
     public $controller;
     public $action;
-    public $actionParams      = [];
-    public $currentController = '';
-    public $currentAction     = '';
+    public $actionParams        = [];
+    public $currentController   = '';
+    public $currentAction       = '';
+    public $currentActionParams = [];
     const ACTION_PREFIX = 'action';
 
-    public function mvcControllerAction($controller, $action, $params = [])
+    public function mvcControllerAction($controllerName, $action, $params = [])
     {
-        if (!class_exists($controller, TRUE))
-            throw new \alina\exception("No Class: $controller");
+        if (!class_exists($controllerName, TRUE)) {
+            throw new \alina\exception("No Class: $controllerName");
+        }
 
-        $go = new $controller();
+        $go = new $controllerName();
 
-        if (!method_exists($go, $action))
+        if (FALSE === ($action = $this->resolveMethodName($go, $action))) {
             throw new \alina\exception("No Method: $action");
+        }
 
         if (!is_array($params))
             $params = [$params];
 
-        $this->currentController = $controller;
-        $this->currentAction     = $action;
+        $this->currentController   = get_class($go);
+        $this->currentAction       = $action;
+        $this->currentActionParams = $params;
 
         return call_user_func_array([$go, $action], $params);
     }

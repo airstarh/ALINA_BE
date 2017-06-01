@@ -10,9 +10,15 @@ class exampleCaseSensitivity
 
     }
 
-    public function actionCaseSensitive()
+    /**
+     * URLs:
+     * http://alinazero/exampleCaseSensitivity/actionCaseSensitive
+     * http://alinazero/examplecasesensitivity/casesensitive
+     */
+    public function actionTestCase()
     {
-        echo (new \alina\mvc\view\html)->page('');
+        $daya = func_get_args();
+        echo (new \alina\mvc\view\html)->page($daya);
     }
 
 }
