@@ -29,10 +29,10 @@ class router
         // Define path information
         if (isset($_GET['path']) AND !empty($_GET['path'])) {
 
-            $this->pathAlias = $_GET['path'];
+            $this->pathAlias = trim($_GET['path'], '/');
             $this->pathSys   = (isset($this->vocAliasUrl) && !empty($this->vocAliasUrl))
-                ? routeAccordance($_GET['path'], $this->vocAliasUrl)
-                : $_GET['path'];
+                ? routeAccordance($this->pathAlias, $this->vocAliasUrl)
+                : $this->pathAlias;
 
             $_pathParts     = explode('/', $this->pathSys);
             $this->pathPart = $_pathParts;

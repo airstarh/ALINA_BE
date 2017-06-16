@@ -1,17 +1,5 @@
 <?php
 
-function fullClassName($appNamespace, $path, $className)
-{
-    $n = [
-        trim($appNamespace, '\\'),
-        trim($path, '\\'),
-        trim($className, '\\'),
-    ];
-    array_filter($n);
-
-    return '\\' . implode('\\', $n);
-}
-
 function shortClassName($className)
 {
     $dirName = str_replace('\\', DIRECTORY_SEPARATOR, $className);
@@ -37,8 +25,8 @@ function returnClassMethod($class, $method, $params = [])
  */
 function buildClassNameFromBlocks()
 {
-    $args = func_get_args();
-    $blocks  = [];
+    $args   = func_get_args();
+    $blocks = [];
     foreach ($args as $block) {
         if (is_array($block)) {
             $blocks = array_merge($blocks, $block);

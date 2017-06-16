@@ -284,7 +284,7 @@ class app
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = $this->controller;
-            $controller     = fullClassName($namespace, $controllerPath, $controller);
+            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName($this->action);
             $params         = $this->actionParams;
 
@@ -296,9 +296,9 @@ class app
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = $this->controller;
-                $controller     = fullClassName($namespace, $controllerPath, $controller);
-                $action         = $this->fullActionName($this->action);;
-                $params = $this->actionParams;
+                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $action         = $this->fullActionName($this->action);
+                $params         = $this->actionParams;
 
                 return $this->mvcControllerAction($controller, $action, $params);
 
@@ -316,7 +316,7 @@ class app
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/defaultController');
-            $controller     = fullClassName($namespace, $controllerPath, $controller);
+            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
 
             return $this->mvcControllerAction($controller, $action);
@@ -327,7 +327,7 @@ class app
                 $namespace      = static::getConfigDefault(['appNamespace']);
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/defaultController');
-                $controller     = fullClassName($namespace, $controllerPath, $controller);
+                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
 
                 return $this->mvcControllerAction($controller, $action);
@@ -341,13 +341,15 @@ class app
 
     public function mvcPageNotFound()
     {
-        http_response_code(404);
+        // ToDo: line below does not wor with Nginx correct. Investigate.
+        //http_response_code(404);
+
         // 404 of user app
         try {
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/pageNotFoundController');
-            $controller     = fullClassName($namespace, $controllerPath, $controller);
+            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
 
             return $this->mvcControllerAction($controller, $action);
@@ -358,7 +360,7 @@ class app
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/pageNotFoundController');
-                $controller     = fullClassName($namespace, $controllerPath, $controller);
+                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
 
                 return $this->mvcControllerAction($controller, $action);
