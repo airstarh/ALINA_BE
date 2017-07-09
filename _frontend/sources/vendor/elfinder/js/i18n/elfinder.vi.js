@@ -3,7 +3,15 @@
  * @author Chung Thủy f <chungthuyf@gmail.com>
  * @version 2014-12-19
  */
-if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['elfinder'], factory);
+	} else if (typeof exports !== 'undefined') {
+		module.exports = factory(require('elfinder'));
+	} else {
+		factory(root.elFinder);
+	}
+}(this, function(elFinder) {
   elFinder.prototype.i18.vi = {
     translator : 'Chung Thủy f &lt;chungthuyf@gmail.com&gt;,Son Nguyen &lt;son.nguyen@catalyst.net.nz&gt;',
     language : 'Ngôn ngữ Việt Nam',
@@ -75,7 +83,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
         'errArcMaxSize'        : 'Tập tin lưu trữ vượt quá kích thước tối đa cho phép.',
         'errResize'            : 'Không thể thay đổi kích thước "$1".',
 			'errResizeDegree'      : 'Invalid rotate degree.',
-			'errResizeRotate'      : 'Image dose not rotated.',
+			'errResizeRotate'      : 'Unable to rotate image.',
 			'errResizeSize'        : 'Invalid image size.',
 			'errResizeNoChange'    : 'Image size not changed.',
         'errUsupportType'      : 'Loại tập tin không được hỗ trợ.',
@@ -363,4 +371,4 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
         'kindVideoOGG'    : 'Ogg movie'
     }
   };
-}
+}));

@@ -3,7 +3,15 @@
  * @author Tawfek Daghistani <tawfekov@gmail.com>
  * @version 2014-12-19
  */
-if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['elfinder'], factory);
+	} else if (typeof exports !== 'undefined') {
+		module.exports = factory(require('elfinder'));
+	} else {
+		factory(root.elFinder);
+	}
+}(this, function(elFinder) {
 	elFinder.prototype.i18.ar = {
 		translator : 'Tawfek Daghistani &lt;tawfekov@gmail.com&gt;',
 		language   : 'العربية',
@@ -75,7 +83,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errArcMaxSize'        : 'Archive files exceeds maximum allowed size.',
 			'errResize'            : 'Unable to resize "$1".',
 			'errResizeDegree'      : 'Invalid rotate degree.',
-			'errResizeRotate'      : 'Image dose not rotated.',
+			'errResizeRotate'      : 'Unable to rotate image.',
 			'errResizeSize'        : 'Invalid image size.',
 			'errResizeNoChange'    : 'Image size not changed.',
 			'errUsupportType'      : 'Unsupported file type.',
@@ -363,5 +371,5 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindVideoOGG'    : 'Ogg ملف فيديو'
 		}
 	};
-}
+}));
 

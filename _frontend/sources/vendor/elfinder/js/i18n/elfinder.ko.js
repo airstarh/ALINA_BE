@@ -3,7 +3,15 @@
  * @author Hwang Ahreum 황아름 <luckmagic@naver.com>
  * @version 2014-12-19
  */
-if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['elfinder'], factory);
+	} else if (typeof exports !== 'undefined') {
+		module.exports = factory(require('elfinder'));
+	} else {
+		factory(root.elFinder);
+	}
+}(this, function(elFinder) {
 	elFinder.prototype.i18.ko = {
 		translator : 'Hwang Ahreum; &lt;luckmagic@naver.com&gt;',
 		language   : 'Korea-한국어',
@@ -75,7 +83,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errArcMaxSize'        : '압축파일이 허용된 최대크기를 초과하였습니다',
 			'errResize'            : ' "$1" 크기 변경을 할 수 없습니다',
 			'errResizeDegree'      : 'Invalid rotate degree.',
-			'errResizeRotate'      : 'Image dose not rotated.',
+			'errResizeRotate'      : 'Unable to rotate image.',
 			'errResizeSize'        : 'Invalid image size.',
 			'errResizeNoChange'    : 'Image size not changed.',
 			'errUsupportType'      : '지원하지 않는 파일 형식',
@@ -363,4 +371,4 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindVideoOGG'    : 'Ogg 동영상'
 		}
 	};
-}
+}));

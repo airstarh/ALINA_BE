@@ -3,7 +3,15 @@
  * @author yawd <info@yawd.eu>, Romanos
  * @version 2014-12-19
  */
-if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['elfinder'], factory);
+	} else if (typeof exports !== 'undefined') {
+		module.exports = factory(require('elfinder'));
+	} else {
+		factory(root.elFinder);
+	}
+}(this, function(elFinder) {
 	elFinder.prototype.i18.el = {
 		translator : 'yawd &lt;ingo@yawd.eu&gt;',
 		language   : 'Ελληνικά',
@@ -75,7 +83,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errArcMaxSize'        : 'Το μέγεθος του αρχείου υπερβαίνει το μέγιστο επιτρεπτό όριο.',
 			'errResize'            : 'Δεν ήταν δυνατή η αλλαγή μεγέθους του "$1".',
 			'errResizeDegree'      : 'Invalid rotate degree.',
-			'errResizeRotate'      : 'Image dose not rotated.',
+			'errResizeRotate'      : 'Unable to rotate image.',
 			'errResizeSize'        : 'Invalid image size.',
 			'errResizeNoChange'    : 'Image size not changed.',
 			'errUsupportType'      : 'Ο τύπος αρχείου δεν υποστηρίζεται.',
@@ -363,4 +371,4 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindVideoOGG'    : 'Ταινία ogg'
 		}
 	};
-}
+}));
