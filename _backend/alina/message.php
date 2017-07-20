@@ -130,7 +130,7 @@ class message
 
     public function messageHtml()
     {
-        return template(PATH_TO_ALINA_BACKEND_DIR . '/mvc/template/_system/html/message.php', $this);
+        return template(ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/message.php', $this);
     }
     #endregion Message Object
 }

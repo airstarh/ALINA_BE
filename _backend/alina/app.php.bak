@@ -181,12 +181,14 @@ class app
     {
         // -Check if Path exists in User Application directory.
         $fullPath = buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
+        fDebug($fullPath);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
 
         // -Check if Path exists in Alina directory.
         $fullPath = buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
+        fDebug($fullPath);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }

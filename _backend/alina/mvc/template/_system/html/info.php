@@ -2,7 +2,8 @@
 
 // ToDo: Delete later
 if (ALINA_MODE !== 'PROD') {
-    print_r('<h1>FROM INDEX:::</h1>');
+    $__FILE__ = __FILE__;
+    print_r("<h1>{$__FILE__}</h1>");
     echo '<pre>';
     print_r(\alina\app::get()->router);
     echo '</pre>';

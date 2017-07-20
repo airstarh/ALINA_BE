@@ -8,11 +8,11 @@ function requireAllFromDir($dir)
 function fDebug($data, $flags = FILE_APPEND, $fPath = NULL)
 {
     if (!isset($fPath) || empty($fPath)) {
-        $fPath = PATH_TO_FRONT_END_ROOT.DIRECTORY_SEPARATOR.'deleteOnProdDebug.html';
+        $fPath = ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'deleteOnProdDebug.html';
     }
     ob_start();
     ob_implicit_flush(FALSE);
-    echo '<pre>';
+    echo '<hr><pre>';
     echo PHP_EOL;
     print_r($data);
     echo PHP_EOL;

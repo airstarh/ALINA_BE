@@ -133,12 +133,42 @@ function buildPathFromBlocks()
         }
     }
 
+    $pp = [];
     foreach ($blocks as $i => $block) {
-        $blocks[$i] = normalizePath($block);
-        $blocks[$i] = trim($block, DIRECTORY_SEPARATOR);
+        $b = normalizePath($block);
+        $b = trim($b, DIRECTORY_SEPARATOR);
+        $pp[] = $b;
     }
 
-    $path = implode(DIRECTORY_SEPARATOR, $blocks);
+    $path = implode(DIRECTORY_SEPARATOR, $pp);
 
     return $path;
+}
+
+function giveFile($path)
+{
+    if (FALSE === ($realPath = realpath($path))) {
+        throw new \ErrorException("File {$path} does not exist.");
+    }
+
+    if (!file_exists($realPath)) {
+        throw new \ErrorException("File {$path} does not exist.");
+    }
+
+    $pathInfo = pathinfo($realPath);
+    $fileSize = filesize($realPath);
+    $ext      = $pathInfo['extension'];
+    $baseName = $pathInfo['basename'];
+    $mimeyObj = new \Mimey\MimeTypes;
+    $mimeType = $mimeyObj->getMimeType($ext);
+
+    header('Content-Description: File Transfer');
+    header('Content-Type: ' . $mimeType);
+    header('Content-Disposition: attachment; filename="' . $baseName . '"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . $fileSize);
+    readfile($realPath);
+    exit;
 }

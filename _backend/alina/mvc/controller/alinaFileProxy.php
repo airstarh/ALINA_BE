@@ -5,7 +5,17 @@ namespace alina\mvc\controller;
 
 class alinaFileProxy
 {
-    public function actionIndex()
+    public function actionIndex() {
+        if (isset($_GET['file']) && !empty($_GET['file'])) {
+            $relativePath = $_GET['file'];
+            $relativePath = trim($relativePath, "'");
+            $relativePath = trim($relativePath, '"');
+            $p = \alina\app::get()->resolvePath($relativePath);
+            giveFile($p);
+        }
+    }
+
+    public function actionIndex_()
     {
         echo '<pre>';
         print_r('func_get_args');

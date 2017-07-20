@@ -14,19 +14,19 @@ define('ALINA_ENV', 'HOME');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
-        define('PATH_TO_ALINA_BACKEND_DIR', 'C:\_REPO\ALINA\_backend\alina');
-        define('PATH_TO_APP_DIR', 'C:\_REPO\ALINA\_backend\_aplications\zero');
-        define('PATH_TO_APP_CONFIG_FILE', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
-        define('PATH_TO_FRONT_END_ROOT', __DIR__);
+        define('ALINA_PATH_TO_FRAMEWORK', 'C:\_REPO\ALINA\_backend\alina');
+        define('ALINA_PATH_TO_APP', 'C:\_REPO\ALINA\_backend\_aplications\zero');
+        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
+        define('ALINA_WEB_PATH', __DIR__);
         break;
 }
 
-require_once PATH_TO_ALINA_BACKEND_DIR.DIRECTORY_SEPARATOR.'app.php';
-$config = require(PATH_TO_APP_CONFIG_FILE);
+require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';
+$config = require(ALINA_PATH_TO_APP_CONFIG);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
 
 // ToDo: Delete on prod
-if (ALINA_MODE !== 'PROD') {
-    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-    print_r("<h2>Time spent: $alinaTimeSpent</h2>");
-}
+//if (ALINA_MODE !== 'PROD') {
+//    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+//    print_r("<h2>Time spent: $alinaTimeSpent</h2>");
+//}
