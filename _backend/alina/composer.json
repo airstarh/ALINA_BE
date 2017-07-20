@@ -3,6 +3,7 @@
     "illuminate/database": "v5.2.*",
     "illuminate/events": "v5.2.*",
     "cboden/ratchet": "^0.3.6",
-    "components/elfinder": "^2.2"
+    "components/elfinder": "^2.2",
+    "ralouphie/mimey": "^1.0"
   }
 }

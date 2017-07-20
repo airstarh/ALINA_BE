@@ -32,6 +32,10 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
             'React\\EventLoop\\' => 16,
             'Ratchet\\' => 8,
         ),
+        'M' => 
+        array (
+            'Mimey\\' => 6,
+        ),
         'I' => 
         array (
             'Illuminate\\Support\\' => 19,
@@ -90,6 +94,10 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         'Ratchet\\' => 
         array (
             0 => __DIR__ . '/..' . '/cboden/ratchet/src/Ratchet',
+        ),
+        'Mimey\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ralouphie/mimey/src',
         ),
         'Illuminate\\Support\\' => 
         array (
