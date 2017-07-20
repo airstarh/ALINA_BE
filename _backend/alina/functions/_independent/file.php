@@ -145,14 +145,10 @@ function buildPathFromBlocks()
     return $path;
 }
 
-function giveFile($path)
+function giveFile($realPath)
 {
-    if (FALSE === ($realPath = realpath($path))) {
-        throw new \ErrorException("File {$path} does not exist.");
-    }
-
     if (!file_exists($realPath)) {
-        throw new \ErrorException("File {$path} does not exist.");
+        throw new \ErrorException("File {$realPath} does not exist.");
     }
 
     $pathInfo = pathinfo($realPath);

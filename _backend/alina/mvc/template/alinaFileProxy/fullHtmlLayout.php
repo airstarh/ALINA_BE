@@ -2,7 +2,7 @@
 <html ng-app="todoApp">
 <head>
     <script src="/alinafileproxy?file=/alinaDevFiles/file.js"></script>
-    <link rel="stylesheet" href="/alinafileproxy?file='/alinaDevFiles/file.css'">
+    <link rel="stylesheet" href="/alinafileproxy?file=/alinaDevFiles/file.css">
 </head>
 <body>
 

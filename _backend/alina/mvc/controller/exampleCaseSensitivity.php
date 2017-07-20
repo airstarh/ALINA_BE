@@ -17,8 +17,8 @@ class exampleCaseSensitivity
      */
     public function actionTestCase()
     {
-        $daya = func_get_args();
-        echo (new \alina\mvc\view\html)->page($daya);
+        $content = func_get_args();
+        echo (new \alina\mvc\view\html)->page($content);
     }
 
 }

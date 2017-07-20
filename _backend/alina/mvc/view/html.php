@@ -6,57 +6,86 @@ namespace alina\mvc\view;
 class html
 {
     #region Init
-    public $mvcTemplateRoot   = '';
-    public $ext               = 'php';
-
-    public $htmlLayout    = '_system/html/htmlLayout.php';
-    public $messageLayout = '_system/html/message.php';
+    public $mvcTemplateRoot                         = NULL;
+    public $mvcTemplateRootDefault                  = 'mvc/template';
+    public $currentControllerDir                    = 'root';
+    public $currentActionFileName                   = 'actionIndex';
+    public $ext                                     = 'php';
+    public $pathToCurrentControllerActionLayoutFile = NULL;
+    public $htmlLayout                              = '_system/html/htmlLayout.php';
+    public $messageLayout                           = '_system/html/message.php';
+    public $content                                 = '';
 
     public function __construct()
     {
-        $this->mvcTemplateRoot   = \alina\app::getConfig('mvc/structure/template');
+        $this->mvcTemplateRoot        = \alina\app::getConfig('mvc/structure/template');
+        $this->mvcTemplateRootDefault = \alina\app::getConfigDefault('mvc/structure/template');
+        $this->defineCurrentControllerDir();
+        $this->defineCurrentActionFile();
     }
     #endregion Init
 
     #region Blocks Generation
-    public function piece($blockLayout, $data = NULL, $return = TRUE)
+    public function piece($mvcRelativePathLayout, $data = NULL, $return = TRUE)
     {
-        $templateFile = $this->mvcTemplateRoot . DIRECTORY_SEPARATOR . $blockLayout;
-        $templateFile = \alina\app::get()->resolvePath($templateFile);
-        $htmlString   = template($templateFile, $data);
+        $templateRealPath = $this->resolvePathToTemplate($mvcRelativePathLayout);
+        $htmlString       = template($templateRealPath, $data);
 
         if ($return) {
             return $htmlString;
+        } else {
+            echo $htmlString;
         }
-        echo $htmlString;
 
         return TRUE;
     }
 
-    // ToDo: Case-sensitive file systems?
-    public function controllerAction($data = NULL, $blockLayout = FALSE)
+    public function resolvePathToTemplate($mvcRelativePathLayout)
     {
-        if (empty($blockLayout)) {
-            $c = shortClassName(\alina\app::get()->currentController);
-            $a = \alina\app::get()->currentAction;
-            $a .= ".{$this->ext}";
+        try {
+            $templateFile = buildPathFromBlocks($this->mvcTemplateRoot, $mvcRelativePathLayout);
+            $templateFile = \alina\app::get()->resolvePath($templateFile);
 
-            $blockLayout = buildPathFromBlocks($c, $a);
+            return $templateFile;
         }
+        catch (\ErrorException $e) {
+            $templateFile = buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
+            $templateFile = \alina\app::get()->resolvePath($templateFile);
 
-
-        return $this->piece($blockLayout, $data);
+            return $templateFile;
+        }
     }
 
-    public $content = '';
+    public function defineCurrentControllerDir()
+    {
+        $this->currentControllerDir = shortClassName(\alina\app::get()->currentController);
+    }
 
-    public function page($data = NULL, $blockLayout = FALSE, $htmlLayout = FALSE)
+    public function defineCurrentActionFile()
+    {
+        $this->currentActionFileName = \alina\app::get()->currentAction;
+    }
+
+    public function definePathToCurrentControllerActionLayoutFile()
+    {
+        $p = buildPathFromBlocks(
+            $this->currentControllerDir,
+            $this->currentActionFileName . ".{$this->ext}"
+        );
+
+        $this->pathToCurrentControllerActionLayoutFile = $p;
+
+        return $p;
+
+    }
+
+    public function page($data = NULL, $htmlLayout = FALSE)
     {
         if ($htmlLayout) {
             $this->htmlLayout = $htmlLayout;
         }
 
-        $this->content = $this->controllerAction($data, $blockLayout);
+        $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
         $htmlString    = $this->piece($this->htmlLayout, $this);
 
         return $htmlString;

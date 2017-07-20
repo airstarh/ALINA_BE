@@ -2,9 +2,9 @@
 switch (ALINA_ENV) {
     case  'HOME':
         return [
-            'appNamespace' => 'alina',
-            'title' => 'Alina: another PHP framework. Powered by OrcTechService.',
-            'db'           => [
+            'appNamespace'        => 'alina',
+            'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
+            'db'                  => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
                 'database'  => 'alina',
@@ -14,7 +14,7 @@ switch (ALINA_ENV) {
                 'collation' => 'utf8_unicode_ci',
                 'prefix'    => '',
             ],
-            'mvc'          => [
+            'mvc'                 => [
                 'defaultController'       => 'root',
                 'defaultAction'           => 'Index',
                 'pageNotFoundController'  => 'root',
@@ -45,7 +45,7 @@ switch (ALINA_ENV) {
             ],
 
             'html' => [
-                'css'      => [
+                'css'  => [
                     // jQ UI
                     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css',
                     // Bootstrap
@@ -58,7 +58,7 @@ switch (ALINA_ENV) {
                     '/frontend/css/form.css',
                     '/frontend/css/liga-custom.css',
                 ],
-                'js'       => [
+                'js'   => [
                     // jQ
                     'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js',
                     // jQ UI
@@ -85,7 +85,7 @@ switch (ALINA_ENV) {
                     // custom
                     '/frontend/js/liga-custom.js',
                 ],
-                'meta'     => [],
+                'meta' => [],
             ],
         ];
         break;
