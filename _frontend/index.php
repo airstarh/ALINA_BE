@@ -10,7 +10,7 @@ error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 //error_reporting(E_ALL);
 
-define('ALINA_ENV', 'HOME');
+define('ALINA_ENV', 'DA');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
@@ -19,6 +19,13 @@ switch (ALINA_ENV) {
         define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
         define('ALINA_WEB_PATH', __DIR__);
         break;
+	case 'DA':
+		define('ALINA_MODE', 'dev');
+		define('ALINA_PATH_TO_FRAMEWORK', 'D:\_processes\_outscope\012_alina\_backend\alina');
+		define('ALINA_PATH_TO_APP', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero');
+		define('ALINA_PATH_TO_APP_CONFIG', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero\configs\default.php');
+		define('ALINA_WEB_PATH', __DIR__);
+		break;
 }
 
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';

@@ -1,6 +1,8 @@
 <?php
 switch (ALINA_ENV) {
     case  'HOME':
+    case  'DA':
+    default:
         return [
             'appNamespace'        => 'alina',
             'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
