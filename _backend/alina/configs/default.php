@@ -81,9 +81,6 @@ switch (ALINA_ENV) {
                     // system
                     '/frontend/js/init.js',
                     '/frontend/js/hash-catcher.js',
-
-                    // custom
-                    '/frontend/js/liga-custom.js',
                 ],
                 'meta' => [],
             ],

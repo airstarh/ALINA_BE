@@ -97,7 +97,10 @@ class html
     public function css() { return ''; }
 
     // ToDo: Complete.
-    public function js() { return ''; }
+    public function js() { 
+        $allJs = \alina\app::getConfig('html/js');
+        return ''; 
+    }
 
     public function messages() { return \alina\message::returnAllHtmlString(); }
     #endregion HTML page specials (css, js, etc.)
