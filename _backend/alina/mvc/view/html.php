@@ -2,7 +2,6 @@
 
 namespace alina\mvc\view;
 
-
 class html
 {
     #region Init
@@ -26,10 +25,39 @@ class html
     #endregion Init
 
     #region Blocks Generation
+
+    public function defineCurrentControllerDir()
+    {
+        $this->currentControllerDir = shortClassName(\alina\app::get()->currentController);
+    }
+
+    public function defineCurrentActionFile()
+    {
+        $this->currentActionFileName = \alina\app::get()->currentAction;
+    }
+
+    public function page($data = NULL, $htmlLayout = FALSE)
+    {
+        if ($htmlLayout) {
+            $this->htmlLayout = $htmlLayout;
+        }
+
+        $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
+        if (FALSE === $this->content) {
+            $this->content = $data;
+        }
+        $htmlString = $this->piece($this->htmlLayout, $this);
+
+        return $htmlString;
+    }
+
     public function piece($mvcRelativePathLayout, $data = NULL, $return = TRUE)
     {
         $templateRealPath = $this->resolvePathToTemplate($mvcRelativePathLayout);
-        $htmlString       = template($templateRealPath, $data);
+        if (FALSE === $templateRealPath) {
+            return FALSE;
+        }
+        $htmlString = template($templateRealPath, $data);
 
         if ($return) {
             return $htmlString;
@@ -47,23 +75,16 @@ class html
             $templateFile = \alina\app::get()->resolvePath($templateFile);
 
             return $templateFile;
+        } catch (\ErrorException $e) {
+            try {
+                $templateFile = buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
+                $templateFile = \alina\app::get()->resolvePath($templateFile);
+
+                return $templateFile;
+            } catch (\Exception $e) {
+                return FALSE;
+            }
         }
-        catch (\ErrorException $e) {
-            $templateFile = buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
-            $templateFile = \alina\app::get()->resolvePath($templateFile);
-
-            return $templateFile;
-        }
-    }
-
-    public function defineCurrentControllerDir()
-    {
-        $this->currentControllerDir = shortClassName(\alina\app::get()->currentController);
-    }
-
-    public function defineCurrentActionFile()
-    {
-        $this->currentActionFileName = \alina\app::get()->currentAction;
     }
 
     public function definePathToCurrentControllerActionLayoutFile()
@@ -76,32 +97,53 @@ class html
         $this->pathToCurrentControllerActionLayoutFile = $p;
 
         return $p;
-
-    }
-
-    public function page($data = NULL, $htmlLayout = FALSE)
-    {
-        if ($htmlLayout) {
-            $this->htmlLayout = $htmlLayout;
-        }
-
-        $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
-        $htmlString    = $this->piece($this->htmlLayout, $this);
-
-        return $htmlString;
     }
     #endregion Blocks Generation
 
     #region HTML page specials (css, js, etc.)
     // ToDo: Complete.
-    public function css() { return ''; }
+
+    public function css()
+    {
+        $urls = \alina\app::getConfig('html/css');
+        if (isset($urls) && !empty($urls && isIterable($urls))) {
+            $result = '';
+            foreach ($urls as $i => $url) {
+                $result .= $this->piece('_system/html/tag/link.php', $url);
+            }
+
+            return $result;
+        }
+
+        return '';
+    }
 
     // ToDo: Complete.
-    public function js() { 
-        $allJs = \alina\app::getConfig('html/js');
-        return ''; 
+    public function js()
+    {
+        $urls = \alina\app::getConfig('html/js');
+        if (isset($urls) && !empty($urls && isIterable($urls))) {
+            $result = '';
+            foreach ($urls as $i => $url) {
+                $result .= $this->piece('_system/html/tag/script.php', $url);
+            }
+
+            return $result;
+        }
+
+        return '';
     }
 
     public function messages() { return \alina\message::returnAllHtmlString(); }
+
+    public function content()
+    {
+        //ToDo: This is ridiculous!
+        if (!is_string($this->content)) {
+            return '';
+        }
+
+        return $this->content;
+    }
     #endregion HTML page specials (css, js, etc.)
 }

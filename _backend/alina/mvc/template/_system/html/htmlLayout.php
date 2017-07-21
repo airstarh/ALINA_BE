@@ -14,7 +14,7 @@
         <h1><?= \alina\app::getConfig('title'); ?></h1>
         <div><a href="<?= ref('/'); ?>">Go Home</a></div>
         <?= $data->messages(); ?>
-        <?= $data->content; ?>
+        <?= $data->content(); ?>
     </div>
 </div>
 <div>
@@ -34,6 +34,10 @@
         ]);
         echo '</pre>';
     }
+
+    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+    print_r("<h2>Time spent: $alinaTimeSpent</h2>");
+
     ?>
 </div>
 </body>
