@@ -29,8 +29,8 @@
 
         echo '<pre>';
         print_r([
-                'currentController' => \alina\app::get()->currentController,
-                'currentAction' => \alina\app::get()->currentAction,
+            'currentController' => \alina\app::get()->currentController,
+            'currentAction'     => \alina\app::get()->currentAction,
         ]);
         echo '</pre>';
     }

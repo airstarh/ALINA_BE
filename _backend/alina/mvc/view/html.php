@@ -25,7 +25,6 @@ class html
     #endregion Init
 
     #region Blocks Generation
-
     public function defineCurrentControllerDir()
     {
         $this->currentControllerDir = shortClassName(\alina\app::get()->currentController);
@@ -75,13 +74,15 @@ class html
             $templateFile = \alina\app::get()->resolvePath($templateFile);
 
             return $templateFile;
-        } catch (\ErrorException $e) {
+        }
+        catch (\ErrorException $e) {
             try {
                 $templateFile = buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
                 $templateFile = \alina\app::get()->resolvePath($templateFile);
 
                 return $templateFile;
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
                 return FALSE;
             }
         }
@@ -101,8 +102,6 @@ class html
     #endregion Blocks Generation
 
     #region HTML page specials (css, js, etc.)
-    // ToDo: Complete.
-
     public function css()
     {
         $urls = \alina\app::getConfig('html/css');
@@ -118,7 +117,6 @@ class html
         return '';
     }
 
-    // ToDo: Complete.
     public function js()
     {
         $urls = \alina\app::getConfig('html/js');

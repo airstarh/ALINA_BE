@@ -2,6 +2,7 @@
 
 function ref($url)
 {
+    //ToDO: Doubtful: http is enough... Unless a web-site is like httpdocs.com...
     if (startsWith($url, 'http://') || startsWith($url, 'https://'))
         return $url;
 
