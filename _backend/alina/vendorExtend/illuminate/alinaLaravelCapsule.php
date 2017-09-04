@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ladmin
- * Date: 17.05.2017
- * Time: 0:18
- */
 
 namespace alina\vendorExtend\illuminate;
 
