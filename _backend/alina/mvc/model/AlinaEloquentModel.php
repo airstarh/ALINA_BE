@@ -6,7 +6,7 @@ use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
 // Laravel initiation
 \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader::init();
 
-class alinaLaravelSimpleModel
+class AlinaEloquentModel
 {
     #region Required
     public $table;

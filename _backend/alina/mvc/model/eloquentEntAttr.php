@@ -1,7 +1,7 @@
 <?php
 namespace alina\mvc\model;
 
-class eloquentEntAttr extends eloquentModel
+class eloquentEntAttr extends EloquentModel
 {
     protected $table      = 'ent_attr';
     protected $primaryKey = 'id';

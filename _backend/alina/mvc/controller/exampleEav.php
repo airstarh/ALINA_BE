@@ -12,9 +12,9 @@ class exampleEav
         $mClass = '\alina\mvc\model\eloquentProduct';
         $res = product::find(1);
 
-        echo '<pre>';
-        print_r($res);
-        echo '</pre>';
+//        echo '<pre>';
+//        print_r($res);
+//        echo '</pre>';
 
         echo '<pre>';
         print_r($res->ent_attr->toArray());

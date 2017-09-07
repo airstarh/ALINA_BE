@@ -1,10 +1,18 @@
 <?php
 namespace alina\mvc\model;
 
-// Laravel initiation
+use Illuminate\Database\Eloquent\Relations\Relation;
+
+#region Laravel initiation
 \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader::init();
 
-class eloquentModel extends \Illuminate\Database\Eloquent\Model
+Relation::morphMap([
+    'product' => 'alina\mvc\model\eloquentProduct',
+    'user'    => 'alina\mvc\model\eloquentUser',
+]);
+#endregion Laravel initiation
+
+class EloquentModel extends \Illuminate\Database\Eloquent\Model
 {
     use \alina\mvc\model\eav;
 }

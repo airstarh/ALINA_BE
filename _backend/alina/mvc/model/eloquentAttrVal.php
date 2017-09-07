@@ -1,7 +1,7 @@
 <?php
 namespace alina\mvc\model;
 
-class eloquentAttrVal extends eloquentModel
+class eloquentAttrVal extends EloquentModel
 {
     protected $table      = 'attr_varchar_500';
     protected $primaryKey = 'id';
