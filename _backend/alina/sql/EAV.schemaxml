@@ -5,17 +5,16 @@
 </source>
 <canvas zoom="100">
 <tables>
-<table name="attr_varchar_500" view="colnames">
-<left>511</left>
-<top>46</top>
+<table name="value_varchar_500" view="colnames">
+<left>580</left>
+<top>45</top>
 <width>157</width>
 <height>107</height>
-<sql_create_table>CREATE TABLE `attr_varchar_500` (
+<sql_create_table>CREATE TABLE `value_varchar_500` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ent_attr_id` bigint(20) DEFAULT NULL,
   `val` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8</sql_create_table>
 </table>
 <table name="ent" view="colnames">
 <left>34</left>
@@ -28,38 +27,31 @@
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8</sql_create_table>
 </table>
-<table name="attr_integer" view="colnames">
-<left>511</left>
-<top>160</top>
+<table name="value_int_11" view="colnames">
+<left>585</left>
+<top>164</top>
 <width>160</width>
 <height>107</height>
-<sql_create_table>CREATE TABLE `attr_integer` (
+<sql_create_table>CREATE TABLE `value_int_11` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ent_attr_id` bigint(20) DEFAULT NULL,
   `val` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8</sql_create_table>
 </table>
-<table name="ent_attr" view="colnames">
-<left>228</left>
-<top>119</top>
-<width>174</width>
-<height>275</height>
-<sql_create_table>CREATE TABLE `ent_attr` (
+<table name="eav" view="colnames">
+<left>352</left>
+<top>244</top>
+<width>134</width>
+<height>165</height>
+<sql_create_table>CREATE TABLE `eav` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name_sys` varchar(100) DEFAULT 'name_sys',
-  `name_human` varchar(100) DEFAULT 'name_human',
+  `attr_id` bigint(20) DEFAULT NULL COMMENT 'points to attr table',
   `ent_id` bigint(20) DEFAULT NULL,
-  `ent_table` varchar(100) DEFAULT NULL,
-  `attr_table` varchar(100) DEFAULT 'attr_varchar_500',
-  `quantity` bigint(20) DEFAULT '1',
-  `order` bigint(20) DEFAULT '1',
-  `created_at` bigint(20) DEFAULT NULL,
-  `created_by` bigint(20) DEFAULT NULL,
-  `updated_at` bigint(20) DEFAULT NULL,
-  `updated_by` bigint(20) DEFAULT NULL,
+  `ent_table` varbinary(100) DEFAULT NULL,
+  `value_id` bigint(20) DEFAULT NULL,
+  `value_table` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8</sql_create_table>
 </table>
 <table name="user" view="colnames">
 <left>36</left>
@@ -89,6 +81,33 @@
 <sql_create_table>CREATE TABLE `product` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8</sql_create_table>
+</table>
+<table name="attr" view="colnames">
+<left>272</left>
+<top>67</top>
+<width>124</width>
+<height>123</height>
+<sql_create_table>CREATE TABLE `attr` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name_sys` varchar(100) DEFAULT NULL COMMENT 'UNIQUE',
+  `name_human` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8</sql_create_table>
+</table>
+<table name="ea_meta" view="colnames">
+<left>205</left>
+<top>246</top>
+<width>112</width>
+<height>147</height>
+<sql_create_table>CREATE TABLE `ea_meta` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `attr_id` bigint(20) DEFAULT NULL COMMENT 'points to attr table',
+  `ent_id` bigint(20) DEFAULT NULL,
+  `ent_table` varbinary(100) DEFAULT NULL,
+  `quantity` bigint(20) DEFAULT NULL,
+  `order` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8</sql_create_table>
 </table>

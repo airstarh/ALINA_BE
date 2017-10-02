@@ -1,7 +1,7 @@
 <?php
 namespace alina\mvc\model;
 
-class user extends AlinaEloquentModel
+class user extends _baseAlinaEloquentModel
 {
     public $table='user';
 

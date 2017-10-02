@@ -1,7 +1,9 @@
 <?php
-namespace alina\mvc\model;
+namespace alina\mvc\model\eloquent;
 
-class eloquentProduct extends EloquentModel
+use \alina\mvc\model\eloquent\_base AS BaseEloquentModel;
+
+class product extends BaseEloquentModel
 {
     protected $table      = 'product';
     protected $primaryKey = 'id';

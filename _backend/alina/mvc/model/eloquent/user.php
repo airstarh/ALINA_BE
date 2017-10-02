@@ -1,7 +1,9 @@
 <?php
-namespace alina\mvc\model;
+namespace alina\mvc\model\eloquent;
 
-class eloquentUser extends EloquentModel
+use \alina\mvc\model\eloquent\_base AS BaseEloquentModel;
+
+class user extends BaseEloquentModel
 {
     protected $table      = 'user';
     protected $primaryKey = 'id';

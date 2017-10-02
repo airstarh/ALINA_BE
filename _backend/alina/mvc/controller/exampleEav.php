@@ -3,21 +3,31 @@
 namespace alina\mvc\controller;
 
 
-use \alina\mvc\model\eloquentProduct as product;
-
 class exampleEav
 {
     public function actionGetAttr()
     {
+        $res    = [];
         $mClass = '\alina\mvc\model\eloquentProduct';
-        $res = product::find(1);
+        $m      = $mClass::find(1);
+        $res    = array_merge($res, $m->toArray());
 
 //        echo '<pre>';
-//        print_r($res);
+//        print_r($res->ent_attr->toArray());
 //        echo '</pre>';
 
+        $eav = [];
+        foreach ($m->ent_attr as $EntAttr) {
+            $ea = $EntAttr->toArray();
+            $attr = $EntAttr->attr->toArray();
+            $eav[] = array_merge($ea,$attr);
+        }
+        $res['eav'] = $eav;
+
         echo '<pre>';
-        print_r($res->ent_attr->toArray());
+        print_r($res);
         echo '</pre>';
+
+
     }
 }
