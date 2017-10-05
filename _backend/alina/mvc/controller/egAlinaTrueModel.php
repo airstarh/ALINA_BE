@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleAlinaTrueModel
+class egAlinaTrueModel
 {
     public function actionTest()
     {

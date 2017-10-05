@@ -3,16 +3,16 @@
 namespace alina\mvc\controller;
 
 
-class exampleAlinaSimpleModel
+class egAlinaEloquentModel
 {
     public function actionIndex()
     {
-        $m = new \alina\mvc\model\user();
+        $m = new \alina\mvc\model\userEloquent();
 
-        $r = $m->getAll();
+        $r = $m->all();
 
         echo '<pre>';
-        print_r($r);
+        print_r($r->toArray());
         echo '</pre>';
     }
 }

@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleEav
+class egEav
 {
     public function actionGetAttr()
     {

@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleCaseSensitivity
+class egCaseSensitivity
 {
     public function actionIndex()
     {

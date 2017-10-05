@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleCookie
+class egCookie
 {
     public function actionCookie()
     {

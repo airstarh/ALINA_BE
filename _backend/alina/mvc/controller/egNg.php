@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleNg
+class egNg
 {
     public function actionIndex()
     {

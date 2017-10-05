@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class exampleHtmlPage
+class egHtmlPage
 {
     public function actionIndex()
     {
