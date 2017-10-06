@@ -2,10 +2,33 @@
 namespace alina\mvc\model\eloquent\eav;
 
 use \alina\mvc\model\eloquent\_base AS BaseEloquentModel;
-use \alina\mvc\model\eloquent\trait_common_definitions;
 
 class attr extends BaseEloquentModel
 {
-    protected $table      = 'attr';
-    use trait_common_definitions;
+    protected $table = 'attr';
+
+    public function uniqueKeys()
+    {
+        return [
+            ['name_sys'],
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'name_human' => [
+                'filters' => [
+                    'ucfirst'
+                ],
+            ],
+        ];
+    }
+    protected $defaults = [
+        'order'             => 1,
+        'quantity'          => 1,
+        'val_default_table' => 'value_varchar_500',
+    ];
+
+
 }

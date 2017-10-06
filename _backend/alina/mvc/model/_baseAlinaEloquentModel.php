@@ -1,10 +1,11 @@
 <?php
 namespace alina\mvc\model;
 
+use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
 
 // Laravel initiation
-\alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader::init();
+Loader::init();
 
 class _baseAlinaEloquentModel
 {

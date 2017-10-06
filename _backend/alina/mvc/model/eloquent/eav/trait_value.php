@@ -5,6 +5,10 @@ namespace alina\mvc\model\eloquent\eav;
 trait trait_value
 {
     #region EAV
+    public function eavWhere()
+    {
+
+    }
 
     #region EAV
 

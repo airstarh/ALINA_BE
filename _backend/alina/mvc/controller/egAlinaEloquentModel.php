@@ -2,17 +2,20 @@
 
 namespace alina\mvc\controller;
 
+use \alina\mvc\model\eloquent\user;
 
 class egAlinaEloquentModel
 {
     public function actionIndex()
     {
-        $m = new \alina\mvc\model\userEloquent();
+        $m = new user();
+        //$r = $m->all();
+        $r = $m->where('firstname', 'LIKE', '%польз123%')->first();
 
-        $r = $m->all();
-
+        //$r = $r->toArray();
         echo '<pre>';
-        print_r($r->toArray());
+        //print_r($r->firstname);
+        print_r($r);
         echo '</pre>';
     }
 }
