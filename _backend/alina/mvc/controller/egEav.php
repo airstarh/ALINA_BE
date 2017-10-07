@@ -13,11 +13,7 @@ class egEav
         $m      = $mClass::find(1);
 
         //$m->eavSetValue(['temperature' => [36.6, 36.6, 36.6, 36.6]]);
-        $m->eavSetValue('temperature', [36.6, 36.6, 36.6, 36.6], 'value_temperature_celsius');
-
-        echo '<pre>';
-        print_r($m);
-        echo '</pre>';
+        $m->eavSetValue('temperature', [35.1, 36.6, 37.2, 39.9], 'value_temperature_celsius');
     }
 
 

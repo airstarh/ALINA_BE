@@ -35,19 +35,49 @@ trait trait_entity
         return $this;
     }
 
-    public function eavSetValue($nameSys, $value, $valueTable)
+    public function eavSetValue($nameSys, $values, $valueTable = NULL)
     {
-        $oA = new attr();
-        $oA->where('name_sys', '=', $nameSys)->get();
+        $return = [];
+        $values = is_array($values) ? $values : [$values];
+        $oAeA   = new attr();
+        $oAeA   = $oAeA
+            ->select('*', 'ea.id as ea_id')
+            ->from('attr as a')
+            ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
+            ->where('name_sys', '=', $nameSys)
+            ->first();
+        $ea_id  = $oAeA->ea_id;
+        $oEav   = new eav();
+        $cEav   = $oEav->where('ea_id', '=', $ea_id)->get();
+        $vt     = $valueTable ? $valueTable : $oAeA->val_default_table;
+        $vIds   = [];
+        foreach ($cEav as $mEav) {
+            $vId    = $mEav->val_id;
+            $vIds[] = $vId;
+            $oV     = new val();
+            $oV->setTable($mEav->val_table)->where('id', $vId)->forceDelete();
+        }
+        $oEav->where('ea_id', $ea_id)->forceDelete();
+
+        foreach ($values as $v) {
+            $oV = new val();
+            $oV->setTable($vt);
+            $oV->val = $v;
+            $oV->save();
+
+            $oEav            = new eav();
+            $oEav->ea_id     = $ea_id;
+            $oEav->val_id    = $oV->id;
+            $oEav->val_table = $vt;
+            $oEav->save();
+            $return[] = $oEav;
+        }
+
+        echo '<pre>';
+        print_r($return);
+        //print_r(func_get_args());
+        echo '</pre>';
     }
-
-
-
-
-
-
-
-
 
 
     public function eavWhere($column, $operator = NULL, $value = NULL, $boolean = 'and', $valueTable)
