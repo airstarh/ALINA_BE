@@ -5,44 +5,35 @@ namespace alina;
 class session
 {
 
-    static public $storage = [];
-
-    static public function vault()
-    {
-        static::start();
-        if (static::isStarted()) {
-            static::$storage =& $_SESSION;
-        }
-
-        return static::$storage;
-    }
+    static public $storage              = [];
+    static public $flagSessionInStorage = FALSE;
 
     static public function set($path, $value)
     {
         static::start();
 
-        return setArrayValue($path, $value, static::vault());
+        return setArrayValue($path, $value, static::$storage);
     }
 
     static public function get($path)
     {
         static::start();
 
-        return getArrayValue($path, static::vault());
+        return getArrayValue($path, static::$storage);
     }
 
     static public function delete($path)
     {
         static::start();
 
-        return unsetArrayPath($path, static::vault());
+        return unsetArrayPath($path, static::$storage);
     }
 
     static public function has($path)
     {
         static::start();
 
-        return arrayHasPath($path, static::vault());
+        return arrayHasPath($path, static::$storage);
     }
 
     static public function start()
@@ -50,6 +41,13 @@ class session
         if (!headers_sent()) {
             if (!static::isStarted()) {
                 session_start();
+            }
+        }
+
+        if (static::isStarted()) {
+            if (!static::$flagSessionInStorage) {
+                static::$storage              =& $_SESSION;
+                static::$flagSessionInStorage = TRUE;
             }
         }
     }
