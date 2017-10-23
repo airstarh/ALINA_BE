@@ -1,4 +1,5 @@
 <?php
+//ToDo: SIMPLIFY IT!!!
 
 namespace alina;
 
@@ -55,6 +56,7 @@ class session
     static public function stop()
     {
         //ToDo: May be safe session deletion, when it is necessary just pause it.
+        //ToDo: Should I delete static::storage ?
         if (static::isStarted())
             session_destroy();
     }

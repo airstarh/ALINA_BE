@@ -4,74 +4,65 @@ namespace alina\mvc\model\eloquent\eav;
 
 trait trait_entity
 {
+    #region Add Attribute
 
     public function eavAddAttribute($a)
     {
+        //ToDo: Validate $a, prepare $a.
+        $a = toObject($a);
+
         $oA             = new attr();
-        $oA->name_sys   = $a['name_sys'];
-        $oA->name_human = $a['name_human'];
-
-//        echo '<pre>';
-//        print_r($oA);
-//        echo '</pre>';
-//        exit();
-
-
+        $oA->name_sys   = $a->name_sys;
+        $oA->name_human = $a->name_human;
+        $oA->val_table  = $a->val_table;
         $oA->prepareModel();
         $oA->save();
 
-        $oEa                    = new ea();
-        $oEa->attr_id           = $oA->{$oA->primaryKey};
-        $oEa->ent_id            = $this->{$this->primaryKey};
-        $oEa->ent_table         = $this->table;
-        $oEa->quantity          = $a['quantity'];
-        $oEa->order             = $a['order'];
-        $oEa->val_default_table = $a['val_default_table'];
-        $oEa->save();
+        $attributeId = $oA->{$oA->primaryKey};
+        $entityId    = $this->{$this->primaryKey};
+        $entityTable = $this->table;
 
-        $this->s('oA', $oA);
-        $this->s('oEa', $oEa);
+        $oEa            = new ea();
+        $oEa->attr_id   = $attributeId;
+        $oEa->ent_id    = $entityId;
+        $oEa->ent_table = $entityTable;
+        $oEa->quantity  = $a->quantity;
+        $oEa->order     = $a->order;
+        $oEa->prepareModel();
+        $oEa->save();
 
         return $this;
     }
 
-    public function eavSetValue($nameSys, $values, $valueTable = NULL)
+    #endregion Add Attribute
+
+    #region Add Set Value
+
+    public function eavSetValue($nameSys, $values)
     {
         $return = [];
         $values = is_array($values) ? $values : [$values];
-        $oAeA   = new attr();
-        $oAeA   = $oAeA
-            ->select('*', 'ea.id as ea_id')
-            ->from('attr as a')
-            ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
-            ->where('name_sys', '=', $nameSys)
-            ->first();
-        $ea_id  = $oAeA->ea_id;
-        $oEav   = new eav();
-        $cEav   = $oEav->where('ea_id', '=', $ea_id)->get();
-        $vt     = $valueTable ? $valueTable : $oAeA->val_default_table;
-        $vIds   = [];
-        foreach ($cEav as $mEav) {
-            $vId    = $mEav->val_id;
-            $vIds[] = $vId;
-            $oV     = new val();
-            $oV->setTable($mEav->val_table)->where('id', $vId)->forceDelete();
-        }
-        $oEav->where('ea_id', $ea_id)->forceDelete();
 
+        $oEaA      = $this->getEaA($nameSys)[0];
+        $ea_id     = $oEaA->ea_id;
+        $val_table = $oEaA->val_table;
+
+        //ToDo: Make deletion more accurate.
+        $oV = new val();
+        $oV->setTable($val_table)->where('ea_id', $ea_id)->forceDelete();
+        unset($oV);
+
+        $vIds = [];
         foreach ($values as $v) {
             $oV = new val();
-            $oV->setTable($vt);
-            $oV->val = $v;
+            $oV->setTable($val_table);
+            $oV->ea_id = $ea_id;
+            $oV->val   = $v;
             $oV->save();
-
-            $oEav            = new eav();
-            $oEav->ea_id     = $ea_id;
-            $oEav->val_id    = $oV->id;
-            $oEav->val_table = $vt;
-            $oEav->save();
-            $return[] = $oEav;
+            $vIds[]   = $oV->{$oV->primaryKey};
+            $return[] = $oV;
         }
+        unset($oV);
 
         echo '<pre>';
         print_r($return);
@@ -79,66 +70,65 @@ trait trait_entity
         echo '</pre>';
     }
 
-
-    public function eavWhere($column, $operator = NULL, $value = NULL, $boolean = 'and', $valueTable)
+    public function getEaA($attrSysNames = [])
     {
-        $oAttr = new attr();
-        $oAttr->where('name_sys', '=', '$column');
-        $oE   = $this;
-        $oEa  = new ea();
-        $oEav = new eav();
+        $attrSysNames = is_array($attrSysNames) ? $attrSysNames : [$attrSysNames];
+        $entityId     = $this->{$this->primaryKey};
+        $entityTable  = $this->table;
+        $oEaA         = new attr();
+        $q            = $oEaA
+            ->select(
+                'a.*',
+                'ea.id as ea_id',
+                'ea.quantity',
+                'ea.order'
+            )
+            ->from('attr as a')
+            ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
+            ->where('ea.ent_id', '=', $entityId)
+            ->where('ea.ent_table', '=', $entityTable);
 
-        $oE
-            ->joinEav();
+        if ($attrSysNames && !empty($attrSysNames)) {
+            $q = $q->whereIn('a.name_sys', $attrSysNames);
+        }
+
+        $cEaA = $q->get();
+
+        return $cEaA;
+    }
+    #emdregion Add Set Value
+
+    #region Get Values
+    public function eavGetValues($attrSysNames = [], $whereArray = [])
+    {
+        $attrSysNames = is_array($attrSysNames) ? $attrSysNames : [$attrSysNames];
+        $entityId     = $this->{$this->primaryKey};
+        $entityTable  = $this->table;
+        $oAeA         = new attr();
+        $q            = $oAeA
+            ->select(
+                'a.*',
+                'ea.id as ea_id',
+                'ea.ent_table',
+                'ea.quantity',
+                'ea.order'
+            )
+            ->from('attr as a')
+            ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
+            ->where('ea.ent_id', '=', $entityId)
+            ->where('ea.ent_table', '=', $entityTable);
+
+        if ($attrSysNames && !empty($attrSysNames)) {
+            $q = $q->whereIn('a.name_sys', $attrSysNames);
+        }
+        $cEavEaA = $q->get();
+
+        return $cEavEaA;
     }
 
-    #region EAV
-
-    public function attributes()
+    public function eavGetAttrValues($attrNameSys)
     {
-
-        return $this->morphMany('\alina\mvc\model\eloquent\eav\eav', 'ent', 'ent_table', 'ent_id', 'id');
+        $attrNamesSys = func_get_args();
     }
-
-//    public function attr()
-//    {
-//        return $this->morphToMany('\alina\mvc\model\eloquent\eav\attr', 'eav', 'eav', );
-//    }
-    #endregion EAV
-
-    #region Getters Setters
-    #Attributes
-    public $eavTable = 'eav';
-
-    public function getAttributes()
-    {
-        $this->joinEav();
-    }
-
-    public function joinEav()
-    {
-        $oE = $this;
-        $this->join('eav', function ($join) use ($oE) {
-
-            $join
-                ->on("{$oE->table}.{$oE->primaryKey}", '=', "ent.ent_id")
-                ->andOn("ent.ent_table", '=', "{$oE->table}");
-        });
-
-        return $this;
-    }
-
-    public function modifyAttribute() { }
-
-    public function deleteAttribute() { }
-
-    #Attribute Values
-    public function getAttributeValues() { }
-
-    public function setAttributeValues() { }
-
-    public function modifyAttributeValues() { }
-
-    public function deleteAttributeValues() { }
-    #endregion Getters Setters
+    #endregion Get Values
 }
