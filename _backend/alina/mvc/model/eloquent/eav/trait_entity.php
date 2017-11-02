@@ -2,6 +2,7 @@
 
 namespace alina\mvc\model\eloquent\eav;
 
+use alina\mvc\controller\egEav;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
 
 trait trait_entity
@@ -22,6 +23,9 @@ trait trait_entity
         $oA->val_table  = $a->val_table;
         $oA->prepareModel();
         $oA->save();
+        error_log(__FUNCTION__,0);
+        error_log('$oA',0);
+        error_log(json_encode($oA),0);
 
         $attributeId = $oA->{$oA->primaryKey};
         $entityId    = $this->{$this->primaryKey};
@@ -35,6 +39,8 @@ trait trait_entity
         $oEa->order     = $a->order;
         $oEa->prepareModel();
         $oEa->save();
+        error_log('$oEa',0);
+        error_log(json_encode($oEa),0);
 
         return $this;
     }
@@ -66,6 +72,9 @@ trait trait_entity
             $return[] = $oV;
         }
         unset($oV);
+
+        error_log(__FUNCTION__,0);
+        error_log(json_encode($return),0);
 
         return $return;
     }
@@ -160,12 +169,12 @@ trait trait_entity
 
                 case 'in':
                 case 'IN':
-                    $q = $q->whereIn("{$nameSys}.val", $compare);
+                    $q->whereIn("{$nameSys}.val", $compare);
                     break;
 
                 case '=':
                 default:
-                    $q = $q->where("{$nameSys}.val", $operator, $compare);
+                    $q->where("{$nameSys}.val", $operator, $compare);
                     break;
             }
         }
@@ -175,9 +184,12 @@ trait trait_entity
         foreach ($cEaA as $i => $mEaA) {
             $t       = $mEaA->val_table;
             $nameSys = $mEaA->name_sys;
-            $q       = $q->addSelect("{$nameSys}.val as {$nameSys}");
-            $q       = $q->join("{$t} as {$nameSys}", "{$nameSys}.ea_id", '=', "ea.id");
+            $q->addSelect("{$nameSys}.val as {$nameSys}");
+            $q->join("{$t} as {$nameSys}", "{$nameSys}.ea_id", '=', "ea.id");
         }
+
+        error_log(__FUNCTION__,0);
+        error_log(json_encode($q->toSql()),0);
 
         $cEntity = $q->get();
 
