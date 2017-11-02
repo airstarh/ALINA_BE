@@ -2,8 +2,13 @@
 
 namespace alina\mvc\model\eloquent\eav;
 
+use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+
 trait trait_entity
 {
+    public $cV = [];
+    public $cA = [];
+
     #region Add Attribute
 
     public function eavAddAttribute($a)
@@ -52,25 +57,20 @@ trait trait_entity
         $oV->setTable($val_table)->where('ea_id', $ea_id)->forceDelete();
         unset($oV);
 
-        $vIds = [];
         foreach ($values as $v) {
             $oV = new val();
             $oV->setTable($val_table);
             $oV->ea_id = $ea_id;
             $oV->val   = $v;
             $oV->save();
-            $vIds[]   = $oV->{$oV->primaryKey};
             $return[] = $oV;
         }
         unset($oV);
 
-        echo '<pre>';
-        print_r($return);
-        //print_r(func_get_args());
-        echo '</pre>';
+        return $return;
     }
 
-    public function getEaA($attrSysNames = [])
+    public function getEaA($attrSysNames = [], $forThisEntity = TRUE)
     {
         $attrSysNames = is_array($attrSysNames) ? $attrSysNames : [$attrSysNames];
         $entityId     = $this->{$this->primaryKey};
@@ -79,14 +79,18 @@ trait trait_entity
         $q            = $oEaA
             ->select(
                 'a.*',
+                'a.id as attr_id',
                 'ea.id as ea_id',
                 'ea.quantity',
                 'ea.order'
             )
             ->from('attr as a')
             ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
-            ->where('ea.ent_id', '=', $entityId)
             ->where('ea.ent_table', '=', $entityTable);
+
+        if ($forThisEntity) {
+            $q = $q->where('ea.ent_id', '=', $entityId);
+        }
 
         if ($attrSysNames && !empty($attrSysNames)) {
             $q = $q->whereIn('a.name_sys', $attrSysNames);
@@ -96,6 +100,7 @@ trait trait_entity
 
         return $cEaA;
     }
+
     #emdregion Add Set Value
 
     #region Get Values
@@ -105,30 +110,78 @@ trait trait_entity
         $entityId     = $this->{$this->primaryKey};
         $entityTable  = $this->table;
         $oAeA         = new attr();
-        $q            = $oAeA
-            ->select(
-                'a.*',
-                'ea.id as ea_id',
-                'ea.ent_table',
-                'ea.quantity',
-                'ea.order'
-            )
-            ->from('attr as a')
-            ->join('ea as ea', 'ea.attr_id', '=', 'a.id')
-            ->where('ea.ent_id', '=', $entityId)
-            ->where('ea.ent_table', '=', $entityTable);
+        $cEaA         = $this->getEaA($attrSysNames);
 
-        if ($attrSysNames && !empty($attrSysNames)) {
-            $q = $q->whereIn('a.name_sys', $attrSysNames);
+        $sequenceValTableEaId = [];
+        foreach ($cEaA as $i => $mEaA) {
+            $sequenceValTableEaId[$mEaA->val_table][] = $mEaA->ea_id;
         }
-        $cEavEaA = $q->get();
 
-        return $cEavEaA;
+        $arrValues = [];
+        foreach ($sequenceValTableEaId as $valTable => $eaIds) {
+            $oVal = new val();
+            $q    = $oVal
+                ->setTable($valTable)
+                ->whereIn('ea_id', $eaIds);
+            //ToDo: Add more WHERE abilities.
+            $cVal                 = $q->get();
+            $arrValues[$valTable] = $cVal;
+        }
+
+        return $arrValues;
     }
 
-    public function eavGetAttrValues($attrNameSys)
+    /**
+     * [
+     *  [atrSysName, =, value]
+     *  [atrSysName, <, value]
+     *  [atrSysName, LIKE, %value%]
+     *  [atrSysName, IN, [ARRAY] ]
+     * ]
+     */
+    public function eavGetAllWhere($whereArray)
     {
-        $attrNamesSys = func_get_args();
+        $thisTableName = $this->getTable();
+
+        $q = Dal::table($thisTableName)
+            ->select("{$thisTableName}.*")
+            ->join("ea", "ea.ent_id", '=', "{$thisTableName}.id")
+            ->join("attr", "attr.id", '=', "ea.attr_id");
+
+        $attrSysNames = [];
+        foreach ($whereArray as $where) {
+            $attrSysNames[] = $where[0];
+
+            $nameSys  = $where[0];
+            $operator = $where[1];
+            $compare  = $where[2];
+
+            switch ($operator) {
+
+                case 'in':
+                case 'IN':
+                    $q = $q->whereIn("{$nameSys}.val", $compare);
+                    break;
+
+                case '=':
+                default:
+                    $q = $q->where("{$nameSys}.val", $operator, $compare);
+                    break;
+            }
+        }
+
+        $cEaA = $this->getEaA($attrSysNames, FALSE);
+
+        foreach ($cEaA as $i => $mEaA) {
+            $t       = $mEaA->val_table;
+            $nameSys = $mEaA->name_sys;
+            $q       = $q->addSelect("{$nameSys}.val as {$nameSys}");
+            $q       = $q->join("{$t} as {$nameSys}", "{$nameSys}.ea_id", '=', "ea.id");
+        }
+
+        $cEntity = $q->get();
+
+        return $cEntity;
     }
     #endregion Get Values
 }

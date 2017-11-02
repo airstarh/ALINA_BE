@@ -45,13 +45,13 @@ trait trait_validation
                         if (is_string($filter) && function_exists($filter)) {
                             $this->{$name} = $filter($value);
                         } else if ($filter instanceof \Closure) {
-                            $this->{$name} = call_user_func($filter, $data->{$name});;
+                            $this->{$name} = call_user_func($filter, $value);;
                         } else if (is_array($filter)) {
                             $argsAmount = count($filter);
                             switch ($argsAmount) {
                                 case 2:
                                     list($obj, $method) = $filter;
-                                    $this->{$name} = call_user_func([$obj, $method], $data->{$name});
+                                    $this->{$name} = call_user_func([$obj, $method], $value);
                                     break;
                             }
                         }
@@ -95,13 +95,13 @@ trait trait_validation
                         if (is_string($v['f']) && function_exists($v['f'])) {
                             $vResult = $v['f']($value);
                         } else if ($v['f'] instanceof \Closure) {
-                            $vResult = call_user_func($v['f'], $data->{$name});;
+                            $vResult = call_user_func($v['f'], $value);;
                         } else if (is_array($v['f'])) {
                             $argsAmount = count($v['f']);
                             switch ($argsAmount) {
                                 case 2:
                                     list($class, $staticMethod) = $v['f'];
-                                    $vResult = call_user_func([$class, $staticMethod], $data->{$name});
+                                    $vResult = call_user_func([$class, $staticMethod], $value);
                                     break;
                             }
                         }

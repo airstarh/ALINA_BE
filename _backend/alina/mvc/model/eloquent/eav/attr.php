@@ -24,11 +24,10 @@ class attr extends BaseEloquentModel
             ],
         ];
     }
+
     protected $defaults = [
         'order'             => 1,
         'quantity'          => 1,
-        'val_default_table' => 'value_varchar_500',
+        'val_table' => 'value_varchar_500',
     ];
-
-
 }
