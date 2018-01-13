@@ -11,6 +11,9 @@ namespace alina\vendorExtend\illuminate;
 use \Illuminate\Container\Container;
 use \Illuminate\Events\Dispatcher;
 
+// Laravel initiation
+alinaLaravelCapsuleLoader::init();
+
 /**
  * Some features are absent in the parent class.
  */
@@ -19,6 +22,7 @@ class alinaLaravelCapsuleLoader
 
     protected function __construct(){}
 
+    static public $test = 'Just test';
     static protected $objIlluminate = null;
 
     /**

@@ -3,12 +3,12 @@ namespace alina\mvc\model;
 
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+use \alina\exceptionValidation;
 
 // Laravel initiation
 Loader::init();
 
-class _baseAlinaEloquentModel
-{
+class _baseAlinaEloquentModel {
 	#region Required
 	public $table;
 	public $pkName = 'id';
@@ -34,11 +34,32 @@ class _baseAlinaEloquentModel
 		return $this->q;
 	}
 
+
+	public function raw($expression) {
+		return Dal::raw($expression);
+	}
+
 	/**
 	 * Initial list of fields. @see fieldStructureExample
 	 */
 	public function fields() {
 		return [];
+	}
+
+	public function fieldsIdentity() {
+		return [
+			$this->pkName
+		];
+	}
+
+	/**
+	 * Detects if a Field is AutoIncremental.
+	 * @param $fieldName string
+	 * @return bool
+	 */
+	public function isFieldIdentity($fieldName) {
+		$fieldsIdentity = $this->fieldsIdentity();
+		return in_array($fieldName, $fieldsIdentity);
 	}
 
 	/**
@@ -126,6 +147,10 @@ class _baseAlinaEloquentModel
 			// For Message API
 			// 'kid' => 'keyId', // FYI: Same is for Fle.
 			'rt'    => 'refType', // ToDo: Reasonable to merge with 'ft'.
+
+			//For Task API.
+			'tdt' => 'taskDefType',
+			'tid' => 'taskId',
 		];
 	}
 
@@ -179,8 +204,8 @@ class _baseAlinaEloquentModel
 
 		$this->attributes = $data;
 
-		error_log(__FUNCTION__,0);
-		error_log(json_encode($data),0);
+		//error_log(__FUNCTION__,0);
+		//error_log(json_encode($data),0);
 
 		return $data;
 	}
@@ -201,7 +226,7 @@ class _baseAlinaEloquentModel
 	public $isDataValidated = false;
 
 	public function insert($data) {
-		error_log("insert {$this->table}");
+		//error_log("insert {$this->table}");
 		$this->saveMode  = 'INSERT';
 		$data            = toObject($data);
 		$data            = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
@@ -219,9 +244,15 @@ class _baseAlinaEloquentModel
 	public $affectedRowsCount = null;
 
 	public function update($data, $conditions = []) {
-		error_log(__FUNCTION__ . " {$this->table}");
+		//error_log(__FUNCTION__ . " {$this->table}");
 		$this->saveMode = 'UPDATE';
 		$data           = toObject($data);
+
+		//Fix: Special for MS SQL: NO PK ON INSERTS.
+		if (property_exists($data, $this->pkName)) {
+			$presavedId = $data->{$this->pkName};
+		}
+
 		$dataArray      = $this->prepareDbData($data);
 
 		$affectedRowsCount       = $this->q()
@@ -230,6 +261,11 @@ class _baseAlinaEloquentModel
 		$this->affectedRowsCount = $affectedRowsCount;
 		$this->resetFlags();
 		$this->attributes = $data;
+
+		//Get ID back
+		if (isset($presavedId)) {
+			$data->{$this->pkName} = $presavedId;
+		}
 
 		return $data;
 	}
@@ -253,19 +289,23 @@ class _baseAlinaEloquentModel
 
 		if (!isset($pkValue) || empty($pkValue)) {
 			$table = $this->table;
-			throw new ValidationException("Cannot UPDATE row in table {$table}. Primary Key is not set.");
+			throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
 		}
 
 		$conditions = [$pkName => $pkValue];
 		return $this->update($data, $conditions);
 	}
 
-	public function prepareDbData($data) {
+	public function prepareDbData($data, $addAuditInfo = true) {
 		$data = toObject($data);
 		$this->applyFilters($data);
 		$this->validate($data);
-		$this->addAuditInfo($data, $this->saveMode);
-		$dataArray = $this->bindModel($data);
+
+		if ($addAuditInfo) {
+			$this->addAuditInfo($data, $this->saveMode);
+		}
+
+		$dataArray = $this->restrictRedundantData($data);
 		return $dataArray;
 	}
 
@@ -274,15 +314,18 @@ class _baseAlinaEloquentModel
 	 * Responsible to create array of field=>value pairs,
 	 * AND allows only those field names, which are listed in $this->fields() array.
 	 * Minimizes conflicts.
+	 * It does NOT change input object.
 	 * @param \stdClass $data
 	 * @return array
 	 */
-	public function bindModel($data) {
+	public function restrictRedundantData($data) {
 		$dataArray = [];
 		$fields    = $this->fields();
 		foreach ($fields as $name => $params) {
 			if (property_exists($data, $name)) {
-				$dataArray[$name] = $data->{$name};
+				if (!$this->isFieldIdentity($name)) {
+					$dataArray[$name] = $data->{$name};
+				}
 			}
 		}
 		return $dataArray;
@@ -290,6 +333,9 @@ class _baseAlinaEloquentModel
 
 	/**
 	 * Add Audit Information to $data object.
+	 * @param \stdClass $data
+	 * @param string|null $saveMode
+	 * @return null
 	 */
 	function addAuditInfo(\stdClass $data, $saveMode = null) {
 
@@ -312,6 +358,8 @@ class _baseAlinaEloquentModel
 
 	/**
 	 * Filter received $data according $this fields params.
+	 * @param \stdClass $data
+	 * @return $this
 	 */
 	public function applyFilters(\stdClass $data) {
 
@@ -330,7 +378,7 @@ class _baseAlinaEloquentModel
 						if (is_string($filter) && function_exists($filter)) {
 							$data->{$name} = $filter($value);
 						} else {
-							if ($filter instanceof Closure) {
+							if ($filter instanceof \Closure) {
 								$data->{$name} = call_user_func($filter, $data->{$name});;
 							} else {
 								if (is_array($filter)) {
@@ -402,7 +450,7 @@ class _baseAlinaEloquentModel
 
 						// Validation Result process.
 						if (in_array($vResult, $errorIf)) {
-							throw new \ValidationException($msg);
+							throw new exceptionValidation($msg);
 						}
 					}
 				}
@@ -426,7 +474,7 @@ class _baseAlinaEloquentModel
 		if ($this->getModelByUniqueKeys($data)) {
 			$fields = implode(', ', $this->matchedUniqueFields);
 			$table  = $this->table;
-			throw new ValidationException("Fields: {$fields} must be unique in table {$table}");
+			throw new exceptionValidation("Fields: {$fields} must be unique in table {$table}");
 		}
 
 		return $this;
@@ -532,8 +580,14 @@ class _baseAlinaEloquentModel
 			->delete();
 
 		$this->affectedRowsCount = $affectedRowsCount;
+
+		return $this;
 	}
 	#endregion DELETE
+
+	#region Transaction.
+	// This functionality is moved to @file api/integration/illuminate-extend/class.Transaction.php
+	#endregion Transaction.
 
 	#region API, LIMIT, ORDER
 	/**
@@ -591,6 +645,7 @@ class _baseAlinaEloquentModel
 		if (empty($sortArray)) {
 			$sortArray = $this->sortDefault;
 		}
+
 		//$sortArray = array_merge($sortArray, $this->sortDefault);
 		$this->orderByArray($sortArray);
 
@@ -598,6 +653,10 @@ class _baseAlinaEloquentModel
 	}
 
 	public function apiProcessSortNameSortAscData($sortName, $sortAsc) {
+
+		if (empty($sortName)) {
+			return null;
+		}
 
 		// Sorting functionality
 		// Pre-saving backward compatibility.
@@ -712,7 +771,7 @@ class _baseAlinaEloquentModel
 		$fields        = $this->fields();
 		$defaultRawObj = new \stdClass();
 		foreach ($fields as $f => $props) {
-			$defaultRawObj->$f = null;
+			//$defaultRawObj->$f = null; //ToDo: It affects Primary Key!!!
 			if (array_key_exists('default', $props)) {
 				$defaultRawObj->$f = $props['default'];
 			}
@@ -725,10 +784,10 @@ class _baseAlinaEloquentModel
 	#region May be Trait.
 
 	/**
-	 * Rough merge of simple (\stdClass) objects.
+	 * Rough merge of simple (stdClass) objects.
 	 */
 	public function mergeRawObjects() {
-		error_log('merge', 0);
+		//error_log('merge', 0);
 		$objects = func_get_args();
 		$count   = count($objects);
 
@@ -747,6 +806,8 @@ class _baseAlinaEloquentModel
 	 * In order to unify source data for methods.
 	 * Converts source data to array of objects,
 	 * where each object is an appropriate DB row.
+	 * @param $d
+	 * @return array
 	 */
 	public function toArrayOfObjects($d) {
 		if (empty($d)) {
@@ -754,6 +815,9 @@ class _baseAlinaEloquentModel
 		}
 		if (empty($d)) {
 			$d = $this->attributes;
+		}
+		if (empty($d)) {
+			$d = [];
 		}
 		if (!is_array($d)) {
 			$d = [$d];

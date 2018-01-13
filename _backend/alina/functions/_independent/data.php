@@ -35,3 +35,23 @@ function toObject($v)
     }
     return $object;
 }
+
+/**
+ * Transforms input data to 'ASC' or 'DESC' string.
+ * @param string|int|boolean $dir
+ * @return string 'ASC' or 'DESC'
+ */
+function getSqlDirection($dir) {
+	if (is_string($dir)) {
+		$dir = trim(strtoupper($dir));
+		if ($dir === 'ASC' || $dir === 'DESC') {
+			return $dir;
+		}
+	}
+
+	$dir = filter_var($dir, FILTER_VALIDATE_BOOLEAN)
+		?  'ASC'
+		: 'DESC';
+
+	return $dir;
+}
