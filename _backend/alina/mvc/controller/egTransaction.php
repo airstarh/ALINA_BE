@@ -2,45 +2,52 @@
 
 namespace alina\mvc\controller;
 
-use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
-use \alina\mvc\model\user;
-use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+use \alina\mvc\model\_baseAlinaEloquentTransaction as Transaction;
+
 
 class egTransaction
 {
     public function actionIndex() {
-	    Loader::init();
-    	Dal::beginTransaction();
+
+	    Transaction::begin(__FUNCTION__);
+
     	try {
 		    $eg1 = new \alina\mvc\model\eg1();
 		    $eg2 = new \alina\mvc\model\eg2();
 
-		    /*$stdEg1 = $eg1->insert([
+		    $stdEg1 = $eg1->insert([
 		    	'val' => 'DELETEME',
 		    ]);
 
 		    $stdEg2 = $eg2->insert([
 			    'val' => 'DELETEME',
 			    'eg1_id' => $stdEg1->id,
-		    ]);*/
-
-
+		    ]);
 
 		    //throw new \alina\exceptionValidation('EXCEPTION');
 
-		    Dal::commit();
+		    Transaction::commit(__FUNCTION__);
 
-		    $arr = [111,111,111];
-		    $res = $eg1->getAll();
+		    $res = (new \alina\mvc\model\eg2())
+			    ->q('eg2')
+			    ->select([
+			    	'eg1.id AS eg1_id',
+				    'eg1.val AS eg1_val',
 
-		    $res = array_merge($arr, $res->toArray());
+				    'eg2.id AS eg2_id',
+				    'eg2.val AS eg2_val',
+				    'eg2.eg1_id AS ref_eg1_id',
+			    ])
+			    ->leftJoin('eg1 AS eg1', 'eg2.eg1_id', '=', 'eg1.id')
+			    ->get()
+		    ;
 
 		    echo '<pre>';
 		    //print_r('+++++ After +++++');
 		    print_r($res);
 		    echo '</pre>';
 
-	    } catch (\alina\exceptionValidation $e) {
+	    } catch (\alina\exception $e) {
     		echo '<pre>';
 		    print_r('+++++ CATCH +++++');
     		//print_r($e);

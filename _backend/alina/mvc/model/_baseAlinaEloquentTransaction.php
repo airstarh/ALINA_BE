@@ -2,7 +2,11 @@
 
 namespace alina\mvc\model;
 
+use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+
+// Laravel initiation
+Loader::init();
 
 class _baseAlinaEloquentTransaction {
 
