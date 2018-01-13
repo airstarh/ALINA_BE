@@ -5,7 +5,7 @@ namespace alina\mvc\controller;
 
 class egCookie
 {
-    public function actionCookie()
+    public function actionIndex()
     {
         \alina\cookie::setPath('a/b/c/a1', 111);
         \alina\cookie::setPath('a/b/c/a2', 222);

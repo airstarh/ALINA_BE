@@ -296,7 +296,7 @@ class _baseAlinaEloquentModel {
 		return $this->update($data, $conditions);
 	}
 
-	public function prepareDbData($data, $addAuditInfo = true) {
+	public function prepareDbData($data, $addAuditInfo = TRUE) {
 		$data = toObject($data);
 		$this->applyFilters($data);
 		$this->validate($data);

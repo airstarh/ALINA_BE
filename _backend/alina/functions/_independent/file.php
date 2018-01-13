@@ -155,8 +155,8 @@ function giveFile($realPath)
     $fileSize = filesize($realPath);
     $ext      = $pathInfo['extension'];
     $baseName = $pathInfo['basename'];
-    $mimeyObj = new \Mimey\MimeTypes;
-    $mimeType = $mimeyObj->getMimeType($ext);
+    $mimeObj = new \Mimey\MimeTypes;
+    $mimeType = $mimeObj->getMimeType($ext);
 
     header('Content-Description: File Transfer');
     header('Content-Type: ' . $mimeType);

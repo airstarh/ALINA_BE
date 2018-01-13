@@ -10,7 +10,7 @@ class egAlinaEloquentModel
     {
         $m = new user();
         //$r = $m->all();
-        $r = $m->where('firstname', 'LIKE', '%польз123%')->first();
+        $r = $m->where('firstname', 'LIKE', '%п%')->first();
 
         //$r = $r->toArray();
         echo '<pre>';
