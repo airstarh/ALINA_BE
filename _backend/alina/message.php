@@ -16,7 +16,7 @@ class message
     static protected $collection              = [];
     static public    $flagCollectionInSession = FALSE;
 
-    static public function set($text, $params = [], $status = 'green')
+    static public function set($text, $params = [], $status = 'alert alert-success')
     {
         $_this          = new static;
         $_this->text    = $text;
@@ -110,7 +110,7 @@ class message
     public $id;
     public $text     = '';
     public $params   = [];
-    public $status   = 'green';
+    public $status   = 'alert alert-success';
     public $statuses = ['green', 'yellow', 'red'];
     public $isShown  = FALSE;
 

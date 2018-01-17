@@ -1,6 +1,6 @@
 <?php /** @var \alina\message $data */ ?>
 <div class="<?= $data->status ?>" id="message-id-<?= $data->id ?>">
-    <pre><?= $data->messageRawText() ?></pre>
+	<?= $data->messageRawText() ?>
 </div>
 
 <?php

@@ -5,12 +5,11 @@ namespace zero\mvc\controller;
 class main
 {
     public function actionIndex(){
-        echo '<pre>';
-        print_r('Default Zero main Page');
-        echo '</pre>';
-        echo '<pre>';
-        print_r(func_get_args());
-        echo '</pre>';
+
+    	\alina\message::set('Yo! This is the status message of the age!');
+
+    	$content = 'This is Zero Application, built on Alina Framework.';
+    	echo (new \alina\mvc\view\html)->page($content);
     }
 
     public function action404(){

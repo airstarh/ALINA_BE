@@ -1,0 +1,10 @@
+/** PHP */
+#MODEL { color: #F6CEB6}
+#CONTROLLER { color: #E48DD5}
+#VIEW { color: #62F3FF}
+#TEMPLATE { color: #85F6A5}
+
+/** JS */
+#COMPONENT { color: #F6CEB6} /** PHP: #MODEL*/
+#SERVICE { color: #FFDF54}
+#MODULE { color: #A3A4FF}

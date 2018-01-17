@@ -12,8 +12,7 @@ class egCaseSensitivity
 
     /**
      * URLs:
-     * http://alinazero/exampleCaseSensitivity/actionCaseSensitive
-     * http://alinazero/examplecasesensitivity/casesensitive
+     * http://alinazero/egCaseSensitivity/TestCase/lalala?hello='world'
      */
     public function actionTestCase()
     {

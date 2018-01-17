@@ -10,7 +10,7 @@ class html {
 	public $currentActionFileName                   = 'actionIndex';
 	public $ext                                     = 'php';
 	public $pathToCurrentControllerActionLayoutFile = NULL;
-	public $htmlLayout                              = '_system/html/htmlLayout.php';
+	public $pathToGlobalHtmlPageWrapper             = '_system/html/htmlLayout.php';
 	public $messageLayout                           = '_system/html/message.php';
 	public $content                                 = '';
 
@@ -33,14 +33,14 @@ class html {
 
 	public function page($data = NULL, $htmlLayout = FALSE) {
 		if ($htmlLayout) {
-			$this->htmlLayout = $htmlLayout;
+			$this->pathToGlobalHtmlPageWrapper = $htmlLayout;
 		}
 
 		$this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
 		if (FALSE === $this->content) {
 			$this->content = $data;
 		}
-		$htmlString = $this->piece($this->htmlLayout, $this);
+		$htmlString = $this->piece($this->pathToGlobalHtmlPageWrapper, $this);
 
 		return $htmlString;
 	}

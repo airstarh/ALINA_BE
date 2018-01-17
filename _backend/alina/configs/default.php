@@ -47,42 +47,31 @@ switch (ALINA_ENV) {
             ],
 
             'html' => [
+
                 'css'  => [
-                    // jQ UI
-                    'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css',
-                    // Bootstrap
-                    'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css',
-                    'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css',
-                    // elFinder
-                    '/frontend/js/elfinder/css/elfinder.min.css',
-                    '/frontend/js/elfinder/css/theme.css',
-                    // Custom
-                    '/frontend/css/form.css',
-                    '/frontend/css/liga-custom.css',
+	                // Jquery; Jquery UI
+                	'/sources/node_modules/jquery-ui/themes/base/all.css',
+
+	                //Bootstrap Framework.
+	                '/sources/node_modules/bootstrap/dist/css/bootstrap.min.css',
+	                '/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+
+	                // Alina
+                    '/sources/css/alina.css',
+                    //'/frontend/css/alina_form.css',
                 ],
+
                 'js'   => [
-                    // jQ
-                    'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js',
-                    // jQ UI
-                    'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
-                    // Bootstrap
-                    'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js',
-                    // Bootstrap 3rd part theme
-                    'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js',
+	                // Jquery; Jquery UI
+	                '/sources/node_modules/jquery/dist/jquery.min.js',
+	                '/sources/node_modules/jquery-ui/external/requirejs/require.js',
 
-                    // elFinder
-                    '/frontend/js/elfinder/js/elfinder.min.js',
-                    '/frontend/js/elfinder/js/i18n/elfinder.ru.js',
+	                //Bootstrap Framework.
+	                '/sources/node_modules/bootstrap/dist/js/bootstrap.min.js',
 
-                    // ckeditor
-                    '/frontend/js/ckeditor/ckeditor.js',
-
-                    //            '/frontend/js/PFBC/Resources/ckeditor/ckeditor.js',
-                    //            '/frontend/js/PFBC/Resources/tiny_mce/tiny_mce.js',
-
-                    // system
-                    '/frontend/js/init.js',
-                    '/frontend/js/hash-catcher.js',
+                    // Alina.
+                    '/sources/js/001_alina_init.js',
+                    //'/sources/js/002_alina_hash_catcher.js',
                 ],
                 'meta' => [],
             ],

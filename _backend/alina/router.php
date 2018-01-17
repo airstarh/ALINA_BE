@@ -15,7 +15,6 @@ class router
     public $vocAliasUrl       = null;
 
     /**
-     * @param \alina\app $app
      */
     protected function __construct()
     {
