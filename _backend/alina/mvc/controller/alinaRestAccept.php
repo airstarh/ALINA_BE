@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 
-class restAccept {
+class alinaRestAccept {
 
 	public function actionIndex() {
 
@@ -32,7 +32,7 @@ class restAccept {
 		return $sysData;
 	}
 
-	public function standardRestApiResponse($data) {
+	public function standardRestApiResponse($data, $toReturn = FALSE) {
 
 		$this->setCrossDomainHeaders();
 
@@ -44,13 +44,18 @@ class restAccept {
 		$response['test'] = ['Проверка русских букв.',];
 		$response['sys']  = $this->systemData();
 
+
 		//Output.
+		if ($toReturn) {
+			return $response;
+		}
+
 		header('Content-Type: application/json; charset=utf-8');
 		//ToDo: Think about encoding.
 		echo json_encode(utf8ize($response));
 		//echo json_encode($response, JSON_UNESCAPED_UNICODE);
 		//echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-		return true;
+		return TRUE;
 	}
 
 	public function setCrossDomainHeaders() {
@@ -64,6 +69,7 @@ class restAccept {
 				header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 				break;
 		}
+
 		return $this;
 	}
 }

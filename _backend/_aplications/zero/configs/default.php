@@ -1,7 +1,7 @@
 <?php
 return [
     'appNamespace' => 'zero',
-    'title' => 'ALINA ¯\_(ツ)_/¯ App Zero',
+    'title' => 'ALINA ¯\_(ツ)_/¯ Zero',
     'mvc'          => [
         'defaultController'      => 'main',
         'defaultAction'          => 'index',

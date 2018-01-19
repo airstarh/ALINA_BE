@@ -92,9 +92,10 @@ class app
     #region Instantiation
     static public $instance = NULL;
 
-    /**
-     * @return \alina\app
-     */
+	/**
+	 * @return app
+	 * @throws \Exception
+	 */
     static public function get()
     {
         if (!isset(static::$instance) || !is_a(static::$instance, '\alina\app')) {
@@ -104,10 +105,11 @@ class app
         return static::$instance;
     }
 
-    /**
-     * @param array $config
-     * @return \alina\app
-     */
+	/**
+	 * @param array $config
+	 * @return app
+	 * @throws \Exception
+	 */
     static public function set($config)
     {
         if (isset(static::$instance) && is_a('\alina\app', static::$instance)) {
@@ -160,9 +162,12 @@ class app
         throw new \ErrorException("Relative Class {$nsPath} is not defined.");
     }
 
-    /**
-     * Resolve Method Name in proper Case-Sensitive name.
-     */
+	/**
+	 * Resolve Method Name in proper Case-Sensitive name.
+	 * @param object|string $classNameOrObject
+	 * @param string $methodName
+	 * @return bool
+	 */
     public function resolveMethodName($classNameOrObject, $methodName)
     {
         $methods = get_class_methods($classNameOrObject);
@@ -217,7 +222,8 @@ class app
             if ($this->router->pathAlias == $this->router->pathSys) {
                 $this->router->forcedAlias = routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {
-                    redirect($this->router->forcedAlias);
+                    //ToDo: Make redirection with alina router class.
+                	redirect($this->router->forcedAlias);
                 }
             }
         }
