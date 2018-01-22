@@ -18,6 +18,11 @@ function toArray($v) {
 
 }
 
+/**
+ * @param $v
+ * @return mixed
+ * @throws Exception
+ */
 function toObject($v) {
 	if (is_object($v))
 		return $v;

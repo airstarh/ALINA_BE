@@ -3,7 +3,7 @@
 namespace alina\mvc\model\eloquent\eav;
 
 use alina\mvc\controller\egEav;
-use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+use \Illuminate\Database\Capsule\Manager as Dal;
 
 trait trait_entity {
 	public $cV = [];

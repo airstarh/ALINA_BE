@@ -14,40 +14,39 @@ use \Illuminate\Events\Dispatcher;
 // Laravel initiation
 alinaLaravelCapsuleLoader::init();
 
-/**
- * Some features are absent in the parent class.
- */
-class alinaLaravelCapsuleLoader {
+class alinaLaravelCapsuleLoader
+{
+    protected function __construct() { }
 
-	protected function __construct() { }
+    static protected $objIlluminate = NULL;
 
-	static protected $objIlluminate = null;
+    /**
+     * Initiates PHP Illuminate Database toolkit.
+     * @return \Illuminate\Database\Capsule\Manager object
+     */
+    static public function init()
+    {
 
-	/**
-	 * Initiates PHP Illuminate Database toolkit.
-	 * @return \Illuminate\Database\Capsule\Manager object
-	 */
-	static public function init() {
+        // Make sure this function executes only once
+        if (isset(static::$objIlluminate) && is_object(static::$objIlluminate)) {
+            return static::$objIlluminate;
+        }
 
-		// Make sure this function executes only once
-		if (isset(static::$objIlluminate) && is_object(static::$objIlluminate)) {
-			return static::$objIlluminate;
-		}
+        //region DM Environment configs.
+        $config = \alina\app::getConfig('db');
 
-		//region DM Environment configs.
-		$config = \alina\app::getConfig('db');
+        $capsule = new \Illuminate\Database\Capsule\Manager;
+        $capsule->addConnection($config);
 
-		$capsule = new alinaLaravelCapsule;
-		$capsule->addConnection($config);
+        // Set the event dispatcher used by Eloquent models... (optional)
+        $capsule->setEventDispatcher(new Dispatcher(new Container));
 
-		// Set the event dispatcher used by Eloquent models... (optional)
-		$capsule->setEventDispatcher(new Dispatcher(new Container));
+        // Make this Capsule instance available globally via static methods... (optional)
+        $capsule->setAsGlobal();
+        // Setup the Eloquent ORM... (optional; unless you've used setEventDispatcher())
+        $capsule->bootEloquent();
+        static::$objIlluminate = $capsule;
 
-		// Make this Capsule instance available globally via static methods... (optional)
-		$capsule->setAsGlobal();
-		// Setup the Eloquent ORM... (optional; unless you've used setEventDispatcher())
-		$capsule->bootEloquent();
-		static::$objIlluminate = $capsule;
-		return static::$objIlluminate;
-	}
+        return static::$objIlluminate;
+    }
 }

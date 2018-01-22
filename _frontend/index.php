@@ -10,13 +10,20 @@ error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 //error_reporting(E_ALL);
 
-define('ALINA_ENV', 'HOME');
+define('ALINA_ENV', 'HOME_2');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
         define('ALINA_PATH_TO_FRAMEWORK', 'C:\_REPO\ALINA\_backend\alina');
         define('ALINA_PATH_TO_APP', 'C:\_REPO\ALINA\_backend\_aplications\zero');
         define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
+        define('ALINA_WEB_PATH', __DIR__);
+        break;
+    case 'HOME_2':
+        define('ALINA_MODE', 'dev');
+        define('ALINA_PATH_TO_FRAMEWORK', 'F:\_REPO\ALINA\_backend\alina');
+        define('ALINA_PATH_TO_APP', 'F:\_REPO\ALINA\_backend\_aplications\zero');
+        define('ALINA_PATH_TO_APP_CONFIG', 'F:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
         define('ALINA_WEB_PATH', __DIR__);
         break;
 	case 'DA':

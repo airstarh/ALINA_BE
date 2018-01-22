@@ -3,7 +3,7 @@
 namespace alina\mvc\model;
 
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
-use \alina\vendorExtend\illuminate\alinaLaravelCapsule as Dal;
+use \Illuminate\Database\Capsule\Manager as Dal;
 
 // Laravel initiation
 Loader::init();
