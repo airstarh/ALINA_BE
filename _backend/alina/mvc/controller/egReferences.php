@@ -11,17 +11,17 @@ class egReferences
     {
         $m = new user();
         $q = $m->q('user');
-        $q->select(['*']);
+        $q->select(['user.*']);
         $m->qRefHasOne();
+        $m->orderByArray([['id', 'ASC']]);
         $users = $q->get();
 
-        $hasMany = 'role';
+        $hasMany = 'tag';
         $qr = $m->qRefHasMany($hasMany);
-        $qr->whereIn('glue.user_id', $users->pluck('id'));
+        $qr->whereIn('glue.entity_id', $users->pluck('id'));
         $qrData = $qr->get();
 
-        $usersArray = $users->toArray();
-        foreach ($usersArray as $oUser) {
+        foreach ($users as $oUser) {
             $oUser->{$hasMany} = [];
             foreach ($qrData as $oQrd) {
                 if ($oUser->id === $oQrd->parent_id) {

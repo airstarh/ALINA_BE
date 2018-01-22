@@ -98,6 +98,7 @@ class qReference
                 } else {
                     $childrenColumns = [];
                     foreach ($this->childrenColumns as $col) {
+                        if ($col === $mParent->pkName) {$this->conditions;}
                         $childrenColumns[] = "{$this->mChildrenAlias}.{$col} AS {$this->mChildrenAlias}_{$col}";
                     }
                     $this->childrenColumns = $childrenColumns;
@@ -126,8 +127,10 @@ class qReference
         $q
             ->select($childrenColumns)
             ->join("{$mGlue->table} AS glue", "children.{$mChildren->pkName}", '=', "glue.{$pkNameOfChildInGlue}")
-            ->addSelect(["glue.{$pkNameOfChildInGlue} AS child_id", "glue.{$pkNameOfParentInGlue}  AS parent_id"])
-            ->addSelect(["glue.{$pkNameOfChildInGlue} AS {$mChildren->table}_id", "glue.{$pkNameOfParentInGlue}  AS {$mParent->table}_id"])
+            ->addSelect(["glue.{$mGlue->pkName} AS glue_id"])
+            ->addSelect(["glue.{$pkNameOfChildInGlue} AS child_id"])
+            ->addSelect(["glue.{$pkNameOfParentInGlue}  AS parent_id"])
+            //->addSelect(["glue.{$pkNameOfChildInGlue} AS {$mChildren->table}_id", "glue.{$pkNameOfParentInGlue}  AS {$mParent->table}_id"])
             ->join("{$mParent->table} AS parent", "parent.{$mParent->pkName}", '=', "glue.{$pkNameOfParentInGlue}");
 
         $mChildren->orderByArray($orderBy);
