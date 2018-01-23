@@ -44,7 +44,7 @@ class user extends _baseAlinaEloquentModel
                 'childrenColumns' => ['name'],
             ],
             'tag'      => [
-                'has'             => 'many',
+                'has'             => 'manyThrough',
                 'mChildren'       => 'tag',
                 'mGlue'           => 'tag_to_entity',
                 'refKeys'         => [
@@ -58,7 +58,7 @@ class user extends _baseAlinaEloquentModel
             ],
 
             'role' => [
-                'has'             => 'many',
+                'has'             => 'manyThrough',
                 'mChildren'       => 'role',
                 'mGlue'           => 'user_role',
                 'refKeys'         => [

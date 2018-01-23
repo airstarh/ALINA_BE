@@ -4,6 +4,9 @@ namespace alina\mvc\model;
 
 class qReference
 {
+    /***@var int[] */
+    public $forIds;
+    /***@var string|int */
     public $has;
     /***@var string */
     public $refParentField;
@@ -47,7 +50,7 @@ class qReference
         }
 
         switch ($this->has) {
-            case 'many' :
+            case 'manyThrough' :
                 $this->mChildren            = modelNamesResolver::getModelObject($this->mChildren);
                 $this->mGlue                = modelNamesResolver::getModelObject($this->mGlue);
                 $this->pkNameOfParentInGlue = "{$this->mParent->table}_{$this->mParent->pkName}";
@@ -107,6 +110,11 @@ class qReference
         }
     }
 
+    public function set($p, $v) {
+        $this->{$p} = $v;
+        return $this;
+    }
+
     #region hasMany
 
     /**
@@ -134,6 +142,10 @@ class qReference
             ->join("{$mParent->table} AS parent", "parent.{$mParent->pkName}", '=', "glue.{$pkNameOfParentInGlue}");
 
         $mChildren->orderByArray($orderBy);
+
+        if (isset($this->forIds) && !empty($this->forIds)) {
+            $conditions[] = ['whereIn', "glue.{$pkNameOfParentInGlue}", $this->forIds];
+        }
 
         if ($conditions) {
             foreach ($conditions as $cond) {

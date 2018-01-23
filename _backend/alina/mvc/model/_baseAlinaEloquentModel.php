@@ -213,9 +213,6 @@ class _baseAlinaEloquentModel
 
         $this->attributes = $data;
 
-        //error_log(__FUNCTION__,0);
-        //error_log(json_encode($data),0);
-
         return $data;
     }
 
@@ -259,18 +256,18 @@ class _baseAlinaEloquentModel
      * @return bool|\Illuminate\Database\Query\Builder[]
      * @throws \ErrorException
      */
-    public function qRefHasMany($refName = FALSE)
+    public function qRefHasManyThrough($refName = FALSE)
     {
         $references = $this->referencesTo();
         $qRs         = [];
 
         foreach ($references as $rName => $rConf) {
-            if ($rConf['has'] === 'many') {
+            if ($rConf['has'] === 'manyThrough') {
                 if ($refName && $rName !== $refName) {
                     continue;
                 }
 
-                $qR = (new qReference($this, $rConf))->qHasManyThrough();
+                $qReference = new qReference($this, $rConf);
 
                 $forIds = [];
                 if ($this->collection) {
@@ -280,14 +277,33 @@ class _baseAlinaEloquentModel
                     $forIds[] = $this->attributes->{$this->pkName};
                 }
                 if (!empty($forIds)) {
-                    $qR->whereIn("glue.{$rConf['refKeys']['pkNameOfParentInGlue']}", $forIds);
+                    $qReference->set('forIds', $forIds);
                 }
 
+                $qR = $qReference->qHasManyThrough();
                 $qRs[$rName] = $qR;
             }
         }
 
         return $qRs;
+    }
+
+    public function applyAllHasManyReferences() {
+        $qRs = $this->qRefHasManyThrough();
+
+        foreach ($qRs as $rName => $qR) {
+
+            $qrDbData = $qR->get();
+
+            foreach ($parentCollection as $dbParent) {
+                $dbParent->{$rName} = [];
+                foreach ($qrDbData as $qrDbRow) {
+                    if ($dbParent->{$this->pkName} === $qrDbRow->parent_id) {
+                        $dbParent->{$rName}[] = $qrDbRow;
+                    }
+                }
+            }
+        }
     }
 
     #endregion SELECT

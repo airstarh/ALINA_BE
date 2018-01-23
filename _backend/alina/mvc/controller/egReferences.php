@@ -15,7 +15,7 @@ class egReferences
         $m->orderByArray([['id', 'ASC']]);
         $parentCollection = $m->collection = $q->get();
 
-        $qRs = $m->qRefHasMany();
+        $qRs = $m->qRefHasManyThrough();
 
         foreach ($qRs as $rName => $qR) {
 
