@@ -52,7 +52,7 @@ class user extends _baseAlinaEloquentModel
                     'pkNameOfChildInGlue'  => 'tag_id',
                 ],
                 'conditions'      => [
-                    'where' => ['glue.entity_table', '=', 'user']
+                    ['where', 'glue.entity_table', '=', 'user']
                 ],
                 'childrenColumns' => ['name'],
             ],

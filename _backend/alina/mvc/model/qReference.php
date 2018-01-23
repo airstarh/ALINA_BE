@@ -136,10 +136,8 @@ class qReference
         $mChildren->orderByArray($orderBy);
 
         if ($conditions) {
-            foreach ($conditions as $whereType => $cond) {
-                if (is_numeric($whereType)) {
-                    $whereType = 'where';
-                }
+            foreach ($conditions as $cond) {
+                $whereType = array_shift($cond);
                 call_user_func_array([$q, $whereType], $cond);
             }
         }
@@ -172,10 +170,8 @@ class qReference
             ->addSelect($childrenColumns);
 
         if ($conditions) {
-            foreach ($conditions as $whereType => $cond) {
-                if (is_numeric($whereType)) {
-                    $whereType = 'where';
-                }
+            foreach ($conditions as $cond) {
+                $whereType = array_shift($cond);
                 call_user_func_array([$q, $whereType], $cond);
             }
         }

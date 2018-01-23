@@ -204,9 +204,7 @@ class _baseAlinaEloquentModel
 
     public $attributes;
     /**
-     * @property  object[]
-     * Contains array of Objects received from DB.
-     */
+     * @var  \Illuminate\Support\Collection */
     public $collection = [];
 
     public function getOne($conditions = [])
@@ -233,7 +231,12 @@ class _baseAlinaEloquentModel
         return $this->collection;
     }
 
-    public function qRefHasOne()
+    /**
+     * @param bool $refName
+     * @return \Illuminate\Database\Query\Builder
+     * @throws \ErrorException
+     */
+    public function qRefHasOne($refName = FALSE)
     {
         $q = $this->q;
 
@@ -241,6 +244,9 @@ class _baseAlinaEloquentModel
 
         foreach ($references as $rName => $rConf) {
             if ($rConf['has'] === 1) {
+                if ($refName && $rName !== $refName) {
+                    continue;
+                }
                 (new qReference($this, $rConf))->qHasOne();
             }
         }
@@ -248,20 +254,40 @@ class _baseAlinaEloquentModel
         return $q;
     }
 
-    public function qRefHasMany($refName)
+    /**
+     * @param $refName
+     * @return bool|\Illuminate\Database\Query\Builder[]
+     * @throws \ErrorException
+     */
+    public function qRefHasMany($refName = FALSE)
     {
         $references = $this->referencesTo();
+        $qRs         = [];
 
         foreach ($references as $rName => $rConf) {
             if ($rConf['has'] === 'many') {
-                if ($refName === $rName) {
-                    $q = (new qReference($this, $rConf))->qHasManyThrough();
-
-                    return $q;
+                if ($refName && $rName !== $refName) {
+                    continue;
                 }
+
+                $qR = (new qReference($this, $rConf))->qHasManyThrough();
+
+                $forIds = [];
+                if ($this->collection) {
+                    $forIds = $this->collection->pluck($this->pkName);
+                }
+                if ($this->attributes) {
+                    $forIds[] = $this->attributes->{$this->pkName};
+                }
+                if (!empty($forIds)) {
+                    $qR->whereIn("glue.{$rConf['refKeys']['pkNameOfParentInGlue']}", $forIds);
+                }
+
+                $qRs[$rName] = $qR;
             }
         }
-        return FALSE;
+
+        return $qRs;
     }
 
     #endregion SELECT

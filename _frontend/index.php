@@ -40,7 +40,7 @@ $config = require(ALINA_PATH_TO_APP_CONFIG);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
 
 // ToDo: Delete on prod
-//if (ALINA_MODE !== 'PROD') {
-//    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-//    print_r("<h2>Time spent: $alinaTimeSpent</h2>");
-//}
+if (ALINA_MODE !== 'PROD') {
+    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+    error_log("<<<<<<< Time Spent: {$alinaTimeSpent}",0);
+}
