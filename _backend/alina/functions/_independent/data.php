@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Checks if a $subject could be passed to foreach.
+ * @param mixed $subject
+ * @return bool
+ */
 function isIterable($subject) {
 	return (is_array($subject) || is_object($subject));
 }

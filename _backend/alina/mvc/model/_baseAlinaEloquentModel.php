@@ -18,20 +18,19 @@ class _baseAlinaEloquentModel
     public $q;
     public $alias = '';
 
+    public function __construct()
+    {
+        $this->alias = $this->table;
+    }
+
     /**
      * @param string $alias
      * @return \Illuminate\Database\Query\Builder
      */
     public function q($alias = NULL)
     {
-        if ($alias) {
-            $table       = "{$this->table} AS $alias";
-            $this->alias = $alias;
-        } else {
-            $table = $this->alias = $this->table;
-        }
-
-        $this->q = Dal::table($table);
+        $this->alias = $alias ? $alias : $this->alias;
+        $this->q     = Dal::table("{$this->table} AS {$this->alias}");
 
         return $this->q;
     }
@@ -204,7 +203,8 @@ class _baseAlinaEloquentModel
 
     public $attributes;
     /**
-     * @var  \Illuminate\Support\Collection */
+     * @var  \Illuminate\Support\Collection
+     */
     public $collection = [];
 
     public function getOne($conditions = [])
@@ -227,85 +227,6 @@ class _baseAlinaEloquentModel
 
         return $this->collection;
     }
-
-    /**
-     * @param bool $refName
-     * @return \Illuminate\Database\Query\Builder
-     * @throws \ErrorException
-     */
-    public function qRefHasOne($refName = FALSE)
-    {
-        $q = $this->q;
-
-        $references = $this->referencesTo();
-
-        foreach ($references as $rName => $rConf) {
-            if ($rConf['has'] === 1) {
-                if ($refName && $rName !== $refName) {
-                    continue;
-                }
-                (new qReference($this, $rConf))->qHasOne();
-            }
-        }
-
-        return $q;
-    }
-
-    /**
-     * @param $refName
-     * @return bool|\Illuminate\Database\Query\Builder[]
-     * @throws \ErrorException
-     */
-    public function qRefHasManyThrough($refName = FALSE)
-    {
-        $references = $this->referencesTo();
-        $qRs         = [];
-
-        foreach ($references as $rName => $rConf) {
-            if ($rConf['has'] === 'manyThrough') {
-                if ($refName && $rName !== $refName) {
-                    continue;
-                }
-
-                $qReference = new qReference($this, $rConf);
-
-                $forIds = [];
-                if ($this->collection) {
-                    $forIds = $this->collection->pluck($this->pkName);
-                }
-                if ($this->attributes) {
-                    $forIds[] = $this->attributes->{$this->pkName};
-                }
-                if (!empty($forIds)) {
-                    $qReference->set('forIds', $forIds);
-                }
-
-                $qR = $qReference->qHasManyThrough();
-                $qRs[$rName] = $qR;
-            }
-        }
-
-        return $qRs;
-    }
-
-    public function applyAllHasManyReferences() {
-        $qRs = $this->qRefHasManyThrough();
-
-        foreach ($qRs as $rName => $qR) {
-
-            $qrDbData = $qR->get();
-
-            foreach ($parentCollection as $dbParent) {
-                $dbParent->{$rName} = [];
-                foreach ($qrDbData as $qrDbRow) {
-                    if ($dbParent->{$this->pkName} === $qrDbRow->parent_id) {
-                        $dbParent->{$rName}[] = $qrDbRow;
-                    }
-                }
-            }
-        }
-    }
-
     #endregion SELECT
 
     #region INSERT or Update
@@ -699,7 +620,7 @@ class _baseAlinaEloquentModel
     #endregion DELETE
 
     #region Transaction.
-    // This functionality is moved to @file api/integration/illuminate-extend/class.Transaction.php
+    // This functionality is moved to @file _backend/alina/mvc/model/_baseAlinaEloquentTransaction.php
     #endregion Transaction.
 
     #region API, LIMIT, ORDER
@@ -954,6 +875,26 @@ class _baseAlinaEloquentModel
     #endregion May be Trait.
 
     #region relations
+
+    public function applyAllHasOneReferences()
+    {
+
+    }
+
+    public function applyHasOneReferenceByRefName($refName)
+    {
+
+    }
+
+    public function applyHasManyReferences($refName)
+    {
+
+    }
+
+    public function applyHasManyReferenceByRefName($refName)
+    {
+
+    }
 
     public function referencesTo()
     {
