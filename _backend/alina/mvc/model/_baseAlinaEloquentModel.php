@@ -631,7 +631,7 @@ class _baseAlinaEloquentModel
     public $sortDefault = [];
     public $sortName    = NULL;
     public $sortAsc     = 'ASC';
-    public $page        = -1;
+    public $page        = 0;
     public $pageSize    = 15;
 
     /**
@@ -670,9 +670,10 @@ class _baseAlinaEloquentModel
 
     /**
      * Apply ORDER BY to query
+     * @param array array $backendSortArray
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function apiOrder()
+    public function apiOrder($backendSortArray = [])
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q = $this->q;
@@ -681,6 +682,11 @@ class _baseAlinaEloquentModel
         $sortArray = $this->apiProcessSortNameSortAscData($this->sortName, $this->sortAsc);
         if (empty($sortArray)) {
             $sortArray = $this->sortDefault;
+        }
+
+        //Finally if function is called from backend...
+        if (isset($backendSortArray) && !empty($backendSortArray)) {
+            $sortArray = $backendSortArray;
         }
 
         //$sortArray = array_merge($sortArray, $this->sortDefault);
@@ -744,9 +750,11 @@ class _baseAlinaEloquentModel
 
     /**
      * Apply LIMIT/OFFSET to a query
+     * @param int|null $backendLimit
+     * @param int|null $backendOffset
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function apiLimitOffset()
+    public function apiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q        = $this->q;
@@ -755,6 +763,14 @@ class _baseAlinaEloquentModel
 
         if (FALSE !== ($offset = $this->apiGetRowOffset($page, $pageSize))) {
             $q->skip($offset)->take($pageSize);
+        }
+
+        //Finally: if LIMIT and OFFSET are passed via back-end...
+        if ($backendLimit) {
+            $q->take($backendLimit);
+        }
+        if ($backendOffset) {
+            $q->skip($backendOffset);
         }
 
         return $q;
@@ -875,6 +891,24 @@ class _baseAlinaEloquentModel
     #endregion May be Trait.
 
     #region relations
+    public function getAllWithReferences($conditions = [], $backendSortArray = [], $limit = NULL, $offset = NULL)
+    {
+        $q = $this->q();
+        $q->select(["{$this->alias}.*"]);
+        $q->where($conditions);
+        $this->apiOrder($backendSortArray);
+//        $offset ? $q->skip($offset) : NULL;
+//        $limit ? $q->take($limit) : NULL;
+        $this->apiLimitOffset($limit, $offset);
+        $this->joinHasOne();
+        $this->orderByArray([['id', 'ASC']]);
+        $this->collection = $this->collection = $q->get();
+        //~
+        $this->joinHasMany();
+
+        return $this->collection;
+    }
+
     public function joinHasOne()
     {
         (new referenceProcessor($this))->joinHasOne();

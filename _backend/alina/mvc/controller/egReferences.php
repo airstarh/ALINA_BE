@@ -9,13 +9,24 @@ class egReferences
 {
     public function actionIndex()
     {
-        $m = new user();
-        $q = $m->q();
-        $q->select(["{$m->alias}.*"]);
-        $m->joinHasOne();
-        $m->orderByArray([['id', 'ASC']]);
-        $m->collection = $m->collection = $q->get();
-        $m->joinHasMany();
+        $m          = new user();
+        $conditions = ["{$m->alias}.id" => '2',];
+        $orderArray = [["{$m->alias}.id", 'DESC']];
+        $limit      = 2;
+        $offset     = 2;
+
+        $m          = new user();
+        $conditions = [
+            [function ($qu) {
+                $qu->whereIn('user.id', [2, 3]);
+            }],
+            'firstname' => 'Третий'
+        ];
+        $orderArray = [["{$m->alias}.id", 'DESC']];
+        $limit      = NULL;
+        $offset     = NULL;
+
+        $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
 
         echo '<pre>';
         print_r($m->collection->toArray());
