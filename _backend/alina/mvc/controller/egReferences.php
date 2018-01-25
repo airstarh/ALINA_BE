@@ -26,6 +26,8 @@ class egReferences
         $limit      = NULL;
         $offset     = NULL;
 
+        throw new \ErrorException('Hellow, World!');
+
         $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
 
         echo '<pre>';

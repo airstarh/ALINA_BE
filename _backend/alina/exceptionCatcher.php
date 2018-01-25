@@ -4,9 +4,8 @@ namespace alina;
 
 class exceptionCatcher
 {
-    protected        $exit     = FALSE;
+    protected $exit         = FALSE;
     protected $messageTmplt = '';
-
     /** @var array
      *
      * 'error_level' => string,
@@ -16,13 +15,11 @@ class exceptionCatcher
      * 'error_trace' => string,
      */
     protected $messageParams = [];
-
     public $eLevel  = '';
     public $eString = '';
     public $eFile   = '';
     public $eLine   = '';
     public $eTrace  = '';
-
     public $messageString = '';
     public $messageHtml   = '';
 
@@ -30,7 +27,6 @@ class exceptionCatcher
     {
 
     }
-
 
     /**
      * @return static object
@@ -65,7 +61,7 @@ class exceptionCatcher
             ? $exception->getTraceAsString()
             : 'Trace is unavailable';
         $NL                  = PHP_EOL;
-        $this->messageTmplt       = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
+        $this->messageTmplt  = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
         $this->messageParams = [
             $this->eLevel,
             $this->eString,
@@ -83,7 +79,12 @@ class exceptionCatcher
     public function prepareError()
     {
         $this->messageString = vsprintf($this->messageTmplt, $this->messageParams);
-        \alina\message::set($this->messageTmplt, $this->messageParams, 'red');
+        #region PHP ERROR LOG
+        error_log('ERROR MESSAGE',0);
+        error_log(json_encode($this->messageString),0);
+        #endregion PHP ERROR LOG
+
+        \alina\message::set($this->messageTmplt, $this->messageParams, 'alert alert-danger');
 
         $config = \alina\app::getConfig('debug');
         if (in_array(TRUE, $config)) {

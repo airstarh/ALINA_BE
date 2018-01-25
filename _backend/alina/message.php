@@ -126,7 +126,8 @@ class message
 
     public function messageRawText()
     {
-        return vsprintf($this->text, $this->params);
+        $string = vsprintf($this->text, $this->params);
+        return $string;
     }
 
     public function messageHtml()
