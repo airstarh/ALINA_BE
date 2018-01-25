@@ -875,37 +875,25 @@ class _baseAlinaEloquentModel
     #endregion May be Trait.
 
     #region relations
-
-    public function applyAllHasOneReferences()
+    public function joinHasOne()
     {
-
+        (new referenceProcessor($this))->joinHasOne();
     }
 
-    public function applyHasOneReferenceByRefName($refName)
+    public function joinHasMany()
     {
-
-    }
-
-    public function applyHasManyReferences($refName)
-    {
-
-    }
-
-    public function applyHasManyReferenceByRefName($refName)
-    {
-
-    }
-
-    public function referencesTo()
-    {
-        return [];
-    }
-
-    public function isFieldReference($fName)
-    {
-        $references = $this->referencesTo();
-
-        return array_key_exists($fName, $references) && $references[$fName]['has'] === 1;
+        $forIds        = $this->collection->pluck($this->pkName);
+        $qHasManyArray = (new referenceProcessor($this))->joinHasMany([], $forIds);
+        foreach ($qHasManyArray as $rName => $q) {
+            $qResult = $q->get();
+            foreach ($this->collection as $thisModelAttributes) {
+                foreach ($qResult as $row) {
+                    if ($thisModelAttributes->{$this->pkName} === $row->main_id) {
+                        $thisModelAttributes->{$rName}[] = $row;
+                    }
+                }
+            }
+        }
     }
     #endregion relations
 }

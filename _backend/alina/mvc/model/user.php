@@ -57,6 +57,7 @@ class user extends _baseAlinaEloquentModel
             ],
             'files'    => [
                 'has'        => 'many',
+                'model'      => 'file',
                 'joins'      => [
                     ['join', 'file AS child', 'child.entity_id', '=', "{$this->alias}.{$this->pkName}"]
                 ],
@@ -78,6 +79,9 @@ class user extends _baseAlinaEloquentModel
                 ],
                 'addSelects' => [
                     ['addSelect', ['child.*', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]]
+                ],
+                'orders'     => [
+                    ['orderBy', 'child.name', 'ASC']
                 ],
             ],
         ];

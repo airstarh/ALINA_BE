@@ -2,6 +2,7 @@
 
 namespace alina\mvc\model;
 
+
 class referenceProcessor
 {
     /** @var \Illuminate\Database\Query\Builder $q */
@@ -34,6 +35,7 @@ class referenceProcessor
 
             switch ($rConfig['has']) {
                 case 'one':
+                case 1:
                     $this->q              = $q;
                     $this->qArray[$rName] = $this->applyRefConfigToQuery($rConfig);
 
@@ -60,9 +62,10 @@ class referenceProcessor
          * it is highly recommended to iterate $m->referencesTo() AFTER $m->q() has been executed.
          */
 
-        if (!isIterable($refNames)) {
+        if (is_string($refNames)) {
             $refNames = [$refNames];
         }
+
         $model        = $this->model;
         $mClassName   = get_class($model);
         $m            = new $mClassName();
@@ -85,6 +88,7 @@ class referenceProcessor
                     if (!empty($this->forIds)) {
                         $this->qArray[$rName]->whereIn("{$m->alias}.{$m->pkName}", $this->forIds);
                     }
+
                     $this->q = NULL;
                     break;
             }
@@ -104,6 +108,9 @@ class referenceProcessor
         }
         if (isset($refConfig['addSelects'])) {
             $this->applyQueryOperations($refConfig['addSelects']);
+        }
+        if (isset($refConfig['orders'])) {
+            $this->applyQueryOperations($refConfig['orders']);
         }
 
         return $this->q;

@@ -10,33 +10,15 @@ class egReferences
     public function actionIndex()
     {
         $m = new user();
-        $q = $m->q('user');
-        $q->select(['user.*']);
+        $q = $m->q();
+        $q->select(["{$m->alias}.*"]);
+        $m->joinHasOne();
         $m->orderByArray([['id', 'ASC']]);
-        (new referenceProcessor($m))->joinHasOne();
-        $parentCollection = $m->collection = $q->get();
-        $forIds = $parentCollection->pluck($m->pkName);
-
-        $qArr = (new referenceProcessor($m))->joinHasMany();
-
-        $qRefResult = [];
-        foreach ($qArr as $rName=> $q) {
-            $refs = $qRefResult[$rName] = $q->get();
-            foreach ($parentCollection as $mParent) {
-                foreach ($refs as $row) {
-                    if ($mParent->{$m->pkName} === $row->main_id) {
-                        $mParent->{$rName}[] = $row;
-                    }
-                }
-            }
-
-
-        }
-
+        $m->collection = $m->collection = $q->get();
+        $m->joinHasMany();
 
         echo '<pre>';
-        print_r($parentCollection->toArray());
-        //print_r($qRefResult);
+        print_r($m->collection->toArray());
         echo '</pre>';
     }
 }
