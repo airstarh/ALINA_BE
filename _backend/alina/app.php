@@ -269,7 +269,6 @@ class app
 
     public function fullActionName($name)
     {
-        //ToDo: Case sensitive methods!
         return static::ACTION_PREFIX . ucfirst($name);
     }
 
@@ -345,7 +344,7 @@ class app
 
     public function mvcPageNotFound()
     {
-        // ToDo: line below does not wor with Nginx correct. Investigate.
+        // ToDo: line below does not work with Nginx correct. Investigate.
         //http_response_code(404);
 
         // 404 of user app

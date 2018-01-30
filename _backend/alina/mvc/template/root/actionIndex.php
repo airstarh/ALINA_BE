@@ -569,29 +569,4 @@
 		<span class="sr-only">Next</span>
 	</a>
 </div>
-
-<div>
-	<?php
-	// ToDo: Delete on PROD.
-	if (ALINA_MODE !== 'PROD') {
-		$__FILE__ = 'Alina Details';
-		print_r("<h1>{$__FILE__}</h1>");
-		echo '<pre>';
-		print_r(\alina\app::get()->router);
-		echo '</pre>';
-
-		echo '<pre>';
-		print_r([
-			'currentController' => \alina\app::get()->currentController,
-			'currentAction'     => \alina\app::get()->currentAction,
-		]);
-		echo '</pre>';
-	}
-
-	$alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-	print_r("<h2>Time spent: $alinaTimeSpent</h2>");
-
-	?>
-</div>
-
 <!-- /container -->
