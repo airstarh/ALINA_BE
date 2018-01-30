@@ -16,7 +16,7 @@ switch (ALINA_ENV) {
         define('ALINA_MODE', 'dev');
         define('ALINA_PATH_TO_FRAMEWORK', 'C:\_REPO\ALINA\_backend\alina');
         define('ALINA_PATH_TO_APP', 'C:\_REPO\ALINA\_backend\_aplications\zero');
-        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php"');
+        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php');
         define('ALINA_WEB_PATH', __DIR__);
         break;
     case 'HOME_2':
