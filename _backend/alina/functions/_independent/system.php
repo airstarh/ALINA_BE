@@ -46,4 +46,12 @@ function getcookie($name = NULL)
 
     return $cookies;
 }
+
+function resolvePostDataAsObject()
+{
+    $postOriginal = toObject($_POST);
+    $postStdIn    = toObject(file_get_contents('php://input'));
+    $res = mergeSimpleObjects($postOriginal, $postStdIn);
+    return $res;
+}
 #endregion Drafts

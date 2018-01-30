@@ -5,7 +5,13 @@ namespace alina\mvc\controller;
 
 class alinaRestAccept {
 
-	public function actionIndex() {
+    public function actionIndex() {
+        $data = resolvePostDataAsObject();
+        $this->standardRestApiResponse($data);
+    }
+
+
+    public function actionIndex1() {
 
 		$m   = new \alina\mvc\model\user();
 		$res = $m->getAll();
@@ -19,12 +25,13 @@ class alinaRestAccept {
 	}
 
 	//ToDo: Never use on prod.
-	public function systemData() {
-		$anotherPost        = $input = file_get_contents('php://input');
+	protected function systemData() {
+
+        if (ALINA_MODE === 'PROD') {return [];}
+
 		$sysData            = [];
 		$sysData['GET']     = $_GET;
-		$sysData['POST']    = $_POST;
-		$sysData['POST2']   = json_decode($anotherPost);
+		$sysData['POST']    = resolvePostDataAsObject();
 		$sysData['FILE']    = $_FILES;
 		$sysData['COOKIES'] = $_COOKIE;
 		$sysData['SERVER']  = $_SERVER;
@@ -51,7 +58,7 @@ class alinaRestAccept {
 		}
 
 		header('Content-Type: application/json; charset=utf-8');
-		//ToDo: Think about encoding.
+		//ToDo: Think about encoding (utf8ize).
 		echo json_encode(utf8ize($response));
 		//echo json_encode($response, JSON_UNESCAPED_UNICODE);
 		//echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);

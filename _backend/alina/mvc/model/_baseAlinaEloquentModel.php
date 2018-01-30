@@ -902,7 +902,7 @@ class _baseAlinaEloquentModel
         $this->apiLimitOffset($limit, $offset);
         $this->joinHasOne();
         $this->orderByArray([['id', 'ASC']]);
-        $this->collection = $this->collection = $q->get();
+        $this->collection = $q->get();
         //~
         $this->joinHasMany();
 
