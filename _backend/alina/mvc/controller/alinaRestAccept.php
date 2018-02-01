@@ -2,9 +2,41 @@
 
 namespace alina\mvc\controller;
 
+use alina\mvc\model\modelNamesResolver;
+
 class alinaRestAccept
 {
     public function actionIndex()
+    {
+        error_log(__FUNCTION__, 0);
+        error_log(json_encode(func_get_args()), 0);
+        $method = strtoupper($_SERVER['REQUEST_METHOD']);
+
+        switch ($method) {
+            case 'POST':
+            case 'PUT':
+                $post = resolvePostDataAsObject();
+
+                break;
+            case 'GET':
+            default:
+                /**
+                 *  /?cmd=model&m=user&[search_parameters]
+                 */
+                if (isset($_GET['cmd']) && !empty($_GET['cmd'])) {
+                    $command = $_GET['cmd'];
+                    if ($command === 'model') {
+                        $modelName = $_GET['m'];
+                        $m         = modelNamesResolver::getModelObject($modelName);
+                        $data      = $m->getAllWithReferences();
+                        $this->standardRestApiResponse($data);
+                    }
+                }
+                break;
+        }
+    }
+
+    public function actionIndex2()
     {
         $data = resolvePostDataAsObject();
         $this->standardRestApiResponse($data);
@@ -76,13 +108,15 @@ class alinaRestAccept
     {
         //https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
         //ToDo: DANGEROUS IF PROD!!!
-        switch ($_SERVER['HTTP_ORIGIN']) {
-            default:
-                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-                header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                header('Access-Control-Max-Age: 1000');
-                header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-                break;
+        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+            switch ($_SERVER['HTTP_ORIGIN']) {
+                default:
+                    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+                    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+                    header('Access-Control-Max-Age: 1000');
+                    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+                    break;
+            }
         }
 
         return $this;

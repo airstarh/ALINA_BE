@@ -86,4 +86,13 @@ class user extends _baseAlinaEloquentModel
             ],
         ];
     }
+
+    public function vocGetSearchSpecial() {
+        return [
+            'id' => 'id',
+            'fn' => 'firstname',
+            'ln' => 'lastname',
+            'tz' => 'timezone',
+        ];
+    }
 }

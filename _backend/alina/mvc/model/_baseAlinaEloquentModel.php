@@ -123,47 +123,28 @@ class _baseAlinaEloquentModel
 
     public function vocGetSearch()
     {
-        return [
+        $vocGetSearchSpecial = [];
+        if (method_exists($this, 'vocGetSearchSpecial')) {
+            $vocGetSearchSpecial = $this->vocGetSearchSpecial();
+        }
+
+        $vocGetSearch = [
             // Pagination
-            'ps'    => 'pageSize',
-            'p'     => 'page',
+            'ps' => 'pageSize',
+            'p'  => 'page',
 
             // Sorting functionality
-            'sa'    => 'sortAsc',
-            'sn'    => 'sortName',
+            'sa' => 'sortAsc',
+            'sn' => 'sortName',
 
             // Search
-            'q'     => 'search',
-
-            // For Marketing API
-            'mid'   => 'marketingId',
-            'scd'   => 'startCreatedDate',
-            'ecd'   => 'endCreatedDate',
-            'doct'  => 'docType',
-            'sdd'   => 'startDistributedDate',
-            'edd'   => 'endDistributedDate',
-            'ds'    => 'docStatus',
-            'srd'   => 'startRequiredDate',
-            'erd'   => 'endRequiredDate',
-            'ct'    => 'clientType',
-            'distt' => 'distributionType',
-
-            // For File API
-            'kid'   => 'keyId',
-            'ft'    => 'fileType',
-            'ofid'  => 'openFileId',
-
-            // For Message API
-            // 'kid' => 'keyId', // FYI: Same is for Fle.
-            'rt'    => 'refType', // ToDo: Reasonable to merge with 'ft'.
-
-            //For Task API.
-            'tdt'   => 'taskDefType',
-            'tid'   => 'taskId',
+            'q'  => 'search',
         ];
+
+        return array_merge($vocGetSearchSpecial, $vocGetSearch);
     }
 
-    public function unpackGetParams()
+    public function apiUnpackGetParams()
     {
         $this->req    = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
@@ -179,6 +160,7 @@ class _baseAlinaEloquentModel
                 $this->req->{$full} = $_GET[$short];
             }
         }
+
         // Additional Special Condition $this->sortName, $this->sortAsc
         if (isset($_GET['sa'])) {
             $this->sortAsc = $_GET['sa'];
@@ -186,7 +168,6 @@ class _baseAlinaEloquentModel
         if (isset($_GET['sn'])) {
             $this->sortName = $_GET['sn'];
         }
-
         // Additional Special Condition $this->pageSize, $this->page
         if (isset($_GET['ps'])) {
             $this->pageSize = $_GET['ps'];
@@ -196,6 +177,19 @@ class _baseAlinaEloquentModel
         }
 
         return $this->req;
+    }
+
+    public function qApplyGetParams()
+    {
+        //ToDo: Check $q, $req emptiness.
+        $q   = $this->q;
+        $req = $this->req;
+        foreach ($req as $f => $v) {
+            //ToDo: More Complex for dates, ranges, etc.
+            if ($this->tableHasField($f)) {
+                $q->where("{$this->alias}.{$f}", '=', $v);
+            }
+        }
     }
     #endregion Search Parameters
 
@@ -563,10 +557,7 @@ class _baseAlinaEloquentModel
 
     public function tableHasField($fieldName)
     {
-        $fields = $this->fields();
-        $fields = array_keys($fields);
-
-        return in_array($fieldName, $fields);
+        return array_key_exists($fieldName, $this->fields());
     }
 
     public function resetFlags()
@@ -643,7 +634,7 @@ class _baseAlinaEloquentModel
      *  'models' => array of objects which represent database rows,
      * ]
      */
-    public function apiResponsePaginated()
+    public function qApiResponsePaginated()
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q = $this->q;
@@ -652,10 +643,10 @@ class _baseAlinaEloquentModel
         $total = $q->count();
 
         // ORDER
-        $this->apiOrder();
+        $this->qApiOrder();
 
         // LIMIT partial
-        $this->apiLimitOffset();
+        $this->qApiApplyLimitOffset();
 
         // Result
         //fDebug($q->toSql());
@@ -673,13 +664,13 @@ class _baseAlinaEloquentModel
      * @param array array $backendSortArray
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function apiOrder($backendSortArray = [])
+    public function qApiOrder($backendSortArray = [])
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q = $this->q;
 
         // User Defined Sort parameters.
-        $sortArray = $this->apiProcessSortNameSortAscData($this->sortName, $this->sortAsc);
+        $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
         if (empty($sortArray)) {
             $sortArray = $this->sortDefault;
         }
@@ -690,12 +681,12 @@ class _baseAlinaEloquentModel
         }
 
         //$sortArray = array_merge($sortArray, $this->sortDefault);
-        $this->orderByArray($sortArray);
+        $this->qOrderByArray($sortArray);
 
         return $q;
     }
 
-    public function apiProcessSortNameSortAscData($sortName, $sortAsc)
+    public function calcSortNameSortAscData($sortName, $sortAsc)
     {
 
         if (empty($sortName)) {
@@ -722,7 +713,7 @@ class _baseAlinaEloquentModel
      * @param $orderArray array
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function orderByArray($orderArray = [])
+    public function qOrderByArray($orderArray = [])
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q = $this->q;
@@ -754,14 +745,14 @@ class _baseAlinaEloquentModel
      * @param int|null $backendOffset
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function apiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
+    public function qApiApplyLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q        = $this->q;
         $page     = $this->page;
         $pageSize = $this->pageSize;
 
-        if (FALSE !== ($offset = $this->apiGetRowOffset($page, $pageSize))) {
+        if (FALSE !== ($offset = $this->calcPagePageSize($page, $pageSize))) {
             $q->skip($offset)->take($pageSize);
         }
 
@@ -776,7 +767,7 @@ class _baseAlinaEloquentModel
         return $q;
     }
 
-    public function apiGetRowOffset($page, $pageSize)
+    public function calcPagePageSize($page, $pageSize)
     {
         if (!isset($pageSize) || !isset($page) || !$pageSize || !$page) {
             return FALSE;
@@ -795,7 +786,7 @@ class _baseAlinaEloquentModel
      * Add Audit Info if possible.
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function apiJoinAuditInfo()
+    public function qApiJoinAuditInfo()
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q          = $this->q;
@@ -896,12 +887,15 @@ class _baseAlinaEloquentModel
         $q = $this->q();
         $q->select(["{$this->alias}.*"]);
         $q->where($conditions);
-        $this->apiOrder($backendSortArray);
+        $this->qApiOrder($backendSortArray);
 //        $offset ? $q->skip($offset) : NULL;
 //        $limit ? $q->take($limit) : NULL;
-        $this->apiLimitOffset($limit, $offset);
+        $this->qApiApplyLimitOffset($limit, $offset);
         $this->joinHasOne();
-        $this->orderByArray([['id', 'ASC']]);
+        //API WHERE
+        $this->apiUnpackGetParams();
+        $this->qApplyGetParams();
+        //Execute query.
         $this->collection = $q->get();
         //~
         $this->joinHasMany();
