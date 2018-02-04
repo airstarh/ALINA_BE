@@ -37,12 +37,20 @@ class modelNamesResolver
         
         //ToDo: Implement Class Scanner.
         $voc = static::$vocTableToClassName;
-        if (!array_key_exists($describer, $voc)) {
-            throw new \ErrorException($message[0]);
+        if (array_key_exists($describer, $voc)) {
+            if (class_exists($voc[$describer])) {
+                return new $voc[$describer]();
+            }
         }
 
-        if (class_exists($voc[$describer])) {
-            return new $voc[$describer]();
+        //Finally try...
+        try {
+            $m        = new _baseAlinaEloquentModel();
+            $m->table = $m->alias = $describer;
+
+            return $m;
+        } catch (\Exception $e) {
+            $message[0] = "There is no table {$describer}";
         }
 
         throw new \ErrorException($message[0]);

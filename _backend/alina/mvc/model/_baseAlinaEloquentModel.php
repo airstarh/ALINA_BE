@@ -882,6 +882,9 @@ class _baseAlinaEloquentModel
     #endregion May be Trait.
 
     #region relations
+
+    public function referencesTo() {return [];}
+
     public function getAllWithReferences($conditions = [], $backendSortArray = [], $limit = NULL, $offset = NULL)
     {
         $q = $this->q();
