@@ -16,8 +16,7 @@ function getArrayValueByArrayPath(array $path = [], array $array)
     foreach ($path as $section) {
         if (array_key_exists($section, $temp)) {
             $temp = &$temp[$section];
-        }
-        else {
+        } else {
             throw new \Exception("No section $section in Array");
         }
     }
@@ -69,8 +68,9 @@ function arrayHasPath($path, array $array, $delimiter = '/')
 {
     if (is_array($path)) {
         return checkArrayPathByArray($path, $array);
+    } else {
+        return checkArrayPathByString($path, $array, $delimiter);
     }
-    else return checkArrayPathByString($path, $array, $delimiter);
 }
 
 function checkArrayPathByArray(array $path, array $array, &$value = NULL)
@@ -79,9 +79,9 @@ function checkArrayPathByArray(array $path, array $array, &$value = NULL)
     foreach ($path as $p) {
         if (array_key_exists($p, $temp)) {
             $temp = &$temp[$p];
-        }
-        else
+        } else {
             return FALSE;
+        }
     }
 
     $value = $temp;
@@ -116,8 +116,9 @@ function unsetArrayPathByArrayPath(array $path, array &$array)
         $previousElement = &$temp;
         $temp            = &$temp[$p];
     }
-    if ($previousElement !== NULL && isset($p))
+    if ($previousElement !== NULL && isset($p)) {
         unset($previousElement[$p]);
+    }
 
     return $array;
 }
@@ -148,6 +149,18 @@ function firstArrayValue($array)
     return $value;
 }
 
+function lastArrayKey($array)
+{
+    $arrayOfKeys = array_keys($array);
+
+    return end($arrayOfKeys);
+}
+
+function lastArrayValue($array)
+{
+    return end($array);
+}
+
 function arrayMergeRecursive(array $array1, array $array2)
 {
     $merged = $array1;
@@ -155,13 +168,15 @@ function arrayMergeRecursive(array $array1, array $array2)
     foreach ($array2 as $key => & $value) {
         if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && !is_numeric($key)) {
             $merged[$key] = arrayMergeRecursive($merged[$key], $value);
+        } else {
+            if (is_numeric($key)) {
+                if (!in_array($value, $merged)) {
+                    $merged[] = $value;
+                }
+            } else {
+                $merged[$key] = $value;
+            }
         }
-        else if (is_numeric($key)) {
-            if (!in_array($value, $merged))
-                $merged[] = $value;
-        }
-        else
-            $merged[$key] = $value;
     }
 
     return $merged;

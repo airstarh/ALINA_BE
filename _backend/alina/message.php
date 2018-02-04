@@ -7,7 +7,6 @@ namespace alina;
 class message
 {
     const MESSAGES = 'ALINA_MESSAGES';
-
     #region Facade (Collection)
     /**
      * @property array
@@ -18,12 +17,14 @@ class message
 
     static public function set($text, $params = [], $status = 'alert alert-success')
     {
-        $_this          = new static;
-        $_this->text    = $text;
-        $_this->params  = $params;
-        $_this->status  = $status;
-        $_this->isShown = FALSE;
+        $_this                 = new static;
+        $_this->templateString = $text;
+        $_this->params         = $params;
+        $_this->status         = $status;
+        $_this->isShown        = FALSE;
         $_this->addToCollection();
+
+        return $_this;
     }
 
     static public function returnAllHtmlString()
@@ -34,7 +35,7 @@ class message
         /** @var \alina\message $message */
         foreach ($collection as $pseudoId => $message) {
             if (!$message->isShown) {
-                $all .= $message->messageHtml();
+                $all              .= $message->messageHtml();
                 $message->isShown = TRUE;
             }
         }
@@ -42,7 +43,7 @@ class message
         return $all;
     }
 
-    static public function returnAllJsonString()
+    static public function returnAllMessages()
     {
         $collection = static::getCollection();
         $all        = [];
@@ -59,10 +60,11 @@ class message
             }
         }
 
-        return json_encode($all);
+        //static::removeAll();
+        return $all;
     }
 
-    static public function getCollection()
+    static protected function getCollection()
     {
         if (\alina\session::has(static::MESSAGES)) {
             static::$collection              = \alina\session::get(static::MESSAGES);
@@ -77,10 +79,12 @@ class message
     static protected function setCollectionToSession()
     {
         try {
-            if (\alina\session::set(static::MESSAGES, static::$collection))
+            if (\alina\session::set(static::MESSAGES, static::$collection)) {
                 static::$flagCollectionInSession = TRUE;
-        }
-        catch (\Exception $e) {
+            }
+        } catch (\Exception $e) {
+            error_log(__FUNCTION__, 0);
+            error_log('Alina Messages are not in session!', 0);
             static::$flagCollectionInSession = FALSE;
         }
     }
@@ -108,26 +112,26 @@ class message
 
     #region Message Object
     public $id;
-    public $text     = '';
-    public $params   = [];
-    public $status   = 'alert alert-success';
-    public $statuses = ['green', 'yellow', 'red'];
-    public $isShown  = FALSE;
+    public $templateString = '';
+    public $params         = [];
+    public $messageRawText = '';
+    public $status         = 'alert alert-success';
+    public $statuses       = ['green', 'yellow', 'red'];
+    public $isShown        = FALSE;
 
     public function addToCollection()
     {
         static::$collection   = static::getCollection();
         static::$collection[] = $this;
-        $lastId               = end(static::$collection);
-        $lastId               = key(static::$collection);
-        $this->id             = $lastId;
+        $this->id             = lastArrayKey(static::$collection);
         static::setCollectionToSession();
     }
 
     public function messageRawText()
     {
-        $string = vsprintf($this->text, $this->params);
-        return $string;
+        $this->messageRawText = vsprintf($this->templateString, $this->params);
+
+        return $this->messageRawText;
     }
 
     public function messageHtml()

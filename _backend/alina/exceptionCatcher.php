@@ -4,9 +4,8 @@ namespace alina;
 
 class exceptionCatcher
 {
-    protected $exit         = FALSE;
-    protected $messageTmplt = '';
-    /** @var array
+    protected $errorTemplate = '';
+    /** @property array errorParams
      *
      * 'error_level' => string,
      * 'errstr' => string,
@@ -14,14 +13,14 @@ class exceptionCatcher
      * 'errline' => string,
      * 'error_trace' => string,
      */
-    protected $messageParams = [];
-    public $eLevel  = '';
-    public $eString = '';
-    public $eFile   = '';
-    public $eLine   = '';
-    public $eTrace  = '';
-    public $messageString = '';
-    public $messageHtml   = '';
+    protected $errorParams = [];
+    public    $eLevel      = '';
+    public    $eString     = '';
+    public    $eFile       = '';
+    public    $eLine       = '';
+    public    $eTrace      = '';
+    public    $errprString = '';
+    public    $errorHtml   = '';
 
     protected function __construct()
     {
@@ -61,8 +60,8 @@ class exceptionCatcher
             ? $exception->getTraceAsString()
             : 'Trace is unavailable';
         $NL                  = PHP_EOL;
-        $this->messageTmplt  = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
-        $this->messageParams = [
+        $this->errorTemplate = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
+        $this->errorParams   = [
             $this->eLevel,
             $this->eString,
             $this->eFile,
@@ -71,20 +70,27 @@ class exceptionCatcher
         ];
 
         $this->prepareError();
+        $this->processError();
 
-        // ToDo: may be a condition is needed.
-        \alina\app::get()->mvcGo('root', 'Exception', $this);
+        if (isAjax()) {
+            (new \alina\mvc\view\json())->standardRestApiResponse();
+        } else {
+            \alina\app::get()->mvcGo('root', 'Exception', $this);
+        }
     }
 
     public function prepareError()
     {
-        $this->messageString = vsprintf($this->messageTmplt, $this->messageParams);
+        $message = \alina\message::set($this->errorTemplate, $this->errorParams, 'alert alert-danger');
+        $this->errprString = $message->messageRawText();
+    }
+
+    public function processError() {
+
         #region PHP ERROR LOG
         error_log('ERROR MESSAGE',0);
-        error_log(json_encode($this->messageString),0);
+        error_log(json_encode($this->errprString),0);
         #endregion PHP ERROR LOG
-
-        \alina\message::set($this->messageTmplt, $this->messageParams, 'alert alert-danger');
 
         $config = \alina\app::getConfig('debug');
         if (in_array(TRUE, $config)) {
@@ -98,20 +104,16 @@ class exceptionCatcher
             }
 
             if (isset($config['toFile']) && $config['toFile']) {
-                $this->messageHtml = '<br/>';
-                $this->messageHtml .= $this->eLevel . '<br/>' . PHP_EOL;
-                $this->messageHtml .= $this->eString . '<br/>' . PHP_EOL;
-                $this->messageHtml .= $this->eFile . '<br/>' . PHP_EOL;
-                $this->messageHtml .= $this->eLine . '<br/>' . PHP_EOL;
-                $this->messageHtml .= $this->eTrace . '<br/>' . PHP_EOL;
-                $this->messageHtml .= '<br/>';
-                fDebug($this->messageHtml);
+                $this->errorHtml = [];
+                $this->errorHtml[]= $this->eLevel;
+                $this->errorHtml[]= $this->eString;
+                $this->errorHtml[]= $this->eFile;
+                $this->errorHtml[]= $this->eLine;
+                $this->errorHtml[]= $this->eTrace;
+                $NL = '</br>'.PHP_EOL;
+                $this->errorHtml = implode($NL, $this->errorHtml);
+                fDebug($this->errorHtml);
             }
-        }
-
-        if ($this->exit) {
-            $this->exit = FALSE;
-            exit();
         }
     }
 }

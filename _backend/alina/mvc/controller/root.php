@@ -20,7 +20,7 @@ class root
     public function actionException()
     {
         if (isAjax()) {
-            echo \alina\message::returnAllJsonString();
+            echo \alina\message::returnAllMessages();
 
             return TRUE;
         }
