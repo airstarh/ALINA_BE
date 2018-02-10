@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-class timezone extends _baseAlinaEloquentModel
+class timezone extends _BaseAlinaModel
 {
     public $table  = 'timezone';
     public $pkName = 'id';

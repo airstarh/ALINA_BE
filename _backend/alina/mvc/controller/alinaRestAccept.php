@@ -2,7 +2,9 @@
 
 namespace alina\mvc\controller;
 
+use alina\mvc\model\hero;
 use alina\mvc\model\modelNamesResolver;
+use alina\mvc\view\json as jsonView;
 
 class alinaRestAccept
 {
@@ -27,26 +29,52 @@ class alinaRestAccept
                         $modelName = $_GET['m'];
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
-                        (new \alina\mvc\view\json())->standardRestApiResponse($data);
+                        (new jsonView())->standardRestApiResponse($data);
                     }
                 }
                 break;
         }
     }
 
-    public function actionIndex2()
+    public function actionNgHeroes(...$routeData)
     {
-        $data = resolvePostDataAsObject();
-        $this->standardRestApiResponse($data);
-    }
+        (new jsonView())->systemData();
+        {
+            $method = strtoupper($_SERVER['REQUEST_METHOD']);
+            $m      = new hero();
 
-    public function actionIndex1()
-    {
+            switch ($method) {
+                case 'POST':
+                    $post = resolvePostDataAsObject();
+                    $data = $m->insert($post);
+                    (new jsonView())->simpleRestApiResponse($data);
+                    break;
+                case 'PUT':
+                    $post = resolvePostDataAsObject();
+                    $data = $m->update($post);
+                    (new jsonView())->simpleRestApiResponse($data);
+                    break;
+                case 'DELETE':
+                    if (isset($routeData) && !empty($routeData)) {
+                        $id = array_shift($routeData);
+                        $m->deleteById($id);
+                    }
+                    (new jsonView())->simpleRestApiResponse(NULL);
+                    break;
+                case 'GET':
+                default:
+                    if (isset($routeData) && !empty($routeData)) {
+                        $id   = array_shift($routeData);
+                        $data = $m->getAllWithReferences([$m->pkName => $id])[0];
+                        (new jsonView())->simpleRestApiResponse($data);
+                    } else {
+                        $data = $m->getAllWithReferences();
+                        (new jsonView())->simpleRestApiResponse($data);
+                    }
 
-        $m   = new \alina\mvc\model\user();
-        $res = $m->getAll();
-
-        $this->standardRestApiResponse($res);
+                    break;
+            }
+        }
     }
 
     public function actionForm()
@@ -54,5 +82,4 @@ class alinaRestAccept
         $data = '';
         echo (new \alina\mvc\view\html)->page($data);
     }
-
 }

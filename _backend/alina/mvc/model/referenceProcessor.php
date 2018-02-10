@@ -9,7 +9,7 @@ class referenceProcessor
     public $q;
     /** @var \Illuminate\Database\Query\Builder[] $qArray */
     public $qArray = [];
-    /** @var \alina\mvc\model\_baseAlinaEloquentModel */
+    /** @var \alina\mvc\model\_BaseAlinaModel */
     public $model;
     /** @var array */
     public $forIds = [];
@@ -53,7 +53,7 @@ class referenceProcessor
     {
         $this->forIds = $forIds;
 
-        /** @var $m \alina\mvc\model\_baseAlinaEloquentModel */
+        /** @var $m \alina\mvc\model\_BaseAlinaModel */
 
         /**
          * ATTENTION.

@@ -9,7 +9,7 @@ class json
 
     }
 
-    public function standardRestApiResponse($data = null, $toReturn = FALSE)
+    public function standardRestApiResponse($data = NULL, $toReturn = FALSE)
     {
 
         $this->setCrossDomainHeaders();
@@ -21,6 +21,26 @@ class json
         //ToDo: DANGER!!! Delete on prod.
         $response['test'] = ['Проверка русских букв.',];
         $response['sys']  = $this->systemData();
+
+        //Output.
+        if ($toReturn) {
+            return $response;
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        //ToDo: Think about encoding (utf8ize).
+        echo json_encode(utf8ize($response));
+        //echo json_encode($response, JSON_UNESCAPED_UNICODE);
+        //echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+        return TRUE;
+    }
+
+    public function simpleRestApiResponse($data = NULL, $toReturn = FALSE)
+    {
+
+        $this->setCrossDomainHeaders();
+
+        $response = $data;
 
         //Output.
         if ($toReturn) {
@@ -54,7 +74,7 @@ class json
     }
 
     //ToDo: Never use on prod.
-    protected function systemData()
+    public function systemData()
     {
 
         if (ALINA_MODE === 'PROD') {
@@ -70,7 +90,11 @@ class json
         $sysData['FILE']    = $_FILES;
         $sysData['COOKIES'] = $_COOKIE;
         $sysData['SERVER']  = $_SERVER;
-        $sysData['SESSION']  = $_SESSION;
+        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION :null;
+
+        error_log('>>> systemData',0);
+        error_log(json_encode($sysData),0);
+        error_log('<<< systemData',0);
 
         return $sysData;
     }

@@ -9,7 +9,7 @@ use \alina\exceptionValidation;
 // Laravel initiation
 Loader::init();
 
-class _baseAlinaEloquentModel
+class _BaseAlinaModel
 {
     #region Required
     public $table;
@@ -30,7 +30,11 @@ class _baseAlinaEloquentModel
     public function q($alias = NULL)
     {
         $this->alias = $alias ? $alias : $this->alias;
-        $this->q     = Dal::table("{$this->table} AS {$this->alias}");
+        if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
+            $this->q = Dal::table("{$this->table}");
+        } else {
+            $this->q = Dal::table("{$this->table} AS {$this->alias}");
+        }
 
         return $this->q;
     }
@@ -179,7 +183,7 @@ class _baseAlinaEloquentModel
         return $this->req;
     }
 
-    public function qApplyGetParams()
+    public function qApplyGetSearchParams()
     {
         //ToDo: Check $q, $req emptiness.
         $q   = $this->q;
@@ -224,14 +228,14 @@ class _baseAlinaEloquentModel
     #endregion SELECT
 
     #region INSERT or Update
-    public $saveMode        = NULL; // Could be 'UPDATE' or 'INSERT'
+    public $mode            = 'SELECT'; // Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
     public $isDataFiltered  = FALSE;
     public $isDataValidated = FALSE;
 
     public function insert($data)
     {
         //error_log("insert {$this->table}");
-        $this->saveMode  = 'INSERT';
+        $this->mode      = 'INSERT';
         $data            = toObject($data);
         $data            = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
         $dataArray       = $this->prepareDbData($data);
@@ -250,8 +254,8 @@ class _baseAlinaEloquentModel
     public function update($data, $conditions = [])
     {
         //error_log(__FUNCTION__ . " {$this->table}");
-        $this->saveMode = 'UPDATE';
-        $data           = toObject($data);
+        $this->mode = 'UPDATE';
+        $data       = toObject($data);
 
         //Fix: Special for MS SQL: NO PK ON INSERTS.
         if (property_exists($data, $this->pkName)) {
@@ -314,7 +318,7 @@ class _baseAlinaEloquentModel
         $this->validate($data);
 
         if ($addAuditInfo) {
-            $this->addAuditInfo($data, $this->saveMode);
+            $this->addAuditInfo($data, $this->mode);
         }
 
         $dataArray = $this->restrictRedundantData($data);
@@ -356,7 +360,7 @@ class _baseAlinaEloquentModel
     {
 
         if ($saveMode === NULL) {
-            $saveMode = $this->saveMode;
+            $saveMode = $this->mode;
         }
 
         $user_id = getCurrentUserId();
@@ -414,7 +418,7 @@ class _baseAlinaEloquentModel
                     }
                 }
             } else {
-                if ($this->saveMode === 'INSERT' && isset($params['default'])) {
+                if ($this->mode === 'INSERT' && isset($params['default'])) {
                     $data->{$name} = $params['default'];
                 }
             }
@@ -488,7 +492,7 @@ class _baseAlinaEloquentModel
     public function validateUniqueKeys($data)
     {
 
-        if ($this->saveMode === 'UPDATE') {
+        if ($this->mode === 'UPDATE') {
             return $this;
         }
 
@@ -562,7 +566,7 @@ class _baseAlinaEloquentModel
 
     public function resetFlags()
     {
-        $this->saveMode        = NULL;
+        $this->mode            = 'SELECT';
         $this->isDataFiltered  = FALSE;
         $this->isDataValidated = FALSE;
     }
@@ -600,12 +604,14 @@ class _baseAlinaEloquentModel
 
     public function delete(array $conditions)
     {
+        $this->mode = 'DELETE';
+
         $affectedRowsCount = $this->q()
             ->where($conditions)
             ->delete();
 
         $this->affectedRowsCount = $affectedRowsCount;
-
+        $this->resetFlags();
         return $this;
     }
     #endregion DELETE
@@ -897,7 +903,7 @@ class _baseAlinaEloquentModel
         $this->joinHasOne();
         //API WHERE
         $this->apiUnpackGetParams();
-        $this->qApplyGetParams();
+        $this->qApplyGetSearchParams();
         //Execute query.
         $this->collection = $q->get();
         //~

@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-class tag extends _baseAlinaEloquentModel
+class tag extends _BaseAlinaModel
 {
     public $table = 'tag';
 

@@ -11,14 +11,14 @@ class modelNamesResolver
 
     /**
      * @param $describer
-     * @return \alina\mvc\model\_baseAlinaEloquentModel
+     * @return \alina\mvc\model\_BaseAlinaModel
      * @throws \ErrorException
      */
     static public function getModelObject($describer)
     {
         $message[0] = 'Unresolvable Value of Model!';
 
-        if (is_a($describer, '\alina\mvc\model\_baseAlinaEloquentModel')) {
+        if (is_a($describer, '\alina\mvc\model\_BaseAlinaModel')) {
             return $describer;
         }
 
@@ -45,7 +45,7 @@ class modelNamesResolver
 
         //Finally try...
         try {
-            $m        = new _baseAlinaEloquentModel();
+            $m        = new _BaseAlinaModel();
             $m->table = $m->alias = $describer;
 
             return $m;

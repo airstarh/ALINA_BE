@@ -1,7 +1,7 @@
 <?php
 namespace alina\mvc\model;
 
-class _eg extends _baseAlinaEloquentModel
+class _eg extends _BaseAlinaModel
 {
     public $table='XXX';
     public $pkName='XXX';

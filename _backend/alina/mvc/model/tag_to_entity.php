@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-class tag_to_entity extends _baseAlinaEloquentModel
+class tag_to_entity extends _BaseAlinaModel
 {
     public $table = 'tag_to_entity';
 

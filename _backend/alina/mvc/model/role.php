@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-class role extends _baseAlinaEloquentModel
+class role extends _BaseAlinaModel
 {
     public $table = 'role';
 
