@@ -2,7 +2,6 @@
 
 namespace alina\mvc\model;
 
-
 class referenceProcessor
 {
     /** @var \Illuminate\Database\Query\Builder $q */
@@ -21,8 +20,8 @@ class referenceProcessor
 
     public function joinHasOne($refNames = [])
     {
-        $m       = $this->model;
-        $q           = $this->model->q;
+        $m            = $this->model;
+        $q            = $this->model->q;
         $referencesTo = $m->referencesTo();
 
         foreach ($referencesTo as $rName => $rConfig) {
@@ -46,7 +45,6 @@ class referenceProcessor
                     break;
             }
         }
-
     }
 
     public function joinHasMany($refNames = [], $forIds = [])

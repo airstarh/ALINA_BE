@@ -2,9 +2,25 @@
 #MODEL { color: #F6CEB6}
 #CONTROLLER { color: #E48DD5}
 #VIEW { color: #62F3FF}
+/**
+*component.html
+*/
 #TEMPLATE { color: #85F6A5}
+/**
+*.css
+*/
+#CSS { color: #DEFF23}
 
 /** JS */
+/**
+*component.ts
+*/
 #COMPONENT { color: #F6CEB6} /** PHP: #MODEL*/
+/**
+*service.ts
+*/
 #SERVICE { color: #FFDF54}
+/**
+*module.ts
+*/
 #MODULE { color: #A3A4FF}

@@ -54,4 +54,48 @@ function resolvePostDataAsObject()
     $res = mergeSimpleObjects($postOriginal, $postStdIn);
     return $res;
 }
+
+function isAjax()
+{
+    // Cross Domain AJAX request.
+    if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        //ToDo: PROD! Security!
+        setCrossDomainHeaders();
+        return TRUE;
+    }
+
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        return TRUE;
+    }
+
+    if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
+        return TRUE;
+    }
+
+    if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
+        return TRUE;
+    }
+    if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+function setCrossDomainHeaders()
+{
+    //https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+    //ToDo: PROD! Security!
+    if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        switch ($_SERVER['HTTP_ORIGIN']) {
+            default:
+                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+                header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+                header('Access-Control-Max-Age: 1000');
+                header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+                break;
+        }
+    }
+}
+
 #endregion Drafts

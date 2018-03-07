@@ -180,23 +180,3 @@ function template($fileFullPath, $data = NULL)
 
     return $output;
 }
-
-function isAjax()
-{
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        return TRUE;
-    }
-
-    if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
-        return TRUE;
-    }
-
-    if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
-        return TRUE;
-    }
-    if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
-        return TRUE;
-    }
-
-    return FALSE;
-}

@@ -18,7 +18,7 @@ class json
         $response['data']     = $data;
         $response['messages'] = \alina\message::returnAllMessages();
 
-        //ToDo: DANGER!!! Delete on prod.
+        //ToDo: PROD! Security!
         $response['test'] = ['Проверка русских букв.',];
         $response['sys']  = $this->systemData();
 
@@ -57,18 +57,7 @@ class json
 
     public function setCrossDomainHeaders()
     {
-        //https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
-        //ToDo: DANGEROUS IF PROD!!!
-        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-            switch ($_SERVER['HTTP_ORIGIN']) {
-                default:
-                    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-                    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                    header('Access-Control-Max-Age: 1000');
-                    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-                    break;
-            }
-        }
+        setCrossDomainHeaders();
 
         return $this;
     }
@@ -90,11 +79,7 @@ class json
         $sysData['FILE']    = $_FILES;
         $sysData['COOKIES'] = $_COOKIE;
         $sysData['SERVER']  = $_SERVER;
-        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION :null;
-
-        error_log('>>> systemData',0);
-        error_log(json_encode($sysData),0);
-        error_log('<<< systemData',0);
+        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
 
         return $sysData;
     }

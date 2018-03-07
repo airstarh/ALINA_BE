@@ -51,7 +51,7 @@ class alinaRestAccept
                     break;
                 case 'PUT':
                     $post = resolvePostDataAsObject();
-                    $data = $m->update($post);
+                    $data = $m->updateById($post);
                     (new jsonView())->simpleRestApiResponse($data);
                     break;
                 case 'DELETE':

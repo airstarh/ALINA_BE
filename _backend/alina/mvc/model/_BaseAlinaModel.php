@@ -188,10 +188,19 @@ class _BaseAlinaModel
         //ToDo: Check $q, $req emptiness.
         $q   = $this->q;
         $req = $this->req;
+
         foreach ($req as $f => $v) {
             //ToDo: More Complex for dates, ranges, etc.
             if ($this->tableHasField($f)) {
-                $q->where("{$this->alias}.{$f}", '=', $v);
+                if (is_numeric($v)) {
+                    $q->where("{$this->alias}.{$f}", '=', $v);
+                }
+                elseif (is_array($v)) {
+                    $q->whereIn("{$this->alias}.{$f}", $v);
+                }
+                else {
+                    $q->where("{$this->alias}.{$f}", 'LIKE', "%{$v}%");
+                }
             }
         }
     }
@@ -234,7 +243,6 @@ class _BaseAlinaModel
 
     public function insert($data)
     {
-        //error_log("insert {$this->table}");
         $this->mode      = 'INSERT';
         $data            = toObject($data);
         $data            = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
@@ -253,7 +261,6 @@ class _BaseAlinaModel
 
     public function update($data, $conditions = [])
     {
-        //error_log(__FUNCTION__ . " {$this->table}");
         $this->mode = 'UPDATE';
         $data       = toObject($data);
 
@@ -652,7 +659,7 @@ class _BaseAlinaModel
         $this->qApiOrder();
 
         // LIMIT partial
-        $this->qApiApplyLimitOffset();
+        $this->qApiLimitOffset();
 
         // Result
         //fDebug($q->toSql());
@@ -751,7 +758,7 @@ class _BaseAlinaModel
      * @param int|null $backendOffset
      * @return \Illuminate\Database\Query\Builder object
      */
-    public function qApiApplyLimitOffset($backendLimit = NULL, $backendOffset = NULL)
+    public function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q        = $this->q;
@@ -846,7 +853,6 @@ class _BaseAlinaModel
      */
     public function mergeRawObjects()
     {
-        //error_log('merge', 0);
         $objects = func_get_args();
         $count   = count($objects);
 
@@ -893,26 +899,30 @@ class _BaseAlinaModel
 
     public function getAllWithReferences($conditions = [], $backendSortArray = [], $limit = NULL, $offset = NULL)
     {
+        //First of all.
+        $this->apiUnpackGetParams();
+
         $q = $this->q();
         $q->select(["{$this->alias}.*"]);
-        $q->where($conditions);
-        $this->qApiOrder($backendSortArray);
-//        $offset ? $q->skip($offset) : NULL;
-//        $limit ? $q->take($limit) : NULL;
-        $this->qApiApplyLimitOffset($limit, $offset);
-        $this->joinHasOne();
         //API WHERE
-        $this->apiUnpackGetParams();
+        $q->where($conditions);
         $this->qApplyGetSearchParams();
+        //ORDER
+        $this->qApiOrder($backendSortArray);
+        //LIMIT / OFFSET
+        $this->qApiLimitOffset($limit, $offset);
+        //Has One JOINs.
+        $this->qJoinHasOne();
         //Execute query.
         $this->collection = $q->get();
-        //~
+
+        //Has Many JOINs.
         $this->joinHasMany();
 
         return $this->collection;
     }
 
-    public function joinHasOne()
+    public function qJoinHasOne()
     {
         (new referenceProcessor($this))->joinHasOne();
     }
