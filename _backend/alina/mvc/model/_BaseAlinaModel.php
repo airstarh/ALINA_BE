@@ -336,10 +336,12 @@ class _BaseAlinaModel
             $this->addAuditInfo($data, $this->mode);
         }
 
-        $dataArray = $this->restrictRedundantData($data);
+        $dataArray = $this->restrictIdentityAutoincrementReadOnlyFields($data);
 
         return $dataArray;
     }
+
+    public $dataArrayIdentity;
 
     /**
      * Is used AFTER filtering and validation.
@@ -350,13 +352,16 @@ class _BaseAlinaModel
      * @param \stdClass $data
      * @return array
      */
-    public function restrictRedundantData($data)
+    public function restrictIdentityAutoincrementReadOnlyFields($data)
     {
         $dataArray = [];
         $fields    = $this->fields();
         foreach ($fields as $name => $params) {
             if (property_exists($data, $name)) {
-                if (!$this->isFieldIdentity($name)) {
+                if ($this->isFieldIdentity($name)) {
+                    $this->dataArrayIdentity[$name] = $data->{$name};
+                }
+                else {
                     $dataArray[$name] = $data->{$name};
                 }
             }
