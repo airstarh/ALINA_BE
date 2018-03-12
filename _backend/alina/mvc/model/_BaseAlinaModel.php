@@ -2,6 +2,7 @@
 
 namespace alina\mvc\model;
 
+use alina\message;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
@@ -13,15 +14,15 @@ class _BaseAlinaModel
 {
     #region Required
     public $table;
+    public $alias  = '';
     public $pkName = 'id';
-    public $id     = NULL;
     /** @var \Illuminate\Database\Query\Builder $q */
     public $q;
-    public $alias = '';
 
     public function __construct()
     {
-        $this->alias = $this->table;
+        $this->alias      = $this->table;
+        $this->attributes = new \stdClass;
     }
 
     /**
@@ -277,19 +278,14 @@ class _BaseAlinaModel
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        $this->attributes        = $data = toObject($dataArray);
-        $this->resetFlags();
-
+        $this->attributes        = toObject($dataArray);
         //Get ID back
         if (isset($presavedId)) {
-            $data->{$pkName} = $presavedId;
-
-            if ($this->affectedRowsCount == 1) {
-                $this->{$pkName} = $data->{$pkName};
-            }
+            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
         }
+        $this->resetFlags();
 
-        return $data;
+        return $this->attributes;
     }
 
     /**
@@ -320,11 +316,14 @@ class _BaseAlinaModel
             throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
         }
 
-        $conditions      = [$pkName => $pkValue];
-        $qRes            = $this->update($data, $conditions);
-        $this->{$pkName} = $qRes->{$pkName} = $pkValue;
+        $conditions       = [$pkName => $pkValue];
+        $this->attributes = $this->update($data, $conditions);
+        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
+        if ($this->affectedRowsCount != 1) {
+            message::set("There are no changes in {$this->table} of ID {$pkValue}");
+        }
 
-        return $qRes;
+        return $this->attributes;
     }
 
     public function prepareDbData($data, $addAuditInfo = TRUE)
