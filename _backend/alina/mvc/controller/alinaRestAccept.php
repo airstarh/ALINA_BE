@@ -13,10 +13,34 @@ class alinaRestAccept
         $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
         switch ($method) {
+            //INSERT
             case 'POST':
+                $post    = resolvePostDataAsObject();
+                $command = $_GET['cmd'];
+                if ($command === 'model') {
+                    $modelName = $_GET['m'];
+                    $m         = modelNamesResolver::getModelObject($modelName);
+                    $m->insert($post);
+                    $data = $m->getAllWithReferences([$m->pkName => $m->{$m->pkName}])[0];
+                    (new jsonView())->standardRestApiResponse($data);
+                }
+                break;
+            //UPDATE
             case 'PUT':
-                $post = resolvePostDataAsObject();
+                $post    = resolvePostDataAsObject();
+                $command = $_GET['cmd'];
+                if ($command === 'model') {
+                    $modelName = $_GET['m'];
+                    $m         = modelNamesResolver::getModelObject($modelName);
+                    $qRes = $m->updateById($post);
+                    $data = $m->getAllWithReferences([$m->pkName => $m->{$m->pkName}]);
 
+                    error_log(__FUNCTION__,0);
+                    error_log(json_encode($m->attributes),0);
+
+                    (new jsonView())->standardRestApiResponse($data[0]);
+
+                }
                 break;
             case 'GET':
             default:
@@ -67,7 +91,8 @@ class alinaRestAccept
                         $id   = array_shift($routeData);
                         $data = $m->getAllWithReferences([$m->pkName => $id])[0];
                         (new jsonView())->simpleRestApiResponse($data);
-                    } else {
+                    }
+                    else {
                         $data = $m->getAllWithReferences();
                         (new jsonView())->simpleRestApiResponse($data);
                     }

@@ -14,6 +14,7 @@ class _BaseAlinaModel
     #region Required
     public $table;
     public $pkName = 'id';
+    public $id     = NULL;
     /** @var \Illuminate\Database\Query\Builder $q */
     public $q;
     public $alias = '';
@@ -32,7 +33,8 @@ class _BaseAlinaModel
         $this->alias = $alias ? $alias : $this->alias;
         if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
             $this->q = Dal::table("{$this->table}");
-        } else {
+        }
+        else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
 
@@ -112,7 +114,6 @@ class _BaseAlinaModel
      * [
      *  ['email'],
      *  ['row', 'column'],
-     *  [$this->pkName] (not necessary)
      * ]
      */
     public function uniqueKeys()
@@ -243,16 +244,15 @@ class _BaseAlinaModel
 
     public function insert($data)
     {
-        $this->mode      = 'INSERT';
-        $data            = toObject($data);
-        $data            = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
-        $dataArray       = $this->prepareDbData($data);
-        $pkName          = $this->pkName;
-        $id              = $this->q()->insertGetId($dataArray, $pkName);
-        $data->{$pkName} = $id;
+        $this->mode       = 'INSERT';
+        $pkName           = $this->pkName;
+        $data             = toObject($data);
+        $data             = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
+        $dataArray        = $this->prepareDbData($data);
+        $id               = $this->q()->insertGetId($dataArray, $pkName);
+        $this->attributes = $data = toObject($dataArray);
+        $data->{$pkName}  = $this->{$pkName} = $id;
         $this->resetFlags();
-
-        $this->attributes = $data;
 
         return $data;
     }
@@ -262,25 +262,31 @@ class _BaseAlinaModel
     public function update($data, $conditions = [])
     {
         $this->mode = 'UPDATE';
+        $pkName     = $this->pkName;
         $data       = toObject($data);
 
         //Fix: Special for MS SQL: NO PK ON INSERTS.
-        if (property_exists($data, $this->pkName)) {
-            $presavedId = $data->{$this->pkName};
+        if (property_exists($data, $pkName)) {
+            $presavedId = $data->{$pkName};
+            //IMPORTANT: unset of $this->id happens in prepareDbData then.
         }
 
         $dataArray = $this->prepareDbData($data);
 
-        $affectedRowsCount       = $this->q()
-            ->where($conditions)
-            ->update($dataArray);
-        $this->affectedRowsCount = $affectedRowsCount;
+        $this->affectedRowsCount =
+            $this->q()
+                ->where($conditions)
+                ->update($dataArray);
+        $this->attributes        = $data = toObject($dataArray);
         $this->resetFlags();
-        $this->attributes = $data;
 
         //Get ID back
         if (isset($presavedId)) {
-            $data->{$this->pkName} = $presavedId;
+            $data->{$pkName} = $presavedId;
+
+            if ($this->affectedRowsCount == 1) {
+                $this->{$pkName} = $data->{$pkName};
+            }
         }
 
         return $data;
@@ -301,7 +307,8 @@ class _BaseAlinaModel
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
             $pkValue = $id;
-        } else {
+        }
+        else {
             if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
                 $pkValue = $data->{$pkName};
                 unset($data->{$pkName});
@@ -313,9 +320,11 @@ class _BaseAlinaModel
             throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
         }
 
-        $conditions = [$pkName => $pkValue];
+        $conditions      = [$pkName => $pkValue];
+        $qRes            = $this->update($data, $conditions);
+        $this->{$pkName} = $qRes->{$pkName} = $pkValue;
 
-        return $this->update($data, $conditions);
+        return $qRes;
     }
 
     public function prepareDbData($data, $addAuditInfo = TRUE)
@@ -406,10 +415,12 @@ class _BaseAlinaModel
                         // The simplest filter
                         if (is_string($filter) && function_exists($filter)) {
                             $data->{$name} = $filter($value);
-                        } else {
+                        }
+                        else {
                             if ($filter instanceof \Closure) {
                                 $data->{$name} = call_user_func($filter, $data->{$name});;
-                            } else {
+                            }
+                            else {
                                 if (is_array($filter)) {
                                     $argsAmount = count($filter);
                                     switch ($argsAmount) {
@@ -424,7 +435,8 @@ class _BaseAlinaModel
                         // ToDo: Maybe more abilities for filter.
                     }
                 }
-            } else {
+            }
+            else {
                 if ($this->mode === 'INSERT' && isset($params['default'])) {
                     $data->{$name} = $params['default'];
                 }
@@ -461,10 +473,12 @@ class _BaseAlinaModel
                         // The simplest validator
                         if (is_string($v['f']) && function_exists($v['f'])) {
                             $vResult = $v['f']($value);
-                        } else {
+                        }
+                        else {
                             if ($v['f'] instanceof \Closure) {
                                 $vResult = call_user_func($v['f'], $data->{$name});;
-                            } else {
+                            }
+                            else {
                                 if (is_array($v['f'])) {
                                     $argsAmount = count($v['f']);
                                     switch ($argsAmount) {
@@ -545,7 +559,7 @@ class _BaseAlinaModel
             $q->where($conditions);
             // If $data already contains a field with Primary Key of a model,
             // we should exclude this model while the check.
-            if (property_exists($data, $this->pkName) && $data->{$this->pkName} !== '') {
+            if (property_exists($data, $this->pkName) && !empty($data->{$this->pkName})) {
                 $q->where($this->pkName, '!=', $data->{$this->pkName});
             }
 
@@ -595,7 +609,8 @@ class _BaseAlinaModel
 
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
-        } else {
+        }
+        else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
@@ -619,6 +634,7 @@ class _BaseAlinaModel
 
         $this->affectedRowsCount = $affectedRowsCount;
         $this->resetFlags();
+
         return $this;
     }
     #endregion DELETE
@@ -895,7 +911,7 @@ class _BaseAlinaModel
 
     #region relations
 
-    public function referencesTo() {return [];}
+    public function referencesTo() { return []; }
 
     public function getAllWithReferences($conditions = [], $backendSortArray = [], $limit = NULL, $offset = NULL)
     {
