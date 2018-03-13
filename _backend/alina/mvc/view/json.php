@@ -2,6 +2,8 @@
 
 namespace alina\mvc\view;
 
+use alina\GlobalRequestStorage;
+
 class json
 {
     public function __construct($data = NULL)
@@ -17,6 +19,8 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = \alina\message::returnAllMessages();
+        $response['mem'] = GlobalRequestStorage::getAll();
+
 
         //ToDo: PROD! Security!
         $response['test'] = ['Проверка русских букв.',];

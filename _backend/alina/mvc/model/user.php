@@ -10,7 +10,32 @@ class user extends _BaseAlinaModel
     {
         return [
             'id'        => [],
-            'mail'      => [],
+            'mail'      => [
+                'filters'    => [
+                    // Could be a closure, string with function name or an array
+                    'trim',
+                    function ($v) {
+                        return mb_strtolower($v);
+                    },
+                ],
+                'validators' => [
+                    [
+                        // 'f' - Could be a closure, string with function name or an array
+                        'f'       => 'strlen',
+                        'errorIf' => [FALSE, 0],
+                        'msg'     => 'Email is required!'
+                    ],
+                    [
+                        // 'f' - Could be a closure, string with function name or an array
+                        'f'       => function ($v) {
+                            return filter_var($v, FILTER_VALIDATE_EMAIL);
+                        },
+                        'errorIf' => [FALSE, 0],
+                        'msg'     => 'Invalid Email Address!'
+                    ]
+
+                ]
+            ],
             'firstname' => [],
             'lastname'  => [],
             'active'    => [],
@@ -87,7 +112,8 @@ class user extends _BaseAlinaModel
         ];
     }
 
-    public function vocGetSearchSpecial() {
+    public function vocGetSearchSpecial()
+    {
         return [
             'id' => 'id',
             'fn' => 'firstname',

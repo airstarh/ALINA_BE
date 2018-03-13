@@ -2,6 +2,8 @@
 
 namespace alina\mvc\controller;
 
+use alina\GlobalRequestStorage;
+use alina\message;
 use alina\mvc\model\hero;
 use alina\mvc\model\modelNamesResolver;
 use alina\mvc\view\json as jsonView;
@@ -10,6 +12,7 @@ class alinaRestAccept
 {
     public function actionIndex()
     {
+        message::set('Hello, World!!!');
         $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
         switch ($method) {
@@ -39,6 +42,9 @@ class alinaRestAccept
                     (new jsonView())->standardRestApiResponse($data[0]);
                 }
                 break;
+            case 'OPTIONS':
+                (new jsonView())->simpleRestApiResponse('o.k.');
+                break;
             case 'GET':
             default:
                 /**
@@ -50,6 +56,7 @@ class alinaRestAccept
                         $modelName = $_GET['m'];
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
+                        GlobalRequestStorage::set('modelFields', $m->fields());
                         (new jsonView())->standardRestApiResponse($data);
                     }
                 }
