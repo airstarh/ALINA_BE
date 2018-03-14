@@ -19,7 +19,7 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = \alina\message::returnAllMessages();
-        $response['mem'] = GlobalRequestStorage::getAll();
+        $response['meta'] = GlobalRequestStorage::getAll();
 
 
         //ToDo: PROD! Security!

@@ -954,6 +954,7 @@ class _BaseAlinaModel
         foreach ($qHasManyArray as $rName => $q) {
             $qResult = $q->get();
             foreach ($this->collection as $thisModelAttributes) {
+                $thisModelAttributes->{$rName} = [];
                 foreach ($qResult as $row) {
                     if ($thisModelAttributes->{$this->pkName} === $row->main_id) {
                         $thisModelAttributes->{$rName}[] = $row;
