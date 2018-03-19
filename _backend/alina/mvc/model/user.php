@@ -112,13 +112,13 @@ class user extends _BaseAlinaModel
         ];
     }
 
-    public function vocGetSearchSpecial()
-    {
-        return [
-            'id' => 'id',
-            'fn' => 'firstname',
-            'ln' => 'lastname',
-            'tz' => 'timezone',
-        ];
-    }
+//    public function vocGetSearchSpecial()
+//    {
+//        return [
+//            'id' => 'id',
+//            'fn' => 'firstname',
+//            'ln' => 'lastname',
+//            'tz' => 'timezone',
+//        ];
+//    }
 }

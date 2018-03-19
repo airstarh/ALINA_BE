@@ -31,6 +31,12 @@ class _BaseAlinaModel
      */
     public function q($alias = NULL)
     {
+        if (isset($this->q) && !empty($this->q)) {
+            \alina\message::set("ATTENTION! {$this->table} query is redefined!!!");
+            error_log(__FUNCTION__,0);
+            error_log(json_encode(debug_backtrace()[1]['function']),0);
+        }
+
         $this->alias = $alias ? $alias : $this->alias;
         if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
             $this->q = Dal::table("{$this->table}");
@@ -52,7 +58,17 @@ class _BaseAlinaModel
      */
     public function fields()
     {
-        return [];
+        $table    = $this->table;
+        $m        = new static();
+        $m->table = $table;
+        $q        = $m->q();
+        $item     = $q->first();
+        $fields   = [];
+        foreach ($item as $i => $v) {
+            $fields[$i] = [];
+        }
+
+        return $fields;
     }
 
     public function fieldsIdentity()
@@ -125,6 +141,20 @@ class _BaseAlinaModel
     #endregion Required
 
     #region Search Parameters
+    public function vocGetSearchSpecial()
+    {
+        $fields = $this->fields();
+        $fNames = array_keys($fields);
+        $res    = [];
+        foreach ($fNames as $v) {
+            $res[$v] = $v;
+        }
+        error_log(__FUNCTION__, 0);
+        error_log(json_encode($res), 0);
+
+        return $res;
+    }
+
     public $req = NULL;
 
     public function vocGetSearch()
@@ -193,6 +223,7 @@ class _BaseAlinaModel
 
         foreach ($req as $f => $v) {
             //ToDo: More Complex for dates, ranges, etc.
+
             if ($this->tableHasField($f)) {
                 if (is_numeric($v)) {
                     $q->where("{$this->alias}.{$f}", '=', $v);
@@ -716,6 +747,9 @@ class _BaseAlinaModel
         //$sortArray = array_merge($sortArray, $this->sortDefault);
         $this->qOrderByArray($sortArray);
 
+        error_log(__FUNCTION__, 0);
+        error_log(json_encode($q->toSql()), 0);
+
         return $q;
     }
 
@@ -764,7 +798,6 @@ class _BaseAlinaModel
                 //ToDo: Validate all necessary parameters.
                 continue;
             }
-
             list($field, $direction) = $orderBy;
             $q->orderBy($field, $direction);
         }
@@ -917,7 +950,7 @@ class _BaseAlinaModel
 
     public function referencesTo() { return []; }
 
-    public function getAllWithReferences($conditions = [], $backendSortArray = [], $limit = NULL, $offset = NULL)
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
     {
         //First of all.
         $this->apiUnpackGetParams();
