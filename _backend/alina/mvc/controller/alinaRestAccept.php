@@ -38,7 +38,7 @@ class alinaRestAccept
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $id        = $post->{$m->pkName};
                     $m->updateById($post);
-                    $data = $m->getAllWithReferences([$m->pkName => $id]);
+                    $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
                     (new jsonView())->standardRestApiResponse($data[0]);
                 }
                 break;

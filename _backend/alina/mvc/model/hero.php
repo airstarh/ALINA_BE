@@ -16,10 +16,4 @@ class hero extends _BaseAlinaModel
     public function uniqueKeys() {
         return [];
     }
-
-    public function vocGetSearchSpecial() {
-        return [
-            'name' => 'name',
-        ];
-    }
 }

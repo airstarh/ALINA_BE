@@ -27,9 +27,10 @@ class user extends _BaseAlinaModel
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
-                        'f'       => function ($v) {
-                            return filter_var($v, FILTER_VALIDATE_EMAIL);
-                        },
+                        'f'       =>
+                            function ($v) {
+                                return filter_var($v, FILTER_VALIDATE_EMAIL);
+                            },
                         'errorIf' => [FALSE, 0],
                         'msg'     => 'Invalid Email Address!'
                     ]

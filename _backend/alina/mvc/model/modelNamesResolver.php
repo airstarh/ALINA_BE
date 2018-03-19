@@ -27,14 +27,34 @@ class modelNamesResolver
         }
 
         if (class_exists($describer)) {
-            return new $describer;
+            return new $describer(['table' => shortClassName($describer)]);
         }
 
-        $clarifiedDescriber = '\alina\mvc\model\\'.$describer;
-        if (class_exists($clarifiedDescriber)) {
-            return new $clarifiedDescriber();
+        //$clarifiedDescriber = '\alina\mvc\model\\'.$describer;
+        try {
+            $clarifiedDescriber = [
+                \alina\app::getConfig('appNamespace'),
+                \alina\app::getConfig('mvc\structure\model'),
+                $describer
+            ];
+            if (class_exists(implode('\\', $clarifiedDescriber))) {
+                return new $clarifiedDescriber();
+            }
+        } catch (\Exception $e) {
+            try {
+                $clarifiedDescriber = [
+                    \alina\app::getConfigDefault('appNamespace'),
+                    \alina\app::getConfigDefault('mvc\structure\model'),
+                    $describer
+                ];
+                if (class_exists(implode('\\', $clarifiedDescriber))) {
+                    return new $clarifiedDescriber();
+                }
+            } catch (\Exception $e) {
+                //Nothing is to do here :-)
+            }
         }
-        
+
         //ToDo: Implement Class Scanner.
         $voc = static::$vocTableToClassName;
         if (array_key_exists($describer, $voc)) {

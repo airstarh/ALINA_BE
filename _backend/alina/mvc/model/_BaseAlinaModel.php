@@ -17,10 +17,16 @@ class _BaseAlinaModel
     public $alias  = '';
     public $pkName = 'id';
     /** @var \Illuminate\Database\Query\Builder $q */
-    public $q;
+    public    $q;
+    protected $opts;
 
-    public function __construct()
+    public function __construct($opts = NULL)
     {
+        if ($opts) {
+            $opts       = toObject($opts);
+            $this->opts = $opts;
+            $opts->table ? $this->table = $opts->table : NULL;
+        }
         $this->alias      = $this->table;
         $this->attributes = new \stdClass;
     }
@@ -31,10 +37,15 @@ class _BaseAlinaModel
      */
     public function q($alias = NULL)
     {
+        /**
+         * ATTENTION: Important security fix in order to avoid accident start of a query,
+         * while a previous is in progress.
+         */
         if (isset($this->q) && !empty($this->q)) {
+            $this->q = NULL;
             \alina\message::set("ATTENTION! {$this->table} query is redefined!!!");
-            error_log(__FUNCTION__,0);
-            error_log(json_encode(debug_backtrace()[1]['function']),0);
+            //error_log(__FUNCTION__,0);
+            //error_log(json_encode(debug_backtrace()[1]['function']),0);
         }
 
         $this->alias = $alias ? $alias : $this->alias;
@@ -58,12 +69,11 @@ class _BaseAlinaModel
      */
     public function fields()
     {
-        $table    = $this->table;
-        $m        = new static();
-        $m->table = $table;
-        $q        = $m->q();
-        $item     = $q->first();
-        $fields   = [];
+        $table  = $this->table;
+        $m      = new static(['table' => $table]);
+        $q      = $m->q();
+        $item   = $q->first();
+        $fields = [];
         foreach ($item as $i => $v) {
             $fields[$i] = [];
         }
@@ -149,8 +159,6 @@ class _BaseAlinaModel
         foreach ($fNames as $v) {
             $res[$v] = $v;
         }
-        error_log(__FUNCTION__, 0);
-        error_log(json_encode($res), 0);
 
         return $res;
     }
@@ -498,7 +506,7 @@ class _BaseAlinaModel
                     foreach ($params['validators'] as $v) {
 
                         $vResult = TRUE;
-                        $errorIf = (isset($v['errorIf']) && !empty($v['errorIf']))
+                        $errorIf = (isset($v['errorIf']))
                             ? $v['errorIf']
                             : [FALSE];
                         $msg     = (isset($v['msg']) && !empty($v['msg']))
@@ -511,7 +519,7 @@ class _BaseAlinaModel
                         }
                         else {
                             if ($v['f'] instanceof \Closure) {
-                                $vResult = call_user_func($v['f'], $data->{$name});;
+                                $vResult = call_user_func($v['f'], $value);;
                             }
                             else {
                                 if (is_array($v['f'])) {
@@ -519,7 +527,7 @@ class _BaseAlinaModel
                                     switch ($argsAmount) {
                                         case 2:
                                             list($class, $staticMethod) = $v['f'];
-                                            $vResult = call_user_func([$class, $staticMethod], $data->{$name});
+                                            $vResult = call_user_func([$class, $staticMethod], $value);
                                             break;
                                     }
                                 }
@@ -528,8 +536,15 @@ class _BaseAlinaModel
                         // ToDo: Maybe more abilities for validation.
 
                         // Validation Result process.
-                        if (in_array($vResult, $errorIf)) {
-                            throw new exceptionValidation($msg);
+                        if (in_array($vResult, $errorIf, TRUE)) {
+                            $errorIfstr = implode('|||', $errorIf);
+                            throw new exceptionValidation("
+                            Name:   {$name} ::: 
+                            Value:  {$value} ::: 
+                            Res:    {$vResult} ::: 
+                            ErrorIf:{$errorIfstr} ::: 
+                            Message:{$msg}
+                            ");
                         }
                     }
                 }
@@ -569,7 +584,7 @@ class _BaseAlinaModel
 
         foreach ($uniqueKeys as $uniqueFields) {
             $conditions = [];
-            $fields     = [];
+            $uFields    = [];
 
             if (!is_array($uniqueFields)) {
                 $uniqueFields = [$uniqueFields];
@@ -578,7 +593,7 @@ class _BaseAlinaModel
             foreach ($uniqueFields as $uf) {
                 if (property_exists($data, $uf)) {
                     $conditions[$uf] = $data->{$uf};
-                    $fields[]        = $uf;
+                    $uFields[]       = $uf;
                 }
                 // If $data doesn't contain one of Unique Keys,
                 // simply skip this check entirely.
@@ -588,7 +603,7 @@ class _BaseAlinaModel
             }
 
             // Check if similar model exists.
-            $m = new static();
+            $m = new static(['table' => $this->table]);
             /*** @var $q \Illuminate\Database\Query\Builder */
             $q = $m->q();
             $q->where($conditions);
@@ -606,7 +621,7 @@ class _BaseAlinaModel
             $aRecord = $q->first();
 
             if (isset($aRecord) && !empty($aRecord)) {
-                $this->matchedUniqueFields = $fields;
+                $this->matchedUniqueFields = $uFields;
 
                 return $aRecord;
             }
@@ -746,9 +761,6 @@ class _BaseAlinaModel
 
         //$sortArray = array_merge($sortArray, $this->sortDefault);
         $this->qOrderByArray($sortArray);
-
-        error_log(__FUNCTION__, 0);
-        error_log(json_encode($q->toSql()), 0);
 
         return $q;
     }

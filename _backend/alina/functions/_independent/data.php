@@ -54,7 +54,7 @@ function toObject($v)
 }
 
 //@link https://stackoverflow.com/a/6041773/3142281
-function isJson($string)
+function isStringValidJson($string)
 {
     json_decode($string);
 

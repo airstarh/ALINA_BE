@@ -72,7 +72,7 @@ class referenceProcessor
         foreach ($referencesTo as $rName => $rConfig) {
 
             if (!empty($refNames)) {
-                if (!in_array($rName, $refNames)) {
+                if (!in_array($rName, $refNames, true)) {
                     continue;
                 }
             }
