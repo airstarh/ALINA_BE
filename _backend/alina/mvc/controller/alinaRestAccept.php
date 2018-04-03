@@ -57,6 +57,9 @@ class alinaRestAccept
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
                         GlobalRequestStorage::set('modelFields', $m->fields());
+                        GlobalRequestStorage::set('pageCurrentNumber', $m->pageCurrentNumber);
+                        GlobalRequestStorage::set('pageSize', $m->pageSize);
+                        GlobalRequestStorage::set('rowsTotal', $m->rowsTotal);
                         (new jsonView())->standardRestApiResponse($data);
                     }
                 }

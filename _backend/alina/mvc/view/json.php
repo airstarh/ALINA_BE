@@ -19,8 +19,7 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = \alina\message::returnAllMessages();
-        $response['meta'] = GlobalRequestStorage::getAll();
-
+        $response['meta']     = GlobalRequestStorage::getAll();
 
         //ToDo: PROD! Security!
         $response['test'] = ['Проверка русских букв.',];

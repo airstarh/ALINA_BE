@@ -217,7 +217,7 @@ class _BaseAlinaModel
             $this->pageSize = $_GET['ps'];
         }
         if (isset($_GET['p'])) {
-            $this->page = $_GET['p'];
+            $this->pageCurrentNumber = $_GET['p'];
         }
 
         return $this->req;
@@ -698,11 +698,12 @@ class _BaseAlinaModel
      * @var $sortDefault array
      *  with structure: [['field1', 'DESC'], ['field2', 'ASC']]
      */
-    public $sortDefault = [];
-    public $sortName    = NULL;
-    public $sortAsc     = 'ASC';
-    public $page        = 0;
-    public $pageSize    = 15;
+    public $sortDefault       = [];
+    public $sortName          = NULL;
+    public $sortAsc           = 'ASC';
+    public $pageCurrentNumber = 0;
+    public $pageSize          = 15;
+    public $rowsTotal         = -1;
 
     /**
      * Prepare paginated API response.
@@ -731,7 +732,7 @@ class _BaseAlinaModel
         //fDebug($q->toSql());
         $this->collection = $q->get();
 
-        $page   = $this->page;
+        $page   = $this->pageCurrentNumber;
         $output = ["total" => $total, "page" => $page, "models" => $this->collection];
 
         //fDebug($output);
@@ -827,7 +828,7 @@ class _BaseAlinaModel
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
         $q        = $this->q;
-        $page     = $this->page;
+        $page     = $this->pageCurrentNumber;
         $pageSize = $this->pageSize;
 
         if (FALSE !== ($offset = $this->calcPagePageSize($page, $pageSize))) {
@@ -845,17 +846,13 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function calcPagePageSize($page, $pageSize)
+    public function calcPagePageSize($pageCurrentNumber, $pageSize)
     {
-        if (!isset($pageSize) || !isset($page) || !$pageSize || !$page) {
-            return FALSE;
-        }
-        //don't do paging if pageSize is set to -1
-        if ($pageSize == -1 || $page == -1) {
+        if (!isset($pageSize) || !isset($pageCurrentNumber) || $pageSize <= 0 || $pageCurrentNumber <= 0) {
             return FALSE;
         }
 
-        $offset = ($pageSize * ($page - 1));
+        $offset = ($pageSize * ($pageCurrentNumber - 1));
 
         return $offset;
     }
@@ -974,10 +971,12 @@ class _BaseAlinaModel
         $this->qApplyGetSearchParams();
         //ORDER
         $this->qApiOrder($backendSortArray);
-        //LIMIT / OFFSET
-        $this->qApiLimitOffset($limit, $offset);
         //Has One JOINs.
         $this->qJoinHasOne();
+        //COUNT
+        $this->rowsTotal = $q->count();
+        //LIMIT / OFFSET
+        $this->qApiLimitOffset($limit, $offset);
         //Execute query.
         $this->collection = $q->get();
 
