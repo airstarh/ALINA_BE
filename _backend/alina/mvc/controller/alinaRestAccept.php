@@ -24,7 +24,7 @@ class alinaRestAccept
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $m->insert($post);
-                    $data = $m->getAllWithReferences([$m->pkName => $m->{$m->pkName}])[0];
+                    $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
                     (new jsonView())->standardRestApiResponse($data);
                 }
                 break;
@@ -96,7 +96,7 @@ class alinaRestAccept
                 default:
                     if (isset($routeData) && !empty($routeData)) {
                         $id   = array_shift($routeData);
-                        $data = $m->getAllWithReferences([$m->pkName => $id])[0];
+                        $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id])[0];
                         (new jsonView())->simpleRestApiResponse($data);
                     }
                     else {
