@@ -62,6 +62,19 @@ class alinaRestAccept
                         GlobalRequestStorage::set('rowsTotal', $m->rowsTotal);
                         (new jsonView())->standardRestApiResponse($data);
                     }
+
+                    if ($command === 'modelOne') {
+                        $modelName = $_GET['m'];
+                        $mId       = $_GET['mId'];
+                        $m         = modelNamesResolver::getModelObject($modelName);
+                        $cond      = [$m->pkName => $mId];
+                        $data      = $m->getAllWithReferences($cond);
+                        $resp = null;
+                        if (!empty($data)) {
+                            $resp = $data[0];
+                        }
+                        (new jsonView())->standardRestApiResponse($resp);
+                    }
                 }
                 break;
         }
