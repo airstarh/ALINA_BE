@@ -6,6 +6,7 @@ switch (ALINA_ENV) {
         return [
             'appNamespace'        => 'alina',
             'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
+            'fileUploadDir'       => "F:\\_Z_F_UPLOAD\\",
             'db'                  => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
@@ -33,7 +34,6 @@ switch (ALINA_ENV) {
                 ],
             ],
 
-
             // Routes, Aliases.
             'forceSysPathToAlias' => TRUE,
             'vocAliasUrl'         => [
@@ -48,26 +48,26 @@ switch (ALINA_ENV) {
 
             'html' => [
 
-                'css'  => [
-	                // Jquery; Jquery UI
-                	'/sources/node_modules/jquery-ui/themes/base/all.css',
+                'css' => [
+                    // Jquery; Jquery UI
+                    '/sources/node_modules/jquery-ui/themes/base/all.css',
 
-	                //Bootstrap Framework.
-	                '/sources/node_modules/bootstrap/dist/css/bootstrap.min.css',
-	                '/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+                    //Bootstrap Framework.
+                    '/sources/node_modules/bootstrap/dist/css/bootstrap.min.css',
+                    '/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
 
-	                // Alina
+                    // Alina
                     '/sources/css/alina.css',
                     //'/frontend/css/alina_form.css',
                 ],
 
                 'js'   => [
-	                // Jquery; Jquery UI
-	                '/sources/node_modules/jquery/dist/jquery.min.js',
-	                '/sources/node_modules/jquery-ui/external/requirejs/require.js',
+                    // Jquery; Jquery UI
+                    '/sources/node_modules/jquery/dist/jquery.min.js',
+                    '/sources/node_modules/jquery-ui/external/requirejs/require.js',
 
-	                //Bootstrap Framework.
-	                '/sources/node_modules/bootstrap/dist/js/bootstrap.min.js',
+                    //Bootstrap Framework.
+                    '/sources/node_modules/bootstrap/dist/js/bootstrap.min.js',
 
                     // Alina.
                     '/sources/js/001_alina_init.js',

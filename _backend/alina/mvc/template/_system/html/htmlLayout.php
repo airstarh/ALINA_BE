@@ -10,7 +10,7 @@
 	<?= $data->css() ?>
 	<?= $data->js() ?>
 
-	<!--	Bootstrap Framework recommendations.-->
+	<!--region Bootstrap Framework recommendations.-->
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 	<!--[if lt IE 9]>
@@ -38,30 +38,29 @@
 	<?= $data->messages(); ?>
 	<?= $data->content(); ?>
 
-	<!-- ToDo: Delete on PROD.-->
-	<div>
-		<?php
-		// ToDo: Delete on PROD.
-		if (ALINA_MODE !== 'PROD') {
-			$__FILE__ = 'Alina Details';
-			print_r("<h1>{$__FILE__}</h1>");
-			echo '<pre>';
-			print_r(\alina\app::get()->router);
-			echo '</pre>';
+	<!-- ToDo: Security! Delete on PROD.-->
+	<?php if (ALINA_MODE !== 'PROD') : ?>
+		<div>
+            <?php
+            $h1 = 'Alina Details';
+            print_r("<h1>{$h1}</h1>");
+            echo '<pre>';
+            print_r(\alina\app::get()->router);
+            echo '</pre>';
 
-			echo '<pre>';
-			print_r([
-				'currentController' => \alina\app::get()->currentController,
-				'currentAction'     => \alina\app::get()->currentAction,
-			]);
-			echo '</pre>';
-		}
+            echo '<pre>';
+            print_r([
+                'currentController' => \alina\app::get()->currentController,
+                'currentAction'     => \alina\app::get()->currentAction,
+            ]);
+            echo '</pre>';
 
-		$alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-		print_r("<h2>Time spent: $alinaTimeSpent</h2>");
+            $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+            print_r("<h2>Time spent: $alinaTimeSpent</h2>");
 
-		?>
-	</div>
+            ?>
+		</div>
+    <?php endif; ?>
 
 </div> <!-- /container -->
 </body>

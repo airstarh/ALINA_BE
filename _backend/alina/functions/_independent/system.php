@@ -84,7 +84,7 @@ function isAjax()
 
 function setCrossDomainHeaders()
 {
-    //https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+    //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
     //ToDo: PROD! Security!
     if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
         switch ($_SERVER['HTTP_ORIGIN']) {
@@ -92,7 +92,8 @@ function setCrossDomainHeaders()
                 header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
                 header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
                 header('Access-Control-Max-Age: 1000');
-                header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+                //header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+                header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, userHeader,passwordHeader ');
                 break;
         }
     }

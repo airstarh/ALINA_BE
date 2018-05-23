@@ -10,6 +10,12 @@ use alina\mvc\view\json as jsonView;
 
 class alinaRestAccept
 {
+    /**
+     * @link /alinaRestAccept
+     * @throws \ErrorException
+     * @throws \Exception
+     * @throws \alina\exceptionValidation
+     */
     public function actionIndex()
     {
         message::set('Hello, World!!!');
@@ -126,5 +132,14 @@ class alinaRestAccept
     {
         $data = '';
         echo (new \alina\mvc\view\html)->page($data);
+    }
+
+    /**
+     * @link /alinaRestAccept/TestGet
+     */
+    public function actionTestGet() {
+        setCrossDomainHeaders();
+        header('Content-Type: application/json; charset=utf-8');
+        echo(json_encode($_SERVER, 0));
     }
 }

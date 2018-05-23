@@ -37,8 +37,9 @@ class modelNamesResolver
                 \alina\app::getConfig('mvc\structure\model'),
                 $describer
             ];
-            if (class_exists(implode('\\', $clarifiedDescriber))) {
-                return new $clarifiedDescriber();
+            $mClassName         = buildClassNameFromBlocks($clarifiedDescriber);
+            if (class_exists($mClassName)) {
+                return new $mClassName();
             }
         } catch (\Exception $e) {
             try {
@@ -47,8 +48,9 @@ class modelNamesResolver
                     \alina\app::getConfigDefault('mvc\structure\model'),
                     $describer
                 ];
-                if (class_exists(implode('\\', $clarifiedDescriber))) {
-                    return new $clarifiedDescriber();
+                $mClassName         = buildClassNameFromBlocks($clarifiedDescriber);
+                if (class_exists($mClassName)) {
+                    return new $mClassName();
                 }
             } catch (\Exception $e) {
                 //Nothing is to do here :-)

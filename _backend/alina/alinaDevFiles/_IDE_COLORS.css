@@ -10,17 +10,34 @@
 *.css
 */
 #CSS { color: #DEFF23}
+/**
+*.js
+*/
+#js { color: #ffc35c}
+/**
+*.TS
+*/
+#js { color: #C2BCCC}
 
 /** JS */
 /**
 *component.ts
 */
-#COMPONENT { color: #F6CEB6} /** PHP: #MODEL*/
+#COMPONENT { color: #E48DD5} /** PHP: #CONTROLLER*/
 /**
 *service.ts
 */
-#SERVICE { color: #FFDF54}
+#SERVICE { color: #F6CEB6}
 /**
 *module.ts
 */
 #MODULE { color: #A3A4FF}
+
+
+/*
+file[PROJECT_NAME]:APP_DIR//src/app//*.css
+file[PROJECT_NAME]:APP_DIR//*component.html
+file[PROJECT_NAME]:APP_DIR//*service.ts
+file[PROJECT_NAME]:APP_DIR//*module.ts
+file[PROJECT_NAME]:APP_DIR//*component.ts
+*/

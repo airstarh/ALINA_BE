@@ -1,0 +1,110 @@
+<div class="aasdf">
+
+</div>
+
+</ul>
+<ul class="tabs">
+	<li><a href="#tab1">Person</a></li>
+</ul>
+<div class="fluid">
+
+	<div class="formRow">
+		<div class="grid2"><label>Username:</label></div>
+		<div class="grid4"><%= model.username %></div>
+		<div class="grid2">&nbsp;</div>
+		<div class="grid4">&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+	<div class="formRow">
+		<div class="grid2"><label>First Name:</label></div>
+		<div class="grid4"><%= model.first_name %>&nbsp;</div>
+		<div class="grid2"><label>Last Name:</label></div>
+		<div class="grid4"><%= model.last_name %>&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+	<div class="formRow">
+		<div class="grid2"><label>Phone:</label></div>
+		<div class="grid4"><%= model.phone %>&nbsp;</div>
+		<div class="grid2"><label>Email:</label></div>
+		<div class="grid4"><%= model.email %>&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="formRow">
+		<div class="grid2"><label>Fax:</label></div>
+		<div class="grid4"><%= model.fax %>&nbsp;</div>
+		<div class="grid2"><label>Mobile:</label></div>
+		<div class="grid4"><%= model.mobile %>&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="formRow">
+		<div class="grid2"><label>Roles:</label></div>
+		<div class="grid4">
+			<select name="roleIds" class="select" multiple="multiple" data-placeholder="Choose roles..." tabindex="<%= ++tabindex %>" style="width:100%;">
+				<% _(allRoles).each(function(item) {
+				var isRoleSelected = false;
+				_(model.roles).each(function(itm) {
+				if (item.name==itm)
+				isRoleSelected = true;
+				});
+				%>
+				<option value="<%= item.role_id %>" <% (isRoleSelected) ? print(' selected') : '' %>><%= item.name %></option>
+				<% }); %>
+			</select>
+		</div>
+		<div class="grid2"><label>Deal Group:</label></div>
+		<div class="grid4">
+			<select name="deal_group_id" data-placeholder="Choose a Deal Group..." class="select" style="width:300px;" tabindex="<%= ++tabindex %>">
+				<option value=""<% (!model.deal_group_id) ? print(' selected') : '' %>>Choose an investment group...</option>
+				<% _(allDealGroups).each(function(item) { %>
+				<option value="<%= item.lookup_id %>"<% (item.lookup_id==model.deal_group_id) ? print(' selected') : '' %>><%= item.name %></option>
+				<% }); %>
+			</select>
+			&nbsp;
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="formRow">
+		<div class="grid2"><label>Fund Groups:</label></div>
+		<div class="grid4">
+			<select name="fund_group_id" class="select" multiple="multiple" data-placeholder="Choose Fund Groups..." tabindex="<%= ++tabindex %>" style="width:100%;">
+				<% _(allFundGroups).each(function(item) {
+				var isItemSelected = false;
+				_(model.fund_groups).each(function(itm) {
+				if (item.fund_group_id==itm.fund_group_id)
+				isItemSelected = true;
+				});
+				%>
+				<option value="<%= item.fund_group_id %>" <% (isItemSelected) ? print(' selected') : '' %>><%= item.name %></option>
+				<% }); %>
+			</select>
+		</div>
+
+		<div class="grid2"><label>&nbsp;</label></div>
+		<div class="grid4">&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="formRow">
+		<div class="grid2"><label>Is Receive Email:</label></div>
+		<div class="grid4">
+			<input type="checkbox" id="is_receive_email" name="is_receive_email" <%= ((model.is_receive_email==1) ? 'checked' : '') %> tabindex="<%= ++tabindex %>" class="check"/>
+		</div>
+		<div class="grid2">&nbsp;</div>
+		<div class="grid4">&nbsp;</div>
+		<div class="clear"></div>
+	</div>
+</div>
+
+
+<div class="formRow">
+	<div class="grid12 textC">
+		<% if (!readOnlyMode) { %>
+		<div class="tablectrl_small bGreen tipS iconb saveModel" data-icon="&#xe221;" title="Save"> Save</div>
+		<div class="tablectrl_small bGreyish tipS iconb cancelModel" data-icon="&#xe166;" title="Cancel"> Cancel</div>
+		<% } %>
+	</div>
+	<div class="clear"></div>
+</div>
