@@ -62,7 +62,7 @@ class alinaRestAccept
                         $modelName = $_GET['m'];
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
-                        GlobalRequestStorage::set('modelFields', $m->fields());
+                        GlobalRequestStorage::set('modelMetaInfo', $m->getFieldsMetaInfo());
                         GlobalRequestStorage::set('pageCurrentNumber', $m->pageCurrentNumber);
                         GlobalRequestStorage::set('pageSize', $m->pageSize);
                         GlobalRequestStorage::set('rowsTotal', $m->rowsTotal);
@@ -75,7 +75,7 @@ class alinaRestAccept
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $cond      = [$m->pkName => $mId];
                         $data      = $m->getAllWithReferences($cond);
-                        $resp = null;
+                        $resp      = NULL;
                         if (!empty($data)) {
                             $resp = $data[0];
                         }
@@ -137,7 +137,8 @@ class alinaRestAccept
     /**
      * @link /alinaRestAccept/TestGet
      */
-    public function actionTestGet() {
+    public function actionTestGet()
+    {
         setCrossDomainHeaders();
         header('Content-Type: application/json; charset=utf-8');
         echo(json_encode($_SERVER, 0));

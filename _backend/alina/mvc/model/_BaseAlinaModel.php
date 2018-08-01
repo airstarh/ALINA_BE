@@ -64,6 +64,8 @@ class _BaseAlinaModel
         return Dal::raw($expression);
     }
 
+    #region Fields Definitions
+
     /**
      * Initial list of fields. @see fieldStructureExample
      */
@@ -81,6 +83,7 @@ class _BaseAlinaModel
         return $fields;
     }
 
+    #region Identity (AutoIncremental)
     public function fieldsIdentity()
     {
         return [
@@ -99,6 +102,23 @@ class _BaseAlinaModel
 
         return in_array($fieldName, $fieldsIdentity);
     }
+    #endregion Identity (AutoIncremental)
+
+    #region Unique Fields
+    /**
+     * Returns array of arrays.
+     * Nested arrays contain list of field names, which are Unique Keys together.
+     * Example:
+     * [
+     *  ['email'],
+     *  ['row', 'column'],
+     * ]
+     */
+    public function uniqueKeys()
+    {
+        return [];
+    }
+    #endregion Unique Fields
 
     /**
      * Just For Example!!!
@@ -113,6 +133,7 @@ class _BaseAlinaModel
             [
                 'fieldName' => [
                     'default'    => 'field default value on INSERT',
+                    'tye'        => ['string', 'number', 'etc'],
                     'filters'    => [
                         // Could be a closure, string with function name or an array
                         [$className, $staticMethod],
@@ -134,20 +155,22 @@ class _BaseAlinaModel
             ];
     }
 
-    /**
-     * Returns array of arrays.
-     * Nested arrays contain list of field names, which are Unique Keys together.
-     * Example:
-     * [
-     *  ['email'],
-     *  ['row', 'column'],
-     * ]
-     */
-    public function uniqueKeys()
+    public function getFieldsMetaInfo()
     {
-        return [];
-    }
+        $fields   = $this->fields();
+        $pkName   = $this->pkName;
+        $identity = $this->fieldsIdentity();
+        $unique   = $this->uniqueKeys();
 
+        return [
+            'index'    => 'val',
+            'fields'   => $fields,
+            'pkName'   => $pkName,
+            'identity' => $identity,
+            'unique'   => $unique,
+        ];
+    }
+    #emdregion Fields Definitions
     #endregion Required
 
     #region Search Parameters
@@ -188,6 +211,9 @@ class _BaseAlinaModel
         return array_merge($vocGetSearchSpecial, $vocGetSearch);
     }
 
+    /**
+     * Sets $this->req
+     */
     public function apiUnpackGetParams()
     {
         $this->req    = new \stdClass();
