@@ -1,4 +1,11 @@
 <?php
+/**
+ * URL's to test:
+ * short:
+ * /alinaRestAccept?cmd=model&m=user
+ * current full:
+ * http://alinazero/alinaRestAccept?cmd=model&m=user&ps=2
+ */
 
 namespace alina\mvc\controller;
 

@@ -58,7 +58,7 @@ class json
         return TRUE;
     }
 
-    public function setCrossDomainHeaders()
+    protected function setCrossDomainHeaders()
     {
         setCrossDomainHeaders();
 
