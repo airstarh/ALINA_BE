@@ -179,14 +179,24 @@ class _BaseAlinaModel
         $fields = $this->fields();
         $fNames = array_keys($fields);
         $res    = [];
-        foreach ($fNames as $v) {
-            $res[$v] = $v;
+        foreach ($fNames as $f) {
+            foreach ($_GET as $gF => $gV) {
+                if (endsWith($gF, $f)) {
+                    $res[$gF] = $gV;
+                }
+            }
         }
 
         return $res;
     }
 
-    public $req = NULL;
+    public $req          = NULL;
+    public $apiOperators = [
+        'lt_' => '<',
+        'gt_' => '>',
+        'eq_' => '=',
+        'lk_' => 'LIKE',
+    ];
 
     public function vocGetSearch()
     {
@@ -226,11 +236,13 @@ class _BaseAlinaModel
              * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
              */
             //if (isset($_GET[$short]) && $_GET[$short] !=='') {
-            if (isset($_GET[$short])) {
+            if
+            (isset($_GET[$short])) {
                 $this->req->{$full} = $_GET[$short];
             }
         }
 
+        // ToDo: Doubtful
         // Additional Special Condition $this->sortName, $this->sortAsc
         if (isset($_GET['sa'])) {
             $this->sortAsc = $_GET['sa'];
@@ -242,6 +254,8 @@ class _BaseAlinaModel
         if (isset($_GET['ps'])) {
             $this->pageSize = $_GET['ps'];
         }
+
+        //ToDo: Rename to pn.
         if (isset($_GET['p'])) {
             $this->pageCurrentNumber = $_GET['p'];
         }
@@ -256,20 +270,47 @@ class _BaseAlinaModel
         $req = $this->req;
 
         foreach ($req as $f => $v) {
-            //ToDo: More Complex for dates, ranges, etc.
 
+            $t = $this->alias;
+
+            //The simplest search case.
             if ($this->tableHasField($f)) {
-                if (is_numeric($v)) {
-                    $q->where("{$this->alias}.{$f}", '=', $v);
-                }
-                elseif (is_array($v)) {
-                    $q->whereIn("{$this->alias}.{$f}", $v);
+                if (is_array($v)) {
+                    $q->whereIn("{$t}.{$f}", $v);
                 }
                 else {
-                    $q->where("{$this->alias}.{$f}", 'LIKE', "%{$v}%");
+                    $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
+                }
+                return $this;
+            }
+
+            //API GET operators.
+            $apiOperators = $this->apiOperators;
+            foreach ($apiOperators as $o=>$oV) {
+                if (startsWith($f, $o)) {
+                    $fName = implode('', explode($o, $f, 2));
+                    if ($this->tableHasField($fName)) {
+                        switch ($o) {
+                            case ('lt_'):
+                                $q->where("{$t}.{$fName}", '<', $v);
+                                break;
+                            case ('gt_'):
+                                $q->where("{$t}.{$fName}", '>', $v);
+                                break;
+                            case ('eq_'):
+                                $q->where("{$t}.{$fName}", '=', $v);
+                                break;
+                            case ('lk_'):
+                                $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
+                                break;
+                        }
+                    }
                 }
             }
+
         }
+
+        return $this;
     }
     #endregion Search Parameters
 
