@@ -182,7 +182,7 @@ class _BaseAlinaModel
         foreach ($fNames as $f) {
             foreach ($_GET as $gF => $gV) {
                 if (endsWith($gF, $f)) {
-                    $res[$gF] = $gV;
+                    $res[$gF] = $gF;
                 }
             }
         }
@@ -228,6 +228,10 @@ class _BaseAlinaModel
     {
         $this->req    = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
+
+        error_log('vocGetSearch',0);
+        error_log(json_encode($vocGetSearch),0);
+
         foreach ($vocGetSearch as $short => $full) {
             /*
              * NOTE:
@@ -242,7 +246,6 @@ class _BaseAlinaModel
             }
         }
 
-        // ToDo: Doubtful
         // Additional Special Condition $this->sortName, $this->sortAsc
         if (isset($_GET['sa'])) {
             $this->sortAsc = $_GET['sa'];
@@ -269,6 +272,9 @@ class _BaseAlinaModel
         $q   = $this->q;
         $req = $this->req;
 
+        error_log('$req',0);
+        error_log(json_encode($req),0);
+
         foreach ($req as $f => $v) {
 
             $t = $this->alias;
@@ -281,7 +287,6 @@ class _BaseAlinaModel
                 else {
                     $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
                 }
-                return $this;
             }
 
             //API GET operators.
