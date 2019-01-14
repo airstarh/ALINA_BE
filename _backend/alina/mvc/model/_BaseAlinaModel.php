@@ -63,6 +63,7 @@ class _BaseAlinaModel
     {
         return Dal::raw($expression);
     }
+    #endregion Required
 
     #region Fields Definitions
 
@@ -163,7 +164,6 @@ class _BaseAlinaModel
         $unique   = $this->uniqueKeys();
 
         return [
-            'index'    => 'val',
             'fields'   => $fields,
             'pkName'   => $pkName,
             'identity' => $identity,
@@ -171,7 +171,6 @@ class _BaseAlinaModel
         ];
     }
     #emdregion Fields Definitions
-    #endregion Required
 
     #region Search Parameters
     public function vocGetSearchSpecial()

@@ -80,7 +80,7 @@ class alinaRestAccept
                         $modelName = $_GET['m'];
                         $mId       = $_GET['mId'];
                         $m         = modelNamesResolver::getModelObject($modelName);
-                        $cond      = [$m->pkName => $mId];
+                        $cond      = ["{$m->alias}.{$m->pkName}" => $mId];
                         $data      = $m->getAllWithReferences($cond);
                         $resp      = NULL;
                         if (!empty($data)) {
