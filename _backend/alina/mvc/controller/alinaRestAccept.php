@@ -4,7 +4,7 @@
  * short:
  * /alinaRestAccept?cmd=model&m=user
  * current full:
- * http://alinazero/alinaRestAccept?cmd=model&m=user&ps=2
+ * http://alinazero/alinaRestAccept?cmd=collection&m=user&ps=2
  */
 
 namespace alina\mvc\controller;
@@ -25,14 +25,14 @@ class alinaRestAccept
      */
     public function actionIndex()
     {
+        setCrossDomainHeaders();
         message::set('Hello, World!!!');
-        $method = strtoupper($_SERVER['REQUEST_METHOD']);
-
+        $method  = strtoupper($_SERVER['REQUEST_METHOD']);
+        $command = $_GET['cmd'];
         switch ($method) {
             //INSERT
             case 'POST':
-                $post    = resolvePostDataAsObject();
-                $command = $_GET['cmd'];
+                $post = resolvePostDataAsObject();
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -44,8 +44,6 @@ class alinaRestAccept
             //UPDATE
             case 'PUT':
                 $post = resolvePostDataAsObject();
-                //$post->description = time();
-                $command = $_GET['cmd'];
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -63,9 +61,8 @@ class alinaRestAccept
                 /**
                  *  /?cmd=model&m=user&[search_parameters]
                  */
-                if (isset($_GET['cmd']) && !empty($_GET['cmd'])) {
-                    $command = $_GET['cmd'];
-                    if ($command === 'model') {
+                if ($command && !empty($command)) {
+                    if ($command === 'collection') {
                         $modelName = $_GET['m'];
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
@@ -76,7 +73,7 @@ class alinaRestAccept
                         (new jsonView())->standardRestApiResponse($data);
                     }
 
-                    if ($command === 'modelOne') {
+                    if ($command === 'model') {
                         $modelName = $_GET['m'];
                         $mId       = $_GET['mId'];
                         $m         = modelNamesResolver::getModelObject($modelName);
@@ -124,8 +121,7 @@ class alinaRestAccept
                         $id   = array_shift($routeData);
                         $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id])[0];
                         (new jsonView())->simpleRestApiResponse($data);
-                    }
-                    else {
+                    } else {
                         $data = $m->getAllWithReferences();
                         (new jsonView())->simpleRestApiResponse($data);
                     }

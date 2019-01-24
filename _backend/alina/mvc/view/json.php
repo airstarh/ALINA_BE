@@ -13,9 +13,6 @@ class json
 
     public function standardRestApiResponse($data = NULL, $toReturn = FALSE)
     {
-
-        $this->setCrossDomainHeaders();
-
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = \alina\message::returnAllMessages();
@@ -40,9 +37,6 @@ class json
 
     public function simpleRestApiResponse($data = NULL, $toReturn = FALSE)
     {
-
-        $this->setCrossDomainHeaders();
-
         $response = $data;
 
         //Output.
@@ -56,13 +50,6 @@ class json
         //echo json_encode($response, JSON_UNESCAPED_UNICODE);
         //echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
         return TRUE;
-    }
-
-    protected function setCrossDomainHeaders()
-    {
-        setCrossDomainHeaders();
-
-        return $this;
     }
 
     //ToDo: Security!!! Never use on prod.

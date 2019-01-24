@@ -43,7 +43,7 @@ class _BaseAlinaModel
          */
         if (isset($this->q) && !empty($this->q)) {
             $this->q = NULL;
-            \alina\message::set("ATTENTION! {$this->table} query is redefined!!!");
+            message::set("ATTENTION! {$this->table} query is redefined!!!");
             //error_log(__FUNCTION__,0);
             //error_log(json_encode(debug_backtrace()[1]['function']),0);
         }
@@ -401,7 +401,7 @@ class _BaseAlinaModel
     /**
      * Updates record by Primary Key.
      * PK could be passed either in $data object or as the second parameter separately.
-     * @param $data array
+     * @param $data array|\stdClass
      * @param null|mixed $id
      * @return mixed
      * @throws \Exception
