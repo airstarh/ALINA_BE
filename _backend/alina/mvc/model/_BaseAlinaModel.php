@@ -51,8 +51,7 @@ class _BaseAlinaModel
         $this->alias = $alias ? $alias : $this->alias;
         if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
             $this->q = Dal::table("{$this->table}");
-        }
-        else {
+        } else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
 
@@ -228,8 +227,8 @@ class _BaseAlinaModel
         $this->req    = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
 
-        error_log('vocGetSearch',0);
-        error_log(json_encode($vocGetSearch),0);
+        error_log('vocGetSearch', 0);
+        error_log(json_encode($vocGetSearch), 0);
 
         foreach ($vocGetSearch as $short => $full) {
             /*
@@ -271,8 +270,8 @@ class _BaseAlinaModel
         $q   = $this->q;
         $req = $this->req;
 
-        error_log('$req',0);
-        error_log(json_encode($req),0);
+        error_log('$req', 0);
+        error_log(json_encode($req), 0);
 
         foreach ($req as $f => $v) {
 
@@ -282,15 +281,14 @@ class _BaseAlinaModel
             if ($this->tableHasField($f)) {
                 if (is_array($v)) {
                     $q->whereIn("{$t}.{$f}", $v);
-                }
-                else {
+                } else {
                     $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
                 }
             }
 
             //API GET operators.
             $apiOperators = $this->apiOperators;
-            foreach ($apiOperators as $o=>$oV) {
+            foreach ($apiOperators as $o => $oV) {
                 if (startsWith($f, $o)) {
                     $fName = implode('', explode($o, $f, 2));
                     if ($this->tableHasField($fName)) {
@@ -311,7 +309,6 @@ class _BaseAlinaModel
                     }
                 }
             }
-
         }
 
         return $this;
@@ -413,8 +410,7 @@ class _BaseAlinaModel
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
             $pkValue = $id;
-        }
-        else {
+        } else {
             if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
                 $pkValue = $data->{$pkName};
                 unset($data->{$pkName});
@@ -470,8 +466,7 @@ class _BaseAlinaModel
             if (property_exists($data, $name)) {
                 if ($this->isFieldIdentity($name)) {
                     $this->dataArrayIdentity[$name] = $data->{$name};
-                }
-                else {
+                } else {
                     $dataArray[$name] = $data->{$name};
                 }
             }
@@ -529,12 +524,10 @@ class _BaseAlinaModel
                         // The simplest filter
                         if (is_string($filter) && function_exists($filter)) {
                             $data->{$name} = $filter($value);
-                        }
-                        else {
+                        } else {
                             if ($filter instanceof \Closure) {
                                 $data->{$name} = call_user_func($filter, $data->{$name});;
-                            }
-                            else {
+                            } else {
                                 if (is_array($filter)) {
                                     $argsAmount = count($filter);
                                     switch ($argsAmount) {
@@ -549,8 +542,7 @@ class _BaseAlinaModel
                         // ToDo: Maybe more abilities for filter.
                     }
                 }
-            }
-            else {
+            } else {
                 if ($this->mode === 'INSERT' && isset($params['default'])) {
                     $data->{$name} = $params['default'];
                 }
@@ -587,12 +579,10 @@ class _BaseAlinaModel
                         // The simplest validator
                         if (is_string($v['f']) && function_exists($v['f'])) {
                             $vResult = $v['f']($value);
-                        }
-                        else {
+                        } else {
                             if ($v['f'] instanceof \Closure) {
                                 $vResult = call_user_func($v['f'], $value);;
-                            }
-                            else {
+                            } else {
                                 if (is_array($v['f'])) {
                                     $argsAmount = count($v['f']);
                                     switch ($argsAmount) {
@@ -730,8 +720,7 @@ class _BaseAlinaModel
 
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
-        }
-        else {
+        } else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
@@ -775,6 +764,7 @@ class _BaseAlinaModel
     public $pageCurrentNumber = 0;
     public $pageSize          = 15;
     public $rowsTotal         = -1;
+    public $pagesTotal        = 0;
 
     /**
      * Prepare paginated API response.
@@ -898,11 +888,21 @@ class _BaseAlinaModel
     public function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
         /** @var $q \Illuminate\Database\Query\Builder object */
-        $q        = $this->q;
-        $page     = $this->pageCurrentNumber;
-        $pageSize = $this->pageSize;
+        $q                 = $this->q;
+        $pageCurrentNumber = $this->pageCurrentNumber;
+        $pageSize          = $this->pageSize;
+        $rowsTotal          = $this->rowsTotal;
 
-        if (FALSE !== ($offset = $this->calcPagePageSize($page, $pageSize))) {
+        if ($rowsTotal <= $pageSize) {
+            $pageCurrentNumber = $this->pageCurrentNumber = 1;
+        }
+
+        $this->calcPagesTotal($rowsTotal, $pageSize);
+        if ($pageCurrentNumber > $this->pagesTotal) {
+            $pageCurrentNumber = $this->pageCurrentNumber = 1;
+        }
+
+        if (FALSE !== ($offset = $this->calcOffset($pageCurrentNumber, $pageSize))) {
             $q->skip($offset)->take($pageSize);
         }
 
@@ -917,7 +917,17 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function calcPagePageSize($pageCurrentNumber, $pageSize)
+    public function calcPagesTotal($rowsTotal, $pageSize)
+    {
+        if ($pageSize <= 0) {
+            $pageSize = $rowsTotal;
+        }
+        $this->pagesTotal = ceil($rowsTotal / $pageSize);
+
+        return $this->pagesTotal;
+    }
+
+    public function calcOffset($pageCurrentNumber, $pageSize)
     {
         if (!isset($pageSize) || !isset($pageCurrentNumber) || $pageSize <= 0 || $pageCurrentNumber <= 0) {
             return FALSE;
