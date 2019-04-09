@@ -227,8 +227,8 @@ class _BaseAlinaModel
         $this->req    = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
 
-        error_log('vocGetSearch', 0);
-        error_log(json_encode($vocGetSearch), 0);
+//        error_log('vocGetSearch', 0);
+//        error_log(json_encode($vocGetSearch), 0);
 
         foreach ($vocGetSearch as $short => $full) {
             /*
