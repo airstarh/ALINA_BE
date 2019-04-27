@@ -10,7 +10,7 @@ error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 //error_reporting(E_ALL);
 
-define('ALINA_ENV', 'HOME_2');
+define('ALINA_ENV', 'DA');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
