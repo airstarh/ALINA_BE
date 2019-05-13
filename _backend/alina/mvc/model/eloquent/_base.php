@@ -20,6 +20,7 @@ Relation::morphMap([
 
 #endregion Laravel initiation
 
+/**@deprecated */
 class _base extends LaravelEloquentModel
 {
     use trait_all_classes;

@@ -25,8 +25,11 @@ class alinaRestAccept
      */
     public function actionIndex()
     {
+
         setCrossDomainHeaders();
         message::set('Hello, World!!!');
+        \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
+
         $method  = strtoupper($_SERVER['REQUEST_METHOD']);
         $command = $_GET['cmd'];
         switch ($method) {

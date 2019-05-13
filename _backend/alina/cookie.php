@@ -2,9 +2,10 @@
 
 namespace alina;
 
-
 class cookie
 {
+    public static $past      = ALINA_COOKIE_PAST;
+    public static $justAdded = [];
     public        $name;
     public        $value     = '';
     public        $expire;
@@ -12,41 +13,10 @@ class cookie
     public        $domain    = NULL;
     public        $secure    = FALSE;
     public        $httponly  = FALSE;
-    public static $past      = ALINA_COOKIE_PAST;
-    public static $justAdded = [];
 
     protected function __construct()
     {
         $this->expire = ALINA_TIME + 60 * 60 * 24 * 10; // 10 days)
-    }
-
-    public function apply()
-    {
-        $process = setcookie(
-            $this->name,
-            $this->value,
-            $this->expire,
-            $this->path,
-            $this->domain,
-            $this->secure,
-            $this->httponly
-        );
-        if ($this->expire > ALINA_TIME) {
-            static::$justAdded[] = $this->name;
-        }
-
-        return $process;
-    }
-
-    #region Fasade.
-    static public function getCookieNameByStringPath($stringPath, $delimiter = '/')
-    {
-        // Prepare $name string.
-        $pathArray = explode($delimiter, $stringPath);
-        $name      = array_shift($pathArray);
-        $name .= '[' . implode('][', $pathArray) . ']';
-
-        return $name;
     }
 
     static public function setPath($stringPath, $value, $expire = NULL, $delimiter = '/', $path = '/', $domain = NULL, $secure = FALSE, $httponly = FALSE)
@@ -69,6 +39,38 @@ class cookie
         }
 
         return $apply;
+    }
+
+    #region Fasade.
+
+    static public function getCookieNameByStringPath($stringPath, $delimiter = '/')
+    {
+        // Prepare $name string.
+        $pathArray = explode($delimiter, $stringPath);
+        $name      = array_shift($pathArray);
+        if (!empty($pathArray)) {
+            $name .= '[' . implode('][', $pathArray) . ']';
+        }
+
+        return $name;
+    }
+
+    public function apply()
+    {
+        $process = setcookie(
+            $this->name,
+            $this->value,
+            $this->expire,
+            $this->path,
+            $this->domain,
+            $this->secure,
+            $this->httponly
+        );
+        if ($this->expire > ALINA_TIME) {
+            static::$justAdded[] = $this->name;
+        }
+
+        return $process;
     }
 
     static public function deletePath($stringPath, $delimiter = '/')
@@ -102,6 +104,16 @@ class cookie
         }
     }
 
+    static public function delete($name)
+    {
+        $apply = static::set($name, NULL, static::$past);
+        if ($apply) {
+            unset($_COOKIE[$name]);
+        }
+
+        return $apply;
+    }
+
     static public function set($name, $value, $expire = NULL, $path = '/', $domain = NULL, $secure = FALSE, $httponly = FALSE)
     {
         $_this           = new static;
@@ -117,16 +129,6 @@ class cookie
             if ($_this->expire > ALINA_TIME) {
                 $_COOKIE[$name] = $value;
             }
-        }
-
-        return $apply;
-    }
-
-    static public function delete($name)
-    {
-        $apply = static::set($name, NULL, static::$past);
-        if ($apply) {
-            unset($_COOKIE[$name]);
         }
 
         return $apply;

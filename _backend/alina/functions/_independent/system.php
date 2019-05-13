@@ -51,7 +51,8 @@ function resolvePostDataAsObject()
 {
     $postOriginal = toObject($_POST);
     $postStdIn    = toObject(file_get_contents('php://input'));
-    $res = mergeSimpleObjects($postOriginal, $postStdIn);
+    $res          = mergeSimpleObjects($postOriginal, $postStdIn);
+
     return $res;
 }
 
@@ -61,6 +62,7 @@ function isAjax()
     if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
         //ToDo: PROD! Security!
         setCrossDomainHeaders();
+
         return TRUE;
     }
 
@@ -94,8 +96,23 @@ function setCrossDomainHeaders()
                 //header("Vary: Origin");
                 header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
                 header('Access-Control-Max-Age: 1000');
-                //header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-                header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, userHeader,passwordHeader ');
+                header('Alina-Server-Header: Hello, user');
+                $allowedHeaders = [
+                    //'Authorization'                  => '',
+                    //'Access-Control-Allow-Headers'   => '',
+                    'Origin'                         => '',
+                    'Accept'                         => '',
+                    'X-Requested-With'               => '',
+                    'Content-Type'                   => '',
+                    'Access-Control-Request-Method'  => '',
+                    'Access-Control-Request-Headers' => '',
+                    'userHeader'                     => '',
+                    'passwordHeader'                 => '',
+                    'bizAuthToken'                   => '',
+                ];
+                $allowedHeaders = array_keys($allowedHeaders);
+                $allowedHeaders = implode(', ', $allowedHeaders);
+                header("Access-Control-Allow-Headers: {$allowedHeaders}");
                 //header('Access-Control-Allow-Credentials: false');
                 break;
         }
