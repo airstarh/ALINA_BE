@@ -18,6 +18,50 @@ class _BaseAlinaModel
     public $pkName = 'id';
     /** @var \Illuminate\Database\Query\Builder $q */
     public    $q;
+    public $req          = NULL;
+    public $apiOperators = [
+        'lt_' => '<',
+        'gt_' => '>',
+        'eq_' => '=',
+        'lk_' => 'LIKE',
+    ];
+    public $attributes;
+    /**
+     * @var  \Illuminate\Support\Collection
+     */
+    public $collection = [];
+    #endregion Required
+
+    #region Fields Definitions
+public $mode            = 'SELECT';
+
+    #region Identity (AutoIncremental)
+    public $isDataFiltered  = FALSE;
+    public $isDataValidated = FALSE;
+    #endregion Identity (AutoIncremental)
+
+    #region Unique Fields
+    public $affectedRowsCount = NULL;
+    #endregion Unique Fields
+    public $dataArrayIdentity;
+    public $matchedUniqueFields = [];
+    #emdregion Fields Definitions
+
+    #region Search Parameters
+    /**
+     * @var $sortDefault array
+     *  with structure: [['field1', 'DESC'], ['field2', 'ASC']]
+     */
+    public $sortDefault       = [];
+    public $sortName          = NULL;
+    public $sortAsc           = 'ASC';
+    public $pageCurrentNumber = 0;
+    public $pageSize          = 15;
+    public $rowsTotal         = -1;
+    #endregion Search Parameters
+
+    #region SELECT
+    public $pagesTotal        = 0;
     protected $opts;
 
     public function __construct($opts = NULL)
@@ -30,6 +74,46 @@ class _BaseAlinaModel
         $this->alias      = $this->table;
         $this->attributes = new \stdClass;
     }
+
+    public function raw($expression)
+    {
+        return Dal::raw($expression);
+    }
+
+    public function getFieldsMetaInfo()
+    {
+        $fields   = $this->fields();
+        $pkName   = $this->pkName;
+        $identity = $this->fieldsIdentity();
+        $unique   = $this->uniqueKeys();
+
+        return [
+            'fields'   => $fields,
+            'pkName'   => $pkName,
+            'identity' => $identity,
+            'unique'   => $unique,
+        ];
+    }
+    #endregion SELECT
+
+    #region INSERT or Update
+
+    /**
+     * Initial list of fields. @see fieldStructureExample
+     */
+    public function fields()
+    {
+        $table  = $this->table;
+        $m      = new static(['table' => $table]);
+        $q      = $m->q();
+        $item   = $q->first();
+        $fields = [];
+        foreach ($item as $i => $v) {
+            $fields[$i] = [];
+        }
+
+        return $fields;
+    } // Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
 
     /**
      * @param string $alias
@@ -58,53 +142,6 @@ class _BaseAlinaModel
         return $this->q;
     }
 
-    public function raw($expression)
-    {
-        return Dal::raw($expression);
-    }
-    #endregion Required
-
-    #region Fields Definitions
-
-    /**
-     * Initial list of fields. @see fieldStructureExample
-     */
-    public function fields()
-    {
-        $table  = $this->table;
-        $m      = new static(['table' => $table]);
-        $q      = $m->q();
-        $item   = $q->first();
-        $fields = [];
-        foreach ($item as $i => $v) {
-            $fields[$i] = [];
-        }
-
-        return $fields;
-    }
-
-    #region Identity (AutoIncremental)
-    public function fieldsIdentity()
-    {
-        return [
-            $this->pkName
-        ];
-    }
-
-    /**
-     * Detects if a Field is AutoIncremental.
-     * @param $fieldName string
-     * @return bool
-     */
-    public function isFieldIdentity($fieldName)
-    {
-        $fieldsIdentity = $this->fieldsIdentity();
-
-        return in_array($fieldName, $fieldsIdentity);
-    }
-    #endregion Identity (AutoIncremental)
-
-    #region Unique Fields
     /**
      * Returns array of arrays.
      * Nested arrays contain list of field names, which are Unique Keys together.
@@ -118,210 +155,11 @@ class _BaseAlinaModel
     {
         return [];
     }
-    #endregion Unique Fields
 
-    /**
-     * Just For Example!!!
-     */
-    protected function fieldStructureExample()
+    public function getById($id)
     {
-        $className             = 'ValidatorClassName';
-        $staticMethod          = 'staticMethodName';
-        $externalScopeVariable = 'someValue';
-
-        return
-            [
-                'fieldName' => [
-                    'default'    => 'field default value on INSERT',
-                    'tye'        => ['string', 'number', 'etc'],
-                    'filters'    => [
-                        // Could be a closure, string with function name or an array
-                        [$className, $staticMethod],
-                        function ($value) use ($externalScopeVariable) {
-                            return trim($value);
-                        },
-                        'trim'
-                    ],
-                    'validators' => [
-                        [
-                            // 'f' - Could be a closure, string with function name or an array
-                            'f'       => 'strlen',
-                            'errorIf' => [FALSE, 0],
-                            'msg'     => 'Please, fill Name'
-                        ]
-                    ],
-
-                ],
-            ];
+        return $this->getOne([$this->pkName => $id]);
     }
-
-    public function getFieldsMetaInfo()
-    {
-        $fields   = $this->fields();
-        $pkName   = $this->pkName;
-        $identity = $this->fieldsIdentity();
-        $unique   = $this->uniqueKeys();
-
-        return [
-            'fields'   => $fields,
-            'pkName'   => $pkName,
-            'identity' => $identity,
-            'unique'   => $unique,
-        ];
-    }
-    #emdregion Fields Definitions
-
-    #region Search Parameters
-    public function vocGetSearchSpecial()
-    {
-        $fields = $this->fields();
-        $fNames = array_keys($fields);
-        $res    = [];
-        foreach ($fNames as $f) {
-            foreach ($_GET as $gF => $gV) {
-                if (endsWith($gF, $f)) {
-                    $res[$gF] = $gF;
-                }
-            }
-        }
-
-        return $res;
-    }
-
-    public $req          = NULL;
-    public $apiOperators = [
-        'lt_' => '<',
-        'gt_' => '>',
-        'eq_' => '=',
-        'lk_' => 'LIKE',
-    ];
-
-    public function vocGetSearch()
-    {
-        $vocGetSearchSpecial = [];
-        if (method_exists($this, 'vocGetSearchSpecial')) {
-            $vocGetSearchSpecial = $this->vocGetSearchSpecial();
-        }
-
-        $vocGetSearch = [
-            // Pagination
-            'ps' => 'pageSize',
-            'p'  => 'page',
-
-            // Sorting functionality
-            'sa' => 'sortAsc',
-            'sn' => 'sortName',
-
-            // Search
-            'q'  => 'search',
-        ];
-
-        return array_merge($vocGetSearchSpecial, $vocGetSearch);
-    }
-
-    /**
-     * Sets $this->req
-     */
-    public function apiUnpackGetParams()
-    {
-        $this->req    = new \stdClass();
-        $vocGetSearch = $this->vocGetSearch();
-
-//        error_log('vocGetSearch', 0);
-//        error_log(json_encode($vocGetSearch), 0);
-
-        foreach ($vocGetSearch as $short => $full) {
-            /*
-             * NOTE:
-             * It sets Property even if it is equal to empty string ''.
-             * Check right in API callbacks, if we need to SELECT models, WHERE the Prop is ''.
-             * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
-             */
-            //if (isset($_GET[$short]) && $_GET[$short] !=='') {
-            if
-            (isset($_GET[$short])) {
-                $this->req->{$full} = $_GET[$short];
-            }
-        }
-
-        // Additional Special Condition $this->sortName, $this->sortAsc
-        if (isset($_GET['sa'])) {
-            $this->sortAsc = $_GET['sa'];
-        }
-        if (isset($_GET['sn'])) {
-            $this->sortName = $_GET['sn'];
-        }
-        // Additional Special Condition $this->pageSize, $this->page
-        if (isset($_GET['ps'])) {
-            $this->pageSize = $_GET['ps'];
-        }
-
-        //ToDo: Rename to pn.
-        if (isset($_GET['p'])) {
-            $this->pageCurrentNumber = $_GET['p'];
-        }
-
-        return $this->req;
-    }
-
-    public function qApplyGetSearchParams()
-    {
-        //ToDo: Check $q, $req emptiness.
-        $q   = $this->q;
-        $req = $this->req;
-
-        error_log('$req', 0);
-        error_log(json_encode($req), 0);
-
-        foreach ($req as $f => $v) {
-
-            $t = $this->alias;
-
-            //The simplest search case.
-            if ($this->tableHasField($f)) {
-                if (is_array($v)) {
-                    $q->whereIn("{$t}.{$f}", $v);
-                } else {
-                    $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
-                }
-            }
-
-            //API GET operators.
-            $apiOperators = $this->apiOperators;
-            foreach ($apiOperators as $o => $oV) {
-                if (startsWith($f, $o)) {
-                    $fName = implode('', explode($o, $f, 2));
-                    if ($this->tableHasField($fName)) {
-                        switch ($o) {
-                            case ('lt_'):
-                                $q->where("{$t}.{$fName}", '<', $v);
-                                break;
-                            case ('gt_'):
-                                $q->where("{$t}.{$fName}", '>', $v);
-                                break;
-                            case ('eq_'):
-                                $q->where("{$t}.{$fName}", '=', $v);
-                                break;
-                            case ('lk_'):
-                                $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
-    #endregion Search Parameters
-
-    #region SELECT
-
-    public $attributes;
-    /**
-     * @var  \Illuminate\Support\Collection
-     */
-    public $collection = [];
 
     public function getOne($conditions = [])
     {
@@ -332,23 +170,12 @@ class _BaseAlinaModel
         return $data;
     }
 
-    public function getById($id)
-    {
-        return $this->getOne([$this->pkName => $id]);
-    }
-
     public function getAll($conditions = [])
     {
         $this->collection = $this->q()->where($conditions)->get();
 
         return $this->collection;
     }
-    #endregion SELECT
-
-    #region INSERT or Update
-    public $mode            = 'SELECT'; // Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $isDataFiltered  = FALSE;
-    public $isDataValidated = FALSE;
 
     public function insert($data)
     {
@@ -365,71 +192,42 @@ class _BaseAlinaModel
         return $data;
     }
 
-    public $affectedRowsCount = NULL;
-
-    public function update($data, $conditions = [])
-    {
-        $this->mode = 'UPDATE';
-        $pkName     = $this->pkName;
-        $data       = toObject($data);
-
-        //Fix: Special for MS SQL: NO PK ON INSERTS.
-        if (property_exists($data, $pkName)) {
-            $presavedId = $data->{$pkName};
-            //IMPORTANT: unset of $this->id happens in prepareDbData then.
-        }
-
-        $dataArray = $this->prepareDbData($data);
-
-        $this->affectedRowsCount =
-            $this->q()
-                ->where($conditions)
-                ->update($dataArray);
-        $this->attributes        = toObject($dataArray);
-        //Get ID back
-        if (isset($presavedId)) {
-            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
-        }
-        $this->resetFlags();
-
-        return $this->attributes;
-    }
-
     /**
-     * Updates record by Primary Key.
-     * PK could be passed either in $data object or as the second parameter separately.
-     * @param $data array|\stdClass
-     * @param null|mixed $id
-     * @return mixed
+     * Rough merge of simple (stdClass) objects.
      * @throws \Exception
-     * @throws exceptionValidation
      */
-    public function updateById($data, $id = NULL)
+    public function mergeRawObjects()
     {
-        $data   = toObject($data);
-        $pkName = $this->pkName;
-        if (isset($id) && !empty($id)) {
-            $pkValue = $id;
-        } else {
-            if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
-                $pkValue = $data->{$pkName};
-                unset($data->{$pkName});
+        $objects = func_get_args();
+        $count   = count($objects);
+
+        $res = new \stdClass();
+        for ($i = 0; $i <= $count - 1; $i++) {
+            $o = toObject($objects[$i]);
+            foreach ($o as $p => $v) {
+                $res->{$p} = $v;
             }
         }
 
-        if (!isset($pkValue) || empty($pkValue)) {
-            $table = $this->table;
-            throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
+        return $res;
+    }
+
+    /**
+     * Creates $defaultRawObj with default values for DB.
+     * @return \stdClass object $defaultRawObj.
+     */
+    public function getDefaultRawObj()
+    {
+        $fields        = $this->fields();
+        $defaultRawObj = new \stdClass();
+        foreach ($fields as $f => $props) {
+            //$defaultRawObj->$f = null; //ToDo: It affects Primary Key!!!
+            if (array_key_exists('default', $props)) {
+                $defaultRawObj->$f = $props['default'];
+            }
         }
 
-        $conditions       = [$pkName => $pkValue];
-        $this->attributes = $this->update($data, $conditions);
-        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
-        if ($this->affectedRowsCount != 1) {
-            message::set("There are no changes in {$this->table} of ID {$pkValue}");
-        }
-
-        return $this->attributes;
+        return $defaultRawObj;
     }
 
     public function prepareDbData($data, $addAuditInfo = TRUE)
@@ -445,61 +243,6 @@ class _BaseAlinaModel
         $dataArray = $this->restrictIdentityAutoincrementReadOnlyFields($data);
 
         return $dataArray;
-    }
-
-    public $dataArrayIdentity;
-
-    /**
-     * Is used AFTER filtering and validation.
-     * Responsible to create array of field=>value pairs,
-     * AND allows only those field names, which are listed in $this->fields() array.
-     * Minimizes conflicts.
-     * It does NOT change input object.
-     * @param \stdClass $data
-     * @return array
-     */
-    public function restrictIdentityAutoincrementReadOnlyFields($data)
-    {
-        $dataArray = [];
-        $fields    = $this->fields();
-        foreach ($fields as $name => $params) {
-            if (property_exists($data, $name)) {
-                if ($this->isFieldIdentity($name)) {
-                    $this->dataArrayIdentity[$name] = $data->{$name};
-                } else {
-                    $dataArray[$name] = $data->{$name};
-                }
-            }
-        }
-
-        return $dataArray;
-    }
-
-    /**
-     * Add Audit Information to $data object.
-     * @param \stdClass $data
-     * @param string|null $saveMode
-     * @return null
-     */
-    function addAuditInfo(\stdClass $data, $saveMode = NULL)
-    {
-
-        if ($saveMode === NULL) {
-            $saveMode = $this->mode;
-        }
-
-        $user_id = getCurrentUserId();
-        $now     = getNow();
-
-        $data->modified_by   = $user_id;
-        $data->modified_date = $now;
-
-        if ($saveMode === 'INSERT') {
-            $data->created_by   = $user_id;
-            $data->created_date = $now;
-        }
-
-        return NULL;
     }
 
     /**
@@ -619,8 +362,6 @@ class _BaseAlinaModel
         return $this;
     }
 
-    public $matchedUniqueFields = [];
-
     public function validateUniqueKeys($data)
     {
 
@@ -696,15 +437,88 @@ class _BaseAlinaModel
         return array_key_exists($fieldName, $this->fields());
     }
 
+    /**
+     * Add Audit Information to $data object.
+     * @param \stdClass $data
+     * @param string|null $saveMode
+     * @return null
+     */
+    function addAuditInfo(\stdClass $data, $saveMode = NULL)
+    {
+
+        if ($saveMode === NULL) {
+            $saveMode = $this->mode;
+        }
+
+        $user_id = getCurrentUserId();
+        $now     = getNow();
+
+        $data->modified_by   = $user_id;
+        $data->modified_date = $now;
+
+        if ($saveMode === 'INSERT') {
+            $data->created_by   = $user_id;
+            $data->created_date = $now;
+        }
+
+        return NULL;
+    }
+
+    /**
+     * Is used AFTER filtering and validation.
+     * Responsible to create array of field=>value pairs,
+     * AND allows only those field names, which are listed in $this->fields() array.
+     * Minimizes conflicts.
+     * It does NOT change input object.
+     * @param \stdClass $data
+     * @return array
+     */
+    public function restrictIdentityAutoincrementReadOnlyFields($data)
+    {
+        $dataArray = [];
+        $fields    = $this->fields();
+        foreach ($fields as $name => $params) {
+            if (property_exists($data, $name)) {
+                if ($this->isFieldIdentity($name)) {
+                    $this->dataArrayIdentity[$name] = $data->{$name};
+                } else {
+                    $dataArray[$name] = $data->{$name};
+                }
+            }
+        }
+
+        return $dataArray;
+    }
+
+    /**
+     * Detects if a Field is AutoIncremental.
+     * @param $fieldName string
+     * @return bool
+     */
+    public function isFieldIdentity($fieldName)
+    {
+        $fieldsIdentity = $this->fieldsIdentity();
+
+        return in_array($fieldName, $fieldsIdentity);
+    }
+    #endregion INSERT or Update
+
+    #region DELETE
+
+    public function fieldsIdentity()
+    {
+        return [
+            $this->pkName
+        ];
+    }
+
     public function resetFlags()
     {
         $this->mode            = 'SELECT';
         $this->isDataFiltered  = FALSE;
         $this->isDataValidated = FALSE;
     }
-    #endregion INSERT or Update
 
-    #region DELETE
     public function smartDeleteById($id, $additionalData = NULL)
     {
         if ($this->tableHasField('is_deleted') || (isset($additionalData) && !empty($additionalData))) {
@@ -725,6 +539,78 @@ class _BaseAlinaModel
             // simply DELETE row from database.
             $this->deleteById($id);
         }
+    }
+    #endregion DELETE
+
+    #region Transaction.
+    // This functionality is moved to @file _backend/alina/mvc/model/_baseAlinaEloquentTransaction.php
+    #endregion Transaction.
+
+    #region API, LIMIT, ORDER
+
+    /**
+     * Updates record by Primary Key.
+     * PK could be passed either in $data object or as the second parameter separately.
+     * @param $data array|\stdClass
+     * @param null|mixed $id
+     * @return mixed
+     * @throws \Exception
+     * @throws exceptionValidation
+     */
+    public function updateById($data, $id = NULL)
+    {
+        $data   = toObject($data);
+        $pkName = $this->pkName;
+        if (isset($id) && !empty($id)) {
+            $pkValue = $id;
+        } else {
+            if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+                $pkValue = $data->{$pkName};
+                unset($data->{$pkName});
+            }
+        }
+
+        if (!isset($pkValue) || empty($pkValue)) {
+            $table = $this->table;
+            throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
+        }
+
+        $conditions       = [$pkName => $pkValue];
+        $this->attributes = $this->update($data, $conditions);
+        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
+        if ($this->affectedRowsCount != 1) {
+            message::set("There are no changes in {$this->table} of ID {$pkValue}");
+        }
+
+        return $this->attributes;
+    }
+
+    public function update($data, $conditions = [])
+    {
+        $this->mode = 'UPDATE';
+        $pkName     = $this->pkName;
+        $data       = toObject($data);
+
+        //Fix: Special for MS SQL: NO PK ON INSERTS.
+        if (property_exists($data, $pkName)) {
+            $presavedId = $data->{$pkName};
+            //IMPORTANT: unset of $this->id happens in prepareDbData then.
+        }
+
+        $dataArray = $this->prepareDbData($data);
+
+        $this->affectedRowsCount =
+            $this->q()
+                ->where($conditions)
+                ->update($dataArray);
+        $this->attributes        = toObject($dataArray);
+        //Get ID back
+        if (isset($presavedId)) {
+            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
+        }
+        $this->resetFlags();
+
+        return $this->attributes;
     }
 
     public function deleteById($id)
@@ -747,24 +633,6 @@ class _BaseAlinaModel
 
         return $this;
     }
-    #endregion DELETE
-
-    #region Transaction.
-    // This functionality is moved to @file _backend/alina/mvc/model/_baseAlinaEloquentTransaction.php
-    #endregion Transaction.
-
-    #region API, LIMIT, ORDER
-    /**
-     * @var $sortDefault array
-     *  with structure: [['field1', 'DESC'], ['field2', 'ASC']]
-     */
-    public $sortDefault       = [];
-    public $sortName          = NULL;
-    public $sortAsc           = 'ASC';
-    public $pageCurrentNumber = 0;
-    public $pageSize          = 15;
-    public $rowsTotal         = -1;
-    public $pagesTotal        = 0;
 
     /**
      * Prepare paginated API response.
@@ -891,7 +759,7 @@ class _BaseAlinaModel
         $q                 = $this->q;
         $pageCurrentNumber = $this->pageCurrentNumber;
         $pageSize          = $this->pageSize;
-        $rowsTotal          = $this->rowsTotal;
+        $rowsTotal         = $this->rowsTotal;
 
         if ($rowsTotal <= $pageSize) {
             $pageCurrentNumber = $this->pageCurrentNumber = 1;
@@ -970,47 +838,6 @@ class _BaseAlinaModel
     }
 
     /**
-     * Creates $defaultRawObj with default values for DB.
-     * @return \stdClass object $defaultRawObj.
-     */
-    public function getDefaultRawObj()
-    {
-        $fields        = $this->fields();
-        $defaultRawObj = new \stdClass();
-        foreach ($fields as $f => $props) {
-            //$defaultRawObj->$f = null; //ToDo: It affects Primary Key!!!
-            if (array_key_exists('default', $props)) {
-                $defaultRawObj->$f = $props['default'];
-            }
-        }
-
-        return $defaultRawObj;
-    }
-    #endregion API, LIMIT, ORDER
-
-    #region May be Trait.
-
-    /**
-     * Rough merge of simple (stdClass) objects.
-     * @throws \Exception
-     */
-    public function mergeRawObjects()
-    {
-        $objects = func_get_args();
-        $count   = count($objects);
-
-        $res = new \stdClass();
-        for ($i = 0; $i <= $count - 1; $i++) {
-            $o = toObject($objects[$i]);
-            foreach ($o as $p => $v) {
-                $res->{$p} = $v;
-            }
-        }
-
-        return $res;
-    }
-
-    /**
      * In order to unify source data for methods.
      * Converts source data to array of objects,
      * where each object is an appropriate DB row.
@@ -1034,9 +861,6 @@ class _BaseAlinaModel
 
         return $d;
     }
-    #endregion May be Trait.
-
-    #region relations
 
     public function referencesTo() { return []; }
 
@@ -1067,6 +891,146 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    /**
+     * Sets $this->req
+     */
+    public function apiUnpackGetParams()
+    {
+        $this->req    = new \stdClass();
+        $vocGetSearch = $this->vocGetSearch();
+
+//        error_log('vocGetSearch', 0);
+//        error_log(json_encode($vocGetSearch), 0);
+
+        foreach ($vocGetSearch as $short => $full) {
+            /*
+             * NOTE:
+             * It sets Property even if it is equal to empty string ''.
+             * Check right in API callbacks, if we need to SELECT models, WHERE the Prop is ''.
+             * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
+             */
+            //if (isset($_GET[$short]) && $_GET[$short] !=='') {
+            if
+            (isset($_GET[$short])) {
+                $this->req->{$full} = $_GET[$short];
+            }
+        }
+
+        // Additional Special Condition $this->sortName, $this->sortAsc
+        if (isset($_GET['sa'])) {
+            $this->sortAsc = $_GET['sa'];
+        }
+        if (isset($_GET['sn'])) {
+            $this->sortName = $_GET['sn'];
+        }
+        // Additional Special Condition $this->pageSize, $this->page
+        if (isset($_GET['ps'])) {
+            $this->pageSize = $_GET['ps'];
+        }
+
+        //ToDo: Rename to pn.
+        if (isset($_GET['p'])) {
+            $this->pageCurrentNumber = $_GET['p'];
+        }
+
+        return $this->req;
+    }
+    #endregion API, LIMIT, ORDER
+
+    #region May be Trait.
+
+    public function vocGetSearch()
+    {
+        $vocGetSearchSpecial = [];
+        if (method_exists($this, 'vocGetSearchSpecial')) {
+            $vocGetSearchSpecial = $this->vocGetSearchSpecial();
+        }
+
+        $vocGetSearch = [
+            // Pagination
+            'ps' => 'pageSize',
+            'p'  => 'page',
+
+            // Sorting functionality
+            'sa' => 'sortAsc',
+            'sn' => 'sortName',
+
+            // Search
+            'q'  => 'search',
+        ];
+
+        return array_merge($vocGetSearchSpecial, $vocGetSearch);
+    }
+
+    public function vocGetSearchSpecial()
+    {
+        $fields = $this->fields();
+        $fNames = array_keys($fields);
+        $res    = [];
+        foreach ($fNames as $f) {
+            foreach ($_GET as $gF => $gV) {
+                if (endsWith($gF, $f)) {
+                    $res[$gF] = $gF;
+                }
+            }
+        }
+
+        return $res;
+    }
+    #endregion May be Trait.
+
+    #region relations
+
+    public function qApplyGetSearchParams()
+    {
+        //ToDo: Check $q, $req emptiness.
+        $q   = $this->q;
+        $req = $this->req;
+
+        error_log('$req', 0);
+        error_log(json_encode($req), 0);
+
+        foreach ($req as $f => $v) {
+
+            $t = $this->alias;
+
+            //The simplest search case.
+            if ($this->tableHasField($f)) {
+                if (is_array($v)) {
+                    $q->whereIn("{$t}.{$f}", $v);
+                } else {
+                    $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
+                }
+            }
+
+            //API GET operators.
+            $apiOperators = $this->apiOperators;
+            foreach ($apiOperators as $o => $oV) {
+                if (startsWith($f, $o)) {
+                    $fName = implode('', explode($o, $f, 2));
+                    if ($this->tableHasField($fName)) {
+                        switch ($o) {
+                            case ('lt_'):
+                                $q->where("{$t}.{$fName}", '<', $v);
+                                break;
+                            case ('gt_'):
+                                $q->where("{$t}.{$fName}", '>', $v);
+                                break;
+                            case ('eq_'):
+                                $q->where("{$t}.{$fName}", '=', $v);
+                                break;
+                            case ('lk_'):
+                                $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
     public function qJoinHasOne()
     {
         (new referenceProcessor($this))->joinHasOne();
@@ -1087,6 +1051,41 @@ class _BaseAlinaModel
                 }
             }
         }
+    }
+
+    /**
+     * Just For Example!!!
+     */
+    protected function fieldStructureExample()
+    {
+        $className             = 'ValidatorClassName';
+        $staticMethod          = 'staticMethodName';
+        $externalScopeVariable = 'someValue';
+
+        return
+            [
+                'fieldName' => [
+                    'default'    => 'field default value on INSERT',
+                    'tye'        => ['string', 'number', 'etc'],
+                    'filters'    => [
+                        // Could be a closure, string with function name or an array
+                        [$className, $staticMethod],
+                        function ($value) use ($externalScopeVariable) {
+                            return trim($value);
+                        },
+                        'trim'
+                    ],
+                    'validators' => [
+                        [
+                            // 'f' - Could be a closure, string with function name or an array
+                            'f'       => 'strlen',
+                            'errorIf' => [FALSE, 0],
+                            'msg'     => 'Please, fill Name'
+                        ]
+                    ],
+
+                ],
+            ];
     }
     #endregion relations
 }

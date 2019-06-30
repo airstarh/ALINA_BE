@@ -95,7 +95,7 @@ function setCrossDomainHeaders()
                 //header("Access-Control-Allow-Origin: *");
                 //header("Vary: Origin");
                 header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                header('Access-Control-Max-Age: 1000');
+                header('Access-Control-Max-Age: 666');
                 header('Alina-Server-Header: Hello, user');
                 $allowedHeaders = [
                     //'Authorization'                  => '',
@@ -106,13 +106,14 @@ function setCrossDomainHeaders()
                     'Content-Type'                   => '',
                     'Access-Control-Request-Method'  => '',
                     'Access-Control-Request-Headers' => '',
-                    'userHeader'                     => '',
-                    'passwordHeader'                 => '',
-                    'bizAuthToken'                   => '',
+                    //'userHeader'                     => '',
+                    //'passwordHeader'                 => '',
+                    'Authorization'                  => '',
                 ];
                 $allowedHeaders = array_keys($allowedHeaders);
                 $allowedHeaders = implode(', ', $allowedHeaders);
                 header("Access-Control-Allow-Headers: {$allowedHeaders}");
+                header("Access-Control-Expose-Headers: {$allowedHeaders}");
                 //header('Access-Control-Allow-Credentials: false');
                 break;
         }

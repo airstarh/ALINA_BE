@@ -146,7 +146,13 @@ class alinaRestAccept
     public function actionTestGet()
     {
         setCrossDomainHeaders();
-        header('Content-Type: application/json; charset=utf-8');
-        echo(json_encode($_SERVER, 0));
+        error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
+        error_log(__FUNCTION__,0);
+        error_log("URL: {$_SERVER['REQUEST_URI']}",0);
+        error_log(json_encode(func_get_args()),0);
+        error_log(json_encode($_GET),0);
+        error_log(json_encode(getallheaders()),0);
+        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
+        (new jsonView())->standardRestApiResponse($_GET);
     }
 }

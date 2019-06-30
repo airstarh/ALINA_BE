@@ -2,6 +2,7 @@
 
 namespace alina;
 
+//ToDO: Completely rewrite,
 class cookie
 {
     public static $past      = ALINA_COOKIE_PAST;
