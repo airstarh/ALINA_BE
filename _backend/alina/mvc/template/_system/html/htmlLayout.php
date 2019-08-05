@@ -56,7 +56,7 @@
             echo '</pre>';
 
             $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-            print_r("<h2>Time spent: $alinaTimeSpent</h2>");
+            print_r(reportSpentTime());
 
             ?>
 		</div>

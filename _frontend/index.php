@@ -10,7 +10,13 @@ error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 //error_reporting(E_ALL);
 
-define('ALINA_ENV', 'DA');
+#region SHUTDOWN
+register_shutdown_function(function() {
+    error_log(reportSpentTime([],['FINAL']),0);
+});
+#endregion SHUTDOWN
+
+define('ALINA_ENV', 'HOME_2');
 switch (ALINA_ENV) {
     case 'HOME':
         define('ALINA_MODE', 'dev');
@@ -38,9 +44,3 @@ switch (ALINA_ENV) {
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
-
-// ToDo: Delete on prod
-if (ALINA_MODE !== 'PROD') {
-    $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
-    error_log("<<<<<<< Time Spent: {$alinaTimeSpent}",0);
-}

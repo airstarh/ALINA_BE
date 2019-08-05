@@ -22,6 +22,24 @@ function fDebug($data, $flags = FILE_APPEND, $fPath = NULL)
     file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
 }
 
+function getMicroTimeDifferenceFromNow($microtime)
+{
+    return microtime(TRUE) - $microtime;
+}
+
+function reportSpentTime($prepend = [], $append = [])
+{
+    $main = [
+        "SPENT",
+        $_SERVER['SERVER_ADDR'],
+        getMicroTimeDifferenceFromNow(ALINA_MICROTIME),
+        isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+    ];
+    $res  = array_merge($prepend, $main, $append);
+
+    return implode(' | ', $res);
+}
+
 #region Drafts
 /**
  * !!! Requires rework!!!

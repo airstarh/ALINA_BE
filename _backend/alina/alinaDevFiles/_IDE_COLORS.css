@@ -1,15 +1,15 @@
 /** PHP */
-#MODEL { color: #F6CEB6}
-#CONTROLLER { color: #E48DD5}
-#VIEW { color: #62F3FF}
+#MODEL          { color: #F6CEB6}
+#CONTROLLER     { color: #E48DD5}
+#VIEW           { color: #62F3FF}
 /**
 *component.html
 */
-#TEMPLATE { color: #85F6A5}
+#TEMPLATE       { color: #85F6A5}
 /**
 *.css
 */
-#CSS { color: #DEFF23}
+#CSS            { color: #DEFF23}
 /**
 *.js
 */
@@ -17,7 +17,7 @@
 /**
 *.TS
 */
-#js { color: #C2BCCC}
+#js             { color: #C2BCCC}
 
 /** JS */
 /**
