@@ -67,9 +67,17 @@ function getcookie($name = NULL)
 
 function resolvePostDataAsObject()
 {
-    $postOriginal = toObject($_POST);
-    $postStdIn    = toObject(file_get_contents('php://input'));
-    $res          = mergeSimpleObjects($postOriginal, $postStdIn);
+    $post = $_POST;
+
+    #region Define Content TYpe
+    if (isset($_SERVER['CONTENT_TYPE']) && !empty($_SERVER['CONTENT_TYPE'])) {
+        $contentType = strtolower($_SERVER['CONTENT_TYPE']);
+        if (contains($contentType, 'json')) {
+            $post = file_get_contents('php://input');
+        }
+    }
+    #endregion Define Content TYpe
+    $res = toObject($post);
 
     return $res;
 }
@@ -79,7 +87,7 @@ function isAjax()
     // Cross Domain AJAX request.
     if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
         //ToDo: PROD! Security!
-        setCrossDomainHeaders();
+        //setCrossDomainHeaders();
 
         return TRUE;
     }

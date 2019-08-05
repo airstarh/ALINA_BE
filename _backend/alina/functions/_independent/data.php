@@ -33,6 +33,10 @@ function toArray($v)
  */
 function toObject($v)
 {
+    if (!isset($v) || empty($v)) {
+        return new \stdClass();
+    }
+
     if (is_object($v)) {
         return $v;
     }
@@ -43,13 +47,13 @@ function toObject($v)
     }
 
     if (is_string($v)) {
-        $res =  json_decode($v);
+        $res = json_decode($v);
         if (json_last_error() == JSON_ERROR_NONE) {
             return $res;
         }
     }
 
-    throw new \Exception('Alina cannot convert to object.');
+    throw new \Exception('Alina cannot convert to object: ' . var_export($v, 1));
     //return $object;
 }
 
@@ -101,7 +105,7 @@ function utf8ize($d)
 //ToDo: Less heavy. Validate input.
 function mergeSimpleObjects(...$objects)
 {
-    $res     = new stdClass();
+    $res = new stdClass();
     foreach ($objects as $o) {
         $res = (object)array_merge((array)$res, (array)$o);
     }

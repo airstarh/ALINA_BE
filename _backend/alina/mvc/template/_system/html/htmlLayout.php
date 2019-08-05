@@ -44,18 +44,27 @@
             <?php
             $h1 = 'Alina Details';
             print_r("<h1>{$h1}</h1>");
+
+            echo '<pre>';
+            print_r(getallheaders());
+            echo '</pre>';
+
+            echo '<pre>';
+            print_r($_SERVER);
+            echo '</pre>';
+
             echo '<pre>';
             print_r(\alina\app::get()->router);
             echo '</pre>';
 
-            echo '<pre>';
-            print_r([
-                'currentController' => \alina\app::get()->currentController,
-                'currentAction'     => \alina\app::get()->currentAction,
-            ]);
-            echo '</pre>';
 
-            $alinaTimeSpent = microtime(TRUE) - ALINA_MICROTIME;
+            //            echo '<pre>';
+            //            print_r([
+            //                'currentController' => \alina\app::get()->currentController,
+            //                'currentAction'     => \alina\app::get()->currentAction,
+            //            ]);
+            //            echo '</pre>';
+
             print_r(reportSpentTime());
 
             ?>
