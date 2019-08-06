@@ -1,5 +1,7 @@
 <?php
 
+//use function alina\functions\_independent\contains;
+
 function requireAllFromDir($dir)
 {
 
@@ -72,7 +74,7 @@ function resolvePostDataAsObject()
     #region Define Content TYpe
     if (isset($_SERVER['CONTENT_TYPE']) && !empty($_SERVER['CONTENT_TYPE'])) {
         $contentType = strtolower($_SERVER['CONTENT_TYPE']);
-        if (contains($contentType, 'json')) {
+        if (hlpStrContains($contentType, 'json')) {
             $post = file_get_contents('php://input');
         }
     }
@@ -86,20 +88,15 @@ function isAjax()
 {
     // Cross Domain AJAX request.
     if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-        //ToDo: PROD! Security!
-        //setCrossDomainHeaders();
-
         return TRUE;
     }
 
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         return TRUE;
     }
-
     if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
         return TRUE;
     }
-
     if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
         return TRUE;
     }

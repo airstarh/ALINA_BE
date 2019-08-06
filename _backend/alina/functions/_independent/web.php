@@ -3,7 +3,7 @@
 function ref($url)
 {
     //ToDO: Doubtful: http is enough... Unless a web-site is like httpdocs.com...
-    if (startsWith($url, 'http://') || startsWith($url, 'https://'))
+    if (hlpStrStartsWith($url, 'http://') || hlpStrStartsWith($url, 'https://'))
         return $url;
 
     $url = ltrim($url, '/');
@@ -75,8 +75,8 @@ function wrapToDiv($content)
 
 function redirect($page, $code = 301)
 {
-    if (startsWith($page, 'http://')
-        || startsWith($page, 'https://')
+    if (hlpStrStartsWith($page, 'http://')
+        || hlpStrStartsWith($page, 'https://')
     ) {
         header("Location: $page", TRUE, $code);
         die();

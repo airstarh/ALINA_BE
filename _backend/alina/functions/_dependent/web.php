@@ -2,8 +2,8 @@
 
 function aRef($url)
 {
-    if (startsWith($url, 'http://')
-        || startsWith($url, 'https://')
+    if (hlpStrStartsWith($url, 'http://')
+        || hlpStrStartsWith($url, 'https://')
     ) return $url;
 
     $vocAliasToUrl = \alina\app::getConfig(['vocAliasUrl']);

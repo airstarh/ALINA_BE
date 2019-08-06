@@ -80,7 +80,7 @@ class cookie
 
         // Look into Just Added paths.
         foreach (static::$justAdded as $cookieFullName) {
-            if (startsWith($cookieFullName, $cookieFamilyName)) {
+            if (hlpStrStartsWith($cookieFullName, $cookieFamilyName)) {
                 $apply = static::delete($cookieFullName);
                 if ($apply) {
                     unsetArrayPath($stringPath, $_COOKIE, $delimiter);
@@ -95,7 +95,7 @@ class cookie
                 $cNameValue     = explode('=', $cPair);
                 $cookieFullName = trim($cNameValue[0]);
 
-                if (startsWith($cookieFullName, $cookieFamilyName)) {
+                if (hlpStrStartsWith($cookieFullName, $cookieFamilyName)) {
                     $apply = static::delete($cookieFullName);
                     if ($apply) {
                         unsetArrayPath($stringPath, $_COOKIE, $delimiter);

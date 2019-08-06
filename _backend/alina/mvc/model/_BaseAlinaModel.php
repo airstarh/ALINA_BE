@@ -969,7 +969,7 @@ public $mode            = 'SELECT';
         $res    = [];
         foreach ($fNames as $f) {
             foreach ($_GET as $gF => $gV) {
-                if (endsWith($gF, $f)) {
+                if (hlpStrEndsWith($gF, $f)) {
                     $res[$gF] = $gF;
                 }
             }
@@ -1006,7 +1006,7 @@ public $mode            = 'SELECT';
             //API GET operators.
             $apiOperators = $this->apiOperators;
             foreach ($apiOperators as $o => $oV) {
-                if (startsWith($f, $o)) {
+                if (hlpStrStartsWith($f, $o)) {
                     $fName = implode('', explode($o, $f, 2));
                     if ($this->tableHasField($fName)) {
                         switch ($o) {
