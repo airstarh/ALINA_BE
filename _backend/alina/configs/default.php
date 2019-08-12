@@ -59,7 +59,7 @@ switch (ALINA_ENV) {
 
                     // Alina
                     '/sources/css/alina.css',
-                    //'/frontend/css/alina_form.css',
+                    '/sources/css/alina_form.css',
                 ],
 
                 'js'   => [

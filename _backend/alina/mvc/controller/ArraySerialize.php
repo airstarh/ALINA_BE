@@ -14,6 +14,8 @@ class ArraySerialize
         $strRes    = '';
         $arrRes    = [];
         $post      = resolvePostDataAsObject();
+        $strFrom   = (isset($post->strFrom) && !empty($post->strFrom)) ? $post->strFrom : '';
+        $strTo     = (isset($post->strTo) && !empty($post->strTo)) ? $post->strTo : '';
         if (isset($post->strSource) && !empty($post->strSource)) {
             $strSource = $post->strSource;
             $arrSource = unserialize($strSource);
@@ -21,6 +23,7 @@ class ArraySerialize
         foreach ($arrSource as $k => $v) {
             #region Some modification Staff here
             // ...
+            $v = str_replace($strFrom, $strTo, $v);
             #endregion Some modification Staff here
             $arrRes[$k] = $v;
         }
@@ -35,6 +38,8 @@ class ArraySerialize
             'arrRes'        => $arrRes,
             'arrResControl' => $arrResControl,
             'strResControl' => $strResControl,
+            'strFrom'       => $strFrom,
+            'strTo'         => $strTo,
         ];
         echo (new \alina\mvc\view\html)->page($data);
 

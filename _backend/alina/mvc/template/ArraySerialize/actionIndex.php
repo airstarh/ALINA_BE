@@ -1,11 +1,16 @@
-<div>
+<div id="array-serializer">
     <form action="/ArraySerialize/index" method="post" enctype="multipart/form-data">
         <label>STRING [Serialized array]:<br></label>
         <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
         <br>
+        <input type="text" name="strFrom" value="<?= $data->strFrom ?>">
+        <br>
+        <input type="text" name="strTo" value="<?= $data->strTo ?>">
         <h1>
-            <button type="submit">Go!</button>
+            <button type="submit" class="btn btn-lg btn-primary">Go!</button>
+            <a href="." class="btn btn-danger">RESET</a>
         </h1>
+
     </form>
 
     <div>

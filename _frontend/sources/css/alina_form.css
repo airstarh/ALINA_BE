@@ -1,5 +1,10 @@
 /* Base Form Field descriptions */
 
+form {
+    background-color: #e9ecef;
+    padding: 2mm;
+}
+
 fieldset {
     border: #c6c5c5 2px solid;
     -webkit-border-radius: 4px;
