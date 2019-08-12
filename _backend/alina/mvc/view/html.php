@@ -98,6 +98,7 @@ class html {
 			$result = '';
 			foreach ($urls as $i => $url) {
 				$result .= $this->piece('_system/html/tag/link.php', $url);
+                $result .= PHP_EOL;
 			}
 
 			return $result;

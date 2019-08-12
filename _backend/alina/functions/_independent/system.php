@@ -87,9 +87,9 @@ function resolvePostDataAsObject()
 function isAjax()
 {
     // Cross Domain AJAX request.
-    if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-        return TRUE;
-    }
+//    if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+//        return TRUE;
+//    }
 
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         return TRUE;

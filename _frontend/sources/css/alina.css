@@ -1,24 +1,28 @@
-/*region Bootstrap Framework definitions. */
-/**
-Initially taken from:
-@link: https://getbootstrap.com/docs/3.3/examples/theme/#about
-*/
+/*region Boy-Scout-Page*/
+html { height: 100%; }
+
 body {
-    padding-top: 70px;
-    padding-bottom: 30px;
+    height: 100%;
+    position: relative;
+    overflow: hidden
 }
 
-.theme-dropdown .dropdown-menu {
-    position: static;
-    display: block;
-    margin-bottom: 20px;
-}
+#alina-body-wrapper {
+    position: relative;
+    padding: 0;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+    overflow: scroll;
 
-.theme-showcase > p > .btn {
-    margin: 5px 0;
+    border: orange solid 2px;
 }
+/*region Boy-Scout-Page*/
 
-.theme-showcase .navbar .container {
-    width: auto;
+/*region Common*/
+pre {
+    background-color: #e9ecef;
+    padding: 2mm;
 }
-/*endregion Bootstrap Framework definitions. */
+/*endregion Common*/

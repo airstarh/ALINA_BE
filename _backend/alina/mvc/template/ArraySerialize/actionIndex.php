@@ -1,24 +1,52 @@
 <div>
     <form action="/ArraySerialize/index" method="post" enctype="multipart/form-data">
-        <label>String. Serialized array:<br>
-            <textarea name="strSource" cols="100" rows="5"><?= $data->strSource ?></textarea>
-        </label>
+        <label>STRING [Serialized array]:<br></label>
+        <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
         <br>
-        <h1><button type="submit">Go!</button></h1>
+        <h1>
+            <button type="submit">Go!</button>
+        </h1>
     </form>
 
     <div>
-        <label>RESULT:<br>
-            <textarea name="" id="" cols="100" rows="10"><?= $data->strRes ?></textarea>
-        </label>
+        <label>RESULT:<br></label>
+        <textarea name="" class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
     <div>
-        <pre>
-            <?php
-            echo '<pre>';
-            print_r($data->arrRes);
-            echo '</pre>';
-            ?>
-        </pre>
+        <h1>CONTROL</h1>
+
+        <div class="row">
+            <div class="col-6">
+                <h3>arrRes</h3>
+            </div>
+            <div class="col-6">
+                <h3>arrResControl</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <?= mb_strlen($data->strRes) ?>
+            </div>
+            <div class="col-6">
+                <?= mb_strlen($data->strResControl) ?>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <?php
+                echo '<pre>';
+                print_r($data->arrRes);
+                echo '</pre>';
+                ?>
+            </div>
+            <div class="col-6">
+                <?php
+                echo '<pre>';
+                print_r($data->arrResControl);
+                echo '</pre>';
+                ?>
+            </div>
+        </div>
     </div>
 </div>

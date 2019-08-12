@@ -50,11 +50,12 @@ switch (ALINA_ENV) {
 
                 'css' => [
                     // Jquery; Jquery UI
-                    '/sources/node_modules/jquery-ui/themes/base/all.css',
+                    'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css',
 
                     //Bootstrap Framework.
-                    '/sources/node_modules/bootstrap/dist/css/bootstrap.min.css',
-                    '/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+                    // https://getbootstrap.com/docs/4.3/getting-started/introduction/
+                    'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
+                    //'/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
 
                     // Alina
                     '/sources/css/alina.css',
@@ -63,11 +64,16 @@ switch (ALINA_ENV) {
 
                 'js'   => [
                     // Jquery; Jquery UI
-                    '/sources/node_modules/jquery/dist/jquery.min.js',
-                    '/sources/node_modules/jquery-ui/external/requirejs/require.js',
+                    // https://code.jquery.com/
+                    // https://code.jquery.com/ui/
+                    'https://code.jquery.com/jquery-3.4.1.js',
+                    'https://code.jquery.com/ui/1.12.1/jquery-ui.js',
+                    //'/sources/node_modules/popper.js/dist/popper.min.js',
 
                     //Bootstrap Framework.
-                    '/sources/node_modules/bootstrap/dist/js/bootstrap.min.js',
+                    // https://getbootstrap.com/docs/4.3/getting-started/introduction/
+                    'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
 
                     // Alina.
                     '/sources/js/001_alina_init.js',
