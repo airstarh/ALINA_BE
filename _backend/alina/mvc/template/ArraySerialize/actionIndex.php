@@ -10,16 +10,19 @@
             <button type="submit" class="btn btn-lg btn-primary">Go!</button>
             <a href="." class="btn btn-danger">RESET</a>
         </h1>
-
     </form>
 
     <div>
         <label>RESULT:<br></label>
-        <textarea name="" class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
+<!--    <div>-->
+<!--        <label>CONTROL RESULT:<br></label>-->
+<!--        <textarea class="form-control w-100" rows="10">--><?//= $data->strResControl ?><!--</textarea>-->
+<!--    </div>-->
     <div>
         <h1>CONTROL</h1>
-
+        <div><h2>Total Changes: <?= $data->tCount ?></h2></div>
         <div class="row">
             <div class="col-6">
                 <h3>arrRes</h3>

@@ -20,15 +20,16 @@ class ArraySerialize
             $strSource = $post->strSource;
             $arrSource = unserialize($strSource);
         }
+        $tCount = 0;
         foreach ($arrSource as $k => $v) {
             #region Some modification Staff here
             // ...
-            $v = str_replace($strFrom, $strTo, $v);
+            $v      = str_replace($strFrom, $strTo, $v, $iCount);
+            $tCount += $iCount;
             #endregion Some modification Staff here
             $arrRes[$k] = $v;
         }
-        $strRes = serialize($arrRes);
-
+        $strRes        = serialize($arrRes);
         $arrResControl = unserialize($strRes);
         $strResControl = serialize($arrResControl);
 
@@ -40,6 +41,7 @@ class ArraySerialize
             'strResControl' => $strResControl,
             'strFrom'       => $strFrom,
             'strTo'         => $strTo,
+            'tCount'        => $tCount,
         ];
         echo (new \alina\mvc\view\html)->page($data);
 
