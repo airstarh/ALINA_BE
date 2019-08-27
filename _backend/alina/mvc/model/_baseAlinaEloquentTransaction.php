@@ -8,69 +8,72 @@ use \Illuminate\Database\Capsule\Manager as Dal;
 // Laravel initiation
 Loader::init();
 
-class _baseAlinaEloquentTransaction {
+class _baseAlinaEloquentTransaction
+{
+    //Make this class non-extendable and non-instanciatable.
+    //Static methods only.
+    static public $keys = [];
 
-	//Make this class non-extendable and non-instanciatable.
-	//Static methods only.
-	private function __construct() { }
+    #region Transaction.
+    static public $isInProgress = FALSE;
+    static public $isSuccess = NULL;
 
-	#region Transaction.
-	static public $keys = [];
+    private function __construct() { }
 
-	static public $isInProgress = false;
+    static public function begin($transKey = 'default')
+    {
+        error_log(__FUNCTION__, 0);
 
-	static public $isSuccess = null;
+        static::$keys[] = $transKey;
 
-	static public function begin($transKey = 'default') {
-		error_log(__FUNCTION__, 0);
+        error_log(json_encode(static::$keys), 0);
 
-		static::$keys[] = $transKey;
+        if (static::$isInProgress) {
+            return TRUE;
+        }
 
-		error_log(json_encode(static::$keys), 0);
+        Dal::beginTransaction();
+        static::$isInProgress = TRUE;
 
-		if (static::$isInProgress) {
-			return true;
-		}
+        return TRUE;
+    }
 
-		Dal::beginTransaction();
-		static::$isInProgress = true;
-		return true;
-	}
+    static public function commit($transKey = 'default')
+    {
+        error_log(__FUNCTION__, 0);
+        error_log(json_encode(static::$keys), 0);
+        try {
+            $lastStartedTransaction = array_slice(static::$keys, -1)[0];
+            if ($transKey === $lastStartedTransaction) {
+                array_pop(static::$keys);
+            }
+            if (count(static::$keys) === 0) {
+                Dal::commit();
+                static::$keys         = [];
+                static::$isInProgress = FALSE;
+                static::$isSuccess    = TRUE;
+                error_log('--- DB COMMIT SUCCESS ---', 0);
+            }
 
-	static public function rollback() {
-		error_log(__FUNCTION__, 0);
-		error_log(json_encode(static::$keys), 0);
+            return TRUE;
+        } //ToDO: Perhaps, this try-catch is redundant...
+        catch (\Exception $e) {
+            static::rollback();
+            throw $e;
+        }
+    }
 
-		Dal::rollback();
-		//static::$keys         = [];
-		static::$isInProgress = false;
-		static::$isSuccess    = false;
+    static public function rollback()
+    {
+        error_log(__FUNCTION__, 0);
+        error_log(json_encode(static::$keys), 0);
 
-		return true;
-	}
+        Dal::rollback();
+        //static::$keys         = [];
+        static::$isInProgress = FALSE;
+        static::$isSuccess    = FALSE;
 
-	static public function commit($transKey = 'default') {
-		error_log(__FUNCTION__, 0);
-		error_log(json_encode(static::$keys), 0);
-		try {
-			$lastStartedTransaction = array_slice(static::$keys, -1)[0];
-			if ($transKey === $lastStartedTransaction) {
-				array_pop(static::$keys);
-			}
-			if (count(static::$keys) === 0) {
-				Dal::commit();
-				static::$keys         = [];
-				static::$isInProgress = false;
-				static::$isSuccess    = true;
-				error_log('--- DB COMMIT SUCCESS ---', 0);
-			}
-
-			return true;
-		} //ToDO: Perhaps, this try-catch is redundant...
-		catch (\Exception $e) {
-			static::rollback();
-			throw $e;
-		}
-	}
-	#endregion Transaction.
+        return TRUE;
+    }
+    #endregion Transaction.
 }

@@ -5,6 +5,9 @@ namespace alina\mvc\controller;
 
 class dev
 {
+    /**
+     * @route
+     */
     public function actionIndex()
     {
 

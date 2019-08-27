@@ -11,20 +11,16 @@ error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL);
 
 #region SHUTDOWN
-register_shutdown_function(function() {
-    error_log(reportSpentTime([],['FINAL']),0);
+register_shutdown_function(function () {
+    error_log(reportSpentTime([], ['FINAL']), 0);
 });
 #endregion SHUTDOWN
 
-define('ALINA_ENV', 'HOME_2');
+define('ALINA_ENV', 'DA');
 switch (ALINA_ENV) {
-    case 'HOME':
-        define('ALINA_MODE', 'dev');
-        define('ALINA_PATH_TO_FRAMEWORK', 'C:\_REPO\ALINA\_backend\alina');
-        define('ALINA_PATH_TO_APP', 'C:\_REPO\ALINA\_backend\_aplications\zero');
-        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php');
-        define('ALINA_WEB_PATH', __DIR__);
-        break;
+    /**
+     * 45A67BigComp2019
+     */
     case 'HOME_2':
         define('ALINA_MODE', 'dev');
         define('ALINA_PATH_TO_FRAMEWORK', 'H:\_REPO\ALINA\_backend\alina');
@@ -32,15 +28,15 @@ switch (ALINA_ENV) {
         define('ALINA_PATH_TO_APP_CONFIG', 'H:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php');
         define('ALINA_WEB_PATH', __DIR__);
         break;
-	case 'DA':
-		define('ALINA_MODE', 'dev');
-		define('ALINA_PATH_TO_FRAMEWORK', 'D:\_processes\_outscope\012_alina\_backend\alina');
-		define('ALINA_PATH_TO_APP', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero');
-		define('ALINA_PATH_TO_APP_CONFIG', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero\configs\default.php');
-		define('ALINA_WEB_PATH', __DIR__);
-		break;
+    case 'DA':
+        define('ALINA_MODE', 'dev');
+        define('ALINA_PATH_TO_FRAMEWORK', 'D:\_processes\_outscope\012_alina\_backend\alina');
+        define('ALINA_PATH_TO_APP', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero');
+        define('ALINA_PATH_TO_APP_CONFIG', 'D:\_processes\_outscope\012_alina\_backend\_aplications\zero\configs\default.php');
+        define('ALINA_WEB_PATH', __DIR__);
+        break;
 }
 
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
-$app = \alina\app::set($config)->defineRoute()->mvcGo();
+$app    = \alina\app::set($config)->defineRoute()->mvcGo();
