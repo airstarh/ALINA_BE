@@ -1,10 +1,13 @@
 /*region Boy-Scout-Page*/
-html { height: 100%; }
+html {
+    height: 100%;
+}
 
 body {
     height: 100%;
     position: relative;
-    overflow: hidden
+    overflow: hidden;
+    padding-top: 65px;
 }
 
 #alina-body-wrapper {
@@ -18,6 +21,7 @@ body {
 
     border: orange solid 2px;
 }
+
 /*region Boy-Scout-Page*/
 
 /*region Common*/
@@ -25,4 +29,5 @@ pre {
     background-color: #e9ecef;
     padding: 2mm;
 }
+
 /*endregion Common*/

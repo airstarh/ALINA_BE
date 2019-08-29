@@ -118,6 +118,14 @@ function resolvePostDataAsObject()
     return $res;
 }
 
+function resolveGetDataAsObject()
+{
+    $get = $_GET;
+    $res = toObject($get);
+
+    return $res;
+}
+
 function isAjax()
 {
     // Cross Domain AJAX request.

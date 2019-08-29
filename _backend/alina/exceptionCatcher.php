@@ -79,6 +79,7 @@ class exceptionCatcher
         if (isAjax()) {
             (new \alina\mvc\view\json())->standardRestApiResponse();
         } else {
+            ob_end_clean();
             \alina\app::get()->mvcGo('root', 'Exception', $this);
         }
     }

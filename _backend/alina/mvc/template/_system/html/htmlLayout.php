@@ -13,15 +13,8 @@
 </head>
 <body>
 <div id="alina-body-wrapper">
-
     <?= (new \alina\mvc\view\html())->piece('/_system/html/menu.php') ?>
-
-    <div class="container theme-showcase" role="main">
-
-        <!-- Main jumbotron for a primary marketing message or call to action -->
-        <div class="jumbotron">
-            <h1><?= \alina\app::getConfig('title'); ?></h1>
-        </div>
+    <div class="container">
 
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
