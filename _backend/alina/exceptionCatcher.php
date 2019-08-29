@@ -37,6 +37,10 @@ class exceptionCatcher
 
     public function error($eLevel, $eString, $eFile, $eLine, $eContext)
     {
+        if (!(error_reporting() & $eLevel)) {
+            // This error code is not included in error_reporting
+            return;
+        }
         throw new \ErrorException ($eString, 0, $eLevel, $eFile, $eLine);
     }
 

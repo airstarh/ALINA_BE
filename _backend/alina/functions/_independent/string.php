@@ -22,3 +22,7 @@ function hlpStrContains($haystack, $needle)
     return mb_stripos($haystack, $needle);
 }
 
+function hlpStrRemoveEnters($haystack, $needle = '')
+{
+    return $string = str_replace(["\n", "\r"], $needle, $haystack);
+}

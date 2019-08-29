@@ -2,6 +2,8 @@
 
 //use function alina\functions\_independent\contains;
 
+use alina\message;
+
 function requireAllFromDir($dir)
 {
 
@@ -24,6 +26,20 @@ function fDebug($data, $flags = FILE_APPEND, $fPath = NULL)
     file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
 }
 
+function alinaSafeEcho($data)
+{
+    ob_start();
+    ob_implicit_flush(FALSE);
+    echo '<hr><pre>';
+    echo PHP_EOL;
+    print_r($data);
+    echo PHP_EOL;
+    echo '</pre>';
+    $output = ob_get_clean();
+
+    return $output;
+}
+
 function getMicroTimeDifferenceFromNow($microtime)
 {
     return microtime(TRUE) - $microtime;
@@ -40,6 +56,24 @@ function reportSpentTime($prepend = [], $append = [])
     $res  = array_merge($prepend, $main, $append);
 
     return implode(' | ', $res);
+}
+
+//ToDo: Move to dependent functions
+function alinaErrorLog($m, $force = FALSE)
+{
+    if (ALINA_MODE === 'PROD' && $force === FALSE) {
+        return FALSE;
+    }
+    $message = [
+        $m,
+        $_SERVER['SERVER_ADDR'],
+        isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+    ];
+    $res     = implode(' | ', $message);
+    message::set($res);
+    error_log($res, 0);
+
+    return;
 }
 
 #region Drafts

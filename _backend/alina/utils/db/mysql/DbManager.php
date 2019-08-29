@@ -36,7 +36,6 @@ class DbManager
         ) {
             $this->pdo = new PDO("mysql:dbname={$this->db};host={$this->host};port={$this->port}", $this->user, $this->pass, [PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8']);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         }
 
         return $this;
@@ -131,7 +130,7 @@ class DbManager
         return $data;
     }
 
-    public function qExecFetchColumn($column, $sql, $arrParams = NULL,$arrTypes = NULL)
+    public function qExecFetchColumn($column, $sql, $arrParams = NULL, $arrTypes = NULL)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
@@ -145,7 +144,7 @@ class DbManager
         return $data;
     }
 
-    public function qExecPluck($sql, $arrParams = NULL,$arrTypes = NULL)
+    public function qExecPluck($sql, $arrParams = NULL, $arrTypes = NULL)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
@@ -158,9 +157,21 @@ class DbManager
 
         return $data;
     }
-
-
     #endregion Generic Execution
+    #region Special Queries
+    public function qsGetTableFields($table)
+    {
+        $o      = (object)[
+            'tableName' => $table,
+            'db'        => $this->db,
+        ];
+        $sqlTpl = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/AllTableFields.sql';
+        $sql    = template($sqlTpl, $o);
+        $d      = $this->qExecPluck($sql);
+
+        return $d;
+    }
+    #endregion Special Queries
     #endregion Queries
 
     #reion Utils
