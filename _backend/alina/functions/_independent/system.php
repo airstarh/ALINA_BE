@@ -70,7 +70,7 @@ function alinaErrorLog($m, $force = FALSE)
         isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
     ];
     $res     = implode(' | ', $message);
-    message::set($res);
+    //message::set($res);
     error_log($res, 0);
 
     return;

@@ -284,51 +284,6 @@ function hlpSuperUnSerialize($str)
     }
     #endregion SOLUTION 2
 
-    #region SOLUTION 4
-    // @link https://stackoverflow.com/a/36454402/3142281
-    $repSolNum = 4;
-    $strFixed  = preg_replace_callback(
-        '/s:([0-9]+):"(.*?)";/',
-        function ($match) {
-            return "s:" . strlen($match[2]) . ":\"" . $match[2] . "\";";
-        },
-        $str
-    );
-    $arr       = @unserialize($strFixed);
-    if (FALSE !== $arr) {
-        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-        return $arr;
-    }
-    #endregion SOLUTION 4
-
-    #region SOLUTION 6
-    // @link https://stackoverflow.com/a/38891026/3142281
-    $repSolNum = 6;
-    $strFixed  = preg_replace_callback(
-        '/s\:(\d+)\:\"(.*?)\";/s',
-        function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
-        $str);;
-    $arr = @unserialize($strFixed);
-    if (FALSE !== $arr) {
-        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-        return $arr;
-    }
-    #endregion SOLUTION 6
-
-    #region SOLUTION 5
-    // @link https://stackoverflow.com/a/38890855/3142281
-    $repSolNum = 5;
-    $strFixed  = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
-    $arr       = @unserialize($strFixed);
-    if (FALSE !== $arr) {
-        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-        return $arr;
-    }
-    #endregion SOLUTION 5
-
     #region SOLUTION 3
     // @link https://stackoverflow.com/a/34224433/3142281
     $repSolNum = 3;
@@ -357,6 +312,51 @@ function hlpSuperUnSerialize($str)
         return $arr;
     }
     #endregion SOLUTION 3
+
+    #region SOLUTION 4
+    // @link https://stackoverflow.com/a/36454402/3142281
+    $repSolNum = 4;
+    $strFixed  = preg_replace_callback(
+        '/s:([0-9]+):"(.*?)";/',
+        function ($match) {
+            return "s:" . strlen($match[2]) . ":\"" . $match[2] . "\";";
+        },
+        $str
+    );
+    $arr       = @unserialize($strFixed);
+    if (FALSE !== $arr) {
+        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+
+        return $arr;
+    }
+    #endregion SOLUTION 4
+
+    #region SOLUTION 5
+    // @link https://stackoverflow.com/a/38890855/3142281
+    $repSolNum = 5;
+    $strFixed  = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
+    $arr       = @unserialize($strFixed);
+    if (FALSE !== $arr) {
+        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+
+        return $arr;
+    }
+    #endregion SOLUTION 5
+
+    #region SOLUTION 6
+    // @link https://stackoverflow.com/a/38891026/3142281
+    $repSolNum = 6;
+    $strFixed  = preg_replace_callback(
+        '/s\:(\d+)\:\"(.*?)\";/s',
+        function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
+        $str);;
+    $arr = @unserialize($strFixed);
+    if (FALSE !== $arr) {
+        alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+
+        return $arr;
+    }
+    #endregion SOLUTION 6
 
     alinaErrorLog('Completely unable to deserialize.');
 

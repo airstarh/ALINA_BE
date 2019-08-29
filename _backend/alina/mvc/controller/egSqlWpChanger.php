@@ -19,13 +19,13 @@ class egSqlWpChanger
             ////////////////////////////////////
             ////////////////////////////////////
             ////////////////////////////////////
-            // 'wp_wfHits',
+            'wp_wfHits',
             'wp_usermeta',
-            // 'wp_users',
-            // 'xf_error_log',
-            // 'xf_session',
-            // 'xf_template',
-            // 'xf_template_compiled',
+            'wp_users',
+            'xf_error_log',
+            'xf_session',
+            'xf_template',
+            'xf_template_compiled',
             ////////////////////////////////////
             ////////////////////////////////////
             ////////////////////////////////////
@@ -71,36 +71,47 @@ class egSqlWpChanger
         $tRowsIteratedCount   = 0;
         $tSqlCount            = 0;
         $iCount               = 0;
-        $tCount               = 0;
+        $tChangesCount        = 0;
+        $repSPECIAL           = [];
         foreach ($tables as $t) {
             $fields = $q->qsGetTableFields($t);
             foreach ($fields as $f) {
-                $sql             = "SELECT $f FROM $t WHERE $f LIKE '{$s1}' OR $f LIKE '{$s2}'";
-                $arrFoundStrings = $q->qExecPluck($sql);
+                $sql             = "SELECT $f FROM $t WHERE $f LIKE :s1 OR $f LIKE :s2";
+                $par             = [
+                    ':s1' => $s1,
+                    ':s2' => $s2,
+                ];
+                $arrFoundStrings = $q->qExecPluck($sql, $par);
                 if (!empty($arrFoundStrings)) {
                     $resFoundStringsCount[$t][$f] = count($arrFoundStrings);
                     foreach ($arrFoundStrings as $strInit) {
                         $strReplace = $strInit;
                         if (FALSE != hlpSuperUnSerialize($strInit)) {
-                            $isSerialized = 'YES';
-                            $data         = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s1old, $s1New);
-                            $strReplace   = $data->strResControl;
-                            $tCount       += $data->tCount;
-                            $data         = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s2old, $s2New);
-                            $strReplace   = $data->strResControl;
-                            $tCount       += $data->tCount;
+                            $isSerialized  = 'YES';
+                            $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s1old, $s1New);
+                            $strReplace    = $data->strResControl;
+                            $tChangesCount += $data->tCount;
+                            $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s2old, $s2New);
+                            $strReplace    = $data->strResControl;
+                            $tChangesCount += $data->tCount;
                         } else {
-                            $isSerialized = 'NO';
-                            $strReplace   = str_replace($s1old, $s1New, $strReplace, $iCount);
-                            $tCount       += $iCount;
-                            $strReplace   = str_replace($s2old, $s2New, $strReplace, $iCount);
-                            $tCount       += $iCount;
+                            $isSerialized  = 'NO';
+                            $strReplace    = str_replace($s1old, $s1New, $strReplace, $iCount);
+                            $tChangesCount += $iCount;
+                            $strReplace    = str_replace($s2old, $s2New, $strReplace, $iCount);
+                            $tChangesCount += $iCount;
                         }
-
-                        $sql = "UPDATE {$t} SET {$f} = $strReplace WHERE {$f} = {$strInit}";
-                        // $tSqlCount    += $q->qExecGetAffectedRows($sql);
+                        $sql = "UPDATE {$t} SET {$f} = :strReplace WHERE {$f} = :strInit";
+                        $par = [
+                            ':strReplace' => $strReplace,
+                            ':strInit'    => $strInit,
+                        ];
+                        #region ATTENTION!!! The Most Dangerous String !!!
+                        // ToDo: ATTENTION!!! The Most Dangerous String !!!
+                        //$tSqlCount    += $q->qExecGetAffectedRows($sql, $par);
+                        #endregion ATTENTION!!! The Most Dangerous String !!!
                         $reportstring                = $strReplace;
-                        $reportstring                = htmlspecialchars($reportstring);
+                        $reportstring                = htmlspecialchars($reportstring, ENT_QUOTES | ENT_SUBSTITUTE);
                         $reportstring                = hlpStrRemoveEnters($reportstring);
                         $reportstring                = mb_substr($reportstring, 0, 50);
                         $repFoundStrPieces[$t][$f][] = $isSerialized . '|||' . $reportstring;
@@ -113,10 +124,11 @@ class egSqlWpChanger
         $repott = (object)[
             '$tRowsIteratedCount' => $tRowsIteratedCount,
             '$tSqlCount'          => $tSqlCount,
-            '$tCount'             => $tCount,
+            '$tChangesCount'      => $tChangesCount,
             '$repFoundStrPieces'  => $repFoundStrPieces,
+            '$repSPECIAL'         => $repSPECIAL,
         ];
-        fDebug([$repFoundStrPieces, $resFoundStringsCount], FALSE);
+        //fDebug([$repFoundStrPieces, $resFoundStringsCount], FALSE);
         echo (new htmlAlias)->page($repott);
     }
 
