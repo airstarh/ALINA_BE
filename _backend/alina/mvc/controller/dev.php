@@ -2,30 +2,63 @@
 
 namespace alina\mvc\controller;
 
-
 class dev
 {
+    private $get = [
+        'index' => 'val',
+        'user'  => [
+            'name' => 'Alina',
+            'age'  => '21',
+        ],
+    ];
+
     /**
-     * @route
+     * @route /dev/index
      */
-    public function actionIndex()
+    public function actionIndex(...$args)
     {
-
-        $o1 = new \stdClass();
-        $o2 = new \stdClass();
-
-        $o1->o1prop1  = 'Hello';
-        $o1->o1prop2  = 'World';
-        $o1->common  = 'FROM o1';
-
-        $o2->o2prop1  = 'o2 property Привет';
-        $o2->o2prop2  = 'o2 property  Мир';
-        $o2->common  = 'FROM o2';
-
+        $res          = http_build_query($this->get);
+        $uri          = 'https://yandex.ru/search/?lr=193&text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%20%D0%BC%D0%B8%D1%80';
+        $uriParsed    = parse_url($uri);
+        $uriParsedGet = $uriParsed['query'];
+        $a            = [];
+        parse_str($uriParsedGet, $a);
+        $unparsed = unparse_url($uriParsed);
         echo '<pre>';
-        print_r(mergeSimpleObjects($o1, $o2));
+        print_r($unparsed);
         echo '</pre>';
 
+        //echo 'YoYoYo!!!';
+
         return;
+    }
+
+    ##############################################
+
+    /**
+     * @route /dev/Info
+     * @route /dev/Info/hello/world
+     */
+    public function actionInfo(...$args)
+    {
+        echo '<pre>';
+        echo PHP_EOL;
+        echo '$_GET';
+        echo PHP_EOL;
+        print_r($_GET);
+        echo PHP_EOL;
+
+        echo PHP_EOL;
+        echo '$_POST';
+        echo PHP_EOL;
+        print_r($_POST);
+        echo PHP_EOL;
+
+        echo PHP_EOL;
+        echo 'apache_request_headers';
+        echo PHP_EOL;
+        print_r(apache_request_headers());
+        echo PHP_EOL;
+        echo '</pre>';
     }
 }

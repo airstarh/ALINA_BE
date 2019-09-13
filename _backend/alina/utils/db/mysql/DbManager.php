@@ -16,11 +16,11 @@ class DbManager
     protected $isInTransaction      = FALSE;
     protected $flagForceTransaction = FALSE;
     #region CREDENTIALS
-    protected $host = 'stg-sixtyandme-db.cdlz7oxqavm4.us-east-1.rds.amazonaws.com';
+    protected $host = '';
     protected $port = '3306';
     protected $db   = 'stage001';
     protected $user = 'sixtyandme';
-    protected $pass = 'NgLh590g';
+    protected $pass = 'NgLh590g1';
 
     #endregion CREDENTIALS
 

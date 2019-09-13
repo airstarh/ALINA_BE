@@ -15,45 +15,40 @@ class egSqlWpChanger
     public function actionIndex()
     {
         $tables = [
-            'test',
-            ////////////////////////////////////
-            ////////////////////////////////////
-            ////////////////////////////////////
-            'wp_wfHits',
+            'merc_banner',
+            'wp_comments',
+            'wp_fresh_slider',
+            'wp_options',
+            'wp_popover',
+            'wp_postmeta',
+            'wp_posts',
+            'wp_prli_clicks',
+            'wp_prli_links',
             'wp_usermeta',
             'wp_users',
+            'wp_wfHits',
+            'wp_yoast_seo_links',
+            'xf_conversation_message',
+            'xf_data_registry',
             'xf_error_log',
+            'xf_option',
+            'xf_phrase',
+            'xf_phrase_compiled',
+            'xf_post',
+            'xf_profile_post',
+            'xf_profile_post_comment',
+            'xf_search_index',
             'xf_session',
+            'xf_style',
+            'xf_style_property',
             'xf_template',
             'xf_template_compiled',
-            ////////////////////////////////////
-            ////////////////////////////////////
-            ////////////////////////////////////
-            // 'wp_posts',
-            //  'wp_postmeta',
-            // 'merc_banner',
-            // 'wp_commentmeta',
-            // 'wp_comments',
-            // 'wp_fresh_slider',
-            // 'wp_options',
-            // 'wp_popover',
-            // 'wp_prli_clicks',
-            // 'wp_prli_links',
-            // 'wp_yoast_seo_links',
-            // 'xf_conversation_message',
-            // 'xf_data_registry',
-            // 'xf_option',
-            // 'xf_phrase',
-            // 'xf_phrase_compiled',
-            // 'xf_post',
-            // 'xf_profile_post',
-            // 'xf_profile_post_comment',
-            // 'xf_search_index',
-            // 'xf_style',
-            // 'xf_style_property',
-            // 'xf_user_news_feed_cache',
-            // 'xf_user_profile',
-            // 'xf_widget',
+
+            // Wrong definition of serialized data!
+            //'xf_user_news_feed_cache',
+
+            'xf_user_profile',
+            'xf_widget',
         ];
         #region Strings
         $s1    = '%//sixtyandme.com%';

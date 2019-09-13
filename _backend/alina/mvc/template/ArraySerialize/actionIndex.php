@@ -13,7 +13,7 @@
     </form>
 
     <div>
-        <label>RESULT:<br></label>
+        <h2>RESULT:<br></h2>
         <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
 <!--    <div>-->
