@@ -7,6 +7,14 @@ use alina\utils\HttpRequest;
 
 class SendRestApiQueries
 {
+    // public $arrDefault = [
+    //     'opt1' => 10.5,
+    //     'opt2' => 'Hello, world',
+    //     'opt3' => ['Hello', 'world', 10.5],
+    //     'opt4' => ['prop1' => 'val1', 'prop2' => 123.321],
+    // ];
+    public $arrDefault = [];
+
     /**
      * @route /SendRestApiQueries/index
      */
@@ -14,11 +22,13 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUri     = 'http://redindex:4567/index/search?text=abc';
+        $reqUri     = 'http://redindex:4567/index/search?text=green';
         $reqUri     = 'http://alinazero:8080/dev/info/?lala=test&great=Привет!!!';
-        $reqHeaders = (object)[];
-        $reqGet     = (object)[];
-        $reqPost    = (object)[];
+        $reqUri     = 'http://sixtyandme.com/?test=123';
+        $reqHeaders = [];
+        $reqGet     = $this->arrDefault;
+        $reqPost    = $this->arrDefault;
+        $reqPostRaw = 0;
         #endregion Defaults
         ############################################
         #region Process Page Query
@@ -33,19 +43,27 @@ class SendRestApiQueries
             $reqGet = json_decode($p->reqGet, 1);
         }
         if (property_exists($p, 'reqPost')) {
-            $reqPost = json_decode($p->reqPost, 1);
+            if (property_exists($p, 'reqPostRaw')) {
+                $reqPostRaw = $p->reqPostRaw;
+                $reqPost = $p->reqPost;
+            } else {
+                $reqPost = json_decode($p->reqPost, 1);
+            }
+
         }
+
         #endregion Process Page Query
         ############################################
         #region MAIN
         $q = new HttpRequest();
-        $q->setUri($reqUri);
+        $q->setReqUri($reqUri);
         $q->addGet($reqGet);
+        $q->setPostRaw($reqPostRaw);
         $q->addPost($reqPost);
         $q->addHeaders($reqHeaders);
         #region Corrections after URI is defined
-        $reqUri = $q->uri;
-        $reqGet = $q->get;
+        $reqUri = $q->reqUri;
+        $reqGet = $q->reqGet;
         #endregion Corrections after URI is defined
         $q->exe();
         #endregion MAIN
@@ -56,9 +74,10 @@ class SendRestApiQueries
             'reqHeaders' => $reqHeaders,
             'reqGet'     => $reqGet,
             'reqPost'    => $reqPost,
+            'reqPostRaw' => $reqPostRaw,
             'q'          => $q,
         ];
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
         #endregionn View
         ############################################
 

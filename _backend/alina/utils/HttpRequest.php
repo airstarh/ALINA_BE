@@ -7,14 +7,11 @@ namespace alina\utils;
  */
 class HttpRequest
 {
-    /** @var string Can be: GET, POST, PUT, DELETE, OPTION */
-    private $requestTYpe = 'GET';
-    public $uri         = '';
-    /** @var array assoc [$str_key=>$value] */
-    public $get = [];
-    /** @var array assoc [$str_key=>$value] */
-    private $post = [];
-    /** @var array assoc [$str_key=>$value] */
+    private $requestTYpe       = 'GET';
+    public  $reqUri            = '';
+    public  $reqGet            = [];
+    private $reqPost           = [];
+    private $reqPostRaw        = 0;
     private $headersRequest    = [
         //'Content-Type' => 'multipart/form-data; charset=utf-8',
     ];
@@ -39,7 +36,7 @@ class HttpRequest
     #endregion Response
     ##########################################
     #region Dev Stuff
-    public function setUri($str)
+    public function setReqUri($str)
     {
         $parsedUri = parse_url($str);
         $parsedGet = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
@@ -48,7 +45,8 @@ class HttpRequest
         $this->uriPartsInterface = array_merge($this->uriPartsInterface, $parsedUri);
         $this->addGet($arrGet);
 
-        $this->uri = hlpUnParseUri([
+        #region Clean URI without GET string.
+        $this->reqUri = hlpUnParseUri([
             'scheme' => $this->uriPartsInterface['scheme'],
             'host'   => $this->uriPartsInterface['host'],
             'port'   => $this->uriPartsInterface['port'],
@@ -59,6 +57,7 @@ class HttpRequest
             // 'fragment' => '',
         ]);
 
+        #endregion Clean URI without GET string.
         return $this;
     }
 
@@ -71,21 +70,33 @@ class HttpRequest
 
     public function addGet($arr)
     {
-        $this->get = array_merge($this->get, (array)$arr);
+        $this->reqGet = array_merge($this->reqGet, (array)$arr);
 
         return $this;
     }
 
     public function addPost($arr)
     {
-        $this->post = array_merge($this->post, (array)$arr);
+        if ($this->reqPostRaw) {
+            $this->reqPost = $arr;
+
+            return $this;
+        }
+        $this->reqPost = array_merge($this->reqPost, (array)$arr);
+
+        return $this;
+    }
+
+    public function setPostRaw($v)
+    {
+        $this->reqPostRaw = $v;
 
         return $this;
     }
 
     public function exe()
     {
-        $url     = $this->forCurlUrl();
+        $url     = $this->forCurlUrlAndGet();
         $headers = $this->forCurlHeaders();
         $post    = $this->forCurlPost();
         $ch      = curl_init($url);
@@ -99,6 +110,9 @@ class HttpRequest
         // POST
         if (!empty($post)) {
             curl_setopt($ch, CURLOPT_POST, 1);
+            if ($this->reqPostRaw) {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/plain']);
+            }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         }
 
@@ -117,12 +131,12 @@ class HttpRequest
     #endregion Dev Stuff
     ##########################################
     #region Final Stuff
-    private function forCurlUrl()
+    private function forCurlUrlAndGet()
     {
         $arr               = [
-            $this->uri,
-            hlpStrContains($this->uri, '?') ? '&' : '?',
-            http_build_query($this->get),
+            $this->reqUri,
+            hlpStrContains($this->reqUri, '?') ? '&' : '?',
+            http_build_query($this->reqGet),
         ];
         $s                 = implode('', $arr);
         $this->resultedUri = $s;
@@ -130,9 +144,14 @@ class HttpRequest
         return $this->resultedUri;
     }
 
-    private function forCurlPost(){
-        $resPost = $this->post;
+    private function forCurlPost()
+    {
+        $resPost = $this->reqPost;
+        if ($this->reqPostRaw) {
+            return $resPost;
+        }
         $resPost = http_build_query($resPost);
+
         return $resPost;
     }
 

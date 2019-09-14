@@ -263,6 +263,8 @@ function hlpGetBeautifulJsonString($d)
     if (is_string($d)) {
         if (isStringValidJson($d)) {
             $s = json_decode($d);
+        } else {
+            return $s;
         }
     }
     $s = json_encode($s, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

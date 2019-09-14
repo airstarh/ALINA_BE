@@ -14,11 +14,16 @@
 <!--        </tr>-->
         <!--endregion Prototype -->
         <tr>
-            <th class="LINK"><a href="/ArraySerialize/index" target="_blank">Unserialize -> replace -> Serialize</th>
+            <th class="LINK"><a href="/ArraySerialize/index" target="_blank">Unserialize -> replace -> Serialize</a></th>
             <th class="DESC"></th>
         </tr>
         <tr>
-            <th class="LINK"><a href="/egSqlWpChanger/index" target="_blank">SQL Wordpress Changer</th>
+            <th class="LINK"><a href="/egSqlWpChanger/index" target="_blank">SQL Wordpress Changer</a></th>
+            <th class="DESC"></th>
+        </tr>
+
+        <tr>
+            <th class="LINK"><a href="/SendRestApiQueries/index" target="_blank">HTTP calls</a></th>
             <th class="DESC"></th>
         </tr>
 
