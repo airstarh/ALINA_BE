@@ -7,15 +7,14 @@ namespace alina\utils;
  */
 class HttpRequest
 {
-    private $requestTYpe       = 'GET';
-    public  $reqUri            = '';
-    public  $reqGet            = [];
-    private $reqPost           = [];
-    private $reqPostRaw        = 0;
-    private $headersRequest    = [
+    public  $reqUri       = '';
+    public  $reqGet       = [];
+    private $reqPost      = [];
+    private $reqIsPostRaw = 0;
+    private $reqHeaders   = [
         //'Content-Type' => 'multipart/form-data; charset=utf-8',
     ];
-    private $uriPartsInterface = [
+    private $reqUriParsed = [
         'scheme'   => '',
         'host'     => '',
         'port'     => '',
@@ -27,43 +26,78 @@ class HttpRequest
     ];
     ##########################################
     #region Response
-    public $resultedUri;
     public $curlInfo;
-    public $responseBody;
-    public $responseHeaders             = [];
-    public $responseHeadersStructurized = [];
-    public $redirections                = 0;
+    public $resUrl;
+    public $respBody;
+    public $respHeaders             = [];
+    public $respHeadersStructurized = [];
+    public $redirections            = 0;
     #endregion Response
     ##########################################
-    #region Dev Stuff
+    #region Facade Stuff
     public function setReqUri($str)
     {
         $parsedUri = parse_url($str);
-        $parsedGet = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
+        #region Extract and add Get
+        $strGet    = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
         $arrGet    = [];
-        parse_str($parsedGet, $arrGet);
-        $this->uriPartsInterface = array_merge($this->uriPartsInterface, $parsedUri);
+        parse_str($strGet, $arrGet);
         $this->addGet($arrGet);
+        #endregion Extract and add Get
 
-        #region Clean URI without GET string.
-        $this->reqUri = hlpUnParseUri([
-            'scheme' => $this->uriPartsInterface['scheme'],
-            'host'   => $this->uriPartsInterface['host'],
-            'port'   => $this->uriPartsInterface['port'],
-            'user'   => $this->uriPartsInterface['user'],
-            'pass'   => $this->uriPartsInterface['pass'],
-            'path'   => $this->uriPartsInterface['path'],
+        #region Extract and add URI
+        $this->reqUriParsed = array_merge($this->reqUriParsed, $parsedUri);
+        $this->reqUri       = $this->un_parse_url([
+            'scheme' => $this->reqUriParsed['scheme'],
+            'host'   => $this->reqUriParsed['host'],
+            'port'   => $this->reqUriParsed['port'],
+            'user'   => $this->reqUriParsed['user'],
+            'pass'   => $this->reqUriParsed['pass'],
+            'path'   => $this->reqUriParsed['path'],
             // 'query'    => '',
             // 'fragment' => '',
         ]);
 
-        #endregion Clean URI without GET string.
+        #endregion Extract and add URI
+
         return $this;
+    }
+
+    /**
+     * Reverse parse_url
+     * @link https://stackoverflow.com/a/31691249/3142281
+     * @param array $parsedUri
+     * @return string
+     */
+    private function un_parse_url(array $parsedUri)
+    {
+        $get = function ($key) use ($parsedUri) {
+            return isset($parsedUri[$key]) ? $parsedUri[$key] : NULL;
+        };
+
+        $pass      = $get('pass');
+        $user      = $get('user');
+        $userinfo  = (!empty($pass)) ? "$user:$pass" : $user;
+        $port      = $get('port');
+        $scheme    = $get('scheme');
+        $query     = $get('query');
+        $fragment  = $get('fragment');
+        $authority =
+            (!empty($userinfo) ? "$userinfo@" : '') .
+            $get('host') .
+            ($port ? ":$port" : '');
+
+        return
+            (strlen($scheme) ? "$scheme:" : '') .
+            (strlen($authority) ? "//$authority" : '') .
+            $get('path') .
+            (strlen($query) ? "?$query" : '') .
+            (strlen($fragment) ? "#$fragment" : '');
     }
 
     public function addHeaders($arr)
     {
-        $this->headersRequest = array_merge($this->headersRequest, (array)$arr);
+        $this->reqHeaders = array_merge($this->reqHeaders, (array)$arr);
 
         return $this;
     }
@@ -77,7 +111,7 @@ class HttpRequest
 
     public function addPost($arr)
     {
-        if ($this->reqPostRaw) {
+        if ($this->reqIsPostRaw) {
             $this->reqPost = $arr;
 
             return $this;
@@ -87,9 +121,9 @@ class HttpRequest
         return $this;
     }
 
-    public function setPostRaw($v)
+    public function setIsPostRaw($v)
     {
-        $this->reqPostRaw = $v;
+        $this->reqIsPostRaw = $v;
 
         return $this;
     }
@@ -110,7 +144,7 @@ class HttpRequest
         // POST
         if (!empty($post)) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            if ($this->reqPostRaw) {
+            if ($this->reqIsPostRaw) {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/plain']);
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
@@ -121,33 +155,35 @@ class HttpRequest
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
 
-        $this->responseBody = curl_exec($ch);
-        $this->curlInfo     = curl_getinfo($ch);
+        $this->respBody = curl_exec($ch);
+        $this->curlInfo = curl_getinfo($ch);
         curl_close($ch);
 
         return $this;
     }
 
-    #endregion Dev Stuff
+    #endregion Facade Stuff
     ##########################################
     #region Final Stuff
     private function forCurlUrlAndGet()
     {
-        $arr               = [
-            $this->reqUri,
-            hlpStrContains($this->reqUri, '?') ? '&' : '?',
-            http_build_query($this->reqGet),
+        $reqUriClean  = $this->reqUri;
+        $get          = http_build_query($this->reqGet);
+        $arr          = [
+            $reqUriClean,
+            empty($get) ? '' : '?',
+            $get,
         ];
-        $s                 = implode('', $arr);
-        $this->resultedUri = $s;
+        $s            = implode('', $arr);
+        $this->resUrl = $s;
 
-        return $this->resultedUri;
+        return $this->resUrl;
     }
 
     private function forCurlPost()
     {
         $resPost = $this->reqPost;
-        if ($this->reqPostRaw) {
+        if ($this->reqIsPostRaw) {
             return $resPost;
         }
         $resPost = http_build_query($resPost);
@@ -160,7 +196,7 @@ class HttpRequest
      */
     private function forCurlHeaders()
     {
-        $arr = $this->headersRequest;
+        $arr = $this->reqHeaders;
         $res = [];
         $s   = '';
         foreach ($arr as $k => $v) {
@@ -186,8 +222,8 @@ class HttpRequest
     private function callbackCURLOPT_HEADERFUNCTION($ch, $str)
     {
         //responseHeaderCount
-        $counter                 = $this->redirections;
-        $this->responseHeaders[] = $str;
+        $counter             = $this->redirections;
+        $this->respHeaders[] = $str;
 
         if (empty(trim($str))) {
             $this->redirections++;
@@ -195,10 +231,10 @@ class HttpRequest
             return strlen($str);
         }
 
-        $a                                               = explode(':', $str, 2);
-        $n                                               = (isset($a[0])) ? trim($a[0]) : 'UNDEFINED';
-        $v                                               = (isset($a[1])) ? trim($a[1]) : 'UNDEFINED';
-        $this->responseHeadersStructurized[$counter][$n] = $v;
+        $a                                           = explode(':', $str, 2);
+        $n                                           = (isset($a[0])) ? trim($a[0]) : 'UNDEFINED';
+        $v                                           = (isset($a[1])) ? trim($a[1]) : 'UNDEFINED';
+        $this->respHeadersStructurized[$counter][$n] = $v;
 
         return strlen($str);
     }

@@ -105,14 +105,10 @@ function resolvePostDataAsObject()
 {
     $post = $_POST;
 
-    #region Define Content TYpe
-    if (isset($_SERVER['CONTENT_TYPE']) && !empty($_SERVER['CONTENT_TYPE'])) {
-        $contentType = strtolower($_SERVER['CONTENT_TYPE']);
-        if (hlpStrContains($contentType, 'json')) {
-            $post = file_get_contents('php://input');
-        }
+    if (empty($post)) {
+        $post = file_get_contents('php://input');
     }
-    #endregion Define Content TYpe
+
     $res = toObject($post);
 
     return $res;

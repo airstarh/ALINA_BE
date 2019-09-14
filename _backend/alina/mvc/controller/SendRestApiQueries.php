@@ -1,4 +1,6 @@
 <?php
+// ToDo: Auto Execution
+// ToDo: endless request to itself
 
 namespace alina\mvc\controller;
 
@@ -7,13 +9,13 @@ use alina\utils\HttpRequest;
 
 class SendRestApiQueries
 {
-    // public $arrDefault = [
-    //     'opt1' => 10.5,
-    //     'opt2' => 'Hello, world',
-    //     'opt3' => ['Hello', 'world', 10.5],
-    //     'opt4' => ['prop1' => 'val1', 'prop2' => 123.321],
-    // ];
-    public $arrDefault = [];
+    public $arrDefault = [
+        'opt1' => 10.5,
+        'opt2' => 'Hello, world',
+        'opt3' => ['Hello', 'world', 10.5],
+        'opt4' => ['prop1' => 'val1', 'prop2' => 123.321],
+    ];
+    //public $arrDefault = [];
 
     /**
      * @route /SendRestApiQueries/index
@@ -22,9 +24,10 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
+        $reqUri     = 'http://sixtyandme.com/?test=123';
+        $reqUri     = 'http://redindex:4567/index/add';
         $reqUri     = 'http://redindex:4567/index/search?text=green';
         $reqUri     = 'http://alinazero:8080/dev/info/?lala=test&great=Привет!!!';
-        $reqUri     = 'http://sixtyandme.com/?test=123';
         $reqHeaders = [];
         $reqGet     = $this->arrDefault;
         $reqPost    = $this->arrDefault;
@@ -58,7 +61,7 @@ class SendRestApiQueries
         $q = new HttpRequest();
         $q->setReqUri($reqUri);
         $q->addGet($reqGet);
-        $q->setPostRaw($reqPostRaw);
+        $q->setIsPostRaw($reqPostRaw);
         $q->addPost($reqPost);
         $q->addHeaders($reqHeaders);
         #region Corrections after URI is defined

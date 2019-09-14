@@ -55,6 +55,12 @@ class dev
         echo PHP_EOL;
 
         echo PHP_EOL;
+        echo '$_POST resolvePostDataAsObject';
+        echo PHP_EOL;
+        print_r(resolvePostDataAsObject());
+        echo PHP_EOL;
+
+        echo PHP_EOL;
         echo 'apache_request_headers';
         echo PHP_EOL;
         print_r(apache_request_headers());
