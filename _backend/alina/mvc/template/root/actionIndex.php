@@ -18,7 +18,7 @@
             <th class="DESC"></th>
         </tr>
         <tr>
-            <th class="LINK"><a href="/egSqlWpChanger/index" target="_blank">SQL Wordpress Changer</a></th>
+            <th class="LINK"><a href="/AdminDbManager/index" target="_blank">MySQL Manager</a></th>
             <th class="DESC"></th>
         </tr>
 

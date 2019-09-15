@@ -2,6 +2,7 @@
 
 namespace alina\utils\db\mysql;
 
+use alina\app;
 use Exception;
 use PDO;
 
@@ -16,15 +17,29 @@ class DbManager
     protected $isInTransaction      = FALSE;
     protected $flagForceTransaction = FALSE;
     #region CREDENTIALS
-    protected $host = '';
+    protected $host = '127.0.0.1';
+    protected $user = 'root';
+    protected $pass = '';
+    protected $db   = 'alina';
     protected $port = '3306';
-    protected $db   = 'stage001';
-    protected $user = 'sixtyandme';
-    protected $pass = 'NgLh590g1';
-
     #endregion CREDENTIALS
 
-    public function connect($forceNew = FALSE)
+    /**
+     * Mostly unnecessary.
+     */
+    public function setCredentials(\stdClass $creds = NULL)
+    {
+        $creds      = (object)$creds;
+        $this->host = @$creds->alina_form_db_host ?: app::getConfig('db/host');
+        $this->user = @$creds->alina_form_db_user ?: app::getConfig('db/username');
+        $this->pass = @$creds->alina_form_db_pass ?: app::getConfig('db/password');
+        $this->db   = @$creds->alina_form_db_db ?: app::getConfig('db/database');
+        $this->port = @$creds->alina_form_db_port ?: app::getConfig('db/port');
+
+        return $this;
+    }
+
+    protected function connect($forceNew = FALSE)
     {
         if ($this->isInTransaction) {
             return $this;
@@ -159,6 +174,14 @@ class DbManager
     }
     #endregion Generic Execution
     #region Special Queries
+    public function qsGetDbTables()
+    {
+        $sql = 'show tables';
+        $d   = $this->qExecPluck($sql);
+
+        return $d;
+    }
+
     public function qsGetTableFields($table)
     {
         $o      = (object)[
@@ -168,6 +191,22 @@ class DbManager
         $sqlTpl = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/AllTableFields.sql';
         $sql    = template($sqlTpl, $o);
         $d      = $this->qExecPluck($sql);
+
+        return $d;
+    }
+
+    public function qsGetColumnInformation($db = NULL, $tableName = NULL, $col = NULL)
+    {
+        $db     = $db ?: $this->db;
+        $o      = (object)[
+            'col'       => $col,
+            'tableName' => $tableName,
+            'db'        => $db,
+        ];
+        $sqlTpl = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/ColumnInformation.sql';
+        $sql    = template($sqlTpl, $o);
+        //$sql    = "SHOW COLUMNS FROM `{$table}`";
+        $d = $this->qExecFetchAll($sql);
 
         return $d;
     }

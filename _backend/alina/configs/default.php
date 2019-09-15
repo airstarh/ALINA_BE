@@ -6,7 +6,7 @@ switch (ALINA_ENV) {
         return [
             'appNamespace'        => 'alina',
             'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
-            'fileUploadDir'       => "F:\\_Z_F_UPLOAD\\",
+            'fileUploadDir'       => ALINA_WEB_PATH.DIRECTORY_SEPARATOR.'uploads',
             'db'                  => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
@@ -16,6 +16,7 @@ switch (ALINA_ENV) {
                 'charset'   => 'utf8',
                 'collation' => 'utf8_unicode_ci',
                 'prefix'    => '',
+                'port'    => 3306,
             ],
             'mvc'                 => [
                 'defaultController'       => 'root',

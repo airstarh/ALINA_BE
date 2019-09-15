@@ -103,7 +103,7 @@ function utf8ize($d)
 }
 
 //ToDo: Less heavy. Validate input.
-function mergeSimpleObjects(...$objects)
+function hlpMergeSimpleObjects(...$objects)
 {
     $res = new stdClass();
     foreach ($objects as $o) {
@@ -270,4 +270,10 @@ function hlpGetBeautifulJsonString($d)
     $s = json_encode($s, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     return $s;
+}
+
+function hlpEraseEmpty($d)
+{
+    $r = array_filter((array)$d);
+    return is_array($d) ? (array) $r : (object) $r;
 }

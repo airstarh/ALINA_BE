@@ -2,17 +2,112 @@
 
 namespace alina\mvc\controller;
 
+use alina\app;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\db\mysql\DbManager;
 use PDO;
 
-class egSqlWpChanger
+class AdminDbManager
 {
+    public function actionIndex()
+    {
+        ##########################################################################################
+        //ToDo: Security! Hardcoded.
+        $vd          = (object)[
+            'alina_form_db_host' => app::getConfig('db/host'),
+            'alina_form_db_user' => app::getConfig('db/username'),
+            'alina_form_db_pass' => app::getConfig('db/password'),
+            'alina_form_db_db'   => app::getConfig('db/database'),
+            'alina_form_db_port' => app::getConfig('db/port'),
+            'strSqlSELECT'       => '',
+            'strSqlINSERT'       => '',
+            'strSqlUPDATE'       => '',
+            'strSqlDELETE'       => '',
+            'strSqlPDObind'      => '',
+            'arrTables'          => [],
+            'tableName'          => '',
+            'arrColumns'         => [],
+        ];
+        $p           = hlpEraseEmpty(resolvePostDataAsObject());
+        $vd          = hlpMergeSimpleObjects($vd, $p);
+        $r           = [];
+        $exe         = [];
+        $q           = new DbManager();
+        $arrTablesPk = [];
+        $arrTables   = [];
+        $arrColumns  = [];
+        ##########################################################################################
+        $q->setCredentials($vd);
+        $qResp = $q->qsGetColumnInformation();
+        foreach ($qResp as $x) {
+            $exe[$x->TABLE_SCHEMA][$x->TABLE_NAME][$x->COLUMN_NAME] = $x;
+            if (!isset($arrTablesPk[$x->TABLE_NAME])) {
+                $arrTablesPk[$x->TABLE_NAME] = [];
+            }
+            if (strtoupper($x->COLUMN_KEY) === 'PRI') {
+                $arrTablesPk[$x->TABLE_NAME]['pkName'] = $x->COLUMN_NAME;
+            }
+        }
+        $arrTables     = array_keys($arrTablesPk);
+        $vd->arrTables = $arrTables;
+        //$r['exe'] = $exe;
+        ##########################################################################################
+        if (@$vd->tableName && in_array($vd->tableName, $vd->arrTables)) {
+            $db                  = $vd->alina_form_db_db;
+            $tableName           = $vd->tableName;
+            $tColsInfo           = $exe[$db][$tableName];
+            $arrColumns          = array_keys($exe[$db][$tableName]);
+            $pkName              = @$arrTablesPk[$tableName]['pkName'] ?: 'ATTENTION_NO_PRIMARY_KEY!!!';
+            $arrColumnsWithoutPk = array_diff($arrColumns, [$pkName]);
+            $tplData             = (object)[
+                'tableName'           => $tableName,
+                'arrColumns'          => $arrColumns,
+                'pkName'              => $pkName,
+                'arrColumnsWithoutPk' => $arrColumnsWithoutPk,
+            ];
+            $r['tplData']        = $tplData;
+            ###############
+            # SELECT
+            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
+            $strSqlSELECT     = template($sqlTpl, $tplData);
+            $vd->strSqlSELECT = $strSqlSELECT;
+
+            ###############
+            # INSERT
+            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
+            $strSqlINSERT     = template($sqlTpl, $tplData);
+            $vd->strSqlINSERT = $strSqlINSERT;
+
+            ###############
+            # UPDATE
+            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
+            $strSqlUPDATE     = template($sqlTpl, $tplData);
+            $vd->strSqlUPDATE = $strSqlUPDATE;
+            ###############
+            # DELETE
+            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
+            $strSqlDELETE     = template($sqlTpl, $tplData);
+            $vd->strSqlDELETE = $strSqlDELETE;
+
+            ###############
+            # PDO bind parameters
+            $sqlTpl            = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
+            $strSqlPDObind     = template($sqlTpl, $tplData);
+            $vd->strSqlPDObind = $strSqlPDObind;
+        }
+        ##########################################################################################
+        $vd->result = $r;
+        //$vd->arrTables = $arrTables;
+        ##########################################################################################
+        $vd = hlpMergeSimpleObjects($vd, $p);
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
+    }
+
     /**
      * @route http://alinazero:8080/egSqlWpChanger/index
      */
-    public function actionIndex()
+    public function actionIndexWP()
     {
         $tables = [
             'merc_banner',

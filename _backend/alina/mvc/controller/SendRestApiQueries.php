@@ -34,7 +34,7 @@ class SendRestApiQueries
         $reqPostRaw = 0;
         #endregion Defaults
         ############################################
-        #region Process Page Query
+        #region Process POST Query
         $p = resolvePostDataAsObject();
         if (property_exists($p, 'reqUri')) {
             $reqUri = $p->reqUri;
@@ -55,7 +55,7 @@ class SendRestApiQueries
 
         }
 
-        #endregion Process Page Query
+        #endregion Process POST Query
         ############################################
         #region MAIN
         $q = new HttpRequest();
