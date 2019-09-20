@@ -7,14 +7,14 @@ namespace alina\utils;
  */
 class HttpRequest
 {
-    public  $reqUri       = '';
-    public  $reqGet       = [];
-    private $reqPost      = [];
-    private $reqIsPostRaw = 0;
-    private $reqHeaders   = [
+    public  $reqUri          = '';
+    public  $reqGet          = [];
+    private $reqPost         = [];
+    private $reqIsPostRaw    = 0;
+    private $reqHeaders      = [
         //'Content-Type' => 'multipart/form-data; charset=utf-8',
     ];
-    private $reqUriParsed = [
+    private $arrUriInterface = [
         'scheme'   => '',
         'host'     => '',
         'port'     => '',
@@ -39,21 +39,21 @@ class HttpRequest
     {
         $parsedUri = parse_url($str);
         #region Extract and add Get
-        $strGet    = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
-        $arrGet    = [];
+        $strGet = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
+        $arrGet = [];
         parse_str($strGet, $arrGet);
         $this->addGet($arrGet);
         #endregion Extract and add Get
 
         #region Extract and add URI
-        $this->reqUriParsed = array_merge($this->reqUriParsed, $parsedUri);
-        $this->reqUri       = $this->un_parse_url([
-            'scheme' => $this->reqUriParsed['scheme'],
-            'host'   => $this->reqUriParsed['host'],
-            'port'   => $this->reqUriParsed['port'],
-            'user'   => $this->reqUriParsed['user'],
-            'pass'   => $this->reqUriParsed['pass'],
-            'path'   => $this->reqUriParsed['path'],
+        $this->arrUriInterface = array_merge($this->arrUriInterface, $parsedUri);
+        $this->reqUri          = $this->un_parse_url([
+            'scheme' => $this->arrUriInterface['scheme'],
+            'host'   => $this->arrUriInterface['host'],
+            'port'   => $this->arrUriInterface['port'],
+            'user'   => $this->arrUriInterface['user'],
+            'pass'   => $this->arrUriInterface['pass'],
+            'path'   => $this->arrUriInterface['path'],
             // 'query'    => '',
             // 'fragment' => '',
         ]);
@@ -72,27 +72,32 @@ class HttpRequest
     private function un_parse_url(array $parsedUri)
     {
         $get = function ($key) use ($parsedUri) {
-            return isset($parsedUri[$key]) ? $parsedUri[$key] : NULL;
+            return isset($parsedUri[$key]) ? $parsedUri[$key] : '';
         };
 
-        $pass      = $get('pass');
-        $user      = $get('user');
-        $userinfo  = (!empty($pass)) ? "$user:$pass" : $user;
-        $port      = $get('port');
-        $scheme    = $get('scheme');
-        $query     = $get('query');
-        $fragment  = $get('fragment');
-        $authority =
-            (!empty($userinfo) ? "$userinfo@" : '') .
-            $get('host') .
-            ($port ? ":$port" : '');
+        $pass         = $get('pass');
+        $user         = $get('user');
+        $userinfo     = (!empty($pass)) ? "$user:$pass" : $user;
+        $port         = $get('port');
+        $scheme       = $get('scheme');
+        $query        = $get('query');
+        $fragment     = $get('fragment');
+        $arrAuthority = [
+            !empty($userinfo) ? "$userinfo@" : '',
+            $get('host'),
+            $port ? ":$port" : '',
+        ];
+        $authority    = implode('', $arrAuthority);
 
-        return
-            (strlen($scheme) ? "$scheme:" : '') .
-            (strlen($authority) ? "//$authority" : '') .
-            $get('path') .
-            (strlen($query) ? "?$query" : '') .
-            (strlen($fragment) ? "#$fragment" : '');
+        $arrRes = [
+            strlen($scheme) ? "$scheme:" : '',
+            strlen($authority) ? "//$authority" : '',
+            $get('path'),
+            strlen($query) ? "?$query" : '',
+            strlen($fragment) ? "#$fragment" : '',
+        ];
+
+        return implode('', $arrRes);
     }
 
     public function addHeaders($arr)

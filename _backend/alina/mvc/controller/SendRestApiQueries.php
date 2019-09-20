@@ -37,20 +37,20 @@ class SendRestApiQueries
         #region Process POST Query
         $p = resolvePostDataAsObject();
         if (property_exists($p, 'reqUri')) {
-            $reqUri = $p->reqUri;
+            $reqUri = $p->reqUri ?: '';
         }
         if (property_exists($p, 'reqHeaders')) {
-            $reqHeaders = json_decode($p->reqHeaders, 1);
+            $reqHeaders = json_decode($p->reqHeaders, 1)  ?: [];
         }
         if (property_exists($p, 'reqGet')) {
-            $reqGet = json_decode($p->reqGet, 1);
+            $reqGet = json_decode($p->reqGet, 1)  ?: [];
         }
         if (property_exists($p, 'reqPost')) {
             if (property_exists($p, 'reqPostRaw')) {
                 $reqPostRaw = $p->reqPostRaw;
                 $reqPost = $p->reqPost;
             } else {
-                $reqPost = json_decode($p->reqPost, 1);
+                $reqPost = json_decode($p->reqPost, 1)  ?: [];
             }
 
         }

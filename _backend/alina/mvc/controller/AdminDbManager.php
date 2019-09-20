@@ -13,8 +13,9 @@ class AdminDbManager
     public function actionIndex()
     {
         ##########################################################################################
+        $strNoPkInTable = 'ATTENTION_NO_PK_NAME';
         //ToDo: Security! Hardcoded.
-        $vd          = (object)[
+        $vd              = (object)[
             'alina_form_db_host' => app::getConfig('db/host'),
             'alina_form_db_user' => app::getConfig('db/username'),
             'alina_form_db_pass' => app::getConfig('db/password'),
@@ -28,15 +29,20 @@ class AdminDbManager
             'arrTables'          => [],
             'tableName'          => '',
             'arrColumns'         => [],
+            'arrColumnsCount'    => 0,
+            'tColsInfo'          => [],
+            'pkName'             => $strNoPkInTable,
+            'rowsInTable'             => 0,
         ];
-        $p           = hlpEraseEmpty(resolvePostDataAsObject());
-        $vd          = hlpMergeSimpleObjects($vd, $p);
-        $r           = [];
-        $exe         = [];
-        $q           = new DbManager();
-        $arrTablesPk = [];
-        $arrTables   = [];
-        $arrColumns  = [];
+        $p               = hlpEraseEmpty(resolvePostDataAsObject());
+        $vd              = hlpMergeSimpleObjects($vd, $p);
+        $r               = [];
+        $exe             = [];
+        $q               = new DbManager();
+        $arrTablesPk     = [];
+        $arrTables       = [];
+        $arrColumns      = [];
+        $arrColumnsCount = 0;
         ##########################################################################################
         $q->setCredentials($vd);
         $qResp = $q->qsGetColumnInformation();
@@ -58,43 +64,55 @@ class AdminDbManager
             $tableName           = $vd->tableName;
             $tColsInfo           = $exe[$db][$tableName];
             $arrColumns          = array_keys($exe[$db][$tableName]);
-            $pkName              = @$arrTablesPk[$tableName]['pkName'] ?: 'ATTENTION_NO_PRIMARY_KEY!!!';
+            $arrColumnsCount     = count($arrColumns);
+            $pkName              = @$arrTablesPk[$tableName]['pkName'] ?: $strNoPkInTable;
             $arrColumnsWithoutPk = array_diff($arrColumns, [$pkName]);
-            $tplData             = (object)[
+            #
+            $vd->tColsInfo       = $tColsInfo;
+            $vd->arrColumns      = $arrColumns;
+            $vd->arrColumnsCount = $arrColumnsCount;
+            $vd->pkName          = $pkName;
+            #
+            $sqlTplData = (object)[
                 'tableName'           => $tableName,
                 'arrColumns'          => $arrColumns,
                 'pkName'              => $pkName,
                 'arrColumnsWithoutPk' => $arrColumnsWithoutPk,
             ];
-            $r['tplData']        = $tplData;
             ###############
             # SELECT
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
-            $strSqlSELECT     = template($sqlTpl, $tplData);
+            $strSqlSELECT     = template($sqlTpl, $sqlTplData);
             $vd->strSqlSELECT = $strSqlSELECT;
 
             ###############
             # INSERT
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
-            $strSqlINSERT     = template($sqlTpl, $tplData);
+            $strSqlINSERT     = template($sqlTpl, $sqlTplData);
             $vd->strSqlINSERT = $strSqlINSERT;
 
             ###############
             # UPDATE
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
-            $strSqlUPDATE     = template($sqlTpl, $tplData);
+            $strSqlUPDATE     = template($sqlTpl, $sqlTplData);
             $vd->strSqlUPDATE = $strSqlUPDATE;
             ###############
             # DELETE
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
-            $strSqlDELETE     = template($sqlTpl, $tplData);
+            $strSqlDELETE     = template($sqlTpl, $sqlTplData);
             $vd->strSqlDELETE = $strSqlDELETE;
 
             ###############
             # PDO bind parameters
             $sqlTpl            = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
-            $strSqlPDObind     = template($sqlTpl, $tplData);
+            $strSqlPDObind     = template($sqlTpl, $sqlTplData);
             $vd->strSqlPDObind = $strSqlPDObind;
+
+            ###############
+            # Statistics. Count Rows.
+            $sql = "SELECT COUNT(*) as rowsInTable FROM $tableName";
+            $rowsInTable = $q->qExecFetchAll($sql)[0]->rowsInTable;
+            $vd->rowsInTable = $rowsInTable;
         }
         ##########################################################################################
         $vd->result = $r;

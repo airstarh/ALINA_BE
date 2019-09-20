@@ -1,19 +1,37 @@
+<?php
+
+use alina\mvc\view\html as htmlAlias;
+
+?>
 <div id="array-serializer">
     <form action="/ArraySerialize/index" method="post" enctype="multipart/form-data">
-        <label>STRING [Serialized array]:<br></label>
+        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            'title' => 'Serialized array]:',
+            'badge' => 'strSource',
+        ]) ?>
         <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
         <br>
+        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            'title' => 'From',
+            'badge' => 'strFrom',
+        ]) ?>
         <input type="text" name="strFrom" value="<?= $data->strFrom ?>" class="form-control">
         <br>
+        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            'title' => 'To',
+            'badge' => 'strTo',
+        ]) ?>
         <input type="text" name="strTo" value="<?= $data->strTo ?>" class="form-control">
-        <h1>
-            <button type="submit" class="btn btn-lg btn-primary">Go!</button>
-            <a href="." class="btn btn-danger">RESET</a>
-        </h1>
+
+        <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+
     </form>
 
-    <div>
-        <h2>RESULT:<br></h2>
+    <div class="mt-3">
+        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            'title' => 'RESULT',
+            'badge' => 'strTo',
+        ]) ?>
         <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
 <!--    <div>-->
@@ -21,14 +39,19 @@
 <!--        <textarea class="form-control w-100" rows="10">--><?//= $data->strResControl ?><!--</textarea>-->
 <!--    </div>-->
     <div>
-        <h1>CONTROL</h1>
-        <div><h2>Total Changes: <?= $data->tCount ?></h2></div>
+        <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
         <div class="row">
             <div class="col-6">
-                <h3>arrRes</h3>
+                <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                    'title' => 'arrRes',
+                    'badge' => 'arrRes',
+                ]) ?>
             </div>
             <div class="col-6">
-                <h3>arrResControl</h3>
+                <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                    'title' => 'arrResControl',
+                    'badge' => 'arrResControl',
+                ]) ?>
             </div>
         </div>
         <div class="row">
