@@ -58,9 +58,9 @@ function toObject($v)
 }
 
 //@link https://stackoverflow.com/a/6041773/3142281
-function isStringValidJson($string)
+function isStringValidJson($string, &$strJsonDecoded = null)
 {
-    json_decode($string);
+    $strJsonDecoded = json_decode($string);
 
     return (json_last_error() == JSON_ERROR_NONE);
 }
@@ -260,16 +260,14 @@ function hlpSuperUnSerialize($str)
 function hlpGetBeautifulJsonString($d)
 {
     $s = $d;
-    if (is_string($d)) {
-        if (isStringValidJson($d)) {
-            $s = json_decode($d);
-        } else {
-            return $s;
-        }
+    if (is_array($d) || is_object($d)) {
+        $s = json_encode($d);
     }
-    $s = json_encode($s, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-    return $s;
+    if (isStringValidJson($s, $res)) {
+        return json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    } else {
+        return $s;
+    }
 }
 
 function hlpEraseEmpty($d)

@@ -30,17 +30,14 @@ use alina\mvc\view\html as htmlAlias;
     <div class="mt-3">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT',
-            'badge' => 'strRes',
+            'badge' => 'strTo',
         ]) ?>
         <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
-    <div class="mt-3">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-            'title' => 'RESULT JSON',
-            'badge' => 'arrResControl JSON',
-        ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= hlpGetBeautifulJsonString($data->arrResControl) ?></textarea>
-    </div>
+<!--    <div>-->
+<!--        <label>CONTROL RESULT:<br></label>-->
+<!--        <textarea class="form-control w-100" rows="10">--><?//= $data->strResControl ?><!--</textarea>-->
+<!--    </div>-->
     <div>
         <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
         <div class="row">

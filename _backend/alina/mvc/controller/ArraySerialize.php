@@ -14,7 +14,7 @@ class ArraySerialize
     public function actionIndex()
     {
         ##################################################
-        $vd        = (object)[
+        $vd = (object)[
             'strSource'     => '',
             'strRes'        => '',
             'arrRes'        => [],
@@ -24,15 +24,15 @@ class ArraySerialize
             'strTo'         => '',
             'tCount'        => 0,
         ];
-        $p         = hlpEraseEmpty(resolvePostDataAsObject());
-        $vd        = hlpMergeSimpleObjects($vd, $p);
+        $p  = hlpEraseEmpty(resolvePostDataAsObject());
+        $vd = hlpMergeSimpleObjects($vd, $p);
         ##################################################
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $strSource = $vd->strSource;
         $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
         ##################################################
-        $vd        = hlpMergeSimpleObjects($vd, $data);
+        $vd = hlpMergeSimpleObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;
@@ -40,15 +40,28 @@ class ArraySerialize
 
     /**
      * http://alinazero/ArraySerialize/index
+     * Template @file
      */
     public function actionJson()
     {
-        $post      = resolvePostDataAsObject();
-        $strFrom   = (isset($post->strFrom) && !empty($post->strFrom)) ? $post->strFrom : '';
-        $strTo     = (isset($post->strTo) && !empty($post->strTo)) ? $post->strTo : '';
-        $strSource = (isset($post->strSource) && !empty($post->strSource)) ? $post->strSource : '';
+        ##################################################
+        $vd = (object)[
+            'strSource'        => '',
+            'strFrom'          => '',
+            'strTo'            => '',
+            'strResBeautified' => '',
+            'tCount'           => 0,
+        ];
+        $p  = hlpEraseEmpty(resolvePostDataAsObject());
+        $vd = hlpMergeSimpleObjects($vd, $p);
+        ##################################################
+        $strSource = $vd->strSource;
+        $strFrom   = $vd->strFrom;
+        $strTo     = $vd->strTo;
         $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
-        echo (new htmlAlias)->page($data);
+        ##################################################
+        $vd = hlpMergeSimpleObjects($vd, $data);
+        echo (new htmlAlias)->page($vd);
 
         return $this;
     }
