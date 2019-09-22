@@ -24,7 +24,7 @@ class html {
 
 	#region Blocks Generation
 	public function defineCurrentControllerDir() {
-		$this->currentControllerDir = shortClassName(\alina\app::get()->currentController);
+		$this->currentControllerDir = \alina\utils\Resolver::shortClassName(\alina\app::get()->currentController);
 	}
 
 	public function defineCurrentActionFile() {

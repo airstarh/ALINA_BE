@@ -27,7 +27,7 @@ class modelNamesResolver
         }
 
         if (class_exists($describer)) {
-            return new $describer(['table' => shortClassName($describer)]);
+            return new $describer(['table' => \alina\utils\Resolver::shortClassName($describer)]);
         }
 
         //$clarifiedDescriber = '\alina\mvc\model\\'.$describer;
@@ -37,7 +37,7 @@ class modelNamesResolver
                 \alina\app::getConfig('mvc\structure\model'),
                 $describer
             ];
-            $mClassName         = buildClassNameFromBlocks($clarifiedDescriber);
+            $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);
             if (class_exists($mClassName)) {
                 return new $mClassName();
             }
@@ -48,7 +48,7 @@ class modelNamesResolver
                     \alina\app::getConfigDefault('mvc\structure\model'),
                     $describer
                 ];
-                $mClassName         = buildClassNameFromBlocks($clarifiedDescriber);
+                $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);
                 if (class_exists($mClassName)) {
                     return new $mClassName();
                 }

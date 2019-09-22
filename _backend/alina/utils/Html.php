@@ -78,4 +78,49 @@ class Html
     {
         return static::tag('div', $content, ['class' => ['wrapped-item']]);
     }
+    ##################################################
+    #region DEPENDENT
+    static public function aRef($url)
+    {
+        if (\alina\utils\Str::startsWith($url, 'http://')
+            ||
+            \alina\utils\Str::startsWith($url, 'https://')
+        ) {
+            return $url;
+        }
+
+        $vocAliasToUrl = \alina\app::getConfig(['vocAliasUrl']);
+        $url           = \alina\utils\Url::routeAccordance(ltrim($url, '/'), $vocAliasToUrl, FALSE);
+
+        return "//{$_SERVER['HTTP_HOST']}/{$url}";
+    }
+
+    static public function aL($ref, $text = '', $configuration = [])
+    {
+        $href     = '';
+        $get      = '';
+        $getArray = [];
+        $hash     = '';
+
+        if (isset($configuration['get']) && !empty($configuration['get'])) {
+            foreach ($configuration['get'] as $parameterName => $parameterValue) {
+                $getArray[] = "$parameterName=$parameterValue";
+            }
+            $get = '?' . implode('&', $getArray);
+            unset($configuration['get']);
+        }
+
+        if (isset($configuration['hash']) && !empty($configuration['hash'])) {
+            $hash = '#' . $configuration['hash'];
+            unset($configuration['hash']);
+        }
+
+        $href .= static::aRef($ref) . $get . $hash;
+
+        $configuration['href'] = $href;
+
+        return \alina\utils\Html::tag('a', $text, $configuration);
+    }
+    #endregion DEPENDENT
+    ##################################################
 }

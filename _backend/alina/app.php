@@ -23,7 +23,6 @@ class app
     public function init()
     {
         // Fasade functions
-        require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_independent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
     }
 
@@ -147,13 +146,13 @@ class app
     public function resolveClassName($nsPath)
     {
         $ns       = static::getConfig('appNamespace');
-        $fullPath = buildClassNameFromBlocks($ns, $nsPath);
+        $fullPath = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $nsPath);
         if (class_exists($fullPath)) {
             return $fullPath;
         }
 
         $ns       = static::getConfigDefault('appNamespace');
-        $fullPath = buildClassNameFromBlocks($ns, $nsPath);
+        $fullPath = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $nsPath);
         if (class_exists($fullPath)) {
             return $fullPath;
         }
@@ -293,7 +292,7 @@ class app
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = $this->controller;
-            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName($this->action);
             $params         = $this->actionParams;
 
@@ -304,7 +303,7 @@ class app
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = $this->controller;
-                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName($this->action);
                 $params         = $this->actionParams;
 
@@ -322,7 +321,7 @@ class app
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/defaultController');
-            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
 
             return $this->mvcControllerAction($controller, $action);
@@ -332,7 +331,7 @@ class app
                 $namespace      = static::getConfigDefault(['appNamespace']);
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/defaultController');
-                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
 
                 return $this->mvcControllerAction($controller, $action);
@@ -352,7 +351,7 @@ class app
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/pageNotFoundController');
-            $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
 
             return $this->mvcControllerAction($controller, $action);
@@ -362,7 +361,7 @@ class app
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/pageNotFoundController');
-                $controller     = buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = \alina\utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
 
                 return $this->mvcControllerAction($controller, $action);
