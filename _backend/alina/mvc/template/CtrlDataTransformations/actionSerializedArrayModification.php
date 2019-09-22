@@ -4,7 +4,7 @@ use alina\mvc\view\html as htmlAlias;
 
 ?>
 <div id="array-serializer">
-    <form action="/ArraySerialize/index" method="post" enctype="multipart/form-data">
+    <form action="" method="post" enctype="multipart/form-data">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'Serialized array]:',
             'badge' => 'strSource',

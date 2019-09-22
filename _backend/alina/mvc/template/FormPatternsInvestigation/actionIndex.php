@@ -1,6 +1,6 @@
 <div id="form-patterns-investigation">
     <div>
-        <form action="." method="post" enctype="multipart/form-data">
+        <form action="" method="post" enctype="multipart/form-data">
 
             <div class="button">
                 <button type="submit" class="btn btn-lg btn-primary">Submit!</button>

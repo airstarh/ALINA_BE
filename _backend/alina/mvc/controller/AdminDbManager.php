@@ -10,7 +10,11 @@ use PDO;
 
 class AdminDbManager
 {
-    public function actionIndex()
+    /**
+     * @route /AdminDbManager/DbTablesColumnsInfo
+     * @file _backend/alina/mvc/template/AdminDbManager/actionDbTablesColumnsInfo.php
+     */
+    public function actionDbTablesColumnsInfo()
     {
         ##########################################################################################
         $strNoPkInTable = 'ATTENTION_NO_PK_NAME';

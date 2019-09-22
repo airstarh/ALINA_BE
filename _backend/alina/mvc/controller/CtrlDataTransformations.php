@@ -6,12 +6,13 @@ use alina\app;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
 
-class ArraySerialize
+class CtrlDataTransformations
 {
     /**
-     * http://alinazero/ArraySerialize/index
+     * http://alinazero/CtrlDataTransformations/SerializedArrayModification
+     * @file _backend/alina/mvc/template/CtrlDataTransformations/actionSerializedArrayModification.php
      */
-    public function actionIndex()
+    public function actionSerializedArrayModification()
     {
         ##################################################
         $vd = (object)[
@@ -39,8 +40,8 @@ class ArraySerialize
     }
 
     /**
-     * http://alinazero/ArraySerialize/index
-     * Template @file
+     * http://alinazero/CtrlDataTransformations/index
+     * @file _backend/alina/mvc/template/CtrlDataTransformations/actionJson.php
      */
     public function actionJson()
     {

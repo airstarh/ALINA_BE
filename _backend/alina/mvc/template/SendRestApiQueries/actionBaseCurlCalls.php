@@ -5,7 +5,7 @@ use alina\mvc\view\html as htmlAlias;
 ?>
 <div class="row">
     <div class="col-sm">
-        <form action="." method="post" enctype="multipart/form-data">
+        <form action="" method="post" enctype="multipart/form-data">
             <h2>Request</h2>
 
             <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>

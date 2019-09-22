@@ -5,7 +5,7 @@ use alina\mvc\view\html as htmlAlias;
 
 ?>
 <div>
-    <form action="." method="post" enctype="multipart/form-data">
+    <form action="" method="post" enctype="multipart/form-data">
         <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
 
         <?= (new htmlAlias)->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>

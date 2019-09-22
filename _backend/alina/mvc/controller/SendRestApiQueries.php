@@ -18,9 +18,9 @@ class SendRestApiQueries
     //public $arrDefault = [];
 
     /**
-     * @route /SendRestApiQueries/index
+     * @route /SendRestApiQueries/BaseCurlCalls
      */
-    public function actionIndex()
+    public function actionBaseCurlCalls()
     {
         ############################################
         #region Defaults

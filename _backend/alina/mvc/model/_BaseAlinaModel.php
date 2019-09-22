@@ -978,7 +978,7 @@ public $mode            = 'SELECT';
         return $res;
     }
     #endregion May be Trait.
-
+    ##################################################
     #region relations
 
     public function qApplyGetSearchParams()

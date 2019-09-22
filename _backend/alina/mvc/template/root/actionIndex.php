@@ -14,16 +14,16 @@
 <!--        </tr>-->
         <!--endregion Prototype -->
         <tr>
-            <th class="LINK"><a href="/ArraySerialize/index" target="_blank">Unserialize -> replace -> Serialize</a></th>
+            <th class="LINK"><a href="/CtrlDataTransformations/SerializedArrayModification" target="_blank">Unserialize -> replace -> Serialize</a></th>
             <th class="DESC"></th>
         </tr>
         <tr>
-            <th class="LINK"><a href="/AdminDbManager/index" target="_blank">MySQL Manager</a></th>
+            <th class="LINK"><a href="/AdminDbManager/DbTablesColumnsInfo" target="_blank">MySQL Manager</a></th>
             <th class="DESC"></th>
         </tr>
 
         <tr>
-            <th class="LINK"><a href="/SendRestApiQueries/index" target="_blank">HTTP calls</a></th>
+            <th class="LINK"><a href="/SendRestApiQueries/BaseCurlCalls" target="_blank">HTTP calls</a></th>
             <th class="DESC"></th>
         </tr>
 
