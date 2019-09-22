@@ -27,7 +27,7 @@ class alinaRestAccept
     public function actionIndex()
     {
 
-        setCrossDomainHeaders();
+        \alina\utils\Sys::setCrossDomainHeaders();
         message::set('Hello, World!!!');
         \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
 
@@ -36,7 +36,7 @@ class alinaRestAccept
         switch ($method) {
             //INSERT
             case 'POST':
-                $post = resolvePostDataAsObject();
+                $post = \alina\utils\Sys::resolvePostDataAsObject();
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -47,7 +47,7 @@ class alinaRestAccept
                 break;
             //UPDATE
             case 'PUT':
-                $post = resolvePostDataAsObject();
+                $post = \alina\utils\Sys::resolvePostDataAsObject();
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -103,12 +103,12 @@ class alinaRestAccept
 
             switch ($method) {
                 case 'POST':
-                    $post = resolvePostDataAsObject();
+                    $post = \alina\utils\Sys::resolvePostDataAsObject();
                     $data = $m->insert($post);
                     (new jsonView())->simpleRestApiResponse($data);
                     break;
                 case 'PUT':
-                    $post = resolvePostDataAsObject();
+                    $post = \alina\utils\Sys::resolvePostDataAsObject();
                     $data = $m->updateById($post);
                     (new jsonView())->simpleRestApiResponse($data);
                     break;
@@ -146,7 +146,7 @@ class alinaRestAccept
      */
     public function actionTestGet()
     {
-        setCrossDomainHeaders();
+        \alina\utils\Sys::setCrossDomainHeaders();
         error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
         error_log(__FUNCTION__,0);
         error_log("URL: {$_SERVER['REQUEST_URI']}",0);

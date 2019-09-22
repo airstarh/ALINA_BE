@@ -136,7 +136,7 @@ class message
 
     public function messageHtml()
     {
-        return template(ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/message.php', $this);
+        return \alina\utils\Sys::template(ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/message.php', $this);
     }
     #endregion Message Object
 }

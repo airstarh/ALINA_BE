@@ -45,7 +45,7 @@
                 //            ]);
                 //            echo '</pre>';
 
-                print_r(reportSpentTime());
+                print_r(\alina\utils\Sys::reportSpentTime());
 
                 ?>
             </div>

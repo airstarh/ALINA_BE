@@ -65,7 +65,7 @@ class json
         $sysData['time']    = microtime(TRUE) - ALINA_MICROTIME;
         $sysData['headers'] = getallheaders();
         $sysData['GET']     = $_GET;
-        $sysData['POST']    = resolvePostDataAsObject();
+        $sysData['POST']    = \alina\utils\Sys::resolvePostDataAsObject();
         $sysData['FILE']    = $_FILES;
         $sysData['COOKIES'] = $_COOKIE;
         $sysData['SERVER']  = $_SERVER;

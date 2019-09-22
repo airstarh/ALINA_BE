@@ -27,3 +27,20 @@ function getNow() {
 	else
 		return date(DT_FORMAT_DB);
 }
+
+function alinaErrorLog($m, $force = FALSE)
+{
+    if (ALINA_MODE === 'PROD' && $force === FALSE) {
+        return FALSE;
+    }
+    $message = [
+        $m,
+        $_SERVER['SERVER_ADDR'],
+        isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+    ];
+    $res     = implode(' | ', $message);
+    //message::set($res);
+    error_log($res, 0);
+
+    return;
+}

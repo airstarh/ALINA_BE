@@ -11,8 +11,8 @@ class FormPatternsInvestigation
      */
     public function actionIndex()
     {
-        $post = resolvePostDataAsObject();
-        $get  = resolveGetDataAsObject();
+        $post = \alina\utils\Sys::resolvePostDataAsObject();
+        $get  = \alina\utils\Sys::resolveGetDataAsObject();
         /////////////////////////////////////
 
 

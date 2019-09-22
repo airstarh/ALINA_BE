@@ -189,7 +189,7 @@ class DbManager
             'db'        => $this->db,
         ];
         $sqlTpl = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/AllTableFields.php';
-        $sql    = template($sqlTpl, $o);
+        $sql    = \alina\utils\Sys::template($sqlTpl, $o);
         $d      = $this->qExecPluck($sql);
 
         return $d;
@@ -204,7 +204,7 @@ class DbManager
             'db'        => $db,
         ];
         $sqlTpl = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/ColumnInformation.php';
-        $sql    = template($sqlTpl, $o);
+        $sql    = \alina\utils\Sys::template($sqlTpl, $o);
         //$sql    = "SHOW COLUMNS FROM `{$table}`";
         $d = $this->qExecFetchAll($sql);
 

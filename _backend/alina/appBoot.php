@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * This File exists mostly for Unit Test needs.
+ *This file DOES NOT participate in Application usage!!!
+ */
 define('ALINA_MICROTIME', microtime(TRUE));
 define('ALINA_TIME', time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);

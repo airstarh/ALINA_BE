@@ -50,7 +50,7 @@ class html {
 		if (FALSE === $templateRealPath) {
 			return FALSE;
 		}
-		$htmlString = template($templateRealPath, $data);
+		$htmlString = \alina\utils\Sys::template($templateRealPath, $data);
 
 		if ($return) {
 			return $htmlString;

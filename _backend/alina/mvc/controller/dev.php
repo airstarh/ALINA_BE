@@ -46,7 +46,7 @@ class dev
         echo PHP_EOL;
         echo '$_POST resolvePostDataAsObject';
         echo PHP_EOL;
-        print_r(resolvePostDataAsObject());
+        print_r(\alina\utils\Sys::resolvePostDataAsObject());
         echo PHP_EOL;
 
         echo PHP_EOL;

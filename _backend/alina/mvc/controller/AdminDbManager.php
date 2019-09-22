@@ -38,7 +38,7 @@ class AdminDbManager
             'pkName'             => $strNoPkInTable,
             'rowsInTable'             => 0,
         ];
-        $p               = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $p               = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
         $vd              = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         $r               = [];
         $exe             = [];
@@ -86,30 +86,30 @@ class AdminDbManager
             ###############
             # SELECT
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
-            $strSqlSELECT     = template($sqlTpl, $sqlTplData);
+            $strSqlSELECT     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
             $vd->strSqlSELECT = $strSqlSELECT;
 
             ###############
             # INSERT
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
-            $strSqlINSERT     = template($sqlTpl, $sqlTplData);
+            $strSqlINSERT     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
             $vd->strSqlINSERT = $strSqlINSERT;
 
             ###############
             # UPDATE
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
-            $strSqlUPDATE     = template($sqlTpl, $sqlTplData);
+            $strSqlUPDATE     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
             $vd->strSqlUPDATE = $strSqlUPDATE;
             ###############
             # DELETE
             $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
-            $strSqlDELETE     = template($sqlTpl, $sqlTplData);
+            $strSqlDELETE     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
             $vd->strSqlDELETE = $strSqlDELETE;
 
             ###############
             # PDO bind parameters
             $sqlTpl            = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
-            $strSqlPDObind     = template($sqlTpl, $sqlTplData);
+            $strSqlPDObind     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
             $vd->strSqlPDObind = $strSqlPDObind;
 
             ###############

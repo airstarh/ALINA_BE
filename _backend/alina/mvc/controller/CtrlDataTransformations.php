@@ -25,7 +25,7 @@ class CtrlDataTransformations
             'strTo'         => '',
             'tCount'        => 0,
         ];
-        $p  = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $p  = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
         $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         ##################################################
         $strFrom   = $vd->strFrom;
@@ -53,7 +53,7 @@ class CtrlDataTransformations
             'strResBeautified' => '',
             'tCount'           => 0,
         ];
-        $p  = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $p  = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
         $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         ##################################################
         $strSource = $vd->strSource;

@@ -35,7 +35,7 @@ class SendRestApiQueries
         #endregion Defaults
         ############################################
         #region Process POST Query
-        $p = resolvePostDataAsObject();
+        $p = \alina\utils\Sys::resolvePostDataAsObject();
         if (property_exists($p, 'reqUri')) {
             $reqUri = $p->reqUri ?: '';
         }

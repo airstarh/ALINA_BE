@@ -76,7 +76,7 @@ class exceptionCatcher
         $this->prepareError();
         $this->processError();
 
-        if (isAjax()) {
+        if (\alina\utils\Sys::isAjax()) {
             (new \alina\mvc\view\json())->standardRestApiResponse();
         } else {
             ob_end_clean();
@@ -117,7 +117,7 @@ class exceptionCatcher
                 $this->errorHtml[]= $this->eTrace;
                 $NL = '</br>'.PHP_EOL;
                 $this->errorHtml = implode($NL, $this->errorHtml);
-                fDebug($this->errorHtml);
+                \alina\utils\Sys::fDebug($this->errorHtml);
             }
         }
     }

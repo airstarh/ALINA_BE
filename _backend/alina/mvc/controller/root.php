@@ -19,7 +19,7 @@ class root
 
     public function actionException()
     {
-        if (isAjax()) {
+        if (\alina\utils\Sys::isAjax()) {
             echo \alina\message::returnAllMessages();
 
             return TRUE;
