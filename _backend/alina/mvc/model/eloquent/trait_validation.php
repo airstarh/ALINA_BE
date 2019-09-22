@@ -31,7 +31,7 @@ trait trait_validation
 
     public function applyFilters()
     {
-        $data = toObject($this->attributes);
+        $data = \alina\utils\Data::toObject($this->attributes);
         if ($this->isDataFiltered) return $this;
 
         $fields = $this->fields();
@@ -74,7 +74,7 @@ trait trait_validation
 
         if ($this->isValidated) return $this;
 
-        $data   = toObject($this->attributes);
+        $data   = \alina\utils\Data::toObject($this->attributes);
         $fields = $this->fields();
 
         foreach ($fields as $name => $params) {
@@ -144,7 +144,7 @@ trait trait_validation
     public function getModelByUniqueKeys()
     {
 
-        $data       = toObject($this->attributes);
+        $data       = \alina\utils\Data::toObject($this->attributes);
         $uniqueKeys = $this->uniqueKeys();
 
         foreach ($uniqueKeys as $uniqueFields) {

@@ -35,7 +35,7 @@ class cookie
         $apply = $_this->apply();
         if ($apply) {
             if ($_this->expire > ALINA_TIME) {
-                setArrayValue($stringPath, $value, $_COOKIE);
+                \alina\utils\Arr::setArrayValue($stringPath, $value, $_COOKIE);
             }
         }
 
@@ -80,10 +80,10 @@ class cookie
 
         // Look into Just Added paths.
         foreach (static::$justAdded as $cookieFullName) {
-            if (hlpStrStartsWith($cookieFullName, $cookieFamilyName)) {
+            if (\alina\utils\Str::startsWith($cookieFullName, $cookieFamilyName)) {
                 $apply = static::delete($cookieFullName);
                 if ($apply) {
-                    unsetArrayPath($stringPath, $_COOKIE, $delimiter);
+                    \alina\utils\Arr::unsetArrayPath($stringPath, $_COOKIE, $delimiter);
                 }
             }
         }
@@ -95,10 +95,10 @@ class cookie
                 $cNameValue     = explode('=', $cPair);
                 $cookieFullName = trim($cNameValue[0]);
 
-                if (hlpStrStartsWith($cookieFullName, $cookieFamilyName)) {
+                if (\alina\utils\Str::startsWith($cookieFullName, $cookieFamilyName)) {
                     $apply = static::delete($cookieFullName);
                     if ($apply) {
-                        unsetArrayPath($stringPath, $_COOKIE, $delimiter);
+                        \alina\utils\Arr::unsetArrayPath($stringPath, $_COOKIE, $delimiter);
                     }
                 }
             }
@@ -137,7 +137,7 @@ class cookie
 
     static public function exists($path)
     {
-        return arrayHasPath($path, $_COOKIE);
+        return \alina\utils\Arr::arrayHasPath($path, $_COOKIE);
     }
     #endregion Fasade.
 }

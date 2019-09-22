@@ -37,7 +37,7 @@ function buildClassNameFromBlocks()
 
     $NAMESPACE_SEPARATOR = '\\';
     foreach ($blocks as $i => $block) {
-        $blocks[$i] = normalizePath($block);
+        $blocks[$i] = \alina\utils\FS::normalizePath($block);
         $blocks[$i] = trim($block, DIRECTORY_SEPARATOR);
         $blocks[$i] = str_replace(DIRECTORY_SEPARATOR, $NAMESPACE_SEPARATOR, $blocks[$i]);
     }

@@ -20,7 +20,7 @@ class egFileUpload
             foreach ($_FILES[ALINA_FILE_UPLOAD_KEY]["error"] as $key => $error) {
                 if ($error == UPLOAD_ERR_OK) {
                     $tmp_name = $_FILES[ALINA_FILE_UPLOAD_KEY]["tmp_name"][$key];
-                    $uploadfile = buildPathFromBlocks($fileUploadDir, basename($_FILES[ALINA_FILE_UPLOAD_KEY]["name"][$key]));
+                    $uploadfile = \alina\utils\FS::buildPathFromBlocks($fileUploadDir, basename($_FILES[ALINA_FILE_UPLOAD_KEY]["name"][$key]));
                     $muf = move_uploaded_file($tmp_name, $uploadfile);
                     if ($muf) {
                         message::set("Uploaded: {$uploadfile}");

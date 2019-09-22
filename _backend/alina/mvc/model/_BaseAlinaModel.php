@@ -67,7 +67,7 @@ public $mode            = 'SELECT';
     public function __construct($opts = NULL)
     {
         if ($opts) {
-            $opts       = toObject($opts);
+            $opts       = \alina\utils\Data::toObject($opts);
             $this->opts = $opts;
             $opts->table ? $this->table = $opts->table : NULL;
         }
@@ -181,11 +181,11 @@ public $mode            = 'SELECT';
     {
         $this->mode       = 'INSERT';
         $pkName           = $this->pkName;
-        $data             = toObject($data);
+        $data             = \alina\utils\Data::toObject($data);
         $data             = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
         $dataArray        = $this->prepareDbData($data);
         $id               = $this->q()->insertGetId($dataArray, $pkName);
-        $this->attributes = $data = toObject($dataArray);
+        $this->attributes = $data = \alina\utils\Data::toObject($dataArray);
         $data->{$pkName}  = $this->{$pkName} = $id;
         $this->resetFlags();
 
@@ -203,7 +203,7 @@ public $mode            = 'SELECT';
 
         $res = new \stdClass();
         for ($i = 0; $i <= $count - 1; $i++) {
-            $o = toObject($objects[$i]);
+            $o = \alina\utils\Data::toObject($objects[$i]);
             foreach ($o as $p => $v) {
                 $res->{$p} = $v;
             }
@@ -232,7 +232,7 @@ public $mode            = 'SELECT';
 
     public function prepareDbData($data, $addAuditInfo = TRUE)
     {
-        $data = toObject($data);
+        $data = \alina\utils\Data::toObject($data);
         $this->applyFilters($data);
         $this->validate($data);
 
@@ -381,7 +381,7 @@ public $mode            = 'SELECT';
     public function getModelByUniqueKeys($data)
     {
 
-        $data       = toObject($data);
+        $data       = \alina\utils\Data::toObject($data);
         $uniqueKeys = $this->uniqueKeys();
 
         foreach ($uniqueKeys as $uniqueFields) {
@@ -525,7 +525,7 @@ public $mode            = 'SELECT';
             $pkName = $this->pkName;
 
             $data = (isset($additionalData) && !empty($additionalData))
-                ? toObject($additionalData)
+                ? \alina\utils\Data::toObject($additionalData)
                 : new \stdClass();
             // Even if there is no is_deleted in this->fields, it does not brings error
             // due to $this->bindModel functionality.
@@ -559,7 +559,7 @@ public $mode            = 'SELECT';
      */
     public function updateById($data, $id = NULL)
     {
-        $data   = toObject($data);
+        $data   = \alina\utils\Data::toObject($data);
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
             $pkValue = $id;
@@ -589,7 +589,7 @@ public $mode            = 'SELECT';
     {
         $this->mode = 'UPDATE';
         $pkName     = $this->pkName;
-        $data       = toObject($data);
+        $data       = \alina\utils\Data::toObject($data);
 
         //Fix: Special for MS SQL: NO PK ON INSERTS.
         if (property_exists($data, $pkName)) {
@@ -603,7 +603,7 @@ public $mode            = 'SELECT';
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        $this->attributes        = toObject($dataArray);
+        $this->attributes        = \alina\utils\Data::toObject($dataArray);
         //Get ID back
         if (isset($presavedId)) {
             $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
@@ -710,7 +710,7 @@ public $mode            = 'SELECT';
 
         $sortArray = [];
         foreach ($sn as $i => $n) {
-            $asc         = isset($sa[$i]) ? getSqlDirection($sa[$i]) : 'ASC';
+            $asc         = isset($sa[$i]) ? \alina\utils\Data::getSqlDirection($sa[$i]) : 'ASC';
             $sortArray[] = [$n, $asc];
         }
 
@@ -969,7 +969,7 @@ public $mode            = 'SELECT';
         $res    = [];
         foreach ($fNames as $f) {
             foreach ($_GET as $gF => $gV) {
-                if (hlpStrEndsWith($gF, $f)) {
+                if (\alina\utils\Str::endsWith($gF, $f)) {
                     $res[$gF] = $gF;
                 }
             }
@@ -1006,7 +1006,7 @@ public $mode            = 'SELECT';
             //API GET operators.
             $apiOperators = $this->apiOperators;
             foreach ($apiOperators as $o => $oV) {
-                if (hlpStrStartsWith($f, $o)) {
+                if (\alina\utils\Str::startsWith($f, $o)) {
                     $fName = implode('', explode($o, $f, 2));
                     if ($this->tableHasField($fName)) {
                         switch ($o) {

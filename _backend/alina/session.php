@@ -13,28 +13,28 @@ class session
     {
         static::start();
 
-        return setArrayValue($path, $value, static::$storage);
+        return \alina\utils\Arr::setArrayValue($path, $value, static::$storage);
     }
 
     static public function get($path)
     {
         static::start();
 
-        return getArrayValue($path, static::$storage);
+        return \alina\utils\Arr::getArrayValue($path, static::$storage);
     }
 
     static public function delete($path)
     {
         static::start();
 
-        return unsetArrayPath($path, static::$storage);
+        return \alina\utils\Arr::unsetArrayPath($path, static::$storage);
     }
 
     static public function has($path)
     {
         static::start();
 
-        return arrayHasPath($path, static::$storage);
+        return \alina\utils\Arr::arrayHasPath($path, static::$storage);
     }
 
     static public function start()

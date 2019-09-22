@@ -16,7 +16,7 @@ function getCurrentUserId() {
 		'username' => 'HardCodedFirstName',
 	];
 
-	return toObject($u);
+	return \alina\utils\Data::toObject($u);
 
 }
 

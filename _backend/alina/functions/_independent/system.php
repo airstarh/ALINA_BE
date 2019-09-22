@@ -109,7 +109,7 @@ function resolvePostDataAsObject()
         $post = file_get_contents('php://input');
     }
 
-    $res = toObject($post);
+    $res = \alina\utils\Data::toObject($post);
 
     return $res;
 }
@@ -117,7 +117,7 @@ function resolvePostDataAsObject()
 function resolveGetDataAsObject()
 {
     $get = $_GET;
-    $res = toObject($get);
+    $res = \alina\utils\Data::toObject($get);
 
     return $res;
 }
@@ -182,3 +182,27 @@ function setCrossDomainHeaders()
 }
 
 #endregion Drafts
+
+function redirect($page, $code = 301)
+{
+    if (\alina\utils\Str::startsWith($page, 'http://')
+        || \alina\utils\Str::startsWith($page, 'https://')
+    ) {
+        header("Location: $page", TRUE, $code);
+        die();
+    }
+
+    $page = \alina\utils\Html::ref($page);
+    header("Location: $page", TRUE, $code);
+    die();
+}
+
+function template($fileFullPath, $data = NULL)
+{
+    ob_start();
+    ob_implicit_flush(FALSE);
+    require($fileFullPath);
+    $output = ob_get_clean();
+
+    return $output;
+}

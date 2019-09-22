@@ -2,12 +2,12 @@
 
 function aRef($url)
 {
-    if (hlpStrStartsWith($url, 'http://')
-        || hlpStrStartsWith($url, 'https://')
+    if (\alina\utils\Str::startsWith($url, 'http://')
+        || \alina\utils\Str::startsWith($url, 'https://')
     ) return $url;
 
     $vocAliasToUrl = \alina\app::getConfig(['vocAliasUrl']);
-    $url  = routeAccordance(ltrim($url, '/'), $vocAliasToUrl, false);
+    $url  = \alina\utils\Url::routeAccordance(ltrim($url, '/'), $vocAliasToUrl, false);
 
     return "//{$_SERVER['HTTP_HOST']}/{$url}";
 }
@@ -35,5 +35,5 @@ function aL($ref, $text = '', $configuration = array())
     $href .= aRef($ref) . $get . $hash;
 
     $configuration['href'] = $href;
-    return tag('a', $text, $configuration);
+    return \alina\utils\Html::tag('a', $text, $configuration);
 }

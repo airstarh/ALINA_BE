@@ -23,7 +23,7 @@ use alina\mvc\view\html as htmlAlias;
                             GET <span class="badge badge-light">reqGet</span>
                         </span>
                         <textarea name="reqGet" class="form-control"
-                                  rows="11"><?= hlpGetBeautifulJsonString($data->reqGet) ?></textarea>
+                                  rows="11"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->reqGet) ?></textarea>
                     </div>
                 </div>
                 <div class="col-sm">
@@ -32,7 +32,7 @@ use alina\mvc\view\html as htmlAlias;
                             POST <span class="badge badge-light">reqPost</span>
                         </span>
                         <textarea name="reqPost" class="form-control" id="reqPost"
-                                  rows="11"><?= hlpGetBeautifulJsonString($data->reqPost) ?></textarea>
+                                  rows="11"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->reqPost) ?></textarea>
 
                         <div class="custom-control custom-checkbox">
                             <input name="reqPostRaw" <?= $data->reqPostRaw ? 'checked' : '' ?>
@@ -50,7 +50,7 @@ use alina\mvc\view\html as htmlAlias;
                     Headers <span class="badge badge-light">reqHeaders</span>
                 </span>
                 <textarea name="reqHeaders" class="form-control"
-                          rows="5"><?= hlpGetBeautifulJsonString($data->reqHeaders) ?></textarea>
+                          rows="5"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->reqHeaders) ?></textarea>
             </div>
 
             <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
@@ -75,7 +75,7 @@ use alina\mvc\view\html as htmlAlias;
                     Body <span class="badge badge-light">$data->q->respBody</span>
                 </span>
                 <textarea class="form-control w-100" rows="11"
-                ><?= hlpGetBeautifulJsonString($data->q->respBody) ?></textarea>
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->q->respBody) ?></textarea>
             </div>
 
             <div class="mt-3">
@@ -84,7 +84,7 @@ use alina\mvc\view\html as htmlAlias;
                 </span>
                 <textarea class="form-control w-100"
                           rows="11"
-                ><?= hlpGetBeautifulJsonString($data->q->respHeadersStructurized) ?></textarea>
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->q->respHeadersStructurized) ?></textarea>
             </div>
         </div>
     </div>

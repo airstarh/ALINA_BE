@@ -25,15 +25,15 @@ class CtrlDataTransformations
             'strTo'         => '',
             'tCount'        => 0,
         ];
-        $p  = hlpEraseEmpty(resolvePostDataAsObject());
-        $vd = hlpMergeSimpleObjects($vd, $p);
+        $p  = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         ##################################################
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $strSource = $vd->strSource;
         $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
         ##################################################
-        $vd = hlpMergeSimpleObjects($vd, $data);
+        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;
@@ -53,15 +53,15 @@ class CtrlDataTransformations
             'strResBeautified' => '',
             'tCount'           => 0,
         ];
-        $p  = hlpEraseEmpty(resolvePostDataAsObject());
-        $vd = hlpMergeSimpleObjects($vd, $p);
+        $p  = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         ##################################################
         $strSource = $vd->strSource;
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
         ##################################################
-        $vd = hlpMergeSimpleObjects($vd, $data);
+        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;

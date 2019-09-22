@@ -82,10 +82,10 @@ class app
 
     protected function setConfig($config = [])
     {
-        $defaultConfigPath   = normalizePath(__DIR__ . '/configs/default.php');
+        $defaultConfigPath   = \alina\utils\FS::normalizePath(__DIR__ . '/configs/default.php');
         $defaultConfig       = require($defaultConfigPath);
         $this->configDefault = $defaultConfig;
-        $this->config        = arrayMergeRecursive($this->configDefault, $config);
+        $this->config        = \alina\utils\Arr::arrayMergeRecursive($this->configDefault, $config);
         static::$instance    = $this;
 
         return $this;
@@ -130,7 +130,7 @@ class app
         $_this = static::get();
         $cfg   = $_this->config;
 
-        return getArrayValue($path, $cfg);
+        return \alina\utils\Arr::getArrayValue($path, $cfg);
     }
 
     static public function getConfigDefault($path)
@@ -138,7 +138,7 @@ class app
         $_this = static::get();
         $cfg   = $_this->configDefault;
 
-        return getArrayValue($path, $cfg);
+        return \alina\utils\Arr::getArrayValue($path, $cfg);
     }
 
     #endregion Config manipulations
@@ -188,13 +188,13 @@ class app
     public function resolvePath($path)
     {
         // -Check if Path exists in User Application directory.
-        $fullPath = buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
+        $fullPath = \alina\utils\FS::buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
 
         // -Check if Path exists in Alina directory.
-        $fullPath = buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
+        $fullPath = \alina\utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
@@ -223,7 +223,7 @@ class app
          */
         if (static::getConfig(['forceSysPathToAlias'])) {
             if ($this->router->pathAlias == $this->router->pathSys) {
-                $this->router->forcedAlias = routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
+                $this->router->forcedAlias = \alina\utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {
                     //ToDo: Make redirection with alina router class.
                     redirect($this->router->forcedAlias);

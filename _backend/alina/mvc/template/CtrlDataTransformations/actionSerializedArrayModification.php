@@ -39,7 +39,7 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'RESULT JSON',
             'badge' => 'arrResControl JSON',
         ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= hlpGetBeautifulJsonString($data->arrResControl) ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->arrResControl) ?></textarea>
     </div>
     <div>
         <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>

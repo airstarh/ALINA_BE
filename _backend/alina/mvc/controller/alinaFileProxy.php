@@ -34,7 +34,7 @@ class alinaFileProxy
             }
 
             $p = \alina\app::get()->resolvePath($relativePath);
-            giveFile($p);
+            \alina\utils\FS::giveFile($p);
         }
     }
 

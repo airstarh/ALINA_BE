@@ -18,7 +18,7 @@ final class testFunctions extends TestCase
     {
         $this->assertInstanceOf(
             \stdClass::class,
-            hlpMergeSimpleObjects([],[])
+            \alina\utils\Data::hlpMergeSimpleObjects([],[])
         );
     }
 }

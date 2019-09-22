@@ -38,8 +38,8 @@ class AdminDbManager
             'pkName'             => $strNoPkInTable,
             'rowsInTable'             => 0,
         ];
-        $p               = hlpEraseEmpty(resolvePostDataAsObject());
-        $vd              = hlpMergeSimpleObjects($vd, $p);
+        $p               = \alina\utils\Data::hlpEraseEmpty(resolvePostDataAsObject());
+        $vd              = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         $r               = [];
         $exe             = [];
         $q               = new DbManager();
@@ -122,7 +122,7 @@ class AdminDbManager
         $vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        $vd = hlpMergeSimpleObjects($vd, $p);
+        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
     }
 
@@ -198,7 +198,7 @@ class AdminDbManager
                     $resFoundStringsCount[$t][$f] = count($arrFoundStrings);
                     foreach ($arrFoundStrings as $strInit) {
                         $strReplace = $strInit;
-                        if (FALSE != hlpSuperUnSerialize($strInit)) {
+                        if (FALSE != \alina\utils\Data::hlpSuperUnSerialize($strInit)) {
                             $isSerialized  = 'YES';
                             $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s1old, $s1New);
                             $strReplace    = $data->strResControl;
@@ -224,7 +224,7 @@ class AdminDbManager
                         #endregion ATTENTION!!! The Most Dangerous String !!!
                         $reportstring                = $strReplace;
                         $reportstring                = htmlspecialchars($reportstring, ENT_QUOTES | ENT_SUBSTITUTE);
-                        $reportstring                = hlpStrRemoveEnters($reportstring);
+                        $reportstring                = \alina\utils\Str::removeEnters($reportstring);
                         $reportstring                = mb_substr($reportstring, 0, 50);
                         $repFoundStrPieces[$t][$f][] = $isSerialized . '|||' . $reportstring;
                         $tRowsIteratedCount++;

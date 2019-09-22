@@ -63,13 +63,13 @@ class html {
 
 	public function resolvePathToTemplate($mvcRelativePathLayout) {
 		try {
-			$templateFile = buildPathFromBlocks($this->mvcTemplateRoot, $mvcRelativePathLayout);
+			$templateFile = \alina\utils\FS::buildPathFromBlocks($this->mvcTemplateRoot, $mvcRelativePathLayout);
 			$templateFile = \alina\app::get()->resolvePath($templateFile);
 
 			return $templateFile;
 		} catch (\ErrorException $e) {
 			try {
-				$templateFile = buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
+				$templateFile = \alina\utils\FS::buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
 				$templateFile = \alina\app::get()->resolvePath($templateFile);
 
 				return $templateFile;
@@ -80,7 +80,7 @@ class html {
 	}
 
 	public function definePathToCurrentControllerActionLayoutFile() {
-		$p = buildPathFromBlocks(
+		$p = \alina\utils\FS::buildPathFromBlocks(
 			$this->currentControllerDir,
 			$this->currentActionFileName . ".{$this->ext}"
 		);
@@ -94,7 +94,7 @@ class html {
 	#region HTML page specials (css, js, etc.)
 	public function css() {
 		$urls = \alina\app::getConfig('html/css');
-		if (isset($urls) && !empty($urls && isIterable($urls))) {
+		if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
 			$result = '';
 			foreach ($urls as $i => $url) {
 				$result .= $this->piece('_system/html/tag/link.php', $url);
@@ -109,7 +109,7 @@ class html {
 
 	public function js() {
 		$urls = \alina\app::getConfig('html/js');
-		if (isset($urls) && !empty($urls && isIterable($urls))) {
+		if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
 			$result = '';
 			foreach ($urls as $i => $url) {
 				$result .= $this->piece('_system/html/tag/script.php', $url);

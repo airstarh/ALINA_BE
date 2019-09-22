@@ -19,7 +19,7 @@ class DataPlayer
         ];
 
         #endregion Defaults
-        $arrSource = (isset($strSource) && !empty($strSource)) ? hlpSuperUnSerialize($strSource) : [];
+        $arrSource = (isset($strSource) && !empty($strSource)) ? \alina\utils\Data::hlpSuperUnSerialize($strSource) : [];
         if (FALSE == $arrSource) {
             return $data;
         }
@@ -27,7 +27,7 @@ class DataPlayer
         $tCount    = 0;
         foreach ($arrSource as $k => $v) {
             #region Some modification Staff here
-            if (FALSE !== hlpSuperUnSerialize($v)) {
+            if (FALSE !== \alina\utils\Data::hlpSuperUnSerialize($v)) {
                 $d      = $this->serializedArraySearchReplace($strSource, $strFrom, $strTo);
                 $v      = $d->strResControl;
                 $iCount = $d->tCount;

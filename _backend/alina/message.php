@@ -123,7 +123,7 @@ class message
     {
         static::$collection   = static::getCollection();
         static::$collection[] = $this;
-        $this->id             = lastArrayKey(static::$collection);
+        $this->id             = \alina\utils\Arr::lastArrayKey(static::$collection);
         static::setCollectionToSession();
     }
 

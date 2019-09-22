@@ -10,7 +10,7 @@ use alina\mvc\view\html as htmlAlias;
 
         <?= (new htmlAlias)->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>
 
-        <?= (new htmlAlias)->piece('_system/html/_form/selectOneSimple.php', hlpMergeSimpleObjects($data, (object)[
+        <?= (new htmlAlias)->piece('_system/html/_form/selectOneSimple.php', \alina\utils\Data::hlpMergeSimpleObjects($data, (object)[
             'name'        => 'tableName',
             'value'       => $data->tableName,
             'options'     => $data->arrTables,
@@ -92,7 +92,7 @@ use alina\mvc\view\html as htmlAlias;
                 'title' => 'Fields` details',
                 'badge' => 'tColsInfo',
             ]) ?>
-            <?= (new htmlAlias)->piece('_system/html/_form/table001.php', hlpMergeSimpleObjects($data, (object)[
+            <?= (new htmlAlias)->piece('_system/html/_form/table001.php', \alina\utils\Data::hlpMergeSimpleObjects($data, (object)[
                 'arr' => $data->tColsInfo,
             ])) ?>
         </div>

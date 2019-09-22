@@ -13,7 +13,7 @@ trait trait_entity {
 
 	public function eavAddAttribute($a) {
 		//ToDo: Validate $a, prepare $a.
-		$a = toObject($a);
+		$a = \alina\utils\Data::toObject($a);
 
 		$oA             = new attr();
 		$oA->name_sys   = $a->name_sys;

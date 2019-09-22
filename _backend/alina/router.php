@@ -31,7 +31,7 @@ class router
 
             $this->pathAlias = trim($_GET['alinapath'], '/');
             $this->pathSys   = (isset($this->vocAliasUrl) && !empty($this->vocAliasUrl))
-                ? routeAccordance($this->pathAlias, $this->vocAliasUrl)
+                ? \alina\utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl)
                 : $this->pathAlias;
 
             $_pathParts     = explode('/', $this->pathSys);
