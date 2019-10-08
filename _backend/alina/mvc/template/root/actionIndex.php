@@ -8,25 +8,33 @@
         </thead>
         <tbody>
         <!--region Prototype -->
-<!--        <tr>-->
-<!--            <th class="LINK"><a href="." target="_blank"></th>-->
-<!--            <th class="DESC"></th>-->
-<!--        </tr>-->
+        <!--        <tr>-->
+        <!--            <th class="LINK"><a href="." target="_blank"></th>-->
+        <!--            <th class="DESC"></th>-->
+        <!--        </tr>-->
         <!--endregion Prototype -->
         <tr>
-            <th class="LINK"><a href="/CtrlDataTransformations/SerializedArrayModification" target="_blank">Unserialize -> replace -> Serialize</a></th>
-            <th class="DESC"></th>
+            <td class="LINK"><a href="/NotExistingPage" target="_blank">Test Page 404</a></td>
+            <td class="DESC"></td>
         </tr>
         <tr>
-            <th class="LINK"><a href="/AdminDbManager/DbTablesColumnsInfo" target="_blank">MySQL Manager</a></th>
-            <th class="DESC"></th>
+            <td class="LINK"><a href="/CtrlDataTransformations/SerializedArrayModification" target="_blank">Unserialize
+                    -> replace -> Serialize</a></td>
+            <td class="DESC"></td>
+        </tr>
+        <tr>
+            <td class="LINK"><a href="/AdminDbManager/DbTablesColumnsInfo" target="_blank">MySQL Manager</a></td>
+            <td class="DESC"></td>
         </tr>
 
         <tr>
-            <th class="LINK"><a href="/SendRestApiQueries/BaseCurlCalls" target="_blank">HTTP calls</a></th>
-            <th class="DESC"></th>
+            <td class="LINK"><a href="/SendRestApiQueries/BaseCurlCalls" target="_blank">HTTP calls</a></td>
+            <td class="DESC"></td>
         </tr>
-
+        <tr>
+            <td class="LINK"><a href="/AdminTests/Errors" target="_blank">Tst Errors</a></td>
+            <td class="DESC"></td>
+        </tr>
         </tbody>
     </table>
 </div>

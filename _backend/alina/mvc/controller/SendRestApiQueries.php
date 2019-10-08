@@ -9,12 +9,13 @@ use alina\utils\HttpRequest;
 
 class SendRestApiQueries
 {
-    public $arrDefault = [
-        'opt1' => 10.5,
-        'opt2' => 'Hello, world',
-        'opt3' => ['Hello', 'world', 10.5],
-        'opt4' => ['prop1' => 'val1', 'prop2' => 123.321],
-    ];
+    // public $arrDefault = [
+    //     'opt1' => 10.5,
+    //     'opt2' => 'Hello, world',
+    //     'opt3' => ['Hello', 'world', 10.5],
+    //     'opt4' => ['prop1' => 'val1', 'prop2' => 123.321],
+    // ];
+    public $arrDefault = [];
     //public $arrDefault = [];
 
     /**
@@ -25,9 +26,9 @@ class SendRestApiQueries
         ############################################
         #region Defaults
         $reqUri     = 'http://sixtyandme.com/?test=123';
+        $reqUri     = 'http://alinazero:8080/dev/info/?lala=test&great=Привет!!!';
         $reqUri     = 'http://redindex:4567/index/add';
         $reqUri     = 'http://redindex:4567/index/search?text=green';
-        $reqUri     = 'http://alinazero:8080/dev/info/?lala=test&great=Привет!!!';
         $reqHeaders = [];
         $reqGet     = $this->arrDefault;
         $reqPost    = $this->arrDefault;
@@ -40,19 +41,18 @@ class SendRestApiQueries
             $reqUri = $p->reqUri ?: '';
         }
         if (property_exists($p, 'reqHeaders')) {
-            $reqHeaders = json_decode($p->reqHeaders, 1)  ?: [];
+            $reqHeaders = json_decode($p->reqHeaders, 1) ?: [];
         }
         if (property_exists($p, 'reqGet')) {
-            $reqGet = json_decode($p->reqGet, 1)  ?: [];
+            $reqGet = json_decode($p->reqGet, 1) ?: [];
         }
         if (property_exists($p, 'reqPost')) {
             if (property_exists($p, 'reqPostRaw')) {
                 $reqPostRaw = $p->reqPostRaw;
-                $reqPost = $p->reqPost;
+                $reqPost    = $p->reqPost;
             } else {
-                $reqPost = json_decode($p->reqPost, 1)  ?: [];
+                $reqPost = json_decode($p->reqPost, 1) ?: [];
             }
-
         }
 
         #endregion Process POST Query

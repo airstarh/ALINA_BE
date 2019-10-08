@@ -42,8 +42,8 @@ switch (ALINA_ENV) {
             ],
 
             'debug' => [
-                //'toPage' => TRUE,
-                //'toDb'   => TRUE,
+                'toPage' => TRUE,
+                'toDb'   => TRUE,
                 'toFile' => TRUE,
             ],
 
@@ -69,12 +69,11 @@ switch (ALINA_ENV) {
                     // https://code.jquery.com/ui/
                     'https://code.jquery.com/jquery-3.4.1.js',
                     'https://code.jquery.com/ui/1.12.1/jquery-ui.js',
-                    //'/sources/node_modules/popper.js/dist/popper.min.js',
 
                     //Bootstrap Framework.
                     // https://getbootstrap.com/docs/4.3/getting-started/introduction/
-                    'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
                     'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
+                    'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
 
                     // Alina.
                     '/sources/js/001_alina_init.js',

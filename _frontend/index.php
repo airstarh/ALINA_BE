@@ -1,21 +1,22 @@
 <?php
-define('ALINA_MICROTIME', microtime(TRUE));
-define('ALINA_TIME', time());
+define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(TRUE));
+define('ALINA_TIME', $_SERVER['REQUEST_TIME']?:time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
-
+##################################################
 // Make sure we see all available errors
 ini_set('display_startup_errors', 1);
 ini_set('display_errors', 1);
 error_reporting(E_ALL | E_STRICT);
 //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 //error_reporting(E_ALL);
-
+##################################################
 #region SHUTDOWN
 register_shutdown_function(function () {
+    //ToDo: RollBack all transactions!!!
     error_log(\alina\utils\Sys::reportSpentTime([], ['FINAL']), 0);
 });
 #endregion SHUTDOWN
-
+##################################################
 define('ALINA_ENV', 'DA');
 switch (ALINA_ENV) {
     /**
@@ -36,10 +37,10 @@ switch (ALINA_ENV) {
         define('ALINA_WEB_PATH', __DIR__);
         break;
 }
-
+##################################################
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
 ob_start();
 ob_implicit_flush(FALSE);
-$app    = \alina\app::set($config)->defineRoute()->mvcGo();
+$app = \alina\app::set($config)->defineRoute()->mvcGo();
 echo ob_get_clean();

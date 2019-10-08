@@ -58,6 +58,7 @@ class Sys
         return $res;
     }
 
+    // ToDo: Rewrite
     static public function isAjax()
     {
         // Cross Domain AJAX request.
@@ -71,6 +72,8 @@ class Sys
         if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
             return TRUE;
         }
+
+
         if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
             return TRUE;
         }

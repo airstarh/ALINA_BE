@@ -3,9 +3,9 @@ return [
     'appNamespace' => 'zero',
     'title' => '¯\_(ツ)_/¯ Alina. Zero.',
     'mvc'          => [
-        'defaultController'      => 'main',
+        'defaultController'      => 'r00t',
         'defaultAction'          => 'index',
-        'pageNotFoundController' => 'main',
+        'pageNotFoundController' => 'r00t',
         'pageNotFoundAction'     => '404',
         'structure'              => [],
     ]

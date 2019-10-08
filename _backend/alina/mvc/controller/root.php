@@ -12,9 +12,8 @@ class root
 
     public function action404()
     {
-        echo '<pre>';
-        print_r('Alina core 404. Page not found.');
-        echo '</pre>';
+        http_response_code(404);
+        echo (new \alina\mvc\view\html)->page();
     }
 
     public function actionException()

@@ -2,7 +2,7 @@
 	<div class="<?= $data->status ?>" id="message-id-<?= $data->id ?>">
         <?php
         $htmlString = $data->messageRawText();
-        $htmlString = str_replace(["\r\n", "\n", "\r"], "</br>", $htmlString);
+        $htmlString = str_replace([PHP_EOL,"\n\r", "\r\n","\n", "\r"], "</br>", $htmlString);
         ?>
         <?= $htmlString ?>
 	</div>

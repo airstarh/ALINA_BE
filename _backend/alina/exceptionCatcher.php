@@ -2,25 +2,17 @@
 
 namespace alina;
 
+use alina\utils\Sys;
+
 class exceptionCatcher
 {
-    protected $errorTemplate = '';
-    /** @property array errorParams
-     *
-     * 'error_level' => string,
-     * 'errstr' => string,
-     * 'errfile' => string,
-     * 'errline' => string,
-     * 'error_trace' => string,
-     */
-    protected $errorParams = [];
-    public    $eLevel      = '';
-    public    $eString     = '';
-    public    $eFile       = '';
-    public    $eLine       = '';
-    public    $eTrace      = '';
-    public    $errprString = '';
-    public    $errorHtml   = '';
+    protected $expClassName = '';
+    protected $eSeverity    = '';
+    protected $eCode        = '';
+    protected $eString      = '';
+    protected $eFile        = '';
+    protected $eLine        = '';
+    public    $eTrace       = '';
 
     protected function __construct()
     {
@@ -35,91 +27,104 @@ class exceptionCatcher
         return new static;
     }
 
-    public function error($eLevel, $eString, $eFile, $eLine, $eContext)
+    public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext)
     {
-        if (!(error_reporting() & $eLevel)) {
+        if (!(error_reporting() & $strErrLevelExpSeverity)) {
             // This error code is not included in error_reporting
             return;
         }
-        throw new \ErrorException ($eString, 0, $eLevel, $eFile, $eLine);
+        throw new \ErrorException ($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
     }
 
-    public function exception($exception)
+    public function exception($objException, $forceExit = TRUE)
     {
-        $this->eLevel = get_class($exception);
+        $strUNKNOWN         = 'UNKNOWN';
+        $this->expClassName = get_class($objException);
+        $this->eSeverity    = method_exists($objException, 'getSeverity')
+            ? $objException->getSeverity()
+            : $strUNKNOWN;
+        $this->eCode        = method_exists($objException, 'getCode')
+            ? $objException->getCode()
+            : $strUNKNOWN;
+        $this->eString      = method_exists($objException, 'getMessage')
+            ? $objException->getMessage()
+            : $strUNKNOWN;
+        $this->eFile        = method_exists($objException, 'getFile')
+            ? $objException->getFile()
+            : $strUNKNOWN;
+        $this->eLine        = method_exists($objException, 'getLine')
+            ? $objException->getLine()
+            : $strUNKNOWN;
+        $this->eTrace       = method_exists($objException, 'getTraceAsString')
+            ? $objException->getTraceAsString()
+            : $strUNKNOWN;
 
-        $this->eString = method_exists($exception, 'getMessage')
-            ? $exception->getMessage()
-            : 'Unknown error';
-
-        $this->eFile = method_exists($exception, 'getFile')
-            ? $exception->getFile()
-            : 'Unknown place';
-
-        $this->eLine = method_exists($exception, 'getLine')
-            ? $exception->getLine()
-            : -1;
-
-        $this->eTrace        = method_exists($exception, 'getTraceAsString')
-            ? $exception->getTraceAsString()
-            : 'Trace is unavailable';
-        $NL                  = PHP_EOL;
-        $this->errorTemplate = "Error! {$NL}Level: %s {$NL}Text: %s {$NL}File: %s  {$NL}Line: %d. {$NL}Trace: {$NL}%s ";
-        $this->errorParams   = [
-            $this->eLevel,
-            $this->eString,
-            $this->eFile,
-            $this->eLine,
-            $this->eTrace,
-        ];
-
-        $this->prepareError();
         $this->processError();
 
-        if (\alina\utils\Sys::isAjax()) {
-            (new \alina\mvc\view\json())->standardRestApiResponse();
-        } else {
-            ob_end_clean();
-            \alina\app::get()->mvcGo('root', 'Exception', $this);
+        if ($forceExit) {
+            if (\alina\utils\Sys::isAjax()) {
+                (new \alina\mvc\view\json())->standardRestApiResponse();
+            } else {
+                ob_end_clean();
+                \alina\app::get()->mvcGo('root', 'Exception', $this);
+            }
         }
     }
 
-    public function prepareError()
+    protected function processError()
     {
-        $message = \alina\message::set($this->errorTemplate, $this->errorParams, 'alert alert-danger');
-        $this->errprString = $message->messageRawText();
-    }
-
-    public function processError() {
 
         #region PHP ERROR LOG
-        error_log('ERROR MESSAGE',0);
-        error_log(json_encode($this->errprString),0);
+        error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
 
-        $config = \alina\app::getConfig('debug');
-        if (in_array(TRUE, $config)) {
+        $dbgCfg = \alina\app::getConfig('debug');
+        if (in_array(TRUE, $dbgCfg)) {
 
-            if (isset($config['toDb']) && $config['toDb']) {
+            if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 // ToDo: Save to DB.
             }
 
-            if (isset($config['toPage']) && $config['toPage']) {
-                // ToDo: Show on Page.
+            if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
+                \alina\message::set($this->strMessage(), [], 'alert alert-danger');
             }
 
-            if (isset($config['toFile']) && $config['toFile']) {
-                $this->errorHtml = [];
-                $this->errorHtml[]= $this->eLevel;
-                $this->errorHtml[]= $this->eString;
-                $this->errorHtml[]= $this->eFile;
-                $this->errorHtml[]= $this->eLine;
-                $this->errorHtml[]= $this->eTrace;
-                $NL = '</br>'.PHP_EOL;
-                $this->errorHtml = implode($NL, $this->errorHtml);
-                \alina\utils\Sys::fDebug($this->errorHtml);
+            if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
+                $NL = '</br>' . PHP_EOL;
+                \alina\utils\Sys::fDebug($this->strMessage($NL));
             }
         }
+    }
+
+    protected function strMessage($NL = PHP_EOL)
+    {
+        $arrMessage             = [];
+        $strMessage             = '';
+        $arrMessage['Class']    = $this->expClassName;
+        $arrMessage['Severity'] = $this->getSeverityStr();
+        $arrMessage['Code']     = $this->eCode;
+        $arrMessage['Text']     = $this->eString;
+        $arrMessage['File']     = $this->eFile;
+        $arrMessage['Line']     = $this->eLine;
+        $arrMessage['Trace']    = $this->eTrace;
+        foreach ($arrMessage as $k => $v) {
+            if ($k === 'Trace') {
+                $strMessage .= "{$k}:{$NL}{$v}{$NL}";
+            } else {
+                $strMessage .= "{$k}: {$v}{$NL}";
+            }
+        }
+
+        return $strMessage;
+    }
+
+    protected function getSeverityStr()
+    {
+        $cnstnts = get_defined_constants();
+        $str     = array_search($this->eSeverity, $cnstnts);
+        $str     = $str ?: $this->eSeverity;
+
+        return $str;
     }
 }
 
