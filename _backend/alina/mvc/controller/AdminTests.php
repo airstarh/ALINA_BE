@@ -6,6 +6,7 @@ use alina\exceptionCatcher;
 
 class AdminTests
 {
+    ##############################################
     /**
      * @route /AdminTests/Errors
      */
@@ -22,5 +23,18 @@ class AdminTests
 
         return $this;
     }
+    ##############################################
+    /**
+     * @route /AdminTests/Serialization
+     */
+    public function actionSerialization()
+    {
+        $d = require_once ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/complicated_nixed_object.php';
+        echo '<pre>';
+        print_r(serialize($d));
+        echo '</pre>';
+        return $this;
+    }
+
     ##############################################
 }

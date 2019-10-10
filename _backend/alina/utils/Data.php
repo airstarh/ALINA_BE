@@ -7,7 +7,6 @@ use stdClass;
 
 class Data
 {
-
     /**
      * Checks if a $subject could be passed to foreach.
      * @param mixed $subject
@@ -66,11 +65,38 @@ class Data
     }
 
 //@link https://stackoverflow.com/a/6041773/3142281
-    static public function isStringValidJson($string, &$strJsonDecoded = null)
+    static public function isStringValidJson($string, &$strJsonDecoded = NULL)
     {
-        $strJsonDecoded = json_decode($string);
+        $strJsonDecoded = json_decode($string, FALSE, 512);
 
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    static public function itrSearchReplace($itr, $strFrom, $strTo, &$tCount = 0, $flagRenameKeysAlso = FALSE)
+    {
+        $res     = [];
+        $itrType = gettype($itr);;
+        if (static::isIterable($itr)) {
+            foreach ($itr as $k => $v) {
+                $iCount = 0;
+                if ($flagRenameKeysAlso) {
+                    $k      = str_replace($strFrom, $strTo, $k, $iCount);
+                    $tCount += $iCount;
+                }
+                if (static::isIterable($v)) {
+                    $v = static::itrSearchReplace($itr, $strFrom, $strTo, $tCount);
+                } else {
+                    $v      = str_replace($strFrom, $strTo, $v, $iCount);
+                    $tCount += $iCount;
+                }
+                $res[$k] = $v;
+            }
+            settype($res, $itrType);
+        } else {
+            $res = str_replace($strFrom, $strTo, $itr, $tCount);
+        }
+
+        return $res;
     }
 
     /**
@@ -94,7 +120,7 @@ class Data
         return $dir;
     }
 
-    static public  function utf8ize($d)
+    static public function utf8ize($d)
     {
         if (is_array($d) || is_object($d)) {
             foreach ($d as &$v) {
@@ -125,9 +151,10 @@ class Data
      * Designed to completely remove WordPress problem
      * https://stackoverflow.com/questions/3148712/regex-code-to-fix-corrupt-serialized-php-data/55074706#55074706
      * @param string $str
+     * @param null $unserialized (ToDo...)
      * @return bool|array
      */
-    static public  function hlpSuperUnSerialize($str)
+    static public function megaUnserialize($str, &$unserialized = NULL)
     {
         //ToDo: see later: https://stackoverflow.com/a/38708463/3142281
 
@@ -265,7 +292,7 @@ class Data
         return FALSE;
     }
 
-    static public  function hlpGetBeautifulJsonString($d)
+    static public function hlpGetBeautifulJsonString($d)
     {
         $s = $d;
         if (is_array($d) || is_object($d)) {
@@ -281,7 +308,7 @@ class Data
     static public function hlpEraseEmpty($d)
     {
         $r = array_filter((array)$d);
-        return is_array($d) ? (array) $r : (object) $r;
-    }
 
+        return is_array($d) ? (array)$r : (object)$r;
+    }
 }

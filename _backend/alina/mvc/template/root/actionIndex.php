@@ -23,6 +23,12 @@
             <td class="DESC"></td>
         </tr>
         <tr>
+            <td class="LINK"><a href="/CtrlDataTransformations/json" target="_blank">
+                    JSON search-replace
+                </a></td>
+            <td class="DESC"></td>
+        </tr>
+        <tr>
             <td class="LINK"><a href="/AdminDbManager/DbTablesColumnsInfo" target="_blank">MySQL Manager</a></td>
             <td class="DESC"></td>
         </tr>
@@ -35,6 +41,13 @@
             <td class="LINK"><a href="/AdminTests/Errors" target="_blank">Tst Errors</a></td>
             <td class="DESC"></td>
         </tr>
+
+        <tr>
+            <td class="LINK"><a href="/AdminTests/Serialization" target="_blank">Tst Serialization</a></td>
+            <td class="DESC"></td>
+        </tr>
+
+
         </tbody>
     </table>
 </div>

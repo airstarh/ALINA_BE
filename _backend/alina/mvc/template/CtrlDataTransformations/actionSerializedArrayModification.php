@@ -37,23 +37,23 @@ use alina\mvc\view\html as htmlAlias;
     <div class="mt-3">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT JSON',
-            'badge' => 'arrResControl JSON',
+            'badge' => 'mixedResControl JSON',
         ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->arrResControl) ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->mixedResControl) ?></textarea>
     </div>
     <div>
         <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
         <div class="row">
             <div class="col-6">
                 <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                    'title' => 'arrRes',
-                    'badge' => 'arrRes',
+                    'title' => 'mixedRes',
+                    'badge' => 'mixedRes',
                 ]) ?>
             </div>
             <div class="col-6">
                 <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                    'title' => 'arrResControl',
-                    'badge' => 'arrResControl',
+                    'title' => 'mixedResControl',
+                    'badge' => 'mixedResControl',
                 ]) ?>
             </div>
         </div>
@@ -70,14 +70,14 @@ use alina\mvc\view\html as htmlAlias;
             <div class="col-6">
                 <?php
                 echo '<pre>';
-                print_r($data->arrRes);
+                print_r($data->mixedRes);
                 echo '</pre>';
                 ?>
             </div>
             <div class="col-6">
                 <?php
                 echo '<pre>';
-                print_r($data->arrResControl);
+                print_r($data->mixedResControl);
                 echo '</pre>';
                 ?>
             </div>

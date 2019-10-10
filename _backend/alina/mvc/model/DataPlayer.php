@@ -2,57 +2,106 @@
 
 namespace alina\mvc\model;
 
+use alina\message;
+use alina\utils\Data;
+
 class DataPlayer
 {
-    public function serializedArraySearchReplace($strSource, $strFrom = '', $strTo = '')
+    public function serializedArraySearchReplace($strSource, $strFrom = '', $strTo = '', &$tCount = 0, $flagRenameKeysAlso = FALSE)
     {
         #region Defaults
         $data = (object)[
-            'strSource'     => '',
-            'strRes'        => '',
-            'arrRes'        => [],
-            'arrResControl' => [],
-            'strResControl' => '',
-            'strFrom'       => '',
-            'strTo'         => '',
-            'tCount'        => 0,
+            'strSource'       => '',
+            'strRes'          => '',
+            'mixedRes'        => [],
+            'mixedResControl' => [],
+            'strResControl'   => '',
+            'strFrom'         => '',
+            'strTo'           => '',
+            'tCount'          => 0,
         ];
 
         #endregion Defaults
-        $arrSource = (isset($strSource) && !empty($strSource)) ? \alina\utils\Data::hlpSuperUnSerialize($strSource) : [];
-        if (FALSE == $arrSource) {
+        $mixedSource = \alina\utils\Data::megaUnserialize($strSource);
+        if (FALSE == $mixedSource) {
             return $data;
         }
-        $arrRes    = [];
-        $tCount    = 0;
-        foreach ($arrSource as $k => $v) {
+        $typeSource = gettype($mixedSource);
+        $mixedRes   = [];
+        foreach ($mixedSource as $k => $v) {
+            $iCount = 0;
             #region Some modification Staff here
-            if (FALSE !== \alina\utils\Data::hlpSuperUnSerialize($v)) {
-                $d      = $this->serializedArraySearchReplace($strSource, $strFrom, $strTo);
-                $v      = $d->strResControl;
-                $iCount = $d->tCount;
-            } else {
-                $v = str_replace($strFrom, $strTo, $v, $iCount);
+            if ($flagRenameKeysAlso) {
+                $k      = str_replace($strFrom, $strTo, $k, $iCount);
+                $tCount += $iCount;
             }
-            $tCount += $iCount;
+            if (FALSE !== \alina\utils\Data::megaUnserialize($v)) {
+                $d = $this->serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                $v = $d->strResControl;
+
+                // NO!!! We send local $tCount above by reference!!!
+                //$tCount += $d->tCount;
+
+            } elseif (Data::isIterable($v)) {
+                $v = Data::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+            } else {
+                $v      = str_replace($strFrom, $strTo, $v, $iCount);
+                $tCount += $iCount;
+            }
             #endregion Some modification Staff here
-            $arrRes[$k] = $v;
+            $mixedRes[$k] = $v;
         }
-        $strRes        = serialize($arrRes);
-        $arrResControl = unserialize($strRes);
-        $strResControl = serialize($arrResControl);
+        settype($mixedRes, $typeSource);
+        $strRes          = serialize($mixedRes);
+        $mixedResControl = unserialize($strRes);
+        $strResControl   = serialize($mixedResControl);
 
         $data = (object)[
-            'strSource'     => $strSource,
-            'strRes'        => $strRes,
-            'arrRes'        => $arrRes,
-            'arrResControl' => $arrResControl,
-            'strResControl' => $strResControl,
-            'strFrom'       => $strFrom,
-            'strTo'         => $strTo,
-            'tCount'        => $tCount,
+            'strSource'       => $strSource,
+            'strRes'          => $strRes,
+            'mixedRes'        => $mixedRes,
+            'mixedResControl' => $mixedResControl,
+            'strResControl'   => $strResControl,
+            'strFrom'         => $strFrom,
+            'strTo'           => $strTo,
+            'tCount'          => $tCount,
         ];
 
         return $data;
+    }
+
+    #####
+
+    public function jsonSearchReplace($strJSON, $strFrom = '', $strTo = '')
+    {
+        #region Defaults
+        $d = (object)[
+            'strSource'            => $strJSON,
+            'mxdJsonDecoded'       => [],
+            'strRes'               => '',
+            'strResBeautified'     => '',
+            'mxdResJsonDecoded'    => [],
+            'strFrom'              => $strFrom,
+            'strTo'                => $strTo,
+            'tCount'               => 0,
+            'isSourceStrJsonValid' => TRUE,
+            'isResStrJsonValid'    => TRUE,
+        ];
+        #endregion Defaults
+        $d->strRes               = str_replace($d->strFrom, $d->strTo, $d->strSource, $d->tCount);
+        $d->isSourceStrJsonValid = \alina\utils\Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
+        #####
+        if ($d->isSourceStrJsonValid) {
+            $d->isResStrJsonValid = \alina\utils\Data::isStringValidJson($d->strRes, $d->mxdResJsonDecoded);
+        }
+        #####
+        if (!$d->isSourceStrJsonValid) {
+            message::set('Invalid SOURCE JSON string', [], 'alert alert-danger');
+        }
+        if (!$d->isResStrJsonValid) {
+            message::set('Invalid RES JSON string', [], 'alert alert-danger');
+        }
+
+        return $d;
     }
 }

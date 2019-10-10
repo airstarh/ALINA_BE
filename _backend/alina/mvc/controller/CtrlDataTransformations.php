@@ -18,8 +18,8 @@ class CtrlDataTransformations
         $vd = (object)[
             'strSource'     => '',
             'strRes'        => '',
-            'arrRes'        => [],
-            'arrResControl' => [],
+            'mixedRes'        => [],
+            'mixedResControl' => [],
             'strResControl' => '',
             'strFrom'       => '',
             'strTo'         => '',
@@ -47,10 +47,9 @@ class CtrlDataTransformations
     {
         ##################################################
         $vd = (object)[
-            'strSource'        => '',
+            'strSource'        => '{}',
             'strFrom'          => '',
             'strTo'            => '',
-            'strResBeautified' => '',
             'tCount'           => 0,
         ];
         $p  = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
@@ -59,7 +58,7 @@ class CtrlDataTransformations
         $strSource = $vd->strSource;
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
-        $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
+        $data      = (new DataPlayer())->jsonSearchReplace($strSource, $strFrom, $strTo);
         ##################################################
         $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
         echo (new htmlAlias)->page($vd);

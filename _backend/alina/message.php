@@ -15,6 +15,22 @@ class message
     static protected $collection              = [];
     static public    $flagCollectionInSession = FALSE;
 
+    /**
+     * @param $text
+     * @param array $params
+     * @param string $status
+     * @see https://getbootstrap.com/docs/4.0/components/alerts/
+     * alert alert-primary
+     * alert alert-secondary
+     * alert alert-success
+     * alert alert-danger
+     * alert alert-warning
+     * alert alert-info
+     * alert alert-light
+     * alert alert-dark
+     *
+     * @return message
+     */
     static public function set($text, $params = [], $status = 'alert alert-success')
     {
         $_this                 = new static;

@@ -198,7 +198,7 @@ class AdminDbManager
                     $resFoundStringsCount[$t][$f] = count($arrFoundStrings);
                     foreach ($arrFoundStrings as $strInit) {
                         $strReplace = $strInit;
-                        if (FALSE != \alina\utils\Data::hlpSuperUnSerialize($strInit)) {
+                        if (FALSE != \alina\utils\Data::megaUnserialize($strInit)) {
                             $isSerialized  = 'YES';
                             $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s1old, $s1New);
                             $strReplace    = $data->strResControl;
