@@ -5,6 +5,7 @@ namespace alina\mvc\controller;
 use alina\app;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
+use alina\utils\Data;
 use alina\utils\db\mysql\DbManager;
 use PDO;
 
@@ -200,10 +201,10 @@ class AdminDbManager
                         $strReplace = $strInit;
                         if (FALSE != \alina\utils\Data::megaUnserialize($strInit)) {
                             $isSerialized  = 'YES';
-                            $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s1old, $s1New);
+                            $data          = Data::serializedArraySearchReplace($strReplace, $s1old, $s1New);
                             $strReplace    = $data->strResControl;
                             $tChangesCount += $data->tCount;
-                            $data          = (new DataPlayer())->serializedArraySearchReplace($strReplace, $s2old, $s2New);
+                            $data          = Data::serializedArraySearchReplace($strReplace, $s2old, $s2New);
                             $strReplace    = $data->strResControl;
                             $tChangesCount += $data->tCount;
                         } else {

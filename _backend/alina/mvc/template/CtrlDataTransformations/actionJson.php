@@ -27,7 +27,9 @@ use alina\mvc\view\html as htmlAlias;
         <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
 
     </form>
-
+    <!--##################################################-->
+    <!--##################################################-->
+    <!--##################################################-->
     <div class="mt-3">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT',
@@ -40,34 +42,28 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'RESULT beautified JSON',
             'badge' => 'strRes',
         ]) ?>
-        <textarea class="form-control w-100"
-                  rows="10"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->strRes) ?></textarea>
+        <textarea class="form-control"
+                  rows="30"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->strRes) ?></textarea>
     </div>
+    <!--##################################################-->
+    <!--##################################################-->
+    <!--##################################################-->
     <div>
         <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
         <div class="row">
             <div class="col">
                 <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                    'title' => 'mxdJsonDecoded',
-                    'badge' => 'mxdJsonDecoded',
+                    'title' => 'Was',
+                    'badge' => mb_strlen($data->strSource),
                 ]) ?>
             </div>
             <div class="col">
                 <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                    'title' => 'mxdResJsonDecoded',
-                    'badge' => 'mxdResJsonDecoded',
+                    'title' => 'Is',
+                    'badge' => mb_strlen($data->strRes),
                 ]) ?>
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                <?= mb_strlen($data->strSource) ?>
-            </div>
-            <div class="col">
-                <?= mb_strlen($data->strRes) ?>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-6">
                 <?php

@@ -5,6 +5,7 @@ namespace alina\mvc\controller;
 use alina\app;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
+use alina\utils\Data;
 
 class CtrlDataTransformations
 {
@@ -31,7 +32,7 @@ class CtrlDataTransformations
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $strSource = $vd->strSource;
-        $data      = (new DataPlayer())->serializedArraySearchReplace($strSource, $strFrom, $strTo);
+        $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
         ##################################################
         $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
