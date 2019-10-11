@@ -37,4 +37,18 @@ class AdminTests
     }
 
     ##############################################
+    /**
+     * @route /AdminTests/JsonEncode
+     */
+
+    public function actionJsonEncode()
+    {
+        $d = require_once ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/complicated_nixed_object.php';
+        echo '<pre>';
+        print_r(json_encode($d));
+        echo '</pre>';
+        return $this;
+    }
+
+    ##############################################
 }

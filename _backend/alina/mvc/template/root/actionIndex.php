@@ -47,6 +47,11 @@
             <td class="DESC"></td>
         </tr>
 
+        <tr>
+            <td class="LINK"><a href="/AdminTests/JsonEncode" target="_blank">Tst Json Encode</a></td>
+            <td class="DESC"></td>
+        </tr>
+
 
         </tbody>
     </table>

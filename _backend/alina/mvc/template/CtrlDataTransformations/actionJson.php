@@ -69,14 +69,14 @@ use alina\mvc\view\html as htmlAlias;
         </div>
 
         <div class="row">
-            <div class="col">
+            <div class="col-6">
                 <?php
                 echo '<pre>';
                 print_r($data->mxdJsonDecoded);
                 echo '</pre>';
                 ?>
             </div>
-            <div class="col">
+            <div class="col-6">
                 <?php
                 echo '<pre>';
                 print_r($data->mxdResJsonDecoded);

@@ -84,9 +84,22 @@ class Data
                     $tCount += $iCount;
                 }
                 if (static::isIterable($v)) {
-                    $v = static::itrSearchReplace($itr, $strFrom, $strTo, $tCount);
+                    $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
                 } else {
-                    $v      = str_replace($strFrom, $strTo, $v, $iCount);
+                    //TODO: What if serialized string???
+
+                    $vTypeInitial = gettype($v);
+                    $v            = str_replace($strFrom, $strTo, $v, $iCount);
+                    #####
+                    #region Care of types
+                    $vRes1   = $v;
+                    $vRes2   = $v;
+                    $success = settype($vRes1, $vTypeInitial);
+                    if ($success && (string)$vRes1 == (string)$vRes2) {
+                        settype($v, $vTypeInitial);
+                    }
+                    #endregion Care of types
+                    #####
                     $tCount += $iCount;
                 }
                 $res[$k] = $v;

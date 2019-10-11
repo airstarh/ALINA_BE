@@ -36,6 +36,7 @@ class DataPlayer
                 $tCount += $iCount;
             }
             if (FALSE !== \alina\utils\Data::megaUnserialize($v)) {
+                message::set('Source has SERIALIZED inside');
                 $d = $this->serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 $v = $d->strResControl;
 
@@ -43,6 +44,7 @@ class DataPlayer
                 //$tCount += $d->tCount;
 
             } elseif (Data::isIterable($v)) {
+                message::set('Source has ITERABLE inside');
                 $v = Data::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
             } else {
                 $v      = str_replace($strFrom, $strTo, $v, $iCount);
@@ -79,7 +81,6 @@ class DataPlayer
             'strSource'            => $strJSON,
             'mxdJsonDecoded'       => [],
             'strRes'               => '',
-            'strResBeautified'     => '',
             'mxdResJsonDecoded'    => [],
             'strFrom'              => $strFrom,
             'strTo'                => $strTo,
@@ -88,11 +89,12 @@ class DataPlayer
             'isResStrJsonValid'    => TRUE,
         ];
         #endregion Defaults
-        $d->strRes               = str_replace($d->strFrom, $d->strTo, $d->strSource, $d->tCount);
         $d->isSourceStrJsonValid = \alina\utils\Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
         #####
         if ($d->isSourceStrJsonValid) {
-            $d->isResStrJsonValid = \alina\utils\Data::isStringValidJson($d->strRes, $d->mxdResJsonDecoded);
+            $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdJsonDecoded, $strFrom, $strTo, $d->tCount);
+            $d->strRes            = json_encode($d->mxdResJsonDecoded);
+            $d->isResStrJsonValid = \alina\utils\Data::isStringValidJson($d->strRes);
         }
         #####
         if (!$d->isSourceStrJsonValid) {
