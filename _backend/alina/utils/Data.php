@@ -1,7 +1,8 @@
 <?php
-
+//TODO: ARCHITECTURAL THINK!!! class DataPlayer and  class Data
 namespace alina\utils;
 
+use alina\mvc\model\DataPlayer;
 use Exception;
 use stdClass;
 
@@ -85,13 +86,15 @@ class Data
                 }
                 if (static::isIterable($v)) {
                     $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
+                } elseif (FALSE !== static::megaUnserialize($v)) {
+                    $d = (new DataPlayer())->serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                    $v = $d->strResControl;
                 } else {
-                    //TODO: What if serialized string???
-
                     $vTypeInitial = gettype($v);
                     $v            = str_replace($strFrom, $strTo, $v, $iCount);
                     #####
                     #region Care of types
+                    //ToDo: Does not work with eg number -> float
                     $vRes1   = $v;
                     $vRes2   = $v;
                     $success = settype($vRes1, $vTypeInitial);
