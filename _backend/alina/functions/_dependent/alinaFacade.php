@@ -1,24 +1,25 @@
 <?php
-function alinaApp()
+function Alina()
 {
     return \alina\app::get();
 }
 
-function getAlinaConfig($path)
+function AlinaCFG($path)
 {
     return \alina\app::getConfig($path);
 }
 
-function getCurrentUserId()
+function AlinaCurrentUserId()
 {
     $u = [
+        'id'         => 0,
         'first_name' => 'HardCodedFirstName',
         'last_name'  => 'HardCodedFirstName',
         'email'      => 'HardCodedFirstName',
         'username'   => 'HardCodedFirstName',
     ];
 
-    return \alina\utils\Data::toObject($u);
+    return \alina\utils\Data::toObject($u)->id;
 }
 
 define('DT_FORMAT_DB', 'Y-m-d H:i:s');

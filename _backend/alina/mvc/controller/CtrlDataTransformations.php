@@ -26,15 +26,15 @@ class CtrlDataTransformations
             'strTo'         => '',
             'tCount'        => 0,
         ];
-        $p  = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
+        $p  = \alina\utils\Data::deleteEmotyProps(\alina\utils\Sys::resolvePostDataAsObject());
+        $vd = \alina\utils\Data::mergeObjects($vd, $p);
         ##################################################
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $strSource = $vd->strSource;
         $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
         ##################################################
-        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
+        $vd = \alina\utils\Data::mergeObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;
@@ -53,15 +53,15 @@ class CtrlDataTransformations
             'strTo'            => '',
             'tCount'           => 0,
         ];
-        $p  = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
+        $p  = \alina\utils\Data::deleteEmotyProps(\alina\utils\Sys::resolvePostDataAsObject());
+        $vd = \alina\utils\Data::mergeObjects($vd, $p);
         ##################################################
         $strSource = $vd->strSource;
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;
         $data      = (new DataPlayer())->jsonSearchReplace($strSource, $strFrom, $strTo);
         ##################################################
-        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $data);
+        $vd = \alina\utils\Data::mergeObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;

@@ -1,15 +1,16 @@
-<?php /** @var $data \alina\mvc\view\html */ ?>
+<?php
+/** @var $data html */
+
+use alina\mvc\view\html;
+
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
-    <!--region	Bootstrap requires.-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <?= $data->css() ?>
     <title><?= \alina\app::getConfig('title'); ?></title>
-
+    <?= $data->css() ?>
 </head>
 <body>
 <div id="alina-body-wrapper">

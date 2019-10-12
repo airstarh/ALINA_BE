@@ -450,7 +450,7 @@ public $mode            = 'SELECT';
             $saveMode = $this->mode;
         }
 
-        $user_id = getCurrentUserId();
+        $user_id = AlinaCurrentUserId();
         $now     = getNow();
 
         $data->modified_by   = $user_id;

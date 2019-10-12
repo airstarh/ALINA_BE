@@ -10,7 +10,7 @@ use alina\mvc\view\html as htmlAlias;
 
         <?= (new htmlAlias)->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>
 
-        <?= (new htmlAlias)->piece('_system/html/_form/selectOneSimple.php', \alina\utils\Data::hlpMergeSimpleObjects($data, (object)[
+        <?= (new htmlAlias)->piece('_system/html/_form/selectOneSimple.php', \alina\utils\Data::mergeObjects($data, (object)[
             'name'        => 'tableName',
             'value'       => $data->tableName,
             'options'     => $data->arrTables,
@@ -42,7 +42,6 @@ use alina\mvc\view\html as htmlAlias;
                 </div>
             </div>
             <div class="col-sm">
-
                 <div class="mt-3">
                     <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
                         'title' => 'INSERT',
@@ -78,6 +77,9 @@ use alina\mvc\view\html as htmlAlias;
         </div>
     </div>
     <div>
+        <!-- ##################################################-->
+        <!-- ##################################################-->
+        <!-- ##################################################-->
         <div class="mt-3">
             <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'PDO bind',
@@ -86,16 +88,44 @@ use alina\mvc\view\html as htmlAlias;
             <textarea class="form-control" rows="11"
             ><?= $data->strSqlPDObind ?></textarea>
         </div>
-
+        <!-- ##################################################-->
+        <!-- ##################################################-->
+        <!-- ##################################################-->
+        <div class="container-sm mt-3">
+            <div class="row">
+                <div class="col-sm">
+                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                        'title' => 'JSON',
+                        'badge' => 'colsAsJson',
+                    ]) ?>
+                    <textarea class="form-control" rows="11"
+                    ><?= $data->colsAsJson ?></textarea>
+                </div>
+                <div class="col-sm">
+                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                        'title' => 'PHP Array',
+                        'badge' => 'colsAsPHPArr',
+                    ]) ?>
+                    <textarea class="form-control" rows="11"
+                    ><?= $data->colsAsPHPArr ?></textarea>
+                </div>
+<!--                <div class="col-sm"></div>-->
+            </div>
+        </div>
+        <!-- ##################################################-->
+        <!-- ##################################################-->
         <div class="mt-5">
             <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'Fields` details',
                 'badge' => 'tColsInfo',
             ]) ?>
-            <?= (new htmlAlias)->piece('_system/html/_form/table001.php', \alina\utils\Data::hlpMergeSimpleObjects($data, (object)[
+            <?= (new htmlAlias)->piece('_system/html/_form/table001.php', \alina\utils\Data::mergeObjects($data, (object)[
                 'arr' => $data->tColsInfo,
             ])) ?>
         </div>
+        <!-- ##################################################-->
+        <!-- ##################################################-->
+        <!-- ##################################################-->
     </div>
 
 

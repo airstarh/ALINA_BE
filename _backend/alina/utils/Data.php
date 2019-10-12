@@ -224,7 +224,7 @@ class Data
     }
 
 //ToDo: Less heavy. Validate input.
-    static public function hlpMergeSimpleObjects(...$objects)
+    static public function mergeObjects(...$objects)
     {
         $res = new stdClass();
         foreach ($objects as $o) {
@@ -393,7 +393,7 @@ class Data
         }
     }
 
-    static public function hlpEraseEmpty($d)
+    static public function deleteEmotyProps($d)
     {
         $r = array_filter((array)$d);
 

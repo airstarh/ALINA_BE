@@ -37,10 +37,12 @@ class AdminDbManager
             'arrColumnsCount'    => 0,
             'tColsInfo'          => [],
             'pkName'             => $strNoPkInTable,
-            'rowsInTable'             => 0,
+            'rowsInTable'        => 0,
+            'colsAsJson'         => '',
+            'colsAsPHPArr'       => '',
         ];
-        $p               = \alina\utils\Data::hlpEraseEmpty(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd              = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
+        $p               = \alina\utils\Data::deleteEmotyProps(\alina\utils\Sys::resolvePostDataAsObject());
+        $vd              = \alina\utils\Data::mergeObjects($vd, $p);
         $r               = [];
         $exe             = [];
         $q               = new DbManager();
@@ -78,7 +80,7 @@ class AdminDbManager
             $vd->arrColumnsCount = $arrColumnsCount;
             $vd->pkName          = $pkName;
             #
-            $sqlTplData = (object)[
+            $dataTpl = (object)[
                 'tableName'           => $tableName,
                 'arrColumns'          => $arrColumns,
                 'pkName'              => $pkName,
@@ -86,44 +88,48 @@ class AdminDbManager
             ];
             ###############
             # SELECT
-            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
-            $strSqlSELECT     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
-            $vd->strSqlSELECT = $strSqlSELECT;
+            $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
+            $vd->strSqlSELECT = \alina\utils\Sys::template($tpl, $dataTpl);
 
             ###############
             # INSERT
-            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
-            $strSqlINSERT     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
-            $vd->strSqlINSERT = $strSqlINSERT;
+            $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
+            $vd->strSqlINSERT = \alina\utils\Sys::template($tpl, $dataTpl);
 
             ###############
             # UPDATE
-            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
-            $strSqlUPDATE     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
-            $vd->strSqlUPDATE = $strSqlUPDATE;
+            $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
+            $vd->strSqlUPDATE = \alina\utils\Sys::template($tpl, $dataTpl);
             ###############
             # DELETE
-            $sqlTpl           = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
-            $strSqlDELETE     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
-            $vd->strSqlDELETE = $strSqlDELETE;
+            $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
+            $vd->strSqlDELETE = \alina\utils\Sys::template($tpl, $dataTpl);
 
             ###############
             # PDO bind parameters
-            $sqlTpl            = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
-            $strSqlPDObind     = \alina\utils\Sys::template($sqlTpl, $sqlTplData);
-            $vd->strSqlPDObind = $strSqlPDObind;
+            $tpl               = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
+            $vd->strSqlPDObind = \alina\utils\Sys::template($tpl, $dataTpl);
+            ###############
+            # JSON view
+            $tpl            = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/colsAsJson.php';
+            $vd->colsAsJson = \alina\utils\Sys::template($tpl, $dataTpl);
+            ###############
+            # Array 'field' => [],
+            $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/colsAsPHPArr.php';
+            $vd->colsAsPHPArr = \alina\utils\Sys::template($tpl, $dataTpl);
+
+            ###############
 
             ###############
             # Statistics. Count Rows.
-            $sql = "SELECT COUNT(*) as rowsInTable FROM $tableName";
-            $rowsInTable = $q->qExecFetchAll($sql)[0]->rowsInTable;
+            $sql             = "SELECT COUNT(*) as rowsInTable FROM $tableName";
+            $rowsInTable     = $q->qExecFetchAll($sql)[0]->rowsInTable;
             $vd->rowsInTable = $rowsInTable;
         }
         ##########################################################################################
         $vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        $vd = \alina\utils\Data::hlpMergeSimpleObjects($vd, $p);
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
     }
 
@@ -133,40 +139,7 @@ class AdminDbManager
     public function actionIndexWP()
     {
         $tables = [
-            'merc_banner',
-            'wp_comments',
-            'wp_fresh_slider',
-            'wp_options',
-            'wp_popover',
-            'wp_postmeta',
-            'wp_posts',
-            'wp_prli_clicks',
-            'wp_prli_links',
-            'wp_usermeta',
-            'wp_users',
-            'wp_wfHits',
-            'wp_yoast_seo_links',
-            'xf_conversation_message',
-            'xf_data_registry',
-            'xf_error_log',
-            'xf_option',
-            'xf_phrase',
-            'xf_phrase_compiled',
-            'xf_post',
-            'xf_profile_post',
-            'xf_profile_post_comment',
-            'xf_search_index',
-            'xf_session',
-            'xf_style',
-            'xf_style_property',
-            'xf_template',
-            'xf_template_compiled',
 
-            // Wrong definition of serialized data!
-            //'xf_user_news_feed_cache',
-
-            'xf_user_profile',
-            'xf_widget',
         ];
         #region Strings
         $s1    = '%//sixtyandme.com%';

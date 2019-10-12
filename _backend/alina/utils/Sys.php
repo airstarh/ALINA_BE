@@ -184,6 +184,7 @@ class Sys
     ##################################################
     static public function template($fileFullPath, $data = NULL)
     {
+        $fileFullPath = realpath($fileFullPath);
         ob_start();
         ob_implicit_flush(FALSE);
         require($fileFullPath);
