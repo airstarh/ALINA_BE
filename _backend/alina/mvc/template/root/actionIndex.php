@@ -17,6 +17,13 @@
             <td class="LINK"><a href="/NotExistingPage" target="_blank">Test Page 404</a></td>
             <td class="DESC"></td>
         </tr>
+        
+        <tr>
+            <td class="LINK"><a href="/alinaRestAccept?cmd=model&m=user&mId=1" target="_blank">User Admin</a></td>
+            <td class="DESC"></td>
+        </tr>
+
+
         <tr>
             <td class="LINK"><a href="/CtrlDataTransformations/SerializedArrayModification" target="_blank">Unserialize
                     -> replace -> Serialize</a></td>

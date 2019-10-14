@@ -41,7 +41,7 @@ class AdminDbManager
             'colsAsJson'         => '',
             'colsAsPHPArr'       => '',
         ];
-        $p               = \alina\utils\Data::deleteEmotyProps(\alina\utils\Sys::resolvePostDataAsObject());
+        $p               = \alina\utils\Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
         $vd              = \alina\utils\Data::mergeObjects($vd, $p);
         $r               = [];
         $exe             = [];

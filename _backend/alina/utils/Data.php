@@ -393,7 +393,7 @@ class Data
         }
     }
 
-    static public function deleteEmotyProps($d)
+    static public function deleteEmptyProps($d)
     {
         $r = array_filter((array)$d);
 

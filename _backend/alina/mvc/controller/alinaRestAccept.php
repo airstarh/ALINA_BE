@@ -20,6 +20,7 @@ class alinaRestAccept
 {
     /**
      * @link /alinaRestAccept
+     * @link /alinaRestAccept?cmd=model&m=user&mId=1
      * @throws \ErrorException
      * @throws \Exception
      * @throws \alina\exceptionValidation
