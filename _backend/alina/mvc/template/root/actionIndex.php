@@ -13,13 +13,19 @@
         <!--            <th class="DESC"></th>-->
         <!--        </tr>-->
         <!--endregion Prototype -->
+
+        <tr>
+            <td class="LINK"><a href="/Auth/Register" target="_blank">Register</a></td>
+            <td class="DESC"></td>
+        </tr>
+
         <tr>
             <td class="LINK"><a href="/NotExistingPage" target="_blank">Test Page 404</a></td>
             <td class="DESC"></td>
         </tr>
 
         <tr>
-            <td class="LINK"><a href="/alinaRestAccept?cmd=model&m=user&mId=1" target="_blank">User Admin</a></td>
+            <td class="LINK"><a href="/alinaRestAccept?cmd=model&m=user&mId=1" target="_blank">REST calls</a></td>
             <td class="DESC"></td>
         </tr>
 

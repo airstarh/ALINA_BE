@@ -14,19 +14,23 @@ class Auth
     {
     }
 
+    /**
+     * @route /Auth/Register
+     */
     public function actionRegister()
     {
         $vd = (object)[
-            'email'       => '',
-            'pass'        => '',
-            'passConfirm' => '',
+            'table'       => 'user',
+            'mail'       => '',
+            'password'        => '',
+            'confirm_password' => '',
         ];
         $p  = \alina\utils\Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
         $vd = \alina\utils\Data::mergeObjects($vd, $p);
         ##################################################
         $m = new user($vd);
         ##################################################
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 
     public function actionProfile()

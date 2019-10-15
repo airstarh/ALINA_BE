@@ -9,8 +9,8 @@ class user extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'        => [],
-            'mail'      => [
+            'id'          => [],
+            'mail'        => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -37,15 +37,15 @@ class user extends _BaseAlinaModel
 
                 ],
             ],
-            'firstname' => [],
-            'lastname'  => [],
-            'active'    => [],
-            'verified'  => [],
-            'created'   => [],
-            'lastenter' => [],
-            'picture'   => [],
-            'timezone'  => [],
-            'password'  => [
+            'firstname'   => [],
+            'lastname'    => [],
+            'is_deleted'  => [],
+            'is_verified' => [],
+            'created'     => [],
+            'lastenter'   => [],
+            'picture'     => [],
+            'timezone'    => [],
+            'password'    => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -65,6 +65,9 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
+            'banned_till' => [],
+            'ip'          => [],
+            'language'    => [],
         ];
     }
 
@@ -78,7 +81,7 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'roles'    => [
+            'roles'       => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -90,7 +93,7 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'permissions'    => [
+            'permissions' => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -103,7 +106,7 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'timezone' => [
+            'timezone'    => [
                 'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
@@ -113,7 +116,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.name AS timezone_name']],
                 ],
             ],
-            'files'    => [
+            'files'       => [
                 'has'        => 'many',
                 'model'      => 'file',
                 'joins'      => [
@@ -126,7 +129,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
-            'tags'     => [
+            'tags'        => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
