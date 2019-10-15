@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit7e716fb45a10427f793934939b043842
 {
     public static $files = array (
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
@@ -29,6 +30,7 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         array (
             'Symfony\\Polyfill\\Php70\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\Translation\\' => 30,
             'Symfony\\Component\\Routing\\' => 26,
@@ -43,6 +45,10 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
             'React\\Promise\\' => 14,
             'React\\EventLoop\\' => 16,
             'Ratchet\\' => 8,
+        ),
+        'P' => 
+        array (
+            'Prophecy\\' => 9,
         ),
         'M' => 
         array (
@@ -60,10 +66,6 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         array (
             'Doctrine\\Instantiator\\' => 22,
             'DeepCopy\\' => 9,
-        ),
-        'C' => 
-        array (
-            'Carbon\\' => 7,
         ),
     );
 
@@ -85,6 +87,10 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Polyfill\\Ctype\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
         'Symfony\\Component\\Yaml\\' => 
         array (
@@ -130,6 +136,10 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         array (
             0 => __DIR__ . '/..' . '/cboden/ratchet/src/Ratchet',
         ),
+        'Prophecy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy',
+        ),
         'Mimey\\' => 
         array (
             0 => __DIR__ . '/..' . '/ralouphie/mimey/src',
@@ -162,18 +172,18 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
-        'Carbon\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
-        ),
+    );
+
+    public static $fallbackDirsPsr4 = array (
+        0 => __DIR__ . '/..' . '/nesbot/carbon/src',
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
+        'U' => 
         array (
-            'Prophecy\\' => 
+            'UpdateHelper\\' => 
             array (
-                0 => __DIR__ . '/..' . '/phpspec/prophecy/src',
+                0 => __DIR__ . '/..' . '/kylekatarnls/update-helper/src',
             ),
         ),
         'G' => 
@@ -705,6 +715,7 @@ class ComposerStaticInit7e716fb45a10427f793934939b043842
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit7e716fb45a10427f793934939b043842::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit7e716fb45a10427f793934939b043842::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit7e716fb45a10427f793934939b043842::$fallbackDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit7e716fb45a10427f793934939b043842::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit7e716fb45a10427f793934939b043842::$classMap;
 
