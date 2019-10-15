@@ -34,7 +34,7 @@ class _BaseAlinaModel
     #endregion Required
 
     #region Fields Definitions
-    public $mode = 'SELECT';
+    public $mode = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
     #region Identity (AutoIncremental)
     public $isDataFiltered  = FALSE;
     public $isDataValidated = FALSE;
@@ -103,17 +103,29 @@ class _BaseAlinaModel
      */
     public function fields()
     {
-        $table  = $this->table;
-        $m      = new static(['table' => $table]);
-        $q      = $m->q();
-        $item   = $q->first();
         $fields = [];
-        foreach ($item as $i => $v) {
-            $fields[$i] = [];
+        $item   = Dal::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', '=', $this->table)
+            ->where('table_schema', '=', AlinaCFG('db/database'))
+            ->pluck('column_name');
+        foreach ($item as $v) {
+            $fields[$v] = [];
         }
 
         return $fields;
-    } // Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+        ##################################################
+        // Previous approach
+        // $table  = $this->table;
+        // $m      = new static(['table' => $table]);
+        // $q      = $m->q();
+        // $item   = $q->first();
+        // foreach ($item as $i => $v) {
+        //     $fields[$i] = [];
+        // }
+        // return $fields;
+        ##################################################
+    }
 
     /**
      * @param string $alias

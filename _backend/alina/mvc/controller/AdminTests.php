@@ -3,6 +3,8 @@
 namespace alina\mvc\controller;
 
 use alina\exceptionCatcher;
+use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\view\json as jsonView;
 
 class AdminTests
 {
@@ -51,4 +53,16 @@ class AdminTests
     }
 
     ##############################################
+    /**
+     * @route /AdminTests/ListTableColumns?table=user
+     */
+
+    public function actionListTableColumns()
+    {
+        $vd = (new _BaseAlinaModel(['table' => $_GET['table']]))->fields();
+        (new jsonView())->standardRestApiResponse($vd);
+        return $this;
+    }
+
+
 }
