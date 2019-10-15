@@ -6,6 +6,7 @@ use alina\message;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
+use Illuminate\Database\Query\Builder as BuilderAlias;
 
 // Laravel initiation
 Loader::init();
@@ -16,8 +17,8 @@ class _BaseAlinaModel
     public $table;
     public $alias  = '';
     public $pkName = 'id';
-    /** @var \Illuminate\Database\Query\Builder $q */
-    public    $q;
+    /** @var BuilderAlias $q */
+    public $q;
     public $req          = NULL;
     public $apiOperators = [
         'lt_' => '<',
@@ -33,8 +34,7 @@ class _BaseAlinaModel
     #endregion Required
 
     #region Fields Definitions
-public $mode            = 'SELECT';
-
+    public $mode = 'SELECT';
     #region Identity (AutoIncremental)
     public $isDataFiltered  = FALSE;
     public $isDataValidated = FALSE;
@@ -61,7 +61,7 @@ public $mode            = 'SELECT';
     #endregion Search Parameters
 
     #region SELECT
-    public $pagesTotal        = 0;
+    public    $pagesTotal = 0;
     protected $opts;
 
     public function __construct($opts = NULL)
@@ -117,7 +117,7 @@ public $mode            = 'SELECT';
 
     /**
      * @param string $alias
-     * @return \Illuminate\Database\Query\Builder
+     * @return BuilderAlias
      */
     public function q($alias = NULL)
     {
@@ -406,7 +406,7 @@ public $mode            = 'SELECT';
 
             // Check if similar model exists.
             $m = new static(['table' => $this->table]);
-            /*** @var $q \Illuminate\Database\Query\Builder */
+            /*** @var $q BuilderAlias */
             $q = $m->q();
             $q->where($conditions);
             // If $data already contains a field with Primary Key of a model,
@@ -451,7 +451,7 @@ public $mode            = 'SELECT';
         }
 
         $user_id = AlinaCurrentUserId();
-        $now     = getNow();
+        $now     = AlinaGetNowInDbFormat();
 
         $data->modified_by   = $user_id;
         $data->modified_date = $now;
@@ -508,7 +508,7 @@ public $mode            = 'SELECT';
     public function fieldsIdentity()
     {
         return [
-            $this->pkName
+            $this->pkName,
         ];
     }
 
@@ -645,7 +645,7 @@ public $mode            = 'SELECT';
      */
     public function qApiResponsePaginated()
     {
-        /** @var $q \Illuminate\Database\Query\Builder object */
+        /** @var $q BuilderAlias object */
         $q = $this->q;
 
         // COUNT
@@ -671,11 +671,11 @@ public $mode            = 'SELECT';
     /**
      * Apply ORDER BY to query
      * @param array array $backendSortArray
-     * @return \Illuminate\Database\Query\Builder object
+     * @return BuilderAlias object
      */
     public function qApiOrder($backendSortArray = [])
     {
-        /** @var $q \Illuminate\Database\Query\Builder object */
+        /** @var $q BuilderAlias object */
         $q = $this->q;
 
         // User Defined Sort parameters.
@@ -720,11 +720,11 @@ public $mode            = 'SELECT';
     /**
      * Apply complex ORDER BY to query
      * @param $orderArray array
-     * @return \Illuminate\Database\Query\Builder object
+     * @return BuilderAlias object
      */
     public function qOrderByArray($orderArray = [])
     {
-        /** @var $q \Illuminate\Database\Query\Builder object */
+        /** @var $q BuilderAlias object */
         $q = $this->q;
 
         if (empty($orderArray)) {
@@ -751,11 +751,11 @@ public $mode            = 'SELECT';
      * Apply LIMIT/OFFSET to a query
      * @param int|null $backendLimit
      * @param int|null $backendOffset
-     * @return \Illuminate\Database\Query\Builder object
+     * @return BuilderAlias object
      */
     public function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
-        /** @var $q \Illuminate\Database\Query\Builder object */
+        /** @var $q BuilderAlias object */
         $q                 = $this->q;
         $pageCurrentNumber = $this->pageCurrentNumber;
         $pageSize          = $this->pageSize;
@@ -808,11 +808,11 @@ public $mode            = 'SELECT';
 
     /**
      * Add Audit Info if possible.
-     * @return \Illuminate\Database\Query\Builder object
+     * @return BuilderAlias object
      */
     public function qApiJoinAuditInfo()
     {
-        /** @var $q \Illuminate\Database\Query\Builder object */
+        /** @var $q BuilderAlias object */
         $q          = $this->q;
         $thisFields = $this->fields();
         $alias      = $this->alias;
@@ -821,7 +821,7 @@ public $mode            = 'SELECT';
         if (array_key_exists('created_by', $thisFields)) {
             $q->addSelect([
                 'pc.first_name as created_first_name',
-                'pc.last_name as created_last_name'
+                'pc.last_name as created_last_name',
             ]);
             $q->leftJoin('person as pc', 'pc.person_id', '=', "{$alias}.created_by");
         }
@@ -829,7 +829,7 @@ public $mode            = 'SELECT';
         if (array_key_exists('modified_by', $thisFields)) {
             $q->addSelect([
                 'pm.first_name as modified_first_name',
-                'pm.last_name as modified_last_name'
+                'pm.last_name as modified_last_name',
             ]);
             $q->leftJoin('person as pm', 'pm.person_id', '=', "{$alias}.modified_by");
         }
@@ -1073,15 +1073,15 @@ public $mode            = 'SELECT';
                         function ($value) use ($externalScopeVariable) {
                             return trim($value);
                         },
-                        'trim'
+                        'trim',
                     ],
                     'validators' => [
                         [
                             // 'f' - Could be a closure, string with function name or an array
                             'f'       => 'strlen',
                             'errorIf' => [FALSE, 0],
-                            'msg'     => 'Please, fill Name'
-                        ]
+                            'msg'     => 'Please, fill Name',
+                        ],
                     ],
 
                 ],

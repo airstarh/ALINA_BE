@@ -23,7 +23,7 @@ function AlinaCurrentUserId()
 }
 
 define('DT_FORMAT_DB', 'Y-m-d H:i:s');
-function getNow()
+function AlinaGetNowInDbFormat()
 {
     if (defined('DM_REQUEST_TIME')) {
         return date(DT_FORMAT_DB, DM_REQUEST_TIME);

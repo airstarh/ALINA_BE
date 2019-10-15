@@ -9,6 +9,7 @@
 namespace alina\vendorExtend\illuminate;
 
 use \Illuminate\Container\Container;
+use Illuminate\Database\Capsule\Manager;
 use \Illuminate\Events\Dispatcher;
 
 // Laravel initiation
@@ -22,7 +23,7 @@ class alinaLaravelCapsuleLoader
 
     /**
      * Initiates PHP Illuminate Database toolkit.
-     * @return \Illuminate\Database\Capsule\Manager object
+     * @return Manager object
      */
     static public function init()
     {
@@ -35,7 +36,7 @@ class alinaLaravelCapsuleLoader
         //region DM Environment configs.
         $config = \alina\app::getConfig('db');
 
-        $capsule = new \Illuminate\Database\Capsule\Manager;
+        $capsule = new Manager;
         $capsule->addConnection($config);
 
         // Set the event dispatcher used by Eloquent models... (optional)
