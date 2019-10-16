@@ -3,10 +3,12 @@
 namespace alina\mvc\model;
 
 use alina\message;
+use alina\utils\Data;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
 use Illuminate\Database\Query\Builder as BuilderAlias;
+use Illuminate\Support\Collection as CollectionAlias;
 
 // Laravel initiation
 Loader::init();
@@ -14,12 +16,17 @@ Loader::init();
 class _BaseAlinaModel
 {
     #region Required
-    public $table;
-    public $alias  = '';
-    public $pkName = 'id';
+    public    $table;
+    public    $alias  = '';
+    public    $pkName = 'id';
+    protected $opts;
+    public    $dataArrayIdentity;
+    #endregion Required
+    ##################################################
+    #region Request
     /** @var BuilderAlias $q */
     public $q;
-    public $req          = NULL;
+    public $o_GET        = NULL;
     public $apiOperators = [
         'lt_' => '<',
         'gt_' => '>',
@@ -27,43 +34,34 @@ class _BaseAlinaModel
         'lk_' => 'LIKE',
     ];
     public $attributes;
-    /**
-     * @var  \Illuminate\Support\Collection
-     */
+    /**@var  CollectionAlias */
     public $collection = [];
-    #endregion Required
-
-    #region Fields Definitions
-    public $mode = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    #region Identity (AutoIncremental)
-    public $isDataFiltered  = FALSE;
-    public $isDataValidated = FALSE;
-    #endregion Identity (AutoIncremental)
-
-    #region Unique Fields
-    public $affectedRowsCount = NULL;
-    #endregion Unique Fields
-    public $dataArrayIdentity;
+    #endregion Request
+    ##################################################
+    #region Flags, CHeck-Points
+    public $mode                = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $isDataFiltered      = FALSE;
+    public $isDataValidated     = FALSE;
+    public $affectedRowsCount   = NULL;
     public $matchedUniqueFields = [];
-    #emdregion Fields Definitions
-
+    public $rowsTotal           = -1;
+    public $pagesTotal          = 0;
+    #emdregion Flags, CHeck-Points
+    ##################################################
     #region Search Parameters
+
     /**
      * @var $sortDefault array
-     *  with structure: [['field1', 'DESC'], ['field2', 'ASC']]
+     * [['field1', 'DESC'], ['field2', 'ASC']]
      */
     public $sortDefault       = [];
     public $sortName          = NULL;
     public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
     public $pageSize          = 15;
-    public $rowsTotal         = -1;
     #endregion Search Parameters
-
-    #region SELECT
-    public    $pagesTotal = 0;
-    protected $opts;
-
+    ##################################################
+    #region Constructor
     public function __construct($opts = NULL)
     {
         if ($opts) {
@@ -74,101 +72,9 @@ class _BaseAlinaModel
         $this->alias      = $this->table;
         $this->attributes = new \stdClass;
     }
-
-    public function raw($expression)
-    {
-        return Dal::raw($expression);
-    }
-
-    public function getFieldsMetaInfo()
-    {
-        $fields   = $this->fields();
-        $pkName   = $this->pkName;
-        $identity = $this->fieldsIdentity();
-        $unique   = $this->uniqueKeys();
-
-        return [
-            'fields'   => $fields,
-            'pkName'   => $pkName,
-            'identity' => $identity,
-            'unique'   => $unique,
-        ];
-    }
-    #endregion SELECT
-
-    #region INSERT or Update
-
-    /**
-     * Initial list of fields. @see fieldStructureExample
-     */
-    public function fields()
-    {
-        $fields = [];
-        $items  = [];
-        $items  = Dal::table('information_schema.columns')
-            ->select('column_name')
-            ->where('table_name', '=', $this->table)
-            ->where('table_schema', '=', AlinaCFG('db/database'))
-            ->pluck('column_name');
-        foreach ($items as $v) {
-            $fields[$v] = [];
-        }
-
-        return $fields;
-        ##################################################
-        // Previous approach
-        // $table  = $this->table;
-        // $m      = new static(['table' => $table]);
-        // $q      = $m->q();
-        // $item   = $q->first();
-        // foreach ($item as $i => $v) {
-        //     $fields[$i] = [];
-        // }
-        // return $fields;
-        ##################################################
-    }
-
-    /**
-     * @param string $alias
-     * @return BuilderAlias
-     */
-    public function q($alias = NULL)
-    {
-        /**
-         * ATTENTION: Important security fix in order to avoid accident start of a query,
-         * while a previous is in progress.
-         */
-        if (isset($this->q) && !empty($this->q)) {
-            $this->q = NULL;
-            message::set("ATTENTION! {$this->table} query is redefined!!!");
-            //error_log(__FUNCTION__,0);
-            //error_log(json_encode(debug_backtrace()[1]['function']),0);
-        }
-
-        $this->alias = $alias ? $alias : $this->alias;
-        if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
-            $this->q = Dal::table("{$this->table}");
-        } else {
-            $this->q = Dal::table("{$this->table} AS {$this->alias}");
-        }
-
-        return $this->q;
-    }
-
-    /**
-     * Returns array of arrays.
-     * Nested arrays contain list of field names, which are Unique Keys together.
-     * Example:
-     * [
-     *  ['email'],
-     *  ['row', 'column'],
-     * ]
-     */
-    public function uniqueKeys()
-    {
-        return [];
-    }
-
+    #endregion Constructor
+    ##################################################
+    #region SELECT
     public function getById($id)
     {
         return $this->getOne([$this->pkName => $id]);
@@ -190,12 +96,69 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    public function getModelByUniqueKeys($data)
+    {
+
+        $data       = \alina\utils\Data::toObject($data);
+        $uniqueKeys = $this->uniqueKeys();
+
+        foreach ($uniqueKeys as $uniqueFields) {
+            $conditions = [];
+            $uFields    = [];
+
+            if (!is_array($uniqueFields)) {
+                $uniqueFields = [$uniqueFields];
+            }
+
+            foreach ($uniqueFields as $uf) {
+                if (property_exists($data, $uf)) {
+                    $conditions[$uf] = $data->{$uf};
+                    $uFields[]       = $uf;
+                }
+                // If $data doesn't contain one of Unique Keys,
+                // simply skip this check entirely.
+                else {
+                    continue 2; // Skips this and previous "foreach".
+                }
+            }
+
+            // Check if similar model exists.
+            $m = new static(['table' => $this->table]);
+            /*** @var $q BuilderAlias */
+            $q = $m->q();
+            $q->where($conditions);
+            // If $data already contains a field with Primary Key of a model,
+            // we should exclude this model while the check.
+            if (property_exists($data, $this->pkName) && !empty($data->{$this->pkName})) {
+                $q->where($this->pkName, '!=', $data->{$this->pkName});
+            }
+
+            // Check only NOT is_deleted
+            if ($m->tableHasField('is_deleted')) {
+                $q->where('is_deleted', '!=', 1);
+            }
+
+            $aRecord = $q->first();
+
+            if (isset($aRecord) && !empty($aRecord)) {
+                $this->matchedUniqueFields = $uFields;
+
+                return $aRecord;
+            }
+        }
+
+        return FALSE;
+    }
+
+    #endregion SELECT
+    ##################################################
+    #region INSERT
     public function insert($data)
     {
         $this->mode       = 'INSERT';
         $pkName           = $this->pkName;
         $data             = \alina\utils\Data::toObject($data);
-        $data             = $this->mergeRawObjects($this->getDefaultRawObj(), $data);
+        $data             = Data::mergeObjects($this->buildDefaultData(), $data);
         $dataArray        = $this->prepareDbData($data);
         $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = \alina\utils\Data::toObject($dataArray);
@@ -204,37 +167,417 @@ class _BaseAlinaModel
 
         return $data;
     }
-
+    #endregion INSERT
+    ##################################################
+    #region UPDATE
     /**
-     * Rough merge of simple (stdClass) objects.
+     * Updates record by Primary Key.
+     * PK could be passed either in $data object or as the second parameter separately.
+     * @param $data array|\stdClass
+     * @param null|mixed $id
+     * @return mixed
      * @throws \Exception
+     * @throws exceptionValidation
      */
-    public function mergeRawObjects()
+    public function updateById($data, $id = NULL)
     {
-        $objects = func_get_args();
-        $count   = count($objects);
-
-        $res = new \stdClass();
-        for ($i = 0; $i <= $count - 1; $i++) {
-            $o = \alina\utils\Data::toObject($objects[$i]);
-            foreach ($o as $p => $v) {
-                $res->{$p} = $v;
+        $data   = \alina\utils\Data::toObject($data);
+        $pkName = $this->pkName;
+        if (isset($id) && !empty($id)) {
+            $pkValue = $id;
+        } else {
+            if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+                $pkValue = $data->{$pkName};
+                unset($data->{$pkName});
             }
         }
 
-        return $res;
+        if (!isset($pkValue) || empty($pkValue)) {
+            $table = $this->table;
+            throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
+        }
+
+        $conditions       = [$pkName => $pkValue];
+        $this->attributes = $this->update($data, $conditions);
+        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
+        if ($this->affectedRowsCount != 1) {
+            message::set("There are no changes in {$this->table} of ID {$pkValue}");
+        }
+
+        return $this->attributes;
+    }
+
+    public function update($data, $conditions = [])
+    {
+        $this->mode = 'UPDATE';
+        $pkName     = $this->pkName;
+        $data       = \alina\utils\Data::toObject($data);
+
+        //Fix: Special for MS SQL: NO PK ON INSERTS.
+        if (property_exists($data, $pkName)) {
+            $presavedId = $data->{$pkName};
+            //IMPORTANT: unset of $this->id happens in prepareDbData then.
+        }
+
+        $dataArray = $this->prepareDbData($data);
+
+        $this->affectedRowsCount =
+            $this->q()
+                ->where($conditions)
+                ->update($dataArray);
+        $this->attributes        = \alina\utils\Data::toObject($dataArray);
+        //Get ID back
+        if (isset($presavedId)) {
+            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
+        }
+        $this->resetFlags();
+
+        return $this->attributes;
+    }
+
+    #endregion UPDATE
+    ##################################################
+    #region DELETE
+    public function delete(array $conditions)
+    {
+        $this->mode = 'DELETE';
+
+        $affectedRowsCount = $this->q()
+            ->where($conditions)
+            ->delete();
+
+        $this->affectedRowsCount = $affectedRowsCount;
+        $this->resetFlags();
+
+        return $this;
+    }
+
+    public function deleteById($id)
+    {
+        $pkName  = $this->pkName;
+        $pkValue = $id;
+        $this->delete([$pkName => $pkValue]);
+    }
+
+    public function smartDeleteById($id, $additionalData = NULL)
+    {
+        if ($this->tableHasField('is_deleted') || (isset($additionalData) && !empty($additionalData))) {
+            $pkName = $this->pkName;
+
+            $data = (isset($additionalData) && !empty($additionalData))
+                ? \alina\utils\Data::toObject($additionalData)
+                : new \stdClass();
+            // Even if there is no is_deleted in this->fields, it does not brings error
+            // due to $this->bindModel functionality.
+            $data->is_deleted = 1;
+            $data->{$pkName}  = $id;
+
+            // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
+            $this->updateById($data);
+        } else {
+            // If table does not participate in Audit process,
+            // simply DELETE row from database.
+            $this->deleteById($id);
+        }
+    }
+    #endregion DELETE
+    ##################################################
+    #region API, LIMIT, ORDER
+
+    /**
+     * Prepare paginated API response.
+     * @return array with the next structure
+     * [
+     *  'total' => int total amount of rows,
+     *  'page' => int number of page,
+     *  'models' => array of objects which represent database rows,
+     * ]
+     */
+    public function qApiResponsePaginated()
+    {
+        /** @var $q BuilderAlias object */
+        $q = $this->q;
+
+        // COUNT
+        $total = $q->count();
+
+        // ORDER
+        $this->qApiOrder();
+
+        // LIMIT partial
+        $this->qApiLimitOffset();
+
+        // Result
+        //fDebug($q->toSql());
+        $this->collection = $q->get();
+
+        $page   = $this->pageCurrentNumber;
+        $output = ["total" => $total, "page" => $page, "models" => $this->collection];
+
+        //fDebug($output);
+        return $output;
+    }
+
+    /**
+     * Apply ORDER BY to query
+     * @param array array $backendSortArray
+     * @return BuilderAlias object
+     */
+    public function qApiOrder($backendSortArray = [])
+    {
+        /** @var $q BuilderAlias object */
+        $q = $this->q;
+
+        // User Defined Sort parameters.
+        $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
+        if (empty($sortArray)) {
+            $sortArray = $this->sortDefault;
+        }
+
+        //Finally if function is called from backend...
+        if (isset($backendSortArray) && !empty($backendSortArray)) {
+            $sortArray = $backendSortArray;
+        }
+
+        //$sortArray = array_merge($sortArray, $this->sortDefault);
+        $this->qOrderByArray($sortArray);
+
+        return $q;
+    }
+
+    /**
+     * Apply complex ORDER BY to query
+     * @param $orderArray array
+     * @return BuilderAlias object
+     */
+    public function qOrderByArray($orderArray = [])
+    {
+        /** @var $q BuilderAlias object */
+        $q = $this->q;
+
+        if (empty($orderArray)) {
+            return $q;
+        }
+
+        if (is_string($orderArray)) {
+            $orderArray = [[$orderArray, 'ASC']];
+        }
+
+        foreach ($orderArray as $orderBy) {
+            if (count($orderBy) !== 2) {
+                //ToDo: Validate all necessary parameters.
+                continue;
+            }
+            list($field, $direction) = $orderBy;
+            $q->orderBy($field, $direction);
+        }
+
+        return $q;
+    }
+
+    /**
+     * Apply LIMIT/OFFSET to a query
+     * @param int|null $backendLimit
+     * @param int|null $backendOffset
+     * @return BuilderAlias object
+     */
+    public function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
+    {
+        /** @var $q BuilderAlias object */
+        $q                 = $this->q;
+        $pageCurrentNumber = $this->pageCurrentNumber;
+        $pageSize          = $this->pageSize;
+        $rowsTotal         = $this->rowsTotal;
+
+        if ($rowsTotal <= $pageSize) {
+            $pageCurrentNumber = $this->pageCurrentNumber = 1;
+        }
+
+        $this->calcPagesTotal($rowsTotal, $pageSize);
+        if ($pageCurrentNumber > $this->pagesTotal) {
+            $pageCurrentNumber = $this->pageCurrentNumber = 1;
+        }
+
+        if (FALSE !== ($offset = $this->calcOffset($pageCurrentNumber, $pageSize))) {
+            $q->skip($offset)->take($pageSize);
+        }
+
+        //Finally: if LIMIT and OFFSET are passed via back-end...
+        if ($backendLimit) {
+            $q->take($backendLimit);
+        }
+        if ($backendOffset) {
+            $q->skip($backendOffset);
+        }
+
+        return $q;
+    }
+
+    /**
+     * Add Audit Info if possible.
+     * @return BuilderAlias object
+     */
+    public function qApiJoinAuditInfo()
+    {
+        /** @var $q BuilderAlias object */
+        $q          = $this->q;
+        $thisFields = $this->fields();
+        $alias      = $this->alias;
+
+        // Join Creator if possible
+        if (array_key_exists('created_by', $thisFields)) {
+            $q->addSelect([
+                'pc.first_name as created_first_name',
+                'pc.last_name as created_last_name',
+            ]);
+            $q->leftJoin('person as pc', 'pc.person_id', '=', "{$alias}.created_by");
+        }
+
+        if (array_key_exists('modified_by', $thisFields)) {
+            $q->addSelect([
+                'pm.first_name as modified_first_name',
+                'pm.last_name as modified_last_name',
+            ]);
+            $q->leftJoin('person as pm', 'pm.person_id', '=', "{$alias}.modified_by");
+        }
+
+        return $q;
+    }
+
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
+    {
+        //First of all.
+        $this->apiUnpackGetParams();
+
+        $q = $this->q();
+        $q->select(["{$this->alias}.*"]);
+        //API WHERE
+        $q->where($conditions);
+        $this->qApplyGetSearchParams();
+        //ORDER
+        $this->qApiOrder($backendSortArray);
+        //Has One JOINs.
+        $this->qJoinHasOne();
+        //COUNT
+        $this->rowsTotal = $q->count();
+        //LIMIT / OFFSET
+        $this->qApiLimitOffset($limit, $offset);
+        //Execute query.
+        $this->collection = $q->get();
+
+        //Has Many JOINs.
+        $this->joinHasMany();
+
+        return $this->collection;
+    }
+
+    /**
+     * Sets $this->o_GET
+     */
+    public function apiUnpackGetParams()
+    {
+        $this->o_GET  = new \stdClass();
+        $vocGetSearch = $this->vocGetSearch();
+
+//        error_log('vocGetSearch', 0);
+//        error_log(json_encode($vocGetSearch), 0);
+
+        foreach ($vocGetSearch as $short => $full) {
+            /*
+             * NOTE:
+             * It sets Property even if it is equal to empty string ''.
+             * Check right in API callbacks, if we need to SELECT models, WHERE the Prop is ''.
+             * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
+             */
+            //if (isset($_GET[$short]) && $_GET[$short] !=='') {
+            if
+            (isset($_GET[$short])) {
+                $this->o_GET->{$full} = $_GET[$short];
+            }
+        }
+
+        // Additional Special Condition $this->sortName, $this->sortAsc
+        if (isset($_GET['sa'])) {
+            $this->sortAsc = $_GET['sa'];
+        }
+        if (isset($_GET['sn'])) {
+            $this->sortName = $_GET['sn'];
+        }
+        // Additional Special Condition $this->pageSize, $this->page
+        if (isset($_GET['ps'])) {
+            $this->pageSize = $_GET['ps'];
+        }
+
+        //ToDo: Rename to pn.
+        if (isset($_GET['p'])) {
+            $this->pageCurrentNumber = $_GET['p'];
+        }
+
+        return $this->o_GET;
+    }
+    #endregion API, LIMIT, ORDER
+    ##################################################
+    #region Helpers
+
+    public function calcPagesTotal($rowsTotal, $pageSize)
+    {
+        if ($pageSize <= 0) {
+            $pageSize = $rowsTotal;
+        }
+        $this->pagesTotal = ceil($rowsTotal / $pageSize);
+
+        return $this->pagesTotal;
+    }
+
+    public function calcOffset($pageCurrentNumber, $pageSize)
+    {
+        if (!isset($pageSize) || !isset($pageCurrentNumber) || $pageSize <= 0 || $pageCurrentNumber <= 0) {
+            return FALSE;
+        }
+
+        $offset = ($pageSize * ($pageCurrentNumber - 1));
+
+        return $offset;
+    }
+
+    public function calcSortNameSortAscData($sortName, $sortAsc)
+    {
+
+        if (empty($sortName)) {
+            return NULL;
+        }
+
+        // Sorting functionality
+        // Pre-saving backward compatibility.
+
+        $sn = explode(',', $sortName);
+        $sa = explode(',', $sortAsc);
+
+        $sortArray = [];
+        foreach ($sn as $i => $n) {
+            $asc         = isset($sa[$i]) ? \alina\utils\Data::getSqlDirection($sa[$i]) : 'ASC';
+            $sortArray[] = [$n, $asc];
+        }
+
+        return $sortArray;
+    }
+
+    public function resetFlags()
+    {
+        $this->mode            = 'SELECT';
+        $this->isDataFiltered  = FALSE;
+        $this->isDataValidated = FALSE;
     }
 
     /**
      * Creates $defaultRawObj with default values for DB.
      * @return \stdClass object $defaultRawObj.
      */
-    public function getDefaultRawObj()
+    public function buildDefaultData()
     {
         $fields        = $this->fields();
         $defaultRawObj = new \stdClass();
         foreach ($fields as $f => $props) {
-            //$defaultRawObj->$f = null; //ToDo: It affects Primary Key!!!
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->$f = $props['default'];
             }
@@ -396,60 +739,6 @@ class _BaseAlinaModel
         return $this;
     }
 
-    public function getModelByUniqueKeys($data)
-    {
-
-        $data       = \alina\utils\Data::toObject($data);
-        $uniqueKeys = $this->uniqueKeys();
-
-        foreach ($uniqueKeys as $uniqueFields) {
-            $conditions = [];
-            $uFields    = [];
-
-            if (!is_array($uniqueFields)) {
-                $uniqueFields = [$uniqueFields];
-            }
-
-            foreach ($uniqueFields as $uf) {
-                if (property_exists($data, $uf)) {
-                    $conditions[$uf] = $data->{$uf};
-                    $uFields[]       = $uf;
-                }
-                // If $data doesn't contain one of Unique Keys,
-                // simply skip this check entirely.
-                else {
-                    continue 2; // Skips this and previous "foreach".
-                }
-            }
-
-            // Check if similar model exists.
-            $m = new static(['table' => $this->table]);
-            /*** @var $q BuilderAlias */
-            $q = $m->q();
-            $q->where($conditions);
-            // If $data already contains a field with Primary Key of a model,
-            // we should exclude this model while the check.
-            if (property_exists($data, $this->pkName) && !empty($data->{$this->pkName})) {
-                $q->where($this->pkName, '!=', $data->{$this->pkName});
-            }
-
-            // Check only NOT is_deleted
-            if ($m->tableHasField('is_deleted')) {
-                $q->where('is_deleted', '!=', 1);
-            }
-
-            $aRecord = $q->first();
-
-            if (isset($aRecord) && !empty($aRecord)) {
-                $this->matchedUniqueFields = $uFields;
-
-                return $aRecord;
-            }
-        }
-
-        return FALSE;
-    }
-
     public function tableHasField($fieldName)
     {
         return array_key_exists($fieldName, $this->fields());
@@ -519,9 +808,20 @@ class _BaseAlinaModel
 
         return in_array($fieldName, $fieldsIdentity);
     }
-    #endregion INSERT or Update
 
-    #region DELETE
+    /**
+     * Returns array of arrays.
+     * Nested arrays contain list of field names, which are Unique Keys together.
+     * Example:
+     * [
+     *  ['email'],
+     *  ['row', 'column'],
+     * ]
+     */
+    public function uniqueKeys()
+    {
+        return [];
+    }
 
     public function fieldsIdentity()
     {
@@ -530,432 +830,82 @@ class _BaseAlinaModel
         ];
     }
 
-    public function resetFlags()
+    /**
+     * @param string $alias
+     * @return BuilderAlias
+     */
+    public function q($alias = NULL)
     {
-        $this->mode            = 'SELECT';
-        $this->isDataFiltered  = FALSE;
-        $this->isDataValidated = FALSE;
-    }
+        /**
+         * ATTENTION: Important security fix in order to avoid accident start of a query,
+         * while a previous is in progress.
+         */
+        if (isset($this->q) && !empty($this->q)) {
+            $this->q = NULL;
+            message::set("ATTENTION! {$this->table} query is redefined!!!");
+            //error_log(__FUNCTION__,0);
+            //error_log(json_encode(debug_backtrace()[1]['function']),0);
+        }
 
-    public function smartDeleteById($id, $additionalData = NULL)
-    {
-        if ($this->tableHasField('is_deleted') || (isset($additionalData) && !empty($additionalData))) {
-            $pkName = $this->pkName;
-
-            $data = (isset($additionalData) && !empty($additionalData))
-                ? \alina\utils\Data::toObject($additionalData)
-                : new \stdClass();
-            // Even if there is no is_deleted in this->fields, it does not brings error
-            // due to $this->bindModel functionality.
-            $data->is_deleted = 1;
-            $data->{$pkName}  = $id;
-
-            // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
-            $this->updateById($data);
+        $this->alias = $alias ? $alias : $this->alias;
+        if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
+            $this->q = Dal::table("{$this->table}");
         } else {
-            // If table does not participate in Audit process,
-            // simply DELETE row from database.
-            $this->deleteById($id);
-        }
-    }
-    #endregion DELETE
-
-    #region Transaction.
-    // This functionality is moved to @file _backend/alina/mvc/model/_baseAlinaEloquentTransaction.php
-    #endregion Transaction.
-
-    #region API, LIMIT, ORDER
-
-    /**
-     * Updates record by Primary Key.
-     * PK could be passed either in $data object or as the second parameter separately.
-     * @param $data array|\stdClass
-     * @param null|mixed $id
-     * @return mixed
-     * @throws \Exception
-     * @throws exceptionValidation
-     */
-    public function updateById($data, $id = NULL)
-    {
-        $data   = \alina\utils\Data::toObject($data);
-        $pkName = $this->pkName;
-        if (isset($id) && !empty($id)) {
-            $pkValue = $id;
-        } else {
-            if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
-                $pkValue = $data->{$pkName};
-                unset($data->{$pkName});
-            }
+            $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
 
-        if (!isset($pkValue) || empty($pkValue)) {
-            $table = $this->table;
-            throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
-        }
-
-        $conditions       = [$pkName => $pkValue];
-        $this->attributes = $this->update($data, $conditions);
-        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
-        if ($this->affectedRowsCount != 1) {
-            message::set("There are no changes in {$this->table} of ID {$pkValue}");
-        }
-
-        return $this->attributes;
-    }
-
-    public function update($data, $conditions = [])
-    {
-        $this->mode = 'UPDATE';
-        $pkName     = $this->pkName;
-        $data       = \alina\utils\Data::toObject($data);
-
-        //Fix: Special for MS SQL: NO PK ON INSERTS.
-        if (property_exists($data, $pkName)) {
-            $presavedId = $data->{$pkName};
-            //IMPORTANT: unset of $this->id happens in prepareDbData then.
-        }
-
-        $dataArray = $this->prepareDbData($data);
-
-        $this->affectedRowsCount =
-            $this->q()
-                ->where($conditions)
-                ->update($dataArray);
-        $this->attributes        = \alina\utils\Data::toObject($dataArray);
-        //Get ID back
-        if (isset($presavedId)) {
-            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
-        }
-        $this->resetFlags();
-
-        return $this->attributes;
-    }
-
-    public function deleteById($id)
-    {
-        $pkName  = $this->pkName;
-        $pkValue = $id;
-        $this->delete([$pkName => $pkValue]);
-    }
-
-    public function delete(array $conditions)
-    {
-        $this->mode = 'DELETE';
-
-        $affectedRowsCount = $this->q()
-            ->where($conditions)
-            ->delete();
-
-        $this->affectedRowsCount = $affectedRowsCount;
-        $this->resetFlags();
-
-        return $this;
+        return $this->q;
     }
 
     /**
-     * Prepare paginated API response.
-     * @return array with the next structure
-     * [
-     *  'total' => int total amount of rows,
-     *  'page' => int number of page,
-     *  'models' => array of objects which represent database rows,
-     * ]
+     * Initial list of fields. @see fieldStructureExample
      */
-    public function qApiResponsePaginated()
+    public function fields()
     {
-        /** @var $q BuilderAlias object */
-        $q = $this->q;
+        $fields = [];
+        $items  = [];
+        $items  = Dal::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', '=', $this->table)
+            ->where('table_schema', '=', AlinaCFG('db/database'))
+            ->pluck('column_name');
+        foreach ($items as $v) {
+            $fields[$v] = [];
+        }
 
-        // COUNT
-        $total = $q->count();
-
-        // ORDER
-        $this->qApiOrder();
-
-        // LIMIT partial
-        $this->qApiLimitOffset();
-
-        // Result
-        //fDebug($q->toSql());
-        $this->collection = $q->get();
-
-        $page   = $this->pageCurrentNumber;
-        $output = ["total" => $total, "page" => $page, "models" => $this->collection];
-
-        //fDebug($output);
-        return $output;
+        return $fields;
+        ##################################################
+        // Previous approach
+        // $table  = $this->table;
+        // $m      = new static(['table' => $table]);
+        // $q      = $m->q();
+        // $item   = $q->first();
+        // foreach ($item as $i => $v) {
+        //     $fields[$i] = [];
+        // }
+        // return $fields;
+        ##################################################
     }
 
-    /**
-     * Apply ORDER BY to query
-     * @param array array $backendSortArray
-     * @return BuilderAlias object
-     */
-    public function qApiOrder($backendSortArray = [])
+    public function getFieldsMetaInfo()
     {
-        /** @var $q BuilderAlias object */
-        $q = $this->q;
+        $fields   = $this->fields();
+        $pkName   = $this->pkName;
+        $identity = $this->fieldsIdentity();
+        $unique   = $this->uniqueKeys();
 
-        // User Defined Sort parameters.
-        $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
-        if (empty($sortArray)) {
-            $sortArray = $this->sortDefault;
-        }
-
-        //Finally if function is called from backend...
-        if (isset($backendSortArray) && !empty($backendSortArray)) {
-            $sortArray = $backendSortArray;
-        }
-
-        //$sortArray = array_merge($sortArray, $this->sortDefault);
-        $this->qOrderByArray($sortArray);
-
-        return $q;
+        return [
+            'fields'   => $fields,
+            'pkName'   => $pkName,
+            'identity' => $identity,
+            'unique'   => $unique,
+        ];
     }
 
-    public function calcSortNameSortAscData($sortName, $sortAsc)
+    public function raw($expression)
     {
-
-        if (empty($sortName)) {
-            return NULL;
-        }
-
-        // Sorting functionality
-        // Pre-saving backward compatibility.
-
-        $sn = explode(',', $sortName);
-        $sa = explode(',', $sortAsc);
-
-        $sortArray = [];
-        foreach ($sn as $i => $n) {
-            $asc         = isset($sa[$i]) ? \alina\utils\Data::getSqlDirection($sa[$i]) : 'ASC';
-            $sortArray[] = [$n, $asc];
-        }
-
-        return $sortArray;
+        return Dal::raw($expression);
     }
-
-    /**
-     * Apply complex ORDER BY to query
-     * @param $orderArray array
-     * @return BuilderAlias object
-     */
-    public function qOrderByArray($orderArray = [])
-    {
-        /** @var $q BuilderAlias object */
-        $q = $this->q;
-
-        if (empty($orderArray)) {
-            return $q;
-        }
-
-        if (is_string($orderArray)) {
-            $orderArray = [[$orderArray, 'ASC']];
-        }
-
-        foreach ($orderArray as $orderBy) {
-            if (count($orderBy) !== 2) {
-                //ToDo: Validate all necessary parameters.
-                continue;
-            }
-            list($field, $direction) = $orderBy;
-            $q->orderBy($field, $direction);
-        }
-
-        return $q;
-    }
-
-    /**
-     * Apply LIMIT/OFFSET to a query
-     * @param int|null $backendLimit
-     * @param int|null $backendOffset
-     * @return BuilderAlias object
-     */
-    public function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
-    {
-        /** @var $q BuilderAlias object */
-        $q                 = $this->q;
-        $pageCurrentNumber = $this->pageCurrentNumber;
-        $pageSize          = $this->pageSize;
-        $rowsTotal         = $this->rowsTotal;
-
-        if ($rowsTotal <= $pageSize) {
-            $pageCurrentNumber = $this->pageCurrentNumber = 1;
-        }
-
-        $this->calcPagesTotal($rowsTotal, $pageSize);
-        if ($pageCurrentNumber > $this->pagesTotal) {
-            $pageCurrentNumber = $this->pageCurrentNumber = 1;
-        }
-
-        if (FALSE !== ($offset = $this->calcOffset($pageCurrentNumber, $pageSize))) {
-            $q->skip($offset)->take($pageSize);
-        }
-
-        //Finally: if LIMIT and OFFSET are passed via back-end...
-        if ($backendLimit) {
-            $q->take($backendLimit);
-        }
-        if ($backendOffset) {
-            $q->skip($backendOffset);
-        }
-
-        return $q;
-    }
-
-    public function calcPagesTotal($rowsTotal, $pageSize)
-    {
-        if ($pageSize <= 0) {
-            $pageSize = $rowsTotal;
-        }
-        $this->pagesTotal = ceil($rowsTotal / $pageSize);
-
-        return $this->pagesTotal;
-    }
-
-    public function calcOffset($pageCurrentNumber, $pageSize)
-    {
-        if (!isset($pageSize) || !isset($pageCurrentNumber) || $pageSize <= 0 || $pageCurrentNumber <= 0) {
-            return FALSE;
-        }
-
-        $offset = ($pageSize * ($pageCurrentNumber - 1));
-
-        return $offset;
-    }
-
-    /**
-     * Add Audit Info if possible.
-     * @return BuilderAlias object
-     */
-    public function qApiJoinAuditInfo()
-    {
-        /** @var $q BuilderAlias object */
-        $q          = $this->q;
-        $thisFields = $this->fields();
-        $alias      = $this->alias;
-
-        // Join Creator if possible
-        if (array_key_exists('created_by', $thisFields)) {
-            $q->addSelect([
-                'pc.first_name as created_first_name',
-                'pc.last_name as created_last_name',
-            ]);
-            $q->leftJoin('person as pc', 'pc.person_id', '=', "{$alias}.created_by");
-        }
-
-        if (array_key_exists('modified_by', $thisFields)) {
-            $q->addSelect([
-                'pm.first_name as modified_first_name',
-                'pm.last_name as modified_last_name',
-            ]);
-            $q->leftJoin('person as pm', 'pm.person_id', '=', "{$alias}.modified_by");
-        }
-
-        return $q;
-    }
-
-    /**
-     * In order to unify source data for methods.
-     * Converts source data to array of objects,
-     * where each object is an appropriate DB row.
-     * @param $d
-     * @return array
-     */
-    public function toArrayOfObjects($d)
-    {
-        if (empty($d)) {
-            $d = $this->collection;
-        }
-        if (empty($d)) {
-            $d = $this->attributes;
-        }
-        if (empty($d)) {
-            $d = [];
-        }
-        if (!is_array($d)) {
-            $d = [$d];
-        }
-
-        return $d;
-    }
-
-    public function referencesTo() { return []; }
-
-    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
-    {
-        //First of all.
-        $this->apiUnpackGetParams();
-
-        $q = $this->q();
-        $q->select(["{$this->alias}.*"]);
-        //API WHERE
-        $q->where($conditions);
-        $this->qApplyGetSearchParams();
-        //ORDER
-        $this->qApiOrder($backendSortArray);
-        //Has One JOINs.
-        $this->qJoinHasOne();
-        //COUNT
-        $this->rowsTotal = $q->count();
-        //LIMIT / OFFSET
-        $this->qApiLimitOffset($limit, $offset);
-        //Execute query.
-        $this->collection = $q->get();
-
-        //Has Many JOINs.
-        $this->joinHasMany();
-
-        return $this->collection;
-    }
-
-    /**
-     * Sets $this->req
-     */
-    public function apiUnpackGetParams()
-    {
-        $this->req    = new \stdClass();
-        $vocGetSearch = $this->vocGetSearch();
-
-//        error_log('vocGetSearch', 0);
-//        error_log(json_encode($vocGetSearch), 0);
-
-        foreach ($vocGetSearch as $short => $full) {
-            /*
-             * NOTE:
-             * It sets Property even if it is equal to empty string ''.
-             * Check right in API callbacks, if we need to SELECT models, WHERE the Prop is ''.
-             * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
-             */
-            //if (isset($_GET[$short]) && $_GET[$short] !=='') {
-            if
-            (isset($_GET[$short])) {
-                $this->req->{$full} = $_GET[$short];
-            }
-        }
-
-        // Additional Special Condition $this->sortName, $this->sortAsc
-        if (isset($_GET['sa'])) {
-            $this->sortAsc = $_GET['sa'];
-        }
-        if (isset($_GET['sn'])) {
-            $this->sortName = $_GET['sn'];
-        }
-        // Additional Special Condition $this->pageSize, $this->page
-        if (isset($_GET['ps'])) {
-            $this->pageSize = $_GET['ps'];
-        }
-
-        //ToDo: Rename to pn.
-        if (isset($_GET['p'])) {
-            $this->pageCurrentNumber = $_GET['p'];
-        }
-
-        return $this->req;
-    }
-    #endregion API, LIMIT, ORDER
-
-    #region May be Trait.
 
     public function vocGetSearch()
     {
@@ -995,20 +945,12 @@ class _BaseAlinaModel
 
         return $res;
     }
-    #endregion May be Trait.
-    ##################################################
-    #region relations
 
     public function qApplyGetSearchParams()
     {
-        //ToDo: Check $q, $req emptiness.
-        $q   = $this->q;
-        $req = $this->req;
-
-        error_log('$req', 0);
-        error_log(json_encode($req), 0);
-
-        foreach ($req as $f => $v) {
+        //ToDo: Check $q, $this->o_GET emptiness.
+        $q = $this->q;
+        foreach ($this->o_GET as $f => $v) {
 
             $t = $this->alias;
 
@@ -1049,6 +991,10 @@ class _BaseAlinaModel
         return $this;
     }
 
+    #endregion Helpers
+    ##################################################
+    #region relations
+
     public function qJoinHasOne()
     {
         (new referenceProcessor($this))->joinHasOne();
@@ -1084,7 +1030,7 @@ class _BaseAlinaModel
             [
                 'fieldName' => [
                     'default'    => 'field default value on INSERT',
-                    'tye'        => ['string', 'number', 'etc'],
+                    'type'       => ['string', 'number', 'etc'],
                     'filters'    => [
                         // Could be a closure, string with function name or an array
                         [$className, $staticMethod],
@@ -1105,5 +1051,8 @@ class _BaseAlinaModel
                 ],
             ];
     }
+
+    public function referencesTo() { return []; }
     #endregion relations
+    ##################################################
 }
