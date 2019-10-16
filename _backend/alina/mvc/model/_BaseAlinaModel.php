@@ -104,12 +104,13 @@ class _BaseAlinaModel
     public function fields()
     {
         $fields = [];
-        $item   = Dal::table('information_schema.columns')
+        $items  = [];
+        $items  = Dal::table('information_schema.columns')
             ->select('column_name')
             ->where('table_name', '=', $this->table)
             ->where('table_schema', '=', AlinaCFG('db/database'))
             ->pluck('column_name');
-        foreach ($item as $v) {
+        foreach ($items as $v) {
             $fields[$v] = [];
         }
 
@@ -354,13 +355,18 @@ class _BaseAlinaModel
                         // Validation Result process.
                         if (in_array($vResult, $errorIf, TRUE)) {
                             $errorIfstr = implode('|||', $errorIf);
-                            throw new exceptionValidation("
-                            Name:   {$name} ::: 
-                            Value:  {$value} ::: 
-                            Res:    {$vResult} ::: 
-                            ErrorIf:{$errorIfstr} ::: 
-                            Message:{$msg}
-                            ");
+                            #####
+                            // throw new exceptionValidation("
+                            // {$msg}
+                            // Field:   {$name} ;
+                            // Entered:  {$value} ;
+                            // Res:    {$vResult} ;
+                            // ErrorIf:{$errorIfstr} ;
+                            // ");
+                            #####
+                            throw new exceptionValidation(
+                                "{$msg} (field:$name)"
+                            );
                         }
                     }
                 }

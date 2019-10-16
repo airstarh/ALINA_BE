@@ -30,4 +30,9 @@ class Str
     {
         return $string = str_replace(["\n", "\r"], $needle, $haystack);
     }
+
+    static public function lessThan($str, $number)
+    {
+        return mb_strlen($str) < $number;
+    }
 }

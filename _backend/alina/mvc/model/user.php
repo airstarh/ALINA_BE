@@ -2,13 +2,16 @@
 
 namespace alina\mvc\model;
 
+use alina\utils\Sys;
+
 class user extends _BaseAlinaModel
 {
     public $table = 'user';
 
     public function fields()
     {
-        return [
+        $fDefault = parent::fields();
+        $fCustom  = [
             'id'          => [],
             'mail'        => [
                 'filters'    => [
@@ -41,7 +44,9 @@ class user extends _BaseAlinaModel
             'lastname'    => [],
             'is_deleted'  => [],
             'is_verified' => [],
-            'created'     => [],
+            'created'     => [
+                'default' => ALINA_TIME,
+            ],
             'lastenter'   => [],
             'picture'     => [],
             'timezone'    => [],
@@ -49,26 +54,36 @@ class user extends _BaseAlinaModel
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
-                    function ($v) {
-                        //ToDo: SALT
-                        return md5($v);
-                    },
-
                 ],
                 'validators' => [
                     [
                         // 'f' - Could be a closure, string with function name or an array
                         'f'       => 'strlen',
                         'errorIf' => [FALSE, 0],
-                        'msg'     => 'Email is required!',
+                        'msg'     => 'Password cannot be empty',
+                    ],
+                    [
+                        // 'f' - Could be a closure, string with function name or an array
+                        'f'       => function ($v) {
+                            return \alina\utils\Str::lessThan($v, 8);
+                        },
+                        'errorIf' => [TRUE],
+                        'msg'     => 'Password length cannot be less than 8 symbols',
                     ],
                 ],
 
             ],
             'banned_till' => [],
-            'ip'          => [],
-            'language'    => [],
+            'ip'          => [
+                'default' => Sys::getUserIp(),
+            ],
+            'language'    => [
+                'default' => Sys::getUserLanguage(),
+            ],
         ];
+        $fRes     = array_merge($fDefault, $fCustom);
+
+        return $fRes;
     }
 
     public function uniqueKeys()

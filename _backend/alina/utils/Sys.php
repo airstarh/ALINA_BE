@@ -194,6 +194,28 @@ class Sys
     }
 
     ##################################################
+    static Public function getUserIp(){
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+        if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        }
+        return $_SERVER['REMOTE_ADDR'];
+    }
+    ##################################################
+    ##################################################
+    static Public function getUserLanguage(){
+        //$l = 'en';
+        $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        return $lang;
+    }
+
+    ##################################################
+    ##################################################
+    ##################################################
+    ##################################################
+    ##################################################
     ##################################################
     ##################################################
 }
