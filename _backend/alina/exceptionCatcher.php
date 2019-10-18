@@ -65,7 +65,14 @@ class exceptionCatcher
             if (\alina\utils\Sys::isAjax()) {
                 (new \alina\mvc\view\json())->standardRestApiResponse();
             } else {
-                ob_end_clean();
+                ##################################################
+                # Clean ALL @link https://stackoverflow.com/a/22069460/3142281
+                //ob_end_clean();
+                $level = ob_get_level();
+                while (@ob_end_clean()) {
+                    message::set($level--);
+                }
+                ##################################################
                 \alina\app::get()->mvcGo('root', 'Exception', $this);
             }
         }

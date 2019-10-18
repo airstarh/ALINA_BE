@@ -185,7 +185,7 @@ class Sys
     static public function template($fileFullPath, $data = NULL)
     {
         $fileFullPath = realpath($fileFullPath);
-        ob_start();
+        ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
         ob_implicit_flush(FALSE);
         require($fileFullPath);
         $output = ob_get_clean();

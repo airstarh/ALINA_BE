@@ -40,7 +40,7 @@ switch (ALINA_ENV) {
 ##################################################
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'app.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
-ob_start();
-ob_implicit_flush(FALSE);
+//ob_start();
+//ob_implicit_flush(FALSE);
 $app = \alina\app::set($config)->defineRoute()->mvcGo();
-echo ob_get_clean();
+//echo ob_get_clean();
