@@ -7,8 +7,8 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
-            '/Auth/Register'                                       => 'Register',
-            '/alinaRestAccept/index?cmd=model&m=user&mId=1'              => 'Rest call',
+            '/Auth/Register?lala=lala'                                       => 'Register',
+            '/alinaRestAccept/index?cmd=model&m=user&mId=1'        => 'Rest call',
             '/NotExistingPage'                                     => 'Test 404',
             '/CtrlDataTransformations/SerializedArrayModification' => 'Unserialize-> replace -> Serialize',
             '/CtrlDataTransformations/json'                        => 'JSON search-replace',

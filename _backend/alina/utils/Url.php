@@ -7,18 +7,25 @@ class Url
 #region URL's, Aliases, Routes
     static public function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = TRUE)
     {
+        $parsedUrlSource = parse_url($url);
+        $pathSource      = $parsedUrlSource['path'];
+        $pathRes         = '';
+
         foreach ($vocabulary as $aliasMask => $urlMask) {
 
             $compareWith       = ($aliasToSystemRoute) ? $aliasMask : $urlMask;
             $regularExpression = static::routeRegExp($compareWith);
 
-            if (preg_match($regularExpression, $url)) {
+            if (preg_match($regularExpression, $pathSource)) {
 
                 if ($aliasToSystemRoute) {
-                    return static::aliasToUrl($aliasMask, $url, $urlMask);
+                    $pathRes = static::aliasToUrl($aliasMask, $pathSource, $urlMask);
                 } else {
-                    return static::urlToAlias($urlMask, $url, $aliasMask);
+                    $pathRes = static::urlToAlias($urlMask, $pathSource, $aliasMask);
                 }
+                $parsedUrlSource['path'] = $pathRes;
+                $uri = static ::un_parse_url($parsedUrlSource);
+                return $uri;
             }
         }
 
