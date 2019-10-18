@@ -91,7 +91,7 @@ class _BaseAlinaModel
 
     public function getAll($conditions = [])
     {
-        $this->collection = $this->q()->where($conditions)->get();
+        $this->collection = $this->q()->where($conditions)->get()->keyBy($this->pkName);
 
         return $this->collection;
     }
@@ -318,7 +318,7 @@ class _BaseAlinaModel
 
         // Result
         //fDebug($q->toSql());
-        $this->collection = $q->get();
+        $this->collection = $q->get()->keyBy($this->pkName);
 
         $page   = $this->pageCurrentNumber;
         $output = ["total" => $total, "page" => $page, "models" => $this->collection];
@@ -472,7 +472,7 @@ class _BaseAlinaModel
         //LIMIT / OFFSET
         $this->qApiLimitOffset($limit, $offset);
         //Execute query.
-        $this->collection = $q->get();
+        $this->collection = $q->get()->keyBy($this->pkName);
 
         //Has Many JOINs.
         $this->joinHasMany();
@@ -1014,12 +1014,13 @@ class _BaseAlinaModel
         $forIds        = $this->collection->pluck($this->pkName);
         $qHasManyArray = (new referenceProcessor($this))->joinHasMany([], $forIds);
         foreach ($qHasManyArray as $rName => $q) {
-            $qResult = $q->get();
+            //ToDO: Hardcoded id
+            $qResult = $q->get()->keyBy('child_id');
             foreach ($this->collection as $thisModelAttributes) {
                 $thisModelAttributes->{$rName} = [];
-                foreach ($qResult as $row) {
+                foreach ($qResult as $keyBy => $row) {
                     if ($thisModelAttributes->{$this->pkName} === $row->main_id) {
-                        $thisModelAttributes->{$rName}[] = $row;
+                        $thisModelAttributes->{$rName}[$keyBy] = $row;
                     }
                 }
             }

@@ -404,4 +404,14 @@ class Data
         return strlen($md5) == 32 && ctype_xdigit($md5);
     }
     #####
+    static public function stringify($data) {
+        $res = json_encode($data);
+        $res = str_replace('"', '', $res);
+        $res = str_replace(',', ' | ', $res);
+        $res = str_replace('{', '', $res);
+        $res = str_replace('}', '', $res);
+        return $res;
+
+    }
+    #####
 }

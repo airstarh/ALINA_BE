@@ -98,6 +98,7 @@ class user extends _BaseAlinaModel
     {
         return [
             'roles'       => [
+                'keyBy'      => 'id', //ToDo: Hardcoded, not involved
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -105,7 +106,7 @@ class user extends _BaseAlinaModel
                 ],
                 'conditions' => [],
                 'addSelects' => [
-                    ['addSelect', ['child.*', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
+                    ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
 
             ],
@@ -118,7 +119,7 @@ class user extends _BaseAlinaModel
                 ],
                 'conditions' => [],
                 'addSelects' => [
-                    ['addSelect', ['child.*', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
+                    ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
 
             ],
@@ -142,7 +143,7 @@ class user extends _BaseAlinaModel
                     ['where', 'child.entity_table', '=', $this->table],
                 ],
                 'addSelects' => [
-                    ['addSelect', ['child.*', "{$this->alias}.{$this->pkName} AS main_id"]],
+                    ['addSelect', ['child.*', 'child.id AS child_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
             'tags'        => [
@@ -155,7 +156,7 @@ class user extends _BaseAlinaModel
                     ['where', 'glue.entity_table', '=', $this->table],
                 ],
                 'addSelects' => [
-                    ['addSelect', ['child.*', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
+                    ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
                 'orders'     => [
                     ['orderBy', 'child.name', 'ASC'],
