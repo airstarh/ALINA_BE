@@ -742,7 +742,7 @@ class _BaseAlinaModel
         if ($this->getModelByUniqueKeys($data)) {
             $fields = implode(', ', $this->matchedUniqueFields);
             $table  = $this->table;
-            throw new exceptionValidation("Fields: {$fields} must be unique in table {$table}");
+            throw new exceptionValidation("{$table} with such {$fields} already exists");
         }
 
         return $this;
@@ -851,7 +851,7 @@ class _BaseAlinaModel
          */
         if (isset($this->q) && !empty($this->q)) {
             $this->q = NULL;
-            message::set("ATTENTION! {$this->table} query is redefined!!!");
+            //message::set("ATTENTION! {$this->table} query is redefined!!!");
             //error_log(__FUNCTION__,0);
             //error_log(json_encode(debug_backtrace()[1]['function']),0);
         }

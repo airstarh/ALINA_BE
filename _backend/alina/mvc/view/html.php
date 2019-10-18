@@ -138,4 +138,30 @@ class html
         return $this->content;
     }
     #endregion HTML page specials (css, js, etc.)
+    ##################################################
+    #region Elements
+    static public function elForm(array $p = []) {
+        return (new static())->piece('_system/html/_form/form.php', (object)$p);
+    }
+
+    static public function elBootstrapBadge(array $p = []) {
+        return (new static())->piece('_system/html/tag/bootstrapBadge.php', (object)$p);
+    }
+
+    static public function elFormSelectOneSimple(array $p = []) {
+        return (new static())->piece('_system/html/_form/selectOneSimple.php', (object)$p);
+    }
+
+    static public function elFormSelect(array $p = []) {
+        return (new static())->piece('_system/html/_form/select.php', (object)$p);
+    }
+
+    static public function elFormInputText(array $p = []) {
+        return (new static())->piece('_system/html/_form/inputText.php', (object)$p);
+    }
+
+    static public function elFormStandardButtons(array $p = []) {
+        return (new static())->piece('_system/html/_form/standardFormButtons.php', (object)$p);
+    }
+    #endregion Elements
 }

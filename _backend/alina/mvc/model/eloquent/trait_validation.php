@@ -135,7 +135,7 @@ trait trait_validation
             $fields = implode(', ', $this->matchedUniqueFields);
             $values = implode(', ', $this->matchedUniqueValues);
             $table  = $this->table;
-            throw new \ErrorException("Fields: {$fields} must be unique in table {$table}. Values: {$values}");
+            throw new \ErrorException("Fields: {$fields} must be unique {$table}. Values: {$values}");
         }
 
         return $this;

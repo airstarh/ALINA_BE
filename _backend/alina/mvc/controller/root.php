@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/Auth/Profile/1'                                       => 'User',
             '/Auth/Register?lala=lala'                                       => 'Register',
             '/alinaRestAccept/index?cmd=model&m=user&mId=1'        => 'Rest call',
             '/NotExistingPage'                                     => 'Test 404',
