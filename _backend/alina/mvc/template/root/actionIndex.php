@@ -1,3 +1,9 @@
+<?php
+/** @var $data stdClass */
+
+use alina\utils\Html as HtmlAlias;
+
+?>
 <div>
     <table class="table">
         <thead class="thead-dark">
@@ -13,59 +19,30 @@
         <!--            <th class="DESC"></th>-->
         <!--        </tr>-->
         <!--endregion Prototype -->
-
-        <tr>
-            <td class="LINK"><a href="/Auth/Register" target="_blank">Register</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-        <tr>
-            <td class="LINK"><a href="/NotExistingPage" target="_blank">Test Page 404</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-        <tr>
-            <td class="LINK"><a href="/alinaRestAccept?cmd=model&m=user&mId=1" target="_blank">REST calls</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-
-        <tr>
-            <td class="LINK"><a href="/CtrlDataTransformations/SerializedArrayModification" target="_blank">Unserialize
-                    -> replace -> Serialize</a></td>
-            <td class="DESC"></td>
-        </tr>
-        <tr>
-            <td class="LINK"><a href="/CtrlDataTransformations/json" target="_blank">
-                    JSON search-replace
-                </a></td>
-            <td class="DESC"></td>
-        </tr>
-        <tr>
-            <td class="LINK"><a href="/AdminDbManager/DbTablesColumnsInfo" target="_blank">MySQL Manager</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-        <tr>
-            <td class="LINK"><a href="/SendRestApiQueries/BaseCurlCalls" target="_blank">HTTP calls</a></td>
-            <td class="DESC"></td>
-        </tr>
-        <tr>
-            <td class="LINK"><a href="/AdminTests/Errors" target="_blank">Tst Errors</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-        <tr>
-            <td class="LINK"><a href="/AdminTests/Serialization" target="_blank">Tst Serialization</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-        <tr>
-            <td class="LINK"><a href="/AdminTests/JsonEncode" target="_blank">Tst Json Encode</a></td>
-            <td class="DESC"></td>
-        </tr>
-
-
+        <?php foreach ($data as $l => $t) { ?>
+            <tr>
+                <td colspan="2">
+                    <h2><?= $t ?></h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="<?= $l ?>" target="_blank">
+                        <?= $t ?>
+                    </a>
+                </td>
+                <td>
+                    <a href="<?= $l ?>" target="_blank">
+                        <?= $l ?>
+                    </a>
+                    <br>
+                    <br>
+                    <a href="<?= HtmlAlias::aRef($l) ?>" target="_blank">
+                        <?= HtmlAlias::aRef($l) ?>
+                    </a>
+                </td>
+            </tr>
+        <?php } ?>
         </tbody>
     </table>
 </div>

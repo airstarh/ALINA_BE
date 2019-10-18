@@ -2,6 +2,7 @@
 
 namespace alina\mvc\model;
 
+use alina\utils\Data;
 use alina\utils\Sys;
 
 class user extends _BaseAlinaModel
@@ -162,4 +163,14 @@ class user extends _BaseAlinaModel
             ],
         ];
     }
+
+    public function hookRightBeforeSave(&$dataArray)
+    {
+        if (!Data::isValidMd5($dataArray['password'])) {
+            $dataArray['password'] = md5($dataArray['password']);
+        }
+
+        return $this;
+    }
+    #####
 }

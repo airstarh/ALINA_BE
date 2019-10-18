@@ -399,4 +399,9 @@ class Data
 
         return is_array($d) ? (array)$r : (object)$r;
     }
+
+    static public function isValidMd5($md5) {
+        return strlen($md5) == 32 && ctype_xdigit($md5);
+    }
+    #####
 }

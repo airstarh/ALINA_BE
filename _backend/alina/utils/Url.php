@@ -86,5 +86,36 @@ class Url
         return implode('/', $convertedResult);
     }
 
-#endregion URL's, Aliases, Routes
+    #endregion URL's, Aliases, Routes
+    ##################################################
+    static public function un_parse_url(array $parsedUri)
+    {
+        $get = function ($key) use ($parsedUri) {
+            return isset($parsedUri[$key]) ? $parsedUri[$key] : '';
+        };
+
+        $pass         = $get('pass');
+        $user         = $get('user');
+        $userinfo     = (!empty($pass)) ? "$user:$pass" : $user;
+        $port         = $get('port');
+        $scheme       = $get('scheme');
+        $query        = $get('query');
+        $fragment     = $get('fragment');
+        $arrAuthority = [
+            !empty($userinfo) ? "$userinfo@" : '',
+            $get('host'),
+            $port ? ":$port" : '',
+        ];
+        $authority    = implode('', $arrAuthority);
+
+        $arrRes = [
+            strlen($scheme) ? "$scheme:" : '',
+            strlen($authority) ? "//$authority" : '',
+            $get('path'),
+            strlen($query) ? "?$query" : '',
+            strlen($fragment) ? "#$fragment" : '',
+        ];
+
+        return implode('', $arrRes);
+    }
 }

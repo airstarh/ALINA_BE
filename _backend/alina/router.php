@@ -13,7 +13,9 @@ class router
     public $action            = NULL;
     public $pathPart          = NULL;
     public $pathParameter     = [];
-    public $vocAliasUrl       = NULL;
+    public $vocAliasUrl       = [];
+    public $strGetQuery  = '';
+    public $fragment  = '';
 
     /**
      */
@@ -25,6 +27,14 @@ class router
     {
         $this->initialUrl        = $_SERVER['REQUEST_URI'];
         $this->initialUrlDecoded = urldecode($_SERVER['REQUEST_URI']);
+        $parsedUrl               = parse_url($this->initialUrlDecoded);
+        if (isset($parsedUrl['query'])) {
+            $this->strGetQuery = $parsedUrl['query'];
+        }
+        if (isset($parsedUrl['fragment'])) {
+            $this->fragment = $parsedUrl['fragment'];
+        }
+
 
         // Define path information
         if (isset($_GET['alinapath']) AND !empty($_GET['alinapath'])) {

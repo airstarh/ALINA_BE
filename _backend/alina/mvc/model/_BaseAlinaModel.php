@@ -160,6 +160,11 @@ class _BaseAlinaModel
         $data             = \alina\utils\Data::toObject($data);
         $data             = Data::mergeObjects($this->buildDefaultData(), $data);
         $dataArray        = $this->prepareDbData($data);
+        #####
+        if (method_exists($this, 'hookRightBeforeSave')) {
+            $this->hookRightBeforeSave($dataArray);
+        }
+        #####
         $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = \alina\utils\Data::toObject($dataArray);
         $data->{$pkName}  = $this->{$pkName} = $id;
@@ -220,7 +225,11 @@ class _BaseAlinaModel
         }
 
         $dataArray = $this->prepareDbData($data);
-
+        #####
+        if (method_exists($this, 'hookRightBeforeSave')) {
+            $this->hookRightBeforeSave($dataArray);
+        }
+        #####
         $this->affectedRowsCount =
             $this->q()
                 ->where($conditions)

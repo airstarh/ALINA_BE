@@ -2,12 +2,23 @@
 
 namespace alina\mvc\controller;
 
-
 class root
 {
     public function actionIndex()
     {
-        echo (new \alina\mvc\view\html)->page();
+        $vd = (object)[
+            '/Auth/Register'                                       => 'Register',
+            '/alinaRestAccept/index?cmd=model&m=user&mId=1'              => 'Rest call',
+            '/NotExistingPage'                                     => 'Test 404',
+            '/CtrlDataTransformations/SerializedArrayModification' => 'Unserialize-> replace -> Serialize',
+            '/CtrlDataTransformations/json'                        => 'JSON search-replace',
+            '/AdminDbManager/DbTablesColumnsInfo'                  => 'MySQL Manager',
+            '/SendRestApiQueries/BaseCurlCalls'                    => 'HTTP calls',
+            '/AdminTests/Errors'                                   => 'Tst Errors',
+            '/AdminTests/Serialization'                            => 'Tst Serialization',
+            '/AdminTests/JsonEncode'                               => 'Tst Json Encode',
+        ];
+        echo (new \alina\mvc\view\html)->page($vd);
     }
 
     public function action404()

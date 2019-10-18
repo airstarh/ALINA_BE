@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\exceptionValidation;
+use alina\message;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
@@ -40,13 +41,12 @@ class Auth
             if ($vd->password !== $vd->confirm_password) {
                 throw new exceptionValidation('Passwords do not match');
             }
-            $vd->password = md5($vd->password);
             ##################################################
             $m = new user();
             $m->insert($vd);
             $vd = Data::mergeObjects($vd, $m);
         } catch (\Exception $e) {
-
+            message::set($e->getMessage(), [], 'alert alert-danger');
         }
 
         ##################################################

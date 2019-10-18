@@ -2,6 +2,8 @@
 
 namespace alina;
 
+use alina\utils\Url;
+
 class app
 {
     #region Officials
@@ -225,7 +227,12 @@ class app
                 $this->router->forcedAlias = \alina\utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {
                     //ToDo: Make redirection with alina router class.
-                    \alina\utils\Sys::redirect($this->router->forcedAlias);
+                    $uri = [
+                        'path'  => $this->router->forcedAlias,
+                        'query' => $this->router->strGetQuery,
+                    ];
+                    $uri = Url::un_parse_url($uri);
+                    \alina\utils\Sys::redirect($uri);
                 }
             }
         }
