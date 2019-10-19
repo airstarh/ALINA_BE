@@ -12,7 +12,7 @@ use alina\utils\Data; ?>
 <div class="form-group mt-3">
     <?= htmlAlias::elBootstrapBadge([
         'title' => $name,
-        'badge' => count((array) $options),
+        'badge' => count((array) $value) . ' of '. count((array) $options)
     ]) ?>
     <select name="<?= $name ?>" class="form-control" <?= $multiple ?>>
         <option value=""><?= $placeholder ?></option>
@@ -20,7 +20,7 @@ use alina\utils\Data; ?>
             <option
                 value="<?= $i ?>"
                 <?= in_array($i, (array) $value) ? 'selected' : '' ?>
-            ><?= $i ?> ::: <?= Data::stringify($o) ?></option>
+            >(<?= $i ?>) <?= Data::stringify($o) ?></option>
         <?php } ?>
     </select>
 </div>

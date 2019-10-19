@@ -155,11 +155,11 @@ class _BaseAlinaModel
     #region INSERT
     public function insert($data)
     {
-        $this->mode       = 'INSERT';
-        $pkName           = $this->pkName;
-        $data             = \alina\utils\Data::toObject($data);
-        $data             = Data::mergeObjects($this->buildDefaultData(), $data);
-        $dataArray        = $this->prepareDbData($data);
+        $this->mode = 'INSERT';
+        $pkName     = $this->pkName;
+        $data       = \alina\utils\Data::toObject($data);
+        $data       = Data::mergeObjects($this->buildDefaultData(), $data);
+        $dataArray  = $this->prepareDbData($data);
         #####
         if (method_exists($this, 'hookRightBeforeSave')) {
             $this->hookRightBeforeSave($dataArray);
@@ -1026,6 +1026,40 @@ class _BaseAlinaModel
             }
         }
     }
+
+    ##################################################
+    public function referencesSources()
+    {
+        return [];
+    }
+
+    public function getReferencesSources()
+    {
+        $sources = [];
+        if (method_exists($this, 'referencesSources')) {
+            $referencesSources = $this->referencesSources();
+            foreach ($referencesSources as $rName => $sourceConfig) {
+                if (isset($sourceConfig['model'])) {
+                    $model           = $sourceConfig['model'];
+                    $keyBy           = $sourceConfig['keyBy'];
+                    $human_name      = $sourceConfig['human_name'];
+                    $m               = modelNamesResolver::getModelObject($model);
+                    $dataSource      = $m
+                        ->q()
+                        ->addSelect($keyBy)
+                        ->addSelect($human_name)
+                        ->orderBy($keyBy, 'ASC')
+                        ->get()
+                        ->keyBy($keyBy)
+                        ->toArray();
+                    $sources[$rName]['list'] = $dataSource;
+                    $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
+                }
+            }
+        }
+        return $sources;
+    }
+    ##################################################
 
     /**
      * Just For Example!!!

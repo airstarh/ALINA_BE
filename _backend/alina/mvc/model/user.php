@@ -97,7 +97,7 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'roles'       => [
+            'rbac_role'       => [
                 'keyBy'      => 'id', //ToDo: Hardcoded, not involved
                 'has'        => 'manyThrough',
                 'joins'      => [
@@ -110,7 +110,7 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'permissions' => [
+            'rbac_permission' => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -123,7 +123,7 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'timezone'    => [
+            'timezone'        => [
                 'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
@@ -133,7 +133,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.name AS timezone_name']],
                 ],
             ],
-            'files'       => [
+            'file'            => [
                 'has'        => 'many',
                 'model'      => 'file',
                 'joins'      => [
@@ -146,7 +146,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
-            'tags'        => [
+            'tag'             => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -161,6 +161,23 @@ class user extends _BaseAlinaModel
                 'orders'     => [
                     ['orderBy', 'child.name', 'ASC'],
                 ],
+            ],
+        ];
+    }
+
+    public function referencesSources()
+    {
+        return [
+            'rbac_role' => [
+                'model' => 'rbac_role',
+                'keyBy' => 'id',
+                'human_name' => ['name'],
+                'multiple' => 'multiple',
+            ],
+            'timezone'  => [
+                'model' => 'timezone',
+                'keyBy' => 'id',
+                'human_name' => ['name'],
             ],
         ];
     }

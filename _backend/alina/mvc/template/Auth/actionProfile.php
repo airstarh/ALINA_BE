@@ -3,13 +3,13 @@
 
 use alina\mvc\view\html as htmlAlias;
 
-$item = $data->user->collection->first();
-
+$modell  = $data->user->collection->first();
+$sources = $data->sources;
 ?>
-<h1>Profile for <?= $item->mail ?></h1>
-
+<h1 class="mt-3">Profile for <?= $modell->mail ?></h1>
 <?= htmlAlias::elForm([
     'action'  => '',
     'enctype' => 'multipart/form-data',
-    'source'  => $item,
+    'model'   => $modell,
+    'sources' => $sources,
 ]) ?>

@@ -70,6 +70,7 @@ class Auth
         $u = new user();
         $u->getAllWithReferences(['user.id' => $id,]);
         $vd->user = $u;
+        $vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
     }
 
