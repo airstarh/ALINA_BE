@@ -207,10 +207,11 @@ class _BaseAlinaModel
         }
 
         $conditions       = [$pkName => $pkValue];
-        $this->attributes = $this->update($data, $conditions);
+        $this->update($data, $conditions);
+        $this->attributes = $data;
         $this->{$pkName}  = $this->attributes->{$pkName} = $data->{$pkName} = $pkValue;
 
-        return $this->attributes;
+        return $this;
     }
 
     public function update($data, $conditions = [])
@@ -228,7 +229,7 @@ class _BaseAlinaModel
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        $this->attributes        = \alina\utils\Data::toObject($dataArray);
+        //$this->attributes        = \alina\utils\Data::toObject($dataArray);
         message::set("Table: {$this->table} Updated rows:{$this->affectedRowsCount}");
         ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
@@ -237,7 +238,7 @@ class _BaseAlinaModel
         ##################################################
         $this->resetFlags();
 
-        return $this->attributes;
+        return $this;
     }
 
     public function upsert($data)
