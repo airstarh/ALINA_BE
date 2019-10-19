@@ -168,6 +168,11 @@ class _BaseAlinaModel
         $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = \alina\utils\Data::toObject($dataArray);
         $data->{$pkName}  = $this->{$pkName} = $id;
+        #####
+        if (method_exists($this, 'hookRightAfterSave')) {
+            $this->hookRightAfterSave($data);
+        }
+        #####
         $this->resetFlags();
 
         return $data;
@@ -193,7 +198,6 @@ class _BaseAlinaModel
         } else {
             if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
                 $pkValue = $data->{$pkName};
-                unset($data->{$pkName});
             }
         }
 
@@ -204,10 +208,7 @@ class _BaseAlinaModel
 
         $conditions       = [$pkName => $pkValue];
         $this->attributes = $this->update($data, $conditions);
-        $this->{$pkName}  = $this->attributes->{$pkName} = $pkValue;
-        if ($this->affectedRowsCount != 1) {
-            message::set("There are no changes in {$this->table} of ID {$pkValue}");
-        }
+        $this->{$pkName}  = $this->attributes->{$pkName} = $data->{$pkName} = $pkValue;
 
         return $this->attributes;
     }
@@ -217,28 +218,23 @@ class _BaseAlinaModel
         $this->mode = 'UPDATE';
         $pkName     = $this->pkName;
         $data       = \alina\utils\Data::toObject($data);
-
-        //Fix: Special for MS SQL: NO PK ON INSERTS.
-        if (property_exists($data, $pkName)) {
-            $presavedId = $data->{$pkName};
-            //IMPORTANT: unset of $this->id happens in prepareDbData then.
-        }
-
-        $dataArray = $this->prepareDbData($data);
-        #####
+        $dataArray  = $this->prepareDbData($data);
+        ##################################################
         if (method_exists($this, 'hookRightBeforeSave')) {
             $this->hookRightBeforeSave($dataArray);
         }
-        #####
+        ##################################################
         $this->affectedRowsCount =
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
         $this->attributes        = \alina\utils\Data::toObject($dataArray);
-        //Get ID back
-        if (isset($presavedId)) {
-            $this->{$pkName} = $this->attributes->{$pkName} = $presavedId;
+        message::set("Table: {$this->table} Updated rows:{$this->affectedRowsCount}");
+        ##################################################
+        if (method_exists($this, 'hookRightAfterSave')) {
+            $this->hookRightAfterSave($data);
         }
+        ##################################################
         $this->resetFlags();
 
         return $this->attributes;

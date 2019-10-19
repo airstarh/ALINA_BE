@@ -2,7 +2,7 @@
 /** @var $data stdClass */
 
 $multiple    = @$data->multiple ? 'multiple' : '';
-$name        = $data->name;
+$name        = !empty($multiple) ? "{$data->name}[]":$data->name;
 $value       = $data->value;
 $options     = $data->options;
 $placeholder = @$data->placeholder ?: '';

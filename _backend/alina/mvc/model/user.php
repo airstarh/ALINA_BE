@@ -2,6 +2,7 @@
 
 namespace alina\mvc\model;
 
+use alina\message;
 use alina\utils\Data;
 use alina\utils\Sys;
 
@@ -97,7 +98,7 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'rbac_role'       => [
+            'rbac_user_role'  => [
                 'keyBy'      => 'id', //ToDo: Hardcoded, not involved
                 'has'        => 'manyThrough',
                 'joins'      => [
@@ -168,28 +169,52 @@ class user extends _BaseAlinaModel
     public function referencesSources()
     {
         return [
-            'rbac_role' => [
-                'model' => 'rbac_role',
-                'keyBy' => 'id',
+            'rbac_user_role' => [
+                'model'      => 'rbac_role',
+                'keyBy'      => 'id',
                 'human_name' => ['name'],
-                'multiple' => 'multiple',
+                'multiple'   => 'multiple',
+                ####
+                'thisKey'    => 'user_id',
+                'thatKey'    => 'role_id',
             ],
-            'timezone'  => [
-                'model' => 'timezone',
-                'keyBy' => 'id',
+            'timezone'       => [
+                'model'      => 'timezone',
+                'keyBy'      => 'id',
                 'human_name' => ['name'],
-                'multiple' => '',
+                'multiple'   => '',
             ],
         ];
     }
 
     public function hookRightBeforeSave(&$dataArray)
     {
+        if (!isset($dataArray['password'])) {
+            return $this;
+        }
         if (!Data::isValidMd5($dataArray['password'])) {
             $dataArray['password'] = md5($dataArray['password']);
         }
 
         return $this;
     }
+
     #####
+    public function hookRightAfterSave($data)
+    {
+        message::set(Data::hlpGetBeautifulJsonString($data));
+        $referencesSources = $this->referencesSources();
+        foreach ($referencesSources as $cfgName => $srcCfg) {
+            if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {
+                if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
+                    $m = modelNamesResolver::getModelObject($cfgName);
+                    //$m->delete([$srcCfg['thisKey'], '=', ]);
+                }
+            }
+        }
+
+        return $this;
+    }
+    #####
+
 }

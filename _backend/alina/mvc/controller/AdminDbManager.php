@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\app;
+use alina\message;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\model\modelNamesResolver;
 use alina\mvc\model\user;
@@ -223,17 +224,25 @@ class AdminDbManager
 
     public function actionEditRow($modelName, $id)
     {
-        $vd = (object)[];
-        $m  = modelNamesResolver::getModelObject($modelName);
-        ##################################################
-        $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
-        if (!empty((array)$p)) {
-            $m->upsert($p);
+        try {
+            $vd = (object)[];
+            $m  = modelNamesResolver::getModelObject($modelName);
+            $vd->model   = $m;
+            $vd->sources = $m->getReferencesSources();
+            $m->getAllWithReferences();
+            ##################################################
+            $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
+            if (!empty((array)$p)) {
+                $m->upsert($p);
+                $m->getAllWithReferences();
+            }
+            ##################################################
+        } catch (\Exception $e) {
+            message::set($e->getMessage(), [], 'alert alert-danger');
+            message::set($e->getFile(), [], 'alert alert-danger');
+            message::set($e->getLine(), [], 'alert alert-danger');
         }
-        ##################################################
-        $m->getAllWithReferences();
-        $vd->model   = $m;
-        $vd->sources = $m->getReferencesSources();
+
 
         echo (new htmlAlias)->page($vd);
     }
