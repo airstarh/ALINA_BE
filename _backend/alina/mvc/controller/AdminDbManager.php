@@ -4,9 +4,12 @@ namespace alina\mvc\controller;
 
 use alina\app;
 use alina\mvc\model\DataPlayer;
+use alina\mvc\model\modelNamesResolver;
+use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
 use alina\utils\db\mysql\DbManager;
+use alina\utils\Sys;
 use PDO;
 
 class AdminDbManager
@@ -218,8 +221,20 @@ class AdminDbManager
         echo (new htmlAlias)->page($repott);
     }
 
-    public function actionDangerousChanging()
+    public function actionEditRow($modelName, $id)
     {
-        ;
+        $vd = (object)[];
+        $m  = modelNamesResolver::getModelObject($modelName);
+        ##################################################
+        $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
+        if (!empty((array)$p)) {
+            $m->upsert($p);
+        }
+        ##################################################
+        $m->getAllWithReferences();
+        $vd->model   = $m;
+        $vd->sources = $m->getReferencesSources();
+
+        echo (new htmlAlias)->page($vd);
     }
 }

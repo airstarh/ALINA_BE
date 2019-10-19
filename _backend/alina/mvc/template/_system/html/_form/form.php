@@ -25,23 +25,28 @@ $sources = $data->sources;
                 'options'     => $sources[$f]['list'],
                 'placeholder' => '----------------------',//$f,
             ]) ?>
-        <?php } else {
-            if (Data::isIterable($v)) { ?>
-                <?= htmlAlias::elFormSelect([
-                    'multiple'    => 'multiple',
-                    'name'        => $f,
-                    'value'       => array_keys((array)$v),
-                    'options'     => (array)$v,
-                    'placeholder' => '',//$f,
+        <?php } elseif (Data::isIterable($v)) { ?>
+            <div class="form-group mt-3">
+                <?= htmlAlias::elBootstrapBadge([
+                    'title' => $f,
+                    'badge' => count((array)$v),
                 ]) ?>
-            <?php } else { ?>
-                <?= htmlAlias::elFormInputText([
-                    'name'        => $f,
-                    'value'       => $v,
-                    'placeholder' => '',//$f,
-                ]) ?>
-            <?php }
-        } ?>
+                <ul class="list-group">
+                    <?php foreach ($v as $i => $d) { ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            (<?= $i ?>) <?= Data::stringify($d) ?>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </div>
+        <?php } else { ?>
+            <?= htmlAlias::elFormInputText([
+                'name'        => $f,
+                'value'       => $v,
+                'placeholder' => '',//$f,
+            ]) ?>
+
+        <?php } ?>
     <?php } ?>
     <!--#####-->
     <!--#####-->

@@ -7,8 +7,9 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
-            '/Auth/Profile/1'                                       => 'User',
-            '/Auth/Register?lala=lala'                                       => 'Register',
+            '/AdminDbManager/EditRow/user/1'                       => 'Edit a DB line',
+            '/Auth/Profile/1'                                      => 'User',
+            '/Auth/Register?lala=lala'                             => 'Register',
             '/alinaRestAccept/index?cmd=model&m=user&mId=1'        => 'Rest call',
             '/NotExistingPage'                                     => 'Test 404',
             '/CtrlDataTransformations/SerializedArrayModification' => 'Unserialize-> replace -> Serialize',

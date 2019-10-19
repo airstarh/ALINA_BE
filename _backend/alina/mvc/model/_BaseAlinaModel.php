@@ -244,6 +244,18 @@ class _BaseAlinaModel
         return $this->attributes;
     }
 
+    public function upsert($data)
+    {
+        $data = \alina\utils\Data::toObject($data);
+        if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
+            $this->updateById($data);
+        } else {
+            $this->insert($data);
+        }
+
+        return $this;
+    }
+
     #endregion UPDATE
     ##################################################
     #region DELETE
@@ -1040,11 +1052,11 @@ class _BaseAlinaModel
             $referencesSources = $this->referencesSources();
             foreach ($referencesSources as $rName => $sourceConfig) {
                 if (isset($sourceConfig['model'])) {
-                    $model           = $sourceConfig['model'];
-                    $keyBy           = $sourceConfig['keyBy'];
-                    $human_name      = $sourceConfig['human_name'];
-                    $m               = modelNamesResolver::getModelObject($model);
-                    $dataSource      = $m
+                    $model                   = $sourceConfig['model'];
+                    $keyBy                   = $sourceConfig['keyBy'];
+                    $human_name              = $sourceConfig['human_name'];
+                    $m                       = modelNamesResolver::getModelObject($model);
+                    $dataSource              = $m
                         ->q()
                         ->addSelect($keyBy)
                         ->addSelect($human_name)
@@ -1053,10 +1065,11 @@ class _BaseAlinaModel
                         ->keyBy($keyBy)
                         ->toArray();
                     $sources[$rName]['list'] = $dataSource;
-                    $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
+                    $sources[$rName]         = array_merge($sources[$rName], $sourceConfig);
                 }
             }
         }
+
         return $sources;
     }
     ##################################################

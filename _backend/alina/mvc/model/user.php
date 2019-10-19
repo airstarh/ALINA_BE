@@ -178,6 +178,7 @@ class user extends _BaseAlinaModel
                 'model' => 'timezone',
                 'keyBy' => 'id',
                 'human_name' => ['name'],
+                'multiple' => '',
             ],
         ];
     }
