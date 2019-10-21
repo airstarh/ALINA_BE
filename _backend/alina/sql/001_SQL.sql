@@ -236,7 +236,7 @@ CREATE TABLE `rbac_permission` (
 /*Data for the table `rbac_permission` */
 
 insert  into `rbac_permission`(`id`,`name`,`description`) values 
-(1,'select',NULL),
+(1,'select','the select permission'),
 (2,'insert',NULL),
 (3,'update',NULL),
 (4,'delete',''),
@@ -251,14 +251,15 @@ CREATE TABLE `rbac_role` (
   `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rbac_role` */
 
 insert  into `rbac_role`(`id`,`name`,`description`) values 
 (1,'admin','Site administrator'),
 (4,'moderator','Site Moderator'),
-(5,'servants','Other aite users');
+(5,'servants','Other aite users'),
+(6,'privileged','Privileged User');
 
 /*Table structure for table `rbac_role_permission` */
 
@@ -301,14 +302,14 @@ CREATE TABLE `rbac_user_role` (
   KEY `fk_user_role_role` (`role_id`),
   CONSTRAINT `fk_user_role_role` FOREIGN KEY (`role_id`) REFERENCES `rbac_role` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_user_role_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rbac_user_role` */
 
 insert  into `rbac_user_role`(`id`,`user_id`,`role_id`) values 
-(1,1,1),
-(3,1,4),
-(6,1,5);
+(7,16,5),
+(68,1,1),
+(69,1,6);
 
 /*Table structure for table `tag` */
 
@@ -349,15 +350,15 @@ DROP TABLE IF EXISTS `timezone`;
 
 CREATE TABLE `timezone` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `timezone` */
 
 insert  into `timezone`(`id`,`name`,`description`) values 
-(1,'Первая Тайм Зона',NULL),
+(1,'Самая перваяч Тайм Зона',NULL),
 (2,'Вторая Тайм Зона',NULL),
 (3,'The Third Тайм Зона',NULL),
 (4,'4th Тайм Зона',NULL),
@@ -371,28 +372,28 @@ CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `mail` varbinary(300) NOT NULL,
   `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `language` char(5) COLLATE utf8mb4_unicode_ci DEFAULT 'en',
-  `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'https://stackoverflow.com/a/166157/3142281',
-  `created` int(11) DEFAULT NULL,
-  `lastenter` int(11) DEFAULT NULL,
-  `banned_till` int(11) DEFAULT '0',
   `firstname` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `lastname` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `is_deleted` tinyint(1) DEFAULT '0',
-  `is_verified` tinyint(1) DEFAULT '0',
-  `picture` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date_int_birth` bigint(8) DEFAULT NULL,
+  `file_picture` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `language` char(5) COLLATE utf8mb4_unicode_ci DEFAULT 'en',
   `timezone` bigint(20) DEFAULT '1',
+  `is_verified` tinyint(1) DEFAULT '0',
   `authtoken` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `authtoken_expires` int(11) DEFAULT NULL,
+  `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'https://stackoverflow.com/a/166157/3142281',
+  `date_int_banned_till` int(12) DEFAULT '0',
+  `date_int_lastenter` int(12) DEFAULT NULL,
+  `date_int_created` int(12) DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `user` */
 
-insert  into `user`(`id`,`mail`,`password`,`language`,`ip`,`created`,`lastenter`,`banned_till`,`firstname`,`lastname`,`is_deleted`,`is_verified`,`picture`,`timezone`,`authtoken`,`authtoken_expires`) values 
-(1,'vsevolod.azovsky@gmail.com','c4ca4238a0b923820dcc509a6f75849b','en','ffff:ffff:ffff:ffff:ffff:ffff:ffff:eeef',0,0,0,'Vsevolod','Azovsky',0,1,'',1,NULL,NULL),
-(14,'air_star_h@mail.ru','d41d8cd98f00b204e9800998ecf8427e','ru','127.0.0.1',1571193740,NULL,0,NULL,NULL,0,0,NULL,1,NULL,NULL),
-(15,'vsevolod.azovsky@gmail.com1','75c0347b168dbd0608fc1917bb4c9ffc','ru','127.0.0.1',1571242895,NULL,0,NULL,NULL,0,0,NULL,1,NULL,NULL);
+insert  into `user`(`id`,`mail`,`password`,`firstname`,`lastname`,`date_int_birth`,`file_picture`,`language`,`timezone`,`is_verified`,`authtoken`,`authtoken_expires`,`ip`,`date_int_banned_till`,`date_int_lastenter`,`date_int_created`,`is_deleted`) values 
+(1,'vsevolod.azovsky@gmail.com','75c0347b168dbd0608fc1917bb4c9ffc','Vsevolod','Azovsky',95641246800,'111','en',2,1,NULL,NULL,'3',1277928000,1569877200,1569877200,0),
+(16,'air_star_h@mail.ru','75c0347b168dbd0608fc1917bb4c9ffc',NULL,NULL,NULL,NULL,'ru',1,0,NULL,NULL,'127.0.0.1',0,NULL,1571368667,0);
 
 /*Table structure for table `user_user` */
 
