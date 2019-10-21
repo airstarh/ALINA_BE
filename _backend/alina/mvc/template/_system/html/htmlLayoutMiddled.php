@@ -10,6 +10,7 @@ use alina\mvc\view\html;
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= \alina\app::getConfig('title'); ?></title>
+    <?= $data->js() ?>
     <?= $data->css() ?>
 </head>
 <body>
@@ -20,8 +21,5 @@ use alina\mvc\view\html;
         <?= $data->content(); ?>
     </div> <!-- /container -->
 </div>
-<!--region JS -->
-<?= $data->js() ?>
-<!--endregion JS -->
 </body>
 </html>

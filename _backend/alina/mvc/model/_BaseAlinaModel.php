@@ -4,6 +4,7 @@ namespace alina\mvc\model;
 
 use alina\message;
 use alina\utils\Data;
+use alina\utils\Str;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
@@ -635,6 +636,11 @@ class _BaseAlinaModel
         foreach ($fields as $name => $params) {
             if (property_exists($data, $name)) {
                 $value = $data->{$name};
+                ##################################################
+                if (Str::ifContains($name, 'date_int_')) {
+                    $data->{$name} = (new \alina\utils\DateTime($data->{$name}))->getTimestamp();
+                }
+                ##################################################
                 if (isset($params['filters']) && !empty($params['filters'])) {
                     foreach ($params['filters'] as $filter) {
 

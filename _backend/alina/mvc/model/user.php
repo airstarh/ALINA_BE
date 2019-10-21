@@ -46,11 +46,11 @@ class user extends _BaseAlinaModel
             'lastname'    => [],
             'is_deleted'  => [],
             'is_verified' => [],
-            'created'     => [
+            'date_int_created'     => [
                 'default' => ALINA_TIME,
             ],
-            'lastenter'   => [],
-            'picture'     => [],
+            'date_int_lastenter'   => [],
+            'file_picture'     => [],
             'timezone'    => [],
             'password'    => [
                 'filters'    => [
@@ -75,7 +75,7 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'banned_till' => [],
+            'date_int_banned_till' => [],
             'ip'          => [
                 'default' => Sys::getUserIp(),
             ],
@@ -202,13 +202,19 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
-        message::set(Data::hlpGetBeautifulJsonString($data));
         $referencesSources = $this->referencesSources();
         foreach ($referencesSources as $cfgName => $srcCfg) {
             if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {
                 if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
                     $m = modelNamesResolver::getModelObject($cfgName);
-                    //$m->delete([$srcCfg['thisKey'], '=', ]);
+                    $m->delete([
+                        [$srcCfg['thisKey'], '=', $data->{$this->pkName}]]);
+                    foreach ($data->{$cfgName} as $thatKey) {
+                        $m->insert([
+                            $srcCfg['thisKey'] => $data->{$this->pkName},
+                            $srcCfg['thatKey'] => $thatKey,
+                        ]);
+                    }
                 }
             }
         }

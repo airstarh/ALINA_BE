@@ -80,6 +80,7 @@ switch (ALINA_ENV) {
                     // Alina.
                     '/sources/js/001_alina_init.js',
                     //'/sources/js/002_alina_hash_catcher.js',
+                    '/sources/js/100_alina_exe.js',
                 ],
                 'meta' => [],
             ],

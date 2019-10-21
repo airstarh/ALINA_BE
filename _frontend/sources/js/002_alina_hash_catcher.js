@@ -1,8 +1,7 @@
 $(document).ready(function () {
 
     ALINA.hash = ALINA.hash || {
-        clean: function(event)
-        {
+        clean: function (event) {
             // for older browsers, leaves a # behind
             // hash no_where - to prevent page jump to top (!important)
             window.location.hash = 'no_where';
@@ -39,7 +38,9 @@ $(document).ready(function () {
             var hashQueryObj = ALINA.hash.analyze();
             // prevent page jumping if hash was cleaned
             if (hashQueryObj == false) {
-                if (event) {event.preventDefault();}
+                if (event) {
+                    event.preventDefault();
+                }
                 return false;
             }
 

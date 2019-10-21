@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/FormPatternsInvestigation/index/'                       => 'Form Patterns Investigation',
             '/AdminDbManager/EditRow/user/1'                       => 'Edit a DB line',
             '/Auth/Profile/1'                                      => 'User',
             '/Auth/Register?lala=lala'                             => 'Register',

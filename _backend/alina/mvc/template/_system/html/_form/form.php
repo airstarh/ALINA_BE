@@ -3,6 +3,7 @@
 
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Str;
 
 $action  = @$data->action ?: '';
 $enctype = @$data->enctype ?: 'multipart/form-data';

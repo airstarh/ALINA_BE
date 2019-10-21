@@ -23,7 +23,7 @@ class Str
 
     static public function ifContains($haystack, $needle)
     {
-        return mb_stripos($haystack, $needle);
+        return mb_stripos($haystack, $needle) !== FALSE;
     }
 
     static public function removeEnters($haystack, $needle = '')

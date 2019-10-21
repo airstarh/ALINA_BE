@@ -1,2 +1,2 @@
 <?php /** @var $data string */ ?>
-<script src="<?= $data ?>"></script>
+<script defer src="<?= $data ?>"></script>
