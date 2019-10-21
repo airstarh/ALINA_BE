@@ -85,9 +85,10 @@ class _BaseAlinaModel
     {
         $data = $this->q()->where($conditions)->first();
 
+        $this->{$this->pkName} = $data->{$this->pkName};
         $this->attributes = $data;
 
-        return $data;
+        return $this;
     }
 
     public function getAll($conditions = [])

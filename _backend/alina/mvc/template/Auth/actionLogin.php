@@ -4,6 +4,14 @@
 use alina\mvc\view\html as htmlAlias;
 
 ?>
-<form action="" method="post" enctype="multipart/form-data">
+<div class="row align-items-center h-100">
+    <div class="col-md-6 mx-auto">
+        <form action="" method="post" enctype="multipart/form-data">
+            <h1>Login</h1>
+            <input type="text" name="mail" value="<?= $data->mail ?>" placeholder="mail" class="form-control">
+            <input type="password" name="password" value="<?= $data->password ?>" placeholder="Password" class="form-control">
+            <?= (new htmlAlias)::elFormStandardButtons()  ?>
+        </form>
+    </div>
+</div>
 
-</form>

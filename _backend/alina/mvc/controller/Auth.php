@@ -17,6 +17,37 @@ class Auth
      */
     public function actionLogin()
     {
+        $vd = (object)[
+            'table'    => 'user',
+            'mail'     => '',
+            'password' => '',
+        ];
+        ##################################################
+        $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
+        $vd = Data::mergeObjects($vd, $p);
+        if (empty((array)$p)) {
+            echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+
+            return $this;
+        }
+        ##################################################
+        try {
+            ##################################################
+            $u     = new user();
+            $u = $u->getOne([
+                'mail' => $vd->mail,
+                'password' => md5($vd->password),
+            ]);
+            if (isset($u->id)) {
+                message::set('Success!');
+            }
+        } catch (\Exception $e) {
+            message::set($e->getMessage(), [], 'alert alert-danger');
+        }
+
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+
+        return $this;
     }
 
     /**
@@ -43,7 +74,7 @@ class Auth
                 throw new exceptionValidation('Passwords do not match');
             }
             ##################################################
-            $u = new user();
+            $u     = new user();
             $uData = $u->insert($vd);
             if (isset($u->id)) {
                 $ur = new _BaseAlinaModel(['table' => 'rbac_user_role']);
@@ -67,9 +98,9 @@ class Auth
     public function actionProfile($id)
     {
         $vd = (object)[];
-        $u = new user();
+        $u  = new user();
         $u->getAllWithReferences(['user.id' => $id,]);
-        $vd->user = $u;
+        $vd->user    = $u;
         $vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
     }
