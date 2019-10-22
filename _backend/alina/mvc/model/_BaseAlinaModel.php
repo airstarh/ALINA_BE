@@ -6,6 +6,7 @@ use alina\message;
 use alina\utils\Data;
 use alina\utils\Str;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
+use Exception;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
 use Illuminate\Database\Query\Builder as BuilderAlias;
@@ -65,10 +66,13 @@ class _BaseAlinaModel
     #region Constructor
     public function __construct($opts = NULL)
     {
+        $this->{$this->pkName} = NULL;
         if ($opts) {
-            $opts       = \alina\utils\Data::toObject($opts);
+            $opts       = Data::toObject($opts);
             $this->opts = $opts;
-            $opts->table ? $this->table = $opts->table : NULL;
+            if (isset($opts->table)) {
+                $this->table = $opts->table;
+            }
         }
         $this->alias      = $this->table;
         $this->attributes = new \stdClass;
@@ -83,10 +87,12 @@ class _BaseAlinaModel
 
     public function getOne($conditions = [])
     {
+        $data = (object)[];
         $data = $this->q()->where($conditions)->first();
-
-        $this->{$this->pkName} = $data->{$this->pkName};
-        $this->attributes = $data;
+        if (isset($data->{$this->pkName})) {
+            $this->{$this->pkName} = $data->{$this->pkName};
+        }
+        $this->attributes = Data::mergeObjects($this->attributes, $data);
 
         return $this;
     }
@@ -101,7 +107,7 @@ class _BaseAlinaModel
     public function getModelByUniqueKeys($data)
     {
 
-        $data       = \alina\utils\Data::toObject($data);
+        $data       = Data::toObject($data);
         $uniqueKeys = $this->uniqueKeys();
 
         foreach ($uniqueKeys as $uniqueFields) {
@@ -159,7 +165,7 @@ class _BaseAlinaModel
     {
         $this->mode = 'INSERT';
         $pkName     = $this->pkName;
-        $data       = \alina\utils\Data::toObject($data);
+        $data       = Data::toObject($data);
         $data       = Data::mergeObjects($this->buildDefaultData(), $data);
         $dataArray  = $this->prepareDbData($data);
         #####
@@ -168,7 +174,7 @@ class _BaseAlinaModel
         }
         #####
         $id               = $this->q()->insertGetId($dataArray, $pkName);
-        $this->attributes = $data = \alina\utils\Data::toObject($dataArray);
+        $this->attributes = $data = Data::toObject($dataArray);
         $data->{$pkName}  = $this->{$pkName} = $id;
         #####
         if (method_exists($this, 'hookRightAfterSave')) {
@@ -188,12 +194,12 @@ class _BaseAlinaModel
      * @param $data array|\stdClass
      * @param null|mixed $id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      * @throws exceptionValidation
      */
     public function updateById($data, $id = NULL)
     {
-        $data   = \alina\utils\Data::toObject($data);
+        $data   = Data::toObject($data);
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
             $pkValue = $id;
@@ -208,9 +214,9 @@ class _BaseAlinaModel
             throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
         }
 
-        $conditions       = [$pkName => $pkValue];
+        $conditions = [$pkName => $pkValue];
         $this->update($data, $conditions);
-        $this->attributes = $data;
+        $this->attributes = Data::mergeObjects($this->attributes, $data);
         $this->{$pkName}  = $this->attributes->{$pkName} = $data->{$pkName} = $pkValue;
 
         return $this;
@@ -220,7 +226,7 @@ class _BaseAlinaModel
     {
         $this->mode = 'UPDATE';
         $pkName     = $this->pkName;
-        $data       = \alina\utils\Data::toObject($data);
+        $data       = Data::toObject($data);
         $dataArray  = $this->prepareDbData($data);
         ##################################################
         if (method_exists($this, 'hookRightBeforeSave')) {
@@ -231,7 +237,7 @@ class _BaseAlinaModel
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        //$this->attributes        = \alina\utils\Data::toObject($dataArray);
+        $this->attributes        = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
         message::set("Table: {$this->table} Updated rows:{$this->affectedRowsCount}");
         ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
@@ -245,7 +251,7 @@ class _BaseAlinaModel
 
     public function upsert($data)
     {
-        $data = \alina\utils\Data::toObject($data);
+        $data = Data::toObject($data);
         if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
             $this->updateById($data);
         } else {
@@ -285,7 +291,7 @@ class _BaseAlinaModel
             $pkName = $this->pkName;
 
             $data = (isset($additionalData) && !empty($additionalData))
-                ? \alina\utils\Data::toObject($additionalData)
+                ? Data::toObject($additionalData)
                 : new \stdClass();
             // Even if there is no is_deleted in this->fields, it does not brings error
             // due to $this->bindModel functionality.
@@ -491,6 +497,15 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    public function getOneWithReferences($conditions = [])
+    {
+        $attributes            = $this->getAllWithReferences($conditions)->first();
+        $this->{$this->pkName} = $attributes->{$this->pkName};
+        $this->attributes      = $attributes;
+
+        return $attributes;
+    }
+
     /**
      * Sets $this->o_GET
      */
@@ -575,7 +590,7 @@ class _BaseAlinaModel
 
         $sortArray = [];
         foreach ($sn as $i => $n) {
-            $asc         = isset($sa[$i]) ? \alina\utils\Data::getSqlDirection($sa[$i]) : 'ASC';
+            $asc         = isset($sa[$i]) ? Data::getSqlDirection($sa[$i]) : 'ASC';
             $sortArray[] = [$n, $asc];
         }
 
@@ -602,13 +617,14 @@ class _BaseAlinaModel
                 $defaultRawObj->$f = $props['default'];
             }
         }
+        $this->attributes = $defaultRawObj;
 
         return $defaultRawObj;
     }
 
     public function prepareDbData($data, $addAuditInfo = TRUE)
     {
-        $data = \alina\utils\Data::toObject($data);
+        $data = Data::toObject($data);
         $this->applyFilters($data);
         $this->validate($data);
 
@@ -639,7 +655,12 @@ class _BaseAlinaModel
                 $value = $data->{$name};
                 ##################################################
                 if (Str::ifContains($name, 'date_int_')) {
-                    $data->{$name} = (new \alina\utils\DateTime($data->{$name}))->getTimestamp();
+                    try {
+                        $data->{$name} = (new \alina\utils\DateTime($data->{$name}))->getTimestamp();
+                    } catch (Exception $e) {
+                    }
+                    //ToDO: make beautiful
+                    //...do nothing
                 }
                 ##################################################
                 if (isset($params['filters']) && !empty($params['filters'])) {
@@ -1014,6 +1035,15 @@ class _BaseAlinaModel
         }
 
         return $this;
+    }
+
+    public function g($f)
+    {
+        if (isset($this->attributes->{$f})) {
+            return $this->attributes->{$f};
+        }
+
+        return FALSE;
     }
 
     #endregion Helpers

@@ -5,6 +5,7 @@ namespace alina\mvc\controller;
 use alina\exceptionValidation;
 use alina\message;
 use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
@@ -33,16 +34,22 @@ class Auth
         ##################################################
         try {
             ##################################################
-            $u     = new user();
+            $u     = new CurrentUser();
             $u = $u->getOne([
                 'mail' => $vd->mail,
                 'password' => md5($vd->password),
             ]);
             if (isset($u->id)) {
-                message::set('Success!');
+                $u->NewAuthToken();
+                $u->authByToken();
+                message::set("Welcome, {$u->attributes->mail}!");
+            } else {
+                throw new exceptionValidation('Login failed');
             }
         } catch (\Exception $e) {
             message::set($e->getMessage(), [], 'alert alert-danger');
+            message::set($e->getFile(), [], 'alert alert-danger');
+            message::set($e->getLine(), [], 'alert alert-danger');
         }
 
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');

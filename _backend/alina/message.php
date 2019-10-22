@@ -4,6 +4,8 @@
 
 namespace alina;
 
+use alina\utils\Data;
+
 class message
 {
     const MESSAGES = 'ALINA_MESSAGES';
@@ -145,6 +147,9 @@ class message
 
     public function messageRawText()
     {
+        if (Data::isIterable($this->templateString)) {
+            $this->templateString = Data::hlpGetBeautifulJsonString($this->templateString);
+        }
         $this->messageRawText = vsprintf($this->templateString, $this->params);
 
         return $this->messageRawText;
