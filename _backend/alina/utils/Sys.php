@@ -97,7 +97,7 @@ class Sys
                     //header("Vary: Origin");
                     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
                     header('Access-Control-Max-Age: 666');
-                    header('Alina-Server-Header: Hello, user');
+                    header('Alina-Server-Header: Hello, from Alina');
                     $allowedHeaders = [
                         //'Authorization'                  => '',
                         //'Access-Control-Allow-Headers'   => '',

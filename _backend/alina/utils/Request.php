@@ -15,6 +15,9 @@ class Request
     protected        $oReqPost;
     protected        $oReqHeaders;
 
+    /**
+     * @return static
+     */
     static public function obj()
     {
         if (empty(static::$inst)) {
@@ -26,10 +29,21 @@ class Request
 
     protected function __construct()
     {
-        $this->oReqPost     = Sys::resolvePostDataAsObject();
         $this->oReqGet      = Sys::resolveGetDataAsObject();
+        $this->oReqPost     = Sys::resolvePostDataAsObject();
         $this->oReqHeaders  = getallheaders();
         $this->sUserBrowser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $this->sUserIp      = Sys::getUserIp();
+    }
+
+    public function all()
+    {
+        return [
+            'oReqHeaders'  => $this->oReqHeaders,
+            'oReqGet'      => $this->oReqGet,
+            'oReqPost'     => $this->oReqPost,
+            'sUserBrowser' => $this->sUserBrowser,
+            'sUserIp'      => $this->sUserIp,
+        ];
     }
 }

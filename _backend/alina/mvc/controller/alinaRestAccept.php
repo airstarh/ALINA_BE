@@ -14,7 +14,10 @@ use alina\GlobalRequestStorage;
 use alina\message;
 use alina\mvc\model\hero;
 use alina\mvc\model\modelNamesResolver;
+use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
+use alina\utils\Request;
+use alina\utils\Sys;
 
 class alinaRestAccept
 {
@@ -28,7 +31,7 @@ class alinaRestAccept
     public function actionIndex()
     {
 
-        \alina\utils\Sys::setCrossDomainHeaders();
+        Sys::setCrossDomainHeaders();
         message::set('Hello, World!!!');
         \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
 
@@ -37,7 +40,7 @@ class alinaRestAccept
         switch ($method) {
             //INSERT
             case 'POST':
-                $post = \alina\utils\Sys::resolvePostDataAsObject();
+                $post = Sys::resolvePostDataAsObject();
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -48,7 +51,7 @@ class alinaRestAccept
                 break;
             //UPDATE
             case 'PUT':
-                $post = \alina\utils\Sys::resolvePostDataAsObject();
+                $post = Sys::resolvePostDataAsObject();
                 if ($command === 'model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -95,47 +98,6 @@ class alinaRestAccept
         }
     }
 
-    public function actionNgHeroes(...$routeData)
-    {
-        (new jsonView())->systemData();
-        {
-            $method = strtoupper($_SERVER['REQUEST_METHOD']);
-            $m      = new hero();
-
-            switch ($method) {
-                case 'POST':
-                    $post = \alina\utils\Sys::resolvePostDataAsObject();
-                    $data = $m->insert($post);
-                    (new jsonView())->simpleRestApiResponse($data);
-                    break;
-                case 'PUT':
-                    $post = \alina\utils\Sys::resolvePostDataAsObject();
-                    $data = $m->updateById($post);
-                    (new jsonView())->simpleRestApiResponse($data);
-                    break;
-                case 'DELETE':
-                    if (isset($routeData) && !empty($routeData)) {
-                        $id = array_shift($routeData);
-                        $m->deleteById($id);
-                    }
-                    (new jsonView())->simpleRestApiResponse(NULL);
-                    break;
-                case 'GET':
-                default:
-                    if (isset($routeData) && !empty($routeData)) {
-                        $id   = array_shift($routeData);
-                        $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id])[0];
-                        (new jsonView())->simpleRestApiResponse($data);
-                    } else {
-                        $data = $m->getAllWithReferences();
-                        (new jsonView())->simpleRestApiResponse($data);
-                    }
-
-                    break;
-            }
-        }
-    }
-
     public function actionForm()
     {
         $data = '';
@@ -147,7 +109,7 @@ class alinaRestAccept
      */
     public function actionTestGet()
     {
-        \alina\utils\Sys::setCrossDomainHeaders();
+        Sys::setCrossDomainHeaders();
         error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
         error_log(__FUNCTION__,0);
         error_log("URL: {$_SERVER['REQUEST_URI']}",0);
@@ -157,4 +119,14 @@ class alinaRestAccept
         error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
         (new jsonView())->standardRestApiResponse($_GET);
     }
+
+    public function actionTestCors()
+    {
+        Sys::setCrossDomainHeaders();
+        $vd = Request::obj()->all();
+        ############################################
+        //echo (new htmlAlias)->page($vd);
+        (new jsonView())->standardRestApiResponse($vd);
+    }
+
 }
