@@ -115,6 +115,7 @@ class Sys
                     $allowedHeaders = implode(', ', $allowedHeaders);
                     header("Access-Control-Allow-Headers: {$allowedHeaders}");
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
+                    header("Access-Control-Allow-Credentials: true");
                     //header('Access-Control-Allow-Credentials: false');
                     break;
             }

@@ -123,6 +123,7 @@ class alinaRestAccept
     public function actionTestCors()
     {
         Sys::setCrossDomainHeaders();
+        \alina\cookie::setPath('AlinaCookie', 'Hello, cookie');
         $vd = Request::obj()->all();
         ############################################
         //echo (new htmlAlias)->page($vd);
