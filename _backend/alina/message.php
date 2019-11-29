@@ -151,6 +151,7 @@ class message
             $this->templateString = Data::hlpGetBeautifulJsonString($this->templateString);
         }
         $this->messageRawText = vsprintf($this->templateString, $this->params);
+        //$this->messageRawText = var_export($this->params, 1);
 
         return $this->messageRawText;
     }

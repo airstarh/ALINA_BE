@@ -2,6 +2,7 @@
 /** @var $data html */
 
 use alina\mvc\view\html;
+use alina\utils\Sys;
 
 ?>
 <!DOCTYPE html>
@@ -27,26 +28,9 @@ use alina\mvc\view\html;
                 <?php
                 $h1 = 'Alina Details';
                 print_r("<h1>{$h1}</h1>");
-
                 echo '<pre>';
-                print_r(getallheaders());
+                print_r(Sys::SUPER_DEBUG_INFO());
                 echo '</pre>';
-
-                echo '<pre>';
-                print_r($_SERVER);
-                echo '</pre>';
-
-                echo '<pre>';
-                print_r(\alina\app::get()->router);
-                echo '</pre>';
-
-                //            echo '<pre>';
-                //            print_r([
-                //                'currentController' => \alina\app::get()->currentController,
-                //                'currentAction'     => \alina\app::get()->currentAction,
-                //            ]);
-                //            echo '</pre>';
-
                 print_r(\alina\utils\Sys::reportSpentTime());
 
                 ?>

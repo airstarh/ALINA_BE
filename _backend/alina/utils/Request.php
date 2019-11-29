@@ -39,11 +39,11 @@ class Request
     public function all()
     {
         return [
-            'oReqHeaders'  => $this->oReqHeaders,
-            'oReqGet'      => $this->oReqGet,
-            'oReqPost'     => $this->oReqPost,
-            'sUserBrowser' => $this->sUserBrowser,
-            'sUserIp'      => $this->sUserIp,
+            'HEADERS' => $this->oReqHeaders,
+            'GET'     => $this->oReqGet,
+            'POST'    => $this->oReqPost,
+            'BROWSER' => $this->sUserBrowser,
+            'IP'      => $this->sUserIp,
         ];
     }
 }

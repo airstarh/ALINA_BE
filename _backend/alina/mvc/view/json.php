@@ -3,6 +3,7 @@
 namespace alina\mvc\view;
 
 use alina\GlobalRequestStorage;
+use alina\utils\Sys;
 
 class json
 {
@@ -60,16 +61,7 @@ class json
             return [];
         }
 
-        $sysData            = [];
-        $sysData['method']  = $_SERVER['REQUEST_METHOD'];
-        $sysData['time']    = microtime(TRUE) - ALINA_MICROTIME;
-        $sysData['headers'] = getallheaders();
-        $sysData['GET']     = $_GET;
-        $sysData['POST']    = \alina\utils\Sys::resolvePostDataAsObject();
-        $sysData['FILE']    = $_FILES;
-        $sysData['COOKIES'] = $_COOKIE;
-        $sysData['SERVER']  = $_SERVER;
-        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
+        $sysData = Sys::SUPER_DEBUG_INFO();
 
         return $sysData;
     }

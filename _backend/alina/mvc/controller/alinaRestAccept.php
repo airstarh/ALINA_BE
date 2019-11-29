@@ -110,6 +110,7 @@ class alinaRestAccept
     public function actionTestGet()
     {
         Sys::setCrossDomainHeaders();
+
         error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
         error_log(__FUNCTION__,0);
         error_log("URL: {$_SERVER['REQUEST_URI']}",0);

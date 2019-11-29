@@ -45,6 +45,10 @@ class Sys
             $post = file_get_contents('php://input');
         }
 
+        error_log('>>> $post  - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
+        error_log(var_export($post, 1), 0);
+        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
+
         $res = \alina\utils\Data::toObject($post);
 
         return $res;
@@ -72,7 +76,6 @@ class Sys
         if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
             return TRUE;
         }
-
 
         if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
             return TRUE;
@@ -117,6 +120,14 @@ class Sys
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
                     header("Access-Control-Allow-Credentials: true");
                     //header('Access-Control-Allow-Credentials: false');
+
+                    ##################################################
+                    $method = strtoupper($_SERVER['REQUEST_METHOD']);
+                    if ($method === 'OPTIONS') {
+                        echo 'ok';
+                        exit;
+                    }
+                    ##################################################
                     break;
             }
         }
@@ -186,7 +197,7 @@ class Sys
     static public function template($fileFullPath, $data = NULL)
     {
         $fileFullPath = realpath($fileFullPath);
-        ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
+        ob_start(NULL, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
         ob_implicit_flush(FALSE);
         require($fileFullPath);
         $output = ob_get_clean();
@@ -195,24 +206,48 @@ class Sys
     }
 
     ##################################################
-    static Public function getUserIp(){
+    static Public function getUserIp()
+    {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
         if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
         }
+
         return $_SERVER['REMOTE_ADDR'];
     }
     ##################################################
     ##################################################
-    static Public function getUserLanguage(){
+    static Public function getUserLanguage()
+    {
         //$l = 'en';
         $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+
         return $lang;
     }
 
     ##################################################
+
+    /**
+     * @return array
+     */
+    static public function SUPER_DEBUG_INFO()
+    {
+        $sysData                = [];
+        $sysData['METHOD']      = $_SERVER['REQUEST_METHOD'];
+        $sysData['HEADERS']     = getallheaders();
+        $sysData['REQUEST']     = $_REQUEST;
+        $sysData['GET']         = $_GET;
+        $sysData['POST']        = $_POST;
+        $sysData['FILE']        = $_FILES;
+        $sysData['COOKIES']     = $_COOKIE;
+        $sysData['SERVER']      = $_SERVER;
+        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
+
+        return $sysData;
+    }
+
     ##################################################
     ##################################################
     ##################################################
