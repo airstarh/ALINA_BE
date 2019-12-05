@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/egCookie/Test001'                                    => 'COOKIE',
             '/Auth/Login'                                          => 'Login',
             '/Auth/Profile/1'                                      => 'User',
             '/Auth/Register?lala=lala'                             => 'Register',

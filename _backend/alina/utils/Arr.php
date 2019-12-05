@@ -22,7 +22,7 @@ class Arr
             if (array_key_exists($section, $temp)) {
                 $temp = &$temp[$section];
             } else {
-                throw new \Exception("No section $section in Array");
+                return null;
             }
         }
 

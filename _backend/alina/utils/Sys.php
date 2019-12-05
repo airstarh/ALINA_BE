@@ -119,6 +119,7 @@ class Sys
                     header("Access-Control-Allow-Headers: {$allowedHeaders}");
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
                     header("Access-Control-Allow-Credentials: true");
+                    header("Authorization: QQQ");
                     //header('Access-Control-Allow-Credentials: false');
 
                     ##################################################
@@ -234,15 +235,15 @@ class Sys
      */
     static public function SUPER_DEBUG_INFO()
     {
-        $sysData                = [];
-        $sysData['METHOD']      = $_SERVER['REQUEST_METHOD'];
-        $sysData['HEADERS']     = getallheaders();
-        $sysData['REQUEST']     = $_REQUEST;
-        $sysData['GET']         = $_GET;
-        $sysData['POST']        = $_POST;
-        $sysData['FILE']        = $_FILES;
-        $sysData['COOKIES']     = $_COOKIE;
-        $sysData['SERVER']      = $_SERVER;
+        $sysData            = [];
+        $sysData['METHOD']  = $_SERVER['REQUEST_METHOD'];
+        $sysData['HEADERS'] = getallheaders();
+        $sysData['REQUEST'] = $_REQUEST;
+        $sysData['GET']     = $_GET;
+        $sysData['POST']    = $_POST;
+        $sysData['FILE']    = $_FILES;
+        $sysData['COOKIES'] = $_COOKIE;
+        $sysData['SERVER']  = $_SERVER;
         isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
 
         return $sysData;

@@ -21,6 +21,7 @@ class _BaseAlinaModel
     public    $table;
     public    $alias  = '';
     public    $pkName = 'id';
+    public    $id     = NULL;
     protected $opts;
     public    $dataArrayIdentity;
     #endregion Required
@@ -66,7 +67,8 @@ class _BaseAlinaModel
     #region Constructor
     public function __construct($opts = NULL)
     {
-        $this->{$this->pkName} = NULL;
+        $this->attributes = (object)[];
+        $this->setPkValue(NULL, $this->attributes);
         if ($opts) {
             $opts       = Data::toObject($opts);
             $this->opts = $opts;
@@ -74,8 +76,7 @@ class _BaseAlinaModel
                 $this->table = $opts->table;
             }
         }
-        $this->alias      = $this->table;
-        $this->attributes = new \stdClass;
+        $this->alias = $this->table;
     }
     #endregion Constructor
     ##################################################
@@ -87,10 +88,12 @@ class _BaseAlinaModel
 
     public function getOne($conditions = [])
     {
-        $data = (object)[];
         $data = $this->q()->where($conditions)->first();
+        if (empty($data)) {
+            $data = (object)[];
+        }
         if (isset($data->{$this->pkName})) {
-            $this->{$this->pkName} = $data->{$this->pkName};
+            $this->setPkValue($data->{$this->pkName}, $data);
         }
         $this->attributes = Data::mergeObjects($this->attributes, $data);
 
@@ -173,9 +176,9 @@ class _BaseAlinaModel
             $this->hookRightBeforeSave($dataArray);
         }
         #####
-        $id               = $this->q()->insertGetId($dataArray, $pkName);
+        $id = $this->q()->insertGetId($dataArray, $pkName);
+        $this->setPkValue($id, $data);
         $this->attributes = $data = Data::toObject($dataArray);
-        $data->{$pkName}  = $this->{$pkName} = $id;
         #####
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
@@ -218,6 +221,7 @@ class _BaseAlinaModel
         $this->update($data, $conditions);
         $this->attributes = Data::mergeObjects($this->attributes, $data);
         $this->{$pkName}  = $this->attributes->{$pkName} = $data->{$pkName} = $pkValue;
+        $this->id         = $pkValue;
 
         return $this;
     }
@@ -237,7 +241,12 @@ class _BaseAlinaModel
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        $this->attributes        = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
+        if ($this->affectedRowsCount == 1) {
+            $this->attributes = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
+            if (isset($this->attributes->{$this->pkName})) {
+                $this->setPkValue($this->attributes->{$this->pkName});
+            }
+        }
         message::set("Table: {$this->table} Updated rows:{$this->affectedRowsCount}");
         ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
@@ -497,13 +506,19 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
-        $attributes            = $this->getAllWithReferences($conditions)->first();
-        $this->{$this->pkName} = $attributes->{$this->pkName};
-        $this->attributes      = $attributes;
+        $attributes = $this->getAllWithReferences($conditions, [], 1)->first();
+        if (empty($attributes)) {
+            $attributes = (object)[];
+        }
+        if (isset($attributes->{$this->pkName})) {
+            $this->setPkValue($attributes->{$this->pkName});
+        }
+        $this->attributes = Data::mergeObjects($this->attributes, $attributes);
 
-        return $attributes;
+        return $this->attributes;
     }
 
     /**
@@ -1044,6 +1059,17 @@ class _BaseAlinaModel
         }
 
         return FALSE;
+    }
+
+    public function setPkValue($id, \stdClass $data = NULL)
+    {
+        $this->{$this->pkName} = $id;
+        $this->id              = $id;
+        if ($data) {
+            $data->{$this->pkName} = $id;
+        }
+
+        return $this;
     }
 
     #endregion Helpers

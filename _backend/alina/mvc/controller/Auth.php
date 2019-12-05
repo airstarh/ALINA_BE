@@ -14,7 +14,7 @@ use alina\utils\Sys;
 class Auth
 {
     /**
-     * @route /Generic/index
+     * @route /Auth/Login
      */
     public function actionLogin()
     {
@@ -34,15 +34,13 @@ class Auth
         ##################################################
         try {
             ##################################################
-            $u     = new CurrentUser();
-            $u = $u->getOne([
-                'mail' => $vd->mail,
+            $CU    = CurrentUser::obj();
+            $LogIn = $CU->LogIn([
+                'mail'     => $vd->mail,
                 'password' => md5($vd->password),
             ]);
-            if (isset($u->id)) {
-                $u->NewAuthToken();
-                $u->authByToken();
-                message::set("Welcome, {$u->attributes->mail}!");
+            if ($LogIn) {
+                message::set("Welcome, {$vd->mail}!");
             } else {
                 throw new exceptionValidation('Login failed');
             }

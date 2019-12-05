@@ -89,8 +89,12 @@ class alinaRestAccept
                         $data      = $m->getAllWithReferences($cond);
                         $resp      = NULL;
                         if (!empty($data)) {
-                            $resp = $data[0];
+                            foreach ($data as $pk=>$d) {
+                                $resp = $d;
+                                break;
+                            }
                         }
+                        //$resp = $data;
                         (new jsonView())->standardRestApiResponse($resp);
                     }
                 }

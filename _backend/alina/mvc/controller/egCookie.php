@@ -2,15 +2,20 @@
 
 namespace alina\mvc\controller;
 
+use alina\cookie;
 
 class egCookie
 {
-    public function actionIndex()
+    /**
+     * @route /egCookie/Test001
+     */
+    public function actionTest001()
     {
-        \alina\cookie::setPath('a/b/c/a1', 111);
-        \alina\cookie::setPath('a/b/c/a2', 222);
-        \alina\cookie::setPath('a/b/c1/a1', 333);
-        \alina\cookie::deletePath('a/b/c');
+        //cookie::setPath('a', '000');
+        cookie::setPath('a/b/c/a1', 111);
+        cookie::setPath('a/b/c/a2', 222);
+        cookie::setPath('a/b/c1/a1', 333);
+        //cookie::deletePath('a/b/c');
 
         echo '<pre>';
         print_r($_COOKIE);
@@ -20,5 +25,4 @@ class egCookie
         print_r($_SERVER['HTTP_COOKIE']);
         echo '</pre>';
     }
-
 }

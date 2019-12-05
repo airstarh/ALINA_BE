@@ -7,9 +7,9 @@ define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 
 use alina\message;
 
-class egFileUpload
+class FileUpload
 {
-    public function actionIndex()
+    public function actionCommon()
     {
 
         // В PHP 4.1.0 и более ранних версиях следует использовать $HTTP_POST_FILES

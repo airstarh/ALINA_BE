@@ -2,57 +2,131 @@
 
 namespace alina\mvc\model;
 
+use alina\cookie;
 use alina\message;
 use alina\session;
 use alina\utils\Data;
 use alina\utils\Sys;
 
-class CurrentUser extends user
+class CurrentUser
 {
-    public function NewAuthToken()
+    ##################################################
+    #region SingleTon
+    static protected $currKey = 'CurrentUser';
+    /**@var user */
+    protected $USER = NULL;
+
+    protected function __construct()
     {
-        $a                          = $this->attributes;
-        $at                         = [
+        $this->USER = new user();
+        session::set(static::$currKey, NULL);
+    }
+
+    static protected $inst = NULL;
+
+    /**
+     * @return static
+     */
+    static public function obj()
+    {
+        if (!static::$inst) {
+            static::$inst = new static();
+        }
+
+        return static::$inst;
+    }
+    #endregion SingleTon
+    ##################################################
+    public function LogIn($conditions)
+    {
+        $this->getByConditions($conditions);
+        if ($this->USER->id) {
+            session::set(static::$currKey, $this->USER->id);
+            $this->newToken();
+
+            return $this;
+        } else {
+            return FALSE;
+        }
+    }
+
+    public function LogInByToken($id, $token)
+    {
+        return $this->LogIn([
+                'id'        => $id,
+                'authtoken' => $token,
+            ]
+        );
+    }
+
+    /**
+     * @param array $conditions
+     * @return static
+     */
+    protected function getByConditions($conditions)
+    {
+        $this->USER->getOneWithReferences($conditions);
+
+        return $this;
+    }
+
+    protected function newToken()
+    {
+        $u = $this->USER;
+        $a = $u->attributes;
+        if (isset($a->date_int_authtoken_expires)) {
+            message::set($a->date_int_authtoken_expires);
+            message::set($a->date_int_authtoken_expires - ALINA_TIME);
+            if ($a->date_int_authtoken_expires - ALINA_TIME > ALINA_MIN_TIME_DIFF_SEC) {
+                //cookie::set('authtoken', $a->authtoken);
+
+                return $this;
+            }
+        }
+
+        $at = [
             $a->id,
             $a->mail,
             $a->password,
             ALINA_TIME,
         ];
-        $at                         = md5(implode('', $at));
-        $date_int_authtoken_expires = ALINA_TIME + (60 * 10);
-        $this->updateById([
+        $at = md5(implode('', $at));
+        $u->updateById([
             'id'                         => $a->id,
             'authtoken'                  => $at,
-            'date_int_authtoken_expires' => $date_int_authtoken_expires,
+            'date_int_authtoken_expires' => ALINA_AUTH_EXPIRES,
         ]);
+        cookie::set('authtoken', $at);
 
         return $this;
     }
 
-    public function authByToken($authtoken = NULL)
+    ##################################################
+    public function LogOut()
     {
-        if (!$authtoken) {
-            $authtoken = $this->g('authtoken');
-        }
-        $attributes = $this->getOneWithReferences([
-            'authtoken' => $authtoken,
-        ]);
-
-        $this->auth();
-
-        return $this;
+        cookie::delete('authtoken');
+        session::delete(static::$currKey);
     }
 
-    public function auth()
+    ##################################################
+    public function hasRole($role){
+        return $this->USER->hasRole($role);
+    }
+    public function hasPerm($perm){
+        return $this->USER->hasPerm($perm);
+    }
+
+    public function isLoggedIn()
     {
-        if (isset($this->id)) {
-            if ($this->attributes->date_int_authtoken_expires < ALINA_TIME) {
-                session::set('CurrentUser', $this);
+        $id = $this->USER->id ?: session::get(static::$currKey);
+        if ($id && $id > 0) {
+            if (isset($_COOKIE['authtoken'])) {
+                $token = $_COOKIE['authtoken'];
+
+                return $this->LogInByToken($id, $token);
             }
-        } else {
-            message::set('Unable to authorize', [], 'alert alert-danger');
         }
 
-        return $this;
+        return $id;
     }
 }

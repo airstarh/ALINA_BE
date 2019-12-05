@@ -14,8 +14,8 @@ class user extends _BaseAlinaModel
     {
         $fDefault = parent::fields();
         $fCustom  = [
-            'id'          => [],
-            'mail'        => [
+            'id'                         => [],
+            'mail'                       => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -42,17 +42,17 @@ class user extends _BaseAlinaModel
 
                 ],
             ],
-            'firstname'   => [],
-            'lastname'    => [],
-            'is_deleted'  => [],
-            'is_verified' => [],
-            'date_int_created'     => [
+            'firstname'                  => [],
+            'lastname'                   => [],
+            'is_deleted'                 => [],
+            'is_verified'                => [],
+            'date_int_created'           => [
                 'default' => ALINA_TIME,
             ],
-            'date_int_lastenter'   => [],
-            'file_picture'     => [],
-            'timezone'    => [],
-            'password'    => [
+            'date_int_lastenter'         => [],
+            'file_picture'               => [],
+            'timezone'                   => [],
+            'password'                   => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -75,19 +75,23 @@ class user extends _BaseAlinaModel
                 ],
 
             ],
-            'date_int_banned_till' => [],
-            'ip'          => [
+            'date_int_banned_till'       => [],
+            'ip'                         => [
                 'default' => Sys::getUserIp(),
             ],
-            'language'    => [
+            'language'                   => [
                 'default' => Sys::getUserLanguage(),
             ],
+            'date_int_authtoken_expires' => [],
+            'authtoken'                  => [],
         ];
         $fRes     = array_merge($fDefault, $fCustom);
 
         return $fRes;
     }
 
+    ##################################################
+    #region References
     public function uniqueKeys()
     {
         return [
@@ -189,11 +193,10 @@ class user extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
-        if (!isset($dataArray['password'])) {
-            return $this;
-        }
-        if (!Data::isValidMd5($dataArray['password'])) {
-            $dataArray['password'] = md5($dataArray['password']);
+        if (isset($dataArray['password'])) {
+            if (!Data::isValidMd5($dataArray['password'])) {
+                $dataArray['password'] = md5($dataArray['password']);
+            }
         }
 
         return $this;
@@ -208,7 +211,8 @@ class user extends _BaseAlinaModel
                 if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
                     $m = modelNamesResolver::getModelObject($cfgName);
                     $m->delete([
-                        [$srcCfg['thisKey'], '=', $data->{$this->pkName}]]);
+                        [$srcCfg['thisKey'], '=', $data->{$this->pkName}],
+                    ]);
                     foreach ($data->{$cfgName} as $thatKey) {
                         $m->insert([
                             $srcCfg['thisKey'] => $data->{$this->pkName},
@@ -221,6 +225,51 @@ class user extends _BaseAlinaModel
 
         return $this;
     }
-    #####
+    #endregion References
+    ##################################################
+    #region RBAC
+    public function hasRole($role)
+    {
+        if (!isset($this->attributes->rbac_user_role)) {
+            if (isset($this->id)) {
+                $this->getOneWithReferences([
+                    $this->pkName => $this->id,
+                ]);
+            }
+        }
+        if (isset($this->attributes->rbac_user_role)) {
+            $roles = $this->attributes->rbac_user_role;
+            foreach ($roles as $r) {
+                if (strtoupper($r->name) === strtoupper($role)) {
+                    return TRUE;
+                }
+            }
+        }
 
+        return FALSE;
+    }
+
+    public function hasPerm($perm)
+    {
+        if (!isset($this->attributes->rbac_permission)) {
+            if (isset($this->id)) {
+                $this->getOneWithReferences([
+                    $this->pkName => $this->id,
+                ]);
+            }
+        }
+        if (isset($this->attributes->rbac_permission)) {
+            $perms = $this->attributes->rbac_permission;
+            foreach ($perms as $p) {
+                if (strtoupper($p->name) === strtoupper($perm)) {
+                    return TRUE;
+                }
+            }
+        }
+
+        return FALSE;
+    }
+
+    #endregion RBAC
+    ##################################################
 }
