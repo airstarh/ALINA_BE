@@ -20,15 +20,17 @@ class app
         $this->setConfig($config);
         set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
+        #####
+        Logger::obj()->logVisitsToDb();
     }
 
-    public function init()
+    protected function init()
     {
         // Fasade functions
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
     }
 
-    public function autoload($config)
+    protected function autoload($config)
     {
         spl_autoload_extensions(".php");
         spl_autoload_register();
@@ -94,7 +96,7 @@ class app
     #endregion Initiation
 
     #region Instantiation
-    static public $instance = NULL;
+    static protected $instance = NULL;
 
     /**
      * @return static

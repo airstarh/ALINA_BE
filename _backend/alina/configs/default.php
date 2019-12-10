@@ -6,7 +6,8 @@ switch (ALINA_ENV) {
         return [
             'appNamespace'        => 'alina',
             'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
-            'fileUploadDir'       => ALINA_WEB_PATH.DIRECTORY_SEPARATOR.'uploads',
+            'fileUploadDir'       => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
+            'logVisitsToDb'       => TRUE,
             'db'                  => [
                 'driver'    => 'mysql',
                 'host'      => 'localhost',
@@ -16,7 +17,7 @@ switch (ALINA_ENV) {
                 'charset'   => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
                 'prefix'    => '',
-                'port'    => 3306,
+                'port'      => 3306,
             ],
             'mvc'                 => [
                 'defaultController'       => 'root',
@@ -39,8 +40,8 @@ switch (ALINA_ENV) {
             'forceSysPathToAlias' => TRUE,
             'vocAliasUrl'         => [
                 'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
-                'Регистрация' => 'Auth/Register',
-                'Рест_Запрос' => 'alinaRestAccept/index',
+                'Регистрация'                 => 'Auth/Register',
+                'Рест_Запрос'                 => 'alinaRestAccept/index',
             ],
 
             'debug' => [

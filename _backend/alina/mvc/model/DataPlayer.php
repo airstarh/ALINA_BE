@@ -7,6 +7,12 @@ use alina\utils\Data;
 
 class DataPlayer
 {
+    /**
+     * @param $strJSON
+     * @param string $strFrom
+     * @param string $strTo
+     * @return object
+     */
     public function jsonSearchReplace($strJSON, $strFrom = '', $strTo = '')
     {
         #region Defaults
@@ -22,12 +28,12 @@ class DataPlayer
             'isResStrJsonValid'    => TRUE,
         ];
         #endregion Defaults
-        $d->isSourceStrJsonValid = \alina\utils\Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
+        $d->isSourceStrJsonValid = Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
         #####
         if ($d->isSourceStrJsonValid) {
             $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdJsonDecoded, $strFrom, $strTo, $d->tCount);
             $d->strRes            = json_encode($d->mxdResJsonDecoded);
-            $d->isResStrJsonValid = \alina\utils\Data::isStringValidJson($d->strRes);
+            $d->isResStrJsonValid = Data::isStringValidJson($d->strRes);
         }
         #####
         if (!$d->isSourceStrJsonValid) {

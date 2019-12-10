@@ -2,28 +2,13 @@
 
 namespace alina;
 
+use alina\traits\Singleton;
+
 class GlobalRequestStorage
 {
     #region Singleton
-    static protected $instance = NULL;
-
+    use Singleton;
     protected function __construct() { }
-
-    /**
-     * @return static
-     */
-    static public function obj()
-    {
-        if (
-            empty(static::$instance)
-            ||
-            !is_a(static::$instance, get_class())
-        ) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
     #endregion Singleton
 
     #region CRUD

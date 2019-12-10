@@ -26,8 +26,8 @@ class CtrlDataTransformations
             'strTo'         => '',
             'tCount'        => 0,
         ];
-        $p  = \alina\utils\Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd = \alina\utils\Data::mergeObjects($vd, $p);
+        $p  = Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
+        $vd = Data::mergeObjects($vd, $p);
         ##################################################
         $strFrom   = $vd->strFrom;
         $strTo     = $vd->strTo;

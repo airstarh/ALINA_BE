@@ -12,11 +12,9 @@ namespace alina\mvc\controller;
 
 use alina\GlobalRequestStorage;
 use alina\message;
-use alina\mvc\model\hero;
 use alina\mvc\model\modelNamesResolver;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
-use alina\utils\Request;
 use alina\utils\Sys;
 
 class alinaRestAccept
@@ -129,7 +127,8 @@ class alinaRestAccept
     {
         Sys::setCrossDomainHeaders();
         \alina\cookie::setPath('AlinaCookie', 'Hello, cookie');
-        $vd = Request::obj()->all();
+        //$vd = Request::obj()->all();
+        $vd = 'Привет';
         ############################################
         //echo (new htmlAlias)->page($vd);
         (new jsonView())->standardRestApiResponse($vd);

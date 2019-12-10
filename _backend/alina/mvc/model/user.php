@@ -50,7 +50,7 @@ class user extends _BaseAlinaModel
                 'default' => ALINA_TIME,
             ],
             'date_int_lastenter'         => [],
-            'file_picture'               => [],
+            'emblem'                     => [],
             'timezone'                   => [],
             'password'                   => [
                 'filters'    => [

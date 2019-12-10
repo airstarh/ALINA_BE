@@ -12,7 +12,7 @@ class exceptionCatcher
     protected $eString      = '';
     protected $eFile        = '';
     protected $eLine        = '';
-    public    $eTrace       = '';
+    protected $eTrace       = '';
 
     protected function __construct()
     {

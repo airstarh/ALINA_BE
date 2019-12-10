@@ -2,6 +2,8 @@
 
 namespace alina\utils;
 
+use alina\mvc\model\CurrentUser;
+
 class Sys
 {
     ##################################################
@@ -44,11 +46,6 @@ class Sys
         if (empty($post)) {
             $post = file_get_contents('php://input');
         }
-
-        error_log('>>> $post  - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
-        error_log(var_export($post, 1), 0);
-        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
-
         $res = \alina\utils\Data::toObject($post);
 
         return $res;
@@ -73,6 +70,7 @@ class Sys
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
             return TRUE;
         }
+
         if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
             return TRUE;
         }
@@ -207,6 +205,20 @@ class Sys
     }
 
     ##################################################
+    ##################################################
+    ##################################################
+    static Public function getReqMethod()
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+    static Public function getUserBrowser()
+    {
+        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN';
+
+        return $browser;
+    }
+
     static Public function getUserIp()
     {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -218,8 +230,7 @@ class Sys
 
         return $_SERVER['REMOTE_ADDR'];
     }
-    ##################################################
-    ##################################################
+
     static Public function getUserLanguage()
     {
         //$l = 'en';
@@ -235,15 +246,17 @@ class Sys
      */
     static public function SUPER_DEBUG_INFO()
     {
-        $sysData            = [];
-        $sysData['METHOD']  = $_SERVER['REQUEST_METHOD'];
-        $sysData['HEADERS'] = getallheaders();
-        $sysData['REQUEST'] = $_REQUEST;
-        $sysData['GET']     = $_GET;
-        $sysData['POST']    = $_POST;
-        $sysData['FILE']    = $_FILES;
-        $sysData['COOKIES'] = $_COOKIE;
-        $sysData['SERVER']  = $_SERVER;
+        return Request::obj()->TOTAL_DEBUG_DATA();
+        $sysData                 = [];
+        $sysData['CURRENT_USER'] = CurrentUser::obj()->attributes();
+        $sysData['METHOD']       = $_SERVER['REQUEST_METHOD'];
+        $sysData['HEADERS']      = getallheaders();
+        $sysData['REQUEST']      = $_REQUEST;
+        $sysData['GET']          = $_GET;
+        $sysData['POST']         = $_POST;
+        $sysData['FILE']         = $_FILES;
+        $sysData['COOKIES']      = $_COOKIE;
+        $sysData['SERVER']       = $_SERVER;
         isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
 
         return $sysData;
