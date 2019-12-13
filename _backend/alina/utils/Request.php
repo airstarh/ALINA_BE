@@ -7,12 +7,12 @@ use alina\traits\Singleton;
 class Request
 {
     use Singleton;
-
     public $METHOD;
     public $URL_PATH;
     public $QUERY_STRING;
     public $IP;
     public $BROWSER;
+    public $BROWSER_enc;
     public $LANGUAGE;
     public $GET;
     public $POST;
@@ -24,7 +24,7 @@ class Request
 
     protected function __construct()
     {
-        $this->URL_PATH     = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
         $this->QUERY_STRING = $_SERVER['QUERY_STRING'];
         $this->METHOD       = Sys::getReqMethod();
         $this->HEADERS      = Data::toObject(getallheaders());
@@ -38,10 +38,17 @@ class Request
         $this->SESSION      = (isset($_SESSION)) ? Data::toObject($_SESSION) : '';
         $this->FILES        = Data::toObject($_FILES);
 
+        $this->processBrowserData();
+
         /**
          * ATTENTION: cannot be defined here since USER constructor is referred to this constructor. RECURSION!!!
          */
         //$this->USER     = CurrentUser::obj()->attributes();
+    }
+
+    protected function processBrowserData(){
+        $this->BROWSER_enc = Browser::hash($this->BROWSER);
+        //ToDO: invoke get_browser()
     }
 
     public function TOTAL_DEBUG_DATA()
@@ -65,8 +72,9 @@ class Request
         return $res;
     }
 
-    public function hasHeader($name)
+    public function tryHeader($name)
     {
+
         return Arr::getArrayValue($name, (array)$this->HEADERS);
     }
 }

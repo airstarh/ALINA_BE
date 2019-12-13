@@ -9,9 +9,9 @@ class watch_url_path extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'         => [],
+            'id'       => [],
             'url_path' => [],
-            'visits'     => [],
+            'visits'   => [],
         ];
     }
 
@@ -25,7 +25,7 @@ class watch_url_path extends _BaseAlinaModel
     public function hookRightBeforeSave(&$dataArray)
     {
         if (isset($this->attributes->visits)) {
-            $dataArray['visits'] = $this->attributes->visits +1;
+            $dataArray['visits'] = $this->attributes->visits + 1;
         }
 
         return $this;

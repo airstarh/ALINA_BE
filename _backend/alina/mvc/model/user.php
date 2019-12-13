@@ -4,6 +4,7 @@ namespace alina\mvc\model;
 
 use alina\message;
 use alina\utils\Data;
+use alina\utils\Str;
 use alina\utils\Sys;
 
 class user extends _BaseAlinaModel
@@ -14,8 +15,8 @@ class user extends _BaseAlinaModel
     {
         $fDefault = parent::fields();
         $fCustom  = [
-            'id'                         => [],
-            'mail'                       => [
+            'id'           => [],
+            'mail'         => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -42,17 +43,7 @@ class user extends _BaseAlinaModel
 
                 ],
             ],
-            'firstname'                  => [],
-            'lastname'                   => [],
-            'is_deleted'                 => [],
-            'is_verified'                => [],
-            'date_int_created'           => [
-                'default' => ALINA_TIME,
-            ],
-            'date_int_lastenter'         => [],
-            'emblem'                     => [],
-            'timezone'                   => [],
-            'password'                   => [
+            'password'     => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -67,23 +58,36 @@ class user extends _BaseAlinaModel
                     [
                         // 'f' - Could be a closure, string with function name or an array
                         'f'       => function ($v) {
-                            return \alina\utils\Str::lessThan($v, 8);
+                            return Str::lessThan($v, 8);
                         },
                         'errorIf' => [TRUE],
                         'msg'     => 'Password length cannot be less than 8 symbols',
                     ],
                 ],
-
             ],
-            'date_int_banned_till'       => [],
-            'ip'                         => [
-                'default' => Sys::getUserIp(),
-            ],
-            'language'                   => [
+            #####
+            'firstname'    => [],
+            'lastname'     => [],
+            'emblem'       => [],
+            'birth'        => [],
+            'language'     => [
                 'default' => Sys::getUserLanguage(),
             ],
-            'date_int_authtoken_expires' => [],
-            'authtoken'                  => [],
+            'timezone'     => [],
+            #####
+            'is_verified'  => [
+                'default' => 0,
+            ],
+            'lastenter_at' => [],
+            'banned_till'  => [
+                'default' => 0,
+            ],
+            'created_at'   => [
+                'default' => ALINA_TIME,
+            ],
+            'is_deleted'   => [
+                'default' => 0,
+            ],
         ];
         $fRes     = array_merge($fDefault, $fCustom);
 

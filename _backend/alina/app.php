@@ -21,7 +21,7 @@ class app
         set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
-        Logger::obj()->logVisitsToDb();
+        Watcher::obj()->logVisitsToDb();
     }
 
     protected function init()

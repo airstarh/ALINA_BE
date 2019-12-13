@@ -11,16 +11,24 @@ class login extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'               => [],
-            'user_id'          => [],
-            'authtoken'        => [],
+            'id'          => [],
+            'user_id'     => [],
+            'token'       => [],
+            'ip'          => [],
+            'browser_enc' => [],
+            'lastentered' => [
+                'default' => ALINA_TIME,
+            ],
+            'expires_at'  => [
+                'default' => ALINA_AUTH_EXPIRES,
+            ],
         ];
     }
 
     public function uniqueKeys()
     {
         return [
-            ['user_id', 'watch_browser_id'],
+            ['user_id', 'token'],
         ];
     }
 }

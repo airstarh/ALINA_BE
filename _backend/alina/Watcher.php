@@ -9,7 +9,7 @@ use alina\mvc\model\watch_visit;
 use alina\traits\Singleton;
 use alina\utils\Request;
 
-class Logger
+class Watcher
 {
     #region Singleton
     use Singleton;

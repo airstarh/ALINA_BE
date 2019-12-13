@@ -12,64 +12,166 @@ use alina\utils\Sys;
 
 class CurrentUser
 {
-    public $id = null;
     ##################################################
     #region SingleTon
     use Singleton;
-    static protected $currKey  = 'CurrentUser';
-    static protected $tokenKey = 'authtoken';
+    public static $keyUserId    = 'uid';
+    public static $keyUserToken = 'token';
+    public        $id           = NULL;
+    protected     $token        = NULL;
     /**@var user */
-    protected $USER  = NULL;
+    protected $USER = NULL;
+    /**@var login */
     protected $LOGIN = NULL;
+    protected $device_ip;
+    protected $device_browser_enc;
+    #####
+    protected $state_AUTHORIZATION_PASSED = FALSE;
 
     protected function __construct()
     {
-        $this->USER  = new user();
-        $this->LOGIN = new login();
-        $this->isLoggedIn();
+        $this->USER               = new user();
+        $this->LOGIN              = new login();
+        $this->device_ip          = Request::obj()->IP;
+        $this->device_browser_enc = Request::obj()->BROWSER_enc;
     }
     #endregion SingleTon
     ##################################################
     #region LogIn
-    protected function LogIn($conditions)
-    {
-        $this->getByConditions($conditions);
-        if ($this->USER->id) {
-            $this->id = $this->USER->id;
-            session::set(static::$currKey, $this->USER->id);
-            $this->buildToken();
 
+    protected function authenticate($login, $password)
+    {
+
+    }
+
+    protected function identify($login, $password)
+    {
+        #####
+        if ($this->isLoggedIn()) {
+            message::set('You are already Logged-in');
             return $this;
-        } else {
+        }
+        #####
+        $conditions = [
+            'mail'     => $login,
+            'password' => $password,
+        ];
+        $this->USER->getOneWithReferences($conditions);
+        if (empty($this->USER->id)) {
             return FALSE;
         }
+
+        $this->id    = $this->USER->id;
+        $this->token = $this->buildToken();
+
+        $this->rememberAuthInfo();
+        $this->authorize();
+
+        return $this;
+    }
+
+    protected function authorize()
+    {
+        if ($this->state_AUTHORIZATION_PASSED) {
+            return TRUE;
+        }
+        #####
+        if ($this->validateAuthority()) {
+            #####
+            $id          = $this->discoverId();
+            $token       = $this->discoverToken();
+            $ip          = $this->device_ip;
+            $browser_enc = $this->device_browser_enc;
+            #####
+            $this->LOGIN->updateById([
+                'user_id'     => $id,
+                'ip'          => $ip,
+                'browser_enc' => $browser_enc,
+                'token'       => $token,
+                'expires_at'  => ALINA_AUTH_EXPIRES,
+                'lastentered' => ALINA_TIME,
+            ]);
+            $this->state_AUTHORIZATION_PASSED = TRUE;
+
+            return TRUE;
+        }
+        #####
+        $this->state_AUTHORIZATION_PASSED = TRUE;
+
+        return FALSE;
+    }
+
+    protected function validateAuthority()
+    {
+        if ($this->LOGIN->id) {
+            if ($this->USER->id) {
+                return TRUE;
+            }
+        }
+
+        $id    = $this->discoverId();
+        $token = $this->discoverToken();
+
+        $this->LOGIN->getOne([
+            'user_id' => $id,
+            'token'   => $token,
+        ]);
+
+        if (empty($this->LOGIN->id)) {
+            message::set('Authority failed.');
+
+            return FALSE;
+        }
+
+        $la = $this->LOGIN->attributes;
+        if ($la->browser_enc != $this->device_browser_enc) {
+            message::set('Not Logged-in on this browser');
+        }
+
+        if ($la->ip != $this->device_ip) {
+            message::set('User changed network');
+        }
+        #####
+
+        $this->USER->getOneWithReferences([
+            "{$this->USER->alias}.{$this->USER->pkName}" => $id,
+        ]);
+
+        if (empty($this->USER->id)) {
+            message::set('User does not exist');
+
+            return FALSE;
+        }
+
+        $ua = $this->USER->attributes;
+        if ($ua->banned_till > ALINA_TIME) {
+            message::set('User is banned');
+
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     public function LogInByPass($mail, $password)
     {
-        return $this->LogIn([
-                "{$this->USER->alias}.mail"     => $mail,
-                "{$this->USER->alias}.password" => md5($password),
-            ]
-        );
-    }
+        if (!Data::isValidMd5($password)) {
+            $password = md5($password);
+        }
 
-    public function LogInByToken($id, $token)
-    {
-        return $this->LogIn([
-                "{$this->USER->alias}.{$this->USER->pkName}" => $id,
-                "{$this->USER->alias}.authtoken"             => $token,
-            ]
-        );
+        return $this->identify($mail, $password);
     }
-
     #endregion LogIn
     ##################################################
     #region LogOut
     public function LogOut()
     {
-        cookie::delete(static::$tokenKey);
-        session::delete(static::$currKey);
+        if ($this->isLoggedIn()) {
+            $this->forgetAuthInfo();
+            $this->LOGIN->deleteById($this->LOGIN->id);
+        }
+
+        return FALSE;
     }
     #endregion LogOut
     ##################################################
@@ -93,88 +195,146 @@ class CurrentUser
                 message::set('Registration has passed successfully!');
             }
         }
+
+        return $this;
     }
     #endregion Register
     ##################################################
     #region States
     public function hasRole($role)
     {
-        return $this->USER->hasRole($role);
+        if ($this->isLoggedIn()) {
+            return $this->USER->hasRole($role);
+        }
+
+        return FALSE;
     }
 
     public function hasPerm($perm)
     {
-        return $this->USER->hasPerm($perm);
+        if ($this->isLoggedIn()) {
+            return $this->USER->hasPerm($perm);
+        }
+
+        return FALSE;
     }
 
     public function isLoggedIn()
     {
-        $id = $this->USER->id;
-        if (empty($id)) {
-            $id = session::get(static::$currKey);
-        }
-        if (empty($id)) {
-            $id = Request::obj()->hasHeader(static::$tokenKey);
-        }
-        if ($id && $id > 0) {
-            if (isset($_COOKIE[static::$tokenKey])) {
-                $token = $_COOKIE[static::$tokenKey];
-
-                return $this->LogInByToken($id, $token);
-            }
-        }
-
-        return $id;
+        return $this->authorize();
     }
     #endregion States
     ##################################################
     #region Utils
-    /**
-     * @param array $conditions
-     * @return static
-     */
-    protected function getByConditions($conditions)
+    protected function discoverId()
     {
-        $this->USER->getOneWithReferences($conditions);
+        $id = NULL;
+        if (empty($id)) {
+            $id = $this->USER->id;
+        }
+        if (empty($id)) {
+            $id = session::get(static::$keyUserId);
+        }
+        if (empty($id)) {
+            $id = cookie::get(static::$keyUserId);
+        }
+        if (empty($id)) {
+            $id = Request::obj()->tryHeader(static::$keyUserId);
+        }
+        $this->id = $id;
 
-        return $this;
+        return $id;
+    }
+
+    protected function discoverToken()
+    {
+        $token = NULL;
+        if (empty($token)) {
+            $token = $this->token;
+        }
+        if (empty($token)) {
+            $token = session::get(static::$keyUserToken);
+        }
+        if (empty($token)) {
+            $token = cookie::get(static::$keyUserToken);
+        }
+        if (empty($token)) {
+            $token = Request::obj()->tryHeader(static::$keyUserToken);
+        }
+        $this->token = $token;
+
+        return $token;
     }
 
     protected function buildToken()
     {
-        $u = $this->USER;
-        $a = $u->attributes;
-        ##################################################
-        if (isset($a->date_int_authtoken_expires) && !empty($a->date_int_authtoken_expires)) {
-            if ($a->date_int_authtoken_expires - ALINA_TIME > ALINA_MIN_TIME_DIFF_SEC) {
-
-                return $this;
-            }
-        }
-        ##################################################
-        $at = [
-            $a->id,
-            $a->mail,
-            $a->password,
+        $u           = $this->USER;
+        $ua          = $u->attributes;
+        $tokenSource = [
+            $ua->id,
+            $ua->mail,
+            $ua->password,
             ALINA_TIME,
         ];
-        $at = md5(implode('', $at));
-        $u->updateById([
-            'id'                         => $a->id,
-            static::$tokenKey            => $at,
-            'date_int_authtoken_expires' => ALINA_AUTH_EXPIRES,
-            'date_int_lastenter'         => ALINA_AUTH_EXPIRES,
-            'ip'                         => Sys::getUserIp(),
-        ]);
-        cookie::set(static::$tokenKey, $at);
+        $token       = md5(implode('', $tokenSource));
 
-        return $this;
+        return $token;
     }
 
     public function attributes()
     {
         return $this->USER->attributes;
     }
+
+    protected function rememberAuthInfo()
+    {
+        #####
+        cookie::set(static::$keyUserToken, $this->token);
+        cookie::set(static::$keyUserId, $this->id);
+        #####
+        session::set(static::$keyUserToken, $this->token);
+        session::set(static::$keyUserId, $this->id);
+        #####
+        header(implode(': ', [
+            static::$keyUserToken,
+            $this->token,
+        ]));
+        header(implode(': ', [
+            static::$keyUserId,
+            $this->id,
+        ]));
+        #####
+        $id          = $this->discoverId();
+        $token       = $this->discoverToken();
+        $ip          = $this->device_ip;
+        $browser_enc = $this->device_browser_enc;
+        #####
+        $this->LOGIN->upsertByUniqueFields([
+            'user_id'     => $id,
+            'ip'          => $ip,
+            'browser_enc' => $browser_enc,
+            'token'       => $token,
+            'expires_at'  => ALINA_AUTH_EXPIRES,
+            'lastentered' => ALINA_TIME,
+        ]);
+
+        return $this;
+    }
+
+    protected function forgetAuthInfo()
+    {
+        if ($this->isLoggedIn()) {
+            #####
+            cookie::delete(static::$keyUserToken);
+            cookie::delete(static::$keyUserId);
+            #####
+            session::delete(static::$keyUserToken);
+            session::delete(static::$keyUserId);
+            #####
+            //ToDO Delete from login table
+        }
+    }
+
     #endregion Utils
     ##################################################
 }

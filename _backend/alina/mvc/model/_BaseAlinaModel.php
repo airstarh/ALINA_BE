@@ -162,7 +162,7 @@ class _BaseAlinaModel
             if (isset($aRecord) && !empty($aRecord)) {
                 $this->matchedUniqueFields = $uFields;
                 $this->matchedConditions   = $conditions;
-                $this->attributes = $aRecord;
+                $this->attributes          = $aRecord;
                 $this->setPkValue($aRecord->{$this->pkName}, $this->attributes);
 
                 return $aRecord;
@@ -248,6 +248,10 @@ class _BaseAlinaModel
         } else {
             if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
                 $pkValue = $data->{$pkName};
+            } else {
+                if (isset($this->id) && !empty($this->id)) {
+                    $pkValue = $this->id;
+                }
             }
         }
 

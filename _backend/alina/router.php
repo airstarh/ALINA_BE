@@ -14,8 +14,8 @@ class router
     public $pathPart          = NULL;
     public $pathParameter     = [];
     public $vocAliasUrl       = [];
-    public $strGetQuery  = '';
-    public $fragment  = '';
+    public $strGetQuery       = '';
+    public $fragment          = '';
 
     /**
      */
@@ -35,13 +35,12 @@ class router
             $this->fragment = $parsedUrl['fragment'];
         }
 
-
         // Define path information
         if (isset($_GET['alinapath']) AND !empty($_GET['alinapath'])) {
 
             $this->pathAlias = trim($_GET['alinapath'], '/');
             $this->pathSys   = (isset($this->vocAliasUrl) && !empty($this->vocAliasUrl))
-                ? \alina\utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl)
+                ? \alina\utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, TRUE)
                 : $this->pathAlias;
 
             $_pathParts     = explode('/', $this->pathSys);

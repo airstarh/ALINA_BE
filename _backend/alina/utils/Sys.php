@@ -2,6 +2,7 @@
 
 namespace alina\utils;
 
+use alina\app;
 use alina\mvc\model\CurrentUser;
 
 class Sys
@@ -100,17 +101,16 @@ class Sys
                     header('Access-Control-Max-Age: 666');
                     header('Alina-Server-Header: Hello, from Alina');
                     $allowedHeaders = [
-                        //'Authorization'                  => '',
-                        //'Access-Control-Allow-Headers'   => '',
                         'Origin'                         => '',
                         'Accept'                         => '',
                         'X-Requested-With'               => '',
                         'Content-Type'                   => '',
                         'Access-Control-Request-Method'  => '',
                         'Access-Control-Request-Headers' => '',
-                        //'userHeader'                     => '',
-                        //'passwordHeader'                 => '',
+                        #####
                         'Authorization'                  => '',
+                        CurrentUser::$keyUserId          => '',
+                        CurrentUser::$keyUserToken       => '',
                     ];
                     $allowedHeaders = array_keys($allowedHeaders);
                     $allowedHeaders = implode(', ', $allowedHeaders);
@@ -118,7 +118,6 @@ class Sys
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
                     header("Access-Control-Allow-Credentials: true");
                     header("Authorization: QQQ");
-                    //header('Access-Control-Allow-Credentials: false');
 
                     ##################################################
                     $method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -246,20 +245,14 @@ class Sys
      */
     static public function SUPER_DEBUG_INFO()
     {
-        return Request::obj()->TOTAL_DEBUG_DATA();
-        $sysData                 = [];
-        $sysData['CURRENT_USER'] = CurrentUser::obj()->attributes();
-        $sysData['METHOD']       = $_SERVER['REQUEST_METHOD'];
-        $sysData['HEADERS']      = getallheaders();
-        $sysData['REQUEST']      = $_REQUEST;
-        $sysData['GET']          = $_GET;
-        $sysData['POST']         = $_POST;
-        $sysData['FILE']         = $_FILES;
-        $sysData['COOKIES']      = $_COOKIE;
-        $sysData['SERVER']       = $_SERVER;
-        isset($_SESSION) ? $sysData['SESSION'] = $_SESSION : NULL;
+        $res = array_merge(
+            Request::obj()->TOTAL_DEBUG_DATA(),
+            [
+                'ROUTER' => app::get()->router,
+            ]
+        );
 
-        return $sysData;
+        return $res;
     }
 
     ##################################################

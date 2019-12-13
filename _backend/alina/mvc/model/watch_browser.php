@@ -2,6 +2,8 @@
 
 namespace alina\mvc\model;
 
+use alina\utils\Request;
+
 class watch_browser extends _BaseAlinaModel
 {
     public $table = 'watch_browser';
@@ -25,9 +27,9 @@ class watch_browser extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
-        $dataArray['enc'] = md5($dataArray['user_agent']);
+        $dataArray['enc'] = Request::obj()->BROWSER_enc;
 
-        if (isset($this->attributes->visits)) {
+        if (property_exists($this->attributes, 'visits')) {
             $dataArray['visits'] = $this->attributes->visits +1;
         }
 

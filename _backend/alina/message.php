@@ -21,6 +21,7 @@ class message
      * @param $text
      * @param array $params
      * @param string $status
+     * @return message
      * @see https://getbootstrap.com/docs/4.0/components/alerts/
      * alert alert-primary
      * alert alert-secondary
@@ -31,10 +32,12 @@ class message
      * alert alert-light
      * alert alert-dark
      *
-     * @return message
      */
     static public function set($text, $params = [], $status = 'alert alert-success')
     {
+        if (!is_string($text)) {
+            $text = var_export($text, 1);
+        }
         $_this                 = new static;
         $_this->templateString = $text;
         $_this->params         = $params;
@@ -150,7 +153,17 @@ class message
         if (Data::isIterable($this->templateString)) {
             $this->templateString = Data::hlpGetBeautifulJsonString($this->templateString);
         }
-        $this->messageRawText = vsprintf($this->templateString, $this->params);
+        try {
+            $this->messageRawText = vsprintf($this->templateString, $this->params);
+        } catch (\Exception $e) {
+            $this->messageRawText = '';
+            $this->messageRawText .= '>>>';
+            $this->messageRawText .= var_export($this->templateString, 1);
+            $this->messageRawText .= '<<<>>>';
+            $this->messageRawText .= var_export($this->params, 1);
+            $this->messageRawText .= '<<<';
+        }
+
         //$this->messageRawText = var_export($this->params, 1);
 
         return $this->messageRawText;
