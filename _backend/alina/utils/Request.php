@@ -7,8 +7,9 @@ use alina\traits\Singleton;
 class Request
 {
     use Singleton;
-    public $METHOD;
+    public $DOMAIN;
     public $URL_PATH;
+    public $METHOD;
     public $QUERY_STRING;
     public $IP;
     public $BROWSER;
@@ -24,6 +25,7 @@ class Request
 
     protected function __construct()
     {
+        $this->DOMAIN       = $_SERVER['HTTP_HOST'];
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
         $this->QUERY_STRING = $_SERVER['QUERY_STRING'];
         $this->METHOD       = Sys::getReqMethod();
@@ -46,7 +48,8 @@ class Request
         //$this->USER     = CurrentUser::obj()->attributes();
     }
 
-    protected function processBrowserData(){
+    protected function processBrowserData()
+    {
         $this->BROWSER_enc = Browser::hash($this->BROWSER);
         //ToDO: invoke get_browser()
     }
@@ -54,6 +57,7 @@ class Request
     public function TOTAL_DEBUG_DATA()
     {
         $res = [
+            'DOMAIN'       => $this->DOMAIN,
             'URL_PATH'     => $this->URL_PATH,
             'QUERY_STRING' => $this->QUERY_STRING,
             'METHOD'       => $this->METHOD,

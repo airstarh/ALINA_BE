@@ -221,6 +221,8 @@ class app
         $this->router->vocAliasUrl = static::getConfig(['vocAliasUrl']);
         $this->router->processUrl();
 
+        ##################################################
+        #region Redirect
         /*
          * This will redirect user to Page's Alias
          */
@@ -237,6 +239,8 @@ class app
                     \alina\utils\Sys::redirect($uri);
                 }
             }
+            #endregion Redirect
+            ##################################################
         }
 
         return $this;

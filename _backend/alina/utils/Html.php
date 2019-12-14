@@ -2,6 +2,8 @@
 
 namespace alina\utils;
 
+use alina\message;
+
 class Html
 {
     static public function tag($tagName, $text = '', $configuration = [])
@@ -90,7 +92,7 @@ class Html
         }
 
         $vocAliasToUrl = \alina\app::getConfig(['vocAliasUrl']);
-        $url           = \alina\utils\Url::routeAccordance(ltrim($url, '/'), $vocAliasToUrl, FALSE);
+        $url           = \alina\utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
 
         return "//{$_SERVER['HTTP_HOST']}/{$url}";
     }

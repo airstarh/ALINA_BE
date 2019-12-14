@@ -2,13 +2,17 @@
 
 namespace alina\utils;
 
+use alina\message;
+
 class Url
 {
-#region URL's, Aliases, Routes
+    ##################################################
+    #region URL's, Aliases, Routes
     static public function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = TRUE)
     {
         $parsedUrlSource = parse_url($url);
         $pathSource      = $parsedUrlSource['path'];
+        $pathSource      = trim($pathSource, '/');
         $pathRes         = '';
 
         foreach ($vocabulary as $aliasMask => $urlMask) {
@@ -17,7 +21,6 @@ class Url
             $regularExpression = static::routeRegExp($compareWith);
 
             if (preg_match($regularExpression, $pathSource)) {
-
                 if ($aliasToSystemRoute) {
                     $pathRes = static::aliasToUrl($aliasMask, $pathSource, $urlMask);
                 } else {
@@ -124,5 +127,15 @@ class Url
         ];
 
         return implode('', $arrRes);
+    }
+
+    static public function cleanPath($url)
+    {
+        $res = $url;
+        $res = parse_url($res, PHP_URL_PATH);
+        $res = urldecode($res);
+        //$res = mb_strtolower($res);
+
+        return $res;
     }
 }
