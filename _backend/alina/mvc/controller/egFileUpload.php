@@ -5,7 +5,7 @@ namespace alina\mvc\controller;
 
 define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 
-use alina\message;
+use alina\Message;
 
 class FileUpload
 {
@@ -23,7 +23,7 @@ class FileUpload
                     $uploadfile = \alina\utils\FS::buildPathFromBlocks($fileUploadDir, basename($_FILES[ALINA_FILE_UPLOAD_KEY]["name"][$key]));
                     $muf = move_uploaded_file($tmp_name, $uploadfile);
                     if ($muf) {
-                        message::set("Uploaded: {$uploadfile}");
+                        Message::set("Uploaded: {$uploadfile}");
                     }
                 }
             }

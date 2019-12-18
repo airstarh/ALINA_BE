@@ -6,7 +6,7 @@ class main
 {
     public function actionIndex(){
 
-    	\alina\message::set('Yo! This is the status message of the age!');
+    	\alina\Message::set('Yo! This is the status message of the age!');
 
     	$content = 'This is Zero Application, built on Alina Framework.';
     	echo (new \alina\mvc\view\html)->page($content);

@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\app;
-use alina\message;
+use alina\Message;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\model\modelNamesResolver;
 use alina\mvc\model\user;
@@ -238,9 +238,9 @@ class AdminDbManager
             }
             ##################################################
         } catch (\Exception $e) {
-            message::set($e->getMessage(), [], 'alert alert-danger');
-            message::set($e->getFile(), [], 'alert alert-danger');
-            message::set($e->getLine(), [], 'alert alert-danger');
+            Message::set($e->getMessage(), [], 'alert alert-danger');
+            Message::set($e->getFile(), [], 'alert alert-danger');
+            Message::set($e->getLine(), [], 'alert alert-danger');
         }
 
 

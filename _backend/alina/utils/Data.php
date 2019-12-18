@@ -2,7 +2,7 @@
 //TODO: ARCHITECTURAL THINK!!! class DataPlayer and  class Data
 namespace alina\utils;
 
-use alina\message;
+use alina\Message;
 use alina\mvc\model\DataPlayer;
 use Exception;
 use stdClass;
@@ -90,7 +90,7 @@ class Data
                 if (static::isIterable($v)) {
                     $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
                 } elseif (FALSE !== static::megaUnserialize($v)) {
-                    message::set('Serialized inside JSON');
+                    Message::set('Serialized inside JSON');
                     $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     $v = $d->strResControl;
                 } else {
@@ -148,7 +148,7 @@ class Data
                 $tCount += $iCount;
             }
             if (FALSE !== static::megaUnserialize($v)) {
-                message::set('Source has SERIALIZED inside');
+                Message::set('Source has SERIALIZED inside');
                 $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 $v = $d->strResControl;
 

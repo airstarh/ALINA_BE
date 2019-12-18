@@ -70,7 +70,7 @@ class exceptionCatcher
                 //ob_end_clean();
                 $level = ob_get_level();
                 while (@ob_end_clean()) {
-                    message::set($level--);
+                    Message::set($level--);
                 }
                 ##################################################
                 \alina\app::get()->mvcGo('root', 'Exception', $this);
@@ -93,7 +93,7 @@ class exceptionCatcher
             }
 
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
-                \alina\message::set($this->strMessage(), [], 'alert alert-danger');
+                \alina\Message::set($this->strMessage(), [], 'alert alert-danger');
             }
 
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {

@@ -11,7 +11,7 @@
 namespace alina\mvc\controller;
 
 use alina\GlobalRequestStorage;
-use alina\message;
+use alina\Message;
 use alina\mvc\model\modelNamesResolver;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
@@ -30,7 +30,7 @@ class alinaRestAccept
     {
 
         Sys::setCrossDomainHeaders();
-        message::set('Hello, World!!!');
+        Message::set('Hello, World!!!');
         \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
 
         $method  = strtoupper($_SERVER['REQUEST_METHOD']);

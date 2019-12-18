@@ -3,6 +3,9 @@
 namespace alina\mvc\view;
 
 use alina\GlobalRequestStorage;
+use alina\Message;
+use alina\MessageAdmin;
+use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 
 class json
@@ -16,7 +19,10 @@ class json
     {
         $response             = [];
         $response['data']     = $data;
-        $response['messages'] = \alina\message::returnAllMessages();
+        $response['messages'] = Message::returnAllMessages();
+        if (CurrentUser::obj()->isAdmin()) {
+            $response['messages_admin'] = MessageAdmin::returnAllMessages();
+        }
         $response['meta']     = GlobalRequestStorage::getAll();
 
         //ToDo: PROD! Security!

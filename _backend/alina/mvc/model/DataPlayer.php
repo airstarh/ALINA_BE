@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-use alina\message;
+use alina\Message;
 use alina\utils\Data;
 
 class DataPlayer
@@ -37,10 +37,10 @@ class DataPlayer
         }
         #####
         if (!$d->isSourceStrJsonValid) {
-            message::set('Invalid SOURCE JSON string', [], 'alert alert-danger');
+            Message::set('Invalid SOURCE JSON string', [], 'alert alert-danger');
         }
         if (!$d->isResStrJsonValid) {
-            message::set('Invalid RES JSON string', [], 'alert alert-danger');
+            Message::set('Invalid RES JSON string', [], 'alert alert-danger');
         }
 
         return $d;

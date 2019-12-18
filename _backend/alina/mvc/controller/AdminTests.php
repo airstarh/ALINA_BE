@@ -3,7 +3,10 @@
 namespace alina\mvc\controller;
 
 use alina\exceptionCatcher;
+use alina\Message;
+use alina\MessageAdmin;
 use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\view\html;
 use alina\mvc\view\json as jsonView;
 
 class AdminTests
@@ -20,39 +23,44 @@ class AdminTests
         } catch (\Exception $e) {
             //throw $e;
             exceptionCatcher::obj()->exception($e, FALSE);
-            echo (new \alina\mvc\view\html)->page('1234');
+            echo (new html)->page('1234');
         }
 
         return $this;
     }
     ##############################################
+
     /**
      * @route /AdminTests/Serialization
      */
     public function actionSerialization()
     {
-        $d = require_once ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/complicated_nixed_object.php';
+        $d = require_once ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/complicated_nixed_object.php';
         echo '<pre>';
         print_r(serialize($d));
         echo '</pre>';
+
         return $this;
     }
 
     ##############################################
+
     /**
      * @route /AdminTests/JsonEncode
      */
 
     public function actionJsonEncode()
     {
-        $d = require_once ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/complicated_nixed_object.php';
+        $d = require_once ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/complicated_nixed_object.php';
         echo '<pre>';
         print_r(json_encode($d));
         echo '</pre>';
+
         return $this;
     }
 
     ##############################################
+
     /**
      * @route /AdminTests/ListTableColumns?table=user
      */
@@ -61,8 +69,15 @@ class AdminTests
     {
         $vd = (new _BaseAlinaModel(['table' => $_GET['table']]))->fields();
         (new jsonView())->standardRestApiResponse($vd);
+
         return $this;
     }
 
+    public function actionTestMessages()
+    {
+        Message::set('For User');
+        MessageAdmin::set('For Admin');
 
+        echo (new html)->page('1234');
+    }
 }

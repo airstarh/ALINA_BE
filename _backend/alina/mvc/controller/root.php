@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/AdminTests/TestMessages'                             => 'Messages',
             '/Auth/Login'                                          => 'Login',
             '/Auth/Profile/1'                                      => 'User',
             '/Auth/Register?lala=lala'                             => 'Register',
@@ -37,7 +38,7 @@ class root
     public function actionException()
     {
         if (\alina\utils\Sys::isAjax()) {
-            echo \alina\message::returnAllMessages();
+            echo \alina\Message::returnAllMessages();
 
             return TRUE;
         }

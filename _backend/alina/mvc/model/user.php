@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-use alina\message;
+use alina\Message;
 use alina\utils\Data;
 use alina\utils\Str;
 use alina\utils\Sys;

@@ -8,8 +8,8 @@ use alina\traits\Msg;
 use alina\utils\Arr;
 use alina\utils\Data;
 
-class Message
+class MessageAdmin
 {
     use Msg;
-    const MESSAGES = 'ALINA_MESSAGES';
+    const MESSAGES = 'ALINA_MESSAGES_ADMIN';
 }

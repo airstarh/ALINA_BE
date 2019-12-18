@@ -2,6 +2,10 @@
 
 namespace alina\mvc\view;
 
+use alina\Message;
+use alina\MessageAdmin;
+use alina\mvc\model\CurrentUser;
+
 class html
 {
     #region Init
@@ -131,7 +135,16 @@ class html
         return '';
     }
 
-    public function messages() { return \alina\message::returnAllHtmlString(); }
+    public function messages()
+    {
+        $str = '';
+        if (CurrentUser::obj()->isAdmin()) {
+            $str .= MessageAdmin::returnAllHtmlString();
+        }
+        $str .= Message::returnAllHtmlString();
+
+        return $str;
+    }
 
     public function content()
     {
@@ -140,27 +153,33 @@ class html
     #endregion HTML page specials (css, js, etc.)
     ##################################################
     #region Elements
-    static public function elForm(array $p = []) {
+    static public function elForm(array $p = [])
+    {
         return (new static())->piece('_system/html/_form/form.php', (object)$p);
     }
 
-    static public function elBootstrapBadge(array $p = []) {
+    static public function elBootstrapBadge(array $p = [])
+    {
         return (new static())->piece('_system/html/tag/bootstrapBadge.php', (object)$p);
     }
 
-    static public function elFormSelectOneSimple(array $p = []) {
+    static public function elFormSelectOneSimple(array $p = [])
+    {
         return (new static())->piece('_system/html/_form/selectOneSimple.php', (object)$p);
     }
 
-    static public function elFormSelect(array $p = []) {
+    static public function elFormSelect(array $p = [])
+    {
         return (new static())->piece('_system/html/_form/select.php', (object)$p);
     }
 
-    static public function elFormInputText(array $p = []) {
+    static public function elFormInputText(array $p = [])
+    {
         return (new static())->piece('_system/html/_form/inputText.php', (object)$p);
     }
 
-    static public function elFormStandardButtons(array $p = []) {
+    static public function elFormStandardButtons(array $p = [])
+    {
         return (new static())->piece('_system/html/_form/standardFormButtons.php', (object)$p);
     }
     #endregion Elements

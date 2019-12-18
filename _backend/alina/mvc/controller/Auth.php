@@ -3,7 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\exceptionValidation;
-use alina\message;
+use alina\Message;
 use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
@@ -38,16 +38,19 @@ class Auth
             $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
             if ($LogIn) {
                 $user = $CU->name();
-                message::set("Welcome, {$user}!");
+                Message::set("Welcome, {$user}!");
             } else {
-                message::set($CU->msg);
+                foreach ($CU->msg as $m) {
+                    Message::set($m);
+                }
+
                 throw new exceptionValidation('Login failed');
             }
         } ##################################################
         catch (exceptionValidation $e) {
-            message::set($e->getMessage(), [], 'alert alert-danger');
-            message::set($e->getFile(), [], 'alert alert-danger');
-            message::set($e->getLine(), [], 'alert alert-danger');
+            Message::set($e->getMessage(), [], 'alert alert-danger');
+            //message::set($e->getFile(), [], 'alert alert-danger');
+            //message::set($e->getLine(), [], 'alert alert-danger');
         }
 
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
@@ -83,7 +86,7 @@ class Auth
             $u = CurrentUser::obj();
             $u->Register($vd);
         } catch (exceptionValidation $e) {
-            message::set($e->getMessage(), [], 'alert alert-danger');
+            Message::set($e->getMessage(), [], 'alert alert-danger');
         }
         ##################################################
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');

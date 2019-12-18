@@ -2,7 +2,7 @@
 
 namespace alina\utils;
 
-use alina\message;
+use alina\Message;
 
 class Html
 {

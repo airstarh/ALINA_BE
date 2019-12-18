@@ -3,7 +3,7 @@
 namespace alina\mvc\model;
 
 use alina\cookie;
-use alina\message;
+use alina\Message;
 use alina\session;
 use alina\traits\Singleton;
 use alina\utils\Data;
@@ -237,6 +237,16 @@ class CurrentUser
     public function isLoggedIn()
     {
         return $this->authorize();
+    }
+
+    public function isAdmin()
+    {
+        if ($this->isLoggedIn()) {
+            return $this->hasRole('ADMIN');
+        }
+
+        return FALSE;
+
     }
     #endregion States
     ##################################################

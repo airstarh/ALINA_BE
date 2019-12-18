@@ -23,7 +23,7 @@ use alina\utils\Sys;
         <?= $data->content(); ?>
 
         <!-- ToDo: Security! Delete on PROD.-->
-        <?php if (ALINA_MODE !== 'PROD') : ?>
+        <?php if (\alina\mvc\model\CurrentUser::obj()->isAdmin()) : ?>
             <div>
                 <?php
                 $h1 = 'Alina Details';
