@@ -7,11 +7,12 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
-            '/root/index?lalala=333'                                    => 'Root with GET',
-            '/egCookie/Test001'                                    => 'COOKIE',
             '/Auth/Login'                                          => 'Login',
             '/Auth/Profile/1'                                      => 'User',
             '/Auth/Register?lala=lala'                             => 'Register',
+            '/Auth/logout?lala=lala'                               => 'Log Out',
+            '/root/index?lalala=333'                               => 'Root with GET',
+            '/egCookie/Test001'                                    => 'COOKIE',
             '/FormPatternsInvestigation/index/'                    => 'Form Patterns Investigation',
             '/AdminDbManager/EditRow/user/1'                       => 'Edit a DB line',
             '/alinaRestAccept/index?cmd=model&m=user&mId=1'        => 'Rest call',

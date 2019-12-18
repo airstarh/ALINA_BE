@@ -9,6 +9,7 @@ use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Request;
 use alina\utils\Sys;
 
 class Auth
@@ -24,7 +25,7 @@ class Auth
             'password' => '',
         ];
         ##################################################
-        $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
+        $p  = Data::deleteEmptyProps(Request::obj()->POST);
         $vd = Data::mergeObjects($vd, $p);
         if (empty((array)$p)) {
             echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
@@ -36,8 +37,10 @@ class Auth
             $CU    = CurrentUser::obj();
             $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
             if ($LogIn) {
-                message::set("Welcome, {$vd->mail}!");
+                $user = $CU->name();
+                message::set("Welcome, {$user}!");
             } else {
+                message::set($CU->msg);
                 throw new exceptionValidation('Login failed');
             }
         } ##################################################
@@ -88,8 +91,11 @@ class Auth
         return $this;
     }
 
-    public function actionProfile($id)
+    public function actionProfile($id = NULL)
     {
+        if (empty($id)) {
+            $id = CurrentUser::obj()->id;
+        }
         $vd = (object)[];
         $u  = new user();
         $u->getAllWithReferences(['user.id' => $id,]);
@@ -100,5 +106,9 @@ class Auth
 
     public function actionLogout()
     {
+        $vd = (object)[];
+        $vd->name = CurrentUser::obj()->name();
+        CurrentUser::obj()->LogOut();
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 }

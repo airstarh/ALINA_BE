@@ -82,6 +82,7 @@ class _BaseAlinaModel
             }
         }
         $this->alias = $this->table;
+        $this->buildDefaultData();
     }
     #endregion Constructor
     ##################################################
@@ -290,7 +291,6 @@ class _BaseAlinaModel
                 $this->setPkValue($this->attributes->{$this->pkName});
             }
         }
-        message::set("Table: {$this->table} Updated rows:{$this->affectedRowsCount}");
         ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
@@ -613,6 +613,15 @@ class _BaseAlinaModel
         $fields = $this->fields();
         foreach ($fields as $name => $params) {
             if (property_exists($data, $name)) {
+
+                #####
+                //ToDO: Really necessary?
+                if ($this->mode === 'INSERT' && empty($data->{$name}) && isset($params['default'])) {
+                    $data->{$name} = $params['default'];
+                    continue;
+                }
+                #####
+
                 $value = $data->{$name};
                 ##################################################
                 if (Str::ifContains($name, 'date_int_')) {
@@ -832,13 +841,15 @@ class _BaseAlinaModel
      * Creates $defaultRawObj with default values for DB.
      * @return \stdClass object $defaultRawObj.
      */
-    public function buildDefaultData()
+    protected function buildDefaultData()
     {
         $fields        = $this->fields();
         $defaultRawObj = new \stdClass();
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->$f = $props['default'];
+            } else {
+                $defaultRawObj->$f = NULL;
             }
         }
         $this->attributes = $defaultRawObj;
@@ -938,9 +949,6 @@ class _BaseAlinaModel
          */
         if (isset($this->q) && !empty($this->q)) {
             $this->q = NULL;
-            //message::set("ATTENTION! {$this->table} query is redefined!!!");
-            //error_log(__FUNCTION__,0);
-            //error_log(json_encode(debug_backtrace()[1]['function']),0);
         }
 
         $this->alias = $alias ? $alias : $this->alias;

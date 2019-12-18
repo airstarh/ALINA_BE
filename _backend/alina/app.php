@@ -226,7 +226,7 @@ class app
         /*
          * This will redirect user to Page's Alias
          */
-        if (static::getConfig(['forceSysPathToAlias'])) {
+        if (AlinaCFG('forceSysPathToAlias')) {
             if ($this->router->pathAlias == $this->router->pathSys) {
                 $this->router->forcedAlias = \alina\utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {
@@ -239,9 +239,9 @@ class app
                     \alina\utils\Sys::redirect($uri);
                 }
             }
-            #endregion Redirect
-            ##################################################
         }
+        #endregion Redirect
+        ##################################################
 
         return $this;
     }

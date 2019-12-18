@@ -27,6 +27,7 @@ class CurrentUser
     protected $device_browser_enc;
     #####
     protected $state_AUTHORIZATION_PASSED = FALSE;
+    public    $msg                        = [];
 
     protected function __construct()
     {
@@ -34,83 +35,55 @@ class CurrentUser
         $this->LOGIN              = new login();
         $this->device_ip          = Request::obj()->IP;
         $this->device_browser_enc = Request::obj()->BROWSER_enc;
+        $this->authorize();
     }
     #endregion SingleTon
     ##################################################
     #region LogIn
 
-    protected function authenticate($login, $password)
-    {
-
-    }
-
     protected function identify($login, $password)
     {
-        #####
+        $this->state_AUTHORIZATION_PASSED = FALSE;
         if ($this->isLoggedIn()) {
-            message::set('You are already Logged-in');
-            return $this;
+            $this->msg[] = 'You are already Logged-in';
+
+            return FALSE;
         }
-        #####
         $conditions = [
             'mail'     => $login,
             'password' => $password,
         ];
         $this->USER->getOneWithReferences($conditions);
         if (empty($this->USER->id)) {
+            $this->msg[] = 'User not found';
+
             return FALSE;
         }
 
-        $this->id    = $this->USER->id;
-        $this->token = $this->buildToken();
+        $this->id = $this->USER->id;
+        $this->buildToken();
+        if ($this->authorize()) {
+            $this->msg[] = '$this->authorize()';
+            $this->rememberAuthInfo();
 
-        $this->rememberAuthInfo();
-        $this->authorize();
-
-        return $this;
-    }
-
-    protected function authorize()
-    {
-        if ($this->state_AUTHORIZATION_PASSED) {
-            return TRUE;
+            return $this;
         }
-        #####
-        if ($this->validateAuthority()) {
-            #####
-            $id          = $this->discoverId();
-            $token       = $this->discoverToken();
-            $ip          = $this->device_ip;
-            $browser_enc = $this->device_browser_enc;
-            #####
-            $this->LOGIN->updateById([
-                'user_id'     => $id,
-                'ip'          => $ip,
-                'browser_enc' => $browser_enc,
-                'token'       => $token,
-                'expires_at'  => ALINA_AUTH_EXPIRES,
-                'lastentered' => ALINA_TIME,
-            ]);
-            $this->state_AUTHORIZATION_PASSED = TRUE;
-
-            return TRUE;
-        }
-        #####
-        $this->state_AUTHORIZATION_PASSED = TRUE;
 
         return FALSE;
     }
 
-    protected function validateAuthority()
+    protected function authenticate()
     {
-        if ($this->LOGIN->id) {
-            if ($this->USER->id) {
-                return TRUE;
-            }
-        }
-
         $id    = $this->discoverId();
         $token = $this->discoverToken();
+
+        if (empty($id)) {
+            return FALSE;
+        }
+
+        if (empty($token)) {
+            return FALSE;
+        }
 
         $this->LOGIN->getOne([
             'user_id' => $id,
@@ -118,18 +91,18 @@ class CurrentUser
         ]);
 
         if (empty($this->LOGIN->id)) {
-            message::set('Authority failed.');
+            $this->msg[] = 'Not Logged-in';
 
             return FALSE;
         }
 
         $la = $this->LOGIN->attributes;
         if ($la->browser_enc != $this->device_browser_enc) {
-            message::set('Not Logged-in on this browser');
+            $this->msg[] = 'Not Logged-in on this browser';
         }
 
         if ($la->ip != $this->device_ip) {
-            message::set('User changed network');
+            $this->msg[] = 'User changed network';
         }
         #####
 
@@ -138,19 +111,62 @@ class CurrentUser
         ]);
 
         if (empty($this->USER->id)) {
-            message::set('User does not exist');
+            $this->msg[] = 'User does not exist';
 
             return FALSE;
         }
 
         $ua = $this->USER->attributes;
         if ($ua->banned_till > ALINA_TIME) {
-            message::set('User is banned');
+            $this->msg[] = 'User is banned';
 
             return FALSE;
         }
 
+        $this->id    = $this->USER->id;
+        $this->token = $this->LOGIN->attributes->token;
+
         return TRUE;
+    }
+
+    protected function authorize()
+    {
+        if ($this->state_AUTHORIZATION_PASSED) {
+            return TRUE;
+        }
+        #####
+        $id              = $this->discoverId();
+        $token           = $this->discoverToken();
+        $ip              = $this->device_ip;
+        $browser_enc     = $this->device_browser_enc;
+        $data            = [
+            'user_id'     => $id,
+            'token'       => $token,
+            'ip'          => $ip,
+            'browser_enc' => $browser_enc,
+            'expires_at'  => ALINA_AUTH_EXPIRES,
+            'lastentered' => ALINA_TIME,
+        ];
+        $isAuthenticated = $this->authenticate();
+        if ($isAuthenticated) {
+            $this->LOGIN->updateById($data);
+            $this->state_AUTHORIZATION_PASSED = TRUE;
+
+            return TRUE;
+        } else {
+            if (
+                !empty($this->token)
+                &&
+                !empty($this->id)
+            ) {
+                $this->LOGIN->upsertByUniqueFields($data);
+                $this->state_AUTHORIZATION_PASSED = TRUE;
+
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     public function LogInByPass($mail, $password)
@@ -168,7 +184,6 @@ class CurrentUser
     {
         if ($this->isLoggedIn()) {
             $this->forgetAuthInfo();
-            $this->LOGIN->deleteById($this->LOGIN->id);
         }
 
         return FALSE;
@@ -192,7 +207,7 @@ class CurrentUser
                 'role_id' => 5,
             ]);
             if (isset($ur->id)) {
-                message::set('Registration has passed successfully!');
+                $this->msg[] = 'Registration has passed successfully!';
             }
         }
 
@@ -277,12 +292,15 @@ class CurrentUser
             ALINA_TIME,
         ];
         $token       = md5(implode('', $tokenSource));
+        $this->token = $token;
 
         return $token;
     }
 
     public function attributes()
     {
+        unset($this->USER->attributes->password);
+
         return $this->USER->attributes;
     }
 
@@ -331,10 +349,26 @@ class CurrentUser
             session::delete(static::$keyUserToken);
             session::delete(static::$keyUserId);
             #####
-            //ToDO Delete from login table
+            $this->LOGIN->deleteById($this->LOGIN->id);
+            #####
+            $this->state_AUTHORIZATION_PASSED = FALSE;
+            $this->id                         = NULL;
+            $this->token                      = NULL;
+            #####
+            $this->LOGIN = new login();
+            $this->USER  = new user();
         }
     }
 
+    public function name()
+    {
+        $res = $this->USER->attributes->mail;
+        if (empty($res)) {
+            $res = 'Not Logged-in';
+        }
+
+        return $res;
+    }
     #endregion Utils
     ##################################################
 }
