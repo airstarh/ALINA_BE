@@ -99,6 +99,9 @@ class Auth
         if (empty($id)) {
             $id = CurrentUser::obj()->id;
         }
+        if (empty($id)) {
+            Sys::redirect('/auth/login', 302);
+        }
         $vd = (object)[];
         $u  = new user();
         $u->getAllWithReferences(['user.id' => $id,]);

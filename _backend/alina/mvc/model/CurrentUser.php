@@ -15,7 +15,7 @@ class CurrentUser
     ##################################################
     #region SingleTon
     use Singleton;
-    const KEY_USER_ID = 'uid';
+    const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
     public    $id    = NULL;
     protected $token = NULL;
@@ -27,6 +27,7 @@ class CurrentUser
     protected $device_browser_enc;
     #####
     protected $state_AUTHORIZATION_PASSED = FALSE;
+    protected $state_USER_DEFINED         = FALSE;
     public    $msg                        = [];
 
     protected function __construct()
@@ -43,6 +44,7 @@ class CurrentUser
 
     protected function identify($login, $password)
     {
+        $this->state_USER_DEFINED         = FALSE;
         $this->state_AUTHORIZATION_PASSED = FALSE;
         if ($this->isLoggedIn()) {
             $this->msg[] = 'You are already Logged-in';
@@ -53,7 +55,7 @@ class CurrentUser
             'mail'     => $login,
             'password' => $password,
         ];
-        $this->USER->getOneWithReferences($conditions);
+        $this->defineUSER($conditions);
         if (empty($this->USER->id)) {
             $this->msg[] = 'User not found';
 
@@ -105,10 +107,10 @@ class CurrentUser
             $this->msg[] = 'User changed network';
         }
         #####
-
-        $this->USER->getOneWithReferences([
+        $conditions = [
             "{$this->USER->alias}.{$this->USER->pkName}" => $id,
-        ]);
+        ];
+        $this->defineUSER($conditions);
 
         if (empty($this->USER->id)) {
             $this->msg[] = 'User does not exist';
@@ -361,6 +363,7 @@ class CurrentUser
             #####
             $this->LOGIN->deleteById($this->LOGIN->id);
             #####
+            $this->state_USER_DEFINED  = FALSE;
             $this->state_AUTHORIZATION_PASSED = FALSE;
             $this->id                         = NULL;
             $this->token                      = NULL;
@@ -378,6 +381,22 @@ class CurrentUser
         }
 
         return $res;
+    }
+
+    public function ownsId($id)
+    {
+        return $this->isLoggedIn() && $this->id === $id;
+    }
+
+    protected function defineUSER($conditions)
+    {
+        if ($this->state_USER_DEFINED) {
+            return $this->USER;
+        }
+        $this->USER->getOneWithReferences($conditions);
+        $this->state_USER_DEFINED = TRUE;
+
+        return $this->USER;
     }
     #endregion Utils
     ##################################################

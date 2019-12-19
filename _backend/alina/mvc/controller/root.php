@@ -10,7 +10,7 @@ class root
             '/main/index'                                          => 'ZERO',
             '/AdminTests/TestMessages'                             => 'Messages',
             '/Auth/Login'                                          => 'Login',
-            '/Auth/Profile/1'                                      => 'User',
+            '/Auth/Profile'                                        => 'User',
             '/Auth/Register?lala=lala'                             => 'Register',
             '/Auth/logout?lala=lala'                               => 'Log Out',
             '/root/index?lalala=333'                               => 'Root with GET',
