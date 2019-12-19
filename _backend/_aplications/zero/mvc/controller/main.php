@@ -2,11 +2,13 @@
 
 namespace zero\mvc\controller;
 
+use alina\Message;
+
 class main
 {
     public function actionIndex(){
 
-    	\alina\Message::set('Yo! This is the status message of the age!');
+    	Message::set('Yo! This is the status message of the age!');
 
     	$content = 'This is Zero Application, built on Alina Framework.';
     	echo (new \alina\mvc\view\html)->page($content);

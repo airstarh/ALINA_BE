@@ -3,6 +3,7 @@
 namespace alina\utils;
 
 use alina\Message;
+use alina\MessageAdmin;
 use alina\mvc\model\DataPlayer;
 use Exception;
 use stdClass;
@@ -90,7 +91,7 @@ class Data
                 if (static::isIterable($v)) {
                     $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
                 } elseif (FALSE !== static::megaUnserialize($v)) {
-                    Message::set('Serialized inside JSON');
+                    MessageAdmin::set('Serialized inside JSON');
                     $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     $v = $d->strResControl;
                 } else {
@@ -148,7 +149,7 @@ class Data
                 $tCount += $iCount;
             }
             if (FALSE !== static::megaUnserialize($v)) {
-                Message::set('Source has SERIALIZED inside');
+                MessageAdmin::set('Source has SERIALIZED inside');
                 $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 $v = $d->strResControl;
 

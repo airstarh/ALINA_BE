@@ -140,7 +140,7 @@ trait Msg
     public $statuses       = ['green', 'yellow', 'red'];
     public $isShown        = FALSE;
 
-    public function addToCollection()
+    protected function addToCollection()
     {
         static::$collection   = static::getCollection();
         static::$collection[] = $this;

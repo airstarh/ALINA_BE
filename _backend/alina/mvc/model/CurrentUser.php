@@ -15,10 +15,10 @@ class CurrentUser
     ##################################################
     #region SingleTon
     use Singleton;
-    public static $keyUserId    = 'uid';
-    public static $keyUserToken = 'token';
-    public        $id           = NULL;
-    protected     $token        = NULL;
+    const KEY_USER_ID = 'uid';
+    const KEY_USER_TOKEN = 'token';
+    public    $id    = NULL;
+    protected $token = NULL;
     /**@var user */
     protected $USER = NULL;
     /**@var login */
@@ -258,13 +258,13 @@ class CurrentUser
             $id = $this->USER->id;
         }
         if (empty($id)) {
-            $id = session::get(static::$keyUserId);
+            $id = session::get(static::KEY_USER_ID);
         }
         if (empty($id)) {
-            $id = cookie::get(static::$keyUserId);
+            $id = cookie::get(static::KEY_USER_ID);
         }
         if (empty($id)) {
-            $id = Request::obj()->tryHeader(static::$keyUserId);
+            $id = Request::obj()->tryHeader(static::KEY_USER_ID);
         }
         $this->id = $id;
 
@@ -278,13 +278,13 @@ class CurrentUser
             $token = $this->token;
         }
         if (empty($token)) {
-            $token = session::get(static::$keyUserToken);
+            $token = session::get(static::KEY_USER_TOKEN);
         }
         if (empty($token)) {
-            $token = cookie::get(static::$keyUserToken);
+            $token = cookie::get(static::KEY_USER_TOKEN);
         }
         if (empty($token)) {
-            $token = Request::obj()->tryHeader(static::$keyUserToken);
+            $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
         }
         $this->token = $token;
 
@@ -317,18 +317,18 @@ class CurrentUser
     protected function rememberAuthInfo()
     {
         #####
-        cookie::set(static::$keyUserToken, $this->token);
-        cookie::set(static::$keyUserId, $this->id);
+        cookie::set(static::KEY_USER_TOKEN, $this->token);
+        cookie::set(static::KEY_USER_ID, $this->id);
         #####
-        session::set(static::$keyUserToken, $this->token);
-        session::set(static::$keyUserId, $this->id);
+        session::set(static::KEY_USER_TOKEN, $this->token);
+        session::set(static::KEY_USER_ID, $this->id);
         #####
         header(implode(': ', [
-            static::$keyUserToken,
+            static::KEY_USER_TOKEN,
             $this->token,
         ]));
         header(implode(': ', [
-            static::$keyUserId,
+            static::KEY_USER_ID,
             $this->id,
         ]));
         #####
@@ -353,11 +353,11 @@ class CurrentUser
     {
         if ($this->isLoggedIn()) {
             #####
-            cookie::delete(static::$keyUserToken);
-            cookie::delete(static::$keyUserId);
+            cookie::delete(static::KEY_USER_TOKEN);
+            cookie::delete(static::KEY_USER_ID);
             #####
-            session::delete(static::$keyUserToken);
-            session::delete(static::$keyUserId);
+            session::delete(static::KEY_USER_TOKEN);
+            session::delete(static::KEY_USER_ID);
             #####
             $this->LOGIN->deleteById($this->LOGIN->id);
             #####

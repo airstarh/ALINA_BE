@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\view\json;
 use alina\utils\Sys;
 
 class exceptionCatcher
@@ -36,6 +37,11 @@ class exceptionCatcher
         throw new \ErrorException ($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
     }
 
+    /**
+     * @param \Exception $objException
+     * @param bool $forceExit
+     * @throws \Exception
+     */
     public function exception($objException, $forceExit = TRUE)
     {
         $strUNKNOWN         = 'UNKNOWN';
@@ -62,18 +68,19 @@ class exceptionCatcher
         $this->processError();
 
         if ($forceExit) {
-            if (\alina\utils\Sys::isAjax()) {
-                (new \alina\mvc\view\json())->standardRestApiResponse();
+            if (Sys::isAjax()) {
+                (new json())->standardRestApiResponse();
             } else {
                 ##################################################
                 # Clean ALL @link https://stackoverflow.com/a/22069460/3142281
                 //ob_end_clean();
                 $level = ob_get_level();
                 while (@ob_end_clean()) {
-                    Message::set($level--);
+                    $level--;
+                    //MessageAdmin::set($level);
                 }
                 ##################################################
-                \alina\app::get()->mvcGo('root', 'Exception', $this);
+                app::get()->mvcGo('root', 'Exception', $this);
             }
         }
     }
@@ -85,7 +92,7 @@ class exceptionCatcher
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
 
-        $dbgCfg = \alina\app::getConfig('debug');
+        $dbgCfg = app::getConfig('debug');
         if (in_array(TRUE, $dbgCfg)) {
 
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
@@ -93,12 +100,13 @@ class exceptionCatcher
             }
 
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
-                \alina\Message::set($this->strMessage(), [], 'alert alert-danger');
+                Message::set('Error!', [], 'alert alert-danger');
+                MessageAdmin::set($this->strMessage(), [], 'alert alert-danger');
             }
 
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
                 $NL = '</br>' . PHP_EOL;
-                \alina\utils\Sys::fDebug($this->strMessage($NL));
+                Sys::fDebug($this->strMessage($NL));
             }
         }
     }

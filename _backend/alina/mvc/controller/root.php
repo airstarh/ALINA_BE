@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/main/index'                                          => 'ZERO',
             '/AdminTests/TestMessages'                             => 'Messages',
             '/Auth/Login'                                          => 'Login',
             '/Auth/Profile/1'                                      => 'User',

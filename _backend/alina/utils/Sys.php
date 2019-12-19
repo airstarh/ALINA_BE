@@ -109,8 +109,8 @@ class Sys
                         'Access-Control-Request-Headers' => '',
                         #####
                         'Authorization'                  => '',
-                        CurrentUser::$keyUserId          => '',
-                        CurrentUser::$keyUserToken       => '',
+                        CurrentUser::KEY_USER_ID          => '',
+                        CurrentUser::KEY_USER_TOKEN       => '',
                     ];
                     $allowedHeaders = array_keys($allowedHeaders);
                     $allowedHeaders = implode(', ', $allowedHeaders);
