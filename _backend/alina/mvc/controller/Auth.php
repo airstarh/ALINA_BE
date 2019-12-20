@@ -20,7 +20,6 @@ class Auth
     public function actionLogin()
     {
         $vd = (object)[
-            'table'    => 'user',
             'mail'     => '',
             'password' => '',
         ];
@@ -65,7 +64,6 @@ class Auth
     {
         ##################################################
         $vd = (object)[
-            'table'            => 'user',
             'mail'             => '',
             'password'         => '',
             'confirm_password' => '',

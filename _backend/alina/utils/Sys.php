@@ -4,6 +4,7 @@ namespace alina\utils;
 
 use alina\app;
 use alina\mvc\model\CurrentUser;
+use alina\session;
 
 class Sys
 {
@@ -63,9 +64,29 @@ class Sys
     // ToDo: Rewrite
     static public function isAjax()
     {
-        // Cross Domain AJAX request.
-        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
             return TRUE;
+        }
+        if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
+            return TRUE;
+        }
+
+        // Cross Domain AJAX request.
+        if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+            $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+                $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
+                if ($o !== $h) {
+                    return TRUE;
+                }
+            }
+            if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+                $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
+                if ($r !== $h) {
+                    return TRUE;
+                }
+            }
+
         }
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
@@ -76,30 +97,21 @@ class Sys
             return TRUE;
         }
 
-        if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
-            return TRUE;
-        }
-        if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
-            return TRUE;
-        }
-
         return FALSE;
     }
 
     ##################################################
     static public function setCrossDomainHeaders()
     {
+        static $state_ALREADY_SET = FALSE;
+        if ($state_ALREADY_SET) {
+            return TRUE;
+        }
         //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
         //ToDo: PROD! Security!
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
-                    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-                    //header("Access-Control-Allow-Origin: *");
-                    //header("Vary: Origin");
-                    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                    header('Access-Control-Max-Age: 666');
-                    header('Alina-Server-Header: Hello, from Alina');
                     $allowedHeaders = [
                         'Origin'                         => '',
                         'Accept'                         => '',
@@ -109,16 +121,21 @@ class Sys
                         'Access-Control-Request-Headers' => '',
                         #####
                         'Authorization'                  => '',
+                        'Alina-Server-Header'            => '',
                         CurrentUser::KEY_USER_ID         => '',
                         CurrentUser::KEY_USER_TOKEN      => '',
                     ];
                     $allowedHeaders = array_keys($allowedHeaders);
                     $allowedHeaders = implode(', ', $allowedHeaders);
+                    #####
+                    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+                    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
                     header("Access-Control-Allow-Headers: {$allowedHeaders}");
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
                     header("Access-Control-Allow-Credentials: true");
+                    header('Access-Control-Max-Age: 666');
+                    header('Alina-Server-Header: Hello, from Alina');
                     header("Authorization: QQQ");
-
                     ##################################################
                     $method = strtoupper($_SERVER['REQUEST_METHOD']);
                     if ($method === 'OPTIONS') {
@@ -129,6 +146,8 @@ class Sys
                     break;
             }
         }
+        $state_ALREADY_SET = TRUE;
+        return TRUE;
     }
 
     static public function redirect($page, $code = 301)
@@ -248,7 +267,8 @@ class Sys
         $res = array_merge(
             Request::obj()->TOTAL_DEBUG_DATA(),
             [
-                'ROUTER' => app::get()->router,
+                'ROUTER'  => app::get()->router,
+                'SESSION' => session::get(),
             ]
         );
 

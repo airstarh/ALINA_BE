@@ -14,7 +14,13 @@ class Watcher
     #region Singleton
     use Singleton;
 
-    protected function __construct() { }
+    protected function __construct()
+    {
+        $this->IP_model       = new watch_ip();
+        $this->BROWSER_model  = new watch_browser();
+        $this->URL_PATH_model = new watch_url_path();
+        $this->VISIT_model    = new watch_visit();
+    }
     #endregion Singleton
     ##################################################
     #region Watch
@@ -22,17 +28,13 @@ class Watcher
     protected        $BROWSER_model;
     protected        $URL_PATH_model;
     protected        $VISIT_model;
-    protected static $logVisitsToDb_done = FALSE;
+    protected static $state_VISIT_LOGGED = FALSE;
 
     public function logVisitsToDb()
     {
         //ToDo: better Store Procedure
         if (AlinaCFG('logVisitsToDb')) {
-            if (!static::$logVisitsToDb_done) {
-                $this->IP_model       = new watch_ip();
-                $this->BROWSER_model  = new watch_browser();
-                $this->URL_PATH_model = new watch_url_path();
-                $this->VISIT_model    = new watch_visit();
+            if (!static::$state_VISIT_LOGGED) {
                 #####
                 $this->BROWSER_model->upsertByUniqueFields([
                     'user_agent' => Request::obj()->BROWSER,
@@ -53,12 +55,23 @@ class Watcher
                     //'user_id'      => 'use default',
                 ]);
                 #####
-                static::$logVisitsToDb_done = TRUE;
+                static::$state_VISIT_LOGGED = TRUE;
             }
         }
 
         return $this;
     }
     #endregion Watch
+    ##################################################
+    #region Firewall
+    public function firewall()
+    {
+
+    }
+
+    protected function getNumberOfReqsFromIpAndBrowser()
+    {
+    }
+    #endregion Firewall
     ##################################################
 }

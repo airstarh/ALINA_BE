@@ -2,6 +2,7 @@
 
 namespace alina\utils;
 
+use alina\session;
 use alina\traits\Singleton;
 
 class Request
@@ -20,12 +21,11 @@ class Request
     public $HEADERS;
     public $SERVER;
     public $COOKIE;
-    public $SESSION;
     public $FILES;
 
     protected function __construct()
     {
-        $this->DOMAIN       = $_SERVER['HTTP_HOST'];
+        $this->DOMAIN       = Url::cleanDomain($_SERVER['HTTP_HOST']);
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
         $this->QUERY_STRING = $_SERVER['QUERY_STRING'];
         $this->METHOD       = Sys::getReqMethod();
@@ -35,10 +35,9 @@ class Request
         $this->IP           = Sys::getUserIp();
         $this->BROWSER      = Sys::getUserBrowser();
         $this->LANGUAGE     = Sys::getUserLanguage();
-        $this->SERVER       = Data::toObject($_SERVER);
         $this->COOKIE       = Data::toObject($_COOKIE);
-        $this->SESSION      = (isset($_SESSION)) ? Data::toObject($_SESSION) : '';
         $this->FILES        = Data::toObject($_FILES);
+        $this->SERVER       = Data::toObject($_SERVER);
 
         $this->processBrowserData();
 
@@ -65,12 +64,11 @@ class Request
             'BROWSER'      => $this->BROWSER,
             'LANGUAGE'     => $this->LANGUAGE,
             'HEADERS'      => $this->HEADERS,
+            'COOKIE'       => $this->COOKIE,
             'GET'          => $this->GET,
             'POST'         => $this->POST,
-            'SERVER'       => $this->SERVER,
-            'COOKIE'       => $this->COOKIE,
-            'SESSION'      => $this->SESSION,
             'FILES'        => $this->FILES,
+            'SERVER'       => $this->SERVER,
         ];
 
         return $res;

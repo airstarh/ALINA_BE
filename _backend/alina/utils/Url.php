@@ -98,6 +98,7 @@ class Url
 
     #endregion URL's, Aliases, Routes
     ##################################################
+    #region PARSE_URL
     static public function un_parse_url(array $parsedUri)
     {
         $get = function ($key) use ($parsedUri) {
@@ -129,6 +130,16 @@ class Url
         return implode('', $arrRes);
     }
 
+    static public function cleanDomain($url)
+    {
+        $res = $url;
+        $res = parse_url($res, PHP_URL_HOST);
+        $res = urldecode($res);
+        $res = mb_strtolower($res);
+
+        return $res;
+    }
+
     static public function cleanPath($url)
     {
         $res = $url;
@@ -138,4 +149,6 @@ class Url
 
         return $res;
     }
+    #endregion PARSE_URL
+    ##################################################
 }

@@ -16,9 +16,13 @@ class session
         return \alina\utils\Arr::setArrayValue($path, $value, static::$storage);
     }
 
-    static public function get($path)
+    static public function get($path = NULL)
     {
         static::start();
+
+        if (empty($path)) {
+            return static::$storage;
+        }
 
         return \alina\utils\Arr::getArrayValue($path, static::$storage);
     }

@@ -53,11 +53,12 @@ trait Msg
         $collection = static::getCollection();
 
         $all = '';
-        /** @var Message $message */
-        foreach ($collection as $pseudoId => $message) {
-            if (!$message->isShown) {
-                $all              .= $message->messageHtml();
-                $message->isShown = TRUE;
+        /** @var Message $msg */
+        foreach ($collection as $pseudoId => $msg) {
+            if (!$msg->isShown) {
+                $all          .= $msg->messageHtml();
+                $msg->isShown = TRUE;
+                static::removeById($msg->id);
             }
         }
 

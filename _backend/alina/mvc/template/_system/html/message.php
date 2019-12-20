@@ -6,7 +6,3 @@
     ?>
     <?= $htmlString ?>
 </div>
-
-<?php
-\alina\Message::removeById($data->id);
-?>

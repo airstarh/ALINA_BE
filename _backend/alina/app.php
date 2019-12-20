@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\utils\Sys;
 use alina\utils\Url;
 
 class app
@@ -22,6 +23,7 @@ class app
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
         Watcher::obj()->logVisitsToDb();
+        Sys::setCrossDomainHeaders();
     }
 
     protected function init()
