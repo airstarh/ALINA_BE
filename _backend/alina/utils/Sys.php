@@ -64,9 +64,9 @@ class Sys
     static public function isAjax()
     {
         // Cross Domain AJAX request.
-//    if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
-//        return TRUE;
-//    }
+        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+            return TRUE;
+        }
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
             return TRUE;
@@ -109,8 +109,8 @@ class Sys
                         'Access-Control-Request-Headers' => '',
                         #####
                         'Authorization'                  => '',
-                        CurrentUser::KEY_USER_ID          => '',
-                        CurrentUser::KEY_USER_TOKEN       => '',
+                        CurrentUser::KEY_USER_ID         => '',
+                        CurrentUser::KEY_USER_TOKEN      => '',
                     ];
                     $allowedHeaders = array_keys($allowedHeaders);
                     $allowedHeaders = implode(', ', $allowedHeaders);

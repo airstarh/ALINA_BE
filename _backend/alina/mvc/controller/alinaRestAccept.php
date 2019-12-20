@@ -46,7 +46,7 @@ class alinaRestAccept
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $m->insert($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
-                    (new jsonView())->standardRestApiResponse($data);
+                    echo  (new jsonView())->standardRestApiResponse($data);
                 }
                 break;
             //UPDATE
@@ -58,7 +58,7 @@ class alinaRestAccept
                     $id        = $post->{$m->pkName};
                     $m->updateById($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
-                    (new jsonView())->standardRestApiResponse($data[0]);
+                    echo (new jsonView())->standardRestApiResponse($data[0]);
                 }
                 break;
             case 'OPTIONS':
@@ -78,7 +78,7 @@ class alinaRestAccept
                         GlobalRequestStorage::set('pageCurrentNumber', $m->pageCurrentNumber);
                         GlobalRequestStorage::set('pageSize', $m->pageSize);
                         GlobalRequestStorage::set('rowsTotal', $m->rowsTotal);
-                        (new jsonView())->standardRestApiResponse($data);
+                        echo (new jsonView())->standardRestApiResponse($data);
                     }
 
                     if ($command === 'model') {
@@ -95,7 +95,7 @@ class alinaRestAccept
                             }
                         }
                         //$resp = $data;
-                        (new jsonView())->standardRestApiResponse($resp);
+                        echo (new jsonView())->standardRestApiResponse($resp);
                     }
                 }
                 break;
@@ -122,7 +122,7 @@ class alinaRestAccept
         error_log(json_encode($_GET),0);
         error_log(json_encode(getallheaders()),0);
         error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
-        (new jsonView())->standardRestApiResponse($_GET);
+        echo (new jsonView())->standardRestApiResponse($_GET);
     }
 
     public function actionTestCors()
@@ -133,7 +133,7 @@ class alinaRestAccept
         $vd = 'Привет';
         ############################################
         //echo (new htmlAlias)->page($vd);
-        (new jsonView())->standardRestApiResponse($vd);
+        echo (new jsonView())->standardRestApiResponse($vd);
     }
 
 }

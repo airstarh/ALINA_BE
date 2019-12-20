@@ -17,16 +17,7 @@ class AdminTests
      */
     public function actionErrors(...$args)
     {
-        try {
-            //$x = 10 / 0;
-            throw new \ErrorException(11111111111111);
-        } catch (\Exception $e) {
-            //throw $e;
-            exceptionCatcher::obj()->exception($e, FALSE);
-            echo (new html)->page('1234');
-        }
-
-        return $this;
+        throw new \ErrorException(11111111111111);
     }
     ##############################################
 
@@ -68,7 +59,7 @@ class AdminTests
     public function actionListTableColumns()
     {
         $vd = (new _BaseAlinaModel(['table' => $_GET['table']]))->fields();
-        (new jsonView())->standardRestApiResponse($vd);
+        echo (new jsonView())->standardRestApiResponse($vd);
 
         return $this;
     }

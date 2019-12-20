@@ -87,8 +87,8 @@ trait Msg
 
     static protected function getCollection()
     {
-        if (session::has(static::MESSAGES)) {
-            static::$collection              = session::get(static::MESSAGES);
+        if (session::has(static::MSG_KEY)) {
+            static::$collection              = session::get(static::MSG_KEY);
             static::$flagCollectionInSession = TRUE;
         } else {
             static::$flagCollectionInSession = FALSE;
@@ -100,7 +100,7 @@ trait Msg
     static protected function setCollectionToSession()
     {
         try {
-            if (session::set(static::MESSAGES, static::$collection)) {
+            if (session::set(static::MSG_KEY, static::$collection)) {
                 static::$flagCollectionInSession = TRUE;
             }
         } catch (\Exception $e) {

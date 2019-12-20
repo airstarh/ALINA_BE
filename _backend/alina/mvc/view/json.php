@@ -36,10 +36,10 @@ class json
 
         header('Content-Type: application/json; charset=utf-8');
         //ToDo: Think about encoding (utf8ize).
-        echo json_encode(\alina\utils\Data::utf8ize($response));
+        return json_encode(\alina\utils\Data::utf8ize($response));
         //echo json_encode($response, JSON_UNESCAPED_UNICODE);
         //echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-        return TRUE;
+        //return TRUE;
     }
 
     public function simpleRestApiResponse($data = NULL, $toReturn = FALSE)

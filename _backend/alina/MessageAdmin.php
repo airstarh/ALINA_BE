@@ -11,5 +11,5 @@ use alina\utils\Data;
 class MessageAdmin
 {
     use Msg;
-    const MESSAGES = 'ALINA_MESSAGES_ADMIN';
+    const MSG_KEY = 'ALINA_MESSAGES_ADMIN';
 }

@@ -5,6 +5,8 @@ namespace alina\mvc\view;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\view\json as jsonView;
+use alina\utils\Sys;
 
 class html
 {
@@ -41,6 +43,10 @@ class html
 
     public function page($data = NULL, $htmlLayout = FALSE)
     {
+        if (Sys::isAjax()) {
+            return (new jsonView())->standardRestApiResponse($data);
+        }
+
         if ($htmlLayout) {
             $this->pathToGlobalHtmlPageWrapper = $htmlLayout;
         }

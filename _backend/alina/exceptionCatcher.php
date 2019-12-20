@@ -69,7 +69,7 @@ class exceptionCatcher
 
         if ($forceExit) {
             if (Sys::isAjax()) {
-                (new json())->standardRestApiResponse();
+                echo (new json())->standardRestApiResponse();
             } else {
                 ##################################################
                 # Clean ALL @link https://stackoverflow.com/a/22069460/3142281
