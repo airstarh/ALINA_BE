@@ -113,6 +113,7 @@ class Auth
         $vd = (object)[];
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
+        Sys::redirect('/Auth/Login', 307);
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 }

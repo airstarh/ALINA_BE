@@ -44,13 +44,14 @@ class CurrentUser
 
     protected function identify($login, $password)
     {
-        $this->state_USER_DEFINED         = FALSE;
-        $this->state_AUTHORIZATION_PASSED = FALSE;
-        if ($this->isLoggedIn()) {
+        if ($this->authenticate()) {
             $this->msg[] = 'You are already Logged-in';
 
             return FALSE;
         }
+
+        $this->state_USER_DEFINED         = FALSE;
+        $this->state_AUTHORIZATION_PASSED = FALSE;
         $conditions = [
             'mail'     => $login,
             'password' => $password,
@@ -62,12 +63,7 @@ class CurrentUser
             return FALSE;
         }
 
-        $this->id = $this->USER->id;
-        $this->buildToken();
         if ($this->authorize()) {
-            $this->msg[] = '$this->authorize()';
-            $this->rememberAuthInfo();
-
             return $this;
         }
 
@@ -133,42 +129,42 @@ class CurrentUser
 
     protected function authorize()
     {
+        #####
         if ($this->state_AUTHORIZATION_PASSED) {
             return TRUE;
         }
         #####
-        $id              = $this->discoverId();
-        $token           = $this->discoverToken();
-        $ip              = $this->device_ip;
-        $browser_enc     = $this->device_browser_enc;
+        $isAuthenticated = $this->authenticate();
+        if (empty($this->USER->id)) {
+            return FALSE;
+        }
+        $newToken        = $this->buildToken();
         $data            = [
-            'user_id'     => $id,
-            'token'       => $token,
-            'ip'          => $ip,
-            'browser_enc' => $browser_enc,
+            'user_id'     => $this->USER->id,
+            'token'       => $newToken,
+            'ip'          => $this->device_ip,
+            'browser_enc' => $this->device_browser_enc,
             'expires_at'  => ALINA_AUTH_EXPIRES,
             'lastentered' => ALINA_TIME,
         ];
-        $isAuthenticated = $this->authenticate();
         if ($isAuthenticated) {
-            $this->LOGIN->updateById($data);
-            $this->state_AUTHORIZATION_PASSED = TRUE;
-
-            return TRUE;
-        } else {
-            if (
-                !empty($this->token)
-                &&
-                !empty($this->id)
-            ) {
-                $this->LOGIN->upsertByUniqueFields($data);
-                $this->state_AUTHORIZATION_PASSED = TRUE;
-
-                return TRUE;
+            $conditions = [
+                'user_id' => $this->id,
+                'token'   => $this->token,
+            ];
+            $this->LOGIN->update($data, $conditions);
+            if ($this->LOGIN->affectedRowsCount != 1) {
+                $this->msg[] = "ATTENTION!!! LOGIN affected rows: {$this->LOGIN->affectedRowsCount}";
             }
-        }
 
-        return FALSE;
+        } else {
+            $this->LOGIN->insert($data);
+        }
+        #####
+        $this->rememberAuthInfo($this->id, $newToken);
+        $this->state_AUTHORIZATION_PASSED = TRUE;
+
+        return TRUE;
     }
 
     public function LogInByPass($mail, $password)
@@ -304,7 +300,6 @@ class CurrentUser
             ALINA_TIME,
         ];
         $token       = md5(implode('', $tokenSource));
-        $this->token = $token;
 
         return $token;
     }
@@ -316,37 +311,26 @@ class CurrentUser
         return $this->USER->attributes;
     }
 
-    protected function rememberAuthInfo()
+    protected function rememberAuthInfo($uid, $token)
     {
         #####
-        cookie::set(static::KEY_USER_TOKEN, $this->token);
-        cookie::set(static::KEY_USER_ID, $this->id);
+        cookie::set(static::KEY_USER_TOKEN, $token);
+        cookie::set(static::KEY_USER_ID, $uid);
         #####
-        session::set(static::KEY_USER_TOKEN, $this->token);
-        session::set(static::KEY_USER_ID, $this->id);
+        session::set(static::KEY_USER_TOKEN, $token);
+        session::set(static::KEY_USER_ID, $uid);
         #####
         header(implode(': ', [
             static::KEY_USER_TOKEN,
-            $this->token,
+            $token,
         ]));
         header(implode(': ', [
             static::KEY_USER_ID,
-            $this->id,
+            $uid,
         ]));
         #####
-        $id          = $this->discoverId();
-        $token       = $this->discoverToken();
-        $ip          = $this->device_ip;
-        $browser_enc = $this->device_browser_enc;
-        #####
-        $this->LOGIN->upsertByUniqueFields([
-            'user_id'     => $id,
-            'ip'          => $ip,
-            'browser_enc' => $browser_enc,
-            'token'       => $token,
-            'expires_at'  => ALINA_AUTH_EXPIRES,
-            'lastentered' => ALINA_TIME,
-        ]);
+        $this->id    = $uid;
+        $this->token = $token;
 
         return $this;
     }
@@ -363,7 +347,7 @@ class CurrentUser
             #####
             $this->LOGIN->deleteById($this->LOGIN->id);
             #####
-            $this->state_USER_DEFINED  = FALSE;
+            $this->state_USER_DEFINED         = FALSE;
             $this->state_AUTHORIZATION_PASSED = FALSE;
             $this->id                         = NULL;
             $this->token                      = NULL;
@@ -394,6 +378,9 @@ class CurrentUser
             return $this->USER;
         }
         $this->USER->getOneWithReferences($conditions);
+        if ($this->USER->id) {
+            $this->id = $this->USER->id;
+        }
         $this->state_USER_DEFINED = TRUE;
 
         return $this->USER;
