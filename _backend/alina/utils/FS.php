@@ -143,8 +143,11 @@ class FS
 
         $pp = [];
         foreach ($blocks as $i => $block) {
-            $b    = static::normalizePath($block);
-            $b    = trim($b, DIRECTORY_SEPARATOR);
+            $b = static::normalizePath($block);
+            $b = trim($b, DIRECTORY_SEPARATOR);
+            if (empty($b)) {
+                continue;
+            }
             $pp[] = $b;
         }
 
@@ -175,5 +178,25 @@ class FS
         header('Content-Length: ' . $fileSize);
         readfile($realPath);
         exit;
+    }
+
+    static public function getCleanFileName($path)
+    {
+        $res = pathinfo($path, PATHINFO_FILENAME);
+        if (empty($res)) {
+            $res = FALSE;
+        }
+
+        return $res;
+    }
+
+    static public function getExtension($path)
+    {
+        $res = pathinfo($path, PATHINFO_EXTENSION);
+        if (empty($res)) {
+            $res = FALSE;
+        }
+
+        return $res;
     }
 }

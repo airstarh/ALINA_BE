@@ -1,20 +1,25 @@
-<?php /** @var $data array|object */ ?>
-<?php $url = '/FileUpload/main' ?>
+<?php /** @var $data array|object */
 
-<div>
-    <h1>
-        <a href="<?= $url ?>">Reload page F5</a>
-    </h1>
-</div>
-<div>
-    <!-- Тип кодирования данных, enctype, ДОЛЖЕН БЫТЬ указан ИМЕННО так -->
-    <form enctype="multipart/form-data" action="<?= $url ?>" method="POST">
-        <!-- Поле MAX_FILE_SIZE должно быть указано до поля загрузки файла -->
-        <input type="hidden" name="MAX_FILE_SIZE" value="930000"/>
-        <!-- Название элемента input определяет имя в массиве $_FILES -->
-        Отправить этот файл: <input name="<?= ALINA_FILE_UPLOAD_KEY ?>[]" multiple type="file"/>
-        <input type="submit" value="Send File"/>
-    </form>
+use alina\mvc\view\html as htmlAlias; ?>
+<div class="row align-items-center h-100">
+    <div class="col-md-6 mx-auto">
+        <form enctype="multipart/form-data" action="" method="POST">
+            <input type="hidden" name="MAX_FILE_SIZE" value="930000"/>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Upload</span>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01" multiple name="<?= ALINA_FILE_UPLOAD_KEY ?>[]">
+                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+
+
+            <?= htmlAlias::elFormStandardButtons() ?>
+        </form>
+    </div>
+    >
 </div>
 
 

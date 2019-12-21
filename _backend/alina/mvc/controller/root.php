@@ -7,6 +7,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/FileUpload/Common'                                   => 'File Upload',
             '/main/index'                                          => 'ZERO',
             '/AdminTests/TestMessages'                             => 'Messages',
             '/Auth/Login'                                          => 'Login',
