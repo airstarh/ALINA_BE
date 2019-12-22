@@ -46,6 +46,7 @@ class root
 //
 //            return TRUE;
 //        }
+        http_response_code(500);
         Message::set('Keep calm and try something else, while we fix the bug ¯\_(ツ)_/¯');
         echo (new \alina\mvc\view\html)->page('', '_system/html/htmlLayoutErrorCatcher.php');
 
