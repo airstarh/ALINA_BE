@@ -2,6 +2,8 @@
 
 namespace alina\mvc\controller;
 
+use alina\Message;
+
 class root
 {
     public function actionIndex()
@@ -39,13 +41,13 @@ class root
 
     public function actionException()
     {
-        if (\alina\utils\Sys::isAjax()) {
-            echo \alina\Message::returnAllMessages();
-
-            return TRUE;
-        }
-
-        echo (new \alina\mvc\view\html)->page();
+//        if (\alina\utils\Sys::isAjax()) {
+//            echo \alina\Message::returnAllMessages();
+//
+//            return TRUE;
+//        }
+        Message::set('Keep calm and try something else, while we fix the bug ¯\_(ツ)_/¯');
+        echo (new \alina\mvc\view\html)->page('', '_system/html/htmlLayoutErrorCatcher.php');
 
         return TRUE;
     }

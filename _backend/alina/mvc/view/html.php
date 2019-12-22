@@ -144,10 +144,10 @@ class html
     public function messages()
     {
         $str = '';
+        $str .= Message::returnAllHtmlString();
         if (CurrentUser::obj()->isAdmin()) {
             $str .= MessageAdmin::returnAllHtmlString();
         }
-        $str .= Message::returnAllHtmlString();
 
         return $str;
     }

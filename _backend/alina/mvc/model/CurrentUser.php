@@ -64,7 +64,7 @@ class CurrentUser
         }
 
         if ($this->authorize()) {
-            return $this;
+            return TRUE;
         }
 
         return FALSE;
