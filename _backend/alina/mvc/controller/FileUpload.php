@@ -3,8 +3,6 @@
 // @link http://alinazero/egFileUpload
 namespace alina\mvc\controller;
 
-define('ALINA_FILE_UPLOAD_KEY', 'userfile');
-
 use alina\Message;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\view\html as htmlAlias;
@@ -42,6 +40,7 @@ class FileUpload
                     }
                 }
             }
+
             return TRUE;
         }
 

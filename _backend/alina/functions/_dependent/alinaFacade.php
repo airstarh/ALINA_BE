@@ -1,4 +1,21 @@
 <?php
+##################################################
+define('ALINA_DT_FORMAT_DB', 'Y-m-d H:i:s');
+define('ALINA_DT_FORMAT_DB_D', 'Y-m-d');
+define('ALINA_DT_FORMAT_CSV', 'm/d/Y');
+define('ALINA_DT_FORMAT_GS', 'M d, Y h:i a O');
+define('ALINA_DT_FORMAT_FR', 'ymd');
+define('ALINA_DT_FORMAT_CB', 'Ymd');
+define('ALINA_DT_FORMAT_ACH', 'ymd');
+define('ALINA_DT_FORMAT_ACHT', 'Hi');
+define('ALINA_DT_FORMAT_SSC', 'm/d/y');
+define('ALINA_DT_FORMAT_LOA', 'F d');
+define('ALINA_DT_FORMAT_LOA_LONG', 'F d, Y');
+define('ALINA_DT_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
+##################################################
+define('ALINA_FILE_UPLOAD_KEY', 'userfile');
+##################################################
+
 function Alina()
 {
     return \alina\app::get();
@@ -11,24 +28,15 @@ function AlinaCFG($path)
 
 function AlinaCurrentUserId()
 {
-    $u = [
-        'id'         => 0,
-        'first_name' => 'HardCodedFirstName',
-        'last_name'  => 'HardCodedFirstName',
-        'email'      => 'HardCodedFirstName',
-        'username'   => 'HardCodedFirstName',
-    ];
-
-    return \alina\utils\Data::toObject($u)->id;
+    return /*1; */\alina\mvc\model\CurrentUser::obj()->id;
 }
 
-define('DT_FORMAT_DB', 'Y-m-d H:i:s');
 function AlinaGetNowInDbFormat()
 {
-    if (defined('DM_REQUEST_TIME')) {
-        return date(DT_FORMAT_DB, DM_REQUEST_TIME);
+    if (defined('ALINA_TIME')) {
+        return date(ALINA_DT_FORMAT_DB, ALINA_TIME);
     } else {
-        return date(DT_FORMAT_DB);
+        return date(ALINA_DT_FORMAT_DB);
     }
 }
 

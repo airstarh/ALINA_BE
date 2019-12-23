@@ -26,7 +26,17 @@ class Sys
         file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
     }
 
-    static public function alinaSafeEcho($data)
+    static public function buffer($callback, ...$params)
+    {
+        ob_start();
+        ob_implicit_flush(FALSE);
+        call_user_func($callback, $params);
+        $output = ob_get_clean();
+
+        return $output;
+    }
+
+    static public function returnPrintR($data)
     {
         ob_start();
         ob_implicit_flush(FALSE);
@@ -147,6 +157,7 @@ class Sys
             }
         }
         $state_ALREADY_SET = TRUE;
+
         return TRUE;
     }
 

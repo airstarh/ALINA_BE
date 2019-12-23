@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 use alina\utils\Url;
 

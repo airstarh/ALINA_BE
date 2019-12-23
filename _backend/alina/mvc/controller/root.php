@@ -9,6 +9,8 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/AdminTests/ReversibleEncryption'                     => 'Test Reversible Encryption',
+            '/AdminTests/Mailer'                                   => 'Test Mail Send',
             '/FileUpload/Common'                                   => 'File Upload',
             '/main/index'                                          => 'ZERO',
             '/AdminTests/TestMessages'                             => 'Messages',

@@ -65,7 +65,7 @@ class DateTime extends \DateTime
      */
     public function isSameDay($date2)
     {
-        return $this->format(DT_FORMAT_DB) === $date2->format(DT_FORMAT_DB);
+        return $this->format(ALINA_DT_FORMAT_DB) === $date2->format(ALINA_DT_FORMAT_DB);
     }
 
     /**
@@ -76,7 +76,7 @@ class DateTime extends \DateTime
      */
     public function isSameDayOfMonth($date2)
     {
-        $date2 = new static($date2->format(DT_FORMAT_DB));
+        $date2 = new static($date2->format(ALINA_DT_FORMAT_DB));
 
         return ($date2->isLastDayOfMonth() && $this->isLastDayOfMonth()) ||
             $this->format('j') === $date2->format('j');
@@ -85,6 +85,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
+     * @throws \Exception
      */
     public function isDiffWeek($date2)
     {
@@ -158,9 +159,14 @@ class DateTime extends \DateTime
         return $diffInMonths % 12 == 0;
     }
 
+    /**
+     * @param static $date
+     * @return DateTime
+     * @throws \Exception
+     */
     private function leapYearAdj($date)
     {
-        $dateDT      = new static($date->format(DT_FORMAT_DB));
+        $dateDT      = new static($date->format(ALINA_DT_FORMAT_DB));
         $leapYearAdj = $dateDT->format('L') - $this->format('L');
         //error_log(" Leap ADJ=".$leapYearAdj,0);
         if ($leapYearAdj === 1) {
@@ -170,7 +176,7 @@ class DateTime extends \DateTime
             $dateDT->sub(new DateInterval("P1D"));
         }
 
-        //error_log(" this=".$this->format(DT_FORMAT_DB)." date2=".$dateDT->format(DT_FORMAT_DB),0);
+        //error_log(" this=".$this->format(ALINA_DT_FORMAT_DB)." date2=".$dateDT->format(ALINA_DT_FORMAT_DB),0);
         return $dateDT;
     }
 }

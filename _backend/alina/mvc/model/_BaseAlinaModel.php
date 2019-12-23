@@ -176,6 +176,9 @@ class _BaseAlinaModel
     #endregion SELECT
     ##################################################
     #region UPSERT
+
+    public $addAuditInfo = FALSE;
+
     public function upsert($data)
     {
         $data = Data::toObject($data);
@@ -857,13 +860,13 @@ class _BaseAlinaModel
         return $defaultRawObj;
     }
 
-    protected function prepareDbData($data, $addAuditInfo = TRUE)
+    protected function prepareDbData($data)
     {
         $data = Data::toObject($data);
         $this->applyFilters($data);
         $this->validate($data);
 
-        if ($addAuditInfo) {
+        if ($this->addAuditInfo) {
             $this->addAuditInfo($data, $this->mode);
         }
 
@@ -882,10 +885,10 @@ class _BaseAlinaModel
      * @param \stdClass $data
      * @param string|null $saveMode
      * @return null
+     * ToDo: Consider to delete.
      */
     protected function addAuditInfo(\stdClass $data, $saveMode = NULL)
     {
-
         if ($saveMode === NULL) {
             $saveMode = $this->mode;
         }
@@ -1212,7 +1215,10 @@ class _BaseAlinaModel
             ];
     }
 
-    protected function referencesTo() { return []; }
+    protected function referencesTo()
+    {
+        return [];
+    }
     #endregion relations
     ##################################################
 }

@@ -78,7 +78,6 @@ class user extends _BaseAlinaModel
             'is_verified'  => [
                 'default' => 0,
             ],
-            'lastenter_at' => [],
             'banned_till'  => [
                 'default' => 0,
             ],

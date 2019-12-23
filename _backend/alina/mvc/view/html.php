@@ -53,7 +53,12 @@ class html
 
         $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
         if (FALSE === $this->content) {
-            $this->content = $data;
+            $this->content = [
+                '<pre>',
+                var_export($data, 1),
+                '</pre>',
+            ];
+            $this->content = implode('', $this->content);
         }
         $htmlString = $this->piece($this->pathToGlobalHtmlPageWrapper, $this);
 
