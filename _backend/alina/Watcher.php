@@ -16,18 +16,18 @@ class Watcher
 
     protected function __construct()
     {
-        $this->IP_model       = new watch_ip();
-        $this->BROWSER_model  = new watch_browser();
-        $this->URL_PATH_model = new watch_url_path();
-        $this->VISIT_model    = new watch_visit();
+        $this->mIP       = new watch_ip();
+        $this->mBROWSER  = new watch_browser();
+        $this->mURL_PATH = new watch_url_path();
+        $this->mVISIT    = new watch_visit();
     }
     #endregion Singleton
     ##################################################
     #region Watch
-    protected        $IP_model;
-    protected        $BROWSER_model;
-    protected        $URL_PATH_model;
-    protected        $VISIT_model;
+    protected        $mIP;
+    protected        $mBROWSER;
+    protected        $mURL_PATH;
+    protected        $mVISIT;
     protected static $state_VISIT_LOGGED = FALSE;
 
     public function logVisitsToDb()
@@ -36,24 +36,22 @@ class Watcher
         if (AlinaCFG('logVisitsToDb')) {
             if (!static::$state_VISIT_LOGGED) {
                 #####
-                $this->BROWSER_model->upsertByUniqueFields([
+                $this->mBROWSER->upsertByUniqueFields([
                     'user_agent' => Request::obj()->BROWSER,
                 ]);
-                $this->IP_model->upsertByUniqueFields([
+                $this->mIP->upsertByUniqueFields([
                     'ip' => Request::obj()->IP,
                 ]);
-                $this->URL_PATH_model->upsertByUniqueFields([
+                $this->mURL_PATH->upsertByUniqueFields([
                     'url_path' => Request::obj()->URL_PATH,
                 ]);
-                $this->VISIT_model->insert([
-                    'ip_id'        => $this->IP_model->id,
-                    'browser_id'   => $this->BROWSER_model->id,
-                    'url_path_id'  => $this->URL_PATH_model->id,
-                    'query_string' => Request::obj()->QUERY_STRING,
-                    //'visited_at'   => 'use default',
-                    //'cookie_key'   => 'use default',
-                    //'user_id'      => 'use default',
+                $this->mVISIT->insert([
+                    'ip_id'       => $this->mIP->id,
+                    'browser_id'  => $this->mBROWSER->id,
+                    'url_path_id' => $this->mURL_PATH->id,
                 ]);
+                #####
+                $this->firewall();
                 #####
                 static::$state_VISIT_LOGGED = TRUE;
             }
@@ -66,10 +64,20 @@ class Watcher
     #region Firewall
     public function firewall()
     {
-
+        $browserId = $this->mBROWSER->id;
+        $ipId      = $this->mIP->id;
+        $per10secs = $this->mVISIT
+            ->q()
+            ->where([
+                'browser_id' => $browserId,
+                'ip_id'      => $ipId,
+                ['visited_at', '>', ALINA_TIME - 10],
+            ])
+            ->count();
+        Message::set("Visits for last 10 secs: $per10secs");
     }
 
-    protected function getNumberOfReqsFromIpAndBrowser()
+    protected function per10seconds()
     {
     }
     #endregion Firewall

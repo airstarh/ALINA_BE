@@ -110,7 +110,7 @@ class Auth
 
     public function actionLogout()
     {
-        $vd = (object)[];
+        $vd       = (object)[];
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
         Sys::redirect('/Auth/Login', 307);

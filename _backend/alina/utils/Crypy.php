@@ -5,22 +5,26 @@ namespace alina\utils;
 class Crypy
 {
     ##################################################
-    public $ENCRYPTION_KEY;
-
     public function __construct()
     {
-        $k                    = [
-            Request::obj()->IP,
-            Request::obj()->BROWSER,
-        ];
-        $this->ENCRYPTION_KEY = implode('', $k);
     }
     ##################################################
     #region Reversible
+    protected function get_ENCRYPTION_KEY()
+    {
+        $k              = [
+            Request::obj()->IP,
+            Request::obj()->BROWSER,
+        ];
+        $ENCRYPTION_KEY = implode('', $k);
+
+        return $ENCRYPTION_KEY;
+    }
+
     public function revencr($plaintext, $ENCRYPTION_KEY = NULL)
     {
         if (empty($ENCRYPTION_KEY)) {
-            $ENCRYPTION_KEY = $this->ENCRYPTION_KEY;
+            $ENCRYPTION_KEY = $this->get_ENCRYPTION_KEY();
         }
         $ivlen          = openssl_cipher_iv_length($cipher = "AES-128-CBC");
         $iv             = openssl_random_pseudo_bytes($ivlen);
@@ -34,7 +38,7 @@ class Crypy
     public function revdecr($ciphertext, $ENCRYPTION_KEY = NULL)
     {
         if (empty($ENCRYPTION_KEY)) {
-            $ENCRYPTION_KEY = $this->ENCRYPTION_KEY;
+            $ENCRYPTION_KEY = $this->get_ENCRYPTION_KEY();
         }
         $c              = base64_decode($ciphertext);
         $ivlen          = openssl_cipher_iv_length($cipher = "AES-128-CBC");

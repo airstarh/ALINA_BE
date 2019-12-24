@@ -20,6 +20,7 @@ class app
         $this->init();
         $this->autoload($config);
         $this->setConfig($config);
+        #####
         set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
@@ -28,7 +29,7 @@ class app
 
     protected function init()
     {
-        // Fasade functions
+        // Facade functions
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
     }
 
@@ -82,8 +83,8 @@ class app
         require_once __DIR__ . '/vendor/autoload.php';
     }
 
-    public $config        = [];
-    public $configDefault = [];
+    protected $config        = [];
+    protected $configDefault = [];
 
     protected function setConfig($config = [])
     {
@@ -245,6 +246,7 @@ class app
         #endregion Redirect
         ##################################################
         Watcher::obj()->logVisitsToDb();
+
         return $this;
     }
     #endregion Routes

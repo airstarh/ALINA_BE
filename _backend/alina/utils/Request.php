@@ -11,6 +11,7 @@ class Request
     public $DOMAIN;
     public $URL_PATH;
     public $METHOD;
+    public $AJAX;
     public $QUERY_STRING;
     public $IP;
     public $BROWSER;
@@ -29,6 +30,7 @@ class Request
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
         $this->QUERY_STRING = $_SERVER['QUERY_STRING'];
         $this->METHOD       = Sys::getReqMethod();
+        $this->AJAX         = Sys::isAjax();
         $this->HEADERS      = Data::toObject(getallheaders());
         $this->GET          = Sys::resolveGetDataAsObject();
         $this->POST         = Sys::resolvePostDataAsObject();
@@ -60,6 +62,7 @@ class Request
             'URL_PATH'     => $this->URL_PATH,
             'QUERY_STRING' => $this->QUERY_STRING,
             'METHOD'       => $this->METHOD,
+            'AJAX'         => $this->AJAX,
             'IP'           => $this->IP,
             'BROWSER'      => $this->BROWSER,
             'LANGUAGE'     => $this->LANGUAGE,
@@ -76,7 +79,7 @@ class Request
 
     public function tryHeader($name)
     {
-
-        return Arr::getArrayValue($name, (array)$this->HEADERS);
+        return Obj::getValByPropNameCaseInsensitive($name, $this->HEADERS);
+        //return Arr::getArrayValue($name, (array)$this->HEADERS);
     }
 }
