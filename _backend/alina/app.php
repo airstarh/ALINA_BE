@@ -23,7 +23,6 @@ class app
         set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
-        Watcher::obj()->logVisitsToDb();
         Sys::setCrossDomainHeaders();
     }
 
@@ -245,7 +244,7 @@ class app
         }
         #endregion Redirect
         ##################################################
-
+        Watcher::obj()->logVisitsToDb();
         return $this;
     }
     #endregion Routes

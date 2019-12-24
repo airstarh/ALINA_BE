@@ -15,9 +15,9 @@ use alina\utils\Sys;
     <?= $data->css() ?>
 </head>
 <body>
+<div class="text-center"><h1>Oh... Ah... Error occured ¯\_(ツ)_/¯ </h1></div>
 <div id="alina-body-wrapper">
     <div class="container">
-        <h1>Oh! Error occured </h1>
         <h2><a href="/">Go Home</a></h2>
         <?= $data->messages(); ?>
         <?= $data->content(); ?>

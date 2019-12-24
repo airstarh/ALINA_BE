@@ -56,8 +56,8 @@ class router
             }
             $this->pathParameter = $_pathParts;
         } else {
-            $this->controller = FALSE;
-            $this->action     = FALSE;
+            $this->controller = AlinaCfg('mvc/defaultController');
+            $this->action     = AlinaCfg('mvc/defaultAction');
         }
     }
 

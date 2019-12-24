@@ -28,7 +28,7 @@ function AlinaCFG($path)
 
 function AlinaCurrentUserId()
 {
-    return /*1; */\alina\mvc\model\CurrentUser::obj()->id;
+    return \alina\mvc\model\CurrentUser::obj()->id;
 }
 
 function AlinaGetNowInDbFormat()
