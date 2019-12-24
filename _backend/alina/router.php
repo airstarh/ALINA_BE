@@ -2,6 +2,8 @@
 
 namespace alina;
 
+use alina\traits\Singleton;
+
 class router
 {
     public $initialUrl        = NULL;
@@ -17,11 +19,15 @@ class router
     public $strGetQuery       = '';
     public $fragment          = '';
 
-    /**
-     */
+    ##################################################
+    #region Instantiation
+    use Singleton;
+
     protected function __construct()
     {
     }
+    #endregion Instantiation
+    ##################################################
 
     public function processUrl()
     {
@@ -60,23 +66,6 @@ class router
             $this->action     = AlinaCfg('mvc/defaultAction');
         }
     }
-
-    #region Instantiation
-    static public $instance = NULL;
-
-    /**
-     * @return static
-     */
-    static public function obj()
-    {
-        if (!isset(static::$instance) || !is_a(static::$instance, '\alina\router')) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
-
-    #endregion Instantiation
 
     static public function path($order = NULL)
     {
