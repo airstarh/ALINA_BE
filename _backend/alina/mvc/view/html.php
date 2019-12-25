@@ -33,12 +33,12 @@ class html
     #region Blocks Generation
     public function defineCurrentControllerDir()
     {
-        $this->currentControllerDir = \alina\utils\Resolver::shortClassName(\alina\app::get()->currentController);
+        $this->currentControllerDir = \alina\utils\Resolver::shortClassName(Alina()->currentController);
     }
 
     public function defineCurrentActionFile()
     {
-        $this->currentActionFileName = \alina\app::get()->currentAction;
+        $this->currentActionFileName = Alina()->currentAction;
     }
 
     public function page($data = NULL, $htmlLayout = FALSE)
@@ -86,13 +86,13 @@ class html
     {
         try {
             $templateFile = \alina\utils\FS::buildPathFromBlocks($this->mvcTemplateRoot, $mvcRelativePathLayout);
-            $templateFile = \alina\app::get()->resolvePath($templateFile);
+            $templateFile = Alina()->resolvePath($templateFile);
 
             return $templateFile;
         } catch (\ErrorException $e) {
             try {
                 $templateFile = \alina\utils\FS::buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
-                $templateFile = \alina\app::get()->resolvePath($templateFile);
+                $templateFile = Alina()->resolvePath($templateFile);
 
                 return $templateFile;
             } catch (\Exception $e) {

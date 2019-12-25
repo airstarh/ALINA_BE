@@ -80,7 +80,7 @@ class exceptionCatcher
                     //MessageAdmin::set($level);
                 }
                 ##################################################
-                app::get()->mvcGo('root', 'Exception', $this);
+                Alina()->mvcGo('root', 'Exception', $this);
             }
         }
     }

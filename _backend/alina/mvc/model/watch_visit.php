@@ -48,10 +48,10 @@ class watch_visit extends _BaseAlinaModel
                 'default' => json_encode($req, JSON_UNESCAPED_UNICODE),
             ],
             'controller'   => [
-                'default' => app::get()->router->controller,
+                'default' => Alina()->router->controller,
             ],
             'action'       => [
-                'default' => app::get()->router->action,
+                'default' => Alina()->router->action,
             ],
             'ajax'         => [
                 'default' => Request::obj()->AJAX,

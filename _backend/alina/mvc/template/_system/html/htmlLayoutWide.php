@@ -37,13 +37,13 @@ use alina\mvc\view\html;
                 echo '</pre>';
 
                 echo '<pre>';
-                print_r(\alina\app::get()->router);
+                print_r(Alina()->router);
                 echo '</pre>';
 
                 //            echo '<pre>';
                 //            print_r([
-                //                'currentController' => \alina\app::get()->currentController,
-                //                'currentAction'     => \alina\app::get()->currentAction,
+                //                'currentController' => app::get()->currentController,
+                //                'currentAction'     => app::get()->currentAction,
                 //            ]);
                 //            echo '</pre>';
 

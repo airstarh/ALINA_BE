@@ -1,7 +1,7 @@
 Case Sensitive Template!
 
-<br><?= \alina\app::get()->currentController  ?>
-<br><?= \alina\app::get()->currentAction  ?>
+<br><?= Alina()->currentController  ?>
+<br><?= Alina()->currentAction  ?>
 
 <br><h1>Params</h1>
 <?php
@@ -10,9 +10,9 @@ print_r($data);
 echo '</pre>';
 ?>
 
-<br><h1>\alina\app::get()->currentActionParams</h1>
+<br><h1>app::get()->currentActionParams</h1>
 <?php
 echo '<pre>';
-print_r(\alina\app::get()->currentActionParams);
+print_r(Alina()->currentActionParams);
 echo '</pre>';
 ?>

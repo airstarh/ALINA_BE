@@ -278,7 +278,7 @@ class Sys
         $res = array_merge(
             Request::obj()->TOTAL_DEBUG_DATA(),
             [
-                'ROUTER'  => app::get()->router,
+                'ROUTER'  => Alina()->router,
                 'SESSION' => session::get(),
             ]
         );
