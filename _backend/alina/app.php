@@ -25,6 +25,11 @@ class app
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
         Sys::setCrossDomainHeaders();
+        if (CurrentUser::obj()->isLoggedIn()) {
+            Message::set('Logged In !!!' . ALINA_TIME);
+        } else {
+            Message::set('Not logged in (((' . ALINA_TIME);
+        }
     }
 
     protected function init()

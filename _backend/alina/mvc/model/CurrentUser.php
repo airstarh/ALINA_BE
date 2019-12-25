@@ -4,6 +4,7 @@ namespace alina\mvc\model;
 
 use alina\cookie;
 use alina\Message;
+use alina\MessageAdmin;
 use alina\session;
 use alina\traits\Singleton;
 use alina\utils\Data;
@@ -26,9 +27,10 @@ class CurrentUser
     protected $device_ip;
     protected $device_browser_enc;
     #####
-    protected $state_AUTHORIZATION_PASSED = FALSE;
-    protected $state_USER_DEFINED         = FALSE;
-    public    $msg                        = [];
+    protected $state_AUTHORIZATION_PASSED  = FALSE;
+    protected $state_AUTHORIZATION_SUCCESS = FALSE;
+    protected $state_USER_DEFINED          = FALSE;
+    public    $msg                         = [];
 
     protected function __construct()
     {
@@ -52,17 +54,21 @@ class CurrentUser
 
         $this->state_USER_DEFINED         = FALSE;
         $this->state_AUTHORIZATION_PASSED = FALSE;
-        $conditions = [
+        $conditions                       = [
             'mail'     => $login,
             'password' => $password,
         ];
         $this->defineUSER($conditions);
         if (empty($this->USER->id)) {
-            $this->msg[] = 'User not found';
+            $this->msg[] = 'Incorrect credentials';
 
             return FALSE;
         }
 
+        $data     = $this->buildLoginData();
+        $newToken = $data['token'];
+        $this->LOGIN->insert($data);
+        $this->rememberAuthInfo($this->USER->id, $newToken);
         if ($this->authorize()) {
             return TRUE;
         }
@@ -96,11 +102,11 @@ class CurrentUser
 
         $la = $this->LOGIN->attributes;
         if ($la->browser_enc != $this->device_browser_enc) {
-            $this->msg[] = 'Not Logged-in on this browser';
+            $this->msg[] = 'Browser mismatch';
         }
 
         if ($la->ip != $this->device_ip) {
-            $this->msg[] = 'User changed network';
+            $this->msg[] = 'Network mismatch';
         }
         #####
         $conditions = [
@@ -109,7 +115,7 @@ class CurrentUser
         $this->defineUSER($conditions);
 
         if (empty($this->USER->id)) {
-            $this->msg[] = 'User does not exist';
+            $this->msg[] = 'Authentication: User was not found by ID, despite on correct login data (!!!)';
 
             return FALSE;
         }
@@ -131,40 +137,29 @@ class CurrentUser
     {
         #####
         if ($this->state_AUTHORIZATION_PASSED) {
-            return TRUE;
+            return $this->state_AUTHORIZATION_SUCCESS;
         }
         #####
         $isAuthenticated = $this->authenticate();
-        if (empty($this->USER->id)) {
-            return FALSE;
-        }
-        $newToken        = $this->buildToken();
-        $data            = [
-            'user_id'     => $this->USER->id,
-            'token'       => $newToken,
-            'ip'          => $this->device_ip,
-            'browser_enc' => $this->device_browser_enc,
-            'expires_at'  => ALINA_AUTH_EXPIRES,
-            'lastentered' => ALINA_TIME,
-        ];
         if ($isAuthenticated) {
+            $data       = $this->buildLoginData();
+            $newToken   = $data['token']; // ACCENT
+            $oldToken   = $this->token; // ACCENT
             $conditions = [
-                'user_id' => $this->id,
-                'token'   => $this->token,
+                'user_id' => $this->USER->id,
+                'token'   => $oldToken,
             ];
             $this->LOGIN->update($data, $conditions);
             if ($this->LOGIN->affectedRowsCount != 1) {
                 $this->msg[] = "ATTENTION!!! LOGIN affected rows: {$this->LOGIN->affectedRowsCount}";
             }
-
-        } else {
-            $this->LOGIN->insert($data);
+            $this->rememberAuthInfo($this->USER->id, $newToken);
+            $this->state_AUTHORIZATION_SUCCESS = TRUE;
         }
         #####
-        $this->rememberAuthInfo($this->id, $newToken);
         $this->state_AUTHORIZATION_PASSED = TRUE;
 
-        return TRUE;
+        return $this->state_AUTHORIZATION_SUCCESS;
     }
 
     public function LogInByPass($mail, $password)
@@ -234,7 +229,9 @@ class CurrentUser
 
     public function isLoggedIn()
     {
-        return $this->authorize();
+        $res = $this->authorize();
+
+        return $res;
     }
 
     public function isAdmin()
@@ -291,6 +288,13 @@ class CurrentUser
 
     protected function buildToken()
     {
+        if (
+            Request::obj()->AJAX
+            &&
+            !empty($this->LOGIN->attributes->token)
+        ) {
+            return $this->LOGIN->attributes->token;
+        }
         $u           = $this->USER;
         $ua          = $u->attributes;
         $tokenSource = [
@@ -302,6 +306,21 @@ class CurrentUser
         $token       = md5(implode('', $tokenSource));
 
         return $token;
+    }
+
+    protected function buildLoginData()
+    {
+        $newToken = $this->buildToken();
+        $data     = [
+            'user_id'     => $this->USER->id,
+            'token'       => $newToken,
+            'ip'          => $this->device_ip,
+            'browser_enc' => $this->device_browser_enc,
+            'expires_at'  => ALINA_AUTH_EXPIRES,
+            'lastentered' => ALINA_TIME,
+        ];
+
+        return $data;
     }
 
     public function attributes()
@@ -347,10 +366,11 @@ class CurrentUser
             #####
             $this->LOGIN->deleteById($this->LOGIN->id);
             #####
-            $this->state_USER_DEFINED         = FALSE;
-            $this->state_AUTHORIZATION_PASSED = FALSE;
-            $this->id                         = NULL;
-            $this->token                      = NULL;
+            $this->state_USER_DEFINED          = FALSE;
+            $this->state_AUTHORIZATION_PASSED  = FALSE;
+            $this->state_AUTHORIZATION_SUCCESS = FALSE;
+            $this->id                          = NULL;
+            $this->token                       = NULL;
             #####
             $this->LOGIN = new login();
             $this->USER  = new user();

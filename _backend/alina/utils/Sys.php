@@ -74,10 +74,10 @@ class Sys
     // ToDo: Rewrite
     static public function isAjax()
     {
-        if (isset($_GET['isAjax']) && !empty($_GET['isAjax'])) {
+        if (isset($_GET['isAjax']) && !empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
             return TRUE;
         }
-        if (isset($_POST['isAjax']) && !empty($_POST['isAjax'])) {
+        if (isset($_POST['isAjax']) && !empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
             return TRUE;
         }
 

@@ -17,7 +17,7 @@ error_reporting(E_ALL | E_STRICT);
 #region SHUTDOWN
 register_shutdown_function(function () {
     //ToDo: RollBack all transactions!!!
-    error_log(\alina\utils\Sys::reportSpentTime([], ['FINAL']), 0);
+    error_log(\alina\utils\Sys::reportSpentTime(['FINAL'], []), 0);
 });
 #endregion SHUTDOWN
 ##################################################

@@ -32,24 +32,14 @@ class Auth
             return $this;
         }
         ##################################################
-        try {
-            $CU    = CurrentUser::obj();
-            $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
-            if ($LogIn) {
-                $user = $CU->name();
-                Message::set("Welcome, {$user}!");
-            } else {
-                foreach ($CU->msg as $m) {
-                    Message::set($m);
-                }
-
-                throw new exceptionValidation('Login failed');
-            }
-        } ##################################################
-        catch (exceptionValidation $e) {
-            Message::set($e->getMessage(), [], 'alert alert-danger');
-            //message::set($e->getFile(), [], 'alert alert-danger');
-            //message::set($e->getLine(), [], 'alert alert-danger');
+        $CU    = CurrentUser::obj();
+        $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
+        if ($LogIn) {
+            $user = $CU->name();
+            Message::set("Welcome, {$user}!");
+        }
+        foreach ($CU->msg as $m) {
+            Message::set($m, [], 'alert alert-danger');
         }
 
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
