@@ -1,9 +1,9 @@
 <?php
 define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(TRUE));
-define('ALINA_TIME', $_SERVER['REQUEST_TIME']?:time());
+define('ALINA_TIME', $_SERVER['REQUEST_TIME'] ?: time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
 
-define('ALINA_MAX_TIME_DIFF_SEC', 60);
+define('ALINA_MAX_TIME_DIFF_SEC', 60 * 60);
 define('ALINA_MIN_TIME_DIFF_SEC', 30);
 define('ALINA_AUTH_EXPIRES', ALINA_TIME + ALINA_MAX_TIME_DIFF_SEC);
 ##################################################

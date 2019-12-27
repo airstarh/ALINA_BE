@@ -7,6 +7,7 @@ use alina\Mailer;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\model\user;
 use alina\mvc\view\html;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Crypy;
@@ -92,11 +93,19 @@ class AdminTests
      */
     public function actionReversibleEncryption()
     {
-        $vd           = [];
-        $vd['str']    = 'mail';
-        $vd['encr']   = (new Crypy())->revencr($vd['str']);
-        $vd['decr']   = (new Crypy())->revdecr($vd['encr']);
+        $vd         = [];
+        $vd['str']  = 'mail';
+        $vd['encr'] = (new Crypy())->revencr($vd['str']);
+        $vd['decr'] = (new Crypy())->revdecr($vd['encr']);
 
         echo (new html)->page($vd);
+    }
+
+    public function actionBaseAlinaModel()
+    {
+        $res = [];
+        $res['getById'] = (new user())->getById(-1)->attributes;
+        $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => -1,]);
+        echo (new html)->page($res);
     }
 }

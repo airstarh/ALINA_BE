@@ -64,6 +64,11 @@ class Watcher
     #region Firewall
     public function firewall()
     {
+        $this->per10seconds();
+    }
+
+    protected function per10seconds()
+    {
         $browserId = $this->mBROWSER->id;
         $ipId      = $this->mIP->id;
         $per10secs = $this->mVISIT
@@ -74,11 +79,10 @@ class Watcher
                 ['visited_at', '>', ALINA_TIME - 10],
             ])
             ->count();
-        Message::set("Visits for last 10 secs: $per10secs");
-    }
-
-    protected function per10seconds()
-    {
+        if ($per10secs > AlinaCFG('watcher/maxPer10secs')) {
+            Message::set('Are you trying to DDOS me?', [], 'alert alert-danger');
+            throw new \ErrorException('DDOS');
+        }
     }
     #endregion Firewall
     ##################################################

@@ -9,6 +9,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/AdminTests/BaseAlinaModel'                           => 'action BaseAlinaModel',
             '/AdminTests/ReversibleEncryption'                     => 'Test Reversible Encryption',
             '/AdminTests/Mailer'                                   => 'Test Mail Send',
             '/FileUpload/Common'                                   => 'File Upload',
@@ -49,7 +50,6 @@ class root
 //            return TRUE;
 //        }
         http_response_code(500);
-        Message::set('Keep calm and try something else, while we fix the bug ¯\_(ツ)_/¯');
         echo (new \alina\mvc\view\html)->page('', '_system/html/htmlLayoutErrorCatcher.php');
 
         return TRUE;

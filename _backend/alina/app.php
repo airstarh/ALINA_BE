@@ -30,6 +30,7 @@ class app
         } else {
             Message::set('Not logged in (((' . ALINA_TIME);
         }
+        CurrentUser::obj()->messages();
     }
 
     protected function init()

@@ -12,6 +12,7 @@ class watch_visit extends _BaseAlinaModel
     public function fields()
     {
         #####
+        //ToDo: Too heavy!!!
         $req = Request::obj();
         switch (Request::obj()->METHOD) {
             case 'POST':

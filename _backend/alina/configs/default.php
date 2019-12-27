@@ -45,13 +45,18 @@ switch (ALINA_ENV) {
                 'Рест_Запрос'                 => 'alinaRestAccept/index',
             ],
 
-            'debug' => [
+            'debug'   => [
                 'toPage' => TRUE,
                 'toDb'   => TRUE,
                 'toFile' => TRUE,
             ],
-
-            'html' => [
+            'watcher' => [
+                'maxPer1sec'   => 20,
+                'maxPer10secs' => 5 * 20,
+                'maxPer1min'   => 30 * 20,
+                'maxPer10mins' => 300 * 20,
+            ],
+            'html'    => [
 
                 'css' => [
                     // Jquery; Jquery UI
