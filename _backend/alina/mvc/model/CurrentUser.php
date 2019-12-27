@@ -26,11 +26,16 @@ class CurrentUser
     protected $LOGIN = NULL;
     protected $device_ip;
     protected $device_browser_enc;
-    ##########
+    ##################################################
     protected $state_AUTHORIZATION_PASSED  = FALSE;
     protected $state_AUTHORIZATION_SUCCESS = FALSE;
     protected $state_USER_DEFINED          = FALSE;
-    ##########
+    ##################################################
+    protected $state_CONSISTANCY_WRONG = FALSE;
+    protected $ERR_TOKEN_EXPIRED       = 'ERR_TOKEN_EXPIRED';
+    protected $ERR_BROWSER             = 'ERR_BROWSER';
+    protected $ERR_IP                  = 'ERR_IP';
+    ##################################################
     public $msg = [];
 
     protected function __construct()
@@ -106,7 +111,7 @@ class CurrentUser
         }
 
         #####
-        return $this->checkConsistency();
+        return $this->analyzeConsistency();
     }
 
     protected function authorize()
@@ -158,7 +163,9 @@ class CurrentUser
     #region LogOut
     public function LogOut()
     {
-        return $this->forgetAuthInfo();
+        if ($this->isLoggedIn()) {
+            return $this->forgetAuthInfo();
+        }
     }
     #endregion LogOut
     ##################################################
@@ -318,7 +325,7 @@ class CurrentUser
 
     protected function rememberAuthInfo($uid, $token)
     {
-        if (!$this->checkConsistency()) {
+        if (!$this->analyzeConsistency()) {
             return FALSE;
         }
         #####
@@ -342,26 +349,22 @@ class CurrentUser
 
     protected function forgetAuthInfo()
     {
-        if ($this->isLoggedIn()) {
-            #####
-            $this->LOGIN->deleteById($this->LOGIN->id);
-            #####
-            cookie::delete(static::KEY_USER_TOKEN);
-            cookie::delete(static::KEY_USER_ID);
-            #####
-            session::delete(static::KEY_USER_TOKEN);
-            session::delete(static::KEY_USER_ID);
-            #####
-            header_remove(static::KEY_USER_ID);
-            header_remove(static::KEY_USER_TOKEN);
-            #####
-            $this->reset();
+        #####
+        $this->LOGIN->deleteById($this->LOGIN->id);
+        #####
+        cookie::delete(static::KEY_USER_TOKEN);
+        cookie::delete(static::KEY_USER_ID);
+        #####
+        session::delete(static::KEY_USER_TOKEN);
+        session::delete(static::KEY_USER_ID);
+        #####
+        header_remove(static::KEY_USER_ID);
+        header_remove(static::KEY_USER_TOKEN);
+        #####
+        $this->reset();
 
-            #####
-            return TRUE;
-        }
-
-        return FALSE;
+        #####
+        return TRUE;
     }
 
     public function name()
@@ -393,36 +396,41 @@ class CurrentUser
 
     protected function getLOGIN($conditions)
     {
-        $conditions = array_merge($conditions, [
-            ['expires_at', '>', ALINA_TIME],
-        ]);
         $this->LOGIN->getOne($conditions);
         $this->token = $this->LOGIN->attributes->token;
 
         return $this->LOGIN;
     }
 
-    private function checkConsistency()
+    protected function checkConsistency()
     {
+        if (empty($this->LOGIN->id)) {
+            $this->msg[] = 'Login undefined';
+
+            return FALSE;
+        }
+
+        if ($this->token !== $this->LOGIN->attributes->token) {
+            $this->msg[] = 'Token mismatch';
+
+            return FALSE;
+        }
+
+        if (ALINA_TIME >= $this->LOGIN->attributes->expires_at) {
+            $this->state_CONSISTANCY_WRONG = $this->ERR_TOKEN_EXPIRED;
+            $this->msg[]                   = 'Token expired';
+
+            return FALSE;
+        }
+        ##################################################
         if (empty($this->USER->id)) {
             $this->msg[] = 'User undefined';
 
             return FALSE;
         }
 
-        if (empty($this->LOGIN->id)) {
-            $this->msg[] = 'Login undefined';
-
-            return FALSE;
-        }
-        ##################################################
         if ($this->id !== $this->USER->id) {
             $this->msg[] = 'User mismatch';
-
-            return FALSE;
-        }
-        if ($this->token !== $this->LOGIN->attributes->token) {
-            $this->msg[] = 'Token mismatch';
 
             return FALSE;
         }
@@ -434,23 +442,19 @@ class CurrentUser
         }
         ##################################################
         if ($this->device_ip !== $this->LOGIN->attributes->ip) {
-            $this->msg[] = 'IP mismatch';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_IP;
+            $this->msg[]                   = 'IP mismatch';
 
             return FALSE;
         }
 
         if ($this->device_browser_enc !== $this->LOGIN->attributes->browser_enc) {
-            $this->msg[] = 'Browser mismatch';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_BROWSER;
+            $this->msg[]                   = 'Browser mismatch';
 
             return FALSE;
         }
         ##################################################
-        if (ALINA_TIME >= $this->LOGIN->attributes->expires_at) {
-            $this->msg[] = 'Token expired';
-
-            return FALSE;
-        }
-
         if (ALINA_TIME <= $this->USER->attributes->banned_till) {
             $this->msg[] = 'User banned';
 
@@ -458,6 +462,27 @@ class CurrentUser
         }
 
         return TRUE;
+    }
+
+    protected function analyzeConsistency()
+    {
+        $consistency = $this->checkConsistency();
+        if (!$consistency) {
+            switch ($this->state_CONSISTANCY_WRONG) {
+                case $this->ERR_TOKEN_EXPIRED:
+                    $this->forgetAuthInfo();
+                    break;
+                case $this->ERR_BROWSER:
+                case $this->ERR_IP:
+                    $this->LOGIN->delete([
+                        'user_id' => $this->USER->id,
+                    ]);
+                    break;
+
+            }
+        }
+
+        return $consistency;
     }
 
     public function messages()
