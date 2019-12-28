@@ -4,6 +4,7 @@ namespace alina\mvc\model;
 
 use alina\Message;
 use alina\utils\Data;
+use alina\utils\DateTime;
 use alina\utils\Str;
 use alina\utils\Sys;
 
@@ -15,8 +16,8 @@ class user extends _BaseAlinaModel
     {
         $fDefault = parent::fields();
         $fCustom  = [
-            'id'           => [],
-            'mail'         => [
+            'id'          => [],
+            'mail'        => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -43,7 +44,7 @@ class user extends _BaseAlinaModel
 
                 ],
             ],
-            'password'     => [
+            'password'    => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -66,25 +67,35 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'firstname'    => [],
-            'lastname'     => [],
-            'emblem'       => [],
-            'birth'        => [],
-            'language'     => [
+            'firstname'   => [],
+            'lastname'    => [],
+            'emblem'      => [],
+            'birth'       => [
+                'filters' => [
+                    function ($v) {
+                        if (is_numeric($v)) {
+                            return $v;
+                        }
+
+                        return (new DateTime($v))->getTimestamp();
+                    },
+                ],
+            ],
+            'language'    => [
                 'default' => Sys::getUserLanguage(),
             ],
-            'timezone'     => [],
+            'timezone'    => [],
             #####
-            'is_verified'  => [
+            'is_verified' => [
                 'default' => 0,
             ],
-            'banned_till'  => [
+            'banned_till' => [
                 'default' => 0,
             ],
-            'created_at'   => [
+            'created_at'  => [
                 'default' => ALINA_TIME,
             ],
-            'is_deleted'   => [
+            'is_deleted'  => [
                 'default' => 0,
             ],
         ];

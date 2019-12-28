@@ -85,9 +85,10 @@ switch (ALINA_ENV) {
                     'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
 
                     // Alina.
-                    '/sources/js/001_alina_init.js',
+                    //'/sources/js/001_alina_init.js',
                     //'/sources/js/002_alina_hash_catcher.js',
-                    '/sources/js/100_alina_exe.js',
+                    //'/sources/js/100_alina_exe.js',
+                    '/sources/js/alina-js-collector.php',
                 ],
                 'meta' => [],
             ],

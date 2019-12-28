@@ -238,7 +238,7 @@ class Sys
     ##################################################
     static Public function getReqMethod()
     {
-        return $_SERVER['REQUEST_METHOD'];
+        return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
     static Public function getUserBrowser()

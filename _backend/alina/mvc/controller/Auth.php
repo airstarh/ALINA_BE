@@ -38,7 +38,7 @@ class Auth
             $user = $CU->name();
             Message::set("Welcome, {$user}!");
         }
-        foreach ($CU->msg as $i=>$v) {
+        foreach ($CU->msg as $i => $v) {
             Message::set($v);
         }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
@@ -81,6 +81,7 @@ class Auth
         return $this;
     }
 
+    ##################################################
     public function actionProfile($id = NULL)
     {
         if (empty($id)) {
@@ -89,9 +90,13 @@ class Auth
         if (empty($id)) {
             Sys::redirect('/auth/login', 302);
         }
+
         $vd = (object)[];
         $u  = new user();
-        $u->getAllWithReferences(['user.id' => $id,]);
+        if (Request::obj()->METHOD === 'POST') {
+            $u->updateById(Request::obj()->POST);
+        }
+        $u->getOneWithReferences(['user.id' => $id,]);
         $vd->user    = $u;
         $vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
