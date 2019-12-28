@@ -80,6 +80,43 @@ class AdminTests
 
     ##############################################
 
+    /**
+     * URLs:
+     * http://alinazero/egCaseSensitivity/TestCase/lalala?hello='world'
+     */
+    public function actionTestCase()
+    {
+        $content = func_get_args();
+        echo (new \alina\mvc\view\html)->page($content);
+    }
+    ##############################################
+    public function actionTestReferences()
+    {
+        $m          = new user();
+        $conditions = ["{$m->alias}.id" => '2',];
+        $orderArray = [["{$m->alias}.id", 'DESC']];
+        $limit      = 2;
+        $offset     = 2;
+
+        $m          = new user();
+        $conditions = [
+            [function ($qu) {
+                $qu->whereIn('user.id', [2, 3]);
+            }],
+            'firstname' => 'Третий'
+        ];
+        $orderArray = [["{$m->alias}.id", 'DESC']];
+        $limit      = NULL;
+        $offset     = NULL;
+
+        $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
+
+        echo '<pre>';
+        print_r($m->collection->toArray());
+        echo '</pre>';
+    }
+    ##############################################
+
     public function actionMailer()
     {
         $data = Sys::buffer(function () {
@@ -103,8 +140,8 @@ class AdminTests
 
     public function actionBaseAlinaModel()
     {
-        $res = [];
-        $res['getById'] = (new user())->getById(-1)->attributes;
+        $res                         = [];
+        $res['getById']              = (new user())->getById(-1)->attributes;
         $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => -1,]);
         echo (new html)->page($res);
     }
