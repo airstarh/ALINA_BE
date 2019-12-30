@@ -23,8 +23,8 @@ class json
         if (CurrentUser::obj()->isAdmin()) {
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
-        $response['meta']     = GlobalRequestStorage::getAll();
-
+        $response['meta']        = GlobalRequestStorage::getAll();
+        $response['CurrentUser'] = CurrentUser::obj();
         //ToDo: PROD! Security!
         $response['test'] = ['Проверка русских букв.',];
         $response['sys']  = $this->systemData();
@@ -35,6 +35,7 @@ class json
         }
 
         header('Content-Type: application/json; charset=utf-8');
+
         //ToDo: Think about encoding (utf8ize).
         return json_encode(\alina\utils\Data::utf8ize($response));
         //echo json_encode($response, JSON_UNESCAPED_UNICODE);

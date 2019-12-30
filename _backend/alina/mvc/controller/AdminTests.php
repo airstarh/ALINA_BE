@@ -89,6 +89,7 @@ class AdminTests
         $content = func_get_args();
         echo (new \alina\mvc\view\html)->page($content);
     }
+
     ##############################################
     public function actionTestReferences()
     {
@@ -103,7 +104,7 @@ class AdminTests
             [function ($qu) {
                 $qu->whereIn('user.id', [2, 3]);
             }],
-            'firstname' => 'Третий'
+            'firstname' => 'Третий',
         ];
         $orderArray = [["{$m->alias}.id", 'DESC']];
         $limit      = NULL;
@@ -115,6 +116,7 @@ class AdminTests
         print_r($m->collection->toArray());
         echo '</pre>';
     }
+
     ##############################################
 
     public function actionMailer()
@@ -124,6 +126,8 @@ class AdminTests
         });
         echo (new html)->page($data);
     }
+
+    ##############################################
 
     /**
      * http://www.codernotes.ru/articles/php/obratimoe-shifrovanie-po-klyuchu-na-php.html
@@ -137,6 +141,8 @@ class AdminTests
 
         echo (new html)->page($vd);
     }
+
+    ##############################################
 
     public function actionBaseAlinaModel()
     {

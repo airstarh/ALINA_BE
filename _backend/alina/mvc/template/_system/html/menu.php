@@ -1,6 +1,7 @@
 <?php
 
 use alina\utils\Html;
+
 $cu = alina\mvc\model\CurrentUser::obj();
 $ua = $cu->attributes();
 

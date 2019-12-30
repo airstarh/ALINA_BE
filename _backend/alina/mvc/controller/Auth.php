@@ -38,9 +38,6 @@ class Auth
             $user = $CU->name();
             Message::set("Welcome, {$user}!");
         }
-        foreach ($CU->msg as $i => $v) {
-            Message::set($v);
-        }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
 
         return $this;
