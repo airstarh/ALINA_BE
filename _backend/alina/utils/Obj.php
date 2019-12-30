@@ -17,4 +17,12 @@ class Obj
 
         return NULL;
     }
+
+    static public function deepClone($obj)
+    {
+        $res = unserialize(serialize($obj));
+
+        return $res;
+
+    }
 }

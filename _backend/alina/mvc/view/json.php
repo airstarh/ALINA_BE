@@ -24,7 +24,7 @@ class json
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
         $response['meta']        = GlobalRequestStorage::getAll();
-        $response['CurrentUser'] = CurrentUser::obj();
+        $response['CurrentUser'] = CurrentUser::obj()->attributes();
         //ToDo: PROD! Security!
         $response['test'] = ['Проверка русских букв.',];
         $response['sys']  = $this->systemData();

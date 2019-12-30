@@ -8,6 +8,7 @@ use alina\MessageAdmin;
 use alina\session;
 use alina\traits\Singleton;
 use alina\utils\Data;
+use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
 
@@ -50,22 +51,35 @@ class CurrentUser
         $this->device_browser_enc = Request::obj()->BROWSER_enc;
         $this->resetDiscoveredData();
         $this->resetStates();
+        $this->resetMsg();
+
+        return $this;
     }
 
-    public function resetDiscoveredData()
+    protected function resetDiscoveredData()
     {
-        $this->msg   = [];
         $this->id    = NULL;
         $this->token = NULL;
         $this->USER  = new user();
         $this->LOGIN = new login();
+
+        return $this;
     }
 
-    public function resetStates()
+    protected function resetStates()
     {
         $this->state_AUTHORIZATION_PASSED  = FALSE;
         $this->state_AUTHORIZATION_SUCCESS = FALSE;
         $this->state_USER_DEFINED          = FALSE;
+
+        return $this;
+    }
+
+    protected function resetMsg()
+    {
+        $this->msg = [];
+
+        return $this;
     }
     #endregion SingleTon
     ##################################################
@@ -318,9 +332,11 @@ class CurrentUser
 
     public function attributes()
     {
-        unset($this->USER->attributes->password);
+        $res        = Obj::deepClone($this->USER->attributes);
+        $res->token = $this->token;
+        unset($res->password);
 
-        return $this->USER->attributes;
+        return $res;
     }
 
     protected function rememberAuthInfo($uid, $token)
@@ -361,7 +377,8 @@ class CurrentUser
         header_remove(static::KEY_USER_ID);
         header_remove(static::KEY_USER_TOKEN);
         #####
-        $this->reset();
+        $this->resetDiscoveredData();
+        $this->resetStates();
 
         #####
         return TRUE;
