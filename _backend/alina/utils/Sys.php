@@ -161,7 +161,7 @@ class Sys
         return TRUE;
     }
 
-    static public function redirect($page, $code = 301)
+    static public function redirect($page, $code = 307)
     {
         if (\alina\utils\Str::startsWith($page, 'http://')
             || \alina\utils\Str::startsWith($page, 'https://')

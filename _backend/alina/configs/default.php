@@ -37,7 +37,7 @@ switch (ALINA_ENV) {
             ],
 
             // Routes, Aliases.
-            'forceSysPathToAlias' => TRUE,
+            'forceSysPathToAlias' => FALSE,
             'vocAliasUrl'         => [
                 'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
                 'Пользователь/Логин'          => 'Auth/Login',
