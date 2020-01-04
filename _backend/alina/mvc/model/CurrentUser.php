@@ -261,6 +261,9 @@ class CurrentUser
         if (empty($id)) {
             $id = Request::obj()->tryHeader(static::KEY_USER_ID);
         }
+        if (!is_numeric($id)) {
+            $id = NULL;
+        }
         $this->id = $id;
 
         return $id;
@@ -281,6 +284,10 @@ class CurrentUser
         if (empty($token)) {
             $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
         }
+        if (strlen($token) < 10) {
+            $token = NULL;
+        }
+
         $this->token = $token;
 
         return $token;

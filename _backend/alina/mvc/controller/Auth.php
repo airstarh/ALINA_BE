@@ -22,11 +22,13 @@ class Auth
         $vd = (object)[
             'mail'     => '',
             'password' => '',
+            'uid'      => '',
+            'token'    => '',
         ];
         ##################################################
         $p  = Data::deleteEmptyProps(Request::obj()->POST);
         $vd = Data::mergeObjects($vd, $p);
-        if (empty((array)$p)) {
+        if (empty($p->mail) || empty($p->password)) {
             echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
 
             return $this;
@@ -37,6 +39,8 @@ class Auth
         if ($LogIn) {
             $user = $CU->name();
             Message::set("Welcome, {$user}!");
+        } else {
+            $CU->messages();
         }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
 
