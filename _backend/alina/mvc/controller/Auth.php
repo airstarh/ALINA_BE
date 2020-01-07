@@ -89,14 +89,16 @@ class Auth
             $id = CurrentUser::obj()->id;
         }
         if (empty($id)) {
-            Sys::redirect('/auth/login', 302);
+            Sys::redirect('/auth/login', 307);
         }
 
         $vd = (object)[];
         $u  = new user();
+        #####
         if (Request::obj()->METHOD === 'POST') {
             $u->updateById(Request::obj()->POST);
         }
+        #####
         $u->getOneWithReferences(['user.id' => $id,]);
         $vd->user    = $u;
         $vd->sources = $u->getReferencesSources();

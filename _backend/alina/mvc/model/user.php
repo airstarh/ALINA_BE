@@ -15,9 +15,10 @@ class user extends _BaseAlinaModel
     public function fields()
     {
         $fDefault = parent::fields();
-        $fCustom  = [
-            'id'          => [],
-            'mail'        => [
+        //$fDefault = [];
+        $fCustom = [
+            'id'               => [],
+            'mail'             => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -44,7 +45,7 @@ class user extends _BaseAlinaModel
 
                 ],
             ],
-            'password'    => [
+            'password'         => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -67,10 +68,10 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'firstname'   => [],
-            'lastname'    => [],
-            'emblem'      => [],
-            'birth'       => [
+            'firstname'        => [],
+            'lastname'         => [],
+            'emblem'           => [],
+            'birth'            => [
                 'filters' => [
                     function ($v) {
                         if (is_numeric($v)) {
@@ -81,25 +82,32 @@ class user extends _BaseAlinaModel
                     },
                 ],
             ],
-            'language'    => [
+            'language'         => [
                 'default' => Sys::getUserLanguage(),
             ],
-            'timezone'    => [],
+            'timezone'         => [],
+            'about_myself'     => [
+                'default' => '',
+            ],
             #####
-            'is_verified' => [
+            'is_verified'      => [
                 'default' => 0,
             ],
-            'banned_till' => [
+            'banned_till'      => [
                 'default' => 0,
             ],
-            'created_at'  => [
+            'created_at'       => [
                 'default' => ALINA_TIME,
             ],
-            'is_deleted'  => [
+            'is_deleted'       => [
                 'default' => 0,
             ],
+            #####
+            'last_time'        => [],
+            'last_browser_enc' => [],
+            'last_ip'          => [],
         ];
-        $fRes     = array_merge($fDefault, $fCustom);
+        $fRes    = array_merge($fDefault, $fCustom);
 
         return $fRes;
     }

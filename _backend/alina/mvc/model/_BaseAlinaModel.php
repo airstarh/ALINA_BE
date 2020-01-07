@@ -103,7 +103,7 @@ class _BaseAlinaModel
         }
         $this->attributes = Data::mergeObjects($this->attributes, $data);
 
-        return $this;
+        return $this->attributes;
     }
 
     public function getAll($conditions = [])
