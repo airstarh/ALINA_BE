@@ -9,6 +9,7 @@ use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
 
@@ -96,11 +97,15 @@ class Auth
         $u  = new user();
         #####
         if (Request::obj()->METHOD === 'POST') {
-            $u->updateById(Request::obj()->POST);
+            $post = Request::obj()->POST;
+            $u->updateById($post);
         }
         #####
         $u->getOneWithReferences(['user.id' => $id,]);
-        $vd->user    = $u;
+        #####
+        unset($u->attributes->password);
+        #####
+        $vd->user    = $u->attributes;
         $vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
     }

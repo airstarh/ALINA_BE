@@ -255,7 +255,7 @@ class user extends _BaseAlinaModel
         if (!isset($this->attributes->rbac_user_role)) {
             if (isset($this->id)) {
                 $this->getOneWithReferences([
-                    $this->pkName => $this->id,
+                    "{$this->alias}.{$this->pkName}" => $this->id,
                 ]);
             }
         }
@@ -276,7 +276,7 @@ class user extends _BaseAlinaModel
         if (!isset($this->attributes->rbac_permission)) {
             if (isset($this->id)) {
                 $this->getOneWithReferences([
-                    $this->pkName => $this->id,
+                    "{$this->alias}.{$this->pkName}" => $this->id,
                 ]);
             }
         }

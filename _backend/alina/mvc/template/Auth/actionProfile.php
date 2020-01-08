@@ -4,7 +4,7 @@
 use alina\mvc\model\CurrentUser as CurrentUserAlias;
 use alina\mvc\view\html as htmlAlias;
 
-$m       = $data->user->attributes;
+$m       = $data->user;
 $sources = $data->sources;
 ?>
 <h1 class="mt-3">Profile for <?= $m->mail ?></h1>
