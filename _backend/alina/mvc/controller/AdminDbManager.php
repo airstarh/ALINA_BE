@@ -46,7 +46,7 @@ class AdminDbManager
             'colsAsJson'         => '',
             'colsAsPHPArr'       => '',
         ];
-        if (Request::obj()->METHOD === 'POST') {
+        if (Request::isPost()) {
             $p               = \alina\utils\Data::deleteEmptyProps(Request::obj()->POST);
             $vd              = \alina\utils\Data::mergeObjects($vd, $p);
             $r               = [];

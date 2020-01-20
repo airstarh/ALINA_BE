@@ -10,8 +10,8 @@ use alina\mvc\view\html as htmlAlias;
             <h1>Login</h1>
             <input type="text" name="mail" value="<?= $data->mail ?>" placeholder="Mail" class="form-control">
             <input type="password" name="password" value="<?= $data->password ?>" placeholder="Password" class="form-control">
-            <input type="hidden" name="form_id" value="login" placeholder="Password" class="form-control">
-            <?= htmlAlias::elFormStandardButtons()  ?>
+            <input type="hidden" name="form_id" value="<?= $data->form_id ?>" placeholder="Password" class="form-control">
+            <?= htmlAlias::elFormStandardButtons() ?>
         </form>
     </div>
 </div>

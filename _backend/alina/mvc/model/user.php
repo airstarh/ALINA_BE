@@ -74,6 +74,9 @@ class user extends _BaseAlinaModel
             'birth'            => [
                 'filters' => [
                     function ($v) {
+                        if (empty($v)) {
+                            return NULL;
+                        }
                         if (is_numeric($v)) {
                             return $v;
                         }

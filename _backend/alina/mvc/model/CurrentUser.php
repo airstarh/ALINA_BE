@@ -186,11 +186,14 @@ class CurrentUser
     #region Register
     public function Register($vd)
     {
-        $u = $this->USER;
-        //ToDo: Add Browser
-        //ToDo: Add other data
-        $vd->ip               = Sys::getUserIp();
-        $vd->date_int_created = ALINA_TIME;
+        $this->resetMsg();
+        $u                    = $this->USER;
+        $vd->created_at       = ALINA_TIME;
+        $vd->last_ip          = Request::obj()->IP;
+        $vd->last_browser_enc = Request::obj()->BROWSER_enc;
+        $vd->last_time        = ALINA_TIME;
+        $vd->is_verified      = 0;
+        $vd->is_deleted       = 0;
         $u->insert($vd);
         if (isset($u->id)) {
             $ur = new _BaseAlinaModel(['table' => 'rbac_user_role']);

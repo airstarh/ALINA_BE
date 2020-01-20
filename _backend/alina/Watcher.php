@@ -2,6 +2,10 @@
 
 namespace alina;
 
+use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\model\watch_banned_browser;
+use alina\mvc\model\watch_banned_ip;
+use alina\mvc\model\watch_banned_visit;
 use alina\mvc\model\watch_browser;
 use alina\mvc\model\watch_ip;
 use alina\mvc\model\watch_url_path;
@@ -64,26 +68,108 @@ class Watcher
     #region Firewall
     public function firewall()
     {
-        $this->per10seconds();
+        $this->firewallByBannedIp();
+        $this->firewallByBannedBrowser();
+        $this->firewallByBannedVisit();
+        $this->firewallByRequestsAmount();
+        $this->firewallPostRequest();
     }
 
-    protected function per10seconds()
+    protected function firewallByRequestsAmount()
     {
-        $browserId = $this->mBROWSER->id;
-        $ipId      = $this->mIP->id;
-        $per10secs = $this->mVISIT
-            ->q()
-            ->where([
-                'browser_id' => $browserId,
-                'ip_id'      => $ipId,
-                ['visited_at', '>', ALINA_TIME - 10],
-            ])
-            ->count();
+        $per10secs = $this->countRequestsPerSeconds(10);
         if ($per10secs > AlinaCFG('watcher/maxPer10secs')) {
+            (new watch_banned_visit())->upsertByUniqueFields([
+                'ip_id'      => $this->mIP->id,
+                'browser_id' => $this->mBROWSER->id,
+            ]);
             Message::set('Are you trying to DDOS me?', [], 'alert alert-danger');
             throw new \ErrorException('DDOS');
         }
     }
+
+    protected function firewallPostRequest()
+    {
+        if (!Request::isGet()) {
+            if (
+                !isset(Request::obj()->POST->form_id)
+                ||
+                empty(Request::obj()->POST->form_id)
+            ) {
+                $msg = 'No form ID';
+                Message::set($msg, [], 'alert alert-danger');
+                throw new \ErrorException($msg);
+            }
+        }
+    }
+
+    protected function firewallByBannedIp()
+    {
+        $m   = new watch_banned_ip();
+        $res = $m
+            ->q()
+            ->where([
+                'ip' => Request::obj()->IP,
+            ])
+            ->first();
+        if ($res) {
+            $msg = 'Your IP is banned';
+            Message::set($msg, [], 'alert alert-danger');
+            throw new \ErrorException($msg);
+        }
+    }
+
+    protected function firewallByBannedBrowser()
+    {
+        $m   = new watch_banned_browser();
+        $res = $m
+            ->q()
+            ->where([
+                'enc' => Request::obj()->BROWSER_enc,
+            ])
+            ->first();
+        if ($res) {
+            $msg = 'Your browser is banned';
+            Message::set($msg, [], 'alert alert-danger');
+            throw new \ErrorException($msg);
+        }
+    }
+
+    protected function firewallByBannedVisit()
+    {
+        $m   = new watch_banned_visit();
+        $res = $m
+            ->q()
+            ->where([
+                'ip_id'      => $this->mIP->id,
+                'browser_id' => $this->mBROWSER->id,
+            ])
+            ->first();
+        if ($res) {
+            $msg = 'You are completely banned';
+            Message::set($msg, [], 'alert alert-danger');
+            throw new \ErrorException($msg);
+        }
+    }
+
     #endregion Firewall
+    ##################################################
+    #region Utils
+    protected function countRequestsPerSeconds($seconds)
+    {
+        $browserId = $this->mBROWSER->id;
+        $ipId      = $this->mIP->id;
+        $res       = $this->mVISIT
+            ->q()
+            ->where([
+                'browser_id' => $browserId,
+                'ip_id'      => $ipId,
+                ['visited_at', '>', ALINA_TIME - $seconds],
+            ])
+            ->count();
+
+        return $res;
+    }
+    #endregion Utils
     ##################################################
 }

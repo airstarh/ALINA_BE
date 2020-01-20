@@ -21,6 +21,7 @@ class Auth
     public function actionLogin()
     {
         $vd = (object)[
+            'form_id'  => 'actionLogin',
             'mail'     => '',
             'password' => '',
             'uid'      => '',
@@ -55,27 +56,26 @@ class Auth
     {
         ##################################################
         $vd = (object)[
+            'form_id'          => 'actionRegister',
             'mail'             => '',
             'password'         => '',
             'confirm_password' => '',
         ];
-        $p  = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
-        $vd = Data::mergeObjects($vd, $p);
         ##################################################
-        if (empty((array)$p)) {
-            echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
-
-            return $this;
-        }
-        ##################################################
-        try {
-            if ($vd->password !== $vd->confirm_password) {
-                throw new exceptionValidation('Passwords do not match');
+        if (Request::isPost()) {
+            $p  = Data::deleteEmptyProps(Request::obj()->POST);
+            $vd = Data::mergeObjects($vd, $p);
+            try {
+                if ($vd->password !== $vd->confirm_password) {
+                    throw new exceptionValidation('Passwords do not match');
+                }
+                $u = CurrentUser::obj();
+                if ($u->Register($vd)) {
+                    $u->messages();
+                }
+            } catch (exceptionValidation $e) {
+                Message::set($e->getMessage(), [], 'alert alert-danger');
             }
-            $u = CurrentUser::obj();
-            $u->Register($vd);
-        } catch (exceptionValidation $e) {
-            Message::set($e->getMessage(), [], 'alert alert-danger');
         }
         ##################################################
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
@@ -92,12 +92,14 @@ class Auth
         if (empty($id)) {
             Sys::redirect('/auth/login', 307);
         }
-
-        $vd = (object)[];
+        #####
+        $vd = (object)[
+            'user'    => (object)[],
+            'sources' => (object)[],
+        ];
         $u  = new user();
         #####
-        if (Request::obj()->METHOD === 'POST') {
-            $post = Request::obj()->POST;
+        if (Request::isPost($post)) {
             $u->updateById($post);
         }
         #####
@@ -116,6 +118,12 @@ class Auth
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
         Sys::redirect('/Auth/Login', 307);
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+    }
+
+    public function actionResetPassword()
+    {
+        $vd = (object)[];
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 }

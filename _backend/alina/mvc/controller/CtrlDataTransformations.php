@@ -29,7 +29,7 @@ class CtrlDataTransformations
         ];
         $data = (object)[];
         ##################################################
-        if (Request::obj()->METHOD === 'POST') {
+        if (Request::isPost()) {
             $p         = Data::deleteEmptyProps(Request::obj()->POST);
             $vd        = Data::mergeObjects($vd, $p);
             $strFrom   = $vd->strFrom;
@@ -66,7 +66,7 @@ class CtrlDataTransformations
         ];
         $data = (object)[];
         ##################################################
-        if (Request::obj()->METHOD === 'POST') {
+        if (Request::isPost()) {
             $p         = \alina\utils\Data::deleteEmptyProps(Request::obj()->POST);
             $vd        = \alina\utils\Data::mergeObjects($vd, $p);
             $strSource = $vd->strSource;

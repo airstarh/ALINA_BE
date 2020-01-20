@@ -82,4 +82,38 @@ class Request
         return Obj::getValByPropNameCaseInsensitive($name, $this->HEADERS);
         //return Arr::getArrayValue($name, (array)$this->HEADERS);
     }
+
+    ##################################################
+    #region Facade
+    static public function isPost(&$post = NULL)
+    {
+        $is = static::obj()->METHOD === 'POST';
+        if ($is) {
+            $post = static::obj()->POST;
+        }
+
+        return $is;
+    }
+
+    static public function isPut(&$post = NULL)
+    {
+        $is = static::obj()->METHOD === 'PUT';
+        if ($is) {
+            $post = static::obj()->POST;
+        }
+
+        return $is;
+    }
+
+    static public function isDelete()
+    {
+        return static::obj()->METHOD === 'DELETE';
+    }
+
+    static public function isGet()
+    {
+        return static::obj()->METHOD === 'GET';
+    }
+    #endregion Facade
+    ##################################################
 }
