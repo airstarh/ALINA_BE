@@ -13,7 +13,7 @@ switch (ALINA_ENV) {
                 'host'      => 'localhost',
                 'database'  => 'alina',
                 'username'  => 'root',
-                'password'  => '',
+                'password'  => '1234',
                 'charset'   => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
                 'prefix'    => '',

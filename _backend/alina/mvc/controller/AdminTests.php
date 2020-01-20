@@ -147,8 +147,17 @@ class AdminTests
     public function actionBaseAlinaModel()
     {
         $res                         = [];
-        $res['getById']              = (new user())->getById(-1)->attributes;
+        $res['getById']              = (new user())->getById(1);
         $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => -1,]);
         echo (new html)->page($res);
+    }
+
+    public function actionLocale()
+    {
+        $vd = [
+            'date(\'Z\')' => date('Z'),
+            'date(\'Z\')' => date('Z'),
+        ];
+        echo (new html)->page(date('Z'));
     }
 }

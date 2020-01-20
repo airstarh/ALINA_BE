@@ -6,6 +6,7 @@ use alina\app;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Request;
 
 class CtrlDataTransformations
 {
@@ -16,29 +17,36 @@ class CtrlDataTransformations
     public function actionSerializedArrayModification()
     {
         ##################################################
-        $vd = (object)[
-            'strSource'     => '',
-            'strRes'        => '',
+        $vd   = (object)[
+            'strSource'       => '',
+            'strRes'          => '',
             'mixedRes'        => [],
             'mixedResControl' => [],
-            'strResControl' => '',
-            'strFrom'       => '',
-            'strTo'         => '',
-            'tCount'        => 0,
+            'strResControl'   => '',
+            'strFrom'         => '',
+            'strTo'           => '',
+            'tCount'          => 0,
         ];
-        $p  = Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd = Data::mergeObjects($vd, $p);
+        $data = (object)[];
         ##################################################
-        $strFrom   = $vd->strFrom;
-        $strTo     = $vd->strTo;
-        $strSource = $vd->strSource;
-        $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
+        if (Request::obj()->METHOD === 'POST') {
+            $p         = Data::deleteEmptyProps(Request::obj()->POST);
+            $vd        = Data::mergeObjects($vd, $p);
+            $strFrom   = $vd->strFrom;
+            $strTo     = $vd->strTo;
+            $strSource = $vd->strSource;
+            $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
+        }
         ##################################################
         $vd = \alina\utils\Data::mergeObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;
     }
+
+    ##################################################
+    ##################################################
+    ##################################################
 
     /**
      * http://alinazero/CtrlDataTransformations/index
@@ -47,23 +55,33 @@ class CtrlDataTransformations
     public function actionJson()
     {
         ##################################################
-        $vd = (object)[
-            'strSource'        => '{}',
-            'strFrom'          => '',
-            'strTo'            => '',
-            'tCount'           => 0,
+        $vd   = (object)[
+            'strSource'         => '{}',
+            'strFrom'           => '',
+            'strTo'             => '',
+            'strRes'            => '',
+            'mxdJsonDecoded'    => '',
+            'mxdResJsonDecoded' => '',
+            'tCount'            => 0,
         ];
-        $p  = \alina\utils\Data::deleteEmptyProps(\alina\utils\Sys::resolvePostDataAsObject());
-        $vd = \alina\utils\Data::mergeObjects($vd, $p);
+        $data = (object)[];
         ##################################################
-        $strSource = $vd->strSource;
-        $strFrom   = $vd->strFrom;
-        $strTo     = $vd->strTo;
-        $data      = (new DataPlayer())->jsonSearchReplace($strSource, $strFrom, $strTo);
+        if (Request::obj()->METHOD === 'POST') {
+            $p         = \alina\utils\Data::deleteEmptyProps(Request::obj()->POST);
+            $vd        = \alina\utils\Data::mergeObjects($vd, $p);
+            $strSource = $vd->strSource;
+            $strFrom   = $vd->strFrom;
+            $strTo     = $vd->strTo;
+            $data      = (new DataPlayer())->jsonSearchReplace($strSource, $strFrom, $strTo);
+        }
         ##################################################
         $vd = \alina\utils\Data::mergeObjects($vd, $data);
         echo (new htmlAlias)->page($vd);
 
         return $this;
     }
+
+    ##################################################
+    ##################################################
+    ##################################################
 }

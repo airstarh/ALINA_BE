@@ -58,15 +58,15 @@ class DbManager
     #endregion Connector
 
     #region Transaction
-    protected function TransactionStart()
+    protected function TransactionStart($strTransactionHumanName = 1)
     {
         $this->connect();
+        $this->arrTransaction[] = $strTransactionHumanName;
         if ($this->isInTransaction) {
             return $this;
         }
         $this->pdo->beginTransaction();
-        $this->arrTransaction[] = 1;
-        $this->isInTransaction  = TRUE;
+        $this->isInTransaction = TRUE;
 
         return $this;
     }
