@@ -7,6 +7,47 @@ use PHPMailer\PHPMailer\SMTP;
 
 class Mailer
 {
+    public function __construct()
+    {
+
+    }
+
+    public function sendVerificationCode($to, $code)
+    {
+        $mail = new PHPMailer(TRUE);
+
+        try {
+            //Server settings
+            $mail->isSMTP();                                            // Send using SMTP
+            $mail->Host       = AlinaCFG('mailer/admin/Host');
+            $mail->SMTPAuth   = TRUE;
+            $mail->Username   = AlinaCFG('mailer/admin/Username');                     // SMTP username
+            $mail->Password   = AlinaCFG('mailer/admin/Password');                               // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+            $mail->Port       = AlinaCFG('mailer/admin/Port');                                    // TCP port to connect to
+            //Recipients
+            //From
+            $mail->setFrom(AlinaCFG('mailer/admin/Username'), AlinaCFG('mailer/admin/FromName'));
+            $mail->addReplyTo(AlinaCFG('mailer/admin/Username'), AlinaCFG('mailer/admin/FromName'));
+            //To
+            $mail->addAddress($to, $to);     // Add a recipient
+            // Content
+            $subject = "Alina Verification code";
+            $message = "Your verification code is {$code}. You know, what to do :-)";
+            $mail->isHTML(TRUE);                                  // Set email format to HTML
+            $mail->Subject = $subject;
+            $mail->Body    = $message;
+            $mail->AltBody = $message;
+
+            $mail->send();
+            Message::set("Message has been sent");
+        } catch (Exception $e) {
+            Message::set("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        }
+
+        return TRUE;
+    }
+
     public function usageExample()
     {
         $mail = new PHPMailer(TRUE);
@@ -48,6 +89,6 @@ class Mailer
             Message::set("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
         }
 
-        return true;
+        return TRUE;
     }
 }

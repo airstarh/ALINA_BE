@@ -56,6 +56,15 @@ switch (ALINA_ENV) {
                 'maxPer1min'   => 60 / 2 * 20,
                 'maxPer10mins' => 60 * 60 / 2 * 20,
             ],
+            'mailer'  => [
+                'admin' => [
+                    'Host'     => 'smtp.yandex.ru',
+                    'Port'     => 587,
+                    'Username' => 'my-customer-mailbox@yandex.ru',
+                    'Password' => 'qwerty123qwerty',
+                    'FromName' => 'Alina service',
+                ],
+            ],
             'html'    => [
 
                 'css' => [

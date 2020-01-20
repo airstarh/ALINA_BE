@@ -73,7 +73,7 @@ class _BaseAlinaModel
     public function __construct($opts = NULL)
     {
         $this->attributes = (object)[];
-        $this->setPkValue(NULL, $this->attributes);
+        $this->setPkValue(NULL);
         if ($opts) {
             $opts       = Data::toObject($opts);
             $this->opts = $opts;
@@ -102,6 +102,9 @@ class _BaseAlinaModel
             $this->setPkValue($data->{$this->pkName}, $data);
         }
         $this->attributes = Data::mergeObjects($this->attributes, $data);
+        if ($this->attributes->{$this->pkName}) {
+            $this->setPkValue($this->attributes->{$this->pkName});
+        }
 
         return $this->attributes;
     }
@@ -164,7 +167,7 @@ class _BaseAlinaModel
                 $this->matchedUniqueFields = $uFields;
                 $this->matchedConditions   = $conditions;
                 $this->attributes          = $aRecord;
-                $this->setPkValue($aRecord->{$this->pkName}, $this->attributes);
+                $this->setPkValue($aRecord->{$this->pkName});
 
                 return $aRecord;
             }
@@ -220,7 +223,6 @@ class _BaseAlinaModel
         #####
         $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = Data::toObject($dataArray);
-        $this->setPkValue($id, $this->attributes);
         $this->setPkValue($id, $data);
         #####
         if (method_exists($this, 'hookRightAfterSave')) {
@@ -267,8 +269,7 @@ class _BaseAlinaModel
         $conditions = [$pkName => $pkValue];
         $this->update($data, $conditions);
         $this->attributes = Data::mergeObjects($this->attributes, $data);
-        $this->{$pkName}  = $this->attributes->{$pkName} = $data->{$pkName} = $pkValue;
-        $this->id         = $pkValue;
+        $this->setPkValue($pkValue, $data);
 
         return $this;
     }
@@ -1109,8 +1110,9 @@ class _BaseAlinaModel
 
     protected function setPkValue($id, \stdClass $data = NULL)
     {
-        $this->{$this->pkName} = $id;
-        $this->id              = $id;
+        $this->{$this->pkName}             = $id;
+        $this->id                          = $id;
+        $this->attributes->{$this->pkName} = $id;
         if ($data) {
             $data->{$this->pkName} = $id;
         }

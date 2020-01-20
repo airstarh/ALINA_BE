@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\exceptionValidation;
+use alina\Mailer;
 use alina\Message;
 use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
@@ -21,7 +22,7 @@ class Auth
     public function actionLogin()
     {
         $vd = (object)[
-            'form_id'  => 'actionLogin',
+            'form_id'  => __FUNCTION__,
             'mail'     => '',
             'password' => '',
             'uid'      => '',
@@ -56,7 +57,7 @@ class Auth
     {
         ##################################################
         $vd = (object)[
-            'form_id'          => 'actionRegister',
+            'form_id'          => __FUNCTION__,
             'mail'             => '',
             'password'         => '',
             'confirm_password' => '',
@@ -121,9 +122,69 @@ class Auth
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 
-    public function actionResetPassword()
+    public function actionResetPasswordRequest()
     {
-        $vd = (object)[];
+        $vd = (object)[
+            'form_id' => __FUNCTION__,
+            'message' => '',
+            'mail'    => '',
+        ];
+        ##################################################
+        if (Request::isPost($post)) {
+            $vd = Data::mergeObjects($vd, $post);
+            if (!empty($vd->mail)) {
+                $mUser = new user();
+                $mUser->getOne(['mail' => $vd->mail,]);
+                if ($mUser->id) {
+                    $code = ALINA_TIME;
+                    $mUser->updateById([
+                        'reset_code'     => $code,
+                        'reset_required' => 1,
+                    ]);
+                    (new Mailer())->sendVerificationCode($vd->mail, $code);
+                    Sys::redirect('/auth/ResetPasswordWithCode', 307);
+                }
+            }
+        }
+        ##################################################
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+
+        return $this;
+    }
+
+    ##################################################
+
+    public function actionResetPasswordWithCode()
+    {
+        $vd = (object)[
+            'form_id'          => __FUNCTION__,
+            'reset_code'       => '',
+            'mail'             => '',
+            'password'         => '',
+            'confirm_password' => '',
+        ];
+        ##################################################
+        if (Request::isPost($post)) {
+            $vd = Data::mergeObjects($vd, $post);
+            if (!empty($vd->mail)) {
+                $mUser = new user();
+                $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
+                if ($mUser->id && $atrs->reset_required == 1) {
+                    $vd->reset_code = trim($vd->reset_code);
+                    if ($vd->reset_code === $atrs->reset_code) {
+                        if ($vd->password === $vd->confirm_password) {
+                            $mUser->updateById([
+                                'password'       => $vd->password,
+                                'reset_required' => 0,
+                            ]);
+                            Sys::redirect('/auth/login', 307);
+                        }
+                    }
+                }
+
+            }
+        }
+        ##################################################
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 }

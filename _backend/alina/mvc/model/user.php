@@ -109,6 +109,8 @@ class user extends _BaseAlinaModel
             'last_time'        => [],
             'last_browser_enc' => [],
             'last_ip'          => [],
+            'reset_code'       => [],
+            'reset_required'   => [],
         ];
         $fRes    = array_merge($fDefault, $fCustom);
 
