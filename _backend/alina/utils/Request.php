@@ -27,6 +27,8 @@ class Request
 
     protected function __construct()
     {
+        //ToDo: Security
+        //ToDo: process fields
         $this->DOMAIN       = Url::cleanDomain($_SERVER['HTTP_HOST']);
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
         $this->QUERY_STRING = $_SERVER['QUERY_STRING'];

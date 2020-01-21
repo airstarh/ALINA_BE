@@ -181,7 +181,6 @@ class Sys
         return microtime(TRUE) - $microtime;
     }
 
-    //ToDO: FW dependent!!!
     static public function reportSpentTime($prepend = [], $append = [])
     {
         $main = [

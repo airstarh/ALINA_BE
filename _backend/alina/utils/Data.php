@@ -67,7 +67,7 @@ class Data
         //return $object;
     }
 
-//@link https://stackoverflow.com/a/6041773/3142281
+    //@link https://stackoverflow.com/a/6041773/3142281
     static public function isStringValidJson($string, &$strJsonDecoded = NULL)
     {
         $strJsonDecoded = json_decode($string, FALSE, 512);
@@ -224,7 +224,7 @@ class Data
         return $d;
     }
 
-//ToDo: Less heavy. Validate input.
+    //ToDo: Less heavy. Validate input.
     static public function mergeObjects(...$objects)
     {
         $res = new stdClass();
@@ -401,18 +401,63 @@ class Data
         return is_array($d) ? (array)$r : (object)$r;
     }
 
-    static public function isValidMd5($md5) {
+    static public function isValidMd5($md5)
+    {
         return strlen($md5) == 32 && ctype_xdigit($md5);
     }
+
     #####
-    static public function stringify($data) {
+    static public function stringify($data)
+    {
         $res = json_encode($data, JSON_UNESCAPED_UNICODE);
         $res = str_replace('"', '', $res);
         $res = str_replace(',', ' | ', $res);
         $res = str_replace('{', '', $res);
         $res = str_replace('}', '', $res);
+
         return $res;
 
     }
+    #####
+
+    /**
+     * @param $strJSON
+     * @param string $strFrom
+     * @param string $strTo
+     * @return object
+     */
+    static public function jsonSearchReplace($strJSON, $strFrom = '', $strTo = '')
+    {
+        #region Defaults
+        $d = (object)[
+            'strSource'            => $strJSON,
+            'mxdJsonDecoded'       => [],
+            'strRes'               => '',
+            'mxdResJsonDecoded'    => [],
+            'strFrom'              => $strFrom,
+            'strTo'                => $strTo,
+            'tCount'               => 0,
+            'isSourceStrJsonValid' => TRUE,
+            'isResStrJsonValid'    => TRUE,
+        ];
+        #endregion Defaults
+        $d->isSourceStrJsonValid = Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
+        #####
+        if ($d->isSourceStrJsonValid) {
+            $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdJsonDecoded, $strFrom, $strTo, $d->tCount);
+            $d->strRes            = json_encode($d->mxdResJsonDecoded);
+            $d->isResStrJsonValid = Data::isStringValidJson($d->strRes);
+        }
+        #####
+        if (!$d->isSourceStrJsonValid) {
+            MessageAdmin::set('Invalid SOURCE JSON string', [], 'alert alert-danger');
+        }
+        if (!$d->isResStrJsonValid) {
+            MessageAdmin::set('Invalid RES JSON string', [], 'alert alert-danger');
+        }
+
+        return $d;
+    }
+
     #####
 }

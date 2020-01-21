@@ -1,4 +1,3 @@
-// tOdO:Rename this file
 $(document).ready(function () {
 
     //region Form Fields

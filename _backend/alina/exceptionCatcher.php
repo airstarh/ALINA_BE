@@ -80,6 +80,8 @@ class exceptionCatcher
         $this->processError();
         ##################################################
         if (Request::has('route_plan_b', $v)) {
+            //ToDo: Security
+            //ToDo: clean sensitive fields: passwords etc...
             $url = Url::addGetFromObject($v, Request::obj()->R);
             Sys::redirect($url, 303);
         } elseif ($forceExit) {

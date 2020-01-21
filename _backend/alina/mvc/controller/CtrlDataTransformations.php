@@ -74,7 +74,7 @@ class CtrlDataTransformations
             $strSource = $vd->strSource;
             $strFrom   = $vd->strFrom;
             $strTo     = $vd->strTo;
-            $data      = (new DataPlayer())->jsonSearchReplace($strSource, $strFrom, $strTo);
+            $data      = Data::jsonSearchReplace($strSource, $strFrom, $strTo);
         }
         ##################################################
         $vd = \alina\utils\Data::mergeObjects($vd, $data);
