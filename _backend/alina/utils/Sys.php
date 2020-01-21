@@ -71,7 +71,6 @@ class Sys
         return $res;
     }
 
-    // ToDo: Rewrite
     static public function isAjax()
     {
         if (isset($_GET['isAjax']) && !empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {

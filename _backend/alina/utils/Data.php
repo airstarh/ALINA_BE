@@ -1,10 +1,9 @@
 <?php
-//TODO: ARCHITECTURAL THINK!!! class DataPlayer and  class Data
+
 namespace alina\utils;
 
 use alina\Message;
 use alina\MessageAdmin;
-use alina\mvc\model\DataPlayer;
 use Exception;
 use stdClass;
 

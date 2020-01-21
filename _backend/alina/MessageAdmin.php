@@ -1,6 +1,4 @@
 <?php
-//ToDo: SIMPLIFY IT!!!
-// ToDo: Think when to use static::removeById($message->id);
 
 namespace alina;
 

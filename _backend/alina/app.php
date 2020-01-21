@@ -239,7 +239,6 @@ class app
             if ($this->router->pathAlias == $this->router->pathSys) {
                 $this->router->forcedAlias = \alina\utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {
-                    //ToDo: Make redirection with alina router class.
                     $uri = [
                         'path'  => $this->router->forcedAlias,
                         'query' => $this->router->strGetQuery,
