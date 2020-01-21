@@ -16,7 +16,7 @@ class _baseAlinaEloquentTransaction
 
     #region Transaction.
     static public $isInProgress = FALSE;
-    static public $isSuccess = NULL;
+    static public $isSuccess    = NULL;
 
     private function __construct() { }
 

@@ -23,6 +23,7 @@ class Request
     public $SERVER;
     public $COOKIE;
     public $FILES;
+    public $R;
 
     protected function __construct()
     {
@@ -40,7 +41,8 @@ class Request
         $this->COOKIE       = Data::toObject($_COOKIE);
         $this->FILES        = Data::toObject($_FILES);
         $this->SERVER       = Data::toObject($_SERVER);
-
+        $this->R            = Data::toObject($_REQUEST);
+        #####
         $this->processBrowserData();
 
         /**
@@ -113,6 +115,16 @@ class Request
     static public function isGet()
     {
         return static::obj()->METHOD === 'GET';
+    }
+
+    static public function has($key, &$value = NULL)
+    {
+        $is = isset(static::obj()->R->{$key});
+        if ($is) {
+            $value = static::obj()->R->{$key};
+        }
+
+        return $is;
     }
     #endregion Facade
     ##################################################

@@ -515,7 +515,7 @@ class CurrentUser
     public function messages()
     {
         foreach ($this->msg as $i => $v) {
-            Message::set($v);
+            Message::setDanger($v);
         }
     }
     #endregion Utils

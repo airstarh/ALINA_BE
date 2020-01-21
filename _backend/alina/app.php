@@ -25,11 +25,11 @@ class app
         set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
         #####
         Sys::setCrossDomainHeaders();
-        if (CurrentUser::obj()->isLoggedIn()) {
-            Message::set('Logged In !!!' . ALINA_TIME);
-        } else {
-            Message::set('Not logged in (((' . ALINA_TIME);
-        }
+        //        if (CurrentUser::obj()->isLoggedIn()) {
+        //            Message::set('Logged In !!!' . ALINA_TIME);
+        //        } else {
+        //            Message::set('Not logged in (((' . ALINA_TIME);
+        //        }
         //CurrentUser::obj()->messages();
     }
 
@@ -76,13 +76,13 @@ class app
             }
 
             // For Vendors
-//            $className = ltrim($class, '\\');
-//            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-//            $classFile = $className . $extension;
-//            $classPath = ALINA_PATH_TO_FRAMEWORK .DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . $classFile;
-//            if (file_exists($classPath)) {
-//                require_once $classPath;
-//            }
+            //            $className = ltrim($class, '\\');
+            //            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+            //            $classFile = $className . $extension;
+            //            $classPath = ALINA_PATH_TO_FRAMEWORK .DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . $classFile;
+            //            if (file_exists($classPath)) {
+            //                require_once $classPath;
+            //            }
         });
 
         // ToDo: Resolve for User-defined Application!!!

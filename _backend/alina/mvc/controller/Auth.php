@@ -42,6 +42,7 @@ class Auth
         if ($LogIn) {
             $user = $CU->name();
             Message::set("Welcome, {$user}!");
+            Sys::redirect('/auth/profile', 303);
         } else {
             $CU->messages();
         }
@@ -134,15 +135,20 @@ class Auth
             $vd = Data::mergeObjects($vd, $post);
             if (!empty($vd->mail)) {
                 $mUser = new user();
-                $mUser->getOne(['mail' => $vd->mail,]);
+                $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
                 if ($mUser->id) {
-                    $code = ALINA_TIME;
-                    $mUser->updateById([
-                        'reset_code'     => $code,
-                        'reset_required' => 1,
-                    ]);
-                    (new Mailer())->sendVerificationCode($vd->mail, $code);
-                    Sys::redirect('/auth/ResetPasswordWithCode', 307);
+                    if ($atrs->reset_required != 1) {
+                        $code = ALINA_TIME;
+                        $mUser->updateById([
+                            'reset_code'     => $code,
+                            'reset_required' => 1,
+                        ]);
+                        (new Mailer())->sendVerificationCode($vd->mail, $code);
+                        Sys::redirect('/auth/ResetPasswordWithCode', 307);
+                    } else {
+                        Message::set('Code was sent earlier', [], 'alert alert-danger');
+                        Sys::redirect('/auth/ResetPasswordWithCode', 307);
+                    }
                 }
             }
         }
@@ -158,6 +164,7 @@ class Auth
     {
         $vd = (object)[
             'form_id'          => __FUNCTION__,
+            'route_plan_b'     => '/auth/ResetPasswordWithCode',
             'reset_code'       => '',
             'mail'             => '',
             'password'         => '',
@@ -166,7 +173,7 @@ class Auth
         ##################################################
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
-            if (!empty($vd->mail)) {
+            if (!empty($vd->mail) && !empty($vd->reset_code)) {
                 $mUser = new user();
                 $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
                 if ($mUser->id && $atrs->reset_required == 1) {
@@ -175,10 +182,15 @@ class Auth
                         if ($vd->password === $vd->confirm_password) {
                             $mUser->updateById([
                                 'password'       => $vd->password,
+                                'reset_code'     => 0,
                                 'reset_required' => 0,
                             ]);
                             Sys::redirect('/auth/login', 307);
+                        } else {
+                            Message::set('Passwords do not match', [], 'alert alert-danger');
                         }
+                    } else {
+                        Message::set('Reset code is incorrect.', [], 'alert alert-danger');
                     }
                 }
 

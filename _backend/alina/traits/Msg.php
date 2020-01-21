@@ -130,8 +130,32 @@ trait Msg
 
         return FALSE;
     }
-    #endregion Facade (Collection)
 
+    static public function setDanger($text, $params = [])
+    {
+        $status = 'alert alert-danger';
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setWarning($text, $params = [])
+    {
+        $status = 'alert alert-earning';
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setInfo($text, $params = [])
+    {
+        $status = 'alert alert-info';
+
+        return static::set($text, $params, $status);
+    }
+
+    #endregion Facade (Collection)
+    ##################################################
+    ##################################################
+    ##################################################
     #region Message Object
     public $id;
     public $templateString = '';

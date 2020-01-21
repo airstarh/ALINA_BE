@@ -164,8 +164,11 @@ class Watcher
             ->where([
                 'browser_id' => $browserId,
                 'ip_id'      => $ipId,
+                ['method', '!=', 'GET'],
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
+            //->whereIn('method', ['POST', 'PUT', 'DELETE'])
+            ->orderBy('id', 'desc')
             ->count();
 
         return $res;

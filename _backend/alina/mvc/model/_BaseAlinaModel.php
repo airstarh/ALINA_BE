@@ -262,8 +262,10 @@ class _BaseAlinaModel
         }
 
         if (!isset($pkValue) || empty($pkValue)) {
-            $table = $this->table;
-            throw new exceptionValidation("Cannot UPDATE row in table {$table}. Primary Key is not set.");
+            $table   = $this->table;
+            $message = "Cannot UPDATE row in table {$table}. Primary Key is not set.";
+            Message::setDanger($message);
+            throw new exceptionValidation($message);
         }
 
         $conditions = [$pkName => $pkValue];
@@ -563,8 +565,8 @@ class _BaseAlinaModel
         $this->o_GET  = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
 
-//        error_log('vocGetSearch', 0);
-//        error_log(json_encode($vocGetSearch), 0);
+        //        error_log('vocGetSearch', 0);
+        //        error_log(json_encode($vocGetSearch), 0);
 
         foreach ($vocGetSearch as $short => $full) {
             /*
@@ -717,19 +719,9 @@ class _BaseAlinaModel
 
                         // Validation Result process.
                         if (in_array($vResult, $errorIf, TRUE)) {
-                            $errorIfstr = implode('|||', $errorIf);
-                            #####
-                            // throw new exceptionValidation("
-                            // {$msg}
-                            // Field:   {$name} ;
-                            // Entered:  {$value} ;
-                            // Res:    {$vResult} ;
-                            // ErrorIf:{$errorIfstr} ;
-                            // ");
-                            #####
-                            throw new exceptionValidation(
-                                "{$msg} (field:$name)"
-                            );
+                            $message = "{$msg} (field:$name)";
+                            Message::setDanger($message);
+                            throw new exceptionValidation($message);
                         }
                     }
                 }
@@ -751,9 +743,11 @@ class _BaseAlinaModel
         }
 
         if ($this->getModelByUniqueKeys($data)) {
-            $fields = strtoupper(implode(', ', $this->matchedUniqueFields));
-            $table  = strtoupper($this->table);
-            throw new exceptionValidation("{$table} with such {$fields} already exists");
+            $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
+            $table   = strtoupper($this->table);
+            $message = "{$table} with such {$fields} already exists";
+            Message::setDanger($message);
+            throw new exceptionValidation($message);
         }
 
         return $this;

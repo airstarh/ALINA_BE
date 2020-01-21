@@ -3,6 +3,7 @@
 namespace alina;
 
 use alina\mvc\view\json;
+use alina\utils\Request;
 use alina\utils\Sys;
 
 class exceptionCatcher
@@ -44,6 +45,17 @@ class exceptionCatcher
      */
     public function exception($objException, $forceExit = TRUE)
     {
+        ##################################################
+        #region Clean bugger
+        # @link https://stackoverflow.com/a/22069460/3142281
+        $level = ob_get_level();
+        while (@ob_end_clean()) {
+            $level--;
+        }
+        #endregion Clean bugger
+        ##################################################
+        \alina\mvc\model\_baseAlinaEloquentTransaction::rollback();
+        ##################################################
         $strUNKNOWN         = 'UNKNOWN';
         $this->expClassName = get_class($objException);
         $this->eSeverity    = method_exists($objException, 'getSeverity')
@@ -64,25 +76,14 @@ class exceptionCatcher
         $this->eTrace       = method_exists($objException, 'getTraceAsString')
             ? $objException->getTraceAsString()
             : $strUNKNOWN;
-
         $this->processError();
-
-        if ($forceExit) {
-            if (Sys::isAjax()) {
-                echo (new json())->standardRestApiResponse();
-            } else {
-                ##################################################
-                # Clean ALL @link https://stackoverflow.com/a/22069460/3142281
-                //ob_end_clean();
-                $level = ob_get_level();
-                while (@ob_end_clean()) {
-                    $level--;
-                    //MessageAdmin::set($level);
-                }
-                ##################################################
-                Alina()->mvcGo('root', 'Exception', $this);
-            }
+        ##################################################
+        if (Request::has('route_plan_b', $v)) {
+            Sys::redirect($v, 303);
+        } elseif ($forceExit) {
+            Alina()->mvcGo('root', 'Exception', $this);
         }
+        ##################################################
     }
 
     protected function processError()
@@ -100,7 +101,8 @@ class exceptionCatcher
             }
 
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
-                Message::set('Error!', [], 'alert alert-danger');
+                Message::set('Error happened!', [], 'alert alert-danger');
+                //Message::set($this->strMessage(), [], 'alert alert-danger');
                 MessageAdmin::set($this->strMessage(), [], 'alert alert-danger');
             }
 
@@ -124,7 +126,7 @@ class exceptionCatcher
         $arrMessage['Trace']    = $this->eTrace;
         foreach ($arrMessage as $k => $v) {
             if ($k === 'Trace') {
-                $strMessage .= "{$k}:{$NL}{$v}{$NL}";
+                $strMessage .= "{$NL}{$k}:{$NL}{$v}{$NL}";
             } else {
                 $strMessage .= "{$k}: {$v}{$NL}";
             }

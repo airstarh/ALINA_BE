@@ -42,15 +42,10 @@ class root
         echo (new \alina\mvc\view\html)->page();
     }
 
-    public function actionException()
+    public function actionException($vd = NULL)
     {
-//        if (\alina\utils\Sys::isAjax()) {
-//            echo \alina\Message::returnAllMessages();
-//
-//            return TRUE;
-//        }
         http_response_code(500);
-        echo (new \alina\mvc\view\html)->page('', '_system/html/htmlLayoutErrorCatcher.php');
+        echo (new \alina\mvc\view\html)->page($vd, '_system/html/htmlLayoutErrorCatcher.php');
 
         return TRUE;
     }
