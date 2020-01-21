@@ -27,6 +27,7 @@ $ua = $cu->attributes();
                     <a class="dropdown-item" href="/CtrlDataTransformations/SerializedArrayModification">Unserialize-> Replace -> Serialize</a>
                     <a class="dropdown-item" href="/CtrlDataTransformations/json">JSON search-replace</a>
                     <a class="dropdown-item" href="/AdminDbManager/DbTablesColumnsInfo">MySQL Manager</a>
+                    <a class="dropdown-item" href="/SendRestApiQueries/BaseCurlCalls">HTTP calls with cURL</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>
                 </div>

@@ -7,7 +7,7 @@ use alina\mvc\view\html as htmlAlias;
     <div class="col-sm">
         <form action="" method="post" enctype="multipart/form-data">
             <h2>Request</h2>
-
+            <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
             <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
 
             <div class="form-group mt-3">

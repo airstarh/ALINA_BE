@@ -20,7 +20,7 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = Message::returnAllMessages();
-        if (CurrentUser::obj()->isAdmin()) {
+        if (CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD') {
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
         $response['meta']        = GlobalRequestStorage::getAll();

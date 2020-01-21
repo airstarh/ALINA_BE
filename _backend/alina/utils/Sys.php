@@ -262,8 +262,10 @@ class Sys
 
     static Public function getUserLanguage()
     {
-        //$l = 'en';
-        $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        $lang = 'en';
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        }
 
         return $lang;
     }
