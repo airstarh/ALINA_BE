@@ -6,6 +6,7 @@ use alina\mvc\view\html as htmlAlias;
 ?>
 <div>
     <form action="" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
         <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
 
         <?= (new htmlAlias)->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>

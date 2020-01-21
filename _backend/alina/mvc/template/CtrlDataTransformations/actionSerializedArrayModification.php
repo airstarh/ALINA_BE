@@ -5,6 +5,7 @@ use alina\mvc\view\html as htmlAlias;
 ?>
 <div id="array-serializer">
     <form action="" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'Serialized array]:',
             'badge' => 'strSource',

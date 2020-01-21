@@ -4,14 +4,9 @@
 use alina\mvc\view\html as htmlAlias;
 
 ?>
-<div class="row align-items-center h-100">
-    <div class="col-md-6 mx-auto">
-        <form action="" method="post" enctype="multipart/form-data">
-            <h1>Request password reset</h1>
-            <input type="hidden" name="form_id" value="<?= $data->form_id ?>" placeholder="Password" class="form-control">
-            <input type="text" name="mail" value="<?= $data->mail ?>" placeholder="mail" class="form-control">
-            <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
-        </form>
-    </div>
-</div>
-
+<form action="" method="post" enctype="multipart/form-data">
+    <h1>Request password reset</h1>
+    <input type="hidden" name="form_id" value="<?= $data->form_id ?>" placeholder="Password" class="form-control">
+    <input type="text" name="mail" value="<?= $data->mail ?>" placeholder="mail" class="form-control">
+    <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+</form>

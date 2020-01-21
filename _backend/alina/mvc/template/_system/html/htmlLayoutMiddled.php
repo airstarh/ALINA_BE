@@ -18,8 +18,23 @@ use alina\utils\Sys;
 <div id="alina-body-wrapper">
     <?= (new html())->piece('/_system/html/menu.php') ?>
     <div class="container h-100">
-        <?= $data->messages(); ?>
-        <?= $data->content(); ?>
+        <div class="row align-items-center h-100">
+            <div class="col">
+
+                <div class="row">
+                    <div class="col-6 mx-auto">
+                        <?= $data->content(); ?>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-8 mx-auto">
+                        <?= $data->messages(); ?>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div> <!-- /container -->
 
     <div>

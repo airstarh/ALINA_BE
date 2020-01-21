@@ -144,11 +144,10 @@ class Auth
                             'reset_required' => 1,
                         ]);
                         (new Mailer())->sendVerificationCode($vd->mail, $code);
-                        Sys::redirect('/auth/ResetPasswordWithCode', 307);
                     } else {
                         Message::set('Code was sent earlier', [], 'alert alert-danger');
-                        Sys::redirect('/auth/ResetPasswordWithCode', 307);
                     }
+                    Sys::redirect("/auth/ResetPasswordWithCode?mail={$vd->mail}", 303);
                 }
             }
         }
@@ -159,17 +158,21 @@ class Auth
     }
 
     ##################################################
+    ##################################################
+    ##################################################
 
     public function actionResetPasswordWithCode()
     {
+        $rd = Request::obj()->R;
         $vd = (object)[
             'form_id'          => __FUNCTION__,
-            'route_plan_b'     => '/auth/ResetPasswordWithCode',
+            'route_plan_b'     => "/auth/ResetPasswordWithCode",
             'reset_code'       => '',
             'mail'             => '',
             'password'         => '',
             'confirm_password' => '',
         ];
+        $vd = Data::mergeObjects($vd, $rd);
         ##################################################
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
@@ -187,13 +190,12 @@ class Auth
                             ]);
                             Sys::redirect('/auth/login', 307);
                         } else {
-                            Message::set('Passwords do not match', [], 'alert alert-danger');
+                            Message::setDanger('Passwords do not match');
                         }
                     } else {
-                        Message::set('Reset code is incorrect.', [], 'alert alert-danger');
+                        Message::setDanger('Reset code is incorrect.');
                     }
                 }
-
             }
         }
         ##################################################

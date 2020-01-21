@@ -6,6 +6,7 @@ use alina\mvc\view\html as htmlAlias;
 ?>
 <div id="array-serializer">
     <form action="" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'JSON string',
             'badge' => 'strSource',

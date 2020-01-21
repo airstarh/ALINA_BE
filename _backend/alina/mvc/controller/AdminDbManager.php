@@ -31,6 +31,7 @@ class AdminDbManager
             'alina_form_db_pass' => app::getConfig('db/password'),
             'alina_form_db_db'   => app::getConfig('db/database'),
             'alina_form_db_port' => app::getConfig('db/port'),
+            'form_id'            => __FUNCTION__,
             'strSqlSELECT'       => '',
             'strSqlINSERT'       => '',
             'strSqlUPDATE'       => '',
@@ -46,8 +47,8 @@ class AdminDbManager
             'colsAsJson'         => '',
             'colsAsPHPArr'       => '',
         ];
-        if (Request::isPost()) {
-            $p               = \alina\utils\Data::deleteEmptyProps(Request::obj()->POST);
+        if (Request::isPost($p)) {
+            $p               = \alina\utils\Data::deleteEmptyProps($p);
             $vd              = \alina\utils\Data::mergeObjects($vd, $p);
             $r               = [];
             $exe             = [];

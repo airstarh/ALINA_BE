@@ -18,6 +18,7 @@ class CtrlDataTransformations
     {
         ##################################################
         $vd   = (object)[
+            'form_id'         => __FUNCTION__,
             'strSource'       => '',
             'strRes'          => '',
             'mixedRes'        => [],
@@ -56,6 +57,7 @@ class CtrlDataTransformations
     {
         ##################################################
         $vd   = (object)[
+            'form_id'           => __FUNCTION__,
             'strSource'         => '{}',
             'strFrom'           => '',
             'strTo'             => '',

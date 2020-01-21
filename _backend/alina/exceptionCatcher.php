@@ -101,9 +101,7 @@ class exceptionCatcher
             }
 
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
-                Message::set('Error happened!', [], 'alert alert-danger');
-                //Message::set($this->strMessage(), [], 'alert alert-danger');
-                MessageAdmin::set($this->strMessage(), [], 'alert alert-danger');
+                MessageAdmin::setDanger($this->strMessage());
             }
 
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {

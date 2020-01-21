@@ -150,7 +150,7 @@ class html
     {
         $str = '';
         $str .= Message::returnAllHtmlString();
-        if (CurrentUser::obj()->isAdmin()) {
+        if (CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD') {
             $str .= MessageAdmin::returnAllHtmlString();
         }
 
