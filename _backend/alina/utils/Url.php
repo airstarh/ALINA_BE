@@ -27,7 +27,8 @@ class Url
                     $pathRes = static::urlToAlias($urlMask, $pathSource, $aliasMask);
                 }
                 $parsedUrlSource['path'] = $pathRes;
-                $uri = static ::un_parse_url($parsedUrlSource);
+                $uri                     = static::un_parse_url($parsedUrlSource);
+
                 return $uri;
             }
         }
@@ -145,10 +146,24 @@ class Url
         $res = $url;
         $res = parse_url($res, PHP_URL_PATH);
         $res = urldecode($res);
+
         //$res = mb_strtolower($res);
 
         return $res;
     }
     #endregion PARSE_URL
     ##################################################
+
+    static public function addGetFromObject($url, $getObj)
+    {
+        $get = http_build_query($getObj);
+        $arr = [
+            $url,
+            Str::ifContains($url, '?') ? '&' : '?',
+            $get,
+        ];
+        $res = implode('', $arr);
+
+        return $res;
+    }
 }

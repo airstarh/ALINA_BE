@@ -5,6 +5,7 @@ namespace alina;
 use alina\mvc\view\json;
 use alina\utils\Request;
 use alina\utils\Sys;
+use alina\utils\Url;
 
 class exceptionCatcher
 {
@@ -79,7 +80,8 @@ class exceptionCatcher
         $this->processError();
         ##################################################
         if (Request::has('route_plan_b', $v)) {
-            Sys::redirect($v, 303);
+            $url = Url::addGetFromObject($v, Request::obj()->R);
+            Sys::redirect($url, 303);
         } elseif ($forceExit) {
             Alina()->mvcGo('root', 'Exception', $this);
         }
