@@ -458,5 +458,34 @@ class Data
         return $d;
     }
 
-    #####
+    ##################################################
+    #region Bulk Sanitize
+    static protected $arrDoNotTouch = [];
+    static protected $arrDoUnset    = [
+        'password',
+        'password_confirm',
+        'confirm_password',
+        'alinapath',
+    ];
+
+    static function sanitizeOutput(&$object, $arrDoNotTouch = NULL, $arrDoUnset = NULL)
+    {
+        #####
+        $arrDoNotTouch = ($arrDoNotTouch === NULL) ? static::$arrDoNotTouch : $arrDoNotTouch;
+        $arrDoUnset    = ($arrDoUnset === NULL) ? static::$arrDoUnset : $arrDoUnset;
+        #####
+        foreach ($object as $f => $v) {
+            #####
+            if (in_array($f, $arrDoNotTouch)) {
+                continue;
+            }
+
+            if (in_array($f, $arrDoUnset)) {
+                unset($object->{$f});
+                continue;
+            }
+        }
+    }
+    #endregion Bulk Sanitize
+    ##################################################
 }

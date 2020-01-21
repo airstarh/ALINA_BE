@@ -3,6 +3,7 @@
 namespace alina;
 
 use alina\mvc\view\json;
+use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Sys;
 use alina\utils\Url;
@@ -80,9 +81,9 @@ class exceptionCatcher
         $this->processError();
         ##################################################
         if (Request::has('route_plan_b', $v)) {
-            //ToDo: Security
-            //ToDo: clean sensitive fields: passwords etc...
-            $url = Url::addGetFromObject($v, Request::obj()->R);
+            $R = Request::obj()->R;
+            Data::sanitizeOutput($R);
+            $url = Url::addGetFromObject($v, $R);
             Sys::redirect($url, 303);
         } elseif ($forceExit) {
             Alina()->mvcGo('root', 'Exception', $this);
