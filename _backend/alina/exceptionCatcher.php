@@ -80,10 +80,10 @@ class exceptionCatcher
             : $strUNKNOWN;
         $this->processError();
         ##################################################
-        if (Request::has('route_plan_b', $v)) {
+        if (Request::has('route_plan_b', $url)) {
             $R = Request::obj()->R;
-            Data::sanitizeOutput($R);
-            $url = Url::addGetFromObject($v, $R);
+            Data::sanitizeOutputObj($R);
+            $url = Url::addGetFromObject($url, $R);
             Sys::redirect($url, 303);
         } elseif ($forceExit) {
             Alina()->mvcGo('root', 'Exception', $this);

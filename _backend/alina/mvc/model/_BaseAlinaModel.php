@@ -48,12 +48,12 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    public $mode                = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $isDataFiltered      = FALSE;
-    public $isDataValidated     = FALSE;
-    public $affectedRowsCount   = NULL;
-    public $matchedUniqueFields = [];
-    public $matchedConditions   = [];
+    public $mode                 = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $state_DATA_FILTERED  = FALSE;
+    public $state_DATA_VALIDATED = FALSE;
+    public $affectedRowsCount    = NULL;
+    public $matchedUniqueFields  = [];
+    public $matchedConditions    = [];
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -612,7 +612,7 @@ class _BaseAlinaModel
     public function applyFilters(\stdClass $data)
     {
 
-        if ($this->isDataFiltered) {
+        if ($this->state_DATA_FILTERED) {
             return $this;
         }
 
@@ -621,7 +621,6 @@ class _BaseAlinaModel
             if (property_exists($data, $name)) {
 
                 #####
-                //ToDO: Really necessary?
                 if ($this->mode === 'INSERT' && empty($data->{$name}) && isset($params['default'])) {
                     $data->{$name} = $params['default'];
                     continue;
@@ -656,6 +655,7 @@ class _BaseAlinaModel
                                             list($obj, $method) = $filter;
                                             $data->{$name} = call_user_func([$obj, $method], $data->{$name});
                                             break;
+
                                     }
                                 }
                             }
@@ -670,7 +670,7 @@ class _BaseAlinaModel
             }
         }
 
-        $this->isDataFiltered = TRUE;
+        $this->state_DATA_FILTERED = TRUE;
 
         return $this;
     }
@@ -678,7 +678,7 @@ class _BaseAlinaModel
     public function validate(\stdClass $data)
     {
 
-        if ($this->isDataValidated) {
+        if ($this->state_DATA_VALIDATED) {
             return $this;
         }
 
@@ -730,7 +730,7 @@ class _BaseAlinaModel
 
         $this->validateUniqueKeys($data);
 
-        $this->isDataValidated = TRUE;
+        $this->state_DATA_VALIDATED = TRUE;
 
         return $this;
     }
@@ -828,11 +828,11 @@ class _BaseAlinaModel
 
     protected function resetFlags()
     {
-        $this->mode                = 'SELECT';
-        $this->isDataFiltered      = FALSE;
-        $this->isDataValidated     = FALSE;
-        $this->matchedUniqueFields = [];
-        $this->matchedConditions   = [];
+        $this->mode                 = 'SELECT';
+        $this->state_DATA_FILTERED  = FALSE;
+        $this->state_DATA_VALIDATED = FALSE;
+        $this->matchedUniqueFields  = [];
+        $this->matchedConditions    = [];
     }
 
     /**
@@ -845,14 +845,14 @@ class _BaseAlinaModel
         $defaultRawObj = new \stdClass();
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
-                $defaultRawObj->$f = $props['default'];
+                $defaultRawObj->{$f} = $props['default'];
             } else {
-                $defaultRawObj->$f = NULL;
+                $defaultRawObj->{$f} = NULL;
             }
         }
         $this->attributes = $defaultRawObj;
 
-        return $defaultRawObj;
+        return $this->attributes;
     }
 
     protected function prepareDbData($data)

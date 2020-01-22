@@ -468,7 +468,7 @@ class Data
         'alinapath',
     ];
 
-    static function sanitizeOutput(&$object, $arrDoNotTouch = NULL, $arrDoUnset = NULL)
+    static function sanitizeOutputObj(&$object, $arrDoNotTouch = NULL, $arrDoUnset = NULL)
     {
         #####
         $arrDoNotTouch = ($arrDoNotTouch === NULL) ? static::$arrDoNotTouch : $arrDoNotTouch;
@@ -485,6 +485,8 @@ class Data
                 continue;
             }
         }
+
+        return $object;
     }
     #endregion Bulk Sanitize
     ##################################################
