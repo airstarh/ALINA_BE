@@ -90,7 +90,7 @@ class Watcher
 
     protected function firewallPostRequest()
     {
-        if (!Request::isGet()) {
+        if (Request::isPostPutDelete($post)) {
             if (
                 !isset(Request::obj()->POST->form_id)
                 ||

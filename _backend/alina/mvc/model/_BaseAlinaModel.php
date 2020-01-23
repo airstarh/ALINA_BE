@@ -629,15 +629,6 @@ class _BaseAlinaModel
 
                 $value = $data->{$name};
                 ##################################################
-                if (Str::ifContains($name, 'date_int_')) {
-                    try {
-                        $data->{$name} = (new \alina\utils\DateTime($data->{$name}))->getTimestamp();
-                    } catch (Exception $e) {
-                    }
-                    //ToDO: make beautiful
-                    //...do nothing
-                }
-                ##################################################
                 if (isset($params['filters']) && !empty($params['filters'])) {
                     foreach ($params['filters'] as $filter) {
 

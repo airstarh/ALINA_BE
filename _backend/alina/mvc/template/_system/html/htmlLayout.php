@@ -18,26 +18,10 @@ use alina\utils\Sys;
 <div id="alina-body-wrapper">
     <?= (new html())->piece('/_system/html/menu.php') ?>
     <div class="container">
-
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
-
-        <!-- ToDo: Security! Delete on PROD.-->
-        <?php if (\alina\mvc\model\CurrentUser::obj()->isAdmin()) : ?>
-            <div>
-                <?php
-                $h1 = 'Alina Details';
-                print_r("<h1>{$h1}</h1>");
-                echo '<pre>';
-                print_r(Sys::SUPER_DEBUG_INFO());
-                echo '</pre>';
-                print_r(\alina\utils\Sys::reportSpentTime());
-
-                ?>
-            </div>
-        <?php endif; ?>
-
     </div> <!-- /container -->
+    <?php require_once(__DIR__ . '/_commonFooter.php') ?>
 </div>
 </body>
 </html>

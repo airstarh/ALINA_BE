@@ -101,13 +101,13 @@ class Auth
         ];
         $u  = new user();
         #####
-        if (Request::isPost($post)) {
+        if (Request::isPostPutDelete($post)) {
             $u->updateById($post);
         }
         #####
         $u->getOneWithReferences(['user.id' => $id,]);
         #####
-        unset($u->attributes->password);
+        Data::sanitizeOutputObj($u->attributes);
         #####
         $vd->user    = $u->attributes;
         $vd->sources = $u->getReferencesSources();
@@ -156,11 +156,9 @@ class Auth
 
         return $this;
     }
-
     ##################################################
     ##################################################
     ##################################################
-
     public function actionResetPasswordWithCode()
     {
         $rd = Request::obj()->R;

@@ -42,7 +42,6 @@ class user extends _BaseAlinaModel
                         'errorIf' => [FALSE, 0],
                         'msg'     => 'Invalid Email Address!',
                     ],
-
                 ],
             ],
             'password'         => [
@@ -73,6 +72,7 @@ class user extends _BaseAlinaModel
             'emblem'           => [],
             'birth'            => [
                 'filters' => [
+                    ['alina\\utils\\Data', 'filterVarInteger'],
                     function ($v) {
                         if (empty($v)) {
                             return NULL;
@@ -91,6 +91,9 @@ class user extends _BaseAlinaModel
             'timezone'         => [],
             'about_myself'     => [
                 'default' => '',
+                'filters' => [
+                    ['alina\\utils\\Data', 'filterVarStrHtml'],
+                ],
             ],
             #####
             'is_verified'      => [
@@ -140,7 +143,6 @@ class user extends _BaseAlinaModel
                 'addSelects' => [
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
-
             ],
             'rbac_permission' => [
                 'has'        => 'manyThrough',
@@ -153,7 +155,6 @@ class user extends _BaseAlinaModel
                 'addSelects' => [
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
-
             ],
             'timezone'        => [
                 'has'        => 'one',

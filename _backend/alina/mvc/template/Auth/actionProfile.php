@@ -8,14 +8,15 @@ $m       = $data->user;
 $sources = $data->sources;
 ?>
 <h1 class="mt-3">Profile for <?= $m->mail ?></h1>
-<?php if (FALSE/*CurrentUserAlias::obj()->isAdmin()*/) { ?>
-    <?= htmlAlias::elForm([
-        'action'  => '',
-        'enctype' => 'multipart/form-data',
-        'model'   => $m,
-        'sources' => $sources,
-    ]) ?>
-<?php } else { ?>
+<div>
+    <?php if (FALSE/*CurrentUserAlias::obj()->isAdmin()*/) { ?>
+        <?= htmlAlias::elForm([
+            'action'  => '',
+            'enctype' => 'multipart/form-data',
+            'model'   => $m,
+            'sources' => $sources,
+        ]) ?>
+    <?php } else { ?>
     <form action="" method="post" enctype="multipart/form-data">
         <input type="hidden" name="form_id" value="profile">
         <input type="hidden" name="id" value="<?= $m->id ?>">
@@ -138,8 +139,27 @@ $sources = $data->sources;
         <!--##################################################-->
         <!--##################################################-->
         <!--##################################################-->
+        <div class="row mt-4 justify-content-center align-items-center">
+            <?php
+            $fName      = 'about_myself';
+            $fNameHuman = 'About';
+            $disabled   = '';
+            $value      = $m->about_myself;
+            ?>
+            <div class="col-6 text-right">
+                <label for="<?= $fName ?>">
+                    <?= $fNameHuman ?>
+                </label>
+            </div>
+            <div class="col-6">
+                <textarea name="<?= $fName ?>" id="<?= $fName ?>" rows="10" class="form-control" <?= $disabled ?>><?= $value ?></textarea>
+            </div>
+        </div>
+        <!--##################################################-->
+        <!--##################################################-->
+        <!--##################################################-->
         <?= htmlAlias::elFormStandardButtons() ?>
     </form>
 
-    </div>
+</div>
 <?php } ?>

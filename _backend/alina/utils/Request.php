@@ -46,7 +46,6 @@ class Request
         $this->R            = Data::toObject($_REQUEST);
         #####
         $this->processBrowserData();
-
         /**
          * ATTENTION: cannot be defined here since USER constructor is referred to this constructor. RECURSION!!!
          */
@@ -109,14 +108,31 @@ class Request
         return $is;
     }
 
-    static public function isDelete()
+    static public function isDelete(&$post)
     {
-        return static::obj()->METHOD === 'DELETE';
+        $is = static::obj()->METHOD === 'DELETE';
+        if ($is) {
+            $post = static::obj()->POST;
+        }
+
+        return $is;
     }
 
     static public function isGet()
     {
         return static::obj()->METHOD === 'GET';
+    }
+
+    static public function isPostPutDelete(&$post = NULL)
+    {
+        $is = static::isPost($post);
+        if ($is) return $is;
+        $is = static::isPut($post);
+        if ($is) return $is;
+        $is = static::isDelete($post);
+        if ($is) return $is;
+
+        return FALSE;
     }
 
     static public function has($key, &$value = NULL)

@@ -9,6 +9,7 @@ class root
     public function actionIndex()
     {
         $vd = (object)[
+            '/AdminTests/ConversionToObject'                       => 'Conversion to Object',
             '/AdminTests/BaseAlinaModel'                           => 'action BaseAlinaModel',
             '/AdminTests/ReversibleEncryption'                     => 'Test Reversible Encryption',
             '/AdminTests/Mailer'                                   => 'Test Mail Send',

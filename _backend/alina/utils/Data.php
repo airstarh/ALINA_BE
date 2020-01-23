@@ -5,6 +5,8 @@ namespace alina\utils;
 use alina\Message;
 use alina\MessageAdmin;
 use Exception;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 use stdClass;
 
 class Data
@@ -24,7 +26,6 @@ class Data
         if (is_array($v)) {
             return $v;
         }
-
         if (static::isIterable($v)) {
             // ToDo: Make less heavy
             $array = json_decode(json_encode($v), TRUE);
@@ -45,23 +46,19 @@ class Data
         if (!isset($v) || empty($v)) {
             return new \stdClass();
         }
-
         if (is_object($v)) {
             return $v;
         }
-
         if (is_array($v)) {
             // ToDo: Make less heavy
             return json_decode(json_encode($v), FALSE);
         }
-
         if (is_string($v)) {
             $res = json_decode($v);
             if (json_last_error() == JSON_ERROR_NONE) {
                 return $res;
             }
         }
-
         throw new \Exception('Alina cannot convert to object: ' . var_export($v, 1));
         //return $object;
     }
@@ -132,7 +129,6 @@ class Data
             'strTo'           => '',
             'tCount'          => 0,
         ];
-
         #endregion Defaults
         $mixedSource = static::megaUnserialize($strSource);
         if (FALSE == $mixedSource) {
@@ -151,10 +147,8 @@ class Data
                 MessageAdmin::set('Source has SERIALIZED inside');
                 $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 $v = $d->strResControl;
-
                 // NO!!! We send local $tCount above by reference!!!
                 //$tCount += $d->tCount;
-
             } elseif (Data::isIterable($v)) {
                 $v = Data::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
             } else {
@@ -168,8 +162,7 @@ class Data
         $strRes          = serialize($mixedRes);
         $mixedResControl = unserialize($strRes);
         $strResControl   = serialize($mixedResControl);
-
-        $data = (object)[
+        $data            = (object)[
             'strSource'       => $strSource,
             'strRes'          => $strRes,
             'mixedRes'        => $mixedRes,
@@ -185,7 +178,6 @@ class Data
 
     #endregion Search and replace
     ##################################################
-
     /**
      * Transforms input data to 'ASC' or 'DESC' string.
      * @param string|int|boolean $dir
@@ -199,7 +191,6 @@ class Data
                 return $dir;
             }
         }
-
         $dir = filter_var($dir, FILTER_VALIDATE_BOOLEAN)
             ? 'ASC'
             : 'DESC';
@@ -244,7 +235,6 @@ class Data
     static public function megaUnserialize($str, &$unserialized = NULL)
     {
         //ToDo: see later: https://stackoverflow.com/a/38708463/3142281
-
         #region Simple Security
         if (
             empty($str)
@@ -255,7 +245,6 @@ class Data
         }
         $str = stripslashes($str);
         #endregion Simple Security
-
         #region SOLUTION 0
         // PHP default :-)
         $repSolNum = 0;
@@ -267,7 +256,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 0
-
         #region SOLUTION 1
         // @link https://stackoverflow.com/a/5581004/3142281
         $repSolNum = 1;
@@ -283,7 +271,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 1
-
         #region SOLUTION 2
         // @link https://stackoverflow.com/a/24995701/3142281
         $repSolNum = 2;
@@ -300,7 +287,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 2
-
         #region SOLUTION 3
         // @link https://stackoverflow.com/a/34224433/3142281
         $repSolNum = 3;
@@ -329,7 +315,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 3
-
         #region SOLUTION 4
         // @link https://stackoverflow.com/a/36454402/3142281
         $repSolNum = 4;
@@ -347,7 +332,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 4
-
         #region SOLUTION 5
         // @link https://stackoverflow.com/a/38890855/3142281
         $repSolNum = 5;
@@ -359,7 +343,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 5
-
         #region SOLUTION 6
         // @link https://stackoverflow.com/a/38891026/3142281
         $repSolNum = 6;
@@ -374,7 +357,6 @@ class Data
             return $arr;
         }
         #endregion SOLUTION 6
-
         alinaErrorLog('Completely unable to deserialize.');
 
         return FALSE;
@@ -460,27 +442,26 @@ class Data
 
     ##################################################
     #region Bulk Sanitize
-    static protected $arrDoNotTouch = [];
-    static protected $arrDoUnset    = [
+    static protected $arrOutputDoNotTouch = [];
+    static protected $arrOutputDoUnset    = [
         'password',
         'password_confirm',
         'confirm_password',
         'alinapath',
     ];
 
-    static function sanitizeOutputObj(&$object, $arrDoNotTouch = NULL, $arrDoUnset = NULL)
+    static public function sanitizeOutputObj(&$object, $arrOutputDoNotTouch = NULL, $arrOutputDoUnset = NULL)
     {
         #####
-        $arrDoNotTouch = ($arrDoNotTouch === NULL) ? static::$arrDoNotTouch : $arrDoNotTouch;
-        $arrDoUnset    = ($arrDoUnset === NULL) ? static::$arrDoUnset : $arrDoUnset;
+        $arrOutputDoNotTouch = ($arrOutputDoNotTouch === NULL) ? static::$arrOutputDoNotTouch : $arrOutputDoNotTouch;
+        $arrOutputDoUnset    = ($arrOutputDoUnset === NULL) ? static::$arrOutputDoUnset : $arrOutputDoUnset;
         #####
-        foreach ($object as $f => $v) {
+        foreach ($object as $f => &$v) {
             #####
-            if (in_array($f, $arrDoNotTouch)) {
+            if (in_array($f, $arrOutputDoNotTouch)) {
                 continue;
             }
-
-            if (in_array($f, $arrDoUnset)) {
+            if (in_array($f, $arrOutputDoUnset)) {
                 unset($object->{$f});
                 continue;
             }
@@ -488,6 +469,87 @@ class Data
 
         return $object;
     }
+
+    ##################################################
+    static protected $arrInputDoNotTouch = [
+    ];
+    static protected $arrInputDoUnset    = [];
+
+    static public function sanitizeInputObj(&$object, $arrInputDoNotTouch = NULL, $arrInputDoUnset = NULL)
+    {
+        #####
+        $arrInputDoNotTouch = ($arrInputDoNotTouch === NULL) ? static::$arrInputDoNotTouch : $arrInputDoNotTouch;
+        $arrInputDoUnset    = ($arrInputDoUnset === NULL) ? static::$arrInputDoUnset : $arrInputDoUnset;
+        #####
+        foreach ($object as $f => &$v) {
+            #####
+            if (in_array($f, $arrInputDoNotTouch)) {
+                continue;
+            }
+            #####
+            if (is_string($object->{$f})) {
+                $object->{$f} = trim($object->{$f});
+            }
+            #####
+            if (in_array($f, $arrInputDoUnset)) {
+                unset($object->{$f});
+                continue;
+            }
+        }
+
+        return $object;
+    }
+
     #endregion Bulk Sanitize
+    ##################################################
+    ##################################################
+    ##################################################
+    #region Filter_Var
+    static public function filterVarBoolean($v)
+    {
+        $v = filter_var($v, FILTER_VALIDATE_BOOLEAN);
+
+        return $v;
+    }
+
+    static public function filterVarInteger($v)
+    {
+        $v = filter_var($v, FILTER_SANITIZE_NUMBER_INT);
+
+        return $v;
+    }
+
+    static public function filterVarFloat($v)
+    {
+        $v = filter_var(
+            $v,
+            FILTER_SANITIZE_NUMBER_FLOAT,
+            FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_SCIENTIFIC
+        );
+
+        return $v;
+    }
+
+    static public function filterVarStrProperName($v)
+    {
+        $v = filter_var($v, FILTER_SANITIZE_STRING);
+
+        return $v;
+    }
+
+    static public function filterVarStrHtml($v)
+    {
+        $dirty_html = $v;
+        $config     = HTMLPurifier_Config::createDefault();
+        $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
+        $config->set('HTML.SafeIframe', TRUE);
+        $config->set('URI.SafeIframeRegexp', '%^https://(www.youtube.com/embed/|player.vimeo.com/video/)%');
+        $purifier   = new HTMLPurifier($config);
+        $clean_html = $purifier->purify($dirty_html);
+        $v          = $clean_html;
+
+        return $v;
+    }
+    #rendegion Filter_Var
     ##################################################
 }

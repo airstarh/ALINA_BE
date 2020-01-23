@@ -11,6 +11,7 @@ use alina\mvc\model\user;
 use alina\mvc\view\html;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Crypy;
+use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Sys;
 
@@ -44,7 +45,6 @@ class AdminTests
     /**
      * @route /AdminTests/JsonEncode
      */
-
     public function actionJsonEncode()
     {
         $d = require_once ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/complicated_nixed_object.php';
@@ -60,7 +60,6 @@ class AdminTests
     /**
      * @route /AdminTests/ListTableColumns?table=user
      */
-
     public function actionListTableColumns()
     {
         $vd = (new _BaseAlinaModel(['table' => $_GET['table']]))->fields();
@@ -74,7 +73,6 @@ class AdminTests
     {
         Message::set('For User');
         MessageAdmin::set('For Admin');
-
         echo (new html)->page('1234');
     }
 
@@ -98,7 +96,6 @@ class AdminTests
         $orderArray = [["{$m->alias}.id", 'DESC']];
         $limit      = 2;
         $offset     = 2;
-
         $m          = new user();
         $conditions = [
             [function ($qu) {
@@ -109,16 +106,13 @@ class AdminTests
         $orderArray = [["{$m->alias}.id", 'DESC']];
         $limit      = NULL;
         $offset     = NULL;
-
         $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
-
         echo '<pre>';
         print_r($m->collection->toArray());
         echo '</pre>';
     }
 
     ##############################################
-
     public function actionMailer()
     {
         $data = Sys::buffer(function () {
@@ -138,12 +132,10 @@ class AdminTests
         $vd['str']  = 'mail';
         $vd['encr'] = (new Crypy())->revencr($vd['str']);
         $vd['decr'] = (new Crypy())->revdecr($vd['encr']);
-
         echo (new html)->page($vd);
     }
 
     ##############################################
-
     public function actionBaseAlinaModel()
     {
         $res                         = [];
@@ -156,8 +148,18 @@ class AdminTests
     {
         $vd = [
             'date(\'Z\')' => date('Z'),
-            'date(\'Z\')' => date('Z'),
         ];
         echo (new html)->page(date('Z'));
+    }
+
+    public function actionConversionToObject()
+    {
+        $initial   = file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/001.json');
+        $converted = Data::toObject($initial);
+        $vd        = [
+            'initial'   => $initial,
+            'converted' => $converted,
+        ];
+        echo (new html)->page($vd);
     }
 }
