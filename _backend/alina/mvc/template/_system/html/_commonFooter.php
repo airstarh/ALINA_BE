@@ -4,7 +4,7 @@ use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 
 ?>
-<div> 12341234
+<div>
     <?php if (CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD') : ?>
         <div>
             <?php

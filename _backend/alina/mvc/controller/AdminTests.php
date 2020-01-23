@@ -23,7 +23,8 @@ class AdminTests
      */
     public function actionErrors(...$args)
     {
-        throw new \ErrorException(11111111111111);
+        Message::set('We throw error in the template!!!');
+        echo (new html)->page();
     }
     ##############################################
 

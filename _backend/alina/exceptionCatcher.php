@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\model\error_log;
 use alina\mvc\view\json;
 use alina\utils\Data;
 use alina\utils\Request;
@@ -78,6 +79,7 @@ class exceptionCatcher
         $this->eTrace       = method_exists($objException, 'getTraceAsString')
             ? $objException->getTraceAsString()
             : $strUNKNOWN;
+        ##################################################
         $this->processError();
         ##################################################
         if (Request::has('route_plan_b', $url)) {
@@ -97,20 +99,31 @@ class exceptionCatcher
         #region PHP ERROR LOG
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
-
         $dbgCfg = app::getConfig('debug');
         if (in_array(TRUE, $dbgCfg)) {
 
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
-                // ToDo: Save to DB.
+                try {
+                    $mEL = new error_log();
+                    $mEL->insert([
+                        'error_class'    => $this->expClassName,
+                        'error_severity' => $this->getSeverityStr(),
+                        'error_code'     => $this->eCode,
+                        'error_text'     => $this->eString,
+                        'error_file'     => $this->eFile,
+                        'error_line'     => $this->eLine,
+                        'error_trace'    => $this->eTrace,
+                    ]);
+                } catch (\Exception $e) {
+                    error_log('Was unable to write Error to db!!!');
+                    error_log($e->getMessage());
+                }
             }
-
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
                 MessageAdmin::setDanger($this->strMessage());
             }
-
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
-                $NL = '</br>' . PHP_EOL;
+                $NL = PHP_EOL . '<br>' . PHP_EOL;
                 Sys::fDebug($this->strMessage($NL));
             }
         }
