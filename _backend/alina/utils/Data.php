@@ -2,6 +2,7 @@
 
 namespace alina\utils;
 
+use alina\exceptionValidation;
 use alina\Message;
 use alina\MessageAdmin;
 use Exception;
@@ -505,6 +506,36 @@ class Data
     ##################################################
     ##################################################
     #region Filter_Var
+    static public function filterObject(stdClass &$data, array $filters)
+    {
+        foreach ($data as $fName => $fValue) {
+            if (isset($filters[$fName]) && !empty($filters[$fName])) {
+                foreach ($filters[$fName] as $filter) {
+                    if (is_string($filter) && function_exists($filter)) {
+                        $data->{$fName} = $filter($data->{$fName});
+                    } else {
+                        if ($filter instanceof \Closure) {
+                            $data->{$fName} = call_user_func($filter, $data->{$fName});;
+                        } else {
+                            if (is_array($filter)) {
+                                $argsAmount = count($filter);
+                                switch ($argsAmount) {
+                                    case 2:
+                                        list($obj, $method) = $filter;
+                                        $data->{$fName} = call_user_func([$obj, $method], $data->{$fName});
+                                        break;
+
+                                }
+                            }
+                        }
+                    }
+                    // ToDo: Maybe more abilities for filter.
+                }
+
+            }
+        }
+    }
+
     static public function filterVarBoolean($v)
     {
         $v = filter_var($v, FILTER_VALIDATE_BOOLEAN);
@@ -544,12 +575,68 @@ class Data
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
         $config->set('HTML.SafeIframe', TRUE);
         $config->set('URI.SafeIframeRegexp', '%^https://(www.youtube.com/embed/|player.vimeo.com/video/)%');
+        #####
         $purifier   = new HTMLPurifier($config);
         $clean_html = $purifier->purify($dirty_html);
-        $v          = $clean_html;
+        #####
+        $v = $clean_html;
 
         return $v;
     }
     #rendegion Filter_Var
+    ##################################################
+    #region Validate
+    static public function validateObject(stdClass &$data, array $validators)
+    {
+        foreach ($data as $fName => $fValue) {
+            if (isset($validators[$fName]) && !empty($validators[$fName])) {
+                foreach ($validators[$fName] as $validator) {
+
+                    $VALIDATION_RESULT = TRUE;
+                    #####
+                    if (is_array($validator) && array_key_exists('f', $validator)) {
+                        $CHECKER = $validator['f'];
+                    } else if (is_string($validator) || is_bool($validator)) {
+                        $CHECKER   = $validator;
+                        $validator = [$validator];
+                    } else {
+                        Message::setDanger("Undefined validator for {$fName}");
+                        continue;
+                    };
+                    #####
+                    $errorIf = (isset($validator['errorIf']))
+                        ? $validator['errorIf']
+                        : [FALSE, 0, '', NULL];
+                    $msg     = (isset($validator['msg']) && !empty($validator['msg']))
+                        ? $validator['msg']
+                        : "Validation failed. Field:{$fName}. Value: {$fValue}";
+                    #####
+                    if (is_bool($CHECKER)) {
+                        $VALIDATION_RESULT = $CHECKER;
+                    } else if (is_string($CHECKER) && function_exists($CHECKER)) {
+                        $VALIDATION_RESULT = $CHECKER($fValue);
+                    } else if ($CHECKER instanceof \Closure) {
+                        $VALIDATION_RESULT = call_user_func($CHECKER, $fValue);;
+                    } else if (is_array($CHECKER)) {
+                        $countArgs = count($CHECKER);
+                        switch ($countArgs) {
+                            case 2:
+                                list($class, $staticMethod) = $CHECKER;
+                                $VALIDATION_RESULT = call_user_func([$class, $staticMethod], $fValue);
+                                break;
+                        }
+                    }
+                    // Validation Result process.
+                    if (in_array($VALIDATION_RESULT, $errorIf, TRUE)) {
+                        $message = "{$msg} (field:{$fName})";
+                        Message::setDanger($message);
+                        throw new exceptionValidation($message);
+                    }
+                }
+            }
+        }
+    }
+
+    #endregion Validate
     ##################################################
 }

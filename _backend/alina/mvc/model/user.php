@@ -28,7 +28,6 @@ class user extends _BaseAlinaModel
                 ],
                 'validators' => [
                     [
-                        // 'f' - Could be a closure, string with function name or an array
                         'f'       => 'strlen',
                         'errorIf' => [FALSE, 0],
                         'msg'     => 'Email is required!',
@@ -67,7 +66,15 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'firstname'        => [],
+            'firstname'        => [
+                'validators' => [
+                    [
+                        'f'       => 'strlen',
+                        'errorIf' => [FALSE, 0],
+                        'msg'     => 'First Name is required!',
+                    ],
+                ],
+            ],
             'lastname'         => [],
             'emblem'           => [],
             'birth'            => [

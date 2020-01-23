@@ -102,6 +102,7 @@ class Auth
         $u  = new user();
         #####
         if (Request::isPostPutDelete($post)) {
+            Request::obj()->R->route_plan_b = '/auth/profile';
             $u->updateById($post);
         }
         #####
@@ -197,6 +198,45 @@ class Auth
             }
         }
         ##################################################
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+    }
+
+    ##################################################
+    public function actionChangePassword()
+    {
+        #####
+        if (!CurrentUser::obj()->isLoggedIn()) {
+            Message::setDanger('Please, log-In');
+            Sys::redirect('/auth/login', 303);
+        }
+        #####
+        $vd = (object)[
+            'password'         => '',
+            'confirm_password' => '',
+            'form_id'          => __FUNCTION__,
+            'route_plan_b'     => '/auth/ChangePassword',
+        ];
+        if (Request::isPost($post)) {
+            $vd = Data::mergeObjects($vd, $post);
+            #####
+            Data::validateObject($vd, [
+                'password' => [
+                    [
+                        'f'   => $vd->password === $vd->confirm_password,
+                        'msg' => 'Passwords do not match!',
+                    ],
+                ],
+            ]);
+            #####
+            $m = new user();
+            $m->updateById($vd, CurrentUser::obj()->id);
+            if ($m->affectedRowsCount === 1) {
+                Message::set('Password changed!');
+            } else {
+                Message::setDanger('Password not changed!');
+            }
+
+        }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 }

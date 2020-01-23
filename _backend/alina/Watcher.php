@@ -97,7 +97,7 @@ class Watcher
                 empty(Request::obj()->POST->form_id)
             ) {
                 $msg = 'No form ID';
-                Message::set($msg, [], 'alert alert-danger');
+                Message::setDanger($msg);
                 throw new \ErrorException($msg);
             }
         }
@@ -147,7 +147,7 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'You are completely banned';
-            Message::set($msg, [], 'alert alert-danger');
+            Message::setDanger($msg);
             throw new \ErrorException($msg);
         }
     }
@@ -169,6 +169,7 @@ class Watcher
             ])
             //->whereIn('method', ['POST', 'PUT', 'DELETE'])
             ->orderBy('id', 'desc')
+            ->limit(10000)
             ->count();
 
         return $res;
