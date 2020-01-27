@@ -45,7 +45,7 @@ class root
 
     public function actionException($vd = NULL)
     {
-        http_response_code(500);
+        http_response_code(203);
         echo (new \alina\mvc\view\html)->page($vd, '_system/html/htmlLayoutErrorCatcher.php');
 
         return TRUE;

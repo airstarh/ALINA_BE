@@ -79,7 +79,7 @@ class user extends _BaseAlinaModel
             'emblem'           => [],
             'birth'            => [
                 'filters' => [
-                    ['alina\\utils\\Data', 'filterVarInteger'],
+                    //['alina\\utils\\Data', 'filterVarInteger'],
                     function ($v) {
                         if (empty($v)) {
                             return NULL;
