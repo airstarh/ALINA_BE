@@ -54,7 +54,6 @@ class Sys
     static public function resolvePostDataAsObject()
     {
         $post = $_POST;
-
         if (empty($post)) {
             $post = file_get_contents('php://input');
         }
@@ -79,7 +78,6 @@ class Sys
         if (isset($_POST['isAjax']) && !empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
             return TRUE;
         }
-
         // Cross Domain AJAX request.
         if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
@@ -97,11 +95,9 @@ class Sys
             }
 
         }
-
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             return TRUE;
         }
-
         if (isset($_SERVER['HTTP_REQUESTED_WITH']) && !empty($_SERVER['HTTP_REQUESTED_WITH'])) {
             return TRUE;
         }
@@ -144,7 +140,7 @@ class Sys
                     header("Access-Control-Allow-Credentials: true");
                     header('Access-Control-Max-Age: 666');
                     header('Alina-Server-Header: Hello, from Alina');
-                    header("Authorization: QQQ");
+                    header("Authorization: Back-end-text");
                     ##################################################
                     $method = strtoupper($_SERVER['REQUEST_METHOD']);
                     if ($method === 'OPTIONS') {
@@ -168,7 +164,6 @@ class Sys
             header("Location: $page", TRUE, $code);
             die();
         }
-
         $page = \alina\utils\Html::ref($page);
         header("Location: $page", TRUE, $code);
         die();

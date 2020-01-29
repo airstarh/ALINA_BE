@@ -73,6 +73,7 @@ class Auth
                 }
                 $u = CurrentUser::obj();
                 if ($u->Register($vd)) {
+                    Message::set('Success');
                     $u->messages();
                 }
             } catch (exceptionValidation $e) {
@@ -92,7 +93,8 @@ class Auth
             $id = CurrentUser::obj()->id;
         }
         if (empty($id)) {
-            Sys::redirect('/auth/login', 307);
+            Message::setDanger('Login first');
+            Sys::redirect('/auth/login', 303);
         }
         #####
         $vd = (object)[
@@ -104,6 +106,7 @@ class Auth
         if (Request::isPostPutDelete($post)) {
             Request::obj()->R->route_plan_b = '/auth/profile';
             $u->updateById($post);
+            Message::set('Profile updated!');
         }
         #####
         $u->getOneWithReferences(['user.id' => $id,]);
@@ -120,7 +123,8 @@ class Auth
         $vd       = (object)[];
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
-        Sys::redirect('/Auth/Login', 307);
+        Message::set('THanks for being with us!');
+        Sys::redirect('/Auth/Login', 303);
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 
@@ -184,9 +188,10 @@ class Auth
                         if ($vd->password === $vd->confirm_password) {
                             $mUser->updateById([
                                 'password'       => $vd->password,
-                                'reset_code'     => 0,
+                                'reset_code'     => NULL,
                                 'reset_required' => 0,
                             ]);
+                            Message::setDanger('Login first');
                             Sys::redirect('/auth/login', 307);
                         } else {
                             Message::setDanger('Passwords do not match');
@@ -206,7 +211,7 @@ class Auth
     {
         #####
         if (!CurrentUser::obj()->isLoggedIn()) {
-            Message::setDanger('Please, log-In');
+            Message::setDanger('Login first');
             Sys::redirect('/auth/login', 303);
         }
         #####
@@ -232,6 +237,8 @@ class Auth
             $m->updateById($vd, CurrentUser::obj()->id);
             if ($m->affectedRowsCount === 1) {
                 Message::set('Password changed!');
+            } else if ($m->affectedRowsCount > 1) {
+                Message::setDanger('Something bad happened');
             } else {
                 Message::setDanger('Password not changed!');
             }
