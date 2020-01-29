@@ -20,56 +20,46 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = Message::returnAllMessages();
-        if (CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD') {
+        if (AlinaAccessIfAdminOrNotProd()) {
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
         $response['meta']        = GlobalRequestStorage::getAll();
         $response['CurrentUser'] = CurrentUser::obj()->attributes();
-        //ToDo: PROD! Security!
-        $response['test'] = ['Проверка русских букв.',];
-        $response['sys']  = $this->systemData();
-
-        //Output.
-        if ($toReturn) {
-            return $response;
+        if (AlinaAccessIfAdminOrNotProd()) {
+            $response['test'] = ['Проверка русских букв.',];
+            $response['sys']  = $this->systemData();
         }
-
+        //Output.
         header('Content-Type: application/json; charset=utf-8');
 
-        //ToDo: Think about encoding (utf8ize).
-        return json_encode(\alina\utils\Data::utf8ize($response));
-        //echo json_encode($response, JSON_UNESCAPED_UNICODE);
-        //echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-        //return TRUE;
+        return static::response($response);
     }
 
     public function simpleRestApiResponse($data = NULL, $toReturn = FALSE)
     {
         $response = $data;
-
-        //Output.
-        if ($toReturn) {
-            return $response;
-        }
-
         header('Content-Type: application/json; charset=utf-8');
-        //ToDo: Think about encoding (utf8ize).
-        echo json_encode(\alina\utils\Data::utf8ize($response));
-        //echo json_encode($response, JSON_UNESCAPED_UNICODE);
-        //echo json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-        return TRUE;
+
+        return static::response($response);
     }
 
-    //ToDo: Security!!! Never use on prod.
     public function systemData()
     {
+        if (AlinaAccessIfAdminOrNotProd()) {
+            $sysData = Sys::SUPER_DEBUG_INFO();
 
-        if (ALINA_MODE === 'PROD') {
-            return [];
+            return $sysData;
         }
 
-        $sysData = Sys::SUPER_DEBUG_INFO();
+        return [];
+    }
 
-        return $sysData;
+    static public function response($response)
+    {
+        //ToDo: Think about encoding (utf8ize).
+        //return json_encode($response);
+        //return json_encode(\alina\utils\Data::utf8ize($response));
+        return json_encode($response, JSON_UNESCAPED_UNICODE);
+        //return json_encode($response, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
     }
 }

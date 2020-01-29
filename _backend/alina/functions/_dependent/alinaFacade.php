@@ -1,6 +1,7 @@
 <?php
 ##################################################
 use alina\app;
+use alina\mvc\model\CurrentUser;
 
 define('ALINA_DT_FORMAT_DB', 'Y-m-d H:i:s');
 define('ALINA_DT_FORMAT_DB_D', 'Y-m-d');
@@ -17,7 +18,6 @@ define('ALINA_DT_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
 ##################################################
 define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 ##################################################
-
 /**
  * @return app
  * @throws Exception
@@ -62,3 +62,12 @@ function alinaErrorLog($m, $force = FALSE)
 
     return;
 }
+
+##################################################
+#region Access
+function AlinaAccessIfAdminOrNotProd()
+{
+    return CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD';
+}
+#endregion Access
+##################################################
