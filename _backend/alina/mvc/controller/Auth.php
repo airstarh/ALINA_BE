@@ -98,6 +98,7 @@ class Auth
         }
         #####
         $vd = (object)[
+            'form_id' => __FUNCTION__,
             'user'    => (object)[],
             'sources' => (object)[],
         ];
@@ -144,11 +145,11 @@ class Auth
                 if ($mUser->id) {
                     if ($atrs->reset_required != 1) {
                         $code = ALINA_TIME;
+                        (new Mailer())->sendVerificationCode($vd->mail, $code);
                         $mUser->updateById([
                             'reset_code'     => $code,
                             'reset_required' => 1,
                         ]);
-                        (new Mailer())->sendVerificationCode($vd->mail, $code);
                     } else {
                         Message::set('Code was sent earlier', [], 'alert alert-danger');
                     }
@@ -180,18 +181,18 @@ class Auth
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
             if (!empty($vd->mail) && !empty($vd->reset_code)) {
-                $mUser = new user();
-                $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
-                if ($mUser->id && $atrs->reset_required == 1) {
+                $mUser  = new user();
+                $uAttrs = $mUser->getOne(['mail' => $vd->mail,]);
+                if ($mUser->id && $uAttrs->reset_required == 1) {
                     $vd->reset_code = trim($vd->reset_code);
-                    if ($vd->reset_code === $atrs->reset_code) {
+                    if ($vd->reset_code === $uAttrs->reset_code) {
                         if ($vd->password === $vd->confirm_password) {
                             $mUser->updateById([
                                 'password'       => $vd->password,
                                 'reset_code'     => NULL,
                                 'reset_required' => 0,
                             ]);
-                            Message::setDanger('Login first');
+                            Message::setInfo('Password is changed');
                             Sys::redirect('/auth/login', 307);
                         } else {
                             Message::setDanger('Passwords do not match');
@@ -199,6 +200,8 @@ class Auth
                     } else {
                         Message::setDanger('Reset code is incorrect.');
                     }
+                } else {
+                    Message::setDanger('User with such email did not request password reset');
                 }
             }
         }
@@ -237,6 +240,7 @@ class Auth
             $m->updateById($vd, CurrentUser::obj()->id);
             if ($m->affectedRowsCount === 1) {
                 Message::set('Password changed!');
+                Sys::redirect('/auth/profile', 303);
             } else if ($m->affectedRowsCount > 1) {
                 Message::setDanger('Something bad happened');
             } else {

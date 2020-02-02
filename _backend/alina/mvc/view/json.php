@@ -43,15 +43,9 @@ class json
         return static::response($response);
     }
 
-    public function systemData()
+    private function systemData()
     {
-        if (AlinaAccessIfAdminOrNotProd()) {
-            $sysData = Sys::SUPER_DEBUG_INFO();
-
-            return $sysData;
-        }
-
-        return [];
+        return Sys::SUPER_DEBUG_INFO();
     }
 
     static public function response($response)

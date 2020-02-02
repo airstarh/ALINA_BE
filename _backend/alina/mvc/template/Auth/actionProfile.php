@@ -18,7 +18,7 @@ $sources = $data->sources;
         ]) ?>
     <?php } else { ?>
     <form action="" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="form_id" value="profile">
+        <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
         <input type="hidden" name="id" value="<?= $m->id ?>">
         <!--##################################################-->
         <!--##################################################-->
