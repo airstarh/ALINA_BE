@@ -97,9 +97,6 @@ class _BaseAlinaModel
         if (empty($data)) {
             $data = (object)[];
         }
-        if (isset($data->{$this->pkName})) {
-            $this->setPkValue($data->{$this->pkName}, $data);
-        }
         $this->attributes = Data::mergeObjects($this->attributes, $data);
         if ($this->attributes->{$this->pkName}) {
             $this->setPkValue($this->attributes->{$this->pkName});
@@ -221,7 +218,7 @@ class _BaseAlinaModel
         #####
         $this->resetFlags();
 
-        return $data;
+        return $this->attributes;
     }
     #endregion INSERT
     ##################################################
