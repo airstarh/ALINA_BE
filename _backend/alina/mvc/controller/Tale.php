@@ -28,7 +28,7 @@ class Tale
         if ($id) {
             $mTaleAttrs = $mTale->getById($id);
         } else {
-            $mTaleAttrs = $mTale->getOne(['is_submitted' => 1, 'owner_id' => CurrentUser::obj()->id,]);
+            $mTaleAttrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
             if (!$mTaleAttrs->id) {
                 $mTaleAttrs = $mTale->insert($vd);
             }
@@ -39,6 +39,7 @@ class Tale
             $vd->is_submitted = 1;
             $mTale->updateById($vd);
         }
+        $vd = Data::mergeObjects($vd, $mTaleAttrs);
         echo (new htmlAlias)->page($vd);
 
         return $this;
