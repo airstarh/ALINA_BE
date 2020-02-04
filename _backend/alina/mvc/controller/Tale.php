@@ -2,6 +2,7 @@
 
 namespace alina\mvc\controller;
 
+use alina\Message;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
@@ -20,11 +21,20 @@ class Tale
         $vd    = (object)[
             'id'           => NULL,
             'form_id'      => __FUNCTION__,
-            'header'       => '',
-            'body'         => '',
+            'header'       => '***',
+            'body'         => 'text',
             'publish_at'   => '',
             'is_submitted' => 0,
         ];
+        ##################################################
+        if (empty($id)) {
+            if (Request::isPostPutDelete($post)) {
+                if (isset($post->id)) {
+                    $id = $post->id;
+                }
+            }
+        }
+        ########################################
         if ($id) {
             $mTaleAttrs = $mTale->getById($id);
         } else {
@@ -35,9 +45,20 @@ class Tale
             Sys::redirect("/tale/upsert/{$mTale->id}", 303);
         }
         if (Request::isPostPutDelete($post)) {
-            $vd               = Data::mergeObjects($vd, $mTaleAttrs, $post);
-            $vd->is_submitted = 1;
-            $mTale->updateById($vd);
+            $vd = Data::mergeObjects($vd, $mTaleAttrs, $post);
+            if (
+                AlinaAccessIfOwner($vd->owner_id)
+                ||
+                AlinaAccessIfAdmin()
+                ||
+                AlinaAccessIfModerator()
+            ) {
+                $vd->is_submitted = 1;
+                $mTaleAttrs       = $mTale->updateById($vd);
+                Message::setInfo('Success');
+            } else {
+                Message::setDanger('Edit of tale is not allowed');
+            }
         }
         $vd = Data::mergeObjects($vd, $mTaleAttrs);
         echo (new htmlAlias)->page($vd);

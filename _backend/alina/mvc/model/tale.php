@@ -32,9 +32,4 @@ class tale extends _BaseAlinaModel
             ],
         ];
     }
-
-    public function uniqueKeys()
-    {
-        return [];
-    }
 }

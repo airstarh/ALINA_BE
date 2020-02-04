@@ -254,7 +254,7 @@ class _BaseAlinaModel
         $this->attributes = Data::mergeObjects($this->attributes, $data);
         $this->setPkValue($pkValue, $data);
 
-        return $this;
+        return $this->attributes;
     }
 
     public function update($data, $conditions = [])

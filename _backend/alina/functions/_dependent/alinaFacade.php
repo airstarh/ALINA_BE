@@ -69,5 +69,21 @@ function AlinaAccessIfAdminOrNotProd()
 {
     return CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD';
 }
+
+function AlinaAccessIfAdmin()
+{
+    return CurrentUser::obj()->isAdmin();
+}
+
+function AlinaAccessIfModerator()
+{
+    return CurrentUser::obj()->hasRole('moderator');
+}
+
+function AlinaAccessIfOwner($id)
+{
+    return CurrentUser::obj()->id === $id;
+}
+
 #endregion Access
 ##################################################
