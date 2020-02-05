@@ -15,6 +15,8 @@ class FileUpload
 
     public function actionCommon()
     {
+        error_log('actionCommon',0);
+        error_log(json_encode(Request::obj()->FILES),0);
         $vd = $this->processUpload();
         //        if ($processUpload) {
         //            $this->processFileModel();
@@ -29,6 +31,12 @@ class FileUpload
     #region Utils
     protected function processUpload()
     {
+        $this->responseData = (object)[
+            'uploaded' => 0,
+            'fileName' => 'no',
+            'url'      => 'no',
+        ];
+        #####
         if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
             $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
             $targetDir            = $this->destinationDir();
@@ -57,11 +65,10 @@ class FileUpload
                 'fileName' => $newFileName,
                 'url'      => $url,
             ];
-
-            return $this->responseData;
         }
 
-        return FALSE;
+        #####
+        return $this->responseData;
     }
 
     protected function processFileModel()
@@ -91,7 +98,7 @@ class FileUpload
             Request::obj()->DOMAIN,
             $relPath,
         ];
-        $res      = '//'.FS::buildPathFromBlocks($blocks);
+        $res      = '//' . FS::buildPathFromBlocks($blocks);
 
         return $res;
     }
