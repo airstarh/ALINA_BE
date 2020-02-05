@@ -6,6 +6,7 @@ use alina\Message;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
 
@@ -17,18 +18,19 @@ class Tale
      */
     public function actionUpsert($id = NULL)
     {
-        $mTale = new \alina\mvc\model\tale();
-        $vd    = (object)[
+        $mTale  = new \alina\mvc\model\tale();
+        $vd     = (object)[
             'id'           => NULL,
             'form_id'      => __FUNCTION__,
             'header'       => '***',
             'body'         => 'text',
-            'publish_at'   => '',
+            'publish_at'   => ALINA_TIME,
             'is_submitted' => 0,
         ];
+        $isPost = Request::isPostPutDelete($post);
         ##################################################
         if (empty($id)) {
-            if (Request::isPostPutDelete($post)) {
+            if ($isPost) {
                 if (isset($post->id)) {
                     $id = $post->id;
                 }
@@ -41,11 +43,16 @@ class Tale
             $mTaleAttrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
             if (!$mTaleAttrs->id) {
                 $mTaleAttrs = $mTale->insert($vd);
+                Message::set('Inserted new tale');
+                Sys::redirect("/tale/upsert/{$mTale->id}", 307);
             }
-            Sys::redirect("/tale/upsert/{$mTale->id}", 303);
         }
-        if (Request::isPostPutDelete($post)) {
-            $vd = Data::mergeObjects($vd, $mTaleAttrs, $post);
+        if ($isPost) {
+            $vd = Data::mergeObjects(
+                $vd,
+                $mTaleAttrs,
+                Data::deleteEmptyProps($post)
+            );
             if (
                 AlinaAccessIfOwner($vd->owner_id)
                 ||
