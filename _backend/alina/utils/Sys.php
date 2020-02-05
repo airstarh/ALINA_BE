@@ -118,12 +118,21 @@ class Sys
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
                     $allowedHeaders = [
+                        'Accept-Encoding'                => '',
+                        'Accept-Language'                => '',
+                        'Access-Control-Request-Headers' => '',
+                        'Access-Control-Request-Method'  => '',
+                        'Connection'                     => '',
+                        'Host'                           => '',
                         'Origin'                         => '',
+                        'Referer'                        => '',
+                        'User-Agent'                     => '',
+                        'Cache-Control'                  => '',
+                        'Access-Control-Allow-Origin'    => '',
+                        #####
                         'Accept'                         => '',
                         'X-Requested-With'               => '',
                         'Content-Type'                   => '',
-                        'Access-Control-Request-Method'  => '',
-                        'Access-Control-Request-Headers' => '',
                         #####
                         'Authorization'                  => '',
                         'Alina-Server-Header'            => '',
