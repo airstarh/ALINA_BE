@@ -15,4 +15,5 @@ return array(
     'ce89ac35a6c330c55f4710717db9ff78' => $vendorDir . '/kriswallsmith/assetic/src/functions.php',
     '6124b4c8570aa390c21fafd04a26c69f' => $vendorDir . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
     '2cffec82183ee1cea088009cef9a6fc3' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
+    '16eed290c5592c18dc3f16802ad3d0e4' => $vendorDir . '/ivopetkov/html5-dom-document-php/autoload.php',
 );

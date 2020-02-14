@@ -977,6 +977,50 @@
         "homepage": "https://laravel.com"
     },
     {
+        "name": "ivopetkov/html5-dom-document-php",
+        "version": "v2.2.0",
+        "version_normalized": "2.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ivopetkov/html5-dom-document-php.git",
+            "reference": "ee512d14e73c417dbadccfca4ca946fa585b9e43"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ivopetkov/html5-dom-document-php/zipball/ee512d14e73c417dbadccfca4ca946fa585b9e43",
+            "reference": "ee512d14e73c417dbadccfca4ca946fa585b9e43",
+            "shasum": ""
+        },
+        "require": {
+            "ext-dom": "*",
+            "php": ">=7.0.0"
+        },
+        "require-dev": {
+            "ivopetkov/docs-generator": "0.2.*",
+            "phpunit/phpunit": "6.*"
+        },
+        "time": "2019-12-05T09:24:01+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "autoload.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ivo Petkov",
+                "email": "ivo@ivopetkov.com",
+                "homepage": "http://ivopetkov.com"
+            }
+        ],
+        "description": "HTML5 DOMDocument PHP library (extends DOMDocument)"
+    },
+    {
         "name": "kriswallsmith/assetic",
         "version": "v1.4.0",
         "version_normalized": "1.4.0.0",
@@ -1104,17 +1148,17 @@
     },
     {
         "name": "myclabs/deep-copy",
-        "version": "1.9.4",
-        "version_normalized": "1.9.4.0",
+        "version": "1.9.5",
+        "version_normalized": "1.9.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/myclabs/DeepCopy.git",
-            "reference": "579bb7356d91f9456ccd505f24ca8b667966a0a7"
+            "reference": "b2c28789e80a97badd14145fda39b545d83ca3ef"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/579bb7356d91f9456ccd505f24ca8b667966a0a7",
-            "reference": "579bb7356d91f9456ccd505f24ca8b667966a0a7",
+            "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/b2c28789e80a97badd14145fda39b545d83ca3ef",
+            "reference": "b2c28789e80a97badd14145fda39b545d83ca3ef",
             "shasum": ""
         },
         "require": {
@@ -1128,7 +1172,7 @@
             "doctrine/common": "^2.6",
             "phpunit/phpunit": "^7.1"
         },
-        "time": "2019-12-15T19:12:40+00:00",
+        "time": "2020-01-17T21:11:47+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1322,17 +1366,17 @@
     },
     {
         "name": "phpdocumentor/reflection-docblock",
-        "version": "4.3.3",
-        "version_normalized": "4.3.3.0",
+        "version": "4.3.4",
+        "version_normalized": "4.3.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-            "reference": "2ecaa9fef01634c83bfa8dc1fe35fb5cef223a62"
+            "reference": "da3fd972d6bafd628114f7e7e036f45944b62e9c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/2ecaa9fef01634c83bfa8dc1fe35fb5cef223a62",
-            "reference": "2ecaa9fef01634c83bfa8dc1fe35fb5cef223a62",
+            "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/da3fd972d6bafd628114f7e7e036f45944b62e9c",
+            "reference": "da3fd972d6bafd628114f7e7e036f45944b62e9c",
             "shasum": ""
         },
         "require": {
@@ -1344,9 +1388,10 @@
         "require-dev": {
             "doctrine/instantiator": "^1.0.5",
             "mockery/mockery": "^1.0",
+            "phpdocumentor/type-resolver": "0.4.*",
             "phpunit/phpunit": "^6.4"
         },
-        "time": "2019-12-20T13:40:23+00:00",
+        "time": "2019-12-28T18:55:12+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1488,31 +1533,31 @@
     },
     {
         "name": "phpspec/prophecy",
-        "version": "1.10.1",
-        "version_normalized": "1.10.1.0",
+        "version": "v1.10.2",
+        "version_normalized": "1.10.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpspec/prophecy.git",
-            "reference": "cbe1df668b3fe136bcc909126a0f529a78d4cbbc"
+            "reference": "b4400efc9d206e83138e2bb97ed7f5b14b831cd9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpspec/prophecy/zipball/cbe1df668b3fe136bcc909126a0f529a78d4cbbc",
-            "reference": "cbe1df668b3fe136bcc909126a0f529a78d4cbbc",
+            "url": "https://api.github.com/repos/phpspec/prophecy/zipball/b4400efc9d206e83138e2bb97ed7f5b14b831cd9",
+            "reference": "b4400efc9d206e83138e2bb97ed7f5b14b831cd9",
             "shasum": ""
         },
         "require": {
             "doctrine/instantiator": "^1.0.2",
             "php": "^5.3|^7.0",
             "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0|^5.0",
-            "sebastian/comparator": "^1.2.3|^2.0|^3.0",
-            "sebastian/recursion-context": "^1.0|^2.0|^3.0"
+            "sebastian/comparator": "^1.2.3|^2.0|^3.0|^4.0",
+            "sebastian/recursion-context": "^1.0|^2.0|^3.0|^4.0"
         },
         "require-dev": {
             "phpspec/phpspec": "^2.5 || ^3.2",
             "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5 || ^7.1"
         },
-        "time": "2019-12-22T21:05:45+00:00",
+        "time": "2020-01-20T15:57:02+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -2276,7 +2321,8 @@
                 "homepage": "http://robloach.net"
             }
         ],
-        "description": "Allows installation of Components via Composer."
+        "description": "Allows installation of Components via Composer.",
+        "abandoned": "oomphinc/composer-installers-extender"
     },
     {
         "name": "sebastian/code-unit-reverse-lookup",
@@ -2813,17 +2859,17 @@
     },
     {
         "name": "symfony/event-dispatcher",
-        "version": "v5.0.2",
-        "version_normalized": "5.0.2.0",
+        "version": "v5.0.4",
+        "version_normalized": "5.0.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/event-dispatcher.git",
-            "reference": "7b738a51645e10f864cc25c24d232fb03f37b475"
+            "reference": "4a7a8cdca1120c091b4797f0e5bba69c1e783224"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/7b738a51645e10f864cc25c24d232fb03f37b475",
-            "reference": "7b738a51645e10f864cc25c24d232fb03f37b475",
+            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/4a7a8cdca1120c091b4797f0e5bba69c1e783224",
+            "reference": "4a7a8cdca1120c091b4797f0e5bba69c1e783224",
             "shasum": ""
         },
         "require": {
@@ -2850,7 +2896,7 @@
             "symfony/dependency-injection": "",
             "symfony/http-kernel": ""
         },
-        "time": "2019-11-18T17:27:11+00:00",
+        "time": "2020-01-10T21:57:37+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -2945,17 +2991,17 @@
     },
     {
         "name": "symfony/http-foundation",
-        "version": "v3.4.36",
-        "version_normalized": "3.4.36.0",
+        "version": "v3.4.37",
+        "version_normalized": "3.4.37.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/http-foundation.git",
-            "reference": "d2d0cfe8e319d9df44c4cca570710fcf221d4593"
+            "reference": "f3abd07a56111ebe6a1ad6f1cbc23e4f8983f8f5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d2d0cfe8e319d9df44c4cca570710fcf221d4593",
-            "reference": "d2d0cfe8e319d9df44c4cca570710fcf221d4593",
+            "url": "https://api.github.com/repos/symfony/http-foundation/zipball/f3abd07a56111ebe6a1ad6f1cbc23e4f8983f8f5",
+            "reference": "f3abd07a56111ebe6a1ad6f1cbc23e4f8983f8f5",
             "shasum": ""
         },
         "require": {
@@ -2966,7 +3012,7 @@
         "require-dev": {
             "symfony/expression-language": "~2.8|~3.0|~4.0"
         },
-        "time": "2019-11-28T12:52:59+00:00",
+        "time": "2020-01-04T12:05:51+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3183,23 +3229,23 @@
     },
     {
         "name": "symfony/process",
-        "version": "v3.4.36",
-        "version_normalized": "3.4.36.0",
+        "version": "v3.4.37",
+        "version_normalized": "3.4.37.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/process.git",
-            "reference": "9a4545c01e1e4f473492bd52b71e574dcc401ca2"
+            "reference": "5b9d2bcffe4678911a4c941c00b7c161252cf09a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/process/zipball/9a4545c01e1e4f473492bd52b71e574dcc401ca2",
-            "reference": "9a4545c01e1e4f473492bd52b71e574dcc401ca2",
+            "url": "https://api.github.com/repos/symfony/process/zipball/5b9d2bcffe4678911a4c941c00b7c161252cf09a",
+            "reference": "5b9d2bcffe4678911a4c941c00b7c161252cf09a",
             "shasum": ""
         },
         "require": {
             "php": "^5.5.9|>=7.0.8"
         },
-        "time": "2019-11-28T10:05:51+00:00",
+        "time": "2020-01-01T11:03:25+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3234,17 +3280,17 @@
     },
     {
         "name": "symfony/routing",
-        "version": "v3.4.36",
-        "version_normalized": "3.4.36.0",
+        "version": "v3.4.37",
+        "version_normalized": "3.4.37.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/routing.git",
-            "reference": "b689ccd48e234ea404806d94b07eeb45f9f6f06a"
+            "reference": "6366fbf86a05abccf77d6e605abbb0ee342f2cfa"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/routing/zipball/b689ccd48e234ea404806d94b07eeb45f9f6f06a",
-            "reference": "b689ccd48e234ea404806d94b07eeb45f9f6f06a",
+            "url": "https://api.github.com/repos/symfony/routing/zipball/6366fbf86a05abccf77d6e605abbb0ee342f2cfa",
+            "reference": "6366fbf86a05abccf77d6e605abbb0ee342f2cfa",
             "shasum": ""
         },
         "require": {
@@ -3271,7 +3317,7 @@
             "symfony/http-foundation": "For using a Symfony Request object",
             "symfony/yaml": "For using the YAML loader"
         },
-        "time": "2019-12-01T08:33:36+00:00",
+        "time": "2020-01-04T12:05:51+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3312,17 +3358,17 @@
     },
     {
         "name": "symfony/translation",
-        "version": "v4.4.2",
-        "version_normalized": "4.4.2.0",
+        "version": "v4.4.4",
+        "version_normalized": "4.4.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/translation.git",
-            "reference": "f7669f48a9633bf8139bc026c755e894b7206677"
+            "reference": "f5d2ac46930238b30a9c2f1b17c905f3697d808c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/translation/zipball/f7669f48a9633bf8139bc026c755e894b7206677",
-            "reference": "f7669f48a9633bf8139bc026c755e894b7206677",
+            "url": "https://api.github.com/repos/symfony/translation/zipball/f5d2ac46930238b30a9c2f1b17c905f3697d808c",
+            "reference": "f5d2ac46930238b30a9c2f1b17c905f3697d808c",
             "shasum": ""
         },
         "require": {
@@ -3355,7 +3401,7 @@
             "symfony/config": "",
             "symfony/yaml": ""
         },
-        "time": "2019-12-12T12:53:52+00:00",
+        "time": "2020-01-15T13:29:06+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3449,17 +3495,17 @@
     },
     {
         "name": "symfony/yaml",
-        "version": "v4.4.2",
-        "version_normalized": "4.4.2.0",
+        "version": "v4.4.4",
+        "version_normalized": "4.4.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/yaml.git",
-            "reference": "a08832b974dd5fafe3085a66d41fe4c84bb2628c"
+            "reference": "cd014e425b3668220adb865f53bff64b3ad21767"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/yaml/zipball/a08832b974dd5fafe3085a66d41fe4c84bb2628c",
-            "reference": "a08832b974dd5fafe3085a66d41fe4c84bb2628c",
+            "url": "https://api.github.com/repos/symfony/yaml/zipball/cd014e425b3668220adb865f53bff64b3ad21767",
+            "reference": "cd014e425b3668220adb865f53bff64b3ad21767",
             "shasum": ""
         },
         "require": {
@@ -3475,7 +3521,7 @@
         "suggest": {
             "symfony/console": "For validating YAML files using the lint command"
         },
-        "time": "2019-12-10T10:33:21+00:00",
+        "time": "2020-01-21T11:12:16+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
