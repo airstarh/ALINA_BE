@@ -570,32 +570,27 @@ class Data
 
     static public function filterVarStrHtml($v)
     {
-        $dirty_html = $v;
         #####
+        $forbidden = [
+            '//style',
+            '//script',
+        ];
         #####
-        #####
-        $config     = HTMLPurifier_Config::createDefault();
-        $config->set('HTML.DefinitionID', '1');
-        $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
-        #####
-        //iframe
-        $config->set('HTML.SafeIframe', TRUE);
-        //$config->set('URI.SafeIframeRegexp', '%^https://(www.youtube.com/embed/|player.vimeo.com/video/)%');
-        #####
-        //CSS style
-        $config->set('CSS.Trusted', TRUE);
-        $def = $config->getHTMLDefinition();
-        $def->addAttribute('figure', 'style', 'Text');
-        $def->addAttribute('img ', 'style', 'Text');
-        #####
-        #####
-        #####
-        $purifier   = new HTMLPurifier($config);
-        $clean_html = $purifier->purify($dirty_html);
-        #####
-        $v = $clean_html;
+        $html = $v;
+        ##################################################
+        $HTML5DOMDocument                     = new \IvoPetkov\HTML5DOMDocument();
+        $HTML5DOMDocument->preserveWhiteSpace = TRUE;
+        $HTML5DOMDocument->formatOutput       = FALSE;
+        $HTML5DOMDocument->loadHTML($html);
+        ##################################################
+        $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+        foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
+            $node->parentNode->removeChild($node);
+        }
+        $body     = $HTML5DOMDocument->getElementsByTagName('body')->item(0);
+        $bodyHTML = $body->innerHTML;
 
-        return $v;
+        return $bodyHTML;
     }
     #rendegion Filter_Var
     ##################################################
