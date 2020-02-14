@@ -145,6 +145,7 @@ class AdminTests
         echo (new html)->page($res);
     }
 
+    ##############################################
     public function actionLocale()
     {
         $vd = [
@@ -153,6 +154,7 @@ class AdminTests
         echo (new html)->page(date('Z'));
     }
 
+    ##############################################
     public function actionConversionToObject()
     {
         $initial   = file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/001.json');
@@ -161,6 +163,39 @@ class AdminTests
             'initial'   => $initial,
             'converted' => $converted,
         ];
+        echo (new html)->page($vd);
+    }
+
+    ##############################################
+    // http://alinazero:8080/AdminTests/DomDocument
+    public function actionDomDocument()
+    {
+        $vd = (object)[
+            'init' => 'val',
+            'res'  => 'val',
+        ];
+        #####
+        $forbidden = [
+            '//style',
+            '//script',
+        ];
+        #####
+        $html = file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/_TEST_FILES_CONTENT/HTML/001.html');
+        ##################################################
+        $HTML5DOMDocument                     = new \IvoPetkov\HTML5DOMDocument();
+        $HTML5DOMDocument->preserveWhiteSpace = TRUE;
+        $HTML5DOMDocument->formatOutput       = FALSE;
+        $HTML5DOMDocument->loadHTML($html);
+        ##################################################
+        $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+        foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
+            $node->parentNode->removeChild($node);
+        }
+        $body     = $HTML5DOMDocument->getElementsByTagName('body')->item(0);
+        $bodyHTML = $body->innerHTML;
+        ##################################################
+        $vd->init = $html;
+        $vd->res  = $bodyHTML;
         echo (new html)->page($vd);
     }
 }

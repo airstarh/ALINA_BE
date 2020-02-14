@@ -15,8 +15,8 @@ class FileUpload
 
     public function actionCommon()
     {
-        error_log('actionCommon',0);
-        error_log(json_encode(Request::obj()->FILES),0);
+        error_log('actionCommon', 0);
+        error_log(json_encode(Request::obj()->FILES), 0);
         $vd = $this->processUpload();
         //        if ($processUpload) {
         //            $this->processFileModel();
@@ -99,6 +99,8 @@ class FileUpload
             $relPath,
         ];
         $res      = '//' . FS::buildPathFromBlocks($blocks);
+        //ToDo: Attention! Slashes
+        $res      = str_replace('\\', '/', $res);
 
         return $res;
     }

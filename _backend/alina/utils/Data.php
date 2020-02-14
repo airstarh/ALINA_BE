@@ -571,10 +571,24 @@ class Data
     static public function filterVarStrHtml($v)
     {
         $dirty_html = $v;
+        #####
+        #####
+        #####
         $config     = HTMLPurifier_Config::createDefault();
+        $config->set('HTML.DefinitionID', '1');
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
+        #####
+        //iframe
         $config->set('HTML.SafeIframe', TRUE);
-        $config->set('URI.SafeIframeRegexp', '%^https://(www.youtube.com/embed/|player.vimeo.com/video/)%');
+        //$config->set('URI.SafeIframeRegexp', '%^https://(www.youtube.com/embed/|player.vimeo.com/video/)%');
+        #####
+        //CSS style
+        $config->set('CSS.Trusted', TRUE);
+        $def = $config->getHTMLDefinition();
+        $def->addAttribute('figure', 'style', 'Text');
+        $def->addAttribute('img ', 'style', 'Text');
+        #####
+        #####
         #####
         $purifier   = new HTMLPurifier($config);
         $clean_html = $purifier->purify($dirty_html);

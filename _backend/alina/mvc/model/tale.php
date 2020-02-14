@@ -17,7 +17,11 @@ class tale extends _BaseAlinaModel
                 'default' => CurrentUser::obj()->id,
             ],
             'header'       => [],
-            'body'         => [],
+            'body'         => [
+                'filters' => [
+                    ['\alina\utils\Data', 'filterVarStrHtml'],
+                ],
+            ],
             'created_at'   => [
                 'default' => ALINA_TIME,
             ],
