@@ -84,7 +84,6 @@ class CurrentUser
     #endregion SingleTon
     ##################################################
     #region LogIn
-
     protected function identify($conditions)
     {
         if ($this->authenticate()) {
@@ -101,7 +100,6 @@ class CurrentUser
 
             return FALSE;
         }
-
         $data = $this->buildLoginData();
         $this->LOGIN->insert($data);
         $this->getLOGIN($data);
@@ -141,13 +139,6 @@ class CurrentUser
             $newToken = $data['token']; // ACCENT
             $this->LOGIN->updateById($data);
             $this->token = $newToken;
-            //$this->getLOGIN($data);
-            ##########
-            $this->USER->updateById([
-                'last_time'        => ALINA_TIME,
-                'last_browser_enc' => $this->device_browser_enc,
-                'last_ip'          => $this->device_ip,
-            ]);
             ##########
             $this->state_AUTHORIZATION_SUCCESS = $this->rememberAuthInfo($this->id, $newToken);
         }
@@ -187,22 +178,19 @@ class CurrentUser
     public function Register($vd)
     {
         $this->resetMsg();
-        $u                    = $this->USER;
-        $vd->created_at       = ALINA_TIME;
-        $vd->last_ip          = Request::obj()->IP;
-        $vd->last_browser_enc = Request::obj()->BROWSER_enc;
-        $vd->last_time        = ALINA_TIME;
-        $vd->is_verified      = 0;
-        $vd->is_deleted       = 0;
+        $u               = $this->USER;
+        $vd->created_at  = ALINA_TIME;
+        $vd->is_verified = 0;
+        $vd->is_deleted  = 0;
         $u->insert($vd);
         if (isset($u->id)) {
-            $ur = new _BaseAlinaModel(['table' => 'rbac_user_role']);
-            $ur->insert([
+            $mUserRole = new _BaseAlinaModel(['table' => 'rbac_user_role']);
+            $mUserRole->insert([
                 'user_id' => $u->id,
-                //TODo: Hardcoded, 5-servants
+                //ToDo: Hardcoded, 5-servants
                 'role_id' => 5,
             ]);
-            if (isset($ur->id)) {
+            if (isset($mUserRole->id)) {
                 $this->msg[] = 'Registration has passed successfully!';
             }
         }
@@ -290,7 +278,6 @@ class CurrentUser
         if (strlen($token) < 10) {
             $token = NULL;
         }
-
         $this->token = $token;
 
         return $token;
@@ -305,13 +292,11 @@ class CurrentUser
         ) {
             return $this->LOGIN->attributes->token;
         }
-
         if (!empty($this->LOGIN->attributes->token)) {
             if ($this->LOGIN->attributes->expires_at > ALINA_TIME) {
                 $this->LOGIN->attributes->token;
             }
         }
-
         $u           = $this->USER;
         $ua          = $u->attributes;
         $tokenSource = [
@@ -436,13 +421,11 @@ class CurrentUser
 
             return FALSE;
         }
-
         if ($this->token !== $this->LOGIN->attributes->token) {
             $this->msg[] = 'Token mismatch';
 
             return FALSE;
         }
-
         if (ALINA_TIME >= $this->LOGIN->attributes->expires_at) {
             $this->state_CONSISTANCY_WRONG = $this->ERR_TOKEN_EXPIRED;
             $this->msg[]                   = 'Token expired';
@@ -455,7 +438,6 @@ class CurrentUser
 
             return FALSE;
         }
-
         if ($this->id !== $this->USER->id) {
             $this->msg[] = 'User mismatch';
 
@@ -474,7 +456,6 @@ class CurrentUser
 
             return FALSE;
         }
-
         if ($this->device_browser_enc !== $this->LOGIN->attributes->browser_enc) {
             $this->state_CONSISTANCY_WRONG = $this->ERR_BROWSER;
             $this->msg[]                   = 'Browser mismatch';

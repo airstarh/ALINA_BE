@@ -116,9 +116,6 @@ class user extends _BaseAlinaModel
                 'default' => 0,
             ],
             #####
-            'last_time'        => [],
-            'last_browser_enc' => [],
-            'last_ip'          => [],
             'reset_code'       => [],
             'reset_required'   => [],
         ];
