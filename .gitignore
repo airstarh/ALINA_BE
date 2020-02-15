@@ -5,3 +5,4 @@ nbproject/
 .vscode/
 _frontend/uploads/
 _frontend/apps/vue
+_backend/alina/configs/mailer.php
