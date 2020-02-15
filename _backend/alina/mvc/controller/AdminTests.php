@@ -141,7 +141,7 @@ class AdminTests
     {
         $res                         = [];
         $res['getById']              = (new user())->getById(1);
-        $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => -1,]);
+        $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => 1,]);
         echo (new html)->page($res);
     }
 

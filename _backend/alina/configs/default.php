@@ -8,17 +8,7 @@ switch (ALINA_ENV) {
             'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
             'fileUploadDir'       => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
             'logVisitsToDb'       => TRUE,
-            'db'                  => [
-                'driver'    => 'mysql',
-                'host'      => 'localhost',
-                'database'  => 'alina',
-                'username'  => 'root',
-                'password'  => '1234',
-                'charset'   => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix'    => '',
-                'port'      => 3306,
-            ],
+            'db'                  => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
             'mvc'                 => [
                 'defaultController'       => 'root',
                 'defaultAction'           => 'Index',
