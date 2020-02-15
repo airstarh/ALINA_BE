@@ -42,29 +42,21 @@ switch (ALINA_ENV) {
                 'Регистрация'                 => 'Auth/Register',
                 'Рест_Запрос'                 => 'alinaRestAccept/index',
             ],
-            'debug'   => [
+            'debug'               => [
                 'toPage' => TRUE,
                 'toDb'   => TRUE,
                 'toFile' => TRUE,
             ],
-            'watcher' => [
+            'watcher'             => [
                 'maxPer1sec'          => 20,
                 'maxPer10secs'        => 10 / 5 * 20,
                 'maxPer1min'          => 60 / 2 * 20,
                 'maxPer10mins'        => 60 * 60 / 2 * 20,
                 'classDataFiltration' => '',
             ],
-            'mailer'  => [
-                'admin' => [
-                    'Host'     => 'smtp.yandex.ru',
-                    'Port'     => 587,
-                    'Username' => 'my-customer-mailbox@yandex.ru',
-                    'Password' => 'qwerty123qwerty',
-                    'FromName' => 'Alina service',
-                ],
-            ],
-            'html'    => [
-                'css' => [
+            'mailer'              => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'mailer.php'),
+            'html'                => [
+                'css'  => [
                     // Jquery; Jquery UI
                     'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css',
                     //Bootstrap Framework.
