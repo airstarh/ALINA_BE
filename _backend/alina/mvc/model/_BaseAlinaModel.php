@@ -492,7 +492,8 @@ class _BaseAlinaModel
         //LIMIT / OFFSET
         $this->qApiLimitOffset($limit, $offset);
         //Execute query.
-        $this->collection = $q->get()->keyBy($this->pkName);
+        $this->collection = $q->get()/*->keyBy($this->pkName)*/
+        ;
         //Has Many JOINs.
         $this->joinHasMany();
 
@@ -1076,7 +1077,7 @@ class _BaseAlinaModel
             ];
     }
 
-    protected function referencesTo()
+    public function referencesTo()
     {
         return [];
     }

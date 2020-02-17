@@ -53,6 +53,9 @@ switch (ALINA_ENV) {
                     // https://getbootstrap.com/docs/4.3/getting-started/introduction/
                     'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
                     //'/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+                    //CKeditor for styles
+                    //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
+                    '/sources/css/ckeditor.css',
                     // Alina
                     '/sources/css/alina.css',
                     '/sources/css/alina_form.css',
@@ -67,6 +70,8 @@ switch (ALINA_ENV) {
                     // https://getbootstrap.com/docs/4.3/getting-started/introduction/
                     'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
                     'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
+                    //CKeditor for styles
+                    //'https://cdn.ckeditor.com/ckeditor5/16.0.0/classic/ckeditor.js',
                     // Alina.
                     //'/sources/js/001_alina_init.js',
                     //'/sources/js/002_alina_hash_catcher.js',

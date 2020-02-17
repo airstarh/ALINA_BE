@@ -23,8 +23,10 @@ class Mailer
             $mail->SMTPAuth   = TRUE;
             $mail->Username   = AlinaCFG('mailer/admin/Username');                     // SMTP username
             $mail->Password   = AlinaCFG('mailer/admin/Password');                               // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+            $mail->SMTPSecure = AlinaCFG('mailer/admin/SMTPSecure');
             $mail->Port       = AlinaCFG('mailer/admin/Port');                                    // TCP port to connect to
+            error_log('XXX',0);
+            error_log(AlinaCFG('mailer/admin/SMTPSecure'),0);
             //Recipients
             //From
             $mail->setFrom(AlinaCFG('mailer/admin/Username'), AlinaCFG('mailer/admin/FromName'));

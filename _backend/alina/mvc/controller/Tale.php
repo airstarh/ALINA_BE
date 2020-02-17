@@ -4,6 +4,7 @@ namespace alina\mvc\controller;
 
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\tale as taleAlias;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
 use alina\utils\Obj;
@@ -18,7 +19,7 @@ class Tale
      */
     public function actionUpsert($id = NULL)
     {
-        $mTale  = new \alina\mvc\model\tale();
+        $mTale  = new taleAlias();
         $vd     = (object)[
             'id'           => NULL,
             'form_id'      => __FUNCTION__,
@@ -72,4 +73,45 @@ class Tale
 
         return $this;
     }
+    ########################################
+    ########################################
+    ########################################
+    public function actionFeed()
+    {
+        $vd = (object)[
+            'tales' => [],
+        ];
+        ########################################
+        $conditions = [];
+        $sort       = [];
+        $limit      = 50;
+        $offset     = 50;
+        $collection = $this->processFeed($conditions, $sort, $limit, $offset);
+        ########################################
+        $vd = (object)[
+            'tales' => $collection->toArray(),
+        ];
+        ########################################
+        echo (new htmlAlias)->page($vd);
+    }
+
+    ########################################
+    protected function processFeed($conditions = [], $sort = [], $limit = 50, $offset = 0)
+    {
+        ########################################
+        $mTale      = new taleAlias();
+        $conditions = [];
+        $sort[]     = ['publish_at', 'DESC'];
+        $collection = $mTale->getAllWithReferences($conditions, $sort);
+
+        ########################################
+        return $collection;
+    }
+    ########################################
+    ########################################
+    ########################################
+
+    ########################################
+    ########################################
+    ########################################
 }
