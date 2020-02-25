@@ -34,6 +34,54 @@ class tale extends _BaseAlinaModel
             'is_submitted' => [
                 'default' => 0,
             ],
+            'answer_to_id' => [
+                'default' => NULL,
+            ],
+            'type'         => [
+                'default' => 'POST',
+            ],
+            'level'        => [
+                'default' => 0,
+            ],
         ];
     }
+
+    ##################################################
+    public function referencesTo()
+    {
+        return [
+            'owner' => [
+                'has'        => 'one',
+                'joins'      => [
+                    ['leftJoin', 'user AS owner', 'owner.id', '=', "{$this->alias}.owner_id"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    ['addSelect', [
+                        'owner.id AS owner_id',
+                        'owner.firstname AS owner_firstname',
+                        'owner.lastname AS owner_lastname',
+                        'owner.emblem AS owner_emblem',
+                    ]],
+                ],
+            ],
+            'tag'   => [
+                'has'        => 'manyThrough',
+                'joins'      => [
+                    ['leftJoin', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
+                    ['leftJoin', 'tag AS child', 'child.id', '=', 'glue.tag_id'],
+                ],
+                'conditions' => [
+                    ['where', 'glue.entity_table', '=', $this->table],
+                ],
+                'addSelects' => [
+                    ['addSelect', ['child.name AS tag_name', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
+                ],
+                'orders'     => [
+                    ['orderBy', 'child.name', 'ASC'],
+                ],
+            ],
+        ];
+    }
+    ##################################################
 }

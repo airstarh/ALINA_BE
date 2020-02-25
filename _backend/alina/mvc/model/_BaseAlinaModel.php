@@ -2,8 +2,10 @@
 
 namespace alina\mvc\model;
 
+use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\utils\Data;
+use alina\utils\Request;
 use alina\utils\Str;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use Exception;
@@ -48,12 +50,14 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    public $mode                 = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $state_DATA_FILTERED  = FALSE;
-    public $state_DATA_VALIDATED = FALSE;
-    public $affectedRowsCount    = NULL;
-    public $matchedUniqueFields  = [];
-    public $matchedConditions    = [];
+    public $mode                   = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $state_DATA_FILTERED    = FALSE;
+    public $state_DATA_VALIDATED   = FALSE;
+    public $affectedRowsCount      = NULL;
+    public $matchedUniqueFields    = [];
+    public $matchedConditions      = [];
+    public $addAuditInfo           = FALSE;
+    public $state_APPLY_GET_PARAMS = FALSE;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -107,7 +111,7 @@ class _BaseAlinaModel
 
     public function getAll($conditions = [])
     {
-        $this->collection = $this->q()->where($conditions)->get()->keyBy($this->pkName);
+        $this->collection = $this->q()->where($conditions)->get();
 
         return $this->collection;
     }
@@ -167,8 +171,6 @@ class _BaseAlinaModel
     #endregion SELECT
     ##################################################
     #region UPSERT
-    public $addAuditInfo = FALSE;
-
     public function upsert($data)
     {
         $data = Data::toObject($data);
@@ -228,7 +230,7 @@ class _BaseAlinaModel
      * PK could be passed either in $data object or as the second parameter separately.
      * @param $data array|\stdClass
      * @param null|mixed $id
-     * @return mixed
+     * @return \stdClass
      * @throws Exception
      * @throws exceptionValidation
      */
@@ -352,7 +354,7 @@ class _BaseAlinaModel
         $this->qApiLimitOffset();
         // Result
         //fDebug($q->toSql());
-        $this->collection = $q->get()->keyBy($this->pkName);
+        $this->collection = $q->get();
         $page             = $this->pageCurrentNumber;
         $output           = ["total" => $total, "page" => $page, "models" => $this->collection];
 
@@ -476,13 +478,14 @@ class _BaseAlinaModel
 
     public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
     {
-        //First of all.
-        $this->apiUnpackGetParams();
         $q = $this->q();
         $q->select(["{$this->alias}.*"]);
         //API WHERE
         $q->where($conditions);
-        $this->qApplyGetSearchParams();
+        if ($this->state_APPLY_GET_PARAMS) {
+            $this->apiUnpackGetParams();
+            $this->qApplyGetSearchParams();
+        }
         //ORDER
         $this->qApiOrder($backendSortArray);
         //Has One JOINs.
@@ -492,8 +495,7 @@ class _BaseAlinaModel
         //LIMIT / OFFSET
         $this->qApiLimitOffset($limit, $offset);
         //Execute query.
-        $this->collection = $q->get()/*->keyBy($this->pkName)*/
-        ;
+        $this->collection = $q->get();
         //Has Many JOINs.
         $this->joinHasMany();
 
@@ -520,10 +522,10 @@ class _BaseAlinaModel
      */
     protected function apiUnpackGetParams()
     {
+        $R            = Request::obj();
+        $R_GET        = $R->GET;
         $this->o_GET  = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
-        //        error_log('vocGetSearch', 0);
-        //        error_log(json_encode($vocGetSearch), 0);
         foreach ($vocGetSearch as $short => $full) {
             /*
              * NOTE:
@@ -531,26 +533,24 @@ class _BaseAlinaModel
              * Check right in API callbacks, if we need to SELECT models, WHERE the Prop is ''.
              * Otherwise, Front-end is to be adjusted to avoid of sending GET params, when they are not necessary.
              */
-            //if (isset($_GET[$short]) && $_GET[$short] !=='') {
-            if
-            (isset($_GET[$short])) {
-                $this->o_GET->{$full} = $_GET[$short];
+            if (isset($R_GET->{$short})) {
+                $this->o_GET->{$full} = $R_GET->{$short};
             }
         }
         // Additional Special Condition $this->sortName, $this->sortAsc
-        if (isset($_GET['sa'])) {
-            $this->sortAsc = $_GET['sa'];
+        if (isset($R_GET->sa)) {
+            $this->sortAsc = $R_GET->sa;
         }
-        if (isset($_GET['sn'])) {
-            $this->sortName = $_GET['sn'];
+        if (isset($R_GET->sn)) {
+            $this->sortName = $R_GET->sn;
         }
         // Additional Special Condition $this->pageSize, $this->page
-        if (isset($_GET['ps'])) {
-            $this->pageSize = $_GET['ps'];
+        if (isset($R_GET->ps)) {
+            $this->pageSize = $R_GET->ps;
         }
         //ToDo: Rename to pn.
-        if (isset($_GET['p'])) {
-            $this->pageCurrentNumber = $_GET['p'];
+        if (isset($R_GET->p)) {
+            $this->pageCurrentNumber = $R_GET->p;
         }
 
         return $this->o_GET;
@@ -828,7 +828,7 @@ class _BaseAlinaModel
         } else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
-
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
         return $this->q;
     }
 
@@ -884,9 +884,9 @@ class _BaseAlinaModel
 
     protected function vocGetSearch()
     {
-        $vocGetSearchSpecial = [];
+        $vocSpecial = [];
         if (method_exists($this, 'vocGetSearchSpecial')) {
-            $vocGetSearchSpecial = $this->vocGetSearchSpecial();
+            $vocSpecial = $this->vocGetSearchSpecial();
         }
         $vocGetSearch = [
             // Pagination
@@ -899,16 +899,18 @@ class _BaseAlinaModel
             'q'  => 'search',
         ];
 
-        return array_merge($vocGetSearchSpecial, $vocGetSearch);
+        return array_merge($vocSpecial, $vocGetSearch);
     }
 
     protected function vocGetSearchSpecial()
     {
+        $res    = [];
+        $R      = Request::obj();
+        $R_GET  = $R->GET;
         $fields = $this->fields();
         $fNames = array_keys($fields);
-        $res    = [];
         foreach ($fNames as $f) {
-            foreach ($_GET as $gF => $gV) {
+            foreach ($R_GET as $gF => $gV) {
                 if (\alina\utils\Str::endsWith($gF, $f)) {
                     $res[$gF] = $gF;
                 }

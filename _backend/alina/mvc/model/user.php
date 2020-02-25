@@ -17,8 +17,8 @@ class user extends _BaseAlinaModel
         $fDefault = parent::fields();
         //$fDefault = [];
         $fCustom = [
-            'id'               => [],
-            'mail'             => [
+            'id'             => [],
+            'mail'           => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -43,7 +43,7 @@ class user extends _BaseAlinaModel
                     ],
                 ],
             ],
-            'password'         => [
+            'password'       => [
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -66,7 +66,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'firstname'        => [
+            'firstname'      => [
                 'validators' => [
                     [
                         'f'       => 'strlen',
@@ -75,9 +75,9 @@ class user extends _BaseAlinaModel
                     ],
                 ],
             ],
-            'lastname'         => [],
-            'emblem'           => [],
-            'birth'            => [
+            'lastname'       => [],
+            'emblem'         => [],
+            'birth'          => [
                 'filters' => [
                     //['alina\\utils\\Data', 'filterVarInteger'],
                     function ($v) {
@@ -92,32 +92,32 @@ class user extends _BaseAlinaModel
                     },
                 ],
             ],
-            'language'         => [
+            'language'       => [
                 'default' => Sys::getUserLanguage(),
             ],
-            'timezone'         => [],
-            'about_myself'     => [
+            'timezone'       => [],
+            'about_myself'   => [
                 'default' => '',
                 'filters' => [
-                    ['alina\\utils\\Data', 'filterVarStrHtml'],
+                    ['\alina\utils\Data', 'filterVarStrHtml'],
                 ],
             ],
             #####
-            'is_verified'      => [
+            'is_verified'    => [
                 'default' => 0,
             ],
-            'banned_till'      => [
+            'banned_till'    => [
                 'default' => 0,
             ],
-            'created_at'       => [
+            'created_at'     => [
                 'default' => ALINA_TIME,
             ],
-            'is_deleted'       => [
+            'is_deleted'     => [
                 'default' => 0,
             ],
             #####
-            'reset_code'       => [],
-            'reset_required'   => [],
+            'reset_code'     => [],
+            'reset_required' => [],
         ];
         $fRes    = array_merge($fDefault, $fCustom);
 

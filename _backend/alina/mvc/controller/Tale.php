@@ -101,7 +101,7 @@ class Tale
         ########################################
         $mTale      = new taleAlias();
         $conditions = [];
-        $sort[]     = ['publish_at', 'DESC'];
+        $sort[]     = ["{$mTale->alias}.publish_at", 'DESC'];
         $collection = $mTale->getAllWithReferences($conditions, $sort);
 
         ########################################

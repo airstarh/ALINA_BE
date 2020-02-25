@@ -11,64 +11,67 @@ use alina\utils\Request;
 
 class FileUpload
 {
-    protected $responseData;
+    protected $resp;
 
     public function actionCommon()
     {
-        error_log('actionCommon', 0);
-        error_log(json_encode(Request::obj()->FILES), 0);
         $vd = $this->processUpload();
         //        if ($processUpload) {
         //            $this->processFileModel();
         //        }
-        if (Request::obj()->AJAX) {
-            echo (new jsonView())->simpleRestApiResponse($vd);
-        } else {
-            echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
-        }
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
+
+    public function actionCkEditor()
+    {
+        $resp = $this->processUpload();
+        $vd   = (object)[
+            'uploaded'    => $resp->uploaded,
+            'fileName'    => $resp->fileName[0],
+            'newFileName' => $resp->newFileName[0],
+            'url'         => $resp->url[0],
+        ];
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+    }
+
     ##################################################
     #region Utils
     protected function processUpload()
     {
-        $this->responseData = (object)[
-            'uploaded' => 0,
-            'fileName' => 'no',
-            'url'      => 'no',
+        $this->resp = (object)[
+            'uploaded'    => 0,
+            'fileName'    => [],
+            'newFileName' => [],
+            'url'         => [],
         ];
         #####
         if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
             $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
             $targetDir            = $this->destinationDir();
             $counterUploadedFiles = 0;
-            $url                  = '';
             foreach ($FILE_CONTAINER["error"] as $i => $error) {
                 if ($error == UPLOAD_ERR_OK) {
-                    $sourceFileFullPath  = $FILE_CONTAINER["tmp_name"][$i];
-                    $sourceFileCleanName = $FILE_CONTAINER["name"][$i];
-                    $newFileCleanName    = md5_file($sourceFileFullPath);
-                    $ext                 = FS::fileEXT($sourceFileCleanName);
-                    $newFileName         = "{$newFileCleanName}.{$ext}";
-                    $targetFile          = FS::buildPathFromBlocks($targetDir, $newFileName);
-                    $muf                 = move_uploaded_file($sourceFileFullPath, $targetFile);
+                    $sourceFileFullPath        = $FILE_CONTAINER["tmp_name"][$i];
+                    $sourceFileCleanName       = $FILE_CONTAINER["name"][$i];
+                    $newFileCleanName          = md5_file($sourceFileFullPath);
+                    $ext                       = FS::fileEXT($sourceFileCleanName);
+                    $this->resp->fileName[]    = $sourceFileCleanName;
+                    $this->resp->newFileName[] = $newFileName = "{$newFileCleanName}.{$ext}";
+                    $targetFile                = FS::buildPathFromBlocks($targetDir, $newFileName);
+                    $muf                       = move_uploaded_file($sourceFileFullPath, $targetFile);
                     if ($muf) {
                         //Todo: SECURITY!!!
                         $webPath = $this->webPath($targetFile);
                         Message::set("Uploaded: $webPath");
-                        $counterUploadedFiles++;
-                        $url = $webPath;
+                        $this->resp->url[]    = $webPath;
+                        $this->resp->uploaded = ++$counterUploadedFiles;
                     }
                 }
             }
-            $this->responseData = (object)[
-                'uploaded' => $counterUploadedFiles,
-                'fileName' => $newFileName,
-                'url'      => $url,
-            ];
         }
 
         #####
-        return $this->responseData;
+        return $this->resp;
     }
 
     protected function processFileModel()
@@ -100,7 +103,7 @@ class FileUpload
         ];
         $res      = '//' . FS::buildPathFromBlocks($blocks);
         //ToDo: Attention! Slashes
-        $res      = str_replace('\\', '/', $res);
+        $res = str_replace('\\', '/', $res);
 
         return $res;
     }

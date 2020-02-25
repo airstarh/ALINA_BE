@@ -3,6 +3,7 @@
 namespace alina\utils;
 
 use alina\app;
+use alina\GlobalRequestStorage;
 use alina\mvc\model\CurrentUser;
 use alina\session;
 
@@ -284,6 +285,7 @@ class Sys
             [
                 'ROUTER'  => Alina()->router,
                 'SESSION' => session::get(),
+                'META'    => GlobalRequestStorage::getAll(),
             ]
         );
 
