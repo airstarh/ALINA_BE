@@ -374,16 +374,17 @@ class _BaseAlinaModel
     {
         /** @var $q BuilderAlias object */
         $q = $this->q;
-        // User Defined Sort parameters.
-        $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
-        if (empty($sortArray)) {
-            $sortArray = $this->sortDefault;
-        }
-        //Finally if function is called from backend...
+        #####
         if (isset($backendSortArray) && !empty($backendSortArray)) {
             $sortArray = $backendSortArray;
+        } #####
+        else {
+            // User Defined Sort parameters.
+            $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
+            if (empty($sortArray)) {
+                $sortArray = $this->sortDefault;
+            }
         }
-        //$sortArray = array_merge($sortArray, $this->sortDefault);
         $this->qOrderByArray($sortArray);
 
         return $q;
@@ -1025,7 +1026,7 @@ class _BaseAlinaModel
     /**
      * Just For Example!!!
      */
-    protected function fieldStructureExample()
+    private function EXAMPLE_fields()
     {
         $className             = 'ValidatorClassName';
         $staticMethod          = 'staticMethodName';

@@ -665,7 +665,7 @@ class Data
         }
         $pg->pages = ceil($pg->rows / $pg->limit);
         if ($pg->page > $pg->pages) {
-            $pg->page = 1;
+            $pg->page = $pg->pages;
         }
         #endregion Pages Total
         ##############################
