@@ -398,7 +398,6 @@ class Data
         $res = str_replace('}', '', $res);
 
         return $res;
-
     }
     #####
 
@@ -524,14 +523,12 @@ class Data
                                         list($obj, $method) = $filter;
                                         $data->{$fName} = call_user_func([$obj, $method], $data->{$fName});
                                         break;
-
                                 }
                             }
                         }
                     }
                     // ToDo: Maybe more abilities for filter.
                 }
-
             }
         }
     }
@@ -600,7 +597,6 @@ class Data
         foreach ($data as $fName => $fValue) {
             if (isset($validators[$fName]) && !empty($validators[$fName])) {
                 foreach ($validators[$fName] as $validator) {
-
                     $VALIDATION_RESULT = TRUE;
                     #####
                     if (is_array($validator) && array_key_exists('f', $validator)) {
@@ -647,5 +643,44 @@ class Data
     }
 
     #endregion Validate
+    ##################################################
+    #region Pagination
+    static public function paginator($rowsTotal, $pageCurrentNumber, $pageSize)
+    {
+        ##############################
+        $pg = (object)[
+            'limit'  => $pageSize,
+            'offset' => NULL,
+            'rows'   => $rowsTotal,
+            'pages'  => NULL,
+            'page'   => $pageCurrentNumber,
+        ];
+        if ($pg->rows <= $pg->limit) {
+            $pg->page = 1;
+        }
+        ##############################
+        #region Pages Total
+        if (!isset($pg->limit) || empty($pg->limit) || $pg->limit <= 0) {
+            $pg->limit = $pg->rows;
+        }
+        $pg->pages = ceil($pg->rows / $pg->limit);
+        if ($pg->page > $pg->pages) {
+            $pg->page = 1;
+        }
+        #endregion Pages Total
+        ##############################
+        #region Offset
+        if (!isset($pg->limit) || empty($pg->limit) || $pg->limit <= 0
+            ||
+            !isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
+            $pg->offset = 0;
+        } else {
+            $pg->offset = $pg->limit * ($pg->page - 1);
+        }
+        #endregion Offset
+        ##############################
+        return $pg;
+    }
+    #endregion Pagination
     ##################################################
 }

@@ -122,7 +122,6 @@ class _BaseAlinaModel
 
     protected function getModelByUniqueKeys($data)
     {
-
         $data       = Data::toObject($data);
         $uniqueKeys = $this->uniqueKeys();
         foreach ($uniqueKeys as $uniqueFields) {
@@ -426,20 +425,14 @@ class _BaseAlinaModel
     protected function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
     {
         /** @var $q BuilderAlias object */
-        $q                 = $this->q;
-        $pageCurrentNumber = $this->pageCurrentNumber;
-        $pageSize          = $this->pageSize;
-        $rowsTotal         = $this->state_ROWS_TOTAL;
-        if ($rowsTotal <= $pageSize) {
-            $pageCurrentNumber = $this->pageCurrentNumber = 1;
-        }
-        $this->calcPagesTotal($rowsTotal, $pageSize);
-        if ($pageCurrentNumber > $this->pagesTotal) {
-            $pageCurrentNumber = $this->pageCurrentNumber = 1;
-        }
-        if (FALSE !== ($offset = $this->calcOffset($pageCurrentNumber, $pageSize))) {
-            $q->skip($offset)->take($pageSize);
-        }
+        $q                       = $this->q;
+        $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize);
+        $this->pagesTotal        = $PG->pages;
+        $this->pageCurrentNumber = $PG->page;
+        $this->pageSize          = $PG->limit;
+        $offset                  = $PG->offset;
+        $q->skip($offset)->take($this->pageSize);
+        #####
         //Finally: if LIMIT and OFFSET are passed via back-end...
         if ($backendLimit) {
             $q->take($backendLimit);
@@ -448,6 +441,7 @@ class _BaseAlinaModel
             $q->skip($backendOffset);
         }
 
+        #####
         return $q;
     }
 
@@ -570,7 +564,6 @@ class _BaseAlinaModel
      */
     public function applyFilters(\stdClass $data)
     {
-
         if ($this->state_DATA_FILTERED) {
             return $this;
         }
@@ -579,7 +572,6 @@ class _BaseAlinaModel
         #####
         foreach ($fields as $fieldNameCfg => $params) {
             if (property_exists($data, $fieldNameCfg)) {
-
                 #####
                 if ($this->mode === 'INSERT' && empty($data->{$fieldNameCfg}) && isset($params['default'])) {
                     $data->{$fieldNameCfg} = $params['default'];
@@ -605,7 +597,6 @@ class _BaseAlinaModel
 
     public function validate(\stdClass $data)
     {
-
         if ($this->state_DATA_VALIDATED) {
             return $this;
         }
@@ -627,7 +618,6 @@ class _BaseAlinaModel
 
     public function validateUniqueKeys($data)
     {
-
         if ($this->mode === 'UPDATE') {
             return $this;
         }
@@ -671,29 +661,8 @@ class _BaseAlinaModel
     #endregion FILTER, VALIDATE
     ##################################################
     #region Helpers
-    protected function calcPagesTotal($rowsTotal, $pageSize)
-    {
-        if ($pageSize <= 0) {
-            $pageSize = $rowsTotal;
-        }
-        $this->pagesTotal = ceil($rowsTotal / $pageSize);
-
-        return $this->pagesTotal;
-    }
-
-    protected function calcOffset($pageCurrentNumber, $pageSize)
-    {
-        if (!isset($pageSize) || !isset($pageCurrentNumber) || $pageSize <= 0 || $pageCurrentNumber <= 0) {
-            return FALSE;
-        }
-        $offset = ($pageSize * ($pageCurrentNumber - 1));
-
-        return $offset;
-    }
-
     protected function calcSortNameSortAscData($sortName, $sortAsc)
     {
-
         if (empty($sortName)) {
             return NULL;
         }
@@ -836,8 +805,8 @@ class _BaseAlinaModel
         #####
         //ToDo: Make Conditional
         GlobalRequestStorage::setPlus1('BaseModelQueries');
-        #####
 
+        #####
         return $this->q;
     }
 
@@ -934,7 +903,6 @@ class _BaseAlinaModel
         //ToDo: Check $q, $this->o_GET emptiness.
         $q = $this->q;
         foreach ($this->o_GET as $f => $v) {
-
             $t = $this->alias;
             //The simplest search case.
             if ($this->tableHasField($f)) {

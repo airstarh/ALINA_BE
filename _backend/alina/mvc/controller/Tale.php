@@ -147,8 +147,7 @@ class Tale
             ->leftJoin('user as owner', 'tale.owner_id', '=', 'owner.id')
             ->limit($limit)
             ->offset($offset)
-            ->orderBy('tale.created_at', 'DESC')
-            ->orderBy('tale.publish_at', 'DESC')
+            ->orderBy('tale.publish_at', 'ASC')
             ->get();;
 
         return $res;
