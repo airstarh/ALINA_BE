@@ -6,6 +6,7 @@ use alina\Message;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\tale as taleAlias;
 use alina\mvc\view\html as htmlAlias;
+use alina\mvc\view\json as jsonView;
 use alina\utils\Data;
 use alina\utils\Obj;
 use alina\utils\Request;
@@ -101,7 +102,8 @@ class Tale
         ########################################
         $mTale      = new taleAlias();
         $conditions = [
-            ["tale.is_submitted",'=', 1]
+            ["tale.is_submitted", '=', 1],
+            ["tale.type", '=', 'POST'],
         ];
         $sort[]     = ["{$mTale->alias}.publish_at", 'DESC'];
         $collection = $mTale->getAllWithReferences($conditions, $sort);
@@ -115,19 +117,20 @@ class Tale
     public function actionCommentAdd()
     {
         //ToDo: Checks if allowed to comment etc
-        $mTale = new taleAlias();
-        $post  = Request::obj()->POST;
+        $mTale              = new taleAlias();
+        $post               = Request::obj()->POST;
+        $post->is_submitted = 1;
         $mTale->insert($post);
-
-        return $this->getTaleComments($post->answer_to_tale_id);
+        $vd = $this->getTaleComments($post->answer_to_tale_id);
+        echo (new jsonView())->standardRestApiResponse($vd);
     }
     ########################################
     ########################################
     ########################################
-    public function getTaleComments($parent_idS = [], $level = 1, $limit = 10, $offset = 0)
+    public function getTaleComments($answer_to_tale_ids = [], $level = 1, $limit = 10, $offset = 0)
     {
-        if (!is_array($parent_idS)) {
-            $parent_idS = [$parent_idS];
+        if (!is_array($answer_to_tale_ids)) {
+            $answer_to_tale_ids = [$answer_to_tale_ids];
         }
         $mTaleAsComment = new taleAlias();
         $res            = $mTaleAsComment
@@ -138,7 +141,7 @@ class Tale
                 'owner.lastname AS owner_lastname',
                 'owner.emblem AS owner_emblem',
             ])
-            ->whereIn('tale.answer_to_tale_id', $parent_idS)
+            ->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids)
             ->where('tale.level', $level)
             ->where('tale.is_submitted', 1)
             ->leftJoin('user as owner', 'tale.owner_id', '=', 'owner.id')

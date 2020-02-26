@@ -181,6 +181,7 @@ class AdminTests
         ];
         #####
         $html = file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/_TEST_FILES_CONTENT/HTML/001.html');
+        $html = 1234;
         ##################################################
         $HTML5DOMDocument                     = new \IvoPetkov\HTML5DOMDocument();
         $HTML5DOMDocument->preserveWhiteSpace = TRUE;
