@@ -100,7 +100,9 @@ class Tale
     {
         ########################################
         $mTale      = new taleAlias();
-        $conditions = [];
+        $conditions = [
+            ["tale.is_submitted",'=', 1]
+        ];
         $sort[]     = ["{$mTale->alias}.publish_at", 'DESC'];
         $collection = $mTale->getAllWithReferences($conditions, $sort);
 
@@ -110,6 +112,44 @@ class Tale
     ########################################
     ########################################
     ########################################
+    public function actionCommentAdd()
+    {
+        //ToDo: Checks if allowed to comment etc
+        $mTale = new taleAlias();
+        $post  = Request::obj()->POST;
+        $mTale->insert($post);
+
+        return $this->getTaleComments($post->answer_to_tale_id);
+    }
+    ########################################
+    ########################################
+    ########################################
+    public function getTaleComments($parent_idS = [], $level = 1, $limit = 10, $offset = 0)
+    {
+        if (!is_array($parent_idS)) {
+            $parent_idS = [$parent_idS];
+        }
+        $mTaleAsComment = new taleAlias();
+        $res            = $mTaleAsComment
+            ->q()
+            ->select([
+                'tale.*',
+                'owner.firstname AS owner_firstname',
+                'owner.lastname AS owner_lastname',
+                'owner.emblem AS owner_emblem',
+            ])
+            ->whereIn('tale.answer_to_tale_id', $parent_idS)
+            ->where('tale.level', $level)
+            ->where('tale.is_submitted', 1)
+            ->leftJoin('user as owner', 'tale.owner_id', '=', 'owner.id')
+            ->limit($limit)
+            ->offset($offset)
+            ->orderBy('tale.created_at', 'DESC')
+            ->orderBy('tale.publish_at', 'DESC')
+            ->get();;
+
+        return $res;
+    }
 
     ########################################
     ########################################

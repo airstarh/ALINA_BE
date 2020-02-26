@@ -44,9 +44,9 @@ class _BaseAlinaModel
     /**@var  \stdClass */
     public $attributes;
     /**@var  CollectionAlias */
-    public $collection = [];
-    public $rowsTotal  = -1;
-    public $pagesTotal = 0;
+    public $collection       = [];
+    public $state_ROWS_TOTAL = -1;
+    public $pagesTotal       = 0;
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
@@ -109,9 +109,13 @@ class _BaseAlinaModel
         return $this->attributes;
     }
 
-    public function getAll($conditions = [])
+    public function getAll($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
     {
-        $this->collection = $this->q()->where($conditions)->get();
+        $this->collection =
+            $this
+                ->q()
+                ->where($conditions)
+                ->get();
 
         return $this->collection;
     }
@@ -425,7 +429,7 @@ class _BaseAlinaModel
         $q                 = $this->q;
         $pageCurrentNumber = $this->pageCurrentNumber;
         $pageSize          = $this->pageSize;
-        $rowsTotal         = $this->rowsTotal;
+        $rowsTotal         = $this->state_ROWS_TOTAL;
         if ($rowsTotal <= $pageSize) {
             $pageCurrentNumber = $this->pageCurrentNumber = 1;
         }
@@ -483,15 +487,16 @@ class _BaseAlinaModel
         //API WHERE
         $q->where($conditions);
         if ($this->state_APPLY_GET_PARAMS) {
+            //SEARCH from _GET
             $this->apiUnpackGetParams();
             $this->qApplyGetSearchParams();
         }
-        //ORDER
+        //ORDER  from _GET
         $this->qApiOrder($backendSortArray);
         //Has One JOINs.
         $this->qJoinHasOne();
         //COUNT
-        $this->rowsTotal = $q->count();
+        $this->state_ROWS_TOTAL = $q->count();
         //LIMIT / OFFSET
         $this->qApiLimitOffset($limit, $offset);
         //Execute query.
@@ -828,7 +833,11 @@ class _BaseAlinaModel
         } else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
+        #####
+        //ToDo: Make Conditional
         GlobalRequestStorage::setPlus1('BaseModelQueries');
+        #####
+
         return $this->q;
     }
 

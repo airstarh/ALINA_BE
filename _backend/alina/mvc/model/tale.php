@@ -11,36 +11,38 @@ class tale extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'           => [],
-            'parent_id'    => [],
-            'owner_id'     => [
+            'id'                => [],
+            'owner_id'          => [
                 'default' => CurrentUser::obj()->id,
             ],
-            'header'       => [],
-            'body'         => [
+            'header'            => [],
+            'body'              => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStrHtml'],
                 ],
             ],
-            'created_at'   => [
+            'created_at'        => [
                 'default' => ALINA_TIME,
             ],
-            'modified_at'  => [
+            'modified_at'       => [
                 'default' => ALINA_TIME,
             ],
-            'publish_at'   => [
+            'publish_at'        => [
                 'default' => ALINA_TIME,
             ],
-            'is_submitted' => [
+            'is_submitted'      => [
                 'default' => 0,
             ],
-            'answer_to_id' => [
+            'root_tale_id'      => [
                 'default' => NULL,
             ],
-            'type'         => [
+            'answer_to_tale_id' => [
+                'default' => NULL,
+            ],
+            'type'              => [
                 'default' => 'POST',
             ],
-            'level'        => [
+            'level'             => [
                 'default' => 0,
             ],
         ];
@@ -83,5 +85,6 @@ class tale extends _BaseAlinaModel
             ],
         ];
     }
+    ##################################################
     ##################################################
 }

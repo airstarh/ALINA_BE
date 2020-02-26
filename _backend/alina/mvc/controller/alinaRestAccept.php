@@ -77,7 +77,7 @@ class alinaRestAccept
                         GlobalRequestStorage::set('modelMetaInfo', $m->getFieldsMetaInfo());
                         GlobalRequestStorage::set('pageCurrentNumber', $m->pageCurrentNumber);
                         GlobalRequestStorage::set('pageSize', $m->pageSize);
-                        GlobalRequestStorage::set('rowsTotal', $m->rowsTotal);
+                        GlobalRequestStorage::set('rowsTotal', $m->state_ROWS_TOTAL);
                         echo (new jsonView())->standardRestApiResponse($data);
                     }
 
