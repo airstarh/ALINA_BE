@@ -171,6 +171,66 @@ class _BaseAlinaModel
         return FALSE;
     }
 
+    ###############
+    #region Get With References
+    public function getAllWithReferencesPart1($conditions = [])
+    {
+        $q = $this->q();
+        $q->select(["{$this->alias}.*"]);
+        //API WHERE
+        $q->where($conditions);
+        if ($this->state_APPLY_GET_PARAMS) {
+            //SEARCH from _GET
+            $this->apiUnpackGetParams();
+            $this->qApplyGetSearchParams();
+        }
+        //Has One JOINs.
+        $this->qJoinHasOne();
+
+        return $q;
+    }
+
+    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    {
+        $q = $this->q;
+        //COUNT
+        $this->state_ROWS_TOTAL = $q->count();
+        //ORDER
+        $this->qApiOrder($backendSortArray);
+        //LIMIT / OFFSET
+        $this->qApiLimitOffset($pageSize, $pgeCurrentNumber);
+        //Final query.
+        $this->collection = $q->get();
+        //Has Many JOINs.
+        $this->joinHasMany();
+
+        return $this->collection;
+    }
+
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    {
+        $q   = $this->getAllWithReferencesPart1($conditions);
+        $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber);
+
+        return $res;
+    }
+
+    //ToDo: see also $this->getOne VERY similar logic
+    public function getOneWithReferences($conditions = [])
+    {
+        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
+        if (empty($attributes)) {
+            $attributes = (object)[];
+        }
+        if (isset($attributes->{$this->pkName})) {
+            $this->setPkValue($attributes->{$this->pkName});
+        }
+        $this->attributes = Data::mergeObjects($this->attributes, $attributes);
+
+        return $this->attributes;
+    }
+    #rendegion Get With References
+    ###############
     #endregion SELECT
     ##################################################
     #region UPSERT
@@ -478,63 +538,6 @@ class _BaseAlinaModel
         }
 
         return $q;
-    }
-
-    public function getAllWithReferencesPart1($conditions = [])
-    {
-        $q = $this->q();
-        $q->select(["{$this->alias}.*"]);
-        //API WHERE
-        $q->where($conditions);
-        if ($this->state_APPLY_GET_PARAMS) {
-            //SEARCH from _GET
-            $this->apiUnpackGetParams();
-            $this->qApplyGetSearchParams();
-        }
-        //Has One JOINs.
-        $this->qJoinHasOne();
-
-        return $q;
-    }
-
-    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
-    {
-        $q = $this->q;
-        //COUNT
-        $this->state_ROWS_TOTAL = $q->count();
-        //ORDER
-        $this->qApiOrder($backendSortArray);
-        //LIMIT / OFFSET
-        $this->qApiLimitOffset($pageSize, $pgeCurrentNumber);
-        //Final query.
-        $this->collection = $q->get();
-        //Has Many JOINs.
-        $this->joinHasMany();
-
-        return $this->collection;
-    }
-
-    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
-    {
-        $q   = $this->getAllWithReferencesPart1($conditions);
-        $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber);
-
-        return $res;
-    }
-
-    //ToDo: see also $this->getOne VERY similar logic
-    public function getOneWithReferences($conditions = [])
-    {
-        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
-        if (empty($attributes)) {
-            $attributes = (object)[];
-        }
-        if (isset($attributes->{$this->pkName})) {
-            $this->setPkValue($attributes->{$this->pkName});
-        }
-        $this->attributes = Data::mergeObjects($this->attributes, $attributes);
-
-        return $this->attributes;
     }
 
     /**
@@ -1041,8 +1044,15 @@ class _BaseAlinaModel
 
         return $sources;
     }
-    ##################################################
 
+    ##################################################
+    public function referencesTo()
+    {
+        return [];
+    }
+    #endregion relations
+    ##################################################
+    #region Examples
     /**
      * Just For Example!!!
      */
@@ -1077,10 +1087,6 @@ class _BaseAlinaModel
             ];
     }
 
-    public function referencesTo()
-    {
-        return [];
-    }
-    #endregion relations
+    #rendegion Examples
     ##################################################
 }
