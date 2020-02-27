@@ -237,6 +237,11 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
+        //ToDo: Secutity
+        return $this;
+        if (!AlinaAccessIfAdmin()) {
+            return $this;
+        }
         $referencesSources = $this->referencesSources();
         foreach ($referencesSources as $cfgName => $srcCfg) {
             if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {

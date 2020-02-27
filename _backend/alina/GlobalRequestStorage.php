@@ -3,6 +3,7 @@
 namespace alina;
 
 use alina\traits\Singleton;
+use alina\utils\Arr;
 
 class GlobalRequestStorage
 {
@@ -16,7 +17,7 @@ class GlobalRequestStorage
 
     static public function set($prop, $val)
     {
-        static::obj()->memory[$prop] = $val;
+        Arr::setArrayValue($prop, $val, static::obj()->memory);
 
         return $val;
     }
@@ -35,8 +36,8 @@ class GlobalRequestStorage
 
     static public function get($prop)
     {
-        if (isset(static::obj()->memory[$prop])) {
-            return static::obj()->memory[$prop];
+        if (Arr::arrayHasPath($prop, static::obj()->memory)) {
+            return Arr::getArrayValue($prop, static::obj()->memory);
         }
 
         return NULL;

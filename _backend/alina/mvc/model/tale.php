@@ -87,4 +87,12 @@ class tale extends _BaseAlinaModel
     }
     ##################################################
     ##################################################
+    ##################################################
+    #region Feed
+    public function retrieveFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1)
+    {
+        foreach ($conditions as $cond) {}
+    }
+    #endregion Feed
+    ##################################################
 }

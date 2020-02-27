@@ -1,11 +1,10 @@
 <?php
 
 namespace alina\utils;
-
 class Arr
 {
     #region Getters & Setters
-#region Getters
+    #region Getters
     static public function getArrayValue($path, array $array, $delimiter = '/')
     {
         if (is_array($path)) {
@@ -36,9 +35,8 @@ class Arr
         return static::getArrayValueByArrayPath($path, $array);
     }
 
-#endregion Getters
-
-#region Setters
+    #endregion Getters
+    #region Setters
     static public function setArrayValue($path, $value, array &$array, $delimiter = '/')
     {
         if (is_array($path)) {
@@ -66,9 +64,8 @@ class Arr
         return static::setArrayValueByArrayPath($path, $value, $array);
     }
 
-#endregion Setters
-
-#region Path checker
+    #endregion Setters
+    #region Path checker
     static public function arrayHasPath($path, array $array, $delimiter = '/')
     {
         if (is_array($path)) {
@@ -88,7 +85,6 @@ class Arr
                 return FALSE;
             }
         }
-
         $value = $temp;
 
         return TRUE;
@@ -101,9 +97,8 @@ class Arr
         return static::checkArrayPathByArray($path, $array);
     }
 
-#endregion Path checker
-
-#region Unsetter
+    #endregion Path checker
+    #region Unsetter
     static public function unsetArrayPath($path, array &$array, $delimiter = '/')
     {
         if (is_array($path)) {
@@ -135,9 +130,8 @@ class Arr
         return static::unsetArrayPathByArrayPath($path, $array);
     }
 
-#endregion Unsetter
-
-#endregion Getters & Setters
+    #endregion Unsetter
+    #endregion Getters & Setters
     static public function firstArrayKey($array)
     {
         reset($array);
@@ -169,7 +163,6 @@ class Arr
     static public function arrayMergeRecursive(array $array1, array $array2)
     {
         $merged = $array1;
-
         foreach ($array2 as $key => & $value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && !is_numeric($key)) {
                 $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);

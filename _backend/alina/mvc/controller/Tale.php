@@ -77,17 +77,18 @@ class Tale
     ########################################
     ########################################
     ########################################
-    public function actionFeed()
+    public function actionFeed($pageSze = 5, $page = 1)
     {
         $vd = (object)[
             'tales' => [],
         ];
         ########################################
-        $conditions = [];
-        $sort       = [];
-        $limit      = 50;
-        $offset     = 50;
-        $collection = $this->processFeed($conditions, $sort, $limit, $offset);
+        $conditions = [
+            ["tale.is_submitted", '=', 1],
+            ["tale.type", '=', 'POST'],
+        ];
+        $sort[]     = ["tale.publish_at", 'DESC'];
+        $collection = $this->processFeed($conditions, $sort, $pageSze, $page);
         ########################################
         $vd = (object)[
             'tales' => $collection->toArray(),
@@ -97,16 +98,11 @@ class Tale
     }
 
     ########################################
-    protected function processFeed($conditions = [], $sort = [], $limit = 50, $offset = 0)
+    protected function processFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1)
     {
         ########################################
         $mTale      = new taleAlias();
-        $conditions = [
-            ["tale.is_submitted", '=', 1],
-            ["tale.type", '=', 'POST'],
-        ];
-        $sort[]     = ["{$mTale->alias}.publish_at", 'DESC'];
-        $collection = $mTale->getAllWithReferences($conditions, $sort);
+        $collection = $mTale->getAllWithReferences($conditions, $sort, $pageSize, $pageCurrentNumber);
 
         ########################################
         return $collection;

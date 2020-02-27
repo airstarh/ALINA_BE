@@ -655,14 +655,20 @@ class Data
             'pages'  => NULL,
             'page'   => $pageCurrentNumber,
         ];
-        if ($pg->rows <= $pg->limit) {
-            $pg->page = 1;
-        }
         ##############################
-        #region Pages Total
+        #region Validation
         if (!isset($pg->limit) || empty($pg->limit) || $pg->limit <= 0) {
             $pg->limit = $pg->rows;
         }
+        if ($pg->rows <= $pg->limit) {
+            $pg->page = 1;
+        }
+        if (!isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
+            $pg->page = 1;
+        }
+        #region Validation
+        ##############################
+        #region Pages Total
         $pg->pages = ceil($pg->rows / $pg->limit);
         if ($pg->page > $pg->pages) {
             $pg->page = $pg->pages;

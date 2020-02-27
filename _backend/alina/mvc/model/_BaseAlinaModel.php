@@ -420,11 +420,19 @@ class _BaseAlinaModel
     /**
      * Apply LIMIT/OFFSET to a query
      * @param int|null $backendLimit
-     * @param int|null $backendOffset
+     * @param int|null $backendPageCurrentNumber
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = NULL, $backendOffset = NULL)
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL)
     {
+        #####
+        if ($backendLimit !== NULL) {
+            $this->pageSize = $backendLimit;
+        }
+        if ($backendPageCurrentNumber !== NULL) {
+            $this->pageCurrentNumber = $backendPageCurrentNumber;
+        }
+        #####
         /** @var $q BuilderAlias object */
         $q                       = $this->q;
         $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize);
@@ -434,14 +442,11 @@ class _BaseAlinaModel
         $offset                  = $PG->offset;
         $q->skip($offset)->take($this->pageSize);
         #####
-        //Finally: if LIMIT and OFFSET are passed via back-end...
-        if ($backendLimit) {
-            $q->take($backendLimit);
-        }
-        if ($backendOffset) {
-            $q->skip($backendOffset);
-        }
-
+        GlobalRequestStorage::set("{$this->table}/pageCurrentNumber", $this->pageCurrentNumber);
+        GlobalRequestStorage::set("{$this->table}/pageSize", $this->pageSize);
+        GlobalRequestStorage::set("{$this->table}/rowsTotal", $this->state_ROWS_TOTAL);
+        GlobalRequestStorage::set("{$this->table}/pagesTotal", $this->pagesTotal);
+        #####
         #####
         return $q;
     }
@@ -475,7 +480,7 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $limit = NULL, $offset = NULL)
+    public function getAllWithReferencesPart1($conditions = [])
     {
         $q = $this->q();
         $q->select(["{$this->alias}.*"]);
@@ -486,15 +491,22 @@ class _BaseAlinaModel
             $this->apiUnpackGetParams();
             $this->qApplyGetSearchParams();
         }
-        //ORDER  from _GET
-        $this->qApiOrder($backendSortArray);
         //Has One JOINs.
         $this->qJoinHasOne();
+
+        return $q;
+    }
+
+    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    {
+        $q = $this->q;
         //COUNT
         $this->state_ROWS_TOTAL = $q->count();
+        //ORDER
+        $this->qApiOrder($backendSortArray);
         //LIMIT / OFFSET
-        $this->qApiLimitOffset($limit, $offset);
-        //Execute query.
+        $this->qApiLimitOffset($pageSize, $pgeCurrentNumber);
+        //Final query.
         $this->collection = $q->get();
         //Has Many JOINs.
         $this->joinHasMany();
@@ -502,10 +514,18 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    {
+        $q   = $this->getAllWithReferencesPart1($conditions);
+        $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber);
+
+        return $res;
+    }
+
     //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
-        $attributes = $this->getAllWithReferences($conditions, [], 1)->first();
+        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
         if (empty($attributes)) {
             $attributes = (object)[];
         }
