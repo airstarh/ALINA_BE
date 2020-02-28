@@ -52,7 +52,7 @@ class tale extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'owner' => [
+            'owner'    => [
                 'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'user AS owner', 'owner.id', '=', "{$this->alias}.owner_id"],
@@ -67,7 +67,7 @@ class tale extends _BaseAlinaModel
                     ]],
                 ],
             ],
-            'tag'   => [
+            'tag'      => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['leftJoin', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -83,7 +83,20 @@ class tale extends _BaseAlinaModel
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
-        ];
+            'comments' => [
+                'has'        => 'many',
+                'joins'      => [
+                    ['join', 'tale AS child', 'child.answer_to_tale_id', '=', "{$this->alias}.{$this->pkName}"],
+                ],
+                'conditions' => [
+                ],
+                'orders'     => [
+                    ['orderBy', 'child.publish_at', 'ASC'],
+                ],
+                'addSelects' => [
+                    ['addSelect', ['child.*', 'child.id AS child_id', "{$this->alias}.{$this->pkName} AS main_id"]],
+                ],
+            ]];
     }
     ##################################################
     ##################################################
@@ -91,7 +104,8 @@ class tale extends _BaseAlinaModel
     #region Feed
     public function retrieveFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1)
     {
-        foreach ($conditions as $cond) {}
+        foreach ($conditions as $cond) {
+        }
     }
     #endregion Feed
     ##################################################

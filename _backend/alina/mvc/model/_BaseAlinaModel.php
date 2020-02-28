@@ -502,10 +502,10 @@ class _BaseAlinaModel
         $offset                  = $PG->offset;
         $q->skip($offset)->take($this->pageSize);
         #####
-        GlobalRequestStorage::set("{$this->table}/pageCurrentNumber", $this->pageCurrentNumber);
-        GlobalRequestStorage::set("{$this->table}/pageSize", $this->pageSize);
-        GlobalRequestStorage::set("{$this->table}/rowsTotal", $this->state_ROWS_TOTAL);
-        GlobalRequestStorage::set("{$this->table}/pagesTotal", $this->pagesTotal);
+        GlobalRequestStorage::set("{$this->alias}/pageCurrentNumber", $this->pageCurrentNumber);
+        GlobalRequestStorage::set("{$this->alias}/pageSize", $this->pageSize);
+        GlobalRequestStorage::set("{$this->alias}/rowsTotal", $this->state_ROWS_TOTAL);
+        GlobalRequestStorage::set("{$this->alias}/pagesTotal", $this->pagesTotal);
         #####
         #####
         return $q;

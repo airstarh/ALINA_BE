@@ -100,11 +100,9 @@ class Tale
     ########################################
     protected function processFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1)
     {
-        ########################################
         $mTale      = new taleAlias();
         $collection = $mTale->getAllWithReferences($conditions, $sort, $pageSize, $pageCurrentNumber);
 
-        ########################################
         return $collection;
     }
     ########################################
