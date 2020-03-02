@@ -77,7 +77,14 @@ class Tale
     ########################################
     ########################################
     ########################################
-    public function actionFeed($pageSze = 5, $page = 1)
+    /**
+     * @param int $pageSze
+     * @param int $page
+     * @param array $answer_to_tale_ids
+     * @route /tale/feed
+     * @route /tale/feed/5/1/125
+     */
+    public function actionFeed($pageSze = 5, $page = 1, $answer_to_tale_ids = [])
     {
         $vd = (object)[
             'tales' => [],
@@ -88,7 +95,7 @@ class Tale
             ["tale.type", '=', 'POST'],
         ];
         $sort[]     = ["tale.publish_at", 'DESC'];
-        $collection = $this->processFeed($conditions, $sort, $pageSze, $page);
+        $collection = $this->processFeed($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
         ########################################
         $vd = (object)[
             'tales' => $collection->toArray(),
@@ -98,10 +105,18 @@ class Tale
     }
 
     ########################################
-    protected function processFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1)
+    protected function processFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1, $answer_to_tale_ids = [])
     {
-        $mTale      = new taleAlias();
-        $collection = $mTale->getAllWithReferences($conditions, $sort, $pageSize, $pageCurrentNumber);
+        $mTale = new taleAlias();
+        $q     = $mTale->getAllWithReferencesPart1($conditions);
+        if (!empty($answer_to_tale_ids)) {
+            if (!is_array($answer_to_tale_ids)) {
+                $answer_to_tale_ids = [$answer_to_tale_ids];
+                $sort               = [["tale.publish_at", 'ASC']];
+            }
+            $q->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids);
+        }
+        $collection = $mTale->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber);
 
         return $collection;
     }

@@ -190,7 +190,7 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pageCurrentNumber = NULL)
     {
         $q = $this->q;
         //COUNT
@@ -198,7 +198,7 @@ class _BaseAlinaModel
         //ORDER
         $this->qApiOrder($backendSortArray);
         //LIMIT / OFFSET
-        $this->qApiLimitOffset($pageSize, $pgeCurrentNumber);
+        $this->qApiLimitOffset($pageSize, $pageCurrentNumber);
         //Final query.
         $this->collection = $q->get();
         //Has Many JOINs.
