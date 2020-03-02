@@ -87,32 +87,32 @@ class Tale
     public function actionFeed($pageSze = 5, $page = 1, $answer_to_tale_ids = [])
     {
         $vd = (object)[
-            'tales' => [],
+            'tale' => [],
         ];
         ########################################
-        $conditions = [
-            ["tale.is_submitted", '=', 1],
-            ["tale.type", '=', 'POST'],
-        ];
-        $sort[]     = ["tale.publish_at", 'DESC'];
-        $collection = $this->processFeed($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
+        $conditions[] = ["tale.is_submitted", '=', 1];
+        $conditions[] = ["tale.publish_at", '<=', ALINA_TIME];
+        if (empty($answer_to_tale_ids)) {
+            $conditions[] = ["tale.type", '=', 'POST'];
+            $sort[]       = ["tale.publish_at", 'DESC'];
+        } else {
+            $sort[] = ["tale.publish_at", 'ASC'];
+        }
+        $collection = $this->processResponse($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
         ########################################
-        $vd = (object)[
-            'tales' => $collection->toArray(),
-        ];
+        $vd->tale = $collection->toArray();
         ########################################
         echo (new htmlAlias)->page($vd);
     }
 
     ########################################
-    protected function processFeed($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1, $answer_to_tale_ids = [])
+    protected function processResponse($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1, $answer_to_tale_ids = [])
     {
         $mTale = new taleAlias();
         $q     = $mTale->getAllWithReferencesPart1($conditions);
         if (!empty($answer_to_tale_ids)) {
             if (!is_array($answer_to_tale_ids)) {
                 $answer_to_tale_ids = [$answer_to_tale_ids];
-                $sort               = [["tale.publish_at", 'ASC']];
             }
             $q->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids);
         }
