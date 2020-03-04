@@ -238,10 +238,10 @@ class Auth
             #####
             $m = new user();
             $m->updateById($vd, CurrentUser::obj()->id);
-            if ($m->affectedRowsCount === 1) {
+            if ($m->state_AFFECTED_ROWS === 1) {
                 Message::set('Password changed!');
                 Sys::redirect('/auth/profile', 303);
-            } else if ($m->affectedRowsCount > 1) {
+            } else if ($m->state_AFFECTED_ROWS > 1) {
                 Message::setDanger('Something bad happened');
             } else {
                 Message::setDanger('Password not changed!');

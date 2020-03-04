@@ -53,7 +53,7 @@ class _BaseAlinaModel
     public $mode                   = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
     public $state_DATA_FILTERED    = FALSE;
     public $state_DATA_VALIDATED   = FALSE;
-    public $affectedRowsCount      = NULL;
+    public $state_AFFECTED_ROWS    = NULL;
     public $matchedUniqueFields    = [];
     public $matchedConditions      = [];
     public $addAuditInfo           = FALSE;
@@ -333,11 +333,11 @@ class _BaseAlinaModel
             $this->hookRightBeforeSave($dataArray);
         }
         ##################################################
-        $this->affectedRowsCount =
+        $this->state_AFFECTED_ROWS =
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
-        if ($this->affectedRowsCount == 1) {
+        if ($this->state_AFFECTED_ROWS == 1) {
             $this->attributes = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
             if (isset($this->attributes->{$this->pkName})) {
                 $this->setPkValue($this->attributes->{$this->pkName});
@@ -357,21 +357,21 @@ class _BaseAlinaModel
     #region DELETE
     public function delete(array $conditions)
     {
-        $this->mode              = 'DELETE';
-        $affectedRowsCount       = $this->q()
+        $this->mode                = 'DELETE';
+        $affectedRowsCount         = $this->q()
             ->where($conditions)
             ->delete();
-        $this->affectedRowsCount = $affectedRowsCount;
+        $this->state_AFFECTED_ROWS = $affectedRowsCount;
         $this->resetFlags();
 
-        return $this;
+        return $this->state_AFFECTED_ROWS;
     }
 
     public function deleteById($id)
     {
         $pkName  = $this->pkName;
         $pkValue = $id;
-        $this->delete([$pkName => $pkValue]);
+        return $this->delete([$pkName => $pkValue]);
     }
 
     public function smartDeleteById($id, $additionalData = NULL)

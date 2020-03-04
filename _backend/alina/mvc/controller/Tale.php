@@ -74,6 +74,37 @@ class Tale
 
         return $this;
     }
+
+    ########################################
+    public function actionDelete($id = NULL)
+    {
+        $vd     = (object)[
+            'form_id' => __FUNCTION__,
+            'success' => 0,
+        ];
+        $isPost = Request::isPostPutDelete($post);
+        ##################################################
+        if ($isPost && $id && (
+                AlinaAccessIfOwner($post->owner_id)
+                ||
+                AlinaAccessIfAdmin()
+                ||
+                AlinaAccessIfModerator()
+            )) {
+            $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
+            $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
+            $vd->rows      = (new taleAlias())->deleteById($id);
+            Message::set('Deleted');
+            $vd->success = 1;
+        } else {
+            Message::setDanger('Failed');
+        }
+        ########################################
+        echo (new htmlAlias)->page($vd);
+
+        return $this;
+    }
+
     ########################################
     ########################################
     ########################################
