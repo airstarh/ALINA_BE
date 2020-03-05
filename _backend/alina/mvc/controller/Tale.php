@@ -160,8 +160,8 @@ class Tale
         $mTale              = new taleAlias();
         $post               = Request::obj()->POST;
         $post->is_submitted = 1;
-        $mTale->insert($post);
-        $vd = $this->getTaleComments($post->answer_to_tale_id);
+        $id                 = $mTale->insert($post)->id;
+        $vd                 = $mTale->getOneWithReferences(["{$mTale->alias}.{$mTale->pkName}" => $id,]);
         echo (new jsonView())->standardRestApiResponse($vd);
     }
     ########################################

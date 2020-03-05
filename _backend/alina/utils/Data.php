@@ -656,21 +656,37 @@ class Data
             'page'   => $pageCurrentNumber,
         ];
         ##############################
+        #region Special Case All
+        if ($pg->page === 'all') {
+            $pg->limit  = $pg->rows;
+            $pg->offset = 0;
+
+            return $pg;
+        }
+        #endregion Special Case All
+        ##############################
         #region Validation
         if (!isset($pg->limit) || empty($pg->limit) || $pg->limit <= 0) {
             $pg->limit = $pg->rows;
         }
-        if ($pg->rows <= $pg->limit) {
-            $pg->page = 1;
-        }
-        if (!isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
-            $pg->page = 1;
+        if ($pg->page !== 'last') {
+            if ($pg->rows <= $pg->limit) {
+                $pg->page = 1;
+            }
+            if (!isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
+                $pg->page = 1;
+            }
         }
         #region Validation
         ##############################
         #region Pages Total
-        $pg->pages = ceil($pg->rows / $pg->limit);
-        if ($pg->page > $pg->pages) {
+        if ($pg->rows <= 0) {
+            $pg->pages = 1;
+        } else {
+            $pg->pages = ceil($pg->rows / $pg->limit);
+        }
+
+        if ($pg->page > $pg->pages || $pg->page === 'last') {
             $pg->page = $pg->pages;
         }
         #endregion Pages Total
