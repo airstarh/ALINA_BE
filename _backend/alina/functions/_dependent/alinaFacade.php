@@ -1,6 +1,7 @@
 <?php
 ##################################################
 use alina\app;
+use alina\GlobalRequestStorage;
 use alina\mvc\model\CurrentUser;
 
 define('ALINA_DT_FORMAT_DB', 'Y-m-d H:i:s');
@@ -63,6 +64,11 @@ function alinaErrorLog($m, $force = FALSE)
     return;
 }
 
+function AlinaResponseSuccess($success = 1)
+{
+    GlobalRequestStorage::set('alina_response_success', $success);
+}
+
 ##################################################
 #region Access
 function AlinaAccessIfAdminOrNotProd()
@@ -83,6 +89,16 @@ function AlinaAccessIfModerator()
 function AlinaAccessIfOwner($id)
 {
     return CurrentUser::obj()->id === $id;
+}
+
+function AlinaAccessIfAdminOrModeratorOrOwner($id)
+{
+    return
+        AlinaAccessIfOwner($id)
+        ||
+        AlinaAccessIfAdmin()
+        ||
+        AlinaAccessIfModerator();
 }
 
 #endregion Access

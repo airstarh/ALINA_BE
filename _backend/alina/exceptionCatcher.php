@@ -21,7 +21,6 @@ class exceptionCatcher
 
     protected function __construct()
     {
-
     }
 
     /**
@@ -57,6 +56,7 @@ class exceptionCatcher
         }
         #endregion Clean bugger
         ##################################################
+        AlinaResponseSuccess(0);
         \alina\mvc\model\_baseAlinaEloquentTransaction::rollback();
         ##################################################
         $strUNKNOWN         = 'UNKNOWN';
@@ -95,13 +95,11 @@ class exceptionCatcher
 
     protected function processError()
     {
-
         #region PHP ERROR LOG
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
         $dbgCfg = app::getConfig('debug');
         if (in_array(TRUE, $dbgCfg)) {
-
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {
                     $mEL = new error_log();

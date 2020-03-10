@@ -190,7 +190,7 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pageCurrentNumber = NULL)
+    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pageCurrentNumber = NULL, $paginationVersa = false)
     {
         $q = $this->q;
         //COUNT
@@ -198,7 +198,7 @@ class _BaseAlinaModel
         //ORDER
         $this->qApiOrder($backendSortArray);
         //LIMIT / OFFSET
-        $this->qApiLimitOffset($pageSize, $pageCurrentNumber);
+        $this->qApiLimitOffset($pageSize, $pageCurrentNumber, $paginationVersa);
         //Final query.
         $this->collection = $q->get();
         //Has Many JOINs.
@@ -207,10 +207,10 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
-    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL)
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL, $paginationVersa = false)
     {
         $q   = $this->getAllWithReferencesPart1($conditions);
-        $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber);
+        $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber, $paginationVersa);
 
         return $res;
     }
@@ -371,6 +371,7 @@ class _BaseAlinaModel
     {
         $pkName  = $this->pkName;
         $pkValue = $id;
+
         return $this->delete([$pkName => $pkValue]);
     }
 
@@ -481,9 +482,10 @@ class _BaseAlinaModel
      * Apply LIMIT/OFFSET to a query
      * @param int|null $backendLimit
      * @param int|null $backendPageCurrentNumber
+     * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL)
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, $backendVersa = FALSE)
     {
         #####
         if ($backendLimit !== NULL) {
@@ -495,7 +497,7 @@ class _BaseAlinaModel
         #####
         /** @var $q BuilderAlias object */
         $q                       = $this->q;
-        $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize);
+        $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize, $backendVersa);
         $this->pagesTotal        = $PG->pages;
         $this->pageCurrentNumber = $PG->page;
         $this->pageSize          = $PG->limit;

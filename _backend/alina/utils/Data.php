@@ -645,7 +645,7 @@ class Data
     #endregion Validate
     ##################################################
     #region Pagination
-    static public function paginator($rowsTotal, $pageCurrentNumber, $pageSize)
+    static public function paginator($rowsTotal, $pageCurrentNumber, $pageSize, $versa = FALSE)
     {
         ##############################
         $pg = (object)[
@@ -685,7 +685,6 @@ class Data
         } else {
             $pg->pages = ceil($pg->rows / $pg->limit);
         }
-
         if ($pg->page > $pg->pages || $pg->page === 'last') {
             $pg->page = $pg->pages;
         }
@@ -699,6 +698,30 @@ class Data
         } else {
             $pg->offset = $pg->limit * ($pg->page - 1);
         }
+        ##############################
+        #region Special Case Versa Pagination (when the last page has full page size, the first page has rest)
+        if ($versa) {
+            $rest       = $pg->rows % $pg->limit;
+            if ($rest < $pg->limit) {
+                $diff       = $pg->limit - $rest;
+                $pg->offset = $pg->limit * ($pg->page - 1) - $diff;
+                //ToDo: limit vs pageSize!!!
+                // if ($pg->offset < 0) {
+                //     $pg->offset = 0;
+                //     $pg->limit  = $rest;
+                // }
+                $pg->rest = $rest;
+                $pg->diff = $diff;
+            }
+
+            error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
+            error_log(__FUNCTION__, 0);
+            error_log(json_encode(func_get_args()), 0);
+            error_log(json_encode($pg), 0);
+            error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
+        }
+        #endregion Special Case Versa Pagination (when the last page has full page size, the first page has rest)
+        ##############################
         #endregion Offset
         ##############################
         return $pg;
