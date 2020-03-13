@@ -568,6 +568,10 @@ class Data
     static public function filterVarStrHtml($v)
     {
         #####
+        if (empty($v)) {
+            return '';
+        }
+        #####
         $forbidden = [
             '//style',
             '//script',
@@ -701,7 +705,7 @@ class Data
         ##############################
         #region Special Case Versa Pagination (when the last page has full page size, the first page has rest)
         if ($versa) {
-            $rest       = $pg->rows % $pg->limit;
+            $rest = $pg->rows % $pg->limit;
             if ($rest < $pg->limit) {
                 $diff       = $pg->limit - $rest;
                 $pg->offset = $pg->limit * ($pg->page - 1) - $diff;
@@ -713,7 +717,6 @@ class Data
                 $pg->rest = $rest;
                 $pg->diff = $diff;
             }
-
             error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
             error_log(__FUNCTION__, 0);
             error_log(json_encode(func_get_args()), 0);

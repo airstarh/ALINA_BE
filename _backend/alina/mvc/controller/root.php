@@ -8,6 +8,11 @@ class root
 {
     public function actionIndex()
     {
+        require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
+    }
+
+    public function actionIndex2()
+    {
         $vd = (object)[
             '/AdminTests/ConversionToObject'                       => 'Conversion to Object',
             '/AdminTests/BaseAlinaModel'                           => 'action BaseAlinaModel',

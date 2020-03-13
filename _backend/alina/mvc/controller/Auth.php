@@ -63,6 +63,7 @@ class Auth
             'password'         => '',
             'confirm_password' => '',
         ];
+        $CU = CurrentUser::obj();
         ##################################################
         if (Request::isPost()) {
             $p  = Data::deleteEmptyProps(Request::obj()->POST);
@@ -71,15 +72,18 @@ class Auth
                 if ($vd->password !== $vd->confirm_password) {
                     throw new exceptionValidation('Passwords do not match');
                 }
-                $u = CurrentUser::obj();
-                if ($u->Register($vd)) {
+                if ($CU->Register($vd)) {
                     Message::set('Success');
-                    $u->messages();
+                    $CU->messages();
+                    Sys::redirect('/auth/login', 303);
                 }
             } catch (exceptionValidation $e) {
-                Message::set($e->getMessage(), [], 'alert alert-danger');
+                $CU->resetDiscoveredData();
+                Message::setDanger($e->getMessage());
             }
         }
+        ##################################################
+        $CU->resetDiscoveredData();
         ##################################################
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
 
@@ -246,7 +250,6 @@ class Auth
             } else {
                 Message::setDanger('Password not changed!');
             }
-
         }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }

@@ -68,11 +68,11 @@ class user extends _BaseAlinaModel
             #####
             'firstname'      => [
                 'validators' => [
-                    [
-                        'f'       => 'strlen',
-                        'errorIf' => [FALSE, 0],
-                        'msg'     => 'First Name is required!',
-                    ],
+                    // [
+                    //     'f'       => 'strlen',
+                    //     'errorIf' => [FALSE, 0],
+                    //     'msg'     => 'First Name is required!',
+                    // ],
                 ],
             ],
             'lastname'       => [],

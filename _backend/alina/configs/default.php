@@ -80,6 +80,9 @@ switch (ALINA_ENV) {
                 ],
                 'meta' => [],
             ],
+            'ui'                  => [
+                'domain' => 'http://127.0.0.1:8082',
+            ],
         ];
         break;
 }

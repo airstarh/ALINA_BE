@@ -56,7 +56,7 @@ class CurrentUser
         return $this;
     }
 
-    protected function resetDiscoveredData()
+    public function resetDiscoveredData()
     {
         $this->id    = NULL;
         $this->token = NULL;
@@ -232,7 +232,6 @@ class CurrentUser
         }
 
         return FALSE;
-
     }
     #endregion States
     ##################################################
@@ -486,7 +485,6 @@ class CurrentUser
                         'user_id' => $this->USER->id,
                     ]);
                     break;
-
             }
         }
 
@@ -496,7 +494,7 @@ class CurrentUser
     public function messages()
     {
         foreach ($this->msg as $i => $v) {
-            Message::setDanger($v);
+            Message::setInfo($v);
         }
     }
     #endregion Utils
