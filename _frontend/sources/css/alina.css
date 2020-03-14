@@ -30,4 +30,14 @@ pre {
     padding: 2mm;
 }
 
+.fixed-height-100px {
+    overflow: hidden;
+    max-height: 100px;
+}
+
+.fixed-height-150px {
+    overflow: hidden;
+    max-height: 150px;
+}
+
 /*endregion Common*/
