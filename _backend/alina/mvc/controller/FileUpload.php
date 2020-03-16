@@ -38,6 +38,10 @@ class FileUpload
     #region Utils
     protected function processUpload()
     {
+        #####
+        error_log('processUpload',0);
+        error_log(json_encode(Request::obj()),0);
+        #####
         $this->resp = (object)[
             'uploaded'    => 0,
             'fileName'    => [],
@@ -51,10 +55,16 @@ class FileUpload
             $counterUploadedFiles = 0;
             foreach ($FILE_CONTAINER["error"] as $i => $error) {
                 if ($error == UPLOAD_ERR_OK) {
-                    $sourceFileFullPath        = $FILE_CONTAINER["tmp_name"][$i];
-                    $sourceFileCleanName       = $FILE_CONTAINER["name"][$i];
-                    $newFileCleanName          = md5_file($sourceFileFullPath);
-                    $ext                       = FS::fileEXT($sourceFileCleanName);
+                    $sourceFileFullPath  = $FILE_CONTAINER["tmp_name"][$i];
+                    $sourceFileCleanName = $FILE_CONTAINER["name"][$i];
+                    $newFileCleanName    = md5_file($sourceFileFullPath);
+                    $ext                 = FS::fileEXT($sourceFileCleanName);
+                    #####
+                    if (!$this->isExtAllowed($ext)) {
+                        Message::setDanger("{$sourceFileCleanName} is not uploaded");
+                        continue;
+                    }
+                    #####
                     $this->resp->fileName[]    = $sourceFileCleanName;
                     $this->resp->newFileName[] = $newFileName = "{$newFileCleanName}.{$ext}";
                     $targetFile                = FS::buildPathFromBlocks($targetDir, $newFileName);
@@ -62,7 +72,7 @@ class FileUpload
                     if ($muf) {
                         //Todo: SECURITY!!!
                         $webPath = $this->webPath($targetFile);
-                        Message::set("Uploaded: $webPath");
+                        //Message::set("Uploaded: $webPath");
                         $this->resp->url[]    = $webPath;
                         $this->resp->uploaded = ++$counterUploadedFiles;
                     }
@@ -76,7 +86,6 @@ class FileUpload
 
     protected function processFileModel()
     {
-
     }
 
     protected function destinationDir()
@@ -106,6 +115,23 @@ class FileUpload
         $res = str_replace('\\', '/', $res);
 
         return $res;
+    }
+
+    protected function allowedExtensions()
+    {
+        return [
+            'jpg',
+            'jpeg',
+            'png',
+            'webp',
+            'gif',
+        ];
+    }
+
+    protected function isExtAllowed($ext)
+    {
+        return
+            in_array(mb_strtolower($ext), $this->allowedExtensions());
     }
 
     #endregion Utils

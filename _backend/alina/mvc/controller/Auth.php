@@ -109,9 +109,11 @@ class Auth
         $u  = new user();
         #####
         if (Request::isPostPutDelete($post)) {
-            Request::obj()->R->route_plan_b = '/auth/profile';
-            $u->updateById($post);
-            Message::set('Profile updated!');
+            if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
+                Request::obj()->R->route_plan_b = '/auth/profile';
+                $u->updateById($post);
+                Message::set('Profile updated!');
+            }
         }
         #####
         $u->getOneWithReferences(['user.id' => $id,]);
@@ -217,7 +219,7 @@ class Auth
     public function actionChangePassword()
     {
         #####
-        if (!CurrentUser::obj()->isLoggedIn()) {
+        if (!AlinaAccessIfLoggedIn()) {
             Message::setDanger('Login first');
             Sys::redirect('/auth/login', 303);
         }

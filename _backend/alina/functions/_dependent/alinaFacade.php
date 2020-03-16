@@ -71,6 +71,11 @@ function AlinaResponseSuccess($success = 1)
 
 ##################################################
 #region Access
+function AlinaAccessIfLoggedIn()
+{
+    return CurrentUser::obj()->isLoggedIn();
+}
+
 function AlinaAccessIfAdminOrNotProd()
 {
     return CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD';

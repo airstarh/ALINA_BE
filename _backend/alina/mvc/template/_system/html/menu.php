@@ -1,5 +1,6 @@
 <?php
 
+use alina\mvc\model\CurrentUser;
 use alina\utils\Html;
 
 $cu = alina\mvc\model\CurrentUser::obj();
@@ -16,8 +17,10 @@ $ua = $cu->attributes();
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="/">Feed<span class="sr-only">(current)</span></a>
             </li>
+
+            <?php if (CurrentUser::obj()->isAdmin()) { ?>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -32,9 +35,18 @@ $ua = $cu->attributes();
                     <a class="dropdown-item" href="#">Something else here</a>
                 </div>
             </li>
+            <?php } ?>
+
+            <?php if (CurrentUser::obj()->isAdmin()) { ?>
+            <?php } ?>
+
+            <?php if (CurrentUser::obj()->isAdmin()) { ?>
             <li class="nav-item">
                 <a class="nav-link" href="#">Link</a>
             </li>
+            <?php } ?>
+
+            <?php if (CurrentUser::obj()->isAdmin()) { ?>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -47,9 +59,13 @@ $ua = $cu->attributes();
                     <a class="dropdown-item" href="#">Something else here</a>
                 </div>
             </li>
+            <?php } ?>
+
+            <?php if (CurrentUser::obj()->isAdmin()) { ?>
             <li class="nav-item">
                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
             </li>
+            <?php } ?>
         </ul>
         <ul class="navbar-nav my-2 my-lg-0">
             <li class="nav-item dropdown">
@@ -67,9 +83,12 @@ $ua = $cu->attributes();
                 </div>
             </li>
         </ul>
+
+        <?php if (CurrentUser::obj()->isAdmin()) { ?>
         <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
+        <?php } ?>
     </div>
 </nav>
