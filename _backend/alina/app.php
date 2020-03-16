@@ -207,11 +207,24 @@ class app
             return $rp;
         }
 
+        #####
+        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR.$fullPath))) {
+            return $rp;
+        }
+        #####
+        #####
+
         // -Check if Path exists in Alina directory.
         $fullPath = \alina\utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
+
+        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR.$fullPath))) {
+            return $rp;
+        }
+        #####
+        #####
 
         // -Check if Path exists as is.
         if (FALSE !== ($rp = realpath($path))) {
