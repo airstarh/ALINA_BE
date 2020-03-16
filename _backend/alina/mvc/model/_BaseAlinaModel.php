@@ -842,11 +842,11 @@ class _BaseAlinaModel
     {
         $fields = [];
         $items  = [];
-        $items  = Dal::table('information_schema.columns')
-            ->select('column_name')
-            ->where('table_name', '=', $this->table)
-            ->where('table_schema', '=', AlinaCFG('db/database'))
-            ->pluck('column_name');
+        // $items  = Dal::table('information_schema.columns')
+        //     ->select('column_name')
+        //     ->where('table_name', '=', $this->table)
+        //     ->where('table_schema', '=', AlinaCFG('db/database'))
+        //     ->pluck('column_name');
         foreach ($items as $v) {
             $fields[$v] = [];
         }
