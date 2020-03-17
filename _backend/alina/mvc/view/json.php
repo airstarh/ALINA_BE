@@ -20,12 +20,12 @@ class json
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = Message::returnAllMessages();
-        if (AlinaAccessIfAdminOrNotProd()) {
+        if (AlinaAccessIfAdmin()) {
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
         $response['meta']        = GlobalRequestStorage::getAll();
         $response['CurrentUser'] = CurrentUser::obj()->attributes();
-        if (AlinaAccessIfAdminOrNotProd()) {
+        if (AlinaAccessIfAdmin()) {
             $response['test'] = ['Проверка русских букв.',];
             $response['sys']  = $this->systemData();
         }

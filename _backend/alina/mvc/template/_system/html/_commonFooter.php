@@ -4,7 +4,7 @@ use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 
 ?>
-<?php if (AlinaAccessIfAdminOrNotProd()) : ?>
+<?php if (AlinaAccessIfAdmin()) : ?>
     <div>
         <?php
         $h1 = 'Alina Details';
