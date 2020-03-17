@@ -184,7 +184,7 @@ class CurrentUser
         $vd->is_deleted  = 0;
         $u->insert($vd);
         if (isset($u->id)) {
-            $mUserRole = new _BaseAlinaModel(['table' => 'rbac_user_role']);
+            $mUserRole = new rbac_user_role();
             $mUserRole->insert([
                 'user_id' => $u->id,
                 //ToDo: Hardcoded, 5-servants

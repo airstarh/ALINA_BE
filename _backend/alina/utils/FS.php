@@ -1,7 +1,6 @@
 <?php
 
 namespace alina\utils;
-
 class FS
 {
     /**
@@ -11,8 +10,7 @@ class FS
      */
     static public function mkChainedDirIfNotExists($fullPath)
     {
-        $fullPath = static::normalizePath($fullPath);
-
+        $fullPath  = static::normalizePath($fullPath);
         $pathParts = explode(DIRECTORY_SEPARATOR, $fullPath);
         $chain     = [];
         foreach ($pathParts as $dir) {
@@ -25,7 +23,6 @@ class FS
                 mkdir($chainPath);
             }
         }
-
         if (!is_dir($fullPath)) {
             mkdir($fullPath, 0777, TRUE);
         }
@@ -76,21 +73,18 @@ class FS
         do {
             $dirFile = $dir . DIRECTORY_SEPARATOR . $uniqueFileName;
             if (file_exists($dirFile)) {
-
                 // Build suffix
                 list($usec, $sec) = explode(" ", microtime());
                 $suffix = $sec;
                 $suffix .= '-';
                 $suffix .= str_replace(['.', ','], '', $usec);
-
                 // Build new file name
-                $fileParts   = pathinfo($fileName);
-                $newFileName = '';
-                $newFileName .= $fileParts['filename'];
-                $newFileName .= '-';
-                $newFileName .= $suffix;
-                $newFileName .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
-
+                $fileParts      = pathinfo($fileName);
+                $newFileName    = '';
+                $newFileName    .= $fileParts['filename'];
+                $newFileName    .= '-';
+                $newFileName    .= $suffix;
+                $newFileName    .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
                 $uniqueFileName = $newFileName;
             } else {
                 $repeat = FALSE;
@@ -140,7 +134,6 @@ class FS
                 $blocks[] = $block;
             }
         }
-
         $pp = [];
         foreach ($blocks as $i => $block) {
             $b = static::normalizePath($block);
@@ -150,7 +143,6 @@ class FS
             }
             $pp[] = $b;
         }
-
         $path = implode(DIRECTORY_SEPARATOR, $pp);
 
         return $path;
@@ -161,14 +153,12 @@ class FS
         if (!file_exists($realPath)) {
             throw new \ErrorException("File {$realPath} does not exist.");
         }
-
         $pathInfo = pathinfo($realPath);
         $fileSize = filesize($realPath);
         $ext      = $pathInfo['extension'];
         $baseName = $pathInfo['basename'];
         $mimeObj  = new \Mimey\MimeTypes;
         $mimeType = $mimeObj->getMimeType($ext);
-
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mimeType);
         header('Content-Disposition: attachment; filename="' . $baseName . '"');

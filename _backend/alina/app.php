@@ -13,7 +13,6 @@ class app
     public $version = 2;
     public $license = 'Free For All';
     #endregion Officials
-
     #region Initiation
     protected function __construct($config = [])
     {
@@ -49,7 +48,6 @@ class app
         //spl_autoload_register(function(){});
         spl_autoload_register(function ($class) use ($config) {
             $extension = '.php';
-
             // For Application
             if (!isset($config['appNamespace']) || empty($config['appNamespace'])) {
                 return NULL;
@@ -61,10 +59,9 @@ class app
             $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
             $classFile    = $className . $extension;
             $classPath    = ALINA_PATH_TO_APP . DIRECTORY_SEPARATOR . $classFile;
-            if (file_exists($classPath)) {
-                require_once $classPath;
+            if (FALSE !== ($res = Alina_file_exists($classPath))) {
+                require_once $res;
             }
-
             // For Alina
             $appNamespace = 'alina';
             $className    = ltrim($class, '\\');
@@ -73,10 +70,9 @@ class app
             $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
             $classFile    = $className . $extension;
             $classPath    = ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . $classFile;
-            if (file_exists($classPath)) {
-                require_once $classPath;
+            if (FALSE !== ($res = Alina_file_exists($classPath))) {
+                require_once $res;
             }
-
             // For Vendors
             //            $className = ltrim($class, '\\');
             //            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
@@ -86,7 +82,6 @@ class app
             //                require_once $classPath;
             //            }
         });
-
         // ToDo: Resolve for User-defined Application!!!
         require_once __DIR__ . '/vendor/autoload.php';
     }
@@ -105,7 +100,6 @@ class app
         return $this;
     }
     #endregion Initiation
-
     #region Instantiation
     static protected $instance = NULL;
 
@@ -137,7 +131,6 @@ class app
         return $_this;
     }
     #endregion Instantiation
-
     #region Config manipulations
     static public function getConfig($path)
     {
@@ -156,7 +149,6 @@ class app
     }
 
     #endregion Config manipulations
-
     #region Namespace Resolver
     public function resolveClassName($nsPath)
     {
@@ -165,17 +157,14 @@ class app
         if (class_exists($fullPath)) {
             return $fullPath;
         }
-
         $ns       = static::getConfigDefault('appNamespace');
         $fullPath = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $nsPath);
         if (class_exists($fullPath)) {
             return $fullPath;
         }
-
         if (class_exists($nsPath)) {
             return $nsPath;
         }
-
         throw new \ErrorException("Relative Class {$nsPath} is not defined.");
     }
 
@@ -197,7 +186,6 @@ class app
         return FALSE;
     }
     #endregion Namespace Resolver
-
     #region Paths Resolver
     public function resolvePath($path)
     {
@@ -206,35 +194,29 @@ class app
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
-
         #####
-        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR.$fullPath))) {
+        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
             return $rp;
         }
         #####
         #####
-
         // -Check if Path exists in Alina directory.
         $fullPath = \alina\utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
         if (FALSE !== ($rp = realpath($fullPath))) {
             return $rp;
         }
-
-        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR.$fullPath))) {
+        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
             return $rp;
         }
         #####
         #####
-
         // -Check if Path exists as is.
         if (FALSE !== ($rp = realpath($path))) {
             return $rp;
         }
-
         throw new \ErrorException("Path {$path} is not defined.");
     }
     #endregion Paths Resolver
-
     #region Routes
     /** @var \alina\router */
     public $router;
@@ -244,7 +226,6 @@ class app
         $this->router              = \alina\router::obj();
         $this->router->vocAliasUrl = static::getConfig(['vocAliasUrl']);
         $this->router->processUrl();
-
         ##################################################
         #region Redirect
         /*
@@ -270,7 +251,6 @@ class app
         return $this;
     }
     #endregion Routes
-
     #region MVC
     public $controller;
     public $action;
@@ -285,17 +265,13 @@ class app
         if (!class_exists($controllerName, TRUE)) {
             throw new \alina\exception("No Class: $controllerName");
         }
-
         $go = new $controllerName();
-
         if (FALSE === ($action = $this->resolveMethodName($go, $action))) {
             throw new \alina\exception("No Method: $action");
         }
-
         if (!is_array($params)) {
             $params = [$params];
         }
-
         $this->currentController   = get_class($go);
         $this->currentAction       = $action;
         $this->currentActionParams = $params;
@@ -313,7 +289,6 @@ class app
         $this->controller   = (isset($controller)) ? $controller : $this->router->controller;
         $this->action       = (isset($action)) ? $action : $this->router->action;
         $this->actionParams = (isset($params)) ? $params : $this->router->pathParameter;
-
         if (empty($this->controller) && empty($this->action)) {
             return $this->mvcDefaultPage();
         }
@@ -323,7 +298,6 @@ class app
         if (empty($this->action)) {
             $this->action = static::getConfigDefault('mvc/defaultAction');
         }
-
         // Defined by route in user app.
         try {
             $namespace      = static::getConfig('appNamespace');
@@ -382,7 +356,6 @@ class app
     {
         // ToDo: line below does not work with Nginx correct. Investigate.
         //http_response_code(404);
-
         // 404 of user app
         try {
             $namespace      = static::getConfig('appNamespace');

@@ -108,3 +108,25 @@ function AlinaAccessIfAdminOrModeratorOrOwner($id)
 
 #endregion Access
 ##################################################
+/**
+ * https://stackoverflow.com/questions/3964793/php-case-insensitive-version-of-file-exists
+ */
+function Alina_file_exists($fileName, $caseSensitive = FALSE)
+{
+    if (file_exists($fileName)) {
+        return $fileName;
+    }
+    if ($caseSensitive) return FALSE;
+    // Handle case insensitive requests
+    $directoryName     = dirname($fileName);
+    $fileArray         = glob($directoryName . '/*', GLOB_NOSORT);
+    $fileNameLowerCase = strtolower($fileName);
+    foreach ($fileArray as $file) {
+        if (strtolower($file) == $fileNameLowerCase) {
+            return $file;
+        }
+    }
+
+    return FALSE;
+}
+##################################################
