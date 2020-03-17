@@ -101,7 +101,7 @@ class CurrentUser
             return FALSE;
         }
         $data = $this->buildLoginData();
-        $this->LOGIN->insert($data);
+        $this->LOGIN->upsertByUniqueFields($data);
         $this->getLOGIN($data);
 
         return $this->rememberAuthInfo($this->USER->id, $this->LOGIN->attributes->token);

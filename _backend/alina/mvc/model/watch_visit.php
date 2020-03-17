@@ -12,18 +12,7 @@ class watch_visit extends _BaseAlinaModel
     public function fields()
     {
         #####
-        //ToDo: Too heavy!!!
         $req = Request::obj();
-        switch (Request::obj()->METHOD) {
-            case 'POST':
-            case 'PUT':
-            case 'DELETE':
-                //ToDo...
-                break;
-            default:
-                break;
-        }
-
         #####
         return [
             'id'           => [],
@@ -31,7 +20,7 @@ class watch_visit extends _BaseAlinaModel
             'browser_id'   => [],
             'url_path_id'  => [],
             'query_string' => [
-                'default' => Request::obj()->QUERY_STRING,
+                'default' => $req->QUERY_STRING,
             ],
             'user_id'      => [
                 'default' => CurrentUser::obj()->id,
@@ -43,10 +32,10 @@ class watch_visit extends _BaseAlinaModel
                 'default' => ALINA_TIME,
             ],
             'method'       => [
-                'default' => Request::obj()->METHOD,
+                'default' => $req->METHOD,
             ],
             'data'         => [
-                'default' => json_encode($req, JSON_UNESCAPED_UNICODE),
+                'default' => var_export(['POST' => $req->POST, 'FILES' => $req->FILES,], 1),
             ],
             'controller'   => [
                 'default' => Alina()->router->controller,
@@ -55,7 +44,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => Alina()->router->action,
             ],
             'ajax'         => [
-                'default' => Request::obj()->AJAX,
+                'default' => $req->AJAX,
             ],
         ];
     }

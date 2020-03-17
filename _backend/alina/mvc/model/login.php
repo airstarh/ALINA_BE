@@ -28,6 +28,7 @@ class login extends _BaseAlinaModel
     public function uniqueKeys()
     {
         return [
+            ['user_id', 'ip', 'browser_enc'],
             ['user_id', 'token'],
         ];
     }

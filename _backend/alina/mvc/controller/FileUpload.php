@@ -39,15 +39,16 @@ class FileUpload
     protected function processUpload()
     {
         #####
-        error_log('processUpload',0);
-        error_log(json_encode(Request::obj()),0);
-        #####
         $this->resp = (object)[
             'uploaded'    => 0,
             'fileName'    => [],
             'newFileName' => [],
             'url'         => [],
         ];
+        #####
+        if (!CurrentUser::obj()->isLoggedIn()) {
+            return $this->resp;
+        }
         #####
         if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
             $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
@@ -70,7 +71,6 @@ class FileUpload
                     $targetFile                = FS::buildPathFromBlocks($targetDir, $newFileName);
                     $muf                       = move_uploaded_file($sourceFileFullPath, $targetFile);
                     if ($muf) {
-                        //Todo: SECURITY!!!
                         $webPath = $this->webPath($targetFile);
                         //Message::set("Uploaded: $webPath");
                         $this->resp->url[]    = $webPath;

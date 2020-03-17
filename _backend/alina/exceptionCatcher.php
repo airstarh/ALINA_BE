@@ -131,6 +131,8 @@ class exceptionCatcher
     {
         $arrMessage             = [];
         $strMessage             = '';
+        $arrMessage['IP']       = Request::obj()->IP;
+        $arrMessage['IP']       = Request::obj()->URL_PATH;
         $arrMessage['Class']    = $this->expClassName;
         $arrMessage['Severity'] = $this->getSeverityStr();
         $arrMessage['Code']     = $this->eCode;

@@ -94,7 +94,6 @@ class Sys
                     return TRUE;
                 }
             }
-
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             return TRUE;
@@ -144,6 +143,7 @@ class Sys
                     $allowedHeaders = implode(', ', $allowedHeaders);
                     #####
                     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+                    //header("Access-Control-Allow-Origin: *");
                     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
                     header("Access-Control-Allow-Headers: {$allowedHeaders}");
                     header("Access-Control-Expose-Headers: {$allowedHeaders}");
