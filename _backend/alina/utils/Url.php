@@ -14,12 +14,9 @@ class Url
         $pathSource      = $parsedUrlSource['path'];
         $pathSource      = trim($pathSource, '/');
         $pathRes         = '';
-
         foreach ($vocabulary as $aliasMask => $urlMask) {
-
             $compareWith       = ($aliasToSystemRoute) ? $aliasMask : $urlMask;
             $regularExpression = static::routeRegExp($compareWith);
-
             if (preg_match($regularExpression, $pathSource)) {
                 if ($aliasToSystemRoute) {
                     $pathRes = static::aliasToUrl($aliasMask, $pathSource, $urlMask);
@@ -38,8 +35,7 @@ class Url
 
     static public function routeRegExp($string)
     {
-        $parts = explode('/', $string);
-
+        $parts             = explode('/', $string);
         $regularExpression = [];
         foreach ($parts as $v) {
             if ($v === ':p' || FALSE !== strpos($v, ':p')) {
@@ -77,14 +73,12 @@ class Url
         $fromMaskArray = explode('/', $fromMask);
         $sourceArray   = explode('/', $source);
         $toMaskArray   = explode('/', $toMask);
-
-        $_parameters = [];
+        $_parameters   = [];
         foreach ($fromMaskArray as $i => $pN) {
             if (FALSE !== strpos($pN, ':p')) {
                 $_parameters[$pN] = $sourceArray[$i];
             }
         }
-
         $convertedResult = [];
         foreach ($toMaskArray as $i => $pN) {
             if (FALSE !== strpos($pN, ':p')) {
@@ -102,10 +96,9 @@ class Url
     #region PARSE_URL
     static public function un_parse_url(array $parsedUri)
     {
-        $get = function ($key) use ($parsedUri) {
+        $get          = function ($key) use ($parsedUri) {
             return isset($parsedUri[$key]) ? $parsedUri[$key] : '';
         };
-
         $pass         = $get('pass');
         $user         = $get('user');
         $userinfo     = (!empty($pass)) ? "$user:$pass" : $user;
@@ -119,8 +112,7 @@ class Url
             $port ? ":$port" : '',
         ];
         $authority    = implode('', $arrAuthority);
-
-        $arrRes = [
+        $arrRes       = [
             strlen($scheme) ? "$scheme:" : '',
             strlen($authority) ? "//$authority" : '',
             $get('path'),
@@ -134,9 +126,10 @@ class Url
     static public function cleanDomain($url)
     {
         $res = $url;
-        $res = parse_url($res, PHP_URL_HOST);
-        $res = urldecode($res);
         $res = mb_strtolower($res);
+        $res = str_replace(['http://', 'https://'], '', $res);
+        $res = explode('/', $res)[0];
+        $res = explode(':', $res)[0];
 
         return $res;
     }
@@ -148,12 +141,10 @@ class Url
         $res = urldecode($res);
 
         //$res = mb_strtolower($res);
-
         return $res;
     }
     #endregion PARSE_URL
     ##################################################
-
     static public function addGetFromObject($url, $getObj)
     {
         $get = http_build_query($getObj);
