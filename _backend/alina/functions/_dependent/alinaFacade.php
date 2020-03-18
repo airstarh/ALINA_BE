@@ -33,6 +33,11 @@ function AlinaCFG($path)
     return app::getConfig($path);
 }
 
+function AlinaCFG_default($path)
+{
+    return app::getConfigDefault($path);
+}
+
 function AlinaCurrentUserId()
 {
     return \alina\mvc\model\CurrentUser::obj()->id;

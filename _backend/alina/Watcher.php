@@ -83,7 +83,7 @@ class Watcher
                 'ip_id'      => $this->mIP->id,
                 'browser_id' => $this->mBROWSER->id,
             ]);
-            Message::set('Are you trying to DDOS me?', [], 'alert alert-danger');
+            Message::setDanger('Are you trying to DDOS me?');
             throw new \ErrorException('DDOS');
         }
     }
@@ -98,7 +98,7 @@ class Watcher
             ) {
                 $msg = 'No form ID';
                 Message::setDanger($msg);
-                throw new \ErrorException($msg);
+                throw new \Exception($msg);
             }
         }
     }

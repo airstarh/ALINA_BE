@@ -3,9 +3,7 @@
 namespace alina;
 
 use alina\mvc\model\error_log;
-use alina\mvc\view\json;
 use alina\utils\Data;
-use alina\utils\Request;
 use alina\utils\Sys;
 use alina\utils\Url;
 
@@ -33,6 +31,7 @@ class exceptionCatcher
 
     public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext)
     {
+        AlinaResponseSuccess(0);
         if (!(error_reporting() & $strErrLevelExpSeverity)) {
             // This error code is not included in error_reporting
             return;
@@ -47,6 +46,7 @@ class exceptionCatcher
      */
     public function exception($objException, $forceExit = TRUE)
     {
+        AlinaResponseSuccess(0);
         ##################################################
         #region Clean bugger
         # @link https://stackoverflow.com/a/22069460/3142281
@@ -56,7 +56,6 @@ class exceptionCatcher
         }
         #endregion Clean bugger
         ##################################################
-        AlinaResponseSuccess(0);
         \alina\mvc\model\_baseAlinaEloquentTransaction::rollback();
         ##################################################
         $strUNKNOWN         = 'UNKNOWN';
@@ -82,8 +81,9 @@ class exceptionCatcher
         ##################################################
         $this->processError();
         ##################################################
-        if (Request::has('route_plan_b', $url)) {
-            $R = Request::obj()->R;
+        if (isset($_REQUEST['route_plan_b']) && !empty($_REQUEST['route_plan_b'])) {
+            $R   = (object)$_REQUEST;
+            $url = $R->route_plan_b;
             Data::sanitizeOutputObj($R);
             $url = Url::addGetFromObject($url, $R);
             Sys::redirect($url, 303);
@@ -131,8 +131,8 @@ class exceptionCatcher
     {
         $arrMessage             = [];
         $strMessage             = '';
-        $arrMessage['IP']       = Request::obj()->IP;
-        $arrMessage['URL_PATH'] = Request::obj()->URL_PATH;
+        $arrMessage['IP']       = Sys::getUserIp();
+        $arrMessage['URL_PATH'] = Url::cleanPath($_SERVER['REQUEST_URI']);
         $arrMessage['Class']    = $this->expClassName;
         $arrMessage['Severity'] = $this->getSeverityStr();
         $arrMessage['Code']     = $this->eCode;

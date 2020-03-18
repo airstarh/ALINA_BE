@@ -137,7 +137,13 @@ class FS
         $pp = [];
         foreach ($blocks as $i => $block) {
             $b = static::normalizePath($block);
-            $b = trim($b, DIRECTORY_SEPARATOR);
+            #####
+            if ($i === 0) {
+                $b = rtrim($b, DIRECTORY_SEPARATOR);
+            } else {
+                $b = trim($b, DIRECTORY_SEPARATOR);
+            }
+            #####
             if (empty($b)) {
                 continue;
             }

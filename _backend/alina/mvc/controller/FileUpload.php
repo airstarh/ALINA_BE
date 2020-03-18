@@ -27,9 +27,9 @@ class FileUpload
         $resp = $this->processUpload();
         $vd   = (object)[
             'uploaded'    => $resp->uploaded,
-            'fileName'    => $resp->fileName[0],
-            'newFileName' => $resp->newFileName[0],
-            'url'         => $resp->url[0],
+            'fileName'    => $resp->uploaded ? $resp->fileName[0] : '',
+            'newFileName' => $resp->uploaded ? $resp->newFileName[0] : '',
+            'url'         => $resp->uploaded ? $resp->url[0] : '',
         ];
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
@@ -49,6 +49,7 @@ class FileUpload
         if (!CurrentUser::obj()->isLoggedIn()) {
             return $this->resp;
         }
+        $state_success = FALSE;
         #####
         if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
             $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
@@ -111,8 +112,7 @@ class FileUpload
             $relPath,
         ];
         $res      = '//' . FS::buildPathFromBlocks($blocks);
-        //ToDo: Attention! Slashes
-        $res = str_replace('\\', '/', $res);
+        $res      = str_replace('\\', '/', $res);
 
         return $res;
     }

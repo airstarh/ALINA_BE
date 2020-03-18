@@ -60,8 +60,9 @@ class Data
                 return $res;
             }
         }
-        throw new \Exception('Alina cannot convert to object: ' . var_export($v, 1));
-        //return $object;
+        //throw new \Exception('Unable to convert to object');
+
+        return (object)[];
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281

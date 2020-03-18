@@ -9,7 +9,7 @@ $sources = $data->sources;
 ?>
 <h1 class="mt-3">Profile for <?= $m->mail ?></h1>
 <div>
-    <?php if (FALSE/*CurrentUserAlias::obj()->isAdmin()*/) { ?>
+    <?php if (FALSE /*AlinaAccessIfAdmin()*/) { ?>
         <?= htmlAlias::elForm([
             'action'  => '',
             'enctype' => 'multipart/form-data',

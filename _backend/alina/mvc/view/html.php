@@ -23,8 +23,8 @@ class html
 
     public function __construct()
     {
-        $this->mvcTemplateRoot        = \alina\app::getConfig('mvc/structure/template');
-        $this->mvcTemplateRootDefault = \alina\app::getConfigDefault('mvc/structure/template');
+        $this->mvcTemplateRoot        = AlinaCFG('mvc/structure/template');
+        $this->mvcTemplateRootDefault = AlinaCFG_default('mvc/structure/template');
         $this->defineCurrentControllerDir();
         $this->defineCurrentActionFile();
     }
@@ -150,7 +150,7 @@ class html
     {
         $str = '';
         $str .= Message::returnAllHtmlString();
-        if (CurrentUser::obj()->isAdmin() || ALINA_MODE !== 'PROD') {
+        if (AlinaAccessIfAdmin()) {
             $str .= MessageAdmin::returnAllHtmlString();
         }
 
