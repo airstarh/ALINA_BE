@@ -16,6 +16,11 @@ use PDO;
 
 class AdminDbManager
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     /**
      * @route /AdminDbManager/DbTablesColumnsInfo
      * @file _backend/alina/mvc/template/AdminDbManager/actionDbTablesColumnsInfo.php
@@ -97,12 +102,10 @@ class AdminDbManager
                 # SELECT
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/SELECT.php';
                 $vd->strSqlSELECT = \alina\utils\Sys::template($tpl, $dataTpl);
-
                 ###############
                 # INSERT
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/INSERT.php';
                 $vd->strSqlINSERT = \alina\utils\Sys::template($tpl, $dataTpl);
-
                 ###############
                 # UPDATE
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/UPDATE.php';
@@ -111,7 +114,6 @@ class AdminDbManager
                 # DELETE
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/DELETE.php';
                 $vd->strSqlDELETE = \alina\utils\Sys::template($tpl, $dataTpl);
-
                 ###############
                 # PDO bind parameters
                 $tpl               = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/PDObind.php';
@@ -124,9 +126,7 @@ class AdminDbManager
                 # Array 'field' => [],
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/utils/db/mysql/queryTemplates/colsAsPHPArr.php';
                 $vd->colsAsPHPArr = \alina\utils\Sys::template($tpl, $dataTpl);
-
                 ###############
-
                 ###############
                 # Statistics. Count Rows.
                 $sql             = "SELECT COUNT(*) as rowsInTable FROM $tableName";
@@ -147,7 +147,6 @@ class AdminDbManager
     public function actionIndexWP()
     {
         $tables = [
-
         ];
         #region Strings
         $s1    = '%//sixtyandme.com%';
@@ -157,7 +156,6 @@ class AdminDbManager
         $s2old = '//www.sixtyandme.com';
         $s2New = '//www.stage.sixtyandme.com';
         #endregion Strings
-
         $q = new DbManager();
         $q->change('flagForceTransaction', FALSE);
         $resFoundStringsCount = [];
@@ -214,7 +212,6 @@ class AdminDbManager
                 }
             }
         }
-
         $repott = (object)[
             '$tRowsIteratedCount' => $tRowsIteratedCount,
             '$tSqlCount'          => $tSqlCount,
@@ -246,7 +243,6 @@ class AdminDbManager
             Message::set($e->getFile(), [], 'alert alert-danger');
             Message::set($e->getLine(), [], 'alert alert-danger');
         }
-
         echo (new htmlAlias)->page($vd);
     }
 }

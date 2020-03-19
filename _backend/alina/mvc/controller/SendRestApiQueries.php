@@ -1,7 +1,6 @@
 <?php
 // ToDo: Auto Execution
 // ToDo: endless request to itself
-
 namespace alina\mvc\controller;
 
 use alina\mvc\view\html as htmlAlias;
@@ -10,6 +9,10 @@ use alina\utils\Request;
 
 class SendRestApiQueries
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
     // public $arrDefault = [
     //     'opt1' => 10.5,
     //     'opt2' => 'Hello, world',
@@ -41,7 +44,6 @@ class SendRestApiQueries
         if (Request::isPost($p)) {
             ############################################
             #region Process POST Query
-
             if (property_exists($p, 'reqUri')) {
                 $reqUri = $p->reqUri ?: '';
             }
@@ -59,7 +61,6 @@ class SendRestApiQueries
                     $reqPost = json_decode($p->reqPost, 1) ?: [];
                 }
             }
-
             #endregion Process POST Query
             ############################################
             #region MAIN
@@ -89,7 +90,6 @@ class SendRestApiQueries
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
         #endregionn View
         ############################################
-
         return $this;
     }
 }

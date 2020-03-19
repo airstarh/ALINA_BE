@@ -6,6 +6,11 @@ use alina\cookie;
 
 class egCookie
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     /**
      * @route /egCookie/Test001
      */
@@ -16,11 +21,9 @@ class egCookie
         cookie::setPath('a/b/c/a2', 222);
         cookie::setPath('a/b/c1/a1', 333);
         //cookie::deletePath('a/b/c');
-
         echo '<pre>';
         print_r($_COOKIE);
         echo '</pre>';
-
         echo '<pre>';
         print_r($_SERVER['HTTP_COOKIE']);
         echo '</pre>';

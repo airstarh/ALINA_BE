@@ -20,21 +20,24 @@ use alina\utils\Sys;
 
 class alinaRestAccept
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     /**
-     * @link /alinaRestAccept
-     * @link /alinaRestAccept?cmd=model&m=user&mId=1
      * @throws \ErrorException
      * @throws \Exception
      * @throws \alina\exceptionValidation
+     * @link /alinaRestAccept?cmd=model&m=user&mId=1
+     * @link /alinaRestAccept
      */
     public function actionIndex()
     {
-
         Sys::setCrossDomainHeaders();
         MessageAdmin::set('Hello, Admin!!!');
         Message::set('Hello, User!!!');
         \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
-
         $method  = strtoupper($_SERVER['REQUEST_METHOD']);
         $command = $_GET['cmd'];
         switch ($method) {
@@ -46,7 +49,7 @@ class alinaRestAccept
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $m->insert($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
-                    echo  (new jsonView())->standardRestApiResponse($data);
+                    echo (new jsonView())->standardRestApiResponse($data);
                 }
                 break;
             //UPDATE
@@ -80,7 +83,6 @@ class alinaRestAccept
                         GlobalRequestStorage::set('rowsTotal', $m->state_ROWS_TOTAL);
                         echo (new jsonView())->standardRestApiResponse($data);
                     }
-
                     if ($command === 'model') {
                         $modelName = $_GET['m'];
                         $mId       = $_GET['mId'];
@@ -89,7 +91,7 @@ class alinaRestAccept
                         $data      = $m->getAllWithReferences($cond);
                         $resp      = NULL;
                         if (!empty($data)) {
-                            foreach ($data as $pk=>$d) {
+                            foreach ($data as $pk => $d) {
                                 $resp = $d;
                                 break;
                             }
@@ -114,14 +116,13 @@ class alinaRestAccept
     public function actionTestGet()
     {
         Sys::setCrossDomainHeaders();
-
-        error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
-        error_log(__FUNCTION__,0);
-        error_log("URL: {$_SERVER['REQUEST_URI']}",0);
-        error_log(json_encode(func_get_args()),0);
-        error_log(json_encode($_GET),0);
-        error_log(json_encode(getallheaders()),0);
-        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ',0);
+        error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
+        error_log(__FUNCTION__, 0);
+        error_log("URL: {$_SERVER['REQUEST_URI']}", 0);
+        error_log(json_encode(func_get_args()), 0);
+        error_log(json_encode($_GET), 0);
+        error_log(json_encode(getallheaders()), 0);
+        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
         echo (new jsonView())->standardRestApiResponse($_GET);
     }
 
@@ -135,5 +136,4 @@ class alinaRestAccept
         //echo (new htmlAlias)->page($vd);
         echo (new jsonView())->standardRestApiResponse($vd);
     }
-
 }

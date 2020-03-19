@@ -2,7 +2,9 @@
 ##################################################
 use alina\app;
 use alina\GlobalRequestStorage;
+use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\utils\Sys;
 
 define('ALINA_DT_FORMAT_DB', 'Y-m-d H:i:s');
 define('ALINA_DT_FORMAT_DB_D', 'Y-m-d');
@@ -109,6 +111,38 @@ function AlinaAccessIfAdminOrModeratorOrOwner($id)
         AlinaAccessIfAdmin()
         ||
         AlinaAccessIfModerator();
+}
+
+#####
+function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
+{
+    Message::setDanger($message);
+    if ($page) {
+        Sys::redirect($page, $code);
+    } else {
+        throw new \ErrorException('ACCESS DENIED');
+    }
+}
+
+function AlinaRejectIfNotLoggedIn()
+{
+    if (!AlinaAccessIfLoggedIn()) {
+        AlinaReject('/auth/login', 303);
+    }
+}
+
+function AlinaRejectIfNotAdmin()
+{
+    if (!AlinaAccessIfAdmin()) {
+        AlinaReject();
+    }
+}
+
+function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
+{
+    if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
+        AlinaReject();
+    }
 }
 
 #endregion Access

@@ -3,13 +3,17 @@
 namespace alina\mvc\controller;
 
 use alina\app;
-use alina\mvc\model\DataPlayer;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
 use alina\utils\Request;
 
 class CtrlDataTransformations
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     /**
      * http://alinazero/CtrlDataTransformations/SerializedArrayModification
      * @file _backend/alina/mvc/template/CtrlDataTransformations/actionSerializedArrayModification.php
@@ -48,7 +52,6 @@ class CtrlDataTransformations
     ##################################################
     ##################################################
     ##################################################
-
     /**
      * http://alinazero/CtrlDataTransformations/index
      * @file _backend/alina/mvc/template/CtrlDataTransformations/actionJson.php

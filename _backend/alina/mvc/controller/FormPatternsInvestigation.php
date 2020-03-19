@@ -6,6 +6,11 @@ use alina\mvc\view\html as htmlAlias;
 
 class FormPatternsInvestigation
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     /**
      * @route /FormPatternsInvestigation/Index
      */
@@ -14,9 +19,6 @@ class FormPatternsInvestigation
         $post = \alina\utils\Sys::resolvePostDataAsObject();
         $get  = \alina\utils\Sys::resolveGetDataAsObject();
         /////////////////////////////////////
-
-
-
         /////////////////////////////////////
         $data = (object)[
             'post' => $post,

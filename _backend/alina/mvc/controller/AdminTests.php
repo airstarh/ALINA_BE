@@ -14,10 +14,26 @@ use alina\utils\Crypy;
 use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Sys;
+use Ratchet\Wamp\Exception;
 
 class AdminTests
 {
+    public function __construct()
+    {
+        AlinaRejectIfNotAdmin();
+    }
+
     ##############################################
+    public function actionSomeData()
+    {
+        Message::setInfo('Hello, people');
+        $vd = [
+            'hello' => 'world',
+            'Yo',
+        ];
+        echo (new html)->page($vd);
+    }
+
     /**
      * @route /AdminTests/Errors
      */
