@@ -13,6 +13,12 @@ class FileUpload
 {
     protected $resp;
 
+    public function __construct()
+    {
+        AlinaRejectIfNotLoggedIn();
+    }
+
+
     public function actionCommon()
     {
         $vd = $this->processUpload();
