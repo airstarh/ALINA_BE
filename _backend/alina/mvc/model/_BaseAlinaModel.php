@@ -7,8 +7,8 @@ use alina\Message;
 use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Str;
-use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use Exception;
+use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\exceptionValidation;
 use Illuminate\Database\Query\Builder as BuilderAlias;
@@ -842,11 +842,11 @@ class _BaseAlinaModel
     {
         $fields = [];
         $items  = [];
-        // $items  = Dal::table('information_schema.columns')
-        //     ->select('column_name')
-        //     ->where('table_name', '=', $this->table)
-        //     ->where('table_schema', '=', AlinaCFG('db/database'))
-        //     ->pluck('column_name');
+        $items  = Dal::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', '=', $this->table)
+            ->where('table_schema', '=', AlinaCFG('db/database'))
+            ->pluck('column_name');
         foreach ($items as $v) {
             $fields[$v] = [];
         }

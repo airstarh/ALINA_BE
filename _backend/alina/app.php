@@ -26,12 +26,6 @@ class app
         AlinaResponseSuccess(1);
         #####
         Sys::setCrossDomainHeaders();
-        //        if (CurrentUser::obj()->isLoggedIn()) {
-        //            Message::set('Logged In !!!' . ALINA_TIME);
-        //        } else {
-        //            Message::set('Not logged in (((' . ALINA_TIME);
-        //        }
-        //CurrentUser::obj()->messages();
     }
 
     protected function init()

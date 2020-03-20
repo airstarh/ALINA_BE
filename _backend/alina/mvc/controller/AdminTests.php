@@ -15,6 +15,7 @@ use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Sys;
 use Ratchet\Wamp\Exception;
+use \Illuminate\Database\Capsule\Manager as Dal;
 
 class AdminTests
 {
@@ -31,6 +32,15 @@ class AdminTests
             'hello' => 'world',
             'Yo',
         ];
+        #####
+        $items = Dal::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', '=', 'tale')
+            ->where('table_schema', '=', AlinaCFG('db/database'))
+            ->pluck('column_name');
+        #####
+        $vd = $items;
+        #####
         echo (new html)->page($vd);
     }
 
