@@ -32,6 +32,11 @@ WHERE a.method='POST'
 ORDER BY a.id DESC
 ;
 
+SELECT COUNT(*) AS total
+FROM watch_visit
+WHERE method='POST'
+;
+
 SELECT *
 FROM `user`
 WHERE 1
@@ -59,6 +64,7 @@ ORDER BY
 SELECT *
 FROM watch_browser
 WHERE 1
+ORDER BY visits DESC
 ;
 
 SELECT 
