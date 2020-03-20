@@ -47,7 +47,9 @@ LEFT JOIN watch_browser c ON  a.`browser_id` = c.`id`
 WHERE 1
 ;
 
-SELECT *
+SELECT 
+-- count(*) as total,
+*
 FROM watch_url_path
 WHERE 1
 ORDER BY 
@@ -57,4 +59,14 @@ ORDER BY
 SELECT *
 FROM watch_browser
 WHERE 1
+;
+
+SELECT 
+-- count(*) as total
+*
+FROM watch_ip
+WHERE 1
+ORDER BY 
+`visits` DESC
+,`ip` ASC
 ;

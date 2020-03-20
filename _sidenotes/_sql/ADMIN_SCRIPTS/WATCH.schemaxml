@@ -30,7 +30,7 @@
 <table name="watch_banned_visit" view="colnames">
 <left>3</left>
 <top>287</top>
-<width>109</width>
+<width>145</width>
 <height>129</height>
 <sql_create_table>CREATE TABLE `watch_banned_visit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -98,7 +98,7 @@
   `suspicious` tinyint(1) DEFAULT '0',
   `fingerprint` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1636 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=1640 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 </tables>
 </canvas>
