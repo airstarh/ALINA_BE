@@ -1,7 +1,6 @@
 <?php
 
 namespace alina\mvc\model;
-
 class watch_url_path extends _BaseAlinaModel
 {
     public $table = 'watch_url_path';
@@ -24,7 +23,7 @@ class watch_url_path extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
-        if (isset($this->attributes->visits)) {
+        if (property_exists($this->attributes, 'visits')) {
             $dataArray['visits'] = $this->attributes->visits + 1;
         }
 

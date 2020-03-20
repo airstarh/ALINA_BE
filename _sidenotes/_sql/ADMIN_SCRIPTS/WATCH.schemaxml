@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemadesigner version="6.5">
+<source>
+<database charset="utf8mb4" collation="utf8mb4_general_ci">alina</database>
+</source>
+<canvas zoom="100">
+<tables>
+<table name="watch_banned_browser" view="colnames">
+<left>4</left>
+<top>157</top>
+<width>223</width>
+<height>112</height>
+<sql_create_table>CREATE TABLE `watch_banned_browser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `enc` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+<table name="watch_banned_ip" view="colnames">
+<left>0</left>
+<top>0</top>
+<width>185</width>
+<height>112</height>
+<sql_create_table>CREATE TABLE `watch_banned_ip` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+</table>
+<table name="watch_banned_visit" view="colnames">
+<left>3</left>
+<top>287</top>
+<width>109</width>
+<height>129</height>
+<sql_create_table>CREATE TABLE `watch_banned_visit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip_id` int(11) DEFAULT NULL,
+  `browser_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+<table name="watch_ip" view="colnames">
+<left>164</left>
+<top>294</top>
+<width>205</width>
+<height>129</height>
+<sql_create_table>CREATE TABLE `watch_ip` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `visits` bigint(20) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+</table>
+<table name="watch_browser" view="colnames">
+<left>195</left>
+<top>-3</top>
+<width>181</width>
+<height>146</height>
+<sql_create_table>CREATE TABLE `watch_browser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_agent` text,
+  `enc` varchar(256) DEFAULT NULL,
+  `visits` bigint(20) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+<table name="watch_url_path" view="colnames">
+<left>379</left>
+<top>0</top>
+<width>155</width>
+<height>129</height>
+<sql_create_table>CREATE TABLE `watch_url_path` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `url_path` text COLLATE utf8mb4_unicode_ci,
+  `visits` bigint(20) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1323 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+</table>
+<table name="watch_visit" view="colnames">
+<left>539</left>
+<top>0</top>
+<width>222</width>
+<height>311</height>
+<sql_create_table>CREATE TABLE `watch_visit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip_id` int(11) DEFAULT NULL,
+  `browser_id` int(11) DEFAULT NULL,
+  `url_path_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `cookie_key` varchar(256) DEFAULT NULL,
+  `query_string` text,
+  `visited_at` bigint(8) DEFAULT NULL,
+  `method` char(20) DEFAULT NULL,
+  `data` text,
+  `controller` char(50) DEFAULT NULL,
+  `action` char(50) DEFAULT NULL,
+  `ajax` tinyint(1) DEFAULT '0',
+  `suspicious` tinyint(1) DEFAULT '0',
+  `fingerprint` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1636 DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+</tables>
+</canvas>
+</schemadesigner>

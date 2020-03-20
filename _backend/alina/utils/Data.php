@@ -60,8 +60,8 @@ class Data
                 return $res;
             }
         }
-        //throw new \Exception('Unable to convert to object');
 
+        //throw new \Exception('Unable to convert to object');
         return (object)[];
     }
 
@@ -566,6 +566,13 @@ class Data
         return $v;
     }
 
+    static public function filterVarStripTags($v)
+    {
+        $v = strip_tags($v);
+
+        return $v;
+    }
+
     static public function filterVarStrHtml($v)
     {
         #####
@@ -589,6 +596,7 @@ class Data
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);
         }
+        ##################################################
         $body     = $HTML5DOMDocument->getElementsByTagName('body')->item(0);
         $bodyHTML = $body->innerHTML;
 
@@ -718,11 +726,6 @@ class Data
                 $pg->rest = $rest;
                 $pg->diff = $diff;
             }
-            error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
-            error_log(__FUNCTION__, 0);
-            error_log(json_encode(func_get_args()), 0);
-            error_log(json_encode($pg), 0);
-            error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
         }
         #endregion Special Case Versa Pagination (when the last page has full page size, the first page has rest)
         ##############################

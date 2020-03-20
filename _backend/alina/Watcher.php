@@ -96,7 +96,7 @@ class Watcher
                 ||
                 empty(Request::obj()->POST->form_id)
             ) {
-                $msg = 'No form ID';
+                $msg = 'Invalid post data';
                 Message::setDanger($msg);
                 throw new \Exception($msg);
             }
