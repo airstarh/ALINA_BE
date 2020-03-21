@@ -33,13 +33,17 @@ class AdminTests
             'Yo',
         ];
         #####
-        $items = Dal::table('information_schema.columns')
-            ->select('column_name')
-            ->where('table_name', '=', 'tale')
-            ->where('table_schema', '=', AlinaCFG('db/database'))
-            ->pluck('column_name');
+        //WORKS
+        // $items = Dal::table('information_schema.columns')
+        //     ->select('column_name')
+        //     ->where('table_name', '=', 'tale')
+        //     ->where('table_schema', '=', AlinaCFG('db/database'))
+        //     ->pluck('column_name');
+        // $vd = $items;
         #####
-        $vd = $items;
+        #####
+        $vd = Dal::select(Dal::raw('SELECT * FROM tale  LIMIT  10'));
+
         #####
         echo (new html)->page($vd);
     }
