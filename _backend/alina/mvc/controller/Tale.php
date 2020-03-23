@@ -11,6 +11,7 @@ use alina\utils\Data;
 use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
+use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class Tale
 {
@@ -113,11 +114,20 @@ class Tale
         ########################################
         $conditions[] = ["tale.is_submitted", '=', 1];
         $conditions[] = ["tale.publish_at", '<=', ALINA_TIME];
+        ####################
         if (empty($answer_to_tale_ids)) {
+            ####################
+            #region POSTS
             $conditions[] = ["tale.type", '=', 'POST'];
             $sort[]       = ["tale.publish_at", 'DESC'];
+            #endregion POSTS
+            ####################
         } else {
+            ####################
+            #region COMMENTS
             $sort[] = ["tale.publish_at", 'ASC'];
+            #endregion COMMENTS
+            ####################
         }
         $collection = $this->processResponse($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
         ########################################
@@ -132,11 +142,27 @@ class Tale
         $mTale = new taleAlias();
         $q     = $mTale->getAllWithReferencesPart1($conditions);
         if (!empty($answer_to_tale_ids)) {
+            ####################
+            #region COMMENTS
             if (!is_array($answer_to_tale_ids)) {
                 $answer_to_tale_ids = [$answer_to_tale_ids];
             }
             $q->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids);
             $paginationVersa = TRUE;
+            #endregion COMMENTS
+            ####################
+        } else {
+            ####################
+            #region POSTS
+            if (Request::has('txt', $txt)) {
+                $q->where(function ($q) use ($txt) {
+                    /** @var $q BuilderAlias object */
+                    $q->where("tale.body_txt", 'LIKE', "%{$txt}%")
+                        ->orWhere("tale.header", 'LIKE', "%{$txt}%");
+                });
+            }
+            #endregion POSTS
+            ####################
         }
         $collection = $mTale->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
 

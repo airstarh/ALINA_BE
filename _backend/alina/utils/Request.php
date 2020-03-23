@@ -137,7 +137,7 @@ class Request
 
     static public function has($key, &$value = NULL)
     {
-        $is = isset(static::obj()->R->{$key});
+        $is = property_exists(static::obj()->R, $key);
         if ($is) {
             $value = static::obj()->R->{$key};
         }

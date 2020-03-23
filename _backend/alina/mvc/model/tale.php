@@ -15,10 +15,19 @@ class tale extends _BaseAlinaModel
             'owner_id'          => [
                 'default' => CurrentUser::obj()->id,
             ],
-            'header'            => [],
+            'header'            => [
+                'filters' => [
+                    ['\alina\utils\Data', 'filterVarStripTags'],
+                ],
+            ],
             'body'              => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStrHtml'],
+                ],
+            ],
+            'body_txt'          => [
+                'filters' => [
+                    ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
             'created_at'        => [
@@ -52,7 +61,7 @@ class tale extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'owner'    => [
+            'owner' => [
                 'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'user AS owner', 'owner.id', '=', "{$this->alias}.owner_id"],
@@ -67,7 +76,7 @@ class tale extends _BaseAlinaModel
                     ]],
                 ],
             ],
-            'tag'      => [
+            'tag'   => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['leftJoin', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -98,6 +107,16 @@ class tale extends _BaseAlinaModel
             //     ],
             // ],
         ];
+    }
+
+    ##################################################
+    public function hookRightBeforeSave(&$dataArray)
+    {
+        if (array_key_exists('body', $dataArray)) {
+            $dataArray['body_txt'] = \alina\utils\Data::filterVarStripTags($dataArray['body']);
+        }
+
+        return $this;
     }
     ##################################################
 }

@@ -29,7 +29,8 @@ FROM `watch_visit` a
 LEFT JOIN watch_ip b ON  a.`ip_id` = b.`id`
 LEFT JOIN watch_browser c ON  a.`browser_id` = c.`id`
 WHERE a.method='POST'
-ORDER BY a.id DESC
+-- ORDER by a.id DESC
+ORDER BY b.ip
 ;
 
 SELECT COUNT(*) AS total
@@ -53,8 +54,8 @@ WHERE 1
 ;
 
 SELECT 
--- count(*) as total,
-*
+COUNT(*) AS total
+-- *
 FROM watch_url_path
 WHERE 1
 ORDER BY 

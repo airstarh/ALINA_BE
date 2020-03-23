@@ -179,4 +179,11 @@ class DateTime extends \DateTime
         //error_log(" this=".$this->format(ALINA_DT_FORMAT_DB)." date2=".$dateDT->format(ALINA_DT_FORMAT_DB),0);
         return $dateDT;
     }
+
+    ##################################################
+    static public function toHumanDate($v)
+    {
+        return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB_D);
+    }
+    ##################################################
 }
