@@ -155,11 +155,16 @@ class Tale
             ####################
             #region POSTS
             if (Request::has('txt', $txt)) {
-                $q->where(function ($q) use ($txt) {
-                    /** @var $q BuilderAlias object */
-                    $q->where("tale.body_txt", 'LIKE', "%{$txt}%")
-                        ->orWhere("tale.header", 'LIKE', "%{$txt}%");
-                });
+                $txt = trim($txt);
+                if (!empty($txt)) {
+                    $q->where(function ($q) use ($txt) {
+                        /** @var $q BuilderAlias object */
+                        $q->where("tale.body_txt", 'LIKE', "%{$txt}%")
+                            ->orWhere("tale.header", 'LIKE', "%{$txt}%")
+                            ->orWhere("owner.firstname", 'LIKE', "%{$txt}%")
+                            ->orWhere("owner.lastname", 'LIKE', "%{$txt}%");
+                    });
+                }
             }
             #endregion POSTS
             ####################
