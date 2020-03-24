@@ -186,7 +186,12 @@ class _BaseAlinaModel
         }
         //Has One JOINs.
         $this->qJoinHasOne();
+        #####
+        if (method_exists($this, 'hookGetWithReferences')) {
+            $this->hookGetWithReferences($q);
+        }
 
+        #####
         return $q;
     }
 
@@ -210,10 +215,7 @@ class _BaseAlinaModel
     public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL, $paginationVersa = FALSE)
     {
         /** @var $q BuilderAlias object */
-        $q = $this->getAllWithReferencesPart1($conditions);
-        if (method_exists($this, 'hookGetWithReferences')) {
-            $this->hookGetWithReferences($q);
-        }
+        $q   = $this->getAllWithReferencesPart1($conditions);
         $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber, $paginationVersa);
 
         return $res;
