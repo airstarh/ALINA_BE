@@ -3,6 +3,8 @@
 namespace alina\mvc\model;
 
 use alina\utils\Data;
+use Illuminate\Database\Capsule\Manager as Dal;
+use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class tale extends _BaseAlinaModel
 {
@@ -107,6 +109,15 @@ class tale extends _BaseAlinaModel
             //     ],
             // ],
         ];
+    }
+
+    ##################################################
+    public function hookGetWithReferences($q)
+    {
+        //ToDo: Cross DataBase.
+        /** @var $q BuilderAlias object */
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName}) AS count_answer_to_tale_id"));
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$this->alias}.{$this->pkName}) AS count_root_tale_id"));
     }
 
     ##################################################

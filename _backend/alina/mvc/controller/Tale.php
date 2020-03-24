@@ -11,6 +11,7 @@ use alina\utils\Data;
 use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
+use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class Tale
@@ -169,8 +170,6 @@ class Tale
             #endregion POSTS
             ####################
         }
-        ####################
-
         ####################
         $collection = $mTale->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
 

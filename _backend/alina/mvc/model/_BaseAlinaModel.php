@@ -190,7 +190,7 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pageCurrentNumber = NULL, $paginationVersa = false)
+    public function getAllWithReferencesPart2($backendSortArray = NULL, $pageSize = NULL, $pageCurrentNumber = NULL, $paginationVersa = FALSE)
     {
         $q = $this->q;
         //COUNT
@@ -207,9 +207,13 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
-    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL, $paginationVersa = false)
+    public function getAllWithReferences($conditions = [], $backendSortArray = NULL, $pageSize = NULL, $pgeCurrentNumber = NULL, $paginationVersa = FALSE)
     {
-        $q   = $this->getAllWithReferencesPart1($conditions);
+        /** @var $q BuilderAlias object */
+        $q = $this->getAllWithReferencesPart1($conditions);
+        if (method_exists($this, 'hookGetWithReferences')) {
+            $this->hookGetWithReferences($q);
+        }
         $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber, $paginationVersa);
 
         return $res;

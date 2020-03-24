@@ -42,8 +42,17 @@ class AdminTests
         // $vd = $items;
         #####
         #####
-        $vd = Dal::select(Dal::raw('SELECT * FROM tale  LIMIT  10'));
-
+        //Works
+        //$vd = Dal::select(Dal::raw('SELECT * FROM tale  LIMIT  10'));
+        #####
+        $by_answer_to_tale_id = "(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = tale.id) AS by_answer_to_tale_id";
+        $by_root_tale_id      = "(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = tale.id) AS by_root_tale_id";
+        $m                    = new \alina\mvc\model\tale();
+        $q                    = $m->q();
+        $q->addSelect('tale.id');
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$m->alias}.{$m->pkName}) AS count_answer_to_tale_id"));
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$m->alias}.{$m->pkName}) AS count_root_tale_id"));
+        $vd = $q->get()->toArray();
         #####
         echo (new html)->page($vd);
     }

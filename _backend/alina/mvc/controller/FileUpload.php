@@ -18,7 +18,6 @@ class FileUpload
         AlinaRejectIfNotLoggedIn();
     }
 
-
     public function actionCommon()
     {
         $vd = $this->processUpload();
@@ -55,7 +54,7 @@ class FileUpload
         if (!CurrentUser::obj()->isLoggedIn()) {
             return $this->resp;
         }
-        $state_success = FALSE;
+        $stateSuccess = FALSE;
         #####
         if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
             $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
@@ -82,11 +81,16 @@ class FileUpload
                         //Message::set("Uploaded: $webPath");
                         $this->resp->url[]    = $webPath;
                         $this->resp->uploaded = ++$counterUploadedFiles;
+                        $stateSuccess         = TRUE;
                     }
                 }
             }
         }
-
+        #####
+        if (!$stateSuccess) {
+            Message::setDanger('Upload failed');
+        }
+        #####
         #####
         return $this->resp;
     }
