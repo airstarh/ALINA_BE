@@ -169,6 +169,9 @@ class Tale
             #endregion POSTS
             ####################
         }
+        ####################
+
+        ####################
         $collection = $mTale->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
 
         return $collection;
