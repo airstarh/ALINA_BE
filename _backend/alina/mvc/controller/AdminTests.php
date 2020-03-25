@@ -238,4 +238,9 @@ class AdminTests
         $vd->res  = $bodyHTML;
         echo (new html)->page($vd);
     }
+
+    public function actionphpinfo()
+    {
+        phpinfo();
+    }
 }
