@@ -29,7 +29,7 @@ class Tale
             'id'           => NULL,
             'form_id'      => __FUNCTION__,
             'header'       => '***',
-            'body'         => 'text',
+            'body'         => '',
             'publish_at'   => 0,
             'is_submitted' => 0,
         ];
@@ -60,11 +60,11 @@ class Tale
                 Data::deleteEmptyProps($post)
             );
             if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
-                $vd->is_submitted = 1;
-                if ($vd->publish_at == 0 || empty($vd->publish_at)) {
+                if ($vd->is_submitted == 0 || empty($vd->is_submitted)) {
                     $vd->publish_at = ALINA_TIME;
                 }
-                $attrs = $mTale->updateById($vd);
+                $vd->is_submitted = 1;
+                $attrs            = $mTale->updateById($vd);
             } else {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Forbidden');
