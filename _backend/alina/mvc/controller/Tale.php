@@ -24,14 +24,13 @@ class Tale
      */
     public function actionUpsert($id = NULL)
     {
-        //ToDo: Checks if allowed to comment etc
         $mTale  = new taleAlias();
         $vd     = (object)[
             'id'           => NULL,
             'form_id'      => __FUNCTION__,
             'header'       => '***',
             'body'         => 'text',
-            'publish_at'   => ALINA_TIME,
+            'publish_at'   => 0,
             'is_submitted' => 0,
         ];
         $isPost = Request::isPostPutDelete($post);
@@ -62,7 +61,10 @@ class Tale
             );
             if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
                 $vd->is_submitted = 1;
-                $attrs            = $mTale->updateById($vd);
+                if ($vd->publish_at == 0 || empty($vd->publish_at)) {
+                    $vd->publish_at = ALINA_TIME;
+                }
+                $attrs = $mTale->updateById($vd);
             } else {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Forbidden');
