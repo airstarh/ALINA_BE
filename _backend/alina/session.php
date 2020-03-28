@@ -1,11 +1,8 @@
 <?php
 //ToDo: SIMPLIFY IT!!!
-
 namespace alina;
-
 class session
 {
-
     static public $storage              = [];
     static public $flagSessionInStorage = FALSE;
 
@@ -19,7 +16,6 @@ class session
     static public function get($path = NULL)
     {
         static::start();
-
         if (empty($path)) {
             return static::$storage;
         }
@@ -45,10 +41,15 @@ class session
     {
         if (!headers_sent()) {
             if (!static::isStarted()) {
+                if (PHP_VERSION_ID >= 70300) {
+                    $cookieParams             = session_get_cookie_params();
+                    $cookieParams['SameSite'] = "None";
+                    $cookieParams['secure']   = TRUE;
+                    session_set_cookie_params($cookieParams);
+                }
                 session_start();
             }
         }
-
         if (static::isStarted()) {
             if (!static::$flagSessionInStorage) {
                 static::$storage              =& $_SESSION;

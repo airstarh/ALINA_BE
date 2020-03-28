@@ -1,7 +1,6 @@
 <?php
 
 namespace alina;
-
 //ToDO: Completely rewrite,
 use alina\utils\Arr;
 use alina\utils\Str;
@@ -12,13 +11,13 @@ class cookie
     #region Init
     protected static $past      = ALINA_COOKIE_PAST;
     protected static $justAdded = [];
-    protected           $name;
-    protected           $value     = '';
-    protected           $expire;
-    protected           $path      = '/';
-    protected           $domain    = NULL;
-    protected           $secure    = FALSE;
-    protected           $httponly  = FALSE;
+    protected        $name;
+    protected        $value     = '';
+    protected        $expire;
+    protected        $path      = '/';
+    protected        $domain    = NULL;
+    protected        $secure    = TRUE;
+    protected        $httponly  = FALSE;
 
     protected function __construct()
     {
@@ -27,7 +26,36 @@ class cookie
     #endregion Init
     ##################################################
     #region SET
-    static public function set($name, $value, $expire = NULL, $path = '/', $domain = NULL, $secure = FALSE, $httponly = FALSE)
+    /**
+     * Support samesite cookie flag in both php 7.2 (current production) and php >= 7.3 (when we get there)
+     * From: https://github.com/GoogleChromeLabs/samesite-examples/blob/master/php.md and https://stackoverflow.com/a/46971326/2308553
+     * https://stackoverflow.com/a/59654832/3142281
+     * @param [type] $name
+     * @param [type] $value
+     * @param [type] $expire
+     * @param [type] $path
+     * @param [type] $domain
+     * @param [type] $secure
+     * @param [type] $httponly
+     * @return bool
+     */
+    public function setCookieSameSite($name, $value, $expire, $path, $domain, $secure, $httponly)
+    {
+        if (PHP_VERSION_ID < 70300) {
+            return setcookie($name, $value, $expire, "$path; samesite=None", $domain, $secure, $httponly);
+        } else {
+            return setcookie($name, $value, [
+                'expires'  => $expire,
+                'path'     => $path,
+                'domain'   => $domain,
+                'samesite' => 'None',
+                'secure'   => $secure,
+                'httponly' => $httponly,
+            ]);
+        }
+    }
+
+    static public function set($name, $value, $expire = NULL, $path = '/', $domain = NULL, $secure = TRUE, $httponly = FALSE)
     {
         $_this           = new static;
         $_this->name     = $name;
@@ -58,8 +86,7 @@ class cookie
         $_this->domain   = $domain;
         $_this->secure   = $secure;
         $_this->httponly = $httponly;
-
-        $apply = $_this->apply();
+        $apply           = $_this->apply();
         if ($apply) {
             if ($_this->expire > ALINA_TIME) {
                 Arr::setArrayValue($stringPath, $value, $_COOKIE);
@@ -81,7 +108,6 @@ class cookie
     static public function deletePath($stringPath, $delimiter = '/')
     {
         $cookieFamilyName = static::buildNameByPath($stringPath, $delimiter);
-
         // Look into Just Added paths.
         foreach (static::$justAdded as $cookieFullName) {
             if (Str::startsWith($cookieFullName, $cookieFamilyName)) {
@@ -91,14 +117,12 @@ class cookie
                 }
             }
         }
-
         // Look into earlier set cookies.
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
             foreach ($cookies as $cPair) {
                 $cNameValue     = explode('=', $cPair);
                 $cookieFullName = trim($cNameValue[0]);
-
                 if (Str::startsWith($cookieFullName, $cookieFamilyName)) {
                     $apply = static::delete($cookieFullName);
                     if ($apply) {
@@ -123,7 +147,7 @@ class cookie
     #region Utils
     public function apply()
     {
-        $process = setcookie(
+        $process = $this->setCookieSameSite(
             $this->name,
             $this->value,
             $this->expire,

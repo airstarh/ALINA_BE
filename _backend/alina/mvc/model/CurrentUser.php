@@ -19,7 +19,7 @@ class CurrentUser
     use Singleton;
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    public    $id    = NULL;
+    public $id    = NULL;
     protected $token = NULL;
     /**@var user */
     protected $USER = NULL;
@@ -34,8 +34,11 @@ class CurrentUser
     ##################################################
     protected $state_CONSISTANCY_WRONG = FALSE;
     protected $ERR_TOKEN_EXPIRED       = 'ERR_TOKEN_EXPIRED';
-    protected $ERR_BROWSER             = 'ERR_BROWSER';
     protected $ERR_IP                  = 'ERR_IP';
+    protected $ERR_BROWSER             = 'ERR_BROWSER';
+    protected $ERR_TOKEN_MISMATCH      = 'ERR_TOKEN_MISMATCH';
+    protected $ERR_LOGIN_ID            = 'ERR_LOGIN_ID';
+    protected $ERR_USER_ID             = 'ERR_USER_ID';
     ##################################################
     public $msg = [];
 
@@ -416,12 +419,14 @@ class CurrentUser
     protected function checkConsistency()
     {
         if (empty($this->LOGIN->id)) {
-            $this->msg[] = 'Login undefined';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_LOGIN_ID;
+            $this->msg[]                   = 'Login undefined';
 
             return FALSE;
         }
         if ($this->token !== $this->LOGIN->attributes->token) {
-            $this->msg[] = 'Token mismatch';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_TOKEN_MISMATCH;
+            $this->msg[]                   = 'Token mismatch';
 
             return FALSE;
         }
@@ -433,18 +438,21 @@ class CurrentUser
         }
         ##################################################
         if (empty($this->USER->id)) {
-            $this->msg[] = 'User undefined';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
+            $this->msg[]                   = 'User undefined';
 
             return FALSE;
         }
         if ($this->id !== $this->USER->id) {
-            $this->msg[] = 'User mismatch';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
+            $this->msg[]                   = 'User mismatch';
 
             return FALSE;
         }
         ##################################################
         if ($this->USER->id !== $this->LOGIN->attributes->user_id) {
-            $this->msg[] = 'User ID differs from Logged one';
+            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
+            $this->msg[]                   = 'User ID differs from Logged one';
 
             return FALSE;
         }
@@ -481,9 +489,14 @@ class CurrentUser
                     break;
                 case $this->ERR_BROWSER:
                 case $this->ERR_IP:
+                case $this->ERR_TOKEN_MISMATCH:
                     $this->LOGIN->delete([
                         'user_id' => $this->USER->id,
                     ]);
+                    break;
+                case $this->ERR_LOGIN_ID:
+                case $this->ERR_USER_ID:
+                    //ToDo:...
                     break;
             }
         }
