@@ -80,7 +80,7 @@ class Sys
             return TRUE;
         }
         // Cross Domain AJAX request.
-        if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
             $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
             if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
                 $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
