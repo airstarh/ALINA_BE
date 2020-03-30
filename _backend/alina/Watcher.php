@@ -36,6 +36,10 @@ class Watcher
 
     public function logVisitsToDb()
     {
+        #####
+        $this->firewallByBannedIp();
+        $this->firewallByBannedBrowser();
+        #####
         //ToDo: better Store Procedure
         if (AlinaCFG('logVisitsToDb')) {
             if (!static::$state_VISIT_LOGGED) {
@@ -68,8 +72,6 @@ class Watcher
     #region Firewall
     public function firewall()
     {
-        $this->firewallByBannedIp();
-        $this->firewallByBannedBrowser();
         $this->firewallByBannedVisit();
         $this->firewallByRequestsAmount();
         $this->firewallPostRequest();
@@ -114,7 +116,7 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'Your IP is banned';
-            Message::set($msg, [], 'alert alert-danger');
+            Message::setDanger($msg, []);
             throw new \ErrorException($msg);
         }
     }
@@ -130,7 +132,7 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'Your browser is banned';
-            Message::set($msg, [], 'alert alert-danger');
+            Message::setDanger($msg, []);
             throw new \ErrorException($msg);
         }
     }

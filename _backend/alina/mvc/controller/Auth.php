@@ -41,7 +41,7 @@ class Auth
         $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
         if ($LogIn) {
             $user = $CU->name();
-            Message::set("Welcome, {$user}!");
+            Message::setSuccess("Welcome, {$user}!");
             Sys::redirect('/auth/profile', 303);
         } else {
             $CU->messages();
@@ -73,7 +73,7 @@ class Auth
                     throw new exceptionValidation('Passwords do not match');
                 }
                 if ($CU->Register($vd)) {
-                    Message::set('Success');
+                    Message::setSuccess('Success');
                     $CU->messages();
                     Sys::redirect('/auth/login', 303);
                 }
@@ -112,7 +112,7 @@ class Auth
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
                 $u->updateById($post);
-                Message::set('Profile updated!');
+                Message::setSuccess('Profile updated!');
             }
         }
         #####
@@ -130,7 +130,7 @@ class Auth
         $vd       = (object)[];
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
-        Message::set('THanks for being with us!');
+        Message::setSuccess('THanks for being with us!');
         Sys::redirect('/Auth/Login', 303);
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
@@ -157,7 +157,7 @@ class Auth
                             'reset_required' => 1,
                         ]);
                     } else {
-                        Message::set('Code was sent earlier', [], 'alert alert-danger');
+                        Message::setWarning('Code was sent earlier', []);
                     }
                     Sys::redirect("/auth/ResetPasswordWithCode?mail={$vd->mail}", 303);
                 }
@@ -245,7 +245,7 @@ class Auth
             $m = new user();
             $m->updateById($vd, CurrentUser::obj()->id);
             if ($m->state_AFFECTED_ROWS === 1) {
-                Message::set('Password changed!');
+                Message::setSuccess('Password changed!');
                 Sys::redirect('/auth/profile', 303);
             } else if ($m->state_AFFECTED_ROWS > 1) {
                 Message::setDanger('Something bad happened');

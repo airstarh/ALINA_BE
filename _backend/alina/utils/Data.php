@@ -89,7 +89,7 @@ class Data
                 if (static::isIterable($v)) {
                     $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
                 } elseif (FALSE !== static::megaUnserialize($v)) {
-                    MessageAdmin::set('Serialized inside JSON');
+                    MessageAdmin::setInfo('Serialized inside JSON');
                     $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     $v = $d->strResControl;
                 } else {
@@ -146,7 +146,7 @@ class Data
                 $tCount += $iCount;
             }
             if (FALSE !== static::megaUnserialize($v)) {
-                MessageAdmin::set('Source has SERIALIZED inside');
+                MessageAdmin::setInfo('Source has SERIALIZED inside');
                 $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 $v = $d->strResControl;
                 // NO!!! We send local $tCount above by reference!!!
@@ -432,10 +432,10 @@ class Data
         }
         #####
         if (!$d->isSourceStrJsonValid) {
-            MessageAdmin::set('Invalid SOURCE JSON string', [], 'alert alert-danger');
+            MessageAdmin::setDanger('Invalid SOURCE JSON string', []);
         }
         if (!$d->isResStrJsonValid) {
-            MessageAdmin::set('Invalid RES JSON string', [], 'alert alert-danger');
+            MessageAdmin::setDanger('Invalid RES JSON string', []);
         }
 
         return $d;

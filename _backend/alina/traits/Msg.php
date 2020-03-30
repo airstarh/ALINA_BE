@@ -51,8 +51,7 @@ trait Msg
     static public function returnAllHtmlString()
     {
         $collection = static::getCollection();
-
-        $all = '';
+        $all        = '';
         /** @var Message $msg */
         foreach ($collection as $pseudoId => $msg) {
             if (!$msg->isShown) {
@@ -140,7 +139,14 @@ trait Msg
 
     static public function setWarning($text, $params = [])
     {
-        $status = 'alert alert-earning';
+        $status = 'alert alert-warning';
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setSuccess($text, $params = [])
+    {
+        $status = 'alert alert-success';
 
         return static::set($text, $params, $status);
     }
@@ -198,6 +204,7 @@ trait Msg
 
     public function messageHtml()
     {
+        //ToDo: make for user application.
         return \alina\utils\Sys::template(ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/message.php', $this);
     }
     #endregion Message Object

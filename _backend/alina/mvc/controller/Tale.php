@@ -88,7 +88,7 @@ class Tale
             $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
             $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
             $vd->rows      = (new taleAlias())->deleteById($id);
-            Message::set('Deleted');
+            Message::setSuccess('Deleted');
         } else {
             AlinaResponseSuccess(0);
             Message::setDanger('Failed');

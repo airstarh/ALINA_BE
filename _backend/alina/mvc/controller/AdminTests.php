@@ -62,7 +62,7 @@ class AdminTests
      */
     public function actionErrors(...$args)
     {
-        Message::set('We throw error in the template!!!');
+        Message::setInfo('We throw error in the template!!!');
         echo (new html)->page();
     }
     ##############################################
@@ -111,8 +111,8 @@ class AdminTests
     ##############################################
     public function actionTestMessages()
     {
-        Message::set('For User');
-        MessageAdmin::set('For Admin');
+        Message::setSuccess('For User');
+        MessageAdmin::setSuccess('For Admin');
         echo (new html)->page('1234');
     }
 

@@ -345,8 +345,8 @@ class CurrentUser
         cookie::set(static::KEY_USER_TOKEN, $token);
         cookie::set(static::KEY_USER_ID, $uid);
         #####
-        session::set(static::KEY_USER_TOKEN, $token);
-        session::set(static::KEY_USER_ID, $uid);
+        // session::set(static::KEY_USER_TOKEN, $token);
+        // session::set(static::KEY_USER_ID, $uid);
         #####
         header(implode(': ', [
             static::KEY_USER_TOKEN,

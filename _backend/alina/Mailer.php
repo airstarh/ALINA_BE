@@ -42,9 +42,9 @@ class Mailer
             $mail->AltBody = $message;
 
             $mail->send();
-            Message::set("Message has been sent");
+            Message::setInfo("Message has been sent");
         } catch (Exception $e) {
-            Message::set("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            Message::setDanger("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
         }
 
         return TRUE;
@@ -86,9 +86,9 @@ class Mailer
             $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
             $mail->send();
-            Message::set("Message has been sent");
+            Message::setInfo("Message has been sent");
         } catch (Exception $e) {
-            Message::set("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            Message::setDanger("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
         }
 
         return TRUE;

@@ -239,9 +239,9 @@ class AdminDbManager
             }
             ##################################################
         } catch (\Exception $e) {
-            Message::set($e->getMessage(), [], 'alert alert-danger');
-            Message::set($e->getFile(), [], 'alert alert-danger');
-            Message::set($e->getLine(), [], 'alert alert-danger');
+            Message::setDanger($e->getMessage(), []);
+            Message::setDanger($e->getFile(), []);
+            Message::setDanger($e->getLine(), []);
         }
         echo (new htmlAlias)->page($vd);
     }
