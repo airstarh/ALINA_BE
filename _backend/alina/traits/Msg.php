@@ -168,14 +168,15 @@ trait Msg
     public $params         = [];
     public $messageRawText = '';
     public $status         = 'alert alert-success';
-    public $statuses       = ['green', 'yellow', 'red'];
     public $isShown        = FALSE;
 
     protected function addToCollection()
     {
         static::$collection   = static::getCollection();
         static::$collection[] = $this;
-        $this->id             = Arr::lastArrayKey(static::$collection);
+        if (!isset($this->id) || empty($this->id)) {
+            $this->id = Arr::lastArrayKey(static::$collection);
+        }
         static::setCollectionToSession();
     }
 
