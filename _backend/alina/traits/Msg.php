@@ -3,9 +3,9 @@
 namespace alina\traits;
 
 use alina\Message;
-use alina\session;
 use alina\utils\Arr;
 use alina\utils\Data;
+use alina\utils\Request;
 
 trait Msg
 {
@@ -14,13 +14,19 @@ trait Msg
      * @property array
      * Contains array of \alina\message objects
      **/
-    static protected $collection              = [];
-    static public    $flagCollectionInSession = FALSE;
+    static protected $collection      = [];
+    static public    $statusClasses   = [
+        0 => 'alert alert-success',
+        1 => 'alert alert-info',
+        2 => 'alert alert-warning',
+        3 => 'alert alert-danger',
+    ];
+    //static public    $MESSAGE_GET_KEY = 'alinamsg';
 
     /**
      * @param $text
      * @param array $params
-     * @param string $status
+     * @param integer $status
      * @return static
      * @see https://getbootstrap.com/docs/4.0/components/alerts/
      * alert alert-primary
@@ -33,7 +39,7 @@ trait Msg
      * alert alert-dark
      *
      */
-    static public function set($text, $params = [], $status = 'alert alert-success')
+    static protected function set($text, $params = [], $status = 0)
     {
         if (!is_string($text)) {
             $text = var_export($text, 1);
@@ -46,6 +52,60 @@ trait Msg
         $_this->addToCollection();
 
         return $_this;
+    }
+
+    ###############
+    #region Set
+    static public function setSuccess($text, $params = [])
+    {
+        $status = 0;
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setInfo($text, $params = [])
+    {
+        $status = 1;
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setWarning($text, $params = [])
+    {
+        $status = 2;
+
+        return static::set($text, $params, $status);
+    }
+
+    static public function setDanger($text, $params = [])
+    {
+        $status = 3;
+
+        return static::set($text, $params, $status);
+    }
+    #rendegion Set
+    ###############
+    static public function fromRequest()
+    {
+        if (isset(Request::obj()->GET->{static::$MESSAGE_GET_KEY})) {
+            try {
+                $arr = Request::obj()->GET->{static::$MESSAGE_GET_KEY};
+                static::addFromArray(json_decode($arr));
+            } catch (\ErrorException $e) {
+                static::setDanger('Message delivery problem');
+            }
+        }
+    }
+
+    static protected function addFromArray($arr)
+    {
+        foreach ($arr as $i => $msg) {
+            static::set(
+                $msg->text,
+                [],
+                $msg->status
+            );
+        }
     }
 
     static public function returnAllHtmlString()
@@ -87,34 +147,12 @@ trait Msg
 
     static protected function getCollection()
     {
-        if (session::has(static::MSG_KEY)) {
-            static::$collection              = session::get(static::MSG_KEY);
-            static::$flagCollectionInSession = TRUE;
-        } else {
-            static::$flagCollectionInSession = FALSE;
-        }
-
         return static::$collection;
-    }
-
-    static protected function setCollectionToSession()
-    {
-        try {
-            if (session::set(static::MSG_KEY, static::$collection)) {
-                static::$flagCollectionInSession = TRUE;
-            }
-        } catch (\Exception $e) {
-            error_log(__FUNCTION__, 0);
-            error_log('Alina Messages are not in session!', 0);
-            static::$flagCollectionInSession = FALSE;
-        }
     }
 
     static public function removeAll()
     {
-        static::$collection = static::getCollection();
         static::$collection = [];
-        static::setCollectionToSession();
     }
 
     static public function removeById($id)
@@ -122,42 +160,12 @@ trait Msg
         static::$collection = static::getCollection();
         if (array_key_exists($id, static::$collection)) {
             unset(static::$collection[$id]);
-            static::setCollectionToSession();
 
             return TRUE;
         }
 
         return FALSE;
     }
-
-    static public function setDanger($text, $params = [])
-    {
-        $status = 'alert alert-danger';
-
-        return static::set($text, $params, $status);
-    }
-
-    static public function setWarning($text, $params = [])
-    {
-        $status = 'alert alert-warning';
-
-        return static::set($text, $params, $status);
-    }
-
-    static public function setSuccess($text, $params = [])
-    {
-        $status = 'alert alert-success';
-
-        return static::set($text, $params, $status);
-    }
-
-    static public function setInfo($text, $params = [])
-    {
-        $status = 'alert alert-info';
-
-        return static::set($text, $params, $status);
-    }
-
     #endregion Facade (Collection)
     ##################################################
     ##################################################
@@ -167,7 +175,7 @@ trait Msg
     public $templateString = '';
     public $params         = [];
     public $messageRawText = '';
-    public $status         = 'alert alert-success';
+    public $status         = 0;
     public $isShown        = FALSE;
 
     protected function addToCollection()
@@ -177,7 +185,6 @@ trait Msg
         if (!isset($this->id) || empty($this->id)) {
             $this->id = Arr::lastArrayKey(static::$collection);
         }
-        static::setCollectionToSession();
     }
 
     public function messageRawText()

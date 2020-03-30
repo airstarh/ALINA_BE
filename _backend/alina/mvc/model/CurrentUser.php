@@ -4,13 +4,10 @@ namespace alina\mvc\model;
 
 use alina\cookie;
 use alina\Message;
-use alina\MessageAdmin;
-use alina\session;
 use alina\traits\Singleton;
 use alina\utils\Data;
 use alina\utils\Obj;
 use alina\utils\Request;
-use alina\utils\Sys;
 
 class CurrentUser
 {
@@ -245,9 +242,9 @@ class CurrentUser
         if (empty($id)) {
             $id = $this->USER->id;
         }
-        if (empty($id)) {
-            $id = session::get(static::KEY_USER_ID);
-        }
+        // if (empty($id)) {
+        //     //$id = session::get(static::KEY_USER_ID);
+        // }
         if (empty($id)) {
             $id = cookie::get(static::KEY_USER_ID);
         }
@@ -268,9 +265,9 @@ class CurrentUser
         if (empty($token)) {
             $token = $this->token;
         }
-        if (empty($token)) {
-            $token = session::get(static::KEY_USER_TOKEN);
-        }
+        // if (empty($token)) {
+        //     //$token = session::get(static::KEY_USER_TOKEN);
+        // }
         if (empty($token)) {
             $token = cookie::get(static::KEY_USER_TOKEN);
         }
@@ -368,8 +365,8 @@ class CurrentUser
         cookie::delete(static::KEY_USER_TOKEN);
         cookie::delete(static::KEY_USER_ID);
         #####
-        session::delete(static::KEY_USER_TOKEN);
-        session::delete(static::KEY_USER_ID);
+        // session::delete(static::KEY_USER_TOKEN);
+        // session::delete(static::KEY_USER_ID);
         #####
         header_remove(static::KEY_USER_ID);
         header_remove(static::KEY_USER_TOKEN);

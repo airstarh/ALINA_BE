@@ -26,6 +26,10 @@ class app
         AlinaResponseSuccess(1);
         #####
         Sys::setCrossDomainHeaders();
+        #####
+        Message::fromRequest();
+        MessageAdmin::fromRequest();
+        #####
     }
 
     protected function init()

@@ -2,7 +2,6 @@
 
 namespace alina\utils;
 
-use alina\session;
 use alina\traits\Singleton;
 
 class Request

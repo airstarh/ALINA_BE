@@ -10,4 +10,5 @@ class Message
 {
     use Msg;
     const MSG_KEY = 'ALINA_MESSAGES';
+    static public $MESSAGE_GET_KEY = 'alinamsg';
 }

@@ -2,10 +2,10 @@
 
 namespace alina\utils;
 
-use alina\app;
 use alina\GlobalRequestStorage;
+use alina\Message;
+use alina\MessageAdmin;
 use alina\mvc\model\CurrentUser;
-use alina\session;
 
 class Sys
 {
@@ -88,12 +88,12 @@ class Sys
                     return TRUE;
                 }
             }
-            if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-                $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
-                if ($r !== $h) {
-                    return TRUE;
-                }
-            }
+            // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            //     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
+            //     if ($r !== $h) {
+            //         return TRUE;
+            //     }
+            // }
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             return TRUE;
@@ -174,7 +174,24 @@ class Sys
             header("Location: $page", TRUE, $code);
             die();
         }
+        $get  = (object)[];
         $page = \alina\utils\Html::ref($page);
+        #####
+        $messages = Message::returnAllMessages();
+        if (count($messages) > 0) {
+            $get->{Message::$MESSAGE_GET_KEY} = json_encode($messages, JSON_UNESCAPED_UNICODE);
+        }
+        if (AlinaAccessIfAdmin()) {
+            $messages_admin = MessageAdmin::returnAllMessages();
+            if (count($messages_admin) > 0) {
+                $get->{MessageAdmin::$MESSAGE_GET_KEY} = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
+            }
+        }
+        #####
+        if (!empty($get)) {
+            $page = \alina\utils\Url::addGetFromObject($page, $get);
+        }
+        #####
         header("Location: $page", TRUE, $code);
         die();
     }
@@ -284,7 +301,6 @@ class Sys
             Request::obj()->TOTAL_DEBUG_DATA(),
             [
                 'ROUTER'  => Alina()->router,
-                'SESSION' => session::get(),
                 'META'    => GlobalRequestStorage::getAll(),
             ]
         );

@@ -243,4 +243,25 @@ class AdminTests
     {
         phpinfo();
     }
+
+    #####
+    #region Redirect Messages
+    public function actionRedirect1()
+    {
+        Message::setInfo('Info');
+        Message::setWarning('Warning');
+        Message::setDanger('Danger');
+        Message::setSuccess('Проверка руссских букаф');
+        //Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/_TEST_FILES_CONTENT/001_text_more_2000_chars.txt'));
+        Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/_TEST_FILES_CONTENT/002.txt'));
+        Sys::redirect('admintests/redirect2');
+    }
+
+    public function actionRedirect2()
+    {
+        $vd = (object)[];
+        echo (new html)->page($vd);
+    }
+    #endregion Redirect Messages
+    #####
 }
