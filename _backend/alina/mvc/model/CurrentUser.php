@@ -16,7 +16,7 @@ class CurrentUser
     use Singleton;
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    public $id    = NULL;
+    public    $id    = NULL;
     protected $token = NULL;
     /**@var user */
     protected $USER = NULL;
@@ -290,11 +290,6 @@ class CurrentUser
             !empty($this->LOGIN->attributes->token)
         ) {
             return $this->LOGIN->attributes->token;
-        }
-        if (!empty($this->LOGIN->attributes->token)) {
-            if ($this->LOGIN->attributes->expires_at > ALINA_TIME) {
-                $this->LOGIN->attributes->token;
-            }
         }
         $u           = $this->USER;
         $ua          = $u->attributes;

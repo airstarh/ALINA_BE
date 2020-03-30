@@ -39,7 +39,7 @@ class cookie
      * @param [type] $httponly
      * @return bool
      */
-    public function setCookieSameSite($name, $value, $expire, $path, $domain, $secure, $httponly)
+    protected function setCookieSameSite($name, $value, $expire, $path, $domain, $secure, $httponly)
     {
         if (PHP_VERSION_ID < 70300) {
             return setcookie($name, $value, $expire, "$path; samesite=None", $domain, $secure, $httponly);
@@ -77,23 +77,9 @@ class cookie
 
     static public function setPath($stringPath, $value, $expire = NULL, $delimiter = '/', $path = '/', $domain = NULL, $secure = FALSE, $httponly = FALSE)
     {
-        $_this           = new static;
-        $name            = static::buildNameByPath($stringPath, $delimiter);
-        $_this->name     = $name;
-        $_this->value    = $value;
-        $_this->expire   = (!empty($expire)) ? $expire : $_this->expire;
-        $_this->path     = $path;
-        $_this->domain   = $domain;
-        $_this->secure   = $secure;
-        $_this->httponly = $httponly;
-        $apply           = $_this->apply();
-        if ($apply) {
-            if ($_this->expire > ALINA_TIME) {
-                Arr::setArrayValue($stringPath, $value, $_COOKIE);
-            }
-        }
+        $name = static::buildNameByPath($stringPath, $delimiter);
 
-        return $apply;
+        return static::set($name, $value, $expire, $path, $domain, $secure, $httponly);
     }
     #endregion SET
     ##################################################
@@ -145,7 +131,7 @@ class cookie
     #endregion Delete
     ##################################################
     #region Utils
-    public function apply()
+    protected function apply()
     {
         $process = $this->setCookieSameSite(
             $this->name,
@@ -163,7 +149,7 @@ class cookie
         return $process;
     }
 
-    static public function buildNameByPath($stringPath, $delimiter = '/')
+    static protected function buildNameByPath($stringPath, $delimiter = '/')
     {
         // Prepare $name string.
         $pathArray = explode($delimiter, $stringPath);
