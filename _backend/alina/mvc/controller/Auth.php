@@ -121,7 +121,7 @@ class Auth
         Data::sanitizeOutputObj($u->attributes);
         #####
         $vd->user    = $u->attributes;
-        $vd->sources = $u->getReferencesSources();
+        //$vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
     }
 
