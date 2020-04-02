@@ -49,7 +49,7 @@
   `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=593 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_browser" view="colnames">
 <left>195</left>
@@ -62,7 +62,7 @@
   `enc` varchar(256) DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="watch_url_path" view="colnames">
 <left>379</left>
@@ -74,7 +74,7 @@
   `url_path` text COLLATE utf8mb4_unicode_ci,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1323 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=1506 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_visit" view="colnames">
 <left>539</left>
@@ -98,7 +98,23 @@
   `suspicious` tinyint(1) DEFAULT '0',
   `fingerprint` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1640 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=6560 DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+<table name="login" view="colnames">
+<left>766</left>
+<top>0</top>
+<width>119</width>
+<height>197</height>
+<sql_create_table>CREATE TABLE `login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `token` varchar(256) DEFAULT NULL,
+  `ip` char(48) DEFAULT NULL,
+  `browser_enc` varchar(256) DEFAULT NULL,
+  `lastentered` int(12) DEFAULT NULL,
+  `expires_at` int(12) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 </tables>
 </canvas>

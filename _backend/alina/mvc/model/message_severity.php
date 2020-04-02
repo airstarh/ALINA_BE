@@ -6,7 +6,7 @@ use alina\utils\Data;
 use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 
-class message_severitymessage_severity extends _BaseAlinaModel
+class message_severity extends _BaseAlinaModel
 {
     public $table = 'message_severity';
 

@@ -12,10 +12,17 @@ DELETE FROM watch_visit
 WHERE ip='91.202.25.124'
 ;
 
-SELECT *
-FROM login
+SELECT 
+a.id
+,a.`user_id`
+,a.`ip`
+, FROM_UNIXTIME(a.`expires_at`) AS EXPIRES
+, FROM_UNIXTIME(a.`lastentered`) AS LE
+,u.`firstname`
+FROM login a
+LEFT JOIN `user` u ON u.id = a.user_id
 WHERE 1
-ORDER BY id DESC
+ORDER BY LE DESC
 ;
 
 SELECT 
