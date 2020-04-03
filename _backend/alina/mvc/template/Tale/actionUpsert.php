@@ -17,7 +17,7 @@
 
         <br>
         <a href="/tale/upsert/<?= $data->id ?>">
-            <?= $data->publish_at ?>
+            <?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?>
         </a>
     </div>
     <div class="col"><h2><?= $data->header ?></h2></div>

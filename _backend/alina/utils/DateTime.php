@@ -185,5 +185,10 @@ class DateTime extends \DateTime
     {
         return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB_D);
     }
+
+    static public function toHumanDateTime($v)
+    {
+        return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB);
+    }
     ##################################################
 }
