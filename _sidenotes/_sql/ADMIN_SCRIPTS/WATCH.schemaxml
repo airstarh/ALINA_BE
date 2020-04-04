@@ -49,7 +49,7 @@
   `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=593 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_browser" view="colnames">
 <left>195</left>
@@ -62,7 +62,7 @@
   `enc` varchar(256) DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=199 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="watch_url_path" view="colnames">
 <left>379</left>
@@ -74,7 +74,7 @@
   `url_path` text COLLATE utf8mb4_unicode_ci,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1506 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=1512 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_visit" view="colnames">
 <left>539</left>
@@ -98,7 +98,7 @@
   `suspicious` tinyint(1) DEFAULT '0',
   `fingerprint` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6560 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=6777 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="login" view="colnames">
 <left>766</left>
@@ -114,7 +114,57 @@
   `lastentered` int(12) DEFAULT NULL,
   `expires_at` int(12) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4</sql_create_table>
+</table>
+<table name="tale" view="colnames">
+<left>890</left>
+<top>0</top>
+<width>150</width>
+<height>311</height>
+<sql_create_table>CREATE TABLE `tale` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `root_tale_id` bigint(20) DEFAULT NULL,
+  `answer_to_tale_id` bigint(20) DEFAULT NULL,
+  `level` tinyint(1) DEFAULT '0',
+  `type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'POST' COMMENT 'POST, COMMENT, POSTCOMMENT',
+  `owner_id` bigint(20) DEFAULT NULL,
+  `header` text COLLATE utf8mb4_unicode_ci,
+  `body` text COLLATE utf8mb4_unicode_ci,
+  `body_txt` text COLLATE utf8mb4_unicode_ci,
+  `created_at` bigint(20) DEFAULT NULL,
+  `modified_at` bigint(20) DEFAULT NULL,
+  `publish_at` bigint(20) DEFAULT NULL,
+  `is_submitted` tinyint(1) DEFAULT '0',
+  `lang` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'RU',
+  PRIMARY KEY (`id`),
+  KEY `IND_PUBLISH_AT` (`publish_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=342 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+</table>
+<table name="user" view="colnames">
+<left>1045</left>
+<top>0</top>
+<width>130</width>
+<height>311</height>
+<sql_create_table>CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mail` varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firstname` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastname` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `emblem` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `birth` bigint(8) DEFAULT NULL,
+  `language` char(5) COLLATE utf8mb4_unicode_ci DEFAULT 'en',
+  `timezone` bigint(20) DEFAULT '1',
+  `is_verified` tinyint(1) DEFAULT '0',
+  `banned_till` int(12) DEFAULT '0',
+  `created_at` int(12) DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT '0',
+  `fingerprint` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `about_myself` text COLLATE utf8mb4_unicode_ci,
+  `reset_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reset_required` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

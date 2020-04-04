@@ -169,6 +169,16 @@ class Tale
                     });
                 }
             }
+            #####
+            if (Request::has('owner', $owner)) {
+                $owner = trim($owner);
+                if (!empty($owner) && is_numeric($owner)) {
+                    $q->where(function ($q) use ($owner) {
+                        /** @var $q BuilderAlias object */
+                        $q->where("tale.owner_id", '=', $owner);
+                    });
+                }
+            }
             #endregion POSTS
             ####################
         }
