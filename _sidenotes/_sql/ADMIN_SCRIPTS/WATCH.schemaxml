@@ -49,7 +49,7 @@
   `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=693 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_browser" view="colnames">
 <left>195</left>
@@ -62,7 +62,7 @@
   `enc` varchar(256) DEFAULT NULL,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=199 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=223 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="watch_url_path" view="colnames">
 <left>379</left>
@@ -74,7 +74,7 @@
   `url_path` text COLLATE utf8mb4_unicode_ci,
   `visits` bigint(20) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1512 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=1649 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="watch_visit" view="colnames">
 <left>539</left>
@@ -98,7 +98,7 @@
   `suspicious` tinyint(1) DEFAULT '0',
   `fingerprint` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6777 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=7822 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="login" view="colnames">
 <left>766</left>
@@ -114,7 +114,7 @@
   `lastentered` int(12) DEFAULT NULL,
   `expires_at` int(12) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4</sql_create_table>
 </table>
 <table name="tale" view="colnames">
 <left>890</left>
@@ -138,7 +138,7 @@
   `lang` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'RU',
   PRIMARY KEY (`id`),
   KEY `IND_PUBLISH_AT` (`publish_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=342 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=353 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 <table name="user" view="colnames">
 <left>1045</left>
@@ -164,7 +164,7 @@
   `reset_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `reset_required` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</sql_create_table>
 </table>
 </tables>
 </canvas>

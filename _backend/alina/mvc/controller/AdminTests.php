@@ -62,7 +62,11 @@ class AdminTests
      */
     public function actionErrors(...$args)
     {
+        $vd = (object)[
+            'somw' => 'data',
+        ];
         Message::setInfo('We throw error in the template!!!');
+        //throw new \ErrorException('Error is thrown in the controller!!!');
         echo (new html)->page();
     }
     ##############################################
@@ -253,7 +257,7 @@ class AdminTests
         Message::setDanger('Danger');
         Message::setSuccess('Проверка руссских букаф');
         //Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/_TEST_FILES_CONTENT/001_text_more_2000_chars.txt'));
-        Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/_TEST_FILES_CONTENT/002.txt'));
+        Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/_TEST_FILES_CONTENT/002.txt'));
         Sys::redirect('admintests/redirect2');
     }
 
