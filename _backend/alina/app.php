@@ -89,7 +89,7 @@ class app
 
     protected function setConfig($config = [])
     {
-        $defaultConfigPath   = \alina\utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK . '/configs/default.php');
+        $defaultConfigPath   = \alina\utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
         $defaultConfig       = require($defaultConfigPath);
         $this->configDefault = $defaultConfig;
         $this->config        = \alina\utils\Arr::arrayMergeRecursive($this->configDefault, $config);

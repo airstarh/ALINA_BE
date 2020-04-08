@@ -25,18 +25,12 @@ switch (ALINA_ENV) {
     /**
      * 45A67BigComp2019
      */
-    case 'HOME_2':
-        define('ALINA_MODE', 'dev');
-        define('ALINA_PATH_TO_FRAMEWORK', 'H:\_REPO\ALINA\_backend\alina');
-        define('ALINA_PATH_TO_APP', 'H:\_REPO\ALINA\_backend\_aplications\zero');
-        define('ALINA_PATH_TO_APP_CONFIG', 'H:\_REPO\ALINA\_backend\_aplications\zero\configs\default.php');
-        define('ALINA_WEB_PATH', __DIR__);
-        break;
     case 'DA':
         define('ALINA_MODE', 'dev');
         define('ALINA_PATH_TO_FRAMEWORK', 'C:\_A001\REPOS\OWN\ALINA\_backend\alina');
+        define('ALINA_PATH_TO_FRAMEWORK_CONFIG', 'C:\_A001\REPOS\OWN\ALINA\_backend\_CFG\alina\default.php');
         define('ALINA_PATH_TO_APP', 'C:\_A001\REPOS\OWN\ALINA\_backend\_aplications\zero');
-        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_A001\REPOS\OWN\ALINA\_backend\_aplications\zero\configs\default.php');
+        define('ALINA_PATH_TO_APP_CONFIG', 'C:\_A001\REPOS\OWN\ALINA\_backend\_CFG\apps\zero\default.php');
         define('ALINA_WEB_PATH', __DIR__);
         break;
 }
