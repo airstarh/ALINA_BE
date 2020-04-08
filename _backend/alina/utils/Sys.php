@@ -114,43 +114,57 @@ class Sys
         }
         //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
         //ToDo: PROD! Security!
+        #####
+        $allowedHeaders = [
+            'Accept-Encoding'                => '',
+            'Accept-Language'                => '',
+            'Access-Control-Request-Headers' => '',
+            'Access-Control-Request-Method'  => '',
+            'Connection'                     => '',
+            'Host'                           => '',
+            'Origin'                         => '',
+            'Referer'                        => '',
+            'User-Agent'                     => '',
+            'Cache-Control'                  => '',
+            'Access-Control-Allow-Origin'    => '',
+            #####
+            'Accept'                         => '',
+            'X-Requested-With'               => '',
+            'Content-Type'                   => '',
+            'Vary'                           => '',
+            #####
+            'fgp'                            => '',
+            'Alina-Server-Header'            => '',
+            CurrentUser::KEY_USER_ID         => '',
+            CurrentUser::KEY_USER_TOKEN      => '',
+        ];
+        $allowedHeaders = array_keys($allowedHeaders);
+        $allowedHeaders = implode(', ', $allowedHeaders);
+        header("Access-Control-Allow-Headers: {$allowedHeaders}");
+        header("Access-Control-Expose-Headers: {$allowedHeaders}");
+        #####
+        #region Custom headers for tests
+        header('Alina-Server-Header: Hello, from Alina');
+        #endregion Custom headers for tests
+        #####
+        #region Fix for Chrome Back button
+        //header('Vary: X-Requested-With');
+        //header('Vary: Accept, X-Requested-With');
+        //header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
+        header('Cache-Control: private, max-age=0, no-cache, no-store');
+        header('Pragma: no-cache');
+        //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+        #region Fix for Chrome Back button
+        #####
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+            //if (TRUE) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
-                    $allowedHeaders = [
-                        'Accept-Encoding'                => '',
-                        'Accept-Language'                => '',
-                        'Access-Control-Request-Headers' => '',
-                        'Access-Control-Request-Method'  => '',
-                        'Connection'                     => '',
-                        'Host'                           => '',
-                        'Origin'                         => '',
-                        'Referer'                        => '',
-                        'User-Agent'                     => '',
-                        'Cache-Control'                  => '',
-                        'Access-Control-Allow-Origin'    => '',
-                        #####
-                        'Accept'                         => '',
-                        'X-Requested-With'               => '',
-                        'Content-Type'                   => '',
-                        #####
-                        'Authorization'                  => '',
-                        'Alina-Server-Header'            => '',
-                        CurrentUser::KEY_USER_ID         => '',
-                        CurrentUser::KEY_USER_TOKEN      => '',
-                    ];
-                    $allowedHeaders = array_keys($allowedHeaders);
-                    $allowedHeaders = implode(', ', $allowedHeaders);
-                    #####
                     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-                    //header("Access-Control-Allow-Origin: *");
                     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                    header("Access-Control-Allow-Headers: {$allowedHeaders}");
-                    header("Access-Control-Expose-Headers: {$allowedHeaders}");
                     header("Access-Control-Allow-Credentials: true");
                     header('Access-Control-Max-Age: 666');
-                    header('Alina-Server-Header: Hello, from Alina');
-                    header("Authorization: Back-end-text");
+                    #####
                     ##################################################
                     $method = strtoupper($_SERVER['REQUEST_METHOD']);
                     if ($method === 'OPTIONS') {
@@ -300,8 +314,8 @@ class Sys
         $res = array_merge(
             Request::obj()->TOTAL_DEBUG_DATA(),
             [
-                'ROUTER'  => Alina()->router,
-                'META'    => GlobalRequestStorage::getAll(),
+                'ROUTER' => Alina()->router,
+                'META'   => GlobalRequestStorage::getAll(),
             ]
         );
 

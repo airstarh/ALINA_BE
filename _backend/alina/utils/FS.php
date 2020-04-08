@@ -12,13 +12,21 @@ class FS
     {
         $fullPath  = static::normalizePath($fullPath);
         $pathParts = explode(DIRECTORY_SEPARATOR, $fullPath);
-        $chain     = [];
-        foreach ($pathParts as $dir) {
+        //Sys::fDebug($pathParts);
+        $chain              = [];
+        $state_NIX_ABS_PATH = FALSE;
+        foreach ($pathParts as $i => $dir) {
+            if ($i === 0 && empty($dir)) {
+                $state_NIX_ABS_PATH = TRUE;
+            }
             if (empty($dir)) {
                 continue;
             }
             $chain[]   = $dir;
             $chainPath = implode(DIRECTORY_SEPARATOR, $chain);
+            if ($state_NIX_ABS_PATH) {
+                $chainPath = DIRECTORY_SEPARATOR . $chainPath;
+            }
             if (!is_dir($chainPath)) {
                 mkdir($chainPath);
             }

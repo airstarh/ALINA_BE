@@ -31,13 +31,15 @@ a.id
 , a.`query_string`
 , a.`data`
 , b.`ip`
+, b.`visits` AS ip_VISITS_TOTAL
 , c.user_agent
 FROM `watch_visit` a
 LEFT JOIN watch_ip b ON  a.`ip_id` = b.`id`
 LEFT JOIN watch_browser c ON  a.`browser_id` = c.`id`
 WHERE a.method='POST'
 -- ORDER by a.id DESC
-ORDER BY b.ip
+-- ORDER BY b.ip
+ORDER BY ip_VISITS_TOTAL DESC
 ;
 
 SELECT COUNT(*) AS total
@@ -84,3 +86,9 @@ ORDER BY
 `visits` DESC
 ,`ip` ASC
 ;
+
+SELECT *
+FROM `user`
+WHERE 1
+;
+UPDATE tale SET body = REPLACE(body, 'Scott', 'Sidhu');

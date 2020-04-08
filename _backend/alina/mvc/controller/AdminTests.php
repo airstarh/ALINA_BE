@@ -7,6 +7,7 @@ use alina\Mailer;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
 use alina\mvc\view\html;
 use alina\mvc\view\json as jsonView;
@@ -65,9 +66,10 @@ class AdminTests
         $vd = (object)[
             'somw' => 'data',
         ];
-        Message::setInfo('We throw error in the template!!!');
+        CurrentUser::obj();
+        Message::setInfo('Just an Info message');
         //throw new \ErrorException('Error is thrown in the controller!!!');
-        echo (new html)->page();
+        echo (new html)->page($vd);
     }
     ##############################################
 
