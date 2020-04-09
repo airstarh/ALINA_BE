@@ -118,7 +118,7 @@ class exceptionCatcher
                 }
             }
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
-                Message::setDanger('Error');
+                Message::setDanger('¯\_(ツ)_/¯');
                 MessageAdmin::setDanger($this->strMessage());
             }
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {

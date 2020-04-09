@@ -47,6 +47,7 @@ class user extends _BaseAlinaModel
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
+                    ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
                 'validators' => [
                     [
@@ -67,6 +68,9 @@ class user extends _BaseAlinaModel
             ],
             #####
             'firstname'      => [
+                'filters'    => [
+                    ['\alina\utils\Data', 'filterVarStripTags'],
+                ],
                 'validators' => [
                     // [
                     //     'f'       => 'strlen',
@@ -75,14 +79,18 @@ class user extends _BaseAlinaModel
                     // ],
                 ],
             ],
-            'lastname'       => [],
+            'lastname'       => [
+                'filters' => [
+                    ['\alina\utils\Data', 'filterVarStripTags'],
+                ],
+            ],
             'emblem'         => [],
             'birth'          => [
                 'filters' => [
                     //['alina\\utils\\Data', 'filterVarInteger'],
                     function ($v) {
                         if (empty($v)) {
-                            return NULL;
+                            return 0;
                         }
                         if (is_numeric($v)) {
                             return $v;
@@ -93,6 +101,9 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'language'       => [
+                'filters'    => [
+                    ['\alina\utils\Data', 'filterVarStripTags'],
+                ],
                 'default' => Sys::getUserLanguage(),
             ],
             'timezone'       => [],

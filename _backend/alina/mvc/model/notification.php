@@ -6,9 +6,9 @@ use alina\utils\Data;
 use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 
-class message extends _BaseAlinaModel
+class notification extends _BaseAlinaModel
 {
-    public $table = 'message';
+    public $table = 'notification';
 
     public function fields()
     {

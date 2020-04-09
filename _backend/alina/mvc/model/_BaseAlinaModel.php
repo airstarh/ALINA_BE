@@ -657,6 +657,7 @@ class _BaseAlinaModel
             $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
             $table   = strtoupper($this->table);
             $message = "{$table} with such {$fields} already exists";
+            Message::setDanger($message);
             throw new exceptionValidation($message);
         }
 

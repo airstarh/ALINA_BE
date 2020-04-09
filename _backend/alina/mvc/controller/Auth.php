@@ -68,18 +68,16 @@ class Auth
         if (Request::isPost()) {
             $p  = Data::deleteEmptyProps(Request::obj()->POST);
             $vd = Data::mergeObjects($vd, $p);
-            try {
-                if ($vd->password !== $vd->confirm_password) {
-                    throw new exceptionValidation('Passwords do not match');
-                }
+            if ($vd->password !== $vd->confirm_password) {
+                AlinaResponseSuccess(0);
+                Message::setDanger('Passwords do not match');
+            }
+            if (AlinaIsResponseSuccess()) {
                 if ($CU->Register($vd)) {
                     Message::setSuccess('Success');
                     $CU->messages();
                     Sys::redirect('/auth/login', 303);
                 }
-            } catch (exceptionValidation $e) {
-                $CU->resetDiscoveredData();
-                Message::setDanger($e->getMessage());
             }
         }
         ##################################################
@@ -120,7 +118,7 @@ class Auth
         #####
         Data::sanitizeOutputObj($u->attributes);
         #####
-        $vd->user    = $u->attributes;
+        $vd->user = $u->attributes;
         //$vd->sources = $u->getReferencesSources();
         echo (new htmlAlias)->page($vd);
     }

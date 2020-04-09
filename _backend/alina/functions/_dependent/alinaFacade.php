@@ -76,6 +76,11 @@ function AlinaResponseSuccess($success = 1)
     GlobalRequestStorage::set('alina_response_success', $success);
 }
 
+function AlinaIsResponseSuccess()
+{
+    return GlobalRequestStorage::get('alina_response_success');
+}
+
 ##################################################
 #region Access
 function AlinaAccessIfLoggedIn()
