@@ -126,7 +126,44 @@ class tale extends _BaseAlinaModel
         if (array_key_exists('body', $dataArray)) {
             $dataArray['body_txt'] = \alina\utils\Data::filterVarStripTags($dataArray['body']);
         }
-
+        #####
+        #region Double check parents
+        $root_tale_id      = NULL;
+        $answer_to_tale_id = NULL;
+        $level             = 0;
+        $type              = 'POST';
+        if (array_key_exists('answer_to_tale_id', $dataArray)) {
+            if (!empty($dataArray['answer_to_tale_id'])) {
+                $p1_id   = $dataArray['answer_to_tale_id'];
+                $p1      = new tale();
+                $p1Q     = $p1->q();
+                $p1Attrs = $p1Q->select(['id', 'root_tale_id', 'answer_to_tale_id'])->where([['id', $p1_id]])->first();
+                if (isset($p1Attrs->id) && !empty($p1Attrs->id)) {
+                    $root_tale_id      = $p1Attrs->id;
+                    $answer_to_tale_id = $p1Attrs->id;
+                    $level             = 1;
+                    $type              = 'COMMENT';
+                    if (isset($p1Attrs->answer_to_tale_id) && !empty($p1Attrs->answer_to_tale_id)) {
+                        $p2_id   = $p1Attrs->answer_to_tale_id;
+                        $p2      = new tale();
+                        $p2Q     = $p2->q();
+                        $p2Attrs = $p2Q->select(['id', 'root_tale_id', 'answer_to_tale_id'])->where([['id', $p2_id]])->first();
+                        if (isset($p2Attrs->id) && !empty($p2Attrs->id)) {
+                            $root_tale_id = $p2Attrs->id;
+                            $level        = 2;
+                            $type         = 'COMMENT';
+                        }
+                    }
+                }
+            }
+        }
+        $dataArray['root_tale_id']      = $root_tale_id;
+        $dataArray['answer_to_tale_id'] = $answer_to_tale_id;
+        $dataArray['level']             = $level;
+        $dataArray['type']              = $type;
+        #endregion Double check parents
+        #####
+        #####
         return $this;
     }
     ##################################################

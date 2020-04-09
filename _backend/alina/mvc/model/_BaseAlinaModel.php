@@ -283,6 +283,8 @@ class _BaseAlinaModel
         $this->attributes = $data = Data::toObject($dataArray);
         $this->setPkValue($id, $data);
         #####
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
+        #####
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
         }
@@ -343,6 +345,9 @@ class _BaseAlinaModel
             $this->q()
                 ->where($conditions)
                 ->update($dataArray);
+        #####
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
+        #####
         if ($this->state_AFFECTED_ROWS == 1) {
             $this->attributes = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
             if (isset($this->attributes->{$this->pkName})) {
@@ -363,10 +368,13 @@ class _BaseAlinaModel
     #region DELETE
     public function delete(array $conditions)
     {
-        $this->mode                = 'DELETE';
-        $affectedRowsCount         = $this->q()
+        $this->mode        = 'DELETE';
+        $affectedRowsCount = $this->q()
             ->where($conditions)
             ->delete();
+        #####
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
+        #####
         $this->state_AFFECTED_ROWS = $affectedRowsCount;
         $this->resetFlags();
 
