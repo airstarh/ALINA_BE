@@ -152,6 +152,17 @@ class Tale
             }
             $q->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids);
             $paginationVersa = TRUE;
+            #####
+            if (Request::has('expand', $expand)) {
+                $expand = trim($expand);
+                if (!empty($expand) && is_numeric($expand)) {
+                    $q->where(function ($q) use ($expand) {
+                        /** @var $q BuilderAlias object */
+                        $q->where("tale.id", '=', $expand);
+                    });
+                }
+            }
+            #####
             #endregion COMMENTS
             ####################
         } else {
@@ -180,6 +191,7 @@ class Tale
                 }
             }
             #endregion POSTS
+            ####################
             ####################
         }
         ####################
