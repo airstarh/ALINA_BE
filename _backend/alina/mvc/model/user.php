@@ -2,11 +2,12 @@
 
 namespace alina\mvc\model;
 
-use alina\Message;
 use alina\utils\Data;
 use alina\utils\DateTime;
 use alina\utils\Str;
 use alina\utils\Sys;
+use Illuminate\Database\Capsule\Manager as Dal;
+use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class user extends _BaseAlinaModel
 {
@@ -101,7 +102,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'language'       => [
-                'filters'    => [
+                'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
                 'default' => Sys::getUserLanguage(),
@@ -273,6 +274,14 @@ class user extends _BaseAlinaModel
 
         return $this;
     }
+
+    public function hookGetWithReferences($q)
+    {
+        //ToDo: Cross DataBase.
+        /** @var $q BuilderAlias object */
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM notification AS n WHERE n.to_id = {$this->alias}.{$this->pkName} AND n.is_shown = 0) AS count_notifications"));
+    }
+
     #endregion References
     ##################################################
     #region RBAC

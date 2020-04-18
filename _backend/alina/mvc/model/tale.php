@@ -8,7 +8,9 @@ use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class tale extends _BaseAlinaModel
 {
-    public $table = 'tale';
+    public $table          = 'tale';
+    public $ownerId_root   = NULL;
+    public $ownerId_answer = NULL;
 
     public function fields()
     {
@@ -116,8 +118,8 @@ class tale extends _BaseAlinaModel
     {
         //ToDo: Cross DataBase.
         /** @var $q BuilderAlias object */
-        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName}) AS count_answer_to_tale_id"));
-        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$this->alias}.{$this->pkName}) AS count_root_tale_id"));
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName} AND tale1.created_at > {$this->alias}.created_at) AS count_answer_to_tale_id"));
+        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$this->alias}.{$this->pkName} AND tale2.created_at > {$this->alias}.created_at) AS count_root_tale_id"));
     }
 
     ##################################################
@@ -133,25 +135,31 @@ class tale extends _BaseAlinaModel
         $level             = 0;
         $type              = 'POST';
         if (array_key_exists('answer_to_tale_id', $dataArray)) {
+            #####
+            # ANSWER p1 - parent-1
             if (!empty($dataArray['answer_to_tale_id'])) {
                 $p1_id   = $dataArray['answer_to_tale_id'];
                 $p1      = new tale();
                 $p1Q     = $p1->q();
-                $p1Attrs = $p1Q->select(['id', 'root_tale_id', 'answer_to_tale_id'])->where([['id', $p1_id]])->first();
+                $p1Attrs = $p1Q->select(['id', 'root_tale_id', 'answer_to_tale_id', 'owner_id'])->where([['id', $p1_id]])->first();
+                #####
+                # ROOT p2 - parent-2
                 if (isset($p1Attrs->id) && !empty($p1Attrs->id)) {
-                    $root_tale_id      = $p1Attrs->id;
-                    $answer_to_tale_id = $p1Attrs->id;
-                    $level             = 1;
-                    $type              = 'COMMENT';
+                    $root_tale_id         = $p1Attrs->id;
+                    $answer_to_tale_id    = $p1Attrs->id;
+                    $level                = 1;
+                    $type                 = 'COMMENT';
+                    $this->ownerId_answer = $p1Attrs->owner_id;
                     if (isset($p1Attrs->answer_to_tale_id) && !empty($p1Attrs->answer_to_tale_id)) {
                         $p2_id   = $p1Attrs->answer_to_tale_id;
                         $p2      = new tale();
                         $p2Q     = $p2->q();
-                        $p2Attrs = $p2Q->select(['id', 'root_tale_id', 'answer_to_tale_id'])->where([['id', $p2_id]])->first();
+                        $p2Attrs = $p2Q->select(['id', 'root_tale_id', 'answer_to_tale_id', 'owner_id'])->where([['id', $p2_id]])->first();
                         if (isset($p2Attrs->id) && !empty($p2Attrs->id)) {
-                            $root_tale_id = $p2Attrs->id;
-                            $level        = 2;
-                            $type         = 'COMMENT';
+                            $root_tale_id       = $p2Attrs->id;
+                            $level              = 2;
+                            $type               = 'COMMENT';
+                            $this->ownerId_root = $p2Attrs->owner_id;
                         }
                     }
                 }

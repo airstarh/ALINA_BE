@@ -173,9 +173,9 @@ class _BaseAlinaModel
 
     ###############
     #region Get With References
-    public function getAllWithReferencesPart1($conditions = [])
+    public function getAllWithReferencesPart1($conditions = [], $alias = NULL)
     {
-        $q = $this->q();
+        $q = $this->q($alias);
         $q->select(["{$this->alias}.*"]);
         //API WHERE
         $q->where($conditions);

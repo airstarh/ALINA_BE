@@ -18,6 +18,7 @@ class notification extends _BaseAlinaModel
             'from_id'     => [],
             'txt'         => [],
             'params'      => [],
+            'link'        => [],
             'severity_id' => [],
             'is_shown'    => [
                 'default' => 0,
@@ -55,13 +56,14 @@ class notification extends _BaseAlinaModel
                     ['addSelect', [
                         'from.firstname AS from_firstname',
                         'from.lastname AS from_lastname',
+                        'from.emblem AS from_emblem',
                     ]],
                 ],
             ],
             'severity' => [
                 'has'        => 'one',
                 'joins'      => [
-                    ['leftJoin', 'message_severity AS severity', 'severity.id', '=', "{$this->alias}.severity_id"],
+                    ['leftJoin', 'notification_severity AS severity', 'severity.id', '=', "{$this->alias}.severity_id"],
                 ],
                 'conditions' => [],
                 'addSelects' => [

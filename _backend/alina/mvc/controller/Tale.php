@@ -4,6 +4,7 @@ namespace alina\mvc\controller;
 
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\notification;
 use alina\mvc\model\tale as taleAlias;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
@@ -65,6 +66,33 @@ class Tale
                 }
                 $vd->is_submitted = 1;
                 $attrs            = $mTale->updateById($vd);
+                #####
+                #region Notification
+                #to Root Owner
+                if (!empty($attrs->answer_to_tale_id)) {
+                    $allCommenters = (new \alina\mvc\model\tale())
+                        ->q('commenters')
+                        ->where(['root_tale_id' => $attrs->root_tale_id,])
+                        ->orWhere(['id' => $attrs->root_tale_id,])
+                        ->distinct()
+                        ->pluck('owner_id');
+                    $url           = "/#/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
+                    $text          = "Comment! Tale ID# {$attrs->root_tale_id}";
+                    $tag           = "<a href={$url} target=_blank>{$text}</a>";
+                    foreach ($allCommenters as $humanId) {
+                        if ($humanId == CurrentUser::obj()->id) {
+                            continue;
+                        }
+                        (new notification())->insert((object)[
+                            'to_id'   => $humanId,
+                            'from_id' => CurrentUser::obj()->id,
+                            'txt'     => $tag,
+                            'link'    => $url,
+                        ]);
+                    }
+                }
+                #endregion Notification
+                #####
             } else {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Forbidden');
