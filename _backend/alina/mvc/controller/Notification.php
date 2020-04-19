@@ -21,23 +21,14 @@ class Notification
     public function actionSelectListLatest($pageSze = 5, $pageNumber = 1)
     {
         $conditions       = [
-            'notification.to_id'    => CurrentUser::obj()->id,
-            'notification.is_shown' => 0,
+            'notification.to_id' => CurrentUser::obj()->id,
         ];
         $backendSortArray = [
+            ['notification.is_shown', 'ASC'],
             ['notification.created_at', 'DESC'],
         ];
         $q                = $this->model->getAllWithReferencesPart1($conditions);
         $collection       = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $pageNumber);
-        #####
-        if ($this->model->state_ROWS_TOTAL <= 0) {
-            $conditions = [
-                'notification.to_id'    => CurrentUser::obj()->id,
-                'notification.is_shown' => 1,
-            ];
-            $q          = $this->model->getAllWithReferencesPart1($conditions);
-            $collection = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $pageNumber);
-        }
         #####
         echo (new htmlAlias)->page($collection);
     }
