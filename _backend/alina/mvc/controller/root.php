@@ -46,12 +46,14 @@ class root
 
     public function action404()
     {
+        AlinaResponseSuccess(0);
         http_response_code(404);
         echo (new \alina\mvc\view\html)->page();
     }
 
     public function actionException($vd = NULL)
     {
+        AlinaResponseSuccess(0);
         http_response_code(203);
         echo (new \alina\mvc\view\html)->page($vd, '_system/html/htmlLayoutErrorCatcher.php');
 

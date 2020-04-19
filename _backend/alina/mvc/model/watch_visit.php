@@ -13,6 +13,7 @@ class watch_visit extends _BaseAlinaModel
     {
         #####
         $req = Request::obj();
+
         #####
         return [
             'id'           => [],
@@ -35,7 +36,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $req->METHOD,
             ],
             'data'         => [
-                'default' => var_export(['POST' => $req->POST, 'FILES' => $req->FILES,], 1),
+                'default' => json_encode(['POST' => $req->POST, 'FILES' => $req->FILES,], JSON_UNESCAPED_UNICODE),
             ],
             'controller'   => [
                 'default' => Alina()->router->controller,

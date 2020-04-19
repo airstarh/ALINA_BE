@@ -7,6 +7,7 @@ use alina\mvc\model\watch_banned_browser;
 use alina\mvc\model\watch_banned_ip;
 use alina\mvc\model\watch_banned_visit;
 use alina\mvc\model\watch_browser;
+use alina\mvc\model\watch_fools;
 use alina\mvc\model\watch_ip;
 use alina\mvc\model\watch_url_path;
 use alina\mvc\model\watch_visit;
@@ -37,6 +38,7 @@ class Watcher
     public function logVisitsToDb()
     {
         #####
+        $this->firewallFools();
         $this->firewallByBannedIp();
         $this->firewallByBannedBrowser();
         #####
@@ -153,6 +155,36 @@ class Watcher
             throw new \ErrorException($msg);
         }
     }
+
+    protected function firewallFools()
+    {
+        if (
+            (
+                Request::has('alinafool', $alinafool)
+                &&
+                $alinafool == 1
+            )
+            ||
+            empty(Request::obj()->DOMAIN)
+            ||
+            empty(Request::obj()->BROWSER)
+            ||
+            (Request::isPostPutDelete()
+                &&
+                (
+                    !isset(Request::obj()->POST->form_id)
+                    ||
+                    empty(Request::obj()->POST->form_id)
+                )
+            )
+        ) {
+            (new watch_fools())->insert([]);
+            $msg = 'fuck you';
+            Message::setDanger($msg, []);
+            throw new \ErrorException($msg);
+        }
+    }
+
 
     #endregion Firewall
     ##################################################

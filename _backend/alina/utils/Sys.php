@@ -277,7 +277,7 @@ class Sys
 
     static Public function getUserBrowser()
     {
-        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : 'UNKNOWN';
+        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
         return $browser;
     }

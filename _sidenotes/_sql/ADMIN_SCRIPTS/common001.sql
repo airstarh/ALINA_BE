@@ -26,9 +26,9 @@ ORDER BY LE DESC
 ;
 
 SELECT 
-a.id
-, a.user_id
-, a.`query_string`
+-- a.id
+-- , a.user_id
+a.`query_string`
 , a.`data`
 , b.`ip`
 , b.`visits` AS ip_VISITS_TOTAL
@@ -36,9 +36,17 @@ a.id
 FROM `watch_visit` a
 LEFT JOIN watch_ip b ON  a.`ip_id` = b.`id`
 LEFT JOIN watch_browser c ON  a.`browser_id` = c.`id`
-WHERE a.method='POST'
+WHERE 
+a.method='POST'
+AND
+a.user_id IS NULL
+AND 
+a.query_string NOT LIKE '%auth/login%'
+AND
+b.ip != '91.202.25.124'
 -- ORDER by a.id DESC
 -- ORDER BY b.ip
+GROUP BY b.ip
 ORDER BY ip_VISITS_TOTAL DESC
 ;
 
@@ -92,3 +100,22 @@ FROM `user`
 WHERE 1
 ;
 UPDATE tale SET body = REPLACE(body, 'Scott', 'Sidhu');
+;
+SELECT 
+a.query_string
+,a.controller
+,a.action
+FROM watch_visit a
+WHERE
+a.method='POST'
+AND
+a.user_id IS NULL
+AND 
+a.query_string NOT LIKE '%auth/login%'
+ORDER BY id DESC
+;
+
+SELECT *
+FROM watch_fools wf
+WHERE 1
+;
