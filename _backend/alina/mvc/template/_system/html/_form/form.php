@@ -49,8 +49,5 @@ $sources = $data->sources;
 
         <?php } ?>
     <?php } ?>
-    <!--#####-->
-    <!--#####-->
-    <!--#####-->
     <?= htmlAlias::elFormStandardButtons([]) ?>
 </form>

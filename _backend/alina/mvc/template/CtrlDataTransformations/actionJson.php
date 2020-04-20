@@ -28,9 +28,7 @@ use alina\mvc\view\html as htmlAlias;
         <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
 
     </form>
-    <!--##################################################-->
-    <!--##################################################-->
-    <!--##################################################-->
+    <!-- ##################################################-->
     <div class="mt-3">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'RESULT',
@@ -46,9 +44,7 @@ use alina\mvc\view\html as htmlAlias;
         <textarea class="form-control"
                   rows="30"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->strRes) ?></textarea>
     </div>
-    <!--##################################################-->
-    <!--##################################################-->
-    <!--##################################################-->
+    <!-- ##################################################-->
     <div>
         <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
         <div class="row">
