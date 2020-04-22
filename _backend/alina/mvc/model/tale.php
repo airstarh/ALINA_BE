@@ -116,10 +116,30 @@ class tale extends _BaseAlinaModel
     ##################################################
     public function hookGetWithReferences($q)
     {
+        $uid = CurrentUser::obj()->id ?: -1;
         //ToDo: Cross DataBase.
         /** @var $q BuilderAlias object */
         $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName} AND tale1.created_at > {$this->alias}.created_at) AS count_answer_to_tale_id"));
         $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$this->alias}.{$this->pkName} AND tale2.created_at > {$this->alias}.created_at) AS count_root_tale_id"));
+        $q->addSelect(Dal::raw("
+            (SELECT COUNT(*) 
+                FROM lk AS lk 
+                WHERE 
+                        lk.ref_id = {$this->alias}.{$this->pkName}
+                    AND lk.ref_table = 'tale' 
+                    AND lk.created_at > {$this->alias}.created_at
+            ) AS count_like
+        "));
+        $q->addSelect(Dal::raw("
+            (SELECT COUNT(*)
+                FROM lk AS user_liked
+                WHERE
+                        user_liked.ref_id = {$this->alias}.{$this->pkName}
+                    AND user_liked.ref_table = 'tale'
+                    AND user_liked.created_at > {$this->alias}.created_at
+                    AND user_liked.user_id =  {$uid}
+            ) AS current_user_liked
+        "));
     }
 
     ##################################################
