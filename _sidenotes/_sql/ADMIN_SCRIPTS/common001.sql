@@ -107,7 +107,16 @@ WHERE a.method = 'POST'
 ORDER BY id DESC
 ;
 
-SELECT *
-FROM watch_fools wf
+SELECT id,
+       ip,
+       method,
+       browser,
+       header,
+       `get`,
+       post,
+       file,
+       created_at
+FROM alina.watch_fools
 WHERE 1
+order by id desc
 ;

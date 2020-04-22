@@ -25,4 +25,26 @@ class like extends _BaseAlinaModel
             ],
         ];
     }
+
+    #####
+    public function referencesTo()
+    {
+        return [
+            'from' => [
+                'has'        => 'one',
+                'joins'      => [
+                    ['leftJoin', 'user AS from', 'from.id', '=', "{$this->alias}.user_id"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    ['addSelect', [
+                        'from.firstname AS from_firstname',
+                        'from.lastname AS from_lastname',
+                        'from.emblem AS from_emblem',
+                    ]],
+                ],
+            ],
+        ];
+    }
+    #####
 }

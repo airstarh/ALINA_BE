@@ -55,11 +55,12 @@ class Like
     }
     #####
     #region SELECT
-    public function actionSelectList(...$params)
+    public function actionSelectList($pageSze = 10, $page = 1, $ref_table = 'tale', $ref_id = NULL)
     {
-        $conditions = (array)Request::obj()->GET;
-        $q          = $this->model->getAllWithReferencesPart1($conditions);
-        $collection = $this->model->getAllWithReferencesPart2();
+        $backendSortArray = [['lk.created_at', 'DESC']];
+        $conditions       = ['lk.ref_table' => $ref_table, 'lk.ref_id' => $ref_id];
+        $q                = $this->model->getAllWithReferencesPart1($conditions);
+        $collection       = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $page);
         echo (new htmlAlias)->page($collection);
     }
 
