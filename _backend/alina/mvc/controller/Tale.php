@@ -77,7 +77,7 @@ class Tale
                         ->pluck('owner_id');
                     $url           = "/#/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
                     $text          = "Comment! Tale ID# {$attrs->root_tale_id}";
-                    $tag           = "<a href={$url} target=_blank>{$text}</a>";
+                    $tag           = "<a href={$url} target=_blank class='btn btn-primary mb-2'>{$text}</a>";
                     foreach ($allCommenters as $humanId) {
                         if ($humanId == CurrentUser::obj()->id) {
                             continue;
