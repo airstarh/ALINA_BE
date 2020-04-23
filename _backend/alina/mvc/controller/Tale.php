@@ -68,7 +68,6 @@ class Tale
                 $attrs            = $mTale->updateById($vd);
                 #####
                 #region Notification
-                #to Root Owner
                 if (!empty($attrs->answer_to_tale_id)) {
                     $allCommenters = (new \alina\mvc\model\tale())
                         ->q('commenters')
@@ -84,10 +83,14 @@ class Tale
                             continue;
                         }
                         (new notification())->insert((object)[
-                            'to_id'   => $humanId,
-                            'from_id' => CurrentUser::obj()->id,
-                            'txt'     => $tag,
-                            'link'    => $url,
+                            'to_id'        => $humanId,
+                            'from_id'      => CurrentUser::obj()->id,
+                            'txt'          => $tag,
+                            'link'         => $url,
+                            'id_root'      => $attrs->root_tale_id,
+                            'id_answer'    => $attrs->id,
+                            'id_highlight' => $attrs->answer_to_tale_id,
+                            'tbl'          => 'tale',
                         ]);
                     }
                 }
@@ -113,6 +116,17 @@ class Tale
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if ($isPost && $id && (AlinaAccessIfAdminOrModeratorOrOwner($post->owner_id))) {
+            $vd->notifications = (new notification())
+                ->q(-1)
+                ->where('tbl', '=', 'tale')
+                ->where(function ($q) use ($id) {
+                    /** @var $q BuilderAlias object */
+                    $q
+                        ->where('id_root', '=', $id)
+                        ->orWhere('id_answer', '=', $id)
+                        ->orWhere('id_highlight', '=', $id);
+                })
+                ->delete();;
             $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
             $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
             $vd->rows      = (new taleAlias())->deleteById($id);

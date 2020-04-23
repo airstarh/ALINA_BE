@@ -28,33 +28,13 @@ class AdminTests
     ##############################################
     public function actionSomeData()
     {
+        // 405 387 367
         Message::setInfo('Hello, people');
-        $vd = [
-            'hello' => 'world',
-            'Yo',
-        ];
-        #####
-        //WORKS
-        // $items = Dal::table('information_schema.columns')
-        //     ->select('column_name')
-        //     ->where('table_name', '=', 'tale')
-        //     ->where('table_schema', '=', AlinaCFG('db/database'))
-        //     ->pluck('column_name');
-        // $vd = $items;
-        #####
-        #####
-        //Works
-        //$vd = Dal::select(Dal::raw('SELECT * FROM tale  LIMIT  10'));
-        #####
-        $by_answer_to_tale_id = "(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = tale.id) AS by_answer_to_tale_id";
-        $by_root_tale_id      = "(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = tale.id) AS by_root_tale_id";
-        $m                    = new \alina\mvc\model\tale();
-        $q                    = $m->q();
-        $q->addSelect('tale.id');
-        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$m->alias}.{$m->pkName}) AS count_answer_to_tale_id"));
-        $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$m->alias}.{$m->pkName}) AS count_root_tale_id"));
-        $vd = $q->get()->toArray();
-        #####
+        $vd   = [];
+        $m    = new \alina\mvc\model\tale();
+        $vd[] = $m->getChainOfParents(405);
+        $vd[] = $m->getChainOfParents(387);
+        $vd[] = $m->getChainOfParents(367);
         echo (new html)->page($vd);
     }
 

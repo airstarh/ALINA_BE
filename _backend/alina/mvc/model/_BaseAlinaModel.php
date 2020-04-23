@@ -837,7 +837,7 @@ class _BaseAlinaModel
             $this->q = NULL;
         }
         $this->alias = $alias ? $alias : $this->alias;
-        if ($this->mode === 'INSERT' || $this->mode === 'DELETE') {
+        if ($this->mode === 'INSERT' || $this->mode === 'DELETE' || $alias == -1) {
             $this->q = Dal::table("{$this->table}");
         } else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");

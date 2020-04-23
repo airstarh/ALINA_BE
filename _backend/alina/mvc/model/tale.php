@@ -195,4 +195,26 @@ class tale extends _BaseAlinaModel
         return $this;
     }
     ##################################################
+    #region Helpers
+    public function getChainOfParents($id)
+    {
+        $chainOfParents = $this
+            ->q('current')
+            ->select([
+                'current.id AS id',
+                'current.owner_id AS owner_id',
+                'root.id AS root_tale_id',
+                'root.owner_id AS root_owner_id',
+                'answer.id AS answer_to_tale_id',
+                'answer.owner_id AS answer_owner_id',
+            ])
+            ->where('current.id', '=', $id)
+            ->leftJoin('tale AS answer', 'answer.id', '=', 'current.answer_to_tale_id')
+            ->leftJoin('tale AS root', 'root.id', '=', 'current.root_tale_id')
+            ->first();;
+
+        return $chainOfParents;
+    }
+    #endregion Helpers
+    ##################################################
 }

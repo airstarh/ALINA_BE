@@ -13,19 +13,27 @@ class notification extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'          => [],
-            'to_id'       => [],
-            'from_id'     => [],
-            'txt'         => [],
-            'params'      => [],
-            'link'        => [],
-            'severity_id' => [],
-            'is_shown'    => [
+            'id'           => [],
+            'to_id'        => [],
+            'from_id'      => [],
+            'txt'          => [],
+            'params'       => [],
+            'link'         => [],
+            'severity_id'  => [],
+            'is_shown'     => [
                 'default' => 0,
             ],
-            'created_at'  => [
+            'created_at'   => [
                 'default' => ALINA_TIME,
             ],
+            'id_root'      => [],
+            'id_answer'    => [],
+            'id_highlight' => [],
+            'tbl'          => [
+                'default' => 'tale',
+            ],
+            'bind_tbl'     => [],
+            'bind_id'      => [],
         ];
     }
 

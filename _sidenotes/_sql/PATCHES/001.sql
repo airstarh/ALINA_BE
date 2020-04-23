@@ -6,5 +6,8 @@ ALTER TABLE `tale`
 ALTER TABLE `tale`
     ADD COLUMN `body_txt` TEXT NULL AFTER `body`;
 
-ALTER TABLE `tale`
-    ADD KEY `IND_PUBLISH_AT` (`publish_at`);
+ALTER TABLE `alina`.`notification`
+    ADD COLUMN `id_root` BIGINT NULL COMMENT 'parent' AFTER `created_at`,
+    ADD COLUMN `id_answer` BIGINT NULL COMMENT 'expand' AFTER `id_root`,
+    ADD COLUMN `id_highlight` BIGINT NULL COMMENT 'highlight' AFTER `id_answer`;
+

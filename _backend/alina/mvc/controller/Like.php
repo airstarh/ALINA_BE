@@ -2,11 +2,11 @@
 
 namespace alina\mvc\controller;
 
-use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\like as mLike;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Request as Request;
+use alina\mvc\model\notification;
 
 class Like
 {
@@ -22,21 +22,54 @@ class Like
     {
         AlinaRejectIfNotLoggedIn();
         if (Request::isPostPutDelete($post)) {
-            $ref_table = $post->ref_table;
-            $ref_id    = $post->ref_id;
-            $user_id   = CurrentUser::obj()->id;
-            $val       = $post->val;
-            $attrs     = $this->model->getOne([
+            $ref_table  = $post->ref_table;
+            $ref_id     = $post->ref_id;
+            $val        = $post->val;
+            $mLikeAttrs = $this->model->getOne([
                 'ref_table' => $ref_table,
                 'ref_id'    => $ref_id,
-                'user_id'   => $user_id,
+                'user_id'   => CurrentUser::obj()->id,
             ]);
-            if (isset($attrs->id) && !empty($attrs->id)) {
-                $this->model->deleteById($attrs->id);
+            ###
+            #remove Like
+            if (isset($mLikeAttrs->id) && !empty($mLikeAttrs->id)) {
+                $this->model->deleteById($mLikeAttrs->id);
+                (new notification())->delete([
+                    'bind_tbl' => 'like',
+                    'bind_id'  => $mLikeAttrs->id,
+                ]);
                 $CurrentUserLiked = 0;
-            } else {
-                $this->model->insert($post);
+            }
+            ###
+            #add Like
+            else {
+                $mLike = $this->model;
+                $mLike->insert($post);
                 $CurrentUserLiked = 1;
+                #####
+                #region Add Notification
+                $chainOfParents    = (new \alina\mvc\model\tale())->getChainOfParents($ref_id);
+                $to_id             = $chainOfParents->owner_id;
+                $root_tale_id      = $chainOfParents->root_tale_id ?: $ref_id;
+                $answer_to_tale_id = $chainOfParents->answer_to_tale_id ?: $ref_id;
+                $highlight         = $ref_id;
+                $url               = "/#/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
+                $text              = "Like!";
+                $tag               = "<a href={$url} target=_blank>{$text}</a>";
+                (new notification())->insert((object)[
+                    'to_id'        => $to_id,
+                    'from_id'      => CurrentUser::obj()->id,
+                    'txt'          => $tag,
+                    'link'         => $url,
+                    'id_root'      => $root_tale_id,
+                    'id_answer'    => $answer_to_tale_id,
+                    'id_highlight' => $ref_id,
+                    'tbl'          => $post->ref_table,
+                    'bind_tbl'     => 'like',
+                    'bind_id'      => $mLike->id,
+                ]);
+                #endregion Add Notification
+                #####
             }
             $AmountLikes = (new mLike())
                 ->q()
@@ -64,53 +97,6 @@ class Like
         echo (new htmlAlias)->page($collection);
     }
 
-    public function actionSelectById(...$params)
-    {
-        $id           = $params[0];
-        $conditions[] = [$this->model->pkName, '=', $id];
-        $attrs        = $this->model->getOneWithReferences($conditions);
-        echo (new htmlAlias)->page($attrs);
-    }
-
     #endregion SELECT
-    #####
-    #region INSERT
-    public function actionInsert(...$params)
-    {
-        $data = (object)[];
-        if (Request::isPostPutDelete($post)) {
-            $data = $this->model->insert($post);
-        }
-        echo (new htmlAlias)->page($data);
-    }
-    #endregion INSERT
-    #####
-    #region UPDATE
-    public function actionUpdate(...$params)
-    {
-        $data       = (object)[];
-        $conditions = [];
-        if (Request::isPostPutDelete($post)) {
-            $data       = (object)$post['data'];
-            $conditions = (array)$post['conditions'];
-            $data       = $this->model->update($data, $conditions);
-        }
-        echo (new htmlAlias)->page($data);
-    }
-
-    #endregion UPDATE
-    #####
-    #region DELETE
-    public function actionDelete(...$params)
-    {
-        $affectedRows = 0;
-        if (Request::isPostPutDelete($post)) {
-            $conditions   = (array)$post;
-            $affectedRows = $this->model->delete($conditions);
-        }
-        echo (new htmlAlias)->page($affectedRows);
-    }
-
-    #endregion DELETE
     #####
 }
