@@ -126,10 +126,14 @@ class Tale
                         ->orWhere('id_answer', '=', $id)
                         ->orWhere('id_highlight', '=', $id);
                 })
-                ->delete();;
-            $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
-            $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
-            $vd->rows      = (new taleAlias())->deleteById($id);
+                ->delete();
+            $vd->likes         = (new \alina\mvc\model\like())->delete([
+                'ref_table' => 'tale',
+                'ref_id'    => $id,
+            ]);
+            $vd->comments1     = (new taleAlias())->delete(['root_tale_id' => $id,]);
+            $vd->comments3     = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
+            $vd->rows          = (new taleAlias())->deleteById($id);
             Message::setSuccess('Deleted');
         } else {
             AlinaResponseSuccess(0);
