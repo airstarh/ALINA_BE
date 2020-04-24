@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\Message;
+use alina\mvc\model\_baseAlinaEloquentTransaction;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\notification;
 use alina\mvc\model\tale as taleAlias;
@@ -72,6 +73,9 @@ class Tale
                     $allCommenters = (new \alina\mvc\model\tale())
                         ->q('commenters')
                         ->where(['root_tale_id' => $attrs->root_tale_id,])
+                        ->orWhere(['answer_to_tale_id' => $attrs->answer_to_tale_id,])
+                        ->orWhere(['root_tale_id' => $attrs->id,])
+                        ->orWhere(['answer_to_tale_id' => $attrs->id,])
                         ->orWhere(['id' => $attrs->root_tale_id,])
                         ->distinct()
                         ->pluck('owner_id');
@@ -116,6 +120,7 @@ class Tale
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if ($isPost && $id && (AlinaAccessIfAdminOrModeratorOrOwner($post->owner_id))) {
+            _baseAlinaEloquentTransaction::begin();
             $vd->notifications = (new notification())
                 ->q(-1)
                 ->where('tbl', '=', 'tale')
@@ -127,13 +132,24 @@ class Tale
                         ->orWhere('id_highlight', '=', $id);
                 })
                 ->delete();
-            $vd->likes         = (new \alina\mvc\model\like())->delete([
-                'ref_table' => 'tale',
-                'ref_id'    => $id,
-            ]);
-            $vd->comments1     = (new taleAlias())->delete(['root_tale_id' => $id,]);
-            $vd->comments3     = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
-            $vd->rows          = (new taleAlias())->deleteById($id);
+            ###
+            $all       = (new \alina\mvc\model\tale())
+                ->q('commenters')
+                ->where(['root_tale_id' => $id,])
+                ->where(['answer_to_tale_id' => $id,])
+                ->orWhere(['id' => $id,])
+                ->distinct()
+                ->pluck('id');
+            $vd->likes = (new \alina\mvc\model\like())
+                ->q(-1)
+                ->where('ref_table', '=', 'tale')
+                ->whereIn('ref_id', $all)
+                ->delete();
+            ###
+            $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
+            $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
+            $vd->rows      = (new taleAlias())->deleteById($id);
+            _baseAlinaEloquentTransaction::commit();
             Message::setSuccess('Deleted');
         } else {
             AlinaResponseSuccess(0);
