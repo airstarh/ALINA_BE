@@ -3,7 +3,7 @@
 ?>
 
 <div class="row">
-    <div class="col">
+    <div class="col-auto">
         <div class="float-left mr-1 fixed-height-150px">
             <a href="<?= $data->owner_emblem ?>" target="_blank">
                 <img src="<?= $data->owner_emblem ?>" width="150px" class="rounded-circle">

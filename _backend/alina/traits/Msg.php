@@ -14,8 +14,8 @@ trait Msg
      * @property array
      * Contains array of \alina\message objects
      **/
-    static protected $collection      = [];
-    static public    $statusClasses   = [
+    static protected $collection    = [];
+    static public    $statusClasses = [
         0 => 'alert alert-success',
         1 => 'alert alert-info',
         2 => 'alert alert-warning',
@@ -39,7 +39,7 @@ trait Msg
      * alert alert-dark
      *
      */
-    static protected function set($text, $params = [], $status = 0)
+    static protected function set($text, $params = [], $status = 1)
     {
         if (!is_string($text)) {
             $text = var_export($text, 1);

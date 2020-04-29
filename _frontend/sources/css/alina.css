@@ -1,4 +1,15 @@
-/*region Boy-Scout-Page*/
+/*#####*/
+/*region FUNDAMENTAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+}
+
 html {
     height: 100%;
 }
@@ -7,7 +18,7 @@ body {
     height: 100%;
     position: relative;
     overflow: hidden;
-    padding-top: 68px;
+    /*padding-top: 60px;*/
 }
 
 #alina-body-wrapper {
@@ -17,18 +28,50 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
+    overflow: -moz-scrollbars-vertical;
     overflow: scroll;
-
-    border: orange solid 2px;
 }
 
-/*region Boy-Scout-Page*/
+/*endregion FUNDAMENTAL */
+/*#####*/
+/*region REQUIRED BY INCLUDED FRAMEWORKS*/
+/*region Keen required*/
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-/*region Common*/
-pre {
+html {
+    font-size: 100%;
+}
+
+/*endregion Keen required*/
+/*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
+/* ################################################## */
+/*region tiny adjustments*/
+/*region Form*/
+.alina-form {
     background-color: #e9ecef;
     padding: 2mm;
 }
+
+input:focus,
+select:focus,
+textarea:focus {
+    background-color: #9BDAFF;
+}
+
+.m-buttons-1 button, .m-buttons-1 a {
+    margin-left: 1px;
+}
+
+/*.btn {
+  padding: 1mm;
+  margin-left: 1mm;
+  margin-bottom: 1mm;
+}*/
+/*endregion Form*/
 
 .fixed-height-100px {
     overflow: hidden;
@@ -40,4 +83,33 @@ pre {
     max-height: 150px;
 }
 
-/*endregion Common*/
+/*endregion tiny adjustments*/
+/* ################################################## */
+/*region ck-editor*/
+.ck-content {
+    padding: 0;
+}
+
+.ck-content li {
+    margin-left: 2em;
+}
+
+.ck-content p, .ck-content code {
+    margin: 0;
+    padding: 0 2px 0 2px;
+    border: 0;
+    line-height: 1;
+}
+
+.ck-content p {
+    line-height: 1.5;
+}
+
+.ck-content code {
+    color: black;
+    padding-left: .5em;
+    padding-right: .5em;
+}
+
+/*endregion ck-editor*/
+/* ################################################## */

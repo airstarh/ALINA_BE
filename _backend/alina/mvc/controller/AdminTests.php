@@ -48,7 +48,7 @@ class AdminTests
         ];
         CurrentUser::obj();
         Message::setInfo('Just an Info message');
-        //throw new \ErrorException('Error is thrown in the controller!!!');
+        throw new \ErrorException('Error is thrown in the controller!!!');
         echo (new html)->page($vd);
     }
     ##############################################
