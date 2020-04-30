@@ -4,6 +4,7 @@ use alina\app;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\utils\Request;
 use alina\utils\Sys;
 
 define('ALINA_DT_FORMAT_DB', 'Y-m-d H:i:s');
@@ -147,6 +148,13 @@ function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
     if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
         AlinaReject();
+    }
+}
+
+function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = FALSE)
+{
+    if (!Request::obj()->AJAX) {
+        Sys::redirect($to, $code, $isToOrigin);
     }
 }
 

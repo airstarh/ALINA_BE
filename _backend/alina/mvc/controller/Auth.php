@@ -21,6 +21,9 @@ class Auth
      */
     public function actionLogin()
     {
+        ##################################################
+        AlinaRedirectIfNotAjax('/#/auth/login', 303, TRUE);
+        ##################################################
         $vd = (object)[
             'form_id'  => __FUNCTION__,
             'mail'     => '',
@@ -56,6 +59,8 @@ class Auth
      */
     public function actionRegister()
     {
+        ##################################################
+        AlinaRedirectIfNotAjax('/#/auth/register', 303, TRUE);
         ##################################################
         $vd = (object)[
             'form_id'          => __FUNCTION__,
@@ -95,8 +100,7 @@ class Auth
             $id = CurrentUser::obj()->id;
         }
         if (empty($id)) {
-            Message::setDanger('Login first');
-            Sys::redirect('/auth/login', 303);
+            AlinaRejectIfNotLoggedIn();
         }
         #####
         $vd = (object)[
@@ -107,6 +111,9 @@ class Auth
         $u  = new user();
         #####
         if (Request::isPostPutDelete($post)) {
+            ##################################################
+            AlinaRedirectIfNotAjax('/#/auth/profile', 303, TRUE);
+            ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
                 $u->updateById($post);
@@ -135,6 +142,9 @@ class Auth
 
     public function actionResetPasswordRequest()
     {
+        ##################################################
+        AlinaRedirectIfNotAjax('/#/auth/reset_password_request', 303, TRUE);
+        ##################################################
         $vd = (object)[
             'form_id' => __FUNCTION__,
             'message' => '',
@@ -171,6 +181,9 @@ class Auth
     ##################################################
     public function actionResetPasswordWithCode()
     {
+        ##################################################
+        AlinaRedirectIfNotAjax('/#/auth/reset_password_with_code', 303, TRUE);
+        ##################################################
         $rd = Request::obj()->R;
         $vd = (object)[
             'form_id'          => __FUNCTION__,
@@ -216,7 +229,9 @@ class Auth
     ##################################################
     public function actionChangePassword()
     {
-        #####
+        ##################################################
+        AlinaRedirectIfNotAjax('/#/auth/change_password', 303, TRUE);
+        ##################################################
         if (!AlinaAccessIfLoggedIn()) {
             Message::setDanger('Login first');
             Sys::redirect('/auth/login', 303);

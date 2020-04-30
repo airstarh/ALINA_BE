@@ -18,7 +18,6 @@ class Html
                 unset($configuration['legend']);
             }
         }
-
         $attributes = static::convertAttributesArrayToString($configuration);
 
         return "<$tagName $attributes>$additionalContentBefore $text</$tagName>";
@@ -30,7 +29,6 @@ class Html
         if (\alina\utils\Str::startsWith($url, 'http://') || \alina\utils\Str::startsWith($url, 'https://')) {
             return $url;
         }
-
         $url = ltrim($url, '/');
 
         return "//{$_SERVER['HTTP_HOST']}/{$url}";
@@ -42,7 +40,6 @@ class Html
         $get      = '';
         $getArray = [];
         $hash     = '';
-
         if (isset($configuration['get']) && !empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
@@ -50,14 +47,11 @@ class Html
             $get = '?' . implode('&', $getArray);
             unset($configuration['get']);
         }
-
         if (isset($configuration['hash']) && !empty($configuration['hash'])) {
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-
         $href .= static::ref($ref) . $get . $hash;
-
         $configuration['href'] = $href;
 
         return static::tag('a', $text, $configuration);
@@ -90,7 +84,6 @@ class Html
         ) {
             return $url;
         }
-
         $vocAliasToUrl = \alina\app::getConfig(['vocAliasUrl']);
         $url           = \alina\utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
 
@@ -103,7 +96,6 @@ class Html
         $get      = '';
         $getArray = [];
         $hash     = '';
-
         if (isset($configuration['get']) && !empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
@@ -111,14 +103,11 @@ class Html
             $get = '?' . implode('&', $getArray);
             unset($configuration['get']);
         }
-
         if (isset($configuration['hash']) && !empty($configuration['hash'])) {
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-
         $href .= static::aRef($ref) . $get . $hash;
-
         $configuration['href'] = $href;
 
         return \alina\utils\Html::tag('a', $text, $configuration);

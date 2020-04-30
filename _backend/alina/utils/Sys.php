@@ -180,7 +180,7 @@ class Sys
         return TRUE;
     }
 
-    static public function redirect($page, $code = 307)
+    static public function redirect($page, $code = 307, $isToOrigin = FALSE)
     {
         if (\alina\utils\Str::startsWith($page, 'http://')
             || \alina\utils\Str::startsWith($page, 'https://')
@@ -188,8 +188,20 @@ class Sys
             header("Location: $page", TRUE, $code);
             die();
         }
-        $get  = (object)[];
-        $page = \alina\utils\Html::ref($page);
+        ##########
+        $get = (object)[];
+        if ($isToOrigin
+            &&
+            isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])
+        ) {
+            $url = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
+            $page = implode('/', [
+                trim($url, '/'),
+                ltrim($page, '/'),
+            ]);
+        } else {
+            $page = \alina\utils\Html::ref($page);
+        }
         #####
         $messages = Message::returnAllMessages();
         if (count($messages) > 0) {

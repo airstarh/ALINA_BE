@@ -123,6 +123,22 @@ class Url
         return implode('', $arrRes);
     }
 
+    static public function cleanDomainWithProtocolAndPort($url)
+    {
+        $res    = $url;
+        $res    = mb_strtolower($res);
+        $parsed = parse_url($res);
+        $res    = static::un_parse_url([
+            'scheme' => isset($parsed['scheme']) ? $parsed['scheme'] : NULL,
+            'host'   => isset($parsed['host']) ? $parsed['host'] : NULL,
+            'port'   => isset($parsed['port']) ? $parsed['port'] : NULL,
+        ]);
+        error_log(__FUNCTION__, 0);
+        error_log($res, 0);
+
+        return $res;
+    }
+
     static public function cleanDomain($url)
     {
         $res = $url;
