@@ -180,8 +180,7 @@ class Watcher
         ) {
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
-            Message::setDanger($msg, []);
-            throw new \ErrorException($msg);
+            AlinaReject(FALSE, 403, $msg);
         }
     }
 
