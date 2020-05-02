@@ -29,7 +29,6 @@ class html
         $this->defineCurrentActionFile();
     }
     #endregion Init
-
     #region Blocks Generation
     public function defineCurrentControllerDir()
     {
@@ -46,19 +45,21 @@ class html
         if (Sys::isAjax()) {
             return (new jsonView())->standardRestApiResponse($data);
         }
-
         if ($htmlLayout) {
             $this->pathToGlobalHtmlPageWrapper = $htmlLayout;
         }
-
         $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
         if (FALSE === $this->content) {
-            $this->content = [
-                '<pre>',
-                var_export($data, 1),
-                '</pre>',
-            ];
-            $this->content = implode('', $this->content);
+            if ($data === NULL) {
+                $this->content = '';
+            } else {
+                $this->content = [
+                    '<pre>',
+                    var_export($data, 1),
+                    '</pre>',
+                ];
+                $this->content = implode('', $this->content);
+            }
         }
         $htmlString = $this->piece($this->pathToGlobalHtmlPageWrapper, $this);
 
@@ -72,7 +73,6 @@ class html
             return FALSE;
         }
         $htmlString = \alina\utils\Sys::template($templateRealPath, $data);
-
         if ($return) {
             return $htmlString;
         } else {
@@ -103,17 +103,15 @@ class html
 
     public function definePathToCurrentControllerActionLayoutFile()
     {
-        $p = \alina\utils\FS::buildPathFromBlocks(
+        $p                                             = \alina\utils\FS::buildPathFromBlocks(
             $this->currentControllerDir,
             $this->currentActionFileName . ".{$this->ext}"
         );
-
         $this->pathToCurrentControllerActionLayoutFile = $p;
 
         return $p;
     }
     #endregion Blocks Generation
-
     #region HTML page specials (css, js, etc.)
     public function css()
     {

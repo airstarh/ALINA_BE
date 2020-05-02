@@ -52,6 +52,7 @@ class root
         AlinaResponseSuccess(0);
         http_response_code(404);
         echo (new \alina\mvc\view\html)->page();
+        exit;
     }
 
     public function actionException($vd = NULL)
@@ -59,7 +60,14 @@ class root
         AlinaResponseSuccess(0);
         http_response_code(500);
         echo (new \alina\mvc\view\html)->page($vd, '_system/html/htmlLayoutErrorCatcher.php');
+        exit;
+    }
 
-        return TRUE;
+    public function actionAccessDenied()
+    {
+        AlinaResponseSuccess(0);
+        http_response_code(403);
+        echo (new \alina\mvc\view\html)->page(NULL, '_system/html/htmlLayoutErrorCatcher.php');
+        exit;
     }
 }

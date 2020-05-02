@@ -21,10 +21,10 @@ class FileUpload
 
     public function actionCommon()
     {
-        $vd = $this->processUpload();
-        //        if ($processUpload) {
-        //            $this->processFileModel();
-        //        }
+        $vd = NULL;
+        if (Request::isPostPutDelete()) {
+            $vd = $this->processUpload();
+        }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 

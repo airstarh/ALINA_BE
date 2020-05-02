@@ -4,7 +4,7 @@ use alina\mvc\view\html as htmlAlias; ?>
 <div class="row align-items-center h-100">
     <div class="col mx-auto">
         <form enctype="multipart/form-data" action="" method="POST">
-            <input type="hidden" name="MAX_FILE_SIZE" value="930000"/>
+            <input type="hidden" name="MAX_FILE_SIZE" value="9999999999"/>
             <input type="hidden" name="form_id" value="actionCommon"/>
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -20,7 +20,6 @@ use alina\mvc\view\html as htmlAlias; ?>
             <?= htmlAlias::elFormStandardButtons() ?>
         </form>
     </div>
-    >
 </div>
 
 
