@@ -55,6 +55,9 @@ class Watcher
                 $this->mURL_PATH->upsertByUniqueFields([
                     'url_path' => Request::obj()->URL_PATH,
                 ]);
+                ##################################################
+                $this->firewallByBannedVisit();
+                ##################################################
                 $this->mVISIT->insert([
                     'ip_id'       => $this->mIP->id,
                     'browser_id'  => $this->mBROWSER->id,
@@ -74,9 +77,7 @@ class Watcher
     #region Firewall
     public function firewall()
     {
-        $this->firewallByBannedVisit();
         $this->firewallByRequestsAmount();
-        $this->firewallPostRequest();
     }
 
     protected function firewallByRequestsAmount()
@@ -87,23 +88,8 @@ class Watcher
                 'ip_id'      => $this->mIP->id,
                 'browser_id' => $this->mBROWSER->id,
             ]);
-            Message::setDanger('Are you trying to DDOS me?');
-            throw new \ErrorException('DDOS');
-        }
-    }
-
-    protected function firewallPostRequest()
-    {
-        if (Request::isPostPutDelete($post)) {
-            if (
-                !isset(Request::obj()->POST->form_id)
-                ||
-                empty(Request::obj()->POST->form_id)
-            ) {
-                $msg = 'Invalid post data';
-                Message::setDanger($msg);
-                throw new \Exception($msg);
-            }
+            $msg = 'Are you trying to DDOS me?';
+            AlinaReject(FALSE, 403, $msg);
         }
     }
 
@@ -118,8 +104,7 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'Your IP is banned';
-            Message::setDanger($msg, []);
-            throw new \ErrorException($msg);
+            AlinaReject(FALSE, 403, $msg);
         }
     }
 
@@ -134,15 +119,14 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'Your browser is banned';
-            Message::setDanger($msg, []);
-            throw new \ErrorException($msg);
+            AlinaReject(FALSE, 403, $msg);
         }
     }
 
     protected function firewallByBannedVisit()
     {
-        $m   = new watch_banned_visit();
-        $res = $m
+        $mBannedVisits = new watch_banned_visit();
+        $res           = $mBannedVisits
             ->q()
             ->where([
                 'ip_id'      => $this->mIP->id,
@@ -151,8 +135,7 @@ class Watcher
             ->first();
         if ($res) {
             $msg = 'You are completely banned';
-            Message::setDanger($msg);
-            throw new \ErrorException($msg);
+            AlinaReject(FALSE, 403, $msg);
         }
     }
 
