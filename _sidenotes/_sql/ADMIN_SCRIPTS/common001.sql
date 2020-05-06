@@ -1,19 +1,3 @@
-SELECT *
-FROM error_log
-WHERE 1
-ORDER BY id DESC
-;
-
-DELETE
-FROM error_log
-WHERE ip = '91.202.25.124'
-;
-
-DELETE
-FROM watch_visit
-WHERE ip = '91.202.25.124'
-;
-
 SELECT a.id
      , a.`user_id`
      , a.`ip`
@@ -49,8 +33,8 @@ WHERE a.method != 'GET'
 -- ORDER BY b.ip
 -- GROUP BY b.ip
 -- ORDER BY ip_VISITS_TOTAL DESC
--- ORDER BY a.visited_at DESC
-ORDER BY b.ip
+ORDER BY a.visited_at DESC
+-- ORDER BY b.ip
 ;
 DELETE
 FROM watch_visit
