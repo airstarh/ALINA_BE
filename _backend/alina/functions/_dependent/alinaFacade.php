@@ -126,7 +126,8 @@ function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
     if ($page) {
         Sys::redirect($page, $code);
     } else {
-        Alina()->mvcGo('root', 'AccessDenied');
+        Request::obj()->METHOD = 'GET';
+        Alina()->mvcGo('root', 'AccessDenied', [$code]);
     }
 }
 

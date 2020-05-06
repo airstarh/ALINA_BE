@@ -63,10 +63,10 @@ class root
         exit;
     }
 
-    public function actionAccessDenied()
+    public function actionAccessDenied($code = 403)
     {
         AlinaResponseSuccess(0);
-        http_response_code(403);
+        http_response_code($code);
         echo (new \alina\mvc\view\html)->page(NULL, '_system/html/htmlLayoutErrorCatcher.php');
         exit;
     }

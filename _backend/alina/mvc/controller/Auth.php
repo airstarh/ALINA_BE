@@ -5,14 +5,14 @@ namespace alina\mvc\controller;
 use alina\exceptionValidation;
 use alina\Mailer;
 use alina\Message;
-use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
+use alina\mvc\model\watch_login;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
-use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
+use alina\Watcher;
 
 class Auth
 {
@@ -32,23 +32,61 @@ class Auth
             'token'    => '',
         ];
         ##################################################
-        $p  = Data::deleteEmptyProps(Request::obj()->POST);
-        $vd = Data::mergeObjects($vd, $p);
-        if (empty($p->mail) || empty($p->password)) {
-            echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
-
-            return $this;
+        if (Request::isPostPutDelete($p)) {
+            $p  = Data::deleteEmptyProps($p);
+            $vd = Data::mergeObjects($vd, $p);
+            if (empty($vd->mail) || empty($vd->password)) {
+                AlinaResponseSuccess(0);
+                Message::setDanger('Incorrect data');
+                echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+                exit;
+            }
+            ##################################################
+            $amount = (new watch_login())->q()->where([
+                'mail'        => $vd->mail,
+                'ip'          => Request::obj()->IP,
+                'browser_enc' => Request::obj()->BROWSER_enc,
+            ])->first();
+            if ($amount && $amount->visits && $amount->visits >= 3) {
+                Message::setDanger('ATTENTION');
+                Watcher::obj()->banVisit();
+            }
+            ##################################################
+            $CU    = CurrentUser::obj();
+            $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
+            /**
+             * SUCCESS
+             */
+            if ($LogIn) {
+                AlinaResponseSuccess(1);
+                $user = $CU->name();
+                (new watch_login())->delete([
+                    'mail'        => $vd->mail,
+                    'ip'          => Request::obj()->IP,
+                    'browser_enc' => Request::obj()->BROWSER_enc,
+                ]);
+                Message::setSuccess("Welcome, {$user}!");
+                Request::obj()->METHOD = 'GET';
+                Alina()->mvcGo('auth', 'profile');
+                exit;
+                //Sys::r-edirect('/auth/profile', 303);
+            }
+            /**
+             * FAIL
+             */
+            else {
+                AlinaResponseSuccess(0);
+                ##################################################
+                (new watch_login())->upsertByUniqueFields([
+                    'mail'        => $vd->mail,
+                    'ip'          => Request::obj()->IP,
+                    'browser_enc' => Request::obj()->BROWSER_enc,
+                ]);
+                ##################################################
+                $CU->messages();
+            }
         }
         ##################################################
-        $CU    = CurrentUser::obj();
-        $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
-        if ($LogIn) {
-            $user = $CU->name();
-            Message::setSuccess("Welcome, {$user}!");
-            Sys::redirect('/auth/profile', 303);
-        } else {
-            $CU->messages();
-        }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
 
         return $this;
@@ -164,7 +202,8 @@ class Auth
                             'reset_code'     => $code,
                             'reset_required' => 1,
                         ]);
-                    } else {
+                    }
+                    else {
                         Message::setWarning('Code was sent earlier', []);
                     }
                     Sys::redirect("/auth/ResetPasswordWithCode?mail={$vd->mail}", 303);
@@ -211,13 +250,16 @@ class Auth
                             ]);
                             Message::setInfo('Password is changed');
                             Sys::redirect('/auth/login', 307);
-                        } else {
+                        }
+                        else {
                             Message::setDanger('Passwords do not match');
                         }
-                    } else {
+                    }
+                    else {
                         Message::setDanger('Reset code is incorrect.');
                     }
-                } else {
+                }
+                else {
                     Message::setDanger('User with such email did not request password reset');
                 }
             }
@@ -260,9 +302,11 @@ class Auth
             if ($m->state_AFFECTED_ROWS === 1) {
                 Message::setSuccess('Password changed!');
                 Sys::redirect('/auth/profile', 303);
-            } else if ($m->state_AFFECTED_ROWS > 1) {
+            }
+            else if ($m->state_AFFECTED_ROWS > 1) {
                 Message::setDanger('Something bad happened');
-            } else {
+            }
+            else {
                 Message::setDanger('Password not changed!');
             }
         }

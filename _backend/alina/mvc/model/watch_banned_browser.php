@@ -11,8 +11,11 @@ class watch_banned_browser extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'  => [],
-            'enc' => [],
+            'id'     => [],
+            'enc'    => [],
+            'reason' => [
+                'default' => 'spam',
+            ],
         ];
     }
 

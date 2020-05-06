@@ -1,7 +1,6 @@
 <?php
 
 namespace alina\mvc\model;
-
 class watch_banned_ip extends _BaseAlinaModel
 {
     public $table = 'watch_banned_ip';
@@ -11,6 +10,9 @@ class watch_banned_ip extends _BaseAlinaModel
         return [
             'id'     => [],
             'ip'     => [],
+            'reason' => [
+                'default' => 'spam',
+            ],
         ];
     }
 

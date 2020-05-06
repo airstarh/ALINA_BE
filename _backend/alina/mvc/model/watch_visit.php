@@ -12,31 +12,31 @@ class watch_visit extends _BaseAlinaModel
     public function fields()
     {
         #####
-        $req = Request::obj();
+        $Request = Request::obj();
 
         #####
         return [
             'id'           => [],
-            'ip_id'        => [],
-            'browser_id'   => [],
-            'url_path_id'  => [],
+            'ip'           => [
+                'default' => $Request->IP,
+            ],
+            'browser_enc'  => [
+                'default' => $Request->BROWSER_enc,
+            ],
             'query_string' => [
-                'default' => $req->QUERY_STRING,
+                'default' => $Request->QUERY_STRING,
             ],
             'user_id'      => [
                 'default' => CurrentUser::obj()->id,
-            ],
-            'cookie_key'   => [
-                'default' => ALINA_TIME,
             ],
             'visited_at'   => [
                 'default' => ALINA_TIME,
             ],
             'method'       => [
-                'default' => $req->METHOD,
+                'default' => $Request->METHOD,
             ],
             'data'         => [
-                'default' => json_encode(['POST' => $req->POST, 'FILES' => $req->FILES,], JSON_UNESCAPED_UNICODE),
+                'default' => json_encode(['POST' => $Request->POST, 'FILES' => $Request->FILES,], JSON_UNESCAPED_UNICODE),
             ],
             'controller'   => [
                 'default' => Alina()->router->controller,
@@ -45,7 +45,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => Alina()->router->action,
             ],
             'ajax'         => [
-                'default' => $req->AJAX,
+                'default' => $Request->AJAX,
             ],
         ];
     }

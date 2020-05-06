@@ -135,7 +135,7 @@ class CurrentUser
         #####
         $isAuthenticated = $this->authenticate();
         if ($isAuthenticated) {
-            $data     = $this->buildLoginData();
+                $data     = $this->buildLoginData();
             $newToken = $data['token']; // ACCENT
             $this->LOGIN->updateById($data);
             $this->token = $newToken;

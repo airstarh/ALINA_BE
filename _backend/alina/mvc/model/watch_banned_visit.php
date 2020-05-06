@@ -13,9 +13,12 @@ class watch_banned_visit extends _BaseAlinaModel
     {
         #####
         return [
-            'id'         => [],
-            'ip_id'      => [],
-            'browser_id' => [],
+            'id'          => [],
+            'ip'          => [],
+            'browser_enc' => [],
+            'reason'      => [
+                'default' => 'spam',
+            ],
         ];
     }
 
@@ -23,8 +26,7 @@ class watch_banned_visit extends _BaseAlinaModel
     function uniqueKeys()
     {
         return [
-            ['ip_id', 'browser_id'],
+            ['ip', 'browser_enc'],
         ];
     }
-
 }

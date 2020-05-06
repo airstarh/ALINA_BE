@@ -2,7 +2,6 @@
 
 namespace alina;
 
-use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\watch_banned_browser;
 use alina\mvc\model\watch_banned_ip;
 use alina\mvc\model\watch_banned_visit;
@@ -58,11 +57,7 @@ class Watcher
                 ##################################################
                 $this->firewallByBannedVisit();
                 ##################################################
-                $this->mVISIT->insert([
-                    'ip_id'       => $this->mIP->id,
-                    'browser_id'  => $this->mBROWSER->id,
-                    'url_path_id' => $this->mURL_PATH->id,
-                ]);
+                $this->mVISIT->insert([]);
                 #####
                 $this->firewall();
                 #####
@@ -84,12 +79,10 @@ class Watcher
     {
         $per10secs = $this->countRequestsPerSeconds(10);
         if ($per10secs > AlinaCFG('watcher/maxPer10secs')) {
-            (new watch_banned_visit())->upsertByUniqueFields([
-                'ip_id'      => $this->mIP->id,
-                'browser_id' => $this->mBROWSER->id,
-            ]);
+            $this->banVisit();
             $msg = 'Are you trying to DDOS me?';
             AlinaReject(FALSE, 403, $msg);
+            exit;
         }
     }
 
@@ -105,6 +98,7 @@ class Watcher
         if ($res) {
             $msg = 'Your IP is banned';
             AlinaReject(FALSE, 403, $msg);
+            exit;
         }
     }
 
@@ -120,6 +114,7 @@ class Watcher
         if ($res) {
             $msg = 'Your browser is banned';
             AlinaReject(FALSE, 403, $msg);
+            exit;
         }
     }
 
@@ -129,13 +124,14 @@ class Watcher
         $res           = $mBannedVisits
             ->q()
             ->where([
-                'ip_id'      => $this->mIP->id,
-                'browser_id' => $this->mBROWSER->id,
+                'ip'          => Request::obj()->IP,
+                'browser_enc' => Request::obj()->BROWSER_enc,
             ])
             ->first();
         if ($res) {
             $msg = 'You are completely banned';
             AlinaReject(FALSE, 403, $msg);
+            exit;
         }
     }
 
@@ -164,6 +160,7 @@ class Watcher
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
             AlinaReject(FALSE, 403, $msg);
+            exit;
         }
     }
 
@@ -178,18 +175,57 @@ class Watcher
         $res       = $this->mVISIT
             ->q()
             ->where([
-                'browser_id' => $browserId,
-                'ip_id'      => $ipId,
+                'browser_enc' => Request::obj()->BROWSER_enc,
+                'ip'          => Request::obj()->IP,
                 ['method', '!=', 'GET'],
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
-            //->whereIn('method', ['POST', 'PUT', 'DELETE'])
-            ->orderBy('id', 'desc')
             ->limit(10000)
             ->count();
 
         return $res;
     }
+
+    ##################################################
+    #region Ban
+    public function banIp($ip = NULL, $reason = 'spam')
+    {
+        if (empty($ip)) {
+            $ip = Request::obj()->IP;
+        }
+        (new watch_banned_ip())->upsertByUniqueFields([
+            'ip'     => $ip,
+            'reason' => $reason,
+        ]);
+    }
+
+    public function banBrowser($browser_enc = NULL, $reason = 'spam')
+    {
+        if (empty($browser_enc)) {
+            $browser_enc = Request::obj()->BROWSER_enc;
+        }
+        (new watch_banned_browser())->upsertByUniqueFields([
+            'enc'    => $browser_enc,
+            'reason' => $reason,
+        ]);
+    }
+
+    public function banVisit($ip = NULL, $browser_enc = NULL, $reason = 'spam')
+    {
+        if (empty($ip)) {
+            $ip = Request::obj()->IP;
+        }
+        if (empty($browser_enc)) {
+            $browser_enc = Request::obj()->BROWSER_enc;
+        }
+        (new watch_banned_visit())->upsertByUniqueFields([
+            'ip'          => $ip,
+            'browser_enc' => $browser_enc,
+            'reason'      => $reason,
+        ]);
+    }
+    #endregion Ban
+    ##################################################
     #endregion Utils
     ##################################################
 }

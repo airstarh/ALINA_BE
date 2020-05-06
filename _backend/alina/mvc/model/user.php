@@ -107,7 +107,6 @@ class user extends _BaseAlinaModel
                 ],
                 'default' => Sys::getUserLanguage(),
             ],
-            'timezone'       => [],
             'about_myself'   => [
                 'default' => '',
                 'filters' => [
@@ -172,16 +171,16 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
-            'timezone'        => [
-                'has'        => 'one',
-                'joins'      => [
-                    ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    ['addSelect', ['child.name AS timezone_name']],
-                ],
-            ],
+            // 'timezone'        => [
+            //     'has'        => 'one',
+            //     'joins'      => [
+            //         ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
+            //     ],
+            //     'conditions' => [],
+            //     'addSelects' => [
+            //         ['addSelect', ['child.name AS timezone_name']],
+            //     ],
+            // ],
             'file'            => [
                 'has'        => 'many',
                 'model'      => 'file',
