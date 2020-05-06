@@ -102,6 +102,13 @@ class AdminTests
         echo (new html)->page('1234');
     }
 
+    public function actionTestPost()
+    {
+        Message::setSuccess('For User');
+        MessageAdmin::setSuccess('For Admin');
+        echo (new html)->page(Request::obj()->POST);
+    }
+
     ##############################################
 
     /**

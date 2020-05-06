@@ -47,9 +47,10 @@ class Auth
                 'ip'          => Request::obj()->IP,
                 'browser_enc' => Request::obj()->BROWSER_enc,
             ])->first();
-            if ($amount && $amount->visits && $amount->visits >= 3) {
+            //ToDo: hardcoded
+            if ($amount && $amount->visits && $amount->visits >= 10) {
                 Message::setDanger('ATTENTION');
-                Watcher::obj()->banVisit();
+                Watcher::obj()->banVisit(NULL, NULL, 'Too many login attempts');
             }
             ##################################################
             $CU    = CurrentUser::obj();

@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\model\error_log;
 use alina\mvc\model\watch_banned_browser;
 use alina\mvc\model\watch_banned_ip;
 use alina\mvc\model\watch_banned_visit;
@@ -24,6 +25,14 @@ class Watcher
         $this->mBROWSER  = new watch_browser();
         $this->mURL_PATH = new watch_url_path();
         $this->mVISIT    = new watch_visit();
+        #####
+        $this->firewallFools();
+        $this->firewallByBannedIp();
+        $this->firewallByBannedBrowser();
+        $this->firewallByBannedVisit();
+        $this->firewallByRequestsAmount();
+        $this->firewallFgp();
+        #####
     }
     #endregion Singleton
     ##################################################
@@ -37,9 +46,6 @@ class Watcher
     public function logVisitsToDb()
     {
         #####
-        $this->firewallFools();
-        $this->firewallByBannedIp();
-        $this->firewallByBannedBrowser();
         #####
         //ToDo: better Store Procedure
         if (AlinaCFG('logVisitsToDb')) {
@@ -55,11 +61,7 @@ class Watcher
                     'url_path' => Request::obj()->URL_PATH,
                 ]);
                 ##################################################
-                $this->firewallByBannedVisit();
-                ##################################################
                 $this->mVISIT->insert([]);
-                #####
-                $this->firewall();
                 #####
                 static::$state_VISIT_LOGGED = TRUE;
             }
@@ -70,15 +72,14 @@ class Watcher
     #endregion Watch
     ##################################################
     #region Firewall
-    public function firewall()
-    {
-        $this->firewallByRequestsAmount();
-    }
-
     protected function firewallByRequestsAmount()
     {
-        $per10secs = $this->countRequestsPerSeconds(10);
-        if ($per10secs > AlinaCFG('watcher/maxPer10secs')) {
+        if (!Request::isPostPutDelete()) {
+            return;
+        }
+        $maxPer10secs = AlinaCFG('watcher/maxPer10secs');
+        $per10secs    = $this->countRequestsPerSeconds(10, $maxPer10secs);
+        if ($per10secs > $maxPer10secs) {
             $this->banVisit();
             $msg = 'Are you trying to DDOS me?';
             AlinaReject(FALSE, 403, $msg);
@@ -88,6 +89,9 @@ class Watcher
 
     protected function firewallByBannedIp()
     {
+        if (!Request::isPostPutDelete()) {
+            return;
+        }
         $m   = new watch_banned_ip();
         $res = $m
             ->q()
@@ -104,6 +108,9 @@ class Watcher
 
     protected function firewallByBannedBrowser()
     {
+        if (!Request::isPostPutDelete()) {
+            return;
+        }
         $m   = new watch_banned_browser();
         $res = $m
             ->q()
@@ -120,6 +127,9 @@ class Watcher
 
     protected function firewallByBannedVisit()
     {
+        if (!Request::isPostPutDelete()) {
+            return;
+        }
         $mBannedVisits = new watch_banned_visit();
         $res           = $mBannedVisits
             ->q()
@@ -164,15 +174,31 @@ class Watcher
         }
     }
 
-
+    protected function firewallFgp()
+    {
+        if (Request::obj()->AJAX) {
+            if (Request::obj()->tryHeader('fgp', $fgp)) {
+                if (empty($fgp)) {
+                    (new error_log())->insert(['error_text' => 'Suspicious request. Empty fgp',]);
+                    AlinaReject(NULL, 403);
+                    exit;
+                }
+                if ($fgp !== Request::obj()->BROWSER) {
+                    $orig = Request::obj()->BROWSER;
+                    //Message::setDanger(Request::obj()->BROWSER);
+                    //Message::setDanger($fgp);
+                    //AlinaReject(NULL, 403, 'Suspicious request');
+                    (new error_log())->insert(['error_text' => "Suspicious request. Bad fgp ---{$orig}--- ||| ---{$fgp}---",]);
+                }
+            }
+        }
+    }
     #endregion Firewall
     ##################################################
     #region Utils
-    protected function countRequestsPerSeconds($seconds)
+    protected function countRequestsPerSeconds($seconds, $maxPossible = 10000)
     {
-        $browserId = $this->mBROWSER->id;
-        $ipId      = $this->mIP->id;
-        $res       = $this->mVISIT
+        $res = $this->mVISIT
             ->q()
             ->where([
                 'browser_enc' => Request::obj()->BROWSER_enc,
@@ -180,7 +206,7 @@ class Watcher
                 ['method', '!=', 'GET'],
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
-            ->limit(10000)
+            ->limit($maxPossible + 100)
             ->count();
 
         return $res;

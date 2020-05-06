@@ -79,9 +79,11 @@ class Request
         return $res;
     }
 
-    public function tryHeader($name)
+    public function tryHeader($prop, &$val = NULL)
     {
-        return Obj::getValByPropNameCaseInsensitive($name, $this->HEADERS);
+        $val = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
+
+        return $val;
         //return Arr::getArrayValue($name, (array)$this->HEADERS);
     }
 

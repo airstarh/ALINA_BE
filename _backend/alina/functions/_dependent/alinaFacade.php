@@ -50,7 +50,8 @@ function AlinaGetNowInDbFormat()
 {
     if (defined('ALINA_TIME')) {
         return date(ALINA_DT_FORMAT_DB, ALINA_TIME);
-    } else {
+    }
+    else {
         return date(ALINA_DT_FORMAT_DB);
     }
 }
@@ -125,7 +126,8 @@ function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
     Message::setDanger($message);
     if ($page) {
         Sys::redirect($page, $code);
-    } else {
+    }
+    else {
         Request::obj()->METHOD = 'GET';
         Alina()->mvcGo('root', 'AccessDenied', [$code]);
     }
@@ -141,14 +143,14 @@ function AlinaRejectIfNotLoggedIn()
 function AlinaRejectIfNotAdmin()
 {
     if (!AlinaAccessIfAdmin()) {
-        AlinaReject();
+        AlinaReject(NULL, 403, 'DENIED');
     }
 }
 
 function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
     if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
-        AlinaReject();
+        AlinaReject(NULL, 403, 'DENIED');
     }
 }
 
