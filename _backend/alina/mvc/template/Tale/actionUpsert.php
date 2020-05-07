@@ -2,7 +2,7 @@
 /** @var $data stdClass */
 ?>
 
-<div class="row">
+<div class="row no-gutters">
     <div class="col-auto">
         <div class="float-left mr-1 fixed-height-150px">
             <a href="<?= $data->owner_emblem ?>" target="_blank">
@@ -22,7 +22,7 @@
     </div>
     <div class="col"><h2><?= $data->header ?></h2></div>
 </div>
-<div class="row">
+<div class="row no-gutters">
     <div class="col">
         <div class="ck-content">
             <?= $data->body ?>
@@ -30,18 +30,18 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row no-gutters">
     <div class="col">
         <div>
         </div>
     </div>
 </div>
 <div class="clearfix"></div>
-<div class="row">
+<div class="row no-gutters">
     <a class="col btn btn-secondary"
        href="/#/tale/upsert/<?= $data->id ?>"
     >
-        Discussion
+        Go to comments
     </a>
 </div>
 

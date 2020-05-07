@@ -17,7 +17,7 @@ use alina\utils\Sys;
 <body>
 <div id="alina-body-wrapper">
     <?= (new html())->piece('/_system/html/menu.php') ?>
-    <div class="container">
+    <div class="container p-0">
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
     </div> <!-- /container -->
