@@ -107,7 +107,7 @@ function AlinaAccessIfModerator()
 
 function AlinaAccessIfOwner($id)
 {
-    return CurrentUser::obj()->id === $id;
+    return CurrentUser::obj()->id == $id;
 }
 
 function AlinaAccessIfAdminOrModeratorOrOwner($id)

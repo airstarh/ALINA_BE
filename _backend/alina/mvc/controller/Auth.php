@@ -5,7 +5,12 @@ namespace alina\mvc\controller;
 use alina\exceptionValidation;
 use alina\Mailer;
 use alina\Message;
+use alina\mvc\model\_baseAlinaEloquentTransaction;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\login;
+use alina\mvc\model\notification;
+use alina\mvc\model\rbac_user_role;
+use alina\mvc\model\tale as taleAlias;
 use alina\mvc\model\user;
 use alina\mvc\model\watch_login;
 use alina\mvc\view\html as htmlAlias;
@@ -13,6 +18,7 @@ use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Sys;
 use alina\Watcher;
+use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class Auth
 {
@@ -313,4 +319,48 @@ class Auth
         }
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
+
+    ##################################################
+    public function actionUserDelete($id)
+    {
+        if (in_array($id, ['null', '', 'NULL', 0])) {
+            $id = NULL;
+        }
+        $vd     = (object)[
+            'form_id' => __FUNCTION__,
+        ];
+        $isPost = Request::isPostPutDelete($post);
+        ##################################################
+        if ($isPost && AlinaAccessIfAdminOrModeratorOrOwner($id) && $post->id == $id) {
+            _baseAlinaEloquentTransaction::begin();
+            $vd->notifications = (new notification())
+                ->q(-1)
+                ->where(function ($q) use ($id) {
+                    /** @var $q BuilderAlias object */
+                    $q
+                        ->where('to_id', '=', $id)
+                        ->orWhere('from_id', '=', $id);
+                })
+                ->delete();
+            $vd->likes         = (new \alina\mvc\model\like())
+                ->q(-1)
+                ->where('user_id', '=', $id)
+                ->delete();
+            $vd->tales         = (new taleAlias())->delete(['owner_id' => $id,]);
+            $vd->rbac_roles    = (new rbac_user_role())->delete(['user_id' => $id,]);
+            $vd->login         = (new login())->delete(['user_id' => $id,]);
+            $vd->rows          = (new user())->deleteById($id);
+            _baseAlinaEloquentTransaction::commit();
+            Message::setSuccess('Deleted');
+        }
+        else {
+            AlinaResponseSuccess(0);
+            Message::setDanger('Failed');
+        }
+        ########################################
+        echo (new htmlAlias)->page($vd);
+
+        return $this;
+    }
+    ##################################################
 }

@@ -15,20 +15,14 @@ SELECT
 -- , a.user_id
     FROM_UNIXTIME(a.`visited_at`) AS at
      -- , a.`method`
-     , a.`ip_id`
-     , b.`ip`
+     , a.`ip`
      , a.`query_string`
      , a.`data`
-     , b.`visits`                 AS ip_VISITS_TOTAL
-     , c.user_agent
 FROM alina.`watch_visit` a
-         LEFT JOIN watch_ip b ON a.`ip_id` = b.`id`
-         LEFT JOIN watch_browser c ON a.`browser_id` = c.`id`
-WHERE a.method != 'GET'
-  AND a.user_id IS NULL
+WHERE 1
+--  AND a.user_id IS NULL
   AND a.query_string NOT LIKE '%auth/login%'
-  AND b.ip != '91.202.25.124'
-  AND b.`visits` > 10
+--  AND a.ip != '91.202.25.124'
 -- ORDER by a.id DESC
 -- ORDER BY b.ip
 -- GROUP BY b.ip
@@ -38,7 +32,7 @@ ORDER BY a.visited_at DESC
 ;
 DELETE
 FROM watch_visit
-where ip_id = 845;
+;
 
 SELECT COUNT(*) AS total
 FROM watch_visit
@@ -51,11 +45,7 @@ WHERE 1
 ;
 
 SELECT a.*
-     , b.`ip`
-     , c.user_agent
 FROM watch_banned_visit a
-         LEFT JOIN watch_ip b ON a.`ip_id` = b.`id`
-         LEFT JOIN watch_browser c ON a.`browser_id` = c.`id`
 WHERE 1
 ;
 
@@ -101,7 +91,7 @@ SELECT id,
        `get`,
        post,
        file,
-       created_at
+       FROM_UNIXTIME(created_at)
 FROM alina.watch_fools
 WHERE 1
 order by id desc
