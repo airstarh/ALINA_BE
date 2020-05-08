@@ -47,7 +47,8 @@ class Tale
         ########################################
         if ($id) {
             $attrs = $mTale->getById($id);
-        } else {
+        }
+        else {
             $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
             if (!$attrs->id) {
                 $attrs = $mTale->insert($vd);
@@ -62,12 +63,27 @@ class Tale
                 Data::deleteEmptyProps($post)
             );
             if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
+                #####
+                #region CHECK iF UPDATE or INSERT
+                /**
+                 * INSERT
+                 */
                 if ($vd->is_submitted == 0 || empty($vd->is_submitted)) {
+                    if (isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id)) {
+                        $vd->created_at = ALINA_TIME;
+                    }
                     $vd->publish_at = ALINA_TIME;
                 }
+                /**
+                 * UPDATE
+                 */
+                else {
+                }
+                #endregion CHECK iF UPDATE or INSERT
+                #####
                 $vd->is_submitted = 1;
                 $attrs            = $mTale->updateById($vd);
-                #####
+                ##################################################
                 #region Notification
                 if (!empty($attrs->answer_to_tale_id)) {
                     $allCommenters = (new \alina\mvc\model\tale())
@@ -99,8 +115,9 @@ class Tale
                     }
                 }
                 #endregion Notification
-                #####
-            } else {
+                ##################################################
+            }
+            else {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Forbidden');
             }
@@ -151,7 +168,8 @@ class Tale
             $vd->rows      = (new taleAlias())->deleteById($id);
             _baseAlinaEloquentTransaction::commit();
             Message::setSuccess('Deleted');
-        } else {
+        }
+        else {
             AlinaResponseSuccess(0);
             Message::setDanger('Failed');
         }
@@ -187,7 +205,8 @@ class Tale
             $sort[]       = ["tale.publish_at", 'DESC'];
             #endregion POSTS
             ####################
-        } else {
+        }
+        else {
             ####################
             #region COMMENTS
             $sort[] = ["tale.publish_at", 'ASC'];
@@ -227,7 +246,8 @@ class Tale
             #####
             #endregion COMMENTS
             ####################
-        } else {
+        }
+        else {
             ####################
             #region POSTS
             if (Request::has('txt', $txt)) {

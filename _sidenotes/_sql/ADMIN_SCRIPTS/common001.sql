@@ -96,3 +96,9 @@ FROM alina.watch_fools
 WHERE 1
 order by id desc
 ;
+
+SELECT *
+FROM error_log
+WHERE 1
+ORDER BY id desc
+;
