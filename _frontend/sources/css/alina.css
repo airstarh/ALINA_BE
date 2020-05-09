@@ -64,6 +64,7 @@ textarea:focus {
 
 .m-buttons-1 button, .m-buttons-1 a {
     margin-left: 1px;
+    margin-bottom: 1px;
 }
 
 /*.btn {
