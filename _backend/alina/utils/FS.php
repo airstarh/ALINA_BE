@@ -61,7 +61,8 @@ class FS
             $curPath = $path . DIRECTORY_SEPARATOR . $file;
             if (is_dir($curPath)) {
                 static::rmDirCompletely($curPath);
-            } else {
+            }
+            else {
                 unlink($curPath);
             }
         }
@@ -94,7 +95,8 @@ class FS
                 $newFileName    .= $suffix;
                 $newFileName    .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
                 $uniqueFileName = $newFileName;
-            } else {
+            }
+            else {
                 $repeat = FALSE;
             }
         } while ($repeat);
@@ -138,7 +140,8 @@ class FS
         foreach ($args as $block) {
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
-            } else {
+            }
+            else {
                 $blocks[] = $block;
             }
         }
@@ -148,7 +151,8 @@ class FS
             #####
             if ($i === 0) {
                 $b = rtrim($b, DIRECTORY_SEPARATOR);
-            } else {
+            }
+            else {
                 $b = trim($b, DIRECTORY_SEPARATOR);
             }
             #####
@@ -200,6 +204,17 @@ class FS
         if (empty($res)) {
             $res = FALSE;
         }
+
+        return $res;
+    }
+
+    static public function countFilesInDir($dir)
+    {
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+        $dir = rtrim($dir, '/');
+        $dir = rtrim($dir, '\\');
+        $dir = $dir . DIRECTORY_SEPARATOR . '*';
+        $res = count(glob($dir));
 
         return $res;
     }

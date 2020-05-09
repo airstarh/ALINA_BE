@@ -13,6 +13,7 @@ use alina\mvc\view\html;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Crypy;
 use alina\utils\Data;
+use alina\utils\FS;
 use alina\utils\Request;
 use alina\utils\Sys;
 use Ratchet\Wamp\Exception;
@@ -257,4 +258,15 @@ class AdminTests
     }
     #endregion Redirect Messages
     #####
+    public function actionFileCount()
+    {
+        $f1 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25';
+        $f2 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25AAA';
+        $vd = (object)[
+            __DIR__ => FS::countFilesInDir(__DIR__),
+            $f1     => FS::countFilesInDir($f1),
+            $f2     => FS::countFilesInDir($f2),
+        ];
+        echo (new html)->page($vd);
+    }
 }

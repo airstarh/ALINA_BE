@@ -35,7 +35,7 @@ switch (ALINA_ENV) {
             'debug'               => [
                 'toPage' => TRUE,
                 'toDb'   => TRUE,
-                'toFile' => TRUE,
+                'toFile' => FALSE,
             ],
             'watcher'             => [
                 'maxPer1sec'          => 20,
@@ -43,6 +43,14 @@ switch (ALINA_ENV) {
                 'maxPer1min'          => 60 / 2 * 20,
                 'maxPer10mins'        => 60 * 60 / 2 * 20,
                 'classDataFiltration' => '',
+                'fileUpload'          => [
+                    'max' => [
+                        'registered' => 100,
+                        'admin'      => -1,
+                        'moderator'  => -1,
+                        'privileged' => 1000,
+                    ],
+                ],
             ],
             'mailer'              => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'mailer.php'),
             'html'                => [

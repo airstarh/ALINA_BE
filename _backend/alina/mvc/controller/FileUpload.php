@@ -4,6 +4,7 @@ namespace alina\mvc\controller;
 
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
 use alina\utils\FS;
@@ -13,6 +14,10 @@ use Intervention\Image\ImageManager;
 class FileUpload
 {
     protected $resp;
+    protected $targetDir     = '';
+    protected $max           = 0;
+    protected $currentAmount = 0;
+    protected $left          = 0;
 
     public function __construct()
     {
@@ -45,6 +50,7 @@ class FileUpload
     protected function processUpload()
     {
         #####
+        AlinaResponseSuccess(0);
         $stateSuccess = FALSE;
         $this->resp   = (object)[
             'uploaded'    => 0,
@@ -55,8 +61,11 @@ class FileUpload
         #####
         if (CurrentUser::obj()->isLoggedIn()) {
             if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
-                $FILE_CONTAINER       = $_FILES[ALINA_FILE_UPLOAD_KEY];
-                $targetDir            = $this->destinationDir();
+                $FILE_CONTAINER = $_FILES[ALINA_FILE_UPLOAD_KEY];
+                $targetDir      = $this->destinationDir();
+                if (!$this->processWatch()) {
+                    return $this->resp;
+                }
                 $counterUploadedFiles = 0;
                 foreach ($FILE_CONTAINER["error"] as $i => $error) {
                     if ($error == UPLOAD_ERR_OK) {
@@ -84,10 +93,17 @@ class FileUpload
                             //Message::set("Uploaded: $webPath");
                             $this->resp->url[]    = $webPath;
                             $this->resp->uploaded = ++$counterUploadedFiles;
-                            $stateSuccess         = TRUE;
                         }
                     }
-                }
+                } //end foreach
+                #####
+                $stateSuccess  = TRUE;
+                $max           = $this->getMax();
+                $currentAmount = $this->getCurrentAmount();
+                $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
+                $this->left    = $left;
+                Message::setInfo("{$left} files left to upload. \n You have uploaded already {$currentAmount} files");
+                #####
             }
         }
         #####
@@ -96,9 +112,74 @@ class FileUpload
             AlinaResponseSuccess(0);
             Message::setDanger('Upload failed');
         }
+        else {
+            AlinaResponseSuccess(1);
+        }
         #####
         #####
         return $this->resp;
+    }
+
+    protected function processWatch()
+    {
+        $targetDir = $this->destinationDir();
+        $max       = $this->getMax();
+        if ($max == -1) {
+            return TRUE;
+        }
+        $currentAmount = $this->getCurrentAmount($targetDir);
+        if ($currentAmount >= $max) {
+            Message::setDanger("File upload limit exceeded. Already uploaded {$currentAmount} files");
+
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    public function getMax($uid = NULL)
+    {
+        if (empty($uid)) {
+            $CU = CurrentUser::obj();
+        }
+        else {
+            $CU        = new user();
+            $CU->id    = $uid;
+            $CU->alias = "user_{$uid}";
+        }
+        $cfg = AlinaCFG('watcher/fileUpload/max');
+        /*[
+            'registered' => 10,
+            'admin'      => 0,
+            'moderator'  => 1000,
+            'privileged' => 0,
+        ];*/
+        $max = 0;
+        if ($CU->hasRole('privileged')) {
+            $max = $cfg['privileged'];
+        }
+        else if ($CU->hasRole('admin')) {
+            $max = $cfg['admin'];
+        }
+        else if ($CU->hasRole('moderator')) {
+            $max = $cfg['moderator'];
+        }
+        else if ($CU->hasRole('registered')) {
+            $max = $cfg['registered'];
+        }
+        $this->max = $max;
+
+        return $this->max;
+    }
+
+    protected function getCurrentAmount($targetDir = NULL)
+    {
+        if (empty($targetDir)) {
+            $targetDir = $this->destinationDir();
+        }
+        $this->currentAmount = FS::countFilesInDir($targetDir);
+
+        return $this->currentAmount;
     }
 
     protected function processImageCompression($realPath)
@@ -119,14 +200,18 @@ class FileUpload
     {
     }
 
-    protected function destinationDir()
+    protected function destinationDir($uid = NULL)
     {
+        if (empty($uid)) {
+            $uid = CurrentUser::obj()->id ?: 0;
+        }
         $blocks = [
             AlinaCFG('fileUploadDir'),
-            CurrentUser::obj()->id ?: 0,
+            $uid,
         ];
         $res    = FS::buildPathFromBlocks($blocks);
         FS::mkChainedDirIfNotExists($res);
+        $this->targetDir = $res;
 
         return $res;
     }
