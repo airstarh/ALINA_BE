@@ -38,9 +38,11 @@ class Tale
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if (empty($id)) {
+            AlinaRejectIfNotLoggedIn();
             if ($isPost) {
                 if (isset($post->id)) {
                     $id = $post->id;
+                    Sys::redirect("/tale/upsert/{$id}", 307);
                 }
             }
         }
@@ -48,15 +50,17 @@ class Tale
         if ($id) {
             $attrs = $mTale->getById($id);
         }
-        else {
+        if (empty($id)) {
             $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
-            if (!$attrs->id) {
+            if (!isset($attrs->id) || empty($attrs->id)) {
                 $attrs = $mTale->insert($vd);
-                Sys::redirect("/tale/upsert/{$mTale->id}", 307);
             }
+            $id = $attrs->id;
+            Sys::redirect("/tale/upsert/{$id}", 307);
         }
         ########################################
         if ($isPost) {
+            AlinaRejectIfNotLoggedIn();
             $vd = Data::mergeObjects(
                 $vd,
                 $attrs,

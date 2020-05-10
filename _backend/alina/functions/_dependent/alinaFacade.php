@@ -123,6 +123,7 @@ function AlinaAccessIfAdminOrModeratorOrOwner($id)
 #####
 function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
 {
+    AlinaResponseSuccess(0);
     Message::setDanger($message);
     if ($page) {
         Sys::redirect($page, $code);
@@ -133,10 +134,10 @@ function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
     }
 }
 
-function AlinaRejectIfNotLoggedIn()
+function AlinaRejectIfNotLoggedIn($code = 303)
 {
     if (!AlinaAccessIfLoggedIn()) {
-        AlinaReject('/auth/login', 303);
+        AlinaReject('/auth/login', $code);
     }
 }
 
