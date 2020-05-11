@@ -118,5 +118,20 @@ textarea:focus {
     box-shadow: 0px 1px 16px 5px rgba(0, 0, 0, 0.43);
 }
 
+.ck-content pre {
+    white-space: pre;
+    /* https://stackoverflow.com/questions/4652654/how-to-turn-off-word-wrapping-in-html/4652666
+    word-break: unset;
+    word-wrap: unset;
+    overflow-wrap: unset;
+    -webkit-hyphens: unset;
+    -moz-hyphens: unset;
+    -ms-hyphens: unset;
+    hyphens: unset;*/
+
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
 /*endregion ck-editor*/
 /* ################################################## */
