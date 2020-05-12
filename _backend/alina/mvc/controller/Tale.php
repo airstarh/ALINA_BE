@@ -7,12 +7,14 @@ use alina\mvc\model\_baseAlinaEloquentTransaction;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\notification;
 use alina\mvc\model\tale as taleAlias;
+use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Data;
 use alina\utils\Obj;
 use alina\utils\Request;
 use alina\utils\Sys;
+use alina\Watcher;
 use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 
@@ -35,6 +37,7 @@ class Tale
             'publish_at'   => 0,
             'is_submitted' => 0,
         ];
+        $isGet  = Request::isGet($get);
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if (empty($id)) {
@@ -49,6 +52,7 @@ class Tale
         ########################################
         if ($id) {
             $attrs = $mTale->getById($id);
+            $id    = $attrs->id;
         }
         if (empty($id)) {
             $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
@@ -58,6 +62,8 @@ class Tale
             $id = $attrs->id;
             Sys::redirect("/tale/upsert/{$id}", 307);
         }
+        ########################################
+        ########################################
         ########################################
         if ($isPost) {
             AlinaRejectIfNotLoggedIn();
@@ -70,23 +76,50 @@ class Tale
                 #####
                 #region CHECK iF UPDATE or INSERT
                 /**
-                 * INSERT
+                 * NEW
                  */
                 if ($vd->is_submitted == 0 || empty($vd->is_submitted)) {
+                    /**
+                     * new Comment
+                     */
                     if (isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id)) {
-                        $vd->created_at = ALINA_TIME;
                     }
+                    /**
+                     * new Tale
+                     */
+                    else {
+                        ##################################################
+                        #region WATCH quantity
+                        $wmp = $this->watchMaxPosts();
+                        if ($wmp->isDenied) {
+                            AlinaReject(NULL, 303, "In the  last 24 hours\nPosted: {$wmp->done}\nMax posts allowed: {$wmp->max}");
+                        }
+                        #endregion WATCH quantity
+                        ##################################################
+                    }
+                    $vd->created_at = ALINA_TIME;
                     $vd->publish_at = ALINA_TIME;
                 }
                 /**
                  * UPDATE
                  */
                 else {
+                    /**
+                     * UPDATE Comment
+                     */
+                    if (isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id)) {
+                    }
+                    /**
+                     * UPDATE Tale
+                     */
+                    else {
+                    }
                 }
                 #endregion CHECK iF UPDATE or INSERT
                 #####
                 $vd->is_submitted = 1;
-                $attrs            = $mTale->updateById($vd);
+                ##################################################
+                $attrs = $mTale->updateById($vd);
                 ##################################################
                 #region Notification
                 if (!empty($attrs->answer_to_tale_id)) {
@@ -285,7 +318,80 @@ class Tale
 
         return $collection;
     }
+
     ########################################
+    public function watchMaxPosts()
+    {
+        $done      = $this->countTalesPosted();
+        $max       = $this->getMaxTale();
+        $left      = $max - $done;
+        $isDenied  = $max !== -1 && $done >= $max;
+        $isAllowed = $max === -1 || $done < $max;
+
+        return (object)[
+            'max'       => $max,
+            'done'      => $done,
+            'left'      => $left,
+            'isDenied'  => $isDenied,
+            'isAllowed' => $isAllowed,
+        ];
+    }
+
+    public function getMaxTale($uid = NULL)
+    {
+        if (empty($uid)) {
+            $CU = CurrentUser::obj();
+        }
+        else {
+            $CU        = new user();
+            $CU->id    = $uid;
+            $CU->alias = "user_{$uid}";
+        }
+        $cfg = AlinaCFG('watcher/newTale/max');
+        /*[
+            'registered' => 3,
+            'admin'      => -1,
+            'moderator'  => -1,
+            'privileged' => 10,
+        ];*/
+        $max = 0;
+        if ($CU->hasRole('admin')) {
+            $max = $cfg['admin'];
+        }
+        else if ($CU->hasRole('moderator')) {
+            $max = $cfg['moderator'];
+        }
+        else if ($CU->hasRole('privileged')) {
+            $max = $cfg['privileged'];
+        }
+        else if ($CU->hasRole('registered')) {
+            $max = $cfg['registered'];
+        }
+
+        return $max;
+    }
+
+    public function countTalesPosted($uid = NULL)
+    {
+        #####
+        if (empty($uid)) {
+            $uid = CurrentUser::obj()->id;
+        }
+        #####
+        $mAmount = new \alina\mvc\model\tale();
+        $qAmount = $mAmount
+            ->q(-1)
+            ->where([
+                'owner_id'     => $uid,
+                'is_submitted' => 1,
+                'type'         => 'POST',
+                ['created_at', '>=', ALINA_TIME - 60 * 60 * 24],
+            ])
+            ->count();
+
+        return $qAmount;
+    }
+
     ########################################
     ########################################
     ########################################

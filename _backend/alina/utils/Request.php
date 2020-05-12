@@ -119,9 +119,14 @@ class Request
         return $is;
     }
 
-    static public function isGet()
+    static public function isGet(&$get = NULL)
     {
-        return static::obj()->METHOD === 'GET';
+        $is = static::obj()->METHOD === 'GET';
+        if ($is) {
+            $get = static::obj()->GET;
+        }
+
+        return $is;
     }
 
     static public function isPostPutDelete(&$post = NULL)

@@ -51,6 +51,14 @@ switch (ALINA_ENV) {
                         'privileged' => 1000,
                     ],
                 ],
+                'newTale'             => [
+                    'max' => [
+                        'registered' => 3,
+                        'admin'      => -1,
+                        'moderator'  => -1,
+                        'privileged' => 10,
+                    ],
+                ],
             ],
             'mailer'              => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'mailer.php'),
             'html'                => [

@@ -211,7 +211,7 @@ class Watcher
 
         return $res;
     }
-
+    #endregion Utils
     ##################################################
     #region Ban
     public function banIp($ip = NULL, $reason = 'spam')
@@ -251,7 +251,5 @@ class Watcher
         ]);
     }
     #endregion Ban
-    ##################################################
-    #endregion Utils
     ##################################################
 }
