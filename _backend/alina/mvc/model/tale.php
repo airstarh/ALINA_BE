@@ -14,7 +14,8 @@ class tale extends _BaseAlinaModel
 
     public function fields()
     {
-        return [
+        $pFields = parent::fields();
+        $fields  = [
             'id'                => [],
             'owner_id'          => [
                 'default' => CurrentUser::obj()->id,
@@ -59,6 +60,8 @@ class tale extends _BaseAlinaModel
                 'default' => 0,
             ],
         ];
+
+        return array_merge($pFields, $fields);
     }
 
     ##################################################

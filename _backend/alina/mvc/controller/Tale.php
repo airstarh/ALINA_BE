@@ -71,7 +71,7 @@ class Tale
             $vd = Data::mergeObjects(
                 $vd,
                 $attrs,
-                Data::deleteEmptyProps($post)
+                $post
             );
             if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
                 #####

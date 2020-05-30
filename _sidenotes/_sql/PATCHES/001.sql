@@ -23,4 +23,10 @@ ALTER TABLE `alina`.`watch_banned_visit`
     ADD COLUMN `browser_enc` VARCHAR (256) NULL AFTER `ip`,
     CHANGE `reason` `reason` VARCHAR (300) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'spam' NULL AFTER `browser_enc`;
 
+ALTER TABLE     `tale`
+    ADD COLUMN `is_adult_denied` TINYINT DEFAULT 0 NULL AFTER `lang`,
+    ADD COLUMN `is_draft` TINYINT DEFAULT 0 NULL AFTER `is_adult_denied`,
+    ADD COLUMN `editor_class` VARCHAR (100) DEFAULT 'ck-content' NULL AFTER `is_draft`,
+    ADD COLUMN `is_adv` TINYINT DEFAULT 0 NULL AFTER `editor_class`,
+    ADD COLUMN `is_comment_denied` TINYINT DEFAULT 0 NULL AFTER `is_adv`;
 
