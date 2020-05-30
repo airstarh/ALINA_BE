@@ -13,7 +13,22 @@ class GlobalRequestStorage
     protected function __construct() { }
     #endregion Singleton
     #region CRUD
-    protected $memory = [];
+    protected $memory = [
+        'alina_response_success' => 1,
+        'BaseModelQueries'       => 0,
+        'modelMetaInfo'          => [],
+        #####
+        'pageTitle'              => NULL,
+        #####
+        /**In sub-props*/
+        /*
+        'pageCurrentNumber'      => 1,
+        'pageSize'               => -1,
+        'rowsTotal'              => 0,
+        'pagesTotal'             => 0,
+        */
+        #####
+    ];
 
     static public function set($prop, $val)
     {

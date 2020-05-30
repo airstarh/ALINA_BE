@@ -1,0 +1,7 @@
+https://localhost:8082/#/
+https://alinazero/root/index2
+src/configs/ConfigApi.js
+vue.config.js
+
+npm i -g npm-check-updates
+cd C:\_A001\REPOS\OWN\vuesandbox\sandbox

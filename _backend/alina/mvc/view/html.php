@@ -2,6 +2,7 @@
 
 namespace alina\mvc\view;
 
+use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\model\CurrentUser;
@@ -52,7 +53,8 @@ class html
         if (FALSE === $this->content) {
             if ($data === NULL) {
                 $this->content = '';
-            } else {
+            }
+            else {
                 $this->content = [
                     '<pre>',
                     var_export($data, 1),
@@ -75,7 +77,8 @@ class html
         $htmlString = \alina\utils\Sys::template($templateRealPath, $data);
         if ($return) {
             return $htmlString;
-        } else {
+        }
+        else {
             echo $htmlString;
         }
 
@@ -112,7 +115,18 @@ class html
         return $p;
     }
     #endregion Blocks Generation
+    ##################################################
     #region HTML page specials (css, js, etc.)
+    public function pageTitle()
+    {
+        $res = GlobalRequestStorage::obj()->get('pageTitle');
+        if ($res) {
+            return $res;
+        }
+
+        return AlinaCFG('title');
+    }
+
     public function css()
     {
         $urls = \alina\app::getConfig('html/css');

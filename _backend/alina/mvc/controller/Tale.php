@@ -2,6 +2,7 @@
 
 namespace alina\mvc\controller;
 
+use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\model\_baseAlinaEloquentTransaction;
 use alina\mvc\model\CurrentUser;
@@ -162,6 +163,7 @@ class Tale
         ########################################
         $attrs = $mTale->getOneWithReferences([["{$mTale->alias}.{$mTale->pkName}", $attrs->id]]);
         $vd    = Data::mergeObjects($vd, $attrs);
+        GlobalRequestStorage::obj()->set('pageTitle', $attrs->header);
         echo (new htmlAlias)->page($vd);
     }
 
