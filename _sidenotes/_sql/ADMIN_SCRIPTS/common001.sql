@@ -53,14 +53,11 @@ SELECT
 -- COUNT(*) AS total
 *
 FROM watch_url_path
-WHERE url_path NOT LIKE '/tale/feed%'
-  AND url_path NOT LIKE '/auth/login'
-  AND url_path NOT LIKE '/auth/profile%'
-  AND url_path NOT LIKE '/tale/upsert%'
-  AND url_path NOT LIKE '/FileUpload/CkEditor'
-  AND url_path NOT LIKE '/FileUpload/Common'
-  AND url_path NOT LIKE '/notification/SelectListLatest%'
-  AND url_path NOT LIKE '/like/process'
+WHERE url_path NOT LIKE '%/tale/%'
+  AND url_path NOT LIKE '%/auth/%'
+  AND url_path NOT LIKE '%/FileUpload/%'
+  AND url_path NOT LIKE '%/notification/%'
+  AND url_path NOT LIKE '%/like/%'
 ORDER BY `visits` DESC
        , `url_path` ASC
 ;
@@ -99,6 +96,6 @@ order by id desc
 
 SELECT *
 FROM error_log
-WHERE 1
+WHERE ip != '91.202.25.124'
 ORDER BY id desc
 ;

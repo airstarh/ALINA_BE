@@ -4,7 +4,7 @@
 use alina\utils\Html as HtmlAlias;
 
 ?>
-<div>
+<div class="mt-5">
     <table class="table">
         <thead class="thead-dark">
         <tr>

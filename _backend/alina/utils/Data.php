@@ -30,7 +30,8 @@ class Data
         if (static::isIterable($v)) {
             // ToDo: Make less heavy
             $array = json_decode(json_encode($v), TRUE);
-        } else {
+        }
+        else {
             $array = [$v];
         }
 
@@ -75,97 +76,91 @@ class Data
 
     ##################################################
     #region Search and replace
-    static public function itrSearchReplace($itr, $strFrom, $strTo, &$tCount = 0, $flagRenameKeysAlso = FALSE)
+    static public function itrSearchReplace(&$itr, $strFrom, $strTo, &$tCount = 0, $flagRenameKeysAlso = FALSE)
     {
-        $res     = [];
-        $itrType = gettype($itr);;
+        /*
+         * $itr is iterable value
+         * */
         if (static::isIterable($itr)) {
-            foreach ($itr as $k => $v) {
+            foreach ($itr as $k => &$v) {
                 $iCount = 0;
+                #####
+                //ToDo: think on it or never use flagRenameKeysAlso :-)
                 if ($flagRenameKeysAlso) {
                     $k      = str_replace($strFrom, $strTo, $k, $iCount);
                     $tCount += $iCount;
                 }
+                #####
+                /**
+                 * If Array or Ogject
+                 */
                 if (static::isIterable($v)) {
-                    $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount);
-                } elseif (FALSE !== static::megaUnserialize($v)) {
+                    $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                }
+                /**
+                 * If Serialized string
+                 */
+                elseif (FALSE !== static::megaUnserialize($v, $itr2)) {
                     MessageAdmin::setInfo('Serialized inside JSON');
-                    $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
-                    $v = $d->strResControl;
-                } else {
+                    $v = static::itrSearchReplace($itr2, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                }
+                /**
+                 * If a string
+                 */
+                else {
                     $vTypeInitial = gettype($v);
                     $v            = str_replace($strFrom, $strTo, $v, $iCount);
-                    #####
-                    #region Care of types
-                    //ToDo: Does not work with eg number -> float
-                    $vRes1   = $v;
-                    $vRes2   = $v;
-                    $success = settype($vRes1, $vTypeInitial);
-                    if ($success && (string)$vRes1 == (string)$vRes2) {
-                        settype($v, $vTypeInitial);
-                    }
-                    #endregion Care of types
-                    #####
+                    settype($v, $vTypeInitial);
                     $tCount += $iCount;
                 }
-                $res[$k] = $v;
             }
-            settype($res, $itrType);
-        } else {
-            $res = str_replace($strFrom, $strTo, $itr, $tCount);
+        }
+        /*
+         * $itr is primitive
+         * */
+        else {
+            $vTypeInitial = gettype($itr);
+            $itr          = str_replace($strFrom, $strTo, $itr, $tCount);
+            settype($itr, $vTypeInitial);
         }
 
-        return $res;
+        return $itr;
     }
 
     static public function serializedArraySearchReplace($strSource, $strFrom = '', $strTo = '', &$tCount = 0, $flagRenameKeysAlso = FALSE)
     {
         #region Defaults
         $data = (object)[
-            'strSource'       => '',
+            'strSource'       => $strSource,
+            'mixedSource'     => '',
             'strRes'          => '',
             'mixedRes'        => [],
             'mixedResControl' => [],
             'strResControl'   => '',
-            'strFrom'         => '',
-            'strTo'           => '',
+            'strFrom'         => $strFrom,
+            'strTo'           => $strTo,
             'tCount'          => 0,
         ];
         #endregion Defaults
-        $mixedSource = static::megaUnserialize($strSource);
-        if (FALSE == $mixedSource) {
+        $mixedSource     = static::megaUnserialize($strSource);
+        $mixedSourceCopy = static::megaUnserialize($strSource);
+        if (FALSE == $mixedSourceCopy) {
+            Message::setDanger('Cannot unserialize data :-(');
+
             return $data;
         }
-        $typeSource = gettype($mixedSource);
-        $mixedRes   = [];
-        foreach ($mixedSource as $k => $v) {
-            $iCount = 0;
-            #region Some modification Staff here
-            if ($flagRenameKeysAlso) {
-                $k      = str_replace($strFrom, $strTo, $k, $iCount);
-                $tCount += $iCount;
-            }
-            if (FALSE !== static::megaUnserialize($v)) {
-                MessageAdmin::setInfo('Source has SERIALIZED inside');
-                $d = static::serializedArraySearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
-                $v = $d->strResControl;
-                // NO!!! We send local $tCount above by reference!!!
-                //$tCount += $d->tCount;
-            } elseif (Data::isIterable($v)) {
-                $v = Data::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
-            } else {
-                $v      = str_replace($strFrom, $strTo, $v, $iCount);
-                $tCount += $iCount;
-            }
-            #endregion Some modification Staff here
-            $mixedRes[$k] = $v;
+        else {
+            $mixedRes = static::itrSearchReplace($mixedSourceCopy, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+            $strRes   = serialize($mixedRes);
         }
-        settype($mixedRes, $typeSource);
-        $strRes          = serialize($mixedRes);
+        /*
+         * Double-check if data is transformed correctly.
+         */
         $mixedResControl = unserialize($strRes);
         $strResControl   = serialize($mixedResControl);
         $data            = (object)[
             'strSource'       => $strSource,
+            'mixedSource'     => $mixedSource,
             'strRes'          => $strRes,
             'mixedRes'        => $mixedRes,
             'mixedResControl' => $mixedResControl,
@@ -206,7 +201,8 @@ class Data
             foreach ($d as &$v) {
                 $v = static::utf8ize($v);
             }
-        } else {
+        }
+        else {
             $enc   = mb_detect_encoding($d);
             $value = iconv($enc, 'UTF-8', $d);
 
@@ -231,10 +227,10 @@ class Data
      * Designed to completely remove WordPress problem
      * https://stackoverflow.com/questions/3148712/regex-code-to-fix-corrupt-serialized-php-data/55074706#55074706
      * @param string $str
-     * @param null $unserialized (ToDo...)
+     * @param NULL | string $resultOfUnserialization
      * @return bool|array
      */
-    static public function megaUnserialize($str, &$unserialized = NULL)
+    static public function megaUnserialize($str, &$resultOfUnserialization = NULL)
     {
         //ToDo: see later: https://stackoverflow.com/a/38708463/3142281
         #region Simple Security
@@ -247,48 +243,49 @@ class Data
         }
         $str = stripslashes($str);
         #endregion Simple Security
+        ####################################################################################################
         #region SOLUTION 0
         // PHP default :-)
-        $repSolNum = 0;
-        $strFixed  = $str;
-        $arr       = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $repSolNum               = 0;
+        $strFixed                = $str;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 0
+        ####################################################################################################
         #region SOLUTION 1
         // @link https://stackoverflow.com/a/5581004/3142281
-        $repSolNum = 1;
-        $strFixed  = preg_replace_callback(
+        $repSolNum               = 1;
+        $strFixed                = preg_replace_callback(
             '/s:([0-9]+):\"(.*?)\";/',
             function ($matches) { return "s:" . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
             $str
         );
-        $arr       = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 1
+        ####################################################################################################
         #region SOLUTION 2
         // @link https://stackoverflow.com/a/24995701/3142281
-        $repSolNum = 2;
-        $strFixed  = preg_replace_callback(
+        $repSolNum               = 2;
+        $strFixed                = preg_replace_callback(
             '/s:([0-9]+):\"(.*?)\";/',
             function ($match) {
                 return "s:" . strlen($match[2]) . ':"' . $match[2] . '";';
             },
             $str);
-        $arr       = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 2
+        ####################################################################################################
         #region SOLUTION 3
         // @link https://stackoverflow.com/a/34224433/3142281
         $repSolNum = 3;
@@ -309,42 +306,42 @@ class Data
                 },
                 $line);
         }
-        $strFixed = $new_data;
-        $arr      = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $strFixed                = $new_data;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 3
+        ####################################################################################################
         #region SOLUTION 4
         // @link https://stackoverflow.com/a/36454402/3142281
-        $repSolNum = 4;
-        $strFixed  = preg_replace_callback(
+        $repSolNum               = 4;
+        $strFixed                = preg_replace_callback(
             '/s:([0-9]+):"(.*?)";/',
             function ($match) {
                 return "s:" . strlen($match[2]) . ":\"" . $match[2] . "\";";
             },
             $str
         );
-        $arr       = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 4
+        ####################################################################################################
         #region SOLUTION 5
         // @link https://stackoverflow.com/a/38890855/3142281
-        $repSolNum = 5;
-        $strFixed  = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
-        $arr       = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $repSolNum               = 5;
+        $strFixed                = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 5
+        ####################################################################################################
         #region SOLUTION 6
         // @link https://stackoverflow.com/a/38891026/3142281
         $repSolNum = 6;
@@ -352,15 +349,14 @@ class Data
             '/s\:(\d+)\:\"(.*?)\";/s',
             function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
             $str);;
-        $arr = @unserialize($strFixed);
-        if (FALSE !== $arr) {
-            alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-
-            return $arr;
+        $resultOfUnserialization = @unserialize($strFixed);
+        if (FALSE !== $resultOfUnserialization) {
+            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
+            return $resultOfUnserialization;
         }
         #endregion SOLUTION 6
-        alinaErrorLog('Completely unable to deserialize.');
-
+        ####################################################################################################
+        ### alinaErrorLog('Completely unable to deserialize.');
         return FALSE;
     }
 
@@ -372,7 +368,8 @@ class Data
         }
         if (static::isStringValidJson($s, $res)) {
             return json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        } else {
+        }
+        else {
             return $s;
         }
     }
@@ -513,10 +510,12 @@ class Data
                 foreach ($filters[$fName] as $filter) {
                     if (is_string($filter) && function_exists($filter)) {
                         $data->{$fName} = $filter($data->{$fName});
-                    } else {
+                    }
+                    else {
                         if ($filter instanceof \Closure) {
                             $data->{$fName} = call_user_func($filter, $data->{$fName});;
-                        } else {
+                        }
+                        else {
                             if (is_array($filter)) {
                                 $argsAmount = count($filter);
                                 switch ($argsAmount) {
@@ -614,10 +613,12 @@ class Data
                     #####
                     if (is_array($validator) && array_key_exists('f', $validator)) {
                         $CHECKER = $validator['f'];
-                    } else if (is_string($validator) || is_bool($validator)) {
+                    }
+                    else if (is_string($validator) || is_bool($validator)) {
                         $CHECKER   = $validator;
                         $validator = [$validator];
-                    } else {
+                    }
+                    else {
                         Message::setDanger("Undefined validator for {$fName}");
                         continue;
                     };
@@ -631,11 +632,14 @@ class Data
                     #####
                     if (is_bool($CHECKER)) {
                         $VALIDATION_RESULT = $CHECKER;
-                    } else if (is_string($CHECKER) && function_exists($CHECKER)) {
+                    }
+                    else if (is_string($CHECKER) && function_exists($CHECKER)) {
                         $VALIDATION_RESULT = $CHECKER($fValue);
-                    } else if ($CHECKER instanceof \Closure) {
+                    }
+                    else if ($CHECKER instanceof \Closure) {
                         $VALIDATION_RESULT = call_user_func($CHECKER, $fValue);;
-                    } else if (is_array($CHECKER)) {
+                    }
+                    else if (is_array($CHECKER)) {
                         $countArgs = count($CHECKER);
                         switch ($countArgs) {
                             case 2:
@@ -695,7 +699,8 @@ class Data
         #region Pages Total
         if ($pg->rows <= 0) {
             $pg->pages = 1;
-        } else {
+        }
+        else {
             $pg->pages = ceil($pg->rows / $pg->limit);
         }
         if ($pg->page > $pg->pages || $pg->page === 'last') {
@@ -708,7 +713,8 @@ class Data
             ||
             !isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
             $pg->offset = 0;
-        } else {
+        }
+        else {
             $pg->offset = $pg->limit * ($pg->page - 1);
         }
         ##############################

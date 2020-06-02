@@ -15,18 +15,24 @@ $ua = $cu->attributes();
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Feed<span class="sr-only">(current)</span></a>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Tools
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/tools/SerializedDataEditor">Serialized Data Editor</a>
+                </div>
             </li>
 
             <?php if (AlinaAccessIfAdmin()) { ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        Tools
+                        Admin Tools
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/CtrlDataTransformations/SerializedArrayModification">Unserialize-> Replace -> Serialize</a>
                         <a class="dropdown-item" href="/CtrlDataTransformations/json">JSON search-replace</a>
                         <a class="dropdown-item" href="/AdminDbManager/DbTablesColumnsInfo">MySQL Manager</a>
                         <a class="dropdown-item" href="/SendRestApiQueries/BaseCurlCalls">HTTP calls with cURL</a>

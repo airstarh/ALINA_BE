@@ -14,41 +14,6 @@ class CtrlDataTransformations
         AlinaRejectIfNotAdmin();
     }
 
-    /**
-     * http://alinazero/CtrlDataTransformations/SerializedArrayModification
-     * @file _backend/alina/mvc/template/CtrlDataTransformations/actionSerializedArrayModification.php
-     */
-    public function actionSerializedArrayModification()
-    {
-        ##################################################
-        $vd   = (object)[
-            'form_id'         => __FUNCTION__,
-            'strSource'       => '',
-            'strRes'          => '',
-            'mixedRes'        => [],
-            'mixedResControl' => [],
-            'strResControl'   => '',
-            'strFrom'         => '',
-            'strTo'           => '',
-            'tCount'          => 0,
-        ];
-        $data = (object)[];
-        ##################################################
-        if (Request::isPost()) {
-            $p         = Data::deleteEmptyProps(Request::obj()->POST);
-            $vd        = Data::mergeObjects($vd, $p);
-            $strFrom   = $vd->strFrom;
-            $strTo     = $vd->strTo;
-            $strSource = $vd->strSource;
-            $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
-        }
-        ##################################################
-        $vd = \alina\utils\Data::mergeObjects($vd, $data);
-        echo (new htmlAlias)->page($vd);
-
-        return $this;
-    }
-
     ##################################################
     ##################################################
     ##################################################
