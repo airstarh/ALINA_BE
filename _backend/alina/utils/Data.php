@@ -423,16 +423,19 @@ class Data
         $d->isSourceStrJsonValid = Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
         #####
         if ($d->isSourceStrJsonValid) {
-            $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdJsonDecoded, $strFrom, $strTo, $d->tCount);
+            Data::isStringValidJson($d->strSource, $d->mxdResJsonDecoded);
+            $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdResJsonDecoded, $strFrom, $strTo, $d->tCount);
             $d->strRes            = json_encode($d->mxdResJsonDecoded);
             $d->isResStrJsonValid = Data::isStringValidJson($d->strRes);
         }
         #####
         if (!$d->isSourceStrJsonValid) {
-            MessageAdmin::setDanger('Invalid SOURCE JSON string', []);
+            AlinaResponseSuccess(0);
+            Message::setDanger('Invalid SOURCE JSON string', []);
         }
         if (!$d->isResStrJsonValid) {
-            MessageAdmin::setDanger('Invalid RES JSON string', []);
+            AlinaResponseSuccess(0);
+            Message::setDanger('Invalid RES JSON string', []);
         }
 
         return $d;

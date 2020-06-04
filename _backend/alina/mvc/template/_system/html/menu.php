@@ -22,7 +22,8 @@ $ua = $cu->attributes();
                     Tools
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="/tools/SerializedDataEditor">Serialized Data Editor</a>
+                    <a class="dropdown-item" href="/tools/SerializedDataEditor">PHP-Serialized Data Editor online</a>
+                    <a class="dropdown-item" href="/tools/JsonSearchReplaceBeautify">JSON Search-Replace-Beautify online</a>
                 </div>
             </li>
 

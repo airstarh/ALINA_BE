@@ -1,27 +1,31 @@
 <?php
 /** @var $data stdClass */
 
+use alina\GlobalRequestStorage;
 use alina\mvc\view\html as htmlAlias;
 
 ?>
-<div id="array-serializer">
+<div>
+    <div class="mt-5"></div>
+    <h1><?= GlobalRequestStorage::obj()->get('pageTitle') ?></h1>
+    <div class="mt-2"></div>
     <form action="" method="post" enctype="multipart/form-data">
         <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'JSON string',
-            'badge' => 'strSource',
+            'badge' => 'your data-source',
         ]) ?>
         <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
         <br>
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'From',
-            'badge' => 'strFrom',
+            'badge' => 'I change from...',
         ]) ?>
         <input type="text" name="strFrom" value="<?= $data->strFrom ?>" class="form-control">
         <br>
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'To',
-            'badge' => 'strTo',
+            'badge' => 'I change to...',
         ]) ?>
         <input type="text" name="strTo" value="<?= $data->strTo ?>" class="form-control">
 
@@ -29,52 +33,55 @@ use alina\mvc\view\html as htmlAlias;
 
     </form>
     <!-- ##################################################-->
+    <div class="mt-5"></div>
+    <div class="display-4">Total Changes: <?= $data->tCount ?></div>
     <div class="mt-3">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'RESULT',
-            'badge' => 'strRes',
+            'badge' => 'this is what you get after changes',
         ]) ?>
         <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
     </div>
-    <div class="mt-3">
+    <div class="mt-5">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'RESULT beautified JSON',
-            'badge' => 'strRes',
+            'badge' => 'well-formatted string',
         ]) ?>
         <textarea class="form-control"
                   rows="30"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->strRes) ?></textarea>
     </div>
     <!-- ##################################################-->
-    <div>
-        <div><h3>Total Changes [tCount]: <?= $data->tCount ?></h3></div>
-        <div class="row">
-            <div class="col">
-                <?= htmlAlias::elBootstrapBadge([
-                    'title' => 'Was',
-                    'badge' => mb_strlen($data->strSource),
-                ]) ?>
-            </div>
-            <div class="col">
-                <?= htmlAlias::elBootstrapBadge([
-                    'title' => 'Is',
-                    'badge' => mb_strlen($data->strRes),
-                ]) ?>
-            </div>
-        </div>
+    <div class="mt-5">
         <div class="row">
             <div class="col-6">
-                <?php
-                echo '<pre>';
-                print_r($data->mxdJsonDecoded);
-                echo '</pre>';
-                ?>
+                <div>
+                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                        'title' => 'Was',
+                        'badge' => mb_strlen($data->strSource),
+                    ]) ?>
+                </div>
+                <div>
+                    <?php
+                    echo '<pre>';
+                    echo htmlentities(var_export($data->mxdJsonDecoded, 1));
+                    echo '</pre>';
+                    ?>
+                </div>
             </div>
             <div class="col-6">
-                <?php
-                echo '<pre>';
-                print_r($data->mxdResJsonDecoded);
-                echo '</pre>';
-                ?>
+                <div>
+                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                        'title' => 'Is',
+                        'badge' => mb_strlen($data->strRes),
+                    ]) ?>
+                </div>
+                <div>
+                    <?php
+                    echo '<pre>';
+                    echo htmlentities(var_export($data->mxdResJsonDecoded, 1));
+                    echo '</pre>';
+                    ?>
+                </div>
             </div>
         </div>
     </div>
