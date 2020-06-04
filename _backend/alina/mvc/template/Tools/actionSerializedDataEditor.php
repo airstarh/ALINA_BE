@@ -2,6 +2,7 @@
 
 use alina\GlobalRequestStorage;
 use alina\mvc\view\html as htmlAlias;
+use alina\utils\Data as DataAlias;
 
 ?>
 <div class="ck-content">
@@ -28,7 +29,7 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'Serialized string:',
             'badge' => 'your data-source',
         ]) ?>
-        <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
+        <textarea name="strSource" class="form-control w-100" rows="10"><?= htmlentities($data->strSource) ?></textarea>
         <br>
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'From',
@@ -52,14 +53,14 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'RESULT',
             'badge' => 'this is what you get after changes',
         ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= htmlentities($data->strRes) ?></textarea>
     </div>
     <div class="mt-3">
         <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT JSON',
             'badge' => 'this is what you get in JSON format',
         ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->mixedResControl) ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= htmlentities(DataAlias::hlpGetBeautifulJsonString($data->mixedRes)) ?></textarea>
     </div>
     <div>
         <div class="row">

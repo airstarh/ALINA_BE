@@ -156,8 +156,10 @@ class Data
         /*
          * Double-check if data is transformed correctly.
          */
-        $mixedResControl = unserialize($strRes);
-        $strResControl   = serialize($mixedResControl);
+        //$mixedResControl = unserialize($strRes);
+        //$strResControl   = serialize($mixedResControl);
+        $mixedResControl = [];
+        $strResControl   = [];
         $data            = (object)[
             'strSource'       => $strSource,
             'mixedSource'     => $mixedSource,
@@ -362,12 +364,13 @@ class Data
 
     static public function hlpGetBeautifulJsonString($d)
     {
-        $s = $d;
+        $s      = $d;
+        $jflags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
         if (is_array($d) || is_object($d)) {
-            $s = json_encode($d);
+            $s = json_encode($d, $jflags);
         }
         if (static::isStringValidJson($s, $res)) {
-            return json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            return json_encode($res, $jflags);
         }
         else {
             return $s;

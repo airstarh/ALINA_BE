@@ -30,7 +30,7 @@ class Tools
         $data = (object)[];
         ##################################################
         if (Request::isPost($post)) {
-            $p         = Data::deleteEmptyProps($post);
+            $p         = $post;
             $vd        = Data::mergeObjects($vd, $p);
             $strFrom   = $vd->strFrom;
             $strTo     = $vd->strTo;

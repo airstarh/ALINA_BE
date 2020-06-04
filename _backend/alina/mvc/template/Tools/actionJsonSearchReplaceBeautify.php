@@ -3,6 +3,7 @@
 
 use alina\GlobalRequestStorage;
 use alina\mvc\view\html as htmlAlias;
+use alina\utils\Data as DataAlias;
 
 ?>
 <div>
@@ -15,7 +16,7 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'JSON string',
             'badge' => 'your data-source',
         ]) ?>
-        <textarea name="strSource" class="form-control w-100" rows="10"><?= $data->strSource ?></textarea>
+        <textarea name="strSource" class="form-control w-100" rows="10"><?= htmlentities($data->strSource) ?></textarea>
         <br>
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'From',
@@ -40,15 +41,14 @@ use alina\mvc\view\html as htmlAlias;
             'title' => 'RESULT',
             'badge' => 'this is what you get after changes',
         ]) ?>
-        <textarea class="form-control w-100" rows="10"><?= $data->strRes ?></textarea>
+        <textarea class="form-control w-100" rows="10"><?= htmlentities($data->strRes) ?></textarea>
     </div>
     <div class="mt-5">
         <?= htmlAlias::elBootstrapBadge([
             'title' => 'RESULT beautified JSON',
             'badge' => 'well-formatted string',
         ]) ?>
-        <textarea class="form-control"
-                  rows="30"><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->strRes) ?></textarea>
+        <textarea class="form-control" rows="30"><?= htmlentities(DataAlias::hlpGetBeautifulJsonString($data->strRes)) ?></textarea>
     </div>
     <!-- ##################################################-->
     <div class="mt-5">
