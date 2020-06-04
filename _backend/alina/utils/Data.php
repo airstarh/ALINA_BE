@@ -102,7 +102,8 @@ class Data
                  */
                 elseif (FALSE !== static::megaUnserialize($v, $itr2)) {
                     MessageAdmin::setInfo('Serialized inside JSON');
-                    $v = static::itrSearchReplace($itr2, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                    $vMid = static::itrSearchReplace($itr2, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                    $v    = serialize($vMid);
                 }
                 /**
                  * If a string
@@ -149,9 +150,10 @@ class Data
 
             return $data;
         }
-        else {
-            $mixedRes = static::itrSearchReplace($mixedSourceCopy, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
-            $strRes   = serialize($mixedRes);
+        $mixedRes = static::itrSearchReplace($mixedSourceCopy, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+        $strRes   = serialize($mixedRes);
+        if (Str::ifContains($strRes, '__PHP_Incomplete_Class')) {
+            Message::setDanger('Serialized result is incomplete!');
         }
         /*
          * Double-check if data is transformed correctly.
@@ -246,119 +248,119 @@ class Data
         $str = stripslashes($str);
         #endregion Simple Security
         ####################################################################################################
-        #region SOLUTION 0
-        // PHP default :-)
-        $repSolNum               = 0;
-        $strFixed                = $str;
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 0
-        ####################################################################################################
-        #region SOLUTION 1
-        // @link https://stackoverflow.com/a/5581004/3142281
-        $repSolNum               = 1;
-        $strFixed                = preg_replace_callback(
-            '/s:([0-9]+):\"(.*?)\";/',
-            function ($matches) { return "s:" . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
-            $str
-        );
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 1
-        ####################################################################################################
-        #region SOLUTION 2
-        // @link https://stackoverflow.com/a/24995701/3142281
-        $repSolNum               = 2;
-        $strFixed                = preg_replace_callback(
-            '/s:([0-9]+):\"(.*?)\";/',
-            function ($match) {
-                return "s:" . strlen($match[2]) . ':"' . $match[2] . '";';
-            },
-            $str);
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 2
-        ####################################################################################################
-        #region SOLUTION 3
-        // @link https://stackoverflow.com/a/34224433/3142281
-        $repSolNum = 3;
-        // securities
-        $strFixed = preg_replace("%\n%", "", $str);
-        // doublequote exploding
-        $data     = preg_replace('%";%', "µµµ", $strFixed);
-        $tab      = explode("µµµ", $data);
-        $new_data = '';
-        foreach ($tab as $line) {
-            $new_data .= preg_replace_callback(
-                '%\bs:(\d+):"(.*)%',
-                function ($matches) {
-                    $string       = $matches[2];
-                    $right_length = strlen($string); // yes, strlen even for UTF-8 characters, PHP wants the mem size, not the char count
-
-                    return 's:' . $right_length . ':"' . $string . '";';
+        try {
+            ####################################################################################################
+            #region SOLUTION 0
+            // PHP default :-)
+            $repSolNum               = 0;
+            $strFixed                = $str;
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 0
+            ####################################################################################################
+            #region SOLUTION 1
+            // @link https://stackoverflow.com/a/5581004/3142281
+            $repSolNum               = 1;
+            $strFixed                = preg_replace_callback(
+                '/s:([0-9]+):\"(.*?)\";/',
+                function ($matches) { return "s:" . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
+                $str
+            );
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 1
+            ####################################################################################################
+            #region SOLUTION 2
+            // @link https://stackoverflow.com/a/24995701/3142281
+            $repSolNum               = 2;
+            $strFixed                = preg_replace_callback(
+                '/s:([0-9]+):\"(.*?)\";/',
+                function ($match) {
+                    return "s:" . strlen($match[2]) . ':"' . $match[2] . '";';
                 },
-                $line);
+                $str);
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 2
+            ####################################################################################################
+            #region SOLUTION 3
+            // @link https://stackoverflow.com/a/34224433/3142281
+            $repSolNum = 3;
+            // securities
+            $strFixed = preg_replace("%\n%", "", $str);
+            // doublequote exploding
+            $data     = preg_replace('%";%', "µµµ", $strFixed);
+            $tab      = explode("µµµ", $data);
+            $new_data = '';
+            foreach ($tab as $line) {
+                $new_data .= preg_replace_callback(
+                    '%\bs:(\d+):"(.*)%',
+                    function ($matches) {
+                        $string       = $matches[2];
+                        $right_length = strlen($string); // yes, strlen even for UTF-8 characters, PHP wants the mem size, not the char count
+
+                        return 's:' . $right_length . ':"' . $string . '";';
+                    },
+                    $line);
+            }
+            $strFixed                = $new_data;
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 3
+            ####################################################################################################
+            #region SOLUTION 4
+            // @link https://stackoverflow.com/a/36454402/3142281
+            $repSolNum               = 4;
+            $strFixed                = preg_replace_callback(
+                '/s:([0-9]+):"(.*?)";/',
+                function ($match) {
+                    return "s:" . strlen($match[2]) . ":\"" . $match[2] . "\";";
+                },
+                $str
+            );
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 4
+            ####################################################################################################
+            #region SOLUTION 5
+            // @link https://stackoverflow.com/a/38890855/3142281
+            $repSolNum               = 5;
+            $strFixed                = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 5
+            ####################################################################################################
+            #region SOLUTION 6
+            // @link https://stackoverflow.com/a/38891026/3142281
+            $repSolNum = 6;
+            $strFixed  = preg_replace_callback(
+                '/s\:(\d+)\:\"(.*?)\";/s',
+                function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
+                $str);;
+            $resultOfUnserialization = @unserialize($strFixed);
+            if (FALSE !== $resultOfUnserialization) {
+                return $resultOfUnserialization;
+            }
+            #endregion SOLUTION 6
+            ####################################################################################################
+        } catch (\ErrorException $e) {
+            Message::setDanger($e->getMessage());
+
+            return FALSE;
         }
-        $strFixed                = $new_data;
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 3
-        ####################################################################################################
-        #region SOLUTION 4
-        // @link https://stackoverflow.com/a/36454402/3142281
-        $repSolNum               = 4;
-        $strFixed                = preg_replace_callback(
-            '/s:([0-9]+):"(.*?)";/',
-            function ($match) {
-                return "s:" . strlen($match[2]) . ":\"" . $match[2] . "\";";
-            },
-            $str
-        );
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 4
-        ####################################################################################################
-        #region SOLUTION 5
-        // @link https://stackoverflow.com/a/38890855/3142281
-        $repSolNum               = 5;
-        $strFixed                = preg_replace_callback('/s\:(\d+)\:\"(.*?)\";/s', function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; }, $str);
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 5
-        ####################################################################################################
-        #region SOLUTION 6
-        // @link https://stackoverflow.com/a/38891026/3142281
-        $repSolNum = 6;
-        $strFixed  = preg_replace_callback(
-            '/s\:(\d+)\:\"(.*?)\";/s',
-            function ($matches) { return 's:' . strlen($matches[2]) . ':"' . $matches[2] . '";'; },
-            $str);;
-        $resultOfUnserialization = @unserialize($strFixed);
-        if (FALSE !== $resultOfUnserialization) {
-            ### alinaErrorLog("UNSERIALIZED!!! SOLUTION {$repSolNum} worked!!!");
-            return $resultOfUnserialization;
-        }
-        #endregion SOLUTION 6
-        ####################################################################################################
-        ### alinaErrorLog('Completely unable to deserialize.');
+
         return FALSE;
     }
 

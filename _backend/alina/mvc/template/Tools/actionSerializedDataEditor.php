@@ -62,6 +62,7 @@ use alina\utils\Data as DataAlias;
         ]) ?>
         <textarea class="form-control w-100" rows="10"><?= htmlentities(DataAlias::hlpGetBeautifulJsonString($data->mixedRes)) ?></textarea>
     </div>
+    <div class="mt-5"></div>
     <div>
         <div class="row">
             <div class="col-6">
