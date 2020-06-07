@@ -69,9 +69,12 @@ class Data
     //@link https://stackoverflow.com/a/6041773/3142281
     static public function isStringValidJson($string, &$strJsonDecoded = NULL)
     {
+        if (is_numeric($string)) {
+            return FALSE;
+        }
         $strJsonDecoded = json_decode($string, FALSE, 512);
 
-        return (json_last_error() == JSON_ERROR_NONE);
+        return (json_last_error() === JSON_ERROR_NONE);
     }
 
     ##################################################
@@ -92,16 +95,25 @@ class Data
                 }
                 #####
                 /**
-                 * If Array or Ogject
+                 * If Array or Object
                  */
                 if (static::isIterable($v)) {
                     $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                }
+                /*
+                 * If JSON string
+                 * */
+                elseif (is_string($v) && static::isStringValidJson($v)) {
+                    Message::setInfo('JFYI: JSON string is inside JSON ');
+                    $res    = static::jsonSearchReplace($v, $strFrom, $strTo);
+                    $v      = $res->strRes;
+                    $tCount += $res->tCount;
                 }
                 /**
                  * If Serialized string
                  */
                 elseif (FALSE !== static::megaUnserialize($v, $itr2)) {
-                    MessageAdmin::setInfo('Serialized inside JSON');
+                    Message::setInfo('JFYI: Serialized data is inside JSON');
                     $vMid = static::itrSearchReplace($itr2, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     $v    = serialize($vMid);
                 }
@@ -109,10 +121,7 @@ class Data
                  * If a string
                  */
                 else {
-                    $vTypeInitial = gettype($v);
-                    $v            = str_replace($strFrom, $strTo, $v, $iCount);
-                    settype($v, $vTypeInitial);
-                    $tCount += $iCount;
+                    $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                 }
             }
         }
@@ -120,15 +129,53 @@ class Data
          * $itr is primitive
          * */
         else {
-            $vTypeInitial = gettype($itr);
-            $itr          = str_replace($strFrom, $strTo, $itr, $tCount);
-            settype($itr, $vTypeInitial);
+            $iCount           = 0;
+            $itrType          = gettype($itr);
+            $itrChanged       = str_replace($strFrom, $strTo, $itr, $iCount);
+            $itrChangedCasted = static::cast($itrChanged, $itrType);
+            if ((string)$itrChanged == (string)$itrChangedCasted) {
+                $itr = $itrChangedCasted;
+            }
+            else {
+                $itr = $itrChanged;
+            }
+            $tCount += $iCount;
         }
 
         return $itr;
     }
 
-    static public function serializedArraySearchReplace($strSource, $strFrom = '', $strTo = '', &$tCount = 0, $flagRenameKeysAlso = FALSE)
+    static public function cast($val, $type)
+    {
+        switch ($type) {
+            case 'object':
+                return (object)$val;
+                break;
+            case 'array':
+                return (array)$val;
+                break;
+            case 'string':
+                return (string)$val;
+                break;
+            case 'float':
+            case 'double':
+            case 'real':
+                return (float)$val;
+                break;
+            case 'bool':
+            case 'boolean':
+                return (boolean)$val;
+                break;
+            case 'int':
+            case 'integer':
+                return (integer)$val;
+                break;
+        };
+
+        return NULL;
+    }
+
+    static public function serializedDataSearchReplace($strSource, $strFrom = '', $strTo = '', &$tCount = 0, $flagRenameKeysAlso = FALSE)
     {
         #region Defaults
         $data = (object)[
@@ -430,7 +477,7 @@ class Data
         if ($d->isSourceStrJsonValid) {
             Data::isStringValidJson($d->strSource, $d->mxdResJsonDecoded);
             $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdResJsonDecoded, $strFrom, $strTo, $d->tCount);
-            $d->strRes            = json_encode($d->mxdResJsonDecoded);
+            $d->strRes            = json_encode($d->mxdResJsonDecoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $d->isResStrJsonValid = Data::isStringValidJson($d->strRes);
         }
         #####

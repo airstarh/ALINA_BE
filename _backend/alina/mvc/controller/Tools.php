@@ -35,7 +35,7 @@ class Tools
             $strFrom   = $vd->strFrom;
             $strTo     = $vd->strTo;
             $strSource = $vd->strSource;
-            $data      = Data::serializedArraySearchReplace($strSource, $strFrom, $strTo);
+            $data      = Data::serializedDataSearchReplace($strSource, $strFrom, $strTo);
         }
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
