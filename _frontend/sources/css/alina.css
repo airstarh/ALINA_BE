@@ -7,18 +7,16 @@
 }
 
 html, body {
-    overflow-x: hidden;
-}
-
-html {
-    height: 100%;
-}
-
-body {
     height: 100%;
     position: relative;
     overflow: hidden;
-    /*padding-top: 60px;*/
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0; /* For Chrome, Safari, and Opera */
 }
 
 #alina-body-wrapper {
@@ -82,6 +80,20 @@ textarea:focus {
 .fixed-height-150px {
     overflow: hidden;
     max-height: 150px;
+}
+
+iframe.AlinaIframe {
+    overflow: hidden;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    display: block;
+    border: none; /* Reset default border */
+    width: 100%;
+}
+
+iframe.AlinaIframe::-webkit-scrollbar {
+    display: none;
+    width: 0;
 }
 
 /*endregion tiny adjustments*/

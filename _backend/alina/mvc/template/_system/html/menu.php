@@ -80,12 +80,13 @@ $ua = $cu->attributes();
                     <?= $cu->name() ?>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/Auth/Register/') ?>">Register</a> <?php endif; ?>
-                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/Auth/Login/') ?>">LogIn</a><?php endif; ?>
-                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/Auth/Profile') ?>">Profile</a><?php endif; ?>
-                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/Auth/ChangePassword') ?>">Change Password</a><?php endif; ?>
+                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/register/') ?>">Register</a> <?php endif; ?>
+                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/login/') ?>">LogIn</a><?php endif; ?>
+                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/profile') ?>">Profile</a><?php endif; ?>
+                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/change_password') ?>">Change Password</a><?php endif; ?>
+                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/reset_password_request') ?>">Reset Password Request</a><?php endif; ?>
                     <div class="dropdown-divider"></div>
-                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/Auth/LogOut/') ?>">Exit</a><?php endif; ?>
+                    <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/logOut/') ?>">Exit</a><?php endif; ?>
                 </div>
             </li>
         </ul>

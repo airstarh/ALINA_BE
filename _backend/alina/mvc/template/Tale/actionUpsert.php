@@ -32,12 +32,17 @@
                 </div>
                 <div class="mt-3"></div>
                 <div class="row no-gutters">
-                    <a class="col btn"
-                       style="background-color: #8F2DA8; color: #fff;"
-                       href="/#/tale/upsert/<?= $data->id ?>"
-                    >
-                        Go to comments
-                    </a>
+                    <div class="col">
+                        <iframe
+                                id="AlinaIframe001"
+                                class="AlinaIframe"
+                                src="/#/tale/upsert/<?= $data->id ?>"
+                                width="100%"
+                                allowfullscreen
+                                frameborder="0"
+                                scrolling="no"
+                        ></iframe>
+                    </div>
                 </div>
             </div>
         </div>

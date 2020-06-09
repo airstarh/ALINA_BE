@@ -5,21 +5,43 @@ use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data as DataAlias;
 
 ?>
-<div class="ck-content">
+
+<div>
     <div class="mt-5"></div>
-    <h1><?= GlobalRequestStorage::obj()->get('pageTitle') ?></h1>
-    <div class="mt-2"></div>
-    <p>This tool is attended to help PHP developers read and edit serialized data.</p>
-    <p>Often CMSes (e.g. WordPress) store settings and other data in a so-called <a href="https://en.wikipedia.org/wiki/Serialization" target="_blank">Serialized format</a>.</p>
-    <p>This is real pain-in-the-neck.
-        <span>You cannot simply read it!</span>
-        <span>You cannot simply edit it!</span>
-        <span>You cannot simply port it somewhere!</span>
-    </p>
-    <p><b>Solution</b></p>
-    <div class="mt-2"></div>
-    <p>It works with arrays and objects and pre-saves initial value-types.</p>
-    <p>One disadvantage is here: currently this tool works with standard PHP-built-in arrays and objects only.</p>
+    <h1><?= GlobalRequestStorage::obj()->get('pageTitle') ?>
+        <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            See the description
+        </button>
+    </h1>
+    <div class="ck-content collapse" id="collapseExample">
+        <div class="mt-2"></div>
+        <p>This tool is attended to help PHP developers read and edit serialized data.</p>
+        <p>Often CMSes (e.g. WordPress) store settings and other data in a so-called <a href="https://en.wikipedia.org/wiki/Serialization" target="_blank">Serialized format</a>.</p>
+        <p>This is real pain-in-the-neck.
+            <span>You cannot simply read it!</span>
+            <span>You cannot simply edit it!</span>
+            <span>You cannot simply port it somewhere!</span>
+        </p>
+        <div class="mt-2"></div>
+        <p><b>Solution</b></p>
+        <div class="mt-2"></div>
+
+        <ul class="todo-list">
+            <li><label class="todo-list__label"><input type="checkbox" disabled="" checked=""><span class="todo-list__label__description">Pre-saves numeric data-types, when possible.</span></label></li>
+            <li><label class="todo-list__label"><input type="checkbox" disabled="" checked=""><span class="todo-list__label__description">Properly works with nested serialized data.</span></label></li>
+            <li><label class="todo-list__label"><input type="checkbox" disabled="" checked=""><span class="todo-list__label__description">Properly works with nested JSONs: Searches-Replaces only values but never parameter names.</span></label></li>
+            <li><label class="todo-list__label"><input type="checkbox" disabled="" checked=""><span class="todo-list__label__description">Supports unicode.</span></label></li>
+        </ul>
+
+        <div class="mt-2"></div>
+        <p><b>Disadvantages are planned to fix</b></p>
+        <div class="mt-2"></div>
+
+        <ul class="todo-list">
+            <li><label class="todo-list__label"><input type="checkbox" disabled=""><span class="todo-list__label__description">Currently the tool works with standard PHP-built-in arrays and objects only.</span></label></li>
+            <li><label class="todo-list__label"><input type="checkbox" disabled=""><span class="todo-list__label__description">Does not handle booleans.</span></label></li>
+        </ul>
+    </div>
 </div>
 <div class="mt-5"></div>
 <div id="array-serializer">
@@ -99,4 +121,15 @@ use alina\utils\Data as DataAlias;
             </div>
         </div>
     </div>
+</div>
+<div>
+    <iframe
+            id="AlinaIframe001"
+            class="AlinaIframe"
+            src="/#/tale/upsert/512"
+            width="100%"
+            allowfullscreen
+            frameborder="0"
+            scrolling="no"
+    ></iframe>
 </div>
