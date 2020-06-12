@@ -19,7 +19,7 @@ SELECT
      , a.`query_string`
      , a.`data`
 FROM alina.`watch_visit` a
-WHERE 1
+WHERE a.ip != '91.202.25.124'
 --  AND a.user_id IS NULL
   AND a.query_string NOT LIKE '%auth/login%'
 --  AND a.ip != '91.202.25.124'
