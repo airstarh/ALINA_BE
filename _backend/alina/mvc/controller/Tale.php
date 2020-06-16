@@ -164,6 +164,7 @@ class Tale
         $attrs = $mTale->getOneWithReferences([["{$mTale->alias}.{$mTale->pkName}", $attrs->id]]);
         $vd    = Data::mergeObjects($vd, $attrs);
         GlobalRequestStorage::obj()->set('pageTitle', $attrs->header);
+        GlobalRequestStorage::obj()->set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
         echo (new htmlAlias)->page($vd);
     }
 

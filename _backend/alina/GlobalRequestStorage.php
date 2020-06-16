@@ -19,6 +19,7 @@ class GlobalRequestStorage
         'modelMetaInfo'          => [],
         #####
         'pageTitle'              => NULL,
+        'pageDescription'        => NULL,
         #####
         /**In sub-props*/
         /*

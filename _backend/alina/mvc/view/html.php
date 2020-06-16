@@ -127,6 +127,16 @@ class html
         return AlinaCFG('title');
     }
 
+    public function pageDescription()
+    {
+        $res = GlobalRequestStorage::obj()->get('pageDescription');
+        if ($res) {
+            return $res;
+        }
+
+        return AlinaCFG('description');
+    }
+
     public function css()
     {
         $urls = \alina\app::getConfig('html/css');

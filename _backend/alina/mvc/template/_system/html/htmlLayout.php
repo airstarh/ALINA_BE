@@ -14,6 +14,7 @@ use alina\utils\Sys;
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $data->pageTitle() ?></title>
+    <meta property="og:description" content="<?= $data->pageDescription() ?>"/>
     <?= $data->js() ?>
     <?= $data->css() ?>
 </head>
