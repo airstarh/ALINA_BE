@@ -30,6 +30,11 @@
                         </div>
                     </div>
                 </div>
+                <? if (!empty($data->iframe)) { ?>
+                    <div class="mt-3">
+                        <iframe src="<?= $data->iframe ?>" frameborder="1" width="100%" height="500px"></iframe>
+                    </div>
+                <? } ?>
                 <div class="mt-3"></div>
                 <div class="row no-gutters">
                     <div class="col">
