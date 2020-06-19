@@ -7,6 +7,17 @@
 }
 
 html, body {
+    overflow-x: hidden;
+}
+
+/*html {
+  height: 100%;
+  overflow: hidden;
+  scrollbar-width: none; !* For Firefox *!
+  -ms-overflow-style: none; !* For Internet Explorer and Edge *!
+}*/
+
+html, body {
     height: 100%;
     position: relative;
     overflow: hidden;
@@ -51,7 +62,7 @@ html {
 /*region Form*/
 .alina-form {
     background-color: #e9ecef;
-    padding: 2mm;
+    padding: 1px;
 }
 
 input:focus,
@@ -80,20 +91,6 @@ textarea:focus {
 .fixed-height-150px {
     overflow: hidden;
     max-height: 150px;
-}
-
-iframe.AlinaIframe {
-    overflow: hidden;
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer and Edge */
-    display: block;
-    border: none; /* Reset default border */
-    width: 100%;
-}
-
-iframe.AlinaIframe::-webkit-scrollbar {
-    display: none;
-    width: 0;
 }
 
 /*endregion tiny adjustments*/
