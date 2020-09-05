@@ -129,6 +129,7 @@ textarea:focus {
 }
 
 .ck-content figure.image,
+.ck-content figure.media,
 .ck-content figcaption {
     -webkit-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43);
     -moz-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43);
