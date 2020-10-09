@@ -1,4 +1,10 @@
 /*#####*/
+@font-face {
+    font-family: "ALINA";
+    src: url("/sources/fonts/XXX.ttf");
+}
+
+/*#####*/
 /*region FUNDAMENTAL */
 * {
     margin: 0;
@@ -33,9 +39,10 @@ body::-webkit-scrollbar {
 #alina-body-wrapper {
     position: relative;
     padding: 0;
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /*font-family: 'Avenir', Helvetica, Arial, sans-serif;*/
+    font-family: 'ALINA', Arial, sans-serif;
+    /*-webkit-font-smoothing: antialiased;*/
+    /*-moz-osx-font-smoothing: grayscale;*/
     height: 100%;
     overflow: -moz-scrollbars-vertical;
     overflow: scroll;

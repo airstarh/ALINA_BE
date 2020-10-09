@@ -48,13 +48,13 @@ class exceptionCatcher
     {
         AlinaResponseSuccess(0);
         ##################################################
-        #region Clean bugger
+        #region Clean buffer
         # @link https://stackoverflow.com/a/22069460/3142281
         $level = ob_get_level();
         while (@ob_end_clean()) {
             $level--;
         }
-        #endregion Clean bugger
+        #endregion Clean buffer
         ##################################################
         \alina\mvc\model\_baseAlinaEloquentTransaction::rollback();
         ##################################################
