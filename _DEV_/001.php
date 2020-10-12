@@ -6,3 +6,5 @@ function seaFumctio($someParam){
     $someParam = "123 321"; $a = "aaa";
   }
 }
+
+seaFumctio();
