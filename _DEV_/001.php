@@ -7,4 +7,4 @@ function seaFumctio($someParam){
   }
 }
 
-seaFumctio();
+seaFumctio(444);
