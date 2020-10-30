@@ -25,7 +25,7 @@ class Tale
      * @route /tale/uosert
      * @route /Generic/index/test/path/parameters
      * @param null $id
-     * @throws \alina\exceptionValidation
+     * @throws \alina\AppExceptionValidation
      */
     public function actionUpsert($id = NULL)
     {

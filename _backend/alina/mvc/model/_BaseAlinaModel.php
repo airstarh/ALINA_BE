@@ -10,7 +10,7 @@ use alina\utils\Str;
 use Exception;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
-use \alina\exceptionValidation;
+use \alina\AppExceptionValidation;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 use Illuminate\Support\Collection as CollectionAlias;
 
@@ -303,7 +303,7 @@ class _BaseAlinaModel
      * @param null|mixed $id
      * @return \stdClass
      * @throws Exception
-     * @throws exceptionValidation
+     * @throws AppExceptionValidation
      */
     public function updateById($data, $id = NULL)
     {
@@ -320,7 +320,7 @@ class _BaseAlinaModel
             $table   = $this->table;
             $message = "Cannot UPDATE row in table {$table}. Primary Key is not set.";
             Message::setDanger($message);
-            throw new exceptionValidation($message);
+            throw new AppExceptionValidation($message);
         }
         $conditions = [$pkName => $pkValue];
         $this->update($data, $conditions);
@@ -666,7 +666,7 @@ class _BaseAlinaModel
             $table   = strtoupper($this->table);
             $message = "{$table} with such {$fields} already exists";
             Message::setDanger($message);
-            throw new exceptionValidation($message);
+            throw new AppExceptionValidation($message);
         }
 
         return $this;

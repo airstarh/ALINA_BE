@@ -28,7 +28,7 @@ class alinaRestAccept
     /**
      * @throws \ErrorException
      * @throws \Exception
-     * @throws \alina\exceptionValidation
+     * @throws \alina\AppExceptionValidation
      * @link /alinaRestAccept?cmd=model&m=user&mId=1
      * @link /alinaRestAccept
      */

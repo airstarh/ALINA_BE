@@ -2,7 +2,7 @@
 
 namespace alina\utils;
 
-use alina\exceptionValidation;
+use alina\AppExceptionValidation;
 use alina\Message;
 use alina\MessageAdmin;
 use Exception;
@@ -707,7 +707,7 @@ class Data
                     if (in_array($VALIDATION_RESULT, $errorIf, TRUE)) {
                         $message = "{$msg} (field:{$fName})";
                         Message::setDanger($message);
-                        throw new exceptionValidation($message);
+                        throw new AppExceptionValidation($message);
                     }
                 }
             }

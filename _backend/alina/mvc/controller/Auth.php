@@ -2,7 +2,7 @@
 
 namespace alina\mvc\controller;
 
-use alina\exceptionValidation;
+use alina\AppExceptionValidation;
 use alina\Mailer;
 use alina\Message;
 use alina\mvc\model\_baseAlinaEloquentTransaction;
