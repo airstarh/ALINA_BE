@@ -15,42 +15,38 @@ class root
     public function actionIndex2()
     {
         $vd = (object)[
-            '/AdminTests/Redirect1'                         => 'Redirect',
-            '/AdminTests/somedata'                          => 'Some Data',
-            '/AdminTests/ConversionToObject'                => 'Conversion to Object',
-            '/AdminTests/BaseAlinaModel'                    => 'action BaseAlinaModel',
-            '/AdminTests/ReversibleEncryption'              => 'Test Reversible Encryption',
-            '/AdminTests/Mailer'                            => 'Test Mail Send',
-            '/FileUpload/Common'                            => 'File Upload',
-            '/main/index'                                   => 'ZERO',
-            '/AdminTests/TestMessages'                      => 'Messages',
-            '/Auth/Login'                                   => 'Auth Login',
-            '/Auth/Profile'                                 => 'Auth User',
-            '/Auth/ChangePassword'                          => 'Auth actionChangePassword',
-            '/Auth/Register?lala=lala'                      => 'Auth Register',
-            '/Auth/logout?lala=lala'                        => 'Auth Log Out',
-            '/Auth/ResetPasswordRequest?lala=lala'          => 'Auth ResetPasswordRequest',
-            '/Auth/ResetPasswordWithCode?lala=lala'         => 'Auth ResetPasswordWithCode',
-            '/root/index?lalala=333'                        => 'Root with GET',
-            '/egCookie/Test001'                             => 'COOKIE',
-            '/FormPatternsInvestigation/index/'             => 'Form Patterns Investigation',
-            '/AdminDbManager/EditRow/user/1'                => 'Edit a DB line',
-            '/alinaRestAccept/index?cmd=model&m=user&mId=1' => 'Rest call',
-            '/NotExistingPage'                              => 'Test 404',
-            '/tools/SerializedDataEditor'                   => 'Serialized Data Editor',
-            '/CtrlDataTransformations/json'                 => 'JSON search-replace',
-            '/AdminDbManager/DbTablesColumnsInfo'           => 'MySQL Manager',
-            '/SendRestApiQueries/BaseCurlCalls'             => 'HTTP calls',
-            '/AdminTests/Errors'                            => 'Tst Errors',
-            '/AdminTests/Serialization'                     => 'Tst Serialization',
-            '/AdminTests/JsonEncode'                        => 'Tst Json Encode',
+            '/main/CheckAutoload'                                => 'CLEAN Check Custom Zero Class ',
+            '/main/CheckAutoload/qq/aa?Par1=ASD&Par2=привет мир' => 'Check Custom Zero Class ',
+            '/AdminTests/Redirect1'                              => 'Redirect',
+            '/AdminTests/somedata'                               => 'Some Data',
+            '/AdminTests/ConversionToObject'                     => 'Conversion to Object',
+            '/AdminTests/BaseAlinaModel'                         => 'action BaseAlinaModel',
+            '/AdminTests/ReversibleEncryption'                   => 'Test Reversible Encryption',
+            '/AdminTests/Mailer'                                 => 'Test Mail Send',
+            '/FileUpload/Common'                                 => 'File Upload',
+            '/main/index'                                        => 'ZERO',
+            '/AdminTests/TestMessages'                           => 'Messages',
+            '/Auth/Login'                                        => 'Auth Login',
+            '/Auth/Profile'                                      => 'Auth User',
+            '/Auth/ChangePassword'                               => 'Auth actionChangePassword',
+            '/Auth/Register?lala=lala'                           => 'Auth Register',
+            '/Auth/logout?lala=lala'                             => 'Auth Log Out',
+            '/Auth/ResetPasswordRequest?lala=lala'               => 'Auth ResetPasswordRequest',
+            '/Auth/ResetPasswordWithCode?lala=lala'              => 'Auth ResetPasswordWithCode',
+            '/root/index?lalala=333'                             => 'Root with GET',
+            '/egCookie/Test001'                                  => 'COOKIE',
+            '/FormPatternsInvestigation/index/'                  => 'Form Patterns Investigation',
+            '/AdminDbManager/EditRow/user/1'                     => 'Edit a DB line',
+            '/alinaRestAccept/index?cmd=model&m=user&mId=1'      => 'Rest call',
+            '/NotExistingPage'                                   => 'Test 404',
+            '/tools/SerializedDataEditor'                        => 'Serialized Data Editor',
+            '/CtrlDataTransformations/json'                      => 'JSON search-replace',
+            '/AdminDbManager/DbTablesColumnsInfo'                => 'MySQL Manager',
+            '/SendRestApiQueries/BaseCurlCalls'                  => 'HTTP calls',
+            '/AdminTests/Errors'                                 => 'Tst Errors',
+            '/AdminTests/Serialization'                          => 'Tst Serialization',
+            '/AdminTests/JsonEncode'                             => 'Tst Json Encode',
         ];
-
-        error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
-        error_log(__FUNCTION__, 0);
-        error_log(var_export(Request::obj(), 1), 0);
-        error_log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 0);
-
         echo (new \alina\mvc\view\html)->page($vd);
     }
 

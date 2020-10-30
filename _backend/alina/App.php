@@ -71,16 +71,7 @@ class App
             if (FALSE !== ($res = Alina_file_exists($classPath))) {
                 require_once $res;
             }
-            // For Vendors
-            //            $className = ltrim($class, '\\');
-            //            $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-            //            $classFile = $className . $extension;
-            //            $classPath = ALINA_PATH_TO_FRAMEWORK .DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . $classFile;
-            //            if (file_exists($classPath)) {
-            //                require_once $classPath;
-            //            }
         });
-        // ToDo: [HIGHEST!!!] Resolve for User-defined Application!!!
         require_once __DIR__ . '/vendor/autoload.php';
     }
 

@@ -20,7 +20,8 @@ class Url
             if (preg_match($regularExpression, $pathSource)) {
                 if ($aliasToSystemRoute) {
                     $pathRes = static::aliasToUrl($aliasMask, $pathSource, $urlMask);
-                } else {
+                }
+                else {
                     $pathRes = static::urlToAlias($urlMask, $pathSource, $aliasMask);
                 }
                 $parsedUrlSource['path'] = $pathRes;
@@ -40,7 +41,8 @@ class Url
         foreach ($parts as $v) {
             if ($v === ':p' || FALSE !== strpos($v, ':p')) {
                 $regularExpression[] = '.+?';
-            } else {
+            }
+            else {
                 $regularExpression[] = $v;
             }
         }
@@ -83,7 +85,8 @@ class Url
         foreach ($toMaskArray as $i => $pN) {
             if (FALSE !== strpos($pN, ':p')) {
                 $convertedResult[] = $_parameters[$pN];
-            } else {
+            }
+            else {
                 $convertedResult[] = $pN;
             }
         }
@@ -164,12 +167,11 @@ class Url
     static public function addGetFromObject($url, $getObj)
     {
         $get = http_build_query($getObj);
-        $arr = [
-            $url,
-            Str::ifContains($url, '?') ? '&' : '?',
-            $get,
+        $uri = [
+            'path'  => $url,
+            'query' => $get,
         ];
-        $res = implode('', $arr);
+        $res = Url::un_parse_url($uri);
 
         return $res;
     }

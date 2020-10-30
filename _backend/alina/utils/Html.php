@@ -51,7 +51,7 @@ class Html
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-        $href .= static::ref($ref) . $get . $hash;
+        $href                  .= static::ref($ref) . $get . $hash;
         $configuration['href'] = $href;
 
         return static::tag('a', $text, $configuration);
@@ -86,6 +86,8 @@ class Html
         }
         $vocAliasToUrl = AlinaCfg(['vocAliasUrl']);
         $url           = \alina\utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
+        $url           = ltrim($url, '/');
+        $url           = ltrim($url, '\\');
 
         return "//{$_SERVER['HTTP_HOST']}/{$url}";
     }
@@ -107,7 +109,7 @@ class Html
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-        $href .= static::aRef($ref) . $get . $hash;
+        $href                  .= static::aRef($ref) . $get . $hash;
         $configuration['href'] = $href;
 
         return \alina\utils\Html::tag('a', $text, $configuration);
