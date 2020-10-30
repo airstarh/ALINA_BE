@@ -2,7 +2,7 @@
 
 namespace alina\mvc\controller;
 
-use alina\app;
+use alina\App;
 use alina\Message;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\model\modelNamesResolver;
@@ -31,11 +31,11 @@ class AdminDbManager
         $strNoPkInTable = 'ATTENTION_NO_PK_NAME';
         //ToDo: Security! Hardcoded.
         $vd = (object)[
-            'alina_form_db_host' => app::getConfig('db/host'),
-            'alina_form_db_user' => app::getConfig('db/username'),
-            'alina_form_db_pass' => app::getConfig('db/password'),
-            'alina_form_db_db'   => app::getConfig('db/database'),
-            'alina_form_db_port' => app::getConfig('db/port'),
+            'alina_form_db_host' => App::getConfig('db/host'),
+            'alina_form_db_user' => App::getConfig('db/username'),
+            'alina_form_db_pass' => App::getConfig('db/password'),
+            'alina_form_db_db'   => App::getConfig('db/database'),
+            'alina_form_db_port' => App::getConfig('db/port'),
             'form_id'            => __FUNCTION__,
             'strSqlSELECT'       => '',
             'strSqlINSERT'       => '',

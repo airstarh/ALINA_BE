@@ -33,8 +33,8 @@ class modelNamesResolver
         //$clarifiedDescriber = '\alina\mvc\model\\'.$describer;
         try {
             $clarifiedDescriber = [
-                \alina\app::getConfig('appNamespace'),
-                \alina\app::getConfig('mvc\structure\model'),
+                \alina\App::getConfig('appNamespace'),
+                \alina\App::getConfig('mvc\structure\model'),
                 $describer
             ];
             $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);

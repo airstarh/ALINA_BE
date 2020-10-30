@@ -139,7 +139,7 @@ class html
 
     public function css()
     {
-        $urls = \alina\app::getConfig('html/css');
+        $urls = \alina\App::getConfig('html/css');
         if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {
@@ -155,7 +155,7 @@ class html
 
     public function js()
     {
-        $urls = \alina\app::getConfig('html/js');
+        $urls = \alina\App::getConfig('html/js');
         if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {

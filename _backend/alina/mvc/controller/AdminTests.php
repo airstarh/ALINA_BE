@@ -2,7 +2,7 @@
 
 namespace alina\mvc\controller;
 
-use alina\exceptionCatcher;
+use alina\AppExceptionCatcher;
 use alina\Mailer;
 use alina\Message;
 use alina\MessageAdmin;

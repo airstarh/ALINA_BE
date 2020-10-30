@@ -7,7 +7,7 @@ use alina\utils\Data;
 use alina\utils\Sys;
 use alina\utils\Url;
 
-class exceptionCatcher
+class AppExceptionCatcher
 {
     protected $expClassName = '';
     protected $eSeverity    = '';
@@ -98,7 +98,7 @@ class exceptionCatcher
         #region PHP ERROR LOG
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
-        $dbgCfg = app::getConfig('debug');
+        $dbgCfg = App::getConfig('debug');
         if (in_array(TRUE, $dbgCfg)) {
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {

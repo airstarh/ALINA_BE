@@ -3,8 +3,9 @@
 namespace alina;
 
 use alina\traits\Singleton;
+use alina\utils\Request as Request;
 
-class router
+class Router
 {
     public $initialUrl        = NULL;
     public $initialUrlDecoded = NULL;
@@ -18,7 +19,6 @@ class router
     public $vocAliasUrl       = [];
     public $strGetQuery       = '';
     public $fragment          = '';
-
     ##################################################
     #region Instantiation
     use Singleton;
@@ -28,7 +28,6 @@ class router
     }
     #endregion Instantiation
     ##################################################
-
     public function processUrl()
     {
         $this->initialUrl        = $_SERVER['REQUEST_URI'];
@@ -40,28 +39,26 @@ class router
         if (isset($parsedUrl['fragment'])) {
             $this->fragment = $parsedUrl['fragment'];
         }
-
         // Define path information
-        if (isset($_GET['alinapath']) AND !empty($_GET['alinapath'])) {
-
-            $this->pathAlias = trim($_GET['alinapath'], '/');
+        if (isset(Request::obj()->GET->alinapath) AND !empty(Request::obj()->GET->alinapath)) {
+            $this->pathAlias = trim(Request::obj()->GET->alinapath, '/');
             $this->pathSys   = (isset($this->vocAliasUrl) && !empty($this->vocAliasUrl))
                 ? \alina\utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, TRUE)
                 : $this->pathAlias;
-
-            $_pathParts     = explode('/', $this->pathSys);
-            $this->pathPart = $_pathParts;
-
+            $_pathParts      = explode('/', $this->pathSys);
+            $this->pathPart  = $_pathParts;
             if (isset($_pathParts[0]) && !empty($_pathParts[0]) && !is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
             }
             if (isset($_pathParts[0]) && !empty($_pathParts[0])) {
                 $this->action = array_shift($_pathParts);
-            } else {
+            }
+            else {
                 $this->action = FALSE;
             }
             $this->pathParameter = $_pathParts;
-        } else {
+        }
+        else {
             $this->controller = AlinaCfg('mvc/defaultController');
             $this->action     = AlinaCfg('mvc/defaultAction');
         }

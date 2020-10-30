@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-use alina\app;
+use alina\App;
 use alina\utils\Request;
 
 class error_log extends _BaseAlinaModel

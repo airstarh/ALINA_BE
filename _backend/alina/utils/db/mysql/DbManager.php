@@ -2,7 +2,7 @@
 
 namespace alina\utils\db\mysql;
 
-use alina\app;
+use alina\App;
 use Exception;
 use PDO;
 
@@ -30,11 +30,11 @@ class DbManager
     public function setCredentials(\stdClass $creds = NULL)
     {
         $creds      = (object)$creds;
-        $this->host = @$creds->alina_form_db_host ?: app::getConfig('db/host');
-        $this->user = @$creds->alina_form_db_user ?: app::getConfig('db/username');
-        $this->pass = @$creds->alina_form_db_pass ?: app::getConfig('db/password');
-        $this->db   = @$creds->alina_form_db_db ?: app::getConfig('db/database');
-        $this->port = @$creds->alina_form_db_port ?: app::getConfig('db/port');
+        $this->host = @$creds->alina_form_db_host ?: App::getConfig('db/host');
+        $this->user = @$creds->alina_form_db_user ?: App::getConfig('db/username');
+        $this->pass = @$creds->alina_form_db_pass ?: App::getConfig('db/password');
+        $this->db   = @$creds->alina_form_db_db ?: App::getConfig('db/database');
+        $this->port = @$creds->alina_form_db_port ?: App::getConfig('db/port');
 
         return $this;
     }

@@ -41,7 +41,7 @@ class egTransaction
             //print_r('+++++ After +++++');
             print_r($res);
             echo '</pre>';
-        } catch (\alina\exception $e) {
+        } catch (\alina\AppException $e) {
             echo '<pre>';
             print_r('+++++ CATCH +++++');
             //print_r($e);

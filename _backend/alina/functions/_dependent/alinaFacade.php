@@ -1,6 +1,6 @@
 <?php
 ##################################################
-use alina\app;
+use alina\App;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\model\CurrentUser;
@@ -23,22 +23,22 @@ define('ALINA_DT_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
 define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 ##################################################
 /**
- * @return app
+ * @return App
  * @throws Exception
  */
 function Alina()
 {
-    return app::get();
+    return App::get();
 }
 
 function AlinaCFG($path)
 {
-    return app::getConfig($path);
+    return App::getConfig($path);
 }
 
 function AlinaCFG_default($path)
 {
-    return app::getConfigDefault($path);
+    return App::getConfigDefault($path);
 }
 
 function AlinaCurrentUserId()

@@ -6,7 +6,7 @@ use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 use alina\utils\Url;
 
-class app
+class App
 {
     #region Officials
     public $name    = 'Alina';
@@ -20,8 +20,8 @@ class app
         $this->autoload($config);
         $this->setConfig($config);
         #####
-        set_exception_handler([\alina\exceptionCatcher::obj(), 'exception']);
-        set_error_handler([\alina\exceptionCatcher::obj(), 'error']);
+        set_exception_handler([\alina\AppExceptionCatcher::obj(), 'exception']);
+        set_error_handler([\alina\AppExceptionCatcher::obj(), 'error']);
         #####
         AlinaResponseSuccess(1);
         #####
@@ -80,7 +80,7 @@ class app
             //                require_once $classPath;
             //            }
         });
-        // ToDo: Resolve for User-defined Application!!!
+        // ToDo: [HIGHEST!!!] Resolve for User-defined Application!!!
         require_once __DIR__ . '/vendor/autoload.php';
     }
 
@@ -116,7 +116,7 @@ class app
 
     /**
      * @param array $config
-     * @return app
+     * @return App
      * @throws \Exception
      */
     static public function set($config)
@@ -216,12 +216,12 @@ class app
     }
     #endregion Paths Resolver
     #region Routes
-    /** @var \alina\router */
+    /** @var \alina\Router */
     public $router;
 
     public function defineRoute()
     {
-        $this->router              = \alina\router::obj();
+        $this->router              = \alina\Router::obj();
         $this->router->vocAliasUrl = static::getConfig(['vocAliasUrl']);
         $this->router->processUrl();
         ##################################################
@@ -261,11 +261,11 @@ class app
     public function mvcControllerAction($controllerName, $action, $params = [])
     {
         if (!class_exists($controllerName, TRUE)) {
-            throw new \alina\exception("No Class: $controllerName");
+            throw new \alina\AppException("No Class: $controllerName");
         }
         $go = new $controllerName();
         if (FALSE === ($action = $this->resolveMethodName($go, $action))) {
-            throw new \alina\exception("No Method: $action");
+            throw new \alina\AppException("No Method: $action");
         }
         if (!is_array($params)) {
             $params = [$params];
@@ -306,7 +306,7 @@ class app
             $params         = $this->actionParams;
 
             return $this->mvcControllerAction($controller, $action, $params);
-        } catch (\alina\exception $e) {
+        } catch (\alina\AppException $e) {
             // Defined by route in Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -317,7 +317,7 @@ class app
                 $params         = $this->actionParams;
 
                 return $this->mvcControllerAction($controller, $action, $params);
-            } catch (\alina\exception $e) {
+            } catch (\alina\AppException $e) {
                 return $this->mvcPageNotFound();
             }
         }
@@ -334,7 +334,7 @@ class app
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
 
             return $this->mvcControllerAction($controller, $action);
-        } catch (\alina\exception $e) {
+        } catch (\alina\AppException $e) {
             // Default page of Alina
             try {
                 $namespace      = static::getConfigDefault(['appNamespace']);
@@ -344,8 +344,8 @@ class app
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
 
                 return $this->mvcControllerAction($controller, $action);
-            } catch (\alina\exception $e) {
-                throw new \alina\exception('No index page');
+            } catch (\alina\AppException $e) {
+                throw new \alina\AppException('No index page');
             }
         }
     }
@@ -363,7 +363,7 @@ class app
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
 
             return $this->mvcControllerAction($controller, $action);
-        } catch (\alina\exception $e) {
+        } catch (\alina\AppException $e) {
             // 404 of Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -373,7 +373,7 @@ class app
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
 
                 return $this->mvcControllerAction($controller, $action);
-            } catch (\alina\exception $e) {
+            } catch (\alina\AppException $e) {
                 throw new \Exception('Alina Total Fail');
             }
         }

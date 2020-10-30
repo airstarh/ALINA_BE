@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\Message;
+use alina\utils\Request;
 
 class root
 {
@@ -44,6 +45,12 @@ class root
             '/AdminTests/Serialization'                     => 'Tst Serialization',
             '/AdminTests/JsonEncode'                        => 'Tst Json Encode',
         ];
+
+        error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
+        error_log(__FUNCTION__, 0);
+        error_log(var_export(Request::obj(), 1), 0);
+        error_log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 0);
+
         echo (new \alina\mvc\view\html)->page($vd);
     }
 

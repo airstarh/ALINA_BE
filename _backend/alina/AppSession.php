@@ -1,7 +1,7 @@
 <?php
 //ToDo: SIMPLIFY IT!!!
 namespace alina;
-class session
+class AppSession
 {
     static public $storage              = [];
     static public $flagSessionInStorage = FALSE;
