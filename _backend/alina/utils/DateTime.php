@@ -154,7 +154,6 @@ class DateTime extends \DateTime
             return FALSE;
         }
         $diffInMonths = $this->diffInMonths($date2);
-        error_log(" same day " . $diffInMonths, 0);
 
         return $diffInMonths % 12 == 0;
     }
@@ -168,7 +167,6 @@ class DateTime extends \DateTime
     {
         $dateDT      = new static($date->format(ALINA_DT_FORMAT_DB));
         $leapYearAdj = $dateDT->format('L') - $this->format('L');
-        //error_log(" Leap ADJ=".$leapYearAdj,0);
         if ($leapYearAdj === 1) {
             $dateDT->add(new DateInterval("P1D"));
         }
@@ -176,7 +174,6 @@ class DateTime extends \DateTime
             $dateDT->sub(new DateInterval("P1D"));
         }
 
-        //error_log(" this=".$this->format(ALINA_DT_FORMAT_DB)." date2=".$dateDT->format(ALINA_DT_FORMAT_DB),0);
         return $dateDT;
     }
 

@@ -37,7 +37,7 @@ class alinaRestAccept
         Sys::setCrossDomainHeaders();
         MessageAdmin::setSuccess('Hello, Admin!!!');
         Message::setSuccess('Hello, User!!!');
-        \alina\cookie::setPath('serverCookie', 'Hello from server Alina');
+        \alina\AppCookie::setPath('serverCookie', 'Hello from server Alina');
         $method  = strtoupper($_SERVER['REQUEST_METHOD']);
         $command = $_GET['cmd'];
         switch ($method) {
@@ -116,20 +116,13 @@ class alinaRestAccept
     public function actionTestGet()
     {
         Sys::setCrossDomainHeaders();
-        error_log('>>> - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
-        error_log(__FUNCTION__, 0);
-        error_log("URL: {$_SERVER['REQUEST_URI']}", 0);
-        error_log(json_encode(func_get_args()), 0);
-        error_log(json_encode($_GET), 0);
-        error_log(json_encode(getallheaders()), 0);
-        error_log('<<< - - - - - - - - - - - - - - - - - - - - - - - - - ', 0);
         echo (new jsonView())->standardRestApiResponse($_GET);
     }
 
     public function actionTestCors()
     {
         Sys::setCrossDomainHeaders();
-        \alina\cookie::setPath('AlinaCookie', 'Hello, cookie');
+        \alina\AppCookie::setPath('AlinaCookie', 'Hello, cookie');
         //$vd = Request::obj()->all();
         $vd = 'Привет';
         ############################################

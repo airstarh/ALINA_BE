@@ -13,7 +13,6 @@ class _baseAlinaEloquentTransaction
     //Make this class non-extendable and non-instanciatable.
     //Static methods only.
     static public $keys = [];
-
     #region Transaction.
     static public $isInProgress = FALSE;
     static public $isSuccess    = NULL;
@@ -22,16 +21,10 @@ class _baseAlinaEloquentTransaction
 
     static public function begin($transKey = 'default')
     {
-        error_log(__FUNCTION__, 0);
-
         static::$keys[] = $transKey;
-
-        error_log(json_encode(static::$keys), 0);
-
         if (static::$isInProgress) {
             return TRUE;
         }
-
         Dal::beginTransaction();
         static::$isInProgress = TRUE;
 
@@ -40,8 +33,6 @@ class _baseAlinaEloquentTransaction
 
     static public function commit($transKey = 'default')
     {
-        error_log(__FUNCTION__, 0);
-        error_log(json_encode(static::$keys), 0);
         try {
             $lastStartedTransaction = array_slice(static::$keys, -1)[0];
             if ($transKey === $lastStartedTransaction) {
@@ -52,7 +43,6 @@ class _baseAlinaEloquentTransaction
                 static::$keys         = [];
                 static::$isInProgress = FALSE;
                 static::$isSuccess    = TRUE;
-                error_log('--- DB COMMIT SUCCESS ---', 0);
             }
 
             return TRUE;
@@ -65,9 +55,6 @@ class _baseAlinaEloquentTransaction
 
     static public function rollback()
     {
-        error_log(__FUNCTION__, 0);
-        error_log(json_encode(static::$keys), 0);
-
         Dal::rollback();
         //static::$keys         = [];
         static::$isInProgress = FALSE;

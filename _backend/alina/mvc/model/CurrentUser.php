@@ -2,7 +2,7 @@
 
 namespace alina\mvc\model;
 
-use alina\cookie;
+use alina\AppCookie;
 use alina\Message;
 use alina\traits\Singleton;
 use alina\utils\Data;
@@ -246,7 +246,7 @@ class CurrentUser
         //     //$id = session::get(static::KEY_USER_ID);
         // }
         if (empty($id)) {
-            $id = cookie::get(static::KEY_USER_ID);
+            $id = AppCookie::get(static::KEY_USER_ID);
         }
         if (empty($id)) {
             $id = Request::obj()->tryHeader(static::KEY_USER_ID);
@@ -269,7 +269,7 @@ class CurrentUser
         //     //$token = session::get(static::KEY_USER_TOKEN);
         // }
         if (empty($token)) {
-            $token = cookie::get(static::KEY_USER_TOKEN);
+            $token = AppCookie::get(static::KEY_USER_TOKEN);
         }
         if (empty($token)) {
             $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
@@ -334,8 +334,8 @@ class CurrentUser
             return FALSE;
         }
         #####
-        cookie::set(static::KEY_USER_TOKEN, $token);
-        cookie::set(static::KEY_USER_ID, $uid);
+        AppCookie::set(static::KEY_USER_TOKEN, $token);
+        AppCookie::set(static::KEY_USER_ID, $uid);
         #####
         // session::set(static::KEY_USER_TOKEN, $token);
         // session::set(static::KEY_USER_ID, $uid);
@@ -357,8 +357,8 @@ class CurrentUser
         #####
         $this->LOGIN->deleteById($this->LOGIN->id);
         #####
-        cookie::delete(static::KEY_USER_TOKEN);
-        cookie::delete(static::KEY_USER_ID);
+        AppCookie::delete(static::KEY_USER_TOKEN);
+        AppCookie::delete(static::KEY_USER_ID);
         #####
         // session::delete(static::KEY_USER_TOKEN);
         // session::delete(static::KEY_USER_ID);

@@ -9,13 +9,11 @@ class Mailer
 {
     public function __construct()
     {
-
     }
 
     public function sendVerificationCode($to, $code)
     {
         $mail = new PHPMailer(TRUE);
-
         try {
             //Server settings
             $mail->isSMTP();                                            // Send using SMTP
@@ -25,8 +23,6 @@ class Mailer
             $mail->Password   = AlinaCfg('mailer/admin/Password');                               // SMTP password
             $mail->SMTPSecure = AlinaCfg('mailer/admin/SMTPSecure');
             $mail->Port       = AlinaCfg('mailer/admin/Port');                                    // TCP port to connect to
-            error_log('XXX',0);
-            error_log(AlinaCfg('mailer/admin/SMTPSecure'),0);
             //Recipients
             //From
             $mail->setFrom(AlinaCfg('mailer/admin/Username'), AlinaCfg('mailer/admin/FromName'));
@@ -40,7 +36,6 @@ class Mailer
             $mail->Subject = $subject;
             $mail->Body    = $message;
             $mail->AltBody = $message;
-
             $mail->send();
             Message::setInfo("Message has been sent");
         } catch (AppException $e) {
@@ -53,7 +48,6 @@ class Mailer
     public function usageExample()
     {
         $mail = new PHPMailer(TRUE);
-
         try {
             //Server settings
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      // Enable verbose debug output
@@ -64,7 +58,6 @@ class Mailer
             $mail->Password   = 'qwerty123qwerty';                               // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
             $mail->Port       = 587;                                    // TCP port to connect to
-
             //Recipients
             //From
             $mail->setFrom('my-customer-mailbox@yandex.ru', 'ALINA Framework');
@@ -72,19 +65,16 @@ class Mailer
             //To
             $mail->addAddress('air_star_h@mail.ru', 'Sewa Mail');     // Add a recipient
             $mail->addCC('vsevolod.azovsky@gmail.com');
-//            $mail->addAddress('vsevolod.azovsky@gmail.com');               // Name is optional
-//            $mail->addBCC('vsevolod.azovsky@gmail.com');
-
+            //            $mail->addAddress('vsevolod.azovsky@gmail.com');               // Name is optional
+            //            $mail->addBCC('vsevolod.azovsky@gmail.com');
             // Attachments
-//            $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-//            $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-
+            //            $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+            //            $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
             // Content
             $mail->isHTML(TRUE);                                  // Set email format to HTML
             $mail->Subject = 'Here is the subject';
             $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
             $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-
             $mail->send();
             Message::setInfo("Message has been sent");
         } catch (AppException $e) {

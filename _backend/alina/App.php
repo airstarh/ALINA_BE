@@ -16,7 +16,8 @@ class App
     #region Initiation
     protected function __construct($config = [])
     {
-        $this->init();
+        require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
+        #####
         $this->autoload($config);
         $this->setConfig($config);
         #####
@@ -30,12 +31,6 @@ class App
         Message::fromRequest();
         MessageAdmin::fromRequest();
         #####
-    }
-
-    protected function init()
-    {
-        // Facade functions
-        require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
     }
 
     protected function autoload($config)

@@ -136,8 +136,6 @@ class Url
             'host'   => isset($parsed['host']) ? $parsed['host'] : NULL,
             'port'   => isset($parsed['port']) ? $parsed['port'] : NULL,
         ]);
-        error_log(__FUNCTION__, 0);
-        error_log($res, 0);
 
         return $res;
     }

@@ -2,7 +2,7 @@
 
 namespace alina\mvc\controller;
 
-use alina\cookie;
+use alina\AppCookie;
 
 class egCookie
 {
@@ -17,9 +17,9 @@ class egCookie
     public function actionTest001()
     {
         //cookie::setPath('a', '000');
-        cookie::setPath('a/b/c/a1', 111);
-        cookie::setPath('a/b/c/a2', 222);
-        cookie::setPath('a/b/c1/a1', 333);
+        AppCookie::setPath('a/b/c/a1', 111);
+        AppCookie::setPath('a/b/c/a2', 222);
+        AppCookie::setPath('a/b/c1/a1', 333);
         //cookie::deletePath('a/b/c');
         echo '<pre>';
         print_r($_COOKIE);

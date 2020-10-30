@@ -5,7 +5,7 @@ namespace alina;
 use alina\utils\Arr;
 use alina\utils\Str;
 
-class cookie
+class AppCookie
 {
     ##################################################
     #region Init
