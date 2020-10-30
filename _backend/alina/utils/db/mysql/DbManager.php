@@ -30,11 +30,11 @@ class DbManager
     public function setCredentials(\stdClass $creds = NULL)
     {
         $creds      = (object)$creds;
-        $this->host = @$creds->alina_form_db_host ?: App::getConfig('db/host');
-        $this->user = @$creds->alina_form_db_user ?: App::getConfig('db/username');
-        $this->pass = @$creds->alina_form_db_pass ?: App::getConfig('db/password');
-        $this->db   = @$creds->alina_form_db_db ?: App::getConfig('db/database');
-        $this->port = @$creds->alina_form_db_port ?: App::getConfig('db/port');
+        $this->host = @$creds->alina_form_db_host ?: AlinaCfg('db/host');
+        $this->user = @$creds->alina_form_db_user ?: AlinaCfg('db/username');
+        $this->pass = @$creds->alina_form_db_pass ?: AlinaCfg('db/password');
+        $this->db   = @$creds->alina_form_db_db ?: AlinaCfg('db/database');
+        $this->port = @$creds->alina_form_db_port ?: AlinaCfg('db/port');
 
         return $this;
     }

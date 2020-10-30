@@ -31,11 +31,11 @@ class AdminDbManager
         $strNoPkInTable = 'ATTENTION_NO_PK_NAME';
         //ToDo: Security! Hardcoded.
         $vd = (object)[
-            'alina_form_db_host' => App::getConfig('db/host'),
-            'alina_form_db_user' => App::getConfig('db/username'),
-            'alina_form_db_pass' => App::getConfig('db/password'),
-            'alina_form_db_db'   => App::getConfig('db/database'),
-            'alina_form_db_port' => App::getConfig('db/port'),
+            'alina_form_db_host' => AlinaCfg('db/host'),
+            'alina_form_db_user' => AlinaCfg('db/username'),
+            'alina_form_db_pass' => AlinaCfg('db/password'),
+            'alina_form_db_db'   => AlinaCfg('db/database'),
+            'alina_form_db_port' => AlinaCfg('db/port'),
             'form_id'            => __FUNCTION__,
             'strSqlSELECT'       => '',
             'strSqlINSERT'       => '',

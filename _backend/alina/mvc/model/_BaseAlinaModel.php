@@ -860,7 +860,7 @@ class _BaseAlinaModel
         $items  = Dal::table('information_schema.columns')
             ->select('column_name')
             ->where('table_name', '=', $this->table)
-            ->where('table_schema', '=', AlinaCFG('db/database'))
+            ->where('table_schema', '=', AlinaCfg('db/database'))
             ->pluck('column_name');
         foreach ($items as $v) {
             $fields[$v] = [];

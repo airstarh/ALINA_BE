@@ -84,7 +84,7 @@ class Html
         ) {
             return $url;
         }
-        $vocAliasToUrl = \alina\App::getConfig(['vocAliasUrl']);
+        $vocAliasToUrl = AlinaCfg(['vocAliasUrl']);
         $url           = \alina\utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
 
         return "//{$_SERVER['HTTP_HOST']}/{$url}";

@@ -33,8 +33,8 @@ class alinaLaravelCapsuleLoader
             return static::$objIlluminate;
         }
 
-        //region DM Environment configs.
-        $config = \alina\App::getConfig('db');
+        //region DB Environment configs.
+        $config = AlinaCfg('db');
 
         $capsule = new Manager;
         $capsule->addConnection($config);

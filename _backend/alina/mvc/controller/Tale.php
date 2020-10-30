@@ -350,7 +350,7 @@ class Tale
             $CU->id    = $uid;
             $CU->alias = "user_{$uid}";
         }
-        $cfg = AlinaCFG('watcher/newTale/max');
+        $cfg = AlinaCfg('watcher/newTale/max');
         /*[
             'registered' => 3,
             'admin'      => -1,

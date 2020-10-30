@@ -48,7 +48,7 @@ class Watcher
         #####
         #####
         //ToDo: better Store Procedure
-        if (AlinaCFG('logVisitsToDb')) {
+        if (AlinaCfg('logVisitsToDb')) {
             if (!static::$state_VISIT_LOGGED) {
                 #####
                 $this->mBROWSER->upsertByUniqueFields([
@@ -77,7 +77,7 @@ class Watcher
         if (!Request::isPostPutDelete()) {
             return;
         }
-        $maxPer10secs = AlinaCFG('watcher/maxPer10secs');
+        $maxPer10secs = AlinaCfg('watcher/maxPer10secs');
         $per10secs    = $this->countRequestsPerSeconds(10, $maxPer10secs);
         if ($per10secs > $maxPer10secs) {
             $this->banVisit();

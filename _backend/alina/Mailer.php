@@ -19,18 +19,18 @@ class Mailer
         try {
             //Server settings
             $mail->isSMTP();                                            // Send using SMTP
-            $mail->Host       = AlinaCFG('mailer/admin/Host');
+            $mail->Host       = AlinaCfg('mailer/admin/Host');
             $mail->SMTPAuth   = TRUE;
-            $mail->Username   = AlinaCFG('mailer/admin/Username');                     // SMTP username
-            $mail->Password   = AlinaCFG('mailer/admin/Password');                               // SMTP password
-            $mail->SMTPSecure = AlinaCFG('mailer/admin/SMTPSecure');
-            $mail->Port       = AlinaCFG('mailer/admin/Port');                                    // TCP port to connect to
+            $mail->Username   = AlinaCfg('mailer/admin/Username');                     // SMTP username
+            $mail->Password   = AlinaCfg('mailer/admin/Password');                               // SMTP password
+            $mail->SMTPSecure = AlinaCfg('mailer/admin/SMTPSecure');
+            $mail->Port       = AlinaCfg('mailer/admin/Port');                                    // TCP port to connect to
             error_log('XXX',0);
-            error_log(AlinaCFG('mailer/admin/SMTPSecure'),0);
+            error_log(AlinaCfg('mailer/admin/SMTPSecure'),0);
             //Recipients
             //From
-            $mail->setFrom(AlinaCFG('mailer/admin/Username'), AlinaCFG('mailer/admin/FromName'));
-            $mail->addReplyTo(AlinaCFG('mailer/admin/Username'), AlinaCFG('mailer/admin/FromName'));
+            $mail->setFrom(AlinaCfg('mailer/admin/Username'), AlinaCfg('mailer/admin/FromName'));
+            $mail->addReplyTo(AlinaCfg('mailer/admin/Username'), AlinaCfg('mailer/admin/FromName'));
             //To
             $mail->addAddress($to, $to);     // Add a recipient
             // Content

@@ -24,8 +24,8 @@ class html
 
     public function __construct()
     {
-        $this->mvcTemplateRoot        = AlinaCFG('mvc/structure/template');
-        $this->mvcTemplateRootDefault = AlinaCFG_default('mvc/structure/template');
+        $this->mvcTemplateRoot        = AlinaCfg('mvc/structure/template');
+        $this->mvcTemplateRootDefault = AlinaCfgDefault('mvc/structure/template');
         $this->defineCurrentControllerDir();
         $this->defineCurrentActionFile();
     }
@@ -124,7 +124,7 @@ class html
             return $res;
         }
 
-        return AlinaCFG('title');
+        return AlinaCfg('title');
     }
 
     public function pageDescription()
@@ -134,12 +134,12 @@ class html
             return $res;
         }
 
-        return AlinaCFG('description');
+        return AlinaCfg('description');
     }
 
     public function css()
     {
-        $urls = \alina\App::getConfig('html/css');
+        $urls = AlinaCfg('html/css');
         if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {
@@ -155,7 +155,7 @@ class html
 
     public function js()
     {
-        $urls = \alina\App::getConfig('html/js');
+        $urls = AlinaCfg('html/js');
         if (isset($urls) && !empty($urls && \alina\utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {

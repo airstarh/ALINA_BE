@@ -31,12 +31,12 @@ function Alina()
     return App::get();
 }
 
-function AlinaCFG($path)
+function AlinaCfg($path)
 {
     return App::getConfig($path);
 }
 
-function AlinaCFG_default($path)
+function AlinaCfgDefault($path)
 {
     return App::getConfigDefault($path);
 }

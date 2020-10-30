@@ -229,7 +229,7 @@ class App
         /*
          * This will redirect user to Page's Alias
          */
-        if (AlinaCFG('forceSysPathToAlias')) {
+        if (AlinaCfg('forceSysPathToAlias')) {
             if ($this->router->pathAlias == $this->router->pathSys) {
                 $this->router->forcedAlias = \alina\utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
                 if ($this->router->forcedAlias != $this->router->pathSys) {

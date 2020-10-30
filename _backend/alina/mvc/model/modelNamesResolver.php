@@ -33,8 +33,8 @@ class modelNamesResolver
         //$clarifiedDescriber = '\alina\mvc\model\\'.$describer;
         try {
             $clarifiedDescriber = [
-                \alina\App::getConfig('appNamespace'),
-                \alina\App::getConfig('mvc\structure\model'),
+                AlinaCfg('appNamespace'),
+                AlinaCfg('mvc\structure\model'),
                 $describer
             ];
             $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);
@@ -44,8 +44,8 @@ class modelNamesResolver
         } catch (\Exception $e) {
             try {
                 $clarifiedDescriber = [
-                    AlinaCFG_default('appNamespace'),
-                    AlinaCFG_default('mvc\structure\model'),
+                    AlinaCfgDefault('appNamespace'),
+                    AlinaCfgDefault('mvc\structure\model'),
                     $describer
                 ];
                 $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);

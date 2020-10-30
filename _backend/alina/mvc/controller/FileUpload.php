@@ -147,7 +147,7 @@ class FileUpload
             $CU->id    = $uid;
             $CU->alias = "user_{$uid}";
         }
-        $cfg = AlinaCFG('watcher/fileUpload/max');
+        $cfg = AlinaCfg('watcher/fileUpload/max');
         /*[
             'registered' => 10,
             'admin'      => 0,
@@ -206,7 +206,7 @@ class FileUpload
             $uid = CurrentUser::obj()->id ?: 0;
         }
         $blocks = [
-            AlinaCFG('fileUploadDir'),
+            AlinaCfg('fileUploadDir'),
             $uid,
         ];
         $res    = FS::buildPathFromBlocks($blocks);

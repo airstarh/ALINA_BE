@@ -98,7 +98,7 @@ class AppExceptionCatcher
         #region PHP ERROR LOG
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
-        $dbgCfg = App::getConfig('debug');
+        $dbgCfg = AlinaCfg('debug');
         if (in_array(TRUE, $dbgCfg)) {
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {
