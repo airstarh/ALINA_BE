@@ -181,8 +181,8 @@ class Auth
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
         Message::setSuccess('THanks for being with us!');
-        Sys::redirect('/Auth/Login', 303);
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        Sys::redirect('/tale/feed', 303);
+        //echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 
     public function actionResetPasswordRequest()
