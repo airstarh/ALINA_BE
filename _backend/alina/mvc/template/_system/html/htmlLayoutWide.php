@@ -17,7 +17,7 @@ use alina\mvc\view\html;
     <?= $data->css() ?>
 </head>
 <body>
-<div id="alina-body-wrapper">
+<div id="alina-body-wrapper" class="bg-dark text-white">
     <?= (new \alina\mvc\view\html())->piece('/_system/html/menu.php') ?>
     <div class="container-sm">
 

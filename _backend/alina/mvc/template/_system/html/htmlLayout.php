@@ -19,7 +19,7 @@ use alina\utils\Sys;
     <?= $data->css() ?>
 </head>
 <body>
-<div id="alina-body-wrapper">
+<div id="alina-body-wrapper" class="bg-dark text-white">
     <?= (new html())->piece('/_system/html/menu.php') ?>
     <div class="container p-0">
         <?= $data->messages(); ?>

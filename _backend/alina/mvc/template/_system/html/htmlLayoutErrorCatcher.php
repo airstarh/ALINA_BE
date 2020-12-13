@@ -18,7 +18,7 @@ use alina\utils\Sys;
 <div class="text-center">
     <h1>Oh... Ah... Error happened <a title="Return to home page" href="/">¯\_(ツ)_/¯</a></h1>
 </div>
-<div id="alina-body-wrapper">
+<div id="alina-body-wrapper" class="bg-dark text-white">
     <div class="container">
         <?= $data->messages(); ?>
         <?= $data->content(); ?>

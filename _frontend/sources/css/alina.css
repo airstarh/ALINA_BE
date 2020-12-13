@@ -68,7 +68,7 @@ html {
 /*region tiny adjustments*/
 /*region Form*/
 .alina-form {
-    background-color: #e9ecef;
+    background-color: #000;
     padding: 1px;
 }
 
@@ -98,6 +98,10 @@ textarea:focus {
 .fixed-height-150px {
     overflow: hidden;
     max-height: 150px;
+}
+
+.text-white table {
+    color: white;
 }
 
 /*endregion tiny adjustments*/
@@ -156,6 +160,11 @@ textarea:focus {
 
     overflow-x: auto;
     overflow-y: auto;
+}
+
+pre, .ck-content pre, .ck-content code {
+    background-color: #000;
+    color: #70ff70;
 }
 
 /*endregion ck-editor*/
