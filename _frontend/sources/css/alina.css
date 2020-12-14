@@ -36,6 +36,10 @@ body::-webkit-scrollbar {
     width: 0; /* For Chrome, Safari, and Opera */
 }
 
+body {
+    overscroll-behavior: auto;
+}
+
 #alina-body-wrapper {
     position: relative;
     padding: 0;
@@ -104,6 +108,9 @@ textarea:focus {
     color: white;
 }
 
+h1 a:hover, h2 a:hover {
+    text-decoration: none
+}
 /*endregion tiny adjustments*/
 /* ################################################## */
 /*region ck-editor*/

@@ -11,6 +11,8 @@ use alina\utils\Sys;
     <?php
     require_once ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/searchengiines/google.php';
     ?>
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $data->pageTitle() ?></title>
