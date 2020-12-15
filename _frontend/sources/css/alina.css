@@ -12,44 +12,35 @@
     box-sizing: border-box;
 }
 
-html, body {
-    overflow-x: hidden;
-}
-
-/*html {
-  height: 100%;
-  overflow: hidden;
-  scrollbar-width: none; !* For Firefox *!
-  -ms-overflow-style: none; !* For Internet Explorer and Edge *!
-}*/
-
-html, body {
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer and Edge */
-}
-
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
     width: 0; /* For Chrome, Safari, and Opera */
 }
 
-body {
-    overscroll-behavior: auto;
+html, body {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    /*overflow: hidden;*/
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
 }
 
 #alina-body-wrapper {
+    /*border: red solid 5px;*/
+    display: block;
     position: relative;
+    min-height: 100vh;
     padding: 0;
-    /*font-family: 'Avenir', Helvetica, Arial, sans-serif;*/
     font-family: 'ALINA', Arial, sans-serif;
     /*-webkit-font-smoothing: antialiased;*/
     /*-moz-osx-font-smoothing: grayscale;*/
-    height: 100%;
-    overflow: -moz-scrollbars-vertical;
-    overflow: scroll;
+    /*overflow: -moz-scrollbars-vertical;*/
+    /*overflow: scroll;*/
+}
+
+.vh-almost-100 {
+    min-height: 90vh;
 }
 
 /*endregion FUNDAMENTAL */
@@ -111,6 +102,7 @@ textarea:focus {
 h1 a:hover, h2 a:hover {
     text-decoration: none
 }
+
 /*endregion tiny adjustments*/
 /* ################################################## */
 /*region ck-editor*/

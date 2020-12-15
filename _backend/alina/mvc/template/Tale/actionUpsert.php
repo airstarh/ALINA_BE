@@ -1,25 +1,9 @@
 <?php
 /** @var $data stdClass */
 ?>
-<div class="container p-0"><!---->
+<div class="container p-0">
     <div class="row no-gutters mt-2 mb-2">
-        <div class="col">
-            <h1 class="notranslate rounded p-2" style="background-color: #8F2DA8; color: #fff;">
-                <a href="/#/tale/upsert/<?= $data->id ?>" class="text-left text-light">
-                    <?= $data->header ?: '¯_(ツ)_/¯' ?>
-                </a>
-                <span>
-                    <a href="/#/tale/upsert/<?= $data->id ?>" aria-current="page" class="btn btn-sm btn-info text-left float-right mt-3"><?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
-                </span>
-                <span class="clearfix"></span>
-            </h1>
-        </div>
-    </div>
-    <div class="row no-gutters">
-        <div class="col mx-auto">
-
-            <div class="row no-gutters mt-2 mb-2">
-                <div class="col-auto">
+        <div class="col-auto">
                     <span class="btn-secondary text-left text-nowrap badge-pill p-2">
                         <a href="/#/auth/profile/<?= $data->owner_id ?>" class="fixed-height-150px">
                             <img src="<?= $data->owner_emblem ?>" width="100px" class="rounded-circle">
@@ -29,9 +13,27 @@
                         ><?= $data->owner_firstname ?> <?= $data->owner_lastname ?>
                         </a>
                     </span>
-                </div>
+        </div>
+    </div>
+    <div class="row no-gutters mt-2 mb-2">
+        <div class="col" style="position: relative">
+            <h1 class="notranslate m-0">
+                <a
+                    href="/#/tale/upsert/<?= $data->id ?>"
+                    class="btn btn-block btn-secondary text-left"
+                    style="background-color: #8F2DA8; color: #fff;"
+                ><?= $data->header ?: '¯_(ツ)_/¯' ?></a>
+            </h1>
+            <div style="position: absolute; right: 1%; bottom: -1.5rem; z-index: 10;">
+                <a href="/#/tale/upsert/<?= $data->id ?>"
+                   class="btn btn-sm btn-info text-left"
+                ><?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
             </div>
-
+        </div>
+    </div>
+    <div class="mt-5">&nbsp;</div>
+    <div class="row no-gutters">
+        <div class="col mx-auto">
             <div>
                 <div class="row no-gutters">
                     <div class="col">

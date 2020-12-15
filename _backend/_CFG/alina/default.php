@@ -70,14 +70,13 @@ switch (ALINA_ENV) {
                     'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css',
                     //Bootstrap Framework.
                     // https://getbootstrap.com/docs/4.3/getting-started/introduction/
-                    'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
+                    'https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css',
                     //'/sources/node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
                     //CKeditor for styles
                     //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
                     '/sources/css/ckeditor.css',
                     // Alina
                     '/sources/css/alina.css',
-                    '/sources/css/alina_form.css',
                 ],
                 'js'   => [
                     // Jquery; Jquery UI
