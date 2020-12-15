@@ -19,6 +19,7 @@ body::-webkit-scrollbar {
 
 html, body {
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     width: 100%;
     position: relative;
     /*overflow: hidden;*/
@@ -31,6 +32,7 @@ html, body {
     display: block;
     position: relative;
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     padding: 0;
     font-family: 'ALINA', Arial, sans-serif;
     /*-webkit-font-smoothing: antialiased;*/
@@ -40,7 +42,7 @@ html, body {
 }
 
 .vh-almost-100 {
-    min-height: 90vh;
+    min-height: 80vh;
 }
 
 /*endregion FUNDAMENTAL */
