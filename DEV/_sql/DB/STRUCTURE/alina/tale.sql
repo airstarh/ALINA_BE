@@ -15,12 +15,12 @@
 -- Dumping structure for table alina.tale
 DROP TABLE IF EXISTS `tale`;
 CREATE TABLE IF NOT EXISTS `tale` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `root_tale_id` bigint(20) DEFAULT NULL,
-  `answer_to_tale_id` bigint(20) DEFAULT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `root_tale_id` bigint(20) unsigned DEFAULT NULL,
+  `answer_to_tale_id` bigint(20) unsigned DEFAULT NULL,
   `level` tinyint(1) DEFAULT '0',
   `type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'POST' COMMENT 'POST, COMMENT, POSTCOMMENT',
-  `owner_id` bigint(20) DEFAULT NULL,
+  `owner_id` bigint(20) unsigned DEFAULT NULL,
   `header` text COLLATE utf8mb4_unicode_ci,
   `body` text COLLATE utf8mb4_unicode_ci,
   `body_txt` text COLLATE utf8mb4_unicode_ci,
@@ -37,11 +37,7 @@ CREATE TABLE IF NOT EXISTS `tale` (
   `iframe` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `IND_TALE_PUBLISH_AT` (`publish_at`),
-  KEY `IND_TALE_CREATED_AT` (`created_at`),
-  KEY `FK_COMMENT_ROOT` (`root_tale_id`),
-  KEY `FK_COMMENT_ANSWER` (`answer_to_tale_id`),
-  CONSTRAINT `FK_COMMENT_ANSWER` FOREIGN KEY (`answer_to_tale_id`) REFERENCES `tale` (`id`),
-  CONSTRAINT `FK_COMMENT_ROOT` FOREIGN KEY (`root_tale_id`) REFERENCES `tale` (`id`)
+  KEY `IND_TALE_CREATED_AT` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.

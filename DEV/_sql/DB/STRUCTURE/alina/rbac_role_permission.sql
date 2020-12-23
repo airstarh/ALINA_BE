@@ -19,8 +19,7 @@ CREATE TABLE IF NOT EXISTS `rbac_role_permission` (
   `role_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `permission_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_task_role` (`permission_id`,`role_id`),
-  KEY `fk_task_role_role` (`role_id`)
+  UNIQUE KEY `uniq_task_role` (`permission_id`,`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.

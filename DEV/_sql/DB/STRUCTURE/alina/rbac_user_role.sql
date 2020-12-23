@@ -18,9 +18,7 @@ CREATE TABLE IF NOT EXISTS `rbac_user_role` (
   `id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `role_id` bigint(20) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_user_role_user` (`user_id`),
-  KEY `fk_user_role_role` (`role_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
