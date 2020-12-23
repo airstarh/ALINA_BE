@@ -107,18 +107,22 @@ class CurrentUser
         return $this->rememberAuthInfo($this->USER->id, $this->LOGIN->attributes->token);
     }
 
+    /**
+     * Just check if Request contains Auth Data.
+     * No database data is changed here.
+     */
     protected function authenticate()
     {
-        $id    = $this->discoverId();
-        $token = $this->discoverToken();
+        $userId   = $this->discoverUserId();
+        $oldToken = $this->discoverToken();
         #####
         $this->getLOGIN([
-            'user_id' => $id,
-            'token'   => $token,
+            'user_id' => $userId,
+            'token'   => $oldToken,
         ]);
         if ($this->LOGIN->id) {
             $this->getUSER([
-                "{$this->USER->alias}.{$this->USER->pkName}" => $id,
+                "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
             ]);
         }
 
@@ -126,6 +130,10 @@ class CurrentUser
         return $this->analyzeConsistency();
     }
 
+    /**
+     * Is Logged In?
+     * Grant or Deny access.
+     */
     protected function authorize()
     {
         #####
@@ -135,7 +143,7 @@ class CurrentUser
         #####
         $isAuthenticated = $this->authenticate();
         if ($isAuthenticated) {
-                $data     = $this->buildLoginData();
+            $data     = $this->buildLoginData();
             $newToken = $data['token']; // ACCENT
             $this->LOGIN->updateById($data);
             $this->token = $newToken;
@@ -236,15 +244,12 @@ class CurrentUser
     #endregion States
     ##################################################
     #region Utils
-    protected function discoverId()
+    protected function discoverUserId()
     {
         $id = NULL;
         if (empty($id)) {
             $id = $this->USER->id;
         }
-        // if (empty($id)) {
-        //     //$id = session::get(static::KEY_USER_ID);
-        // }
         if (empty($id)) {
             $id = AppCookie::get(static::KEY_USER_ID);
         }
@@ -265,9 +270,6 @@ class CurrentUser
         if (empty($token)) {
             $token = $this->token;
         }
-        // if (empty($token)) {
-        //     //$token = session::get(static::KEY_USER_TOKEN);
-        // }
         if (empty($token)) {
             $token = AppCookie::get(static::KEY_USER_TOKEN);
         }
@@ -360,9 +362,6 @@ class CurrentUser
         AppCookie::delete(static::KEY_USER_TOKEN);
         AppCookie::delete(static::KEY_USER_ID);
         #####
-        // session::delete(static::KEY_USER_TOKEN);
-        // session::delete(static::KEY_USER_ID);
-        #####
         header_remove(static::KEY_USER_ID);
         header_remove(static::KEY_USER_TOKEN);
         #####
@@ -449,12 +448,12 @@ class CurrentUser
             return FALSE;
         }
         ##################################################
-        if ($this->device_ip !== $this->LOGIN->attributes->ip) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_IP;
-            $this->msg[]                   = 'IP mismatch';
-
-            return FALSE;
-        }
+        // if ($this->device_ip !== $this->LOGIN->attributes->ip) {
+        //     $this->state_CONSISTANCY_WRONG = $this->ERR_IP;
+        //     $this->msg[]                   = 'IP mismatch';
+        //
+        //     return FALSE;
+        // }
         if ($this->device_browser_enc !== $this->LOGIN->attributes->browser_enc) {
             $this->state_CONSISTANCY_WRONG = $this->ERR_BROWSER;
             $this->msg[]                   = 'Browser mismatch';
