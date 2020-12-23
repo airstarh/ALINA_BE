@@ -55,7 +55,7 @@ class Like
                 $highlight         = $ref_id;
                 $url               = "/#/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
                 $text              = "Like!";
-                $tag               = "<a href={$url} target=_blank class='btn btn-primary mb-2'>{$text}</a>";
+                $tag               = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                 (new notification())->insert((object)[
                     'to_id'        => $to_id,
                     'from_id'      => CurrentUser::obj()->id,

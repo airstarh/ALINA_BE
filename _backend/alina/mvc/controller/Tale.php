@@ -4,7 +4,7 @@ namespace alina\mvc\controller;
 
 use alina\GlobalRequestStorage;
 use alina\Message;
-use alina\mvc\model\_baseAlinaEloquentTransaction;
+use alina\mvc\model\_baseAlinaEloquentTransaction as Transaction;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\notification;
 use alina\mvc\model\tale as taleAlias;
@@ -22,7 +22,7 @@ use Illuminate\Database\Query\Builder as BuilderAlias;
 class Tale
 {
     /**
-     * @route /tale/uosert
+     * @route /tale/upsert
      * @route /Generic/index/test/path/parameters
      * @param null $id
      * @throws \alina\AppExceptionValidation
@@ -38,6 +38,7 @@ class Tale
             'publish_at'   => 0,
             'is_submitted' => 0,
         ];
+        $attrs  = (object)[];
         $isGet  = Request::isGet($get);
         $isPost = Request::isPostPutDelete($post);
         ##################################################
@@ -74,16 +75,20 @@ class Tale
                 $post
             );
             if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
+                Transaction::begin(__FUNCTION__);
                 #####
                 #region CHECK iF UPDATE or INSERT
+                $isNew     = $vd->is_submitted == 0 || empty($vd->is_submitted);
+                $isComment = isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id);
+                $isPost    = !$isComment;
                 /**
                  * NEW
                  */
-                if ($vd->is_submitted == 0 || empty($vd->is_submitted)) {
+                if ($isNew) {
                     /**
                      * new Comment
                      */
-                    if (isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id)) {
+                    if ($isComment) {
                     }
                     /**
                      * new Tale
@@ -108,7 +113,7 @@ class Tale
                     /**
                      * UPDATE Comment
                      */
-                    if (isset($vd->answer_to_tale_id) && !empty($vd->answer_to_tale_id)) {
+                    if ($isComment) {
                     }
                     /**
                      * UPDATE Tale
@@ -122,8 +127,14 @@ class Tale
                 ##################################################
                 $attrs = $mTale->updateById($vd);
                 ##################################################
+                #region Custom route-alias processing
+                //ToDo: ROLES!!!
+                if (isset($attrs->router_alias) && !empty($attrs->router_alias)) {
+                }
+                #emdregion Custom route-alias processing
+                ##################################################
                 #region Notification
-                if (!empty($attrs->answer_to_tale_id)) {
+                if ($isComment) {
                     $allCommenters = (new \alina\mvc\model\tale())
                         ->q('commenters')
                         ->where(['root_tale_id' => $attrs->root_tale_id,])
@@ -135,7 +146,7 @@ class Tale
                         ->pluck('owner_id');
                     $url           = "/#/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
                     $text          = "Comment! Tale ID# {$attrs->root_tale_id}";
-                    $tag           = "<a href={$url} target=_blank class='btn btn-primary mb-2'>{$text}</a>";
+                    $tag           = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                     foreach ($allCommenters as $humanId) {
                         if ($humanId == CurrentUser::obj()->id) {
                             continue;
@@ -154,6 +165,7 @@ class Tale
                 }
                 #endregion Notification
                 ##################################################
+                Transaction::commit(__FUNCTION__);
             }
             else {
                 AlinaResponseSuccess(0);
