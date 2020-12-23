@@ -16,8 +16,8 @@
 DROP TABLE IF EXISTS `rbac_role_permission`;
 CREATE TABLE IF NOT EXISTS `rbac_role_permission` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `role_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `permission_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `role_id` bigint(20) unsigned NOT NULL,
+  `permission_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_task_role` (`permission_id`,`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

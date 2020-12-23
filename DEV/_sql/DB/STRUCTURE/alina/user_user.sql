@@ -16,8 +16,8 @@
 DROP TABLE IF EXISTS `user_user`;
 CREATE TABLE IF NOT EXISTS `user_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `a_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `b_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `a_user_id` bigint(20) unsigned NOT NULL,
+  `b_user_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_user_bound` (`a_user_id`,`b_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
