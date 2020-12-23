@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.user_user
 DROP TABLE IF EXISTS `user_user`;
 CREATE TABLE IF NOT EXISTS `user_user` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `a_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `b_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),

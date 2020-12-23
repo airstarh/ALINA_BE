@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.rbac_user_role
 DROP TABLE IF EXISTS `rbac_user_role`;
 CREATE TABLE IF NOT EXISTS `rbac_user_role` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `role_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)

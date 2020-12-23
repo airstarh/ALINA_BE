@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.login
 DROP TABLE IF EXISTS `login`;
 CREATE TABLE IF NOT EXISTS `login` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `token` varchar(256) DEFAULT NULL,
   `ip` char(48) DEFAULT NULL,

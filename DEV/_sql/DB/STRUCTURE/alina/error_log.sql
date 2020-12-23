@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.error_log
 DROP TABLE IF EXISTS `error_log`;
 CREATE TABLE IF NOT EXISTS `error_log` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ip` char(46) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `error_text` longtext COLLATE utf8mb4_unicode_ci,
   `browser` text COLLATE utf8mb4_unicode_ci,

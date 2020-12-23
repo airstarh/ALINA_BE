@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.rbac_permission
 DROP TABLE IF EXISTS `rbac_permission`;
 CREATE TABLE IF NOT EXISTS `rbac_permission` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)

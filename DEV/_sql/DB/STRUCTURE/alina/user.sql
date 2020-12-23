@@ -15,7 +15,7 @@
 -- Dumping structure for table alina.user
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `mail` varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
   `firstname` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
