@@ -19,7 +19,7 @@ use alina\utils\Sys;
     <?= $data->js() ?>
     <?= $data->css() ?>
 </head>
-<body>
+<body id="alina-real-body" style="background-color: #343a40; color: #ffffff">
 <div id="alina-body-wrapper" class="bg-dark text-white">
     <?= (new html())->piece('/_system/html/menu.php') ?>
     <div class="container h-100">

@@ -79,7 +79,7 @@ $ua = $cu->attributes();
                    aria-haspopup="true" aria-expanded="false">
                     <?= $cu->name() ?>
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/register/') ?>">Register</a> <?php endif; ?>
                     <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/login/') ?>">LogIn</a><?php endif; ?>
                     <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/#/auth/profile') ?>">Profile</a><?php endif; ?>

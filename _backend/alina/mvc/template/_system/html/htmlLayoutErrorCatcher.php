@@ -16,7 +16,7 @@ use alina\utils\Sys;
     <?= $data->js() ?>
     <?= $data->css() ?>
 </head>
-<body>
+<body id="alina-real-body" style="background-color: #343a40; color: #ffffff">
 <div class="text-center">
     <h1>Oh... Ah... Error happened <a title="Return to home page" href="/">¯\_(ツ)_/¯</a></h1>
 </div>
