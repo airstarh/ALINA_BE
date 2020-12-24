@@ -189,7 +189,7 @@ class Tale
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if ($isPost && $id && (AlinaAccessIfAdminOrModeratorOrOwner($post->owner_id))) {
-            _baseAlinaEloquentTransaction::begin();
+            Transaction::begin();
             $vd->notifications = (new notification())
                 ->q(-1)
                 ->where('tbl', '=', 'tale')
@@ -218,7 +218,7 @@ class Tale
             $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
             $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
             $vd->rows      = (new taleAlias())->deleteById($id);
-            _baseAlinaEloquentTransaction::commit();
+            Transaction::commit();
             Message::setSuccess('Deleted');
         }
         else {
