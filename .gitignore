@@ -1,8 +1,10 @@
 .idea/
-_frontend/deleteOnProdDebug.html
 /nbproject/private/
 nbproject/
 .vscode/
+_backend/alina/vendor
+_backend/alina/components
+_frontend/deleteOnProdDebug.html
 _frontend/uploads/
 _frontend/apps/vue
 _backend/alina/configs/mailer.php
