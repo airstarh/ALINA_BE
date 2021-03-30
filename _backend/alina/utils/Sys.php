@@ -149,9 +149,10 @@ class Sys
         #####
         #region Fix for Chrome Back button
         //header('Vary: X-Requested-With');
+        header('Vary:Content-Type');
         //header('Vary: Accept, X-Requested-With');
         //header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
-        header('Cache-Control: private, max-age=0, no-cache, no-store');
+        header('Cache-Control: private, max-age=0, s-max-age=0, no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
         //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
         #region Fix for Chrome Back button
@@ -194,12 +195,13 @@ class Sys
             &&
             isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])
         ) {
-            $url = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
+            $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
                 trim($url, '/'),
                 ltrim($page, '/'),
             ]);
-        } else {
+        }
+        else {
             $page = \alina\utils\Html::ref($page);
         }
         #####
@@ -282,19 +284,19 @@ class Sys
     ##################################################
     ##################################################
     ##################################################
-    static Public function getReqMethod()
+    static public function getReqMethod()
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
-    static Public function getUserBrowser()
+    static public function getUserBrowser()
     {
         $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
         return $browser;
     }
 
-    static Public function getUserIp()
+    static public function getUserIp()
     {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -306,7 +308,7 @@ class Sys
         return $_SERVER['REMOTE_ADDR'];
     }
 
-    static Public function getUserLanguage()
+    static public function getUserLanguage()
     {
         $lang = 'en';
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {

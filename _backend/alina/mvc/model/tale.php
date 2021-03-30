@@ -42,7 +42,7 @@ class tale extends _BaseAlinaModel
                 'default' => ALINA_TIME,
             ],
             'publish_at'        => [
-                'default' => 0,
+                'default' => ALINA_TIME,
             ],
             'is_submitted'      => [
                 'default' => 0,

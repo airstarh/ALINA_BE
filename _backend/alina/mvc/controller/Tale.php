@@ -89,6 +89,8 @@ class Tale
                      * new Comment
                      */
                     if ($isComment) {
+                        $vd->created_at = ALINA_TIME;
+                        $vd->publish_at = ALINA_TIME;
                     }
                     /**
                      * new Tale
@@ -103,8 +105,8 @@ class Tale
                         #endregion WATCH quantity
                         ##################################################
                     }
-                    $vd->created_at = ALINA_TIME;
-                    $vd->publish_at = ALINA_TIME;
+                    // $vd->created_at = ALINA_TIME;
+                    // $vd->publish_at = ALINA_TIME;
                 }
                 /**
                  * UPDATE
