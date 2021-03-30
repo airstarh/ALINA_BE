@@ -5,3 +5,6 @@ vue.config.js
 
 npm i -g npm-check-updates
 cd C:\_A001\REPOS\OWN\vuesandbox\sandbox
+
+git rm -r --cached _backend/alina/vendor/
+git rm -r --cached _backend/alina/components/
