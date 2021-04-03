@@ -9,7 +9,6 @@ $(document).ready(function () {
             }
         }
     };
-
     window.ALINA.applyUI = function () {
         //////////////////////////////////////////////////
         //region jQuery UI
@@ -36,13 +35,28 @@ $(document).ready(function () {
                 onSelect:        function (val, ctx) {
                     $altfield.val(window.ALINA.Utils.Date.toUnixTimeStampInSeconds(val));
                 }
-
             });
             $dp.datepicker("setDate", v);
             $altfield.val(window.ALINA.Utils.Date.toUnixTimeStampInSeconds(v));
             //$el.datepicker( "option", "altFormat", "yy-mm-dd" );
         });
         //endregion jQuery UI
+        //////////////////////////////////////////////////
+        //region HashTags
+        const regexHashTagList = /(^|\W)#([a-zA-Zа-яА-Я_]+[0-9\w-]*)/mgi
+        const txt              = `$1<a href="/#/?txt=%23$2">#$2</a>`;
+        const allContentClass  = '.ck-content';
+        const $allContent      = $(allContentClass);
+        $.each($allContent, function (i, el) {
+            const $el = $(el);
+            let html  = $el.html();
+            html      = html.replace(regexHashTagList, txt)
+            console.log(">>>>>>>>>>>>>>>>>>>>");
+            console.log("html");
+            console.log(html);
+            $el.html(html);
+        })
+        //endregion HashTags
         //////////////////////////////////////////////////
     }
 });

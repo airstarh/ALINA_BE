@@ -7,5 +7,10 @@ sudo chmod -R 755 /srv/backend
 sudo chmod -R 755 /var/www/www-root/data/www/saysimsim.ru
 #endregion RIGHTS
 ##################################################
+#region RESTART
+sudo systemctl restart nginx
+
+#endregion RESTART
+##################################################
 
 
