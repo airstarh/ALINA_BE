@@ -7,7 +7,7 @@
             <h1 class="notranslate m-0">
                 <a
                         href="/#/tale/upsert/<?= $data->id ?>"
-                        class="btn-block btn-secondary text-left h2"
+                        class="btn-block btn-secondary text-left h2 p-2"
                         style="background-color: #8F2DA8; color: #fff;"
                 ><?= $data->header ?: '¯_(ツ)_/¯' ?></a>
             </h1>
