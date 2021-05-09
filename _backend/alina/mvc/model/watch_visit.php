@@ -36,7 +36,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $Request->METHOD,
             ],
             'data'         => [
-                'default' => json_encode(['POST' => $Request->POST, 'FILES' => $Request->FILES,], JSON_UNESCAPED_UNICODE),
+                'default' => json_encode($Request, JSON_UNESCAPED_UNICODE),
             ],
             'controller'   => [
                 'default' => Alina()->router->controller,

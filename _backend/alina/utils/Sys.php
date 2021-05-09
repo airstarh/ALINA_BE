@@ -96,7 +96,12 @@ class Sys
             // }
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            return TRUE;
+            // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
+            //     return TRUE;
+            // }
+            if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi') {
+                return TRUE;
+            }
         }
         if (isset($_SERVER['HTTP_REQUESTED_WITH']) && !empty($_SERVER['HTTP_REQUESTED_WITH'])) {
             return TRUE;
