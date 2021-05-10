@@ -27,7 +27,7 @@ class notification extends _BaseAlinaModel
                 'default' => ALINA_TIME,
             ],
             'id_root'      => [],
-            'id_answer'    => [],
+            'id_answer'    => [], // WHAT TO EXPAND [answer_to_tale_id]
             'id_highlight' => [],
             'tbl'          => [
                 'default' => 'tale',

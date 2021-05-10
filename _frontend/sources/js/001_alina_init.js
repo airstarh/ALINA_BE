@@ -51,9 +51,6 @@ $(document).ready(function () {
             const $el = $(el);
             let html  = $el.html();
             html      = html.replace(regexHashTagList, txt)
-            console.log(">>>>>>>>>>>>>>>>>>>>");
-            console.log("html");
-            console.log(html);
             $el.html(html);
         })
         //endregion HashTags

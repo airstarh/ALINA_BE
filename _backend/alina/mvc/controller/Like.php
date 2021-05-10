@@ -53,13 +53,13 @@ class Like
                 $root_tale_id      = $chainOfParents->root_tale_id ?: $ref_id;
                 $answer_to_tale_id = $chainOfParents->answer_to_tale_id ?: $ref_id;
                 $highlight         = $ref_id;
-                $url               = "/#/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
-                $text              = "Like!";
+                $url               = "/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
+                $text              = "You are liked!";
                 $tag               = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                 (new notification())->insert((object)[
                     'to_id'        => $to_id,
                     'from_id'      => CurrentUser::obj()->id,
-                    'txt'          => $tag,
+                    'txt'          => $text,
                     'link'         => $url,
                     'id_root'      => $root_tale_id,
                     'id_answer'    => $answer_to_tale_id,

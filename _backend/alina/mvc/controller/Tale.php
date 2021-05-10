@@ -146,9 +146,10 @@ class Tale
                         ->orWhere(['id' => $attrs->root_tale_id,])
                         ->distinct()
                         ->pluck('owner_id');
-                    $url           = "/#/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
+                    $url           = "/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
                     $text          = "Comment! Tale ID# {$attrs->root_tale_id}";
                     $tag           = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
+                    $text          = "You are commented!";
                     foreach ($allCommenters as $humanId) {
                         if ($humanId == CurrentUser::obj()->id) {
                             continue;
@@ -156,11 +157,11 @@ class Tale
                         (new notification())->insert((object)[
                             'to_id'        => $humanId,
                             'from_id'      => CurrentUser::obj()->id,
-                            'txt'          => $tag,
+                            'txt'          => $text,
                             'link'         => $url,
                             'id_root'      => $attrs->root_tale_id,
-                            'id_answer'    => $attrs->id,
-                            'id_highlight' => $attrs->answer_to_tale_id,
+                            'id_answer'    => $attrs->answer_to_tale_id,
+                            'id_highlight' => $attrs->id,
                             'tbl'          => 'tale',
                         ]);
                     }
