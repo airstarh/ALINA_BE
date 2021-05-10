@@ -75,7 +75,8 @@ class FileUpload
                         $ext                 = FS::fileEXT($sourceFileCleanName);
                         #####
                         if (!$this->isExtAllowed($ext)) {
-                            Message::setDanger("{$sourceFileCleanName} is not uploaded");
+                            Message::setDanger("%s is not uploaded", [$sourceFileCleanName]);
+                            $stateSuccess = FALSE;
                             continue;
                         }
                         #####
@@ -97,14 +98,16 @@ class FileUpload
                     }
                 } //end foreach
                 #####
-                $stateSuccess  = TRUE;
-                $max           = $this->getMax();
-                $currentAmount = $this->getCurrentAmount();
-                $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
-                $this->left    = $left;
-                Message::setSuccess("Uploaded!");
-                Message::setInfo("Already uploaded: %s.", [$currentAmount]);
-                Message::setInfo("Left to upload: %s.", [$left]);
+                if ($counterUploadedFiles) {
+                    $stateSuccess  = TRUE;
+                    $max           = $this->getMax();
+                    $currentAmount = $this->getCurrentAmount();
+                    $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
+                    $this->left    = $left;
+                    Message::setSuccess("Uploaded!");
+                    Message::setInfo("Already uploaded: %s.", [$currentAmount]);
+                    Message::setInfo("Left to upload: %s.", [$left]);
+                }
                 #####
             }
         }
