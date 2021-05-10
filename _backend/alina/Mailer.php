@@ -39,7 +39,7 @@ class Mailer
             $mail->send();
             Message::setInfo("Message has been sent");
         } catch (AppException $e) {
-            Message::setDanger("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            Message::setDanger("Message could not be sent. Mailer Error: %s", [$mail->ErrorInfo]);
         }
 
         return TRUE;

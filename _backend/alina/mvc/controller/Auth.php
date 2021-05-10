@@ -72,7 +72,7 @@ class Auth
                     'ip'          => Request::obj()->IP,
                     'browser_enc' => Request::obj()->BROWSER_enc,
                 ]);
-                Message::setSuccess("Welcome, {$user}!");
+                Message::setSuccess("Welcome, %s!", [$user]);
                 Request::obj()->METHOD = 'GET';
                 Alina()->mvcGo('auth', 'profile');
                 exit;
@@ -307,7 +307,7 @@ class Auth
             $m = new user();
             $m->updateById($vd, CurrentUser::obj()->id);
             if ($m->state_AFFECTED_ROWS === 1) {
-                Message::setSuccess('Password changed!');
+                Message::setSuccess('Password is changed');
                 Sys::redirect('/auth/profile', 303);
             }
             else if ($m->state_AFFECTED_ROWS > 1) {

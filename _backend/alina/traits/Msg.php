@@ -132,9 +132,11 @@ trait Msg
         foreach ($collection as $pseudoId => $message) {
             if (!$message->isShown) {
                 $all[]            = [
-                    'text'   => $message->messageRawText(),
-                    'status' => $message->status,
-                    'id'     => $message->id,
+                    'text'           => $message->messageRawText(),
+                    'status'         => $message->status,
+                    'id'             => $message->id,
+                    'params'         => $message->params,
+                    'templateString' => $message->templateString,
                 ];
                 $message->isShown = TRUE;
                 static::removeById($message->id);

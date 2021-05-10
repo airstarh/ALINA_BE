@@ -102,7 +102,9 @@ class FileUpload
                 $currentAmount = $this->getCurrentAmount();
                 $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
                 $this->left    = $left;
-                Message::setInfo("{$left} files left to upload. \n You have uploaded already {$currentAmount} files");
+                Message::setSuccess("Uploaded!");
+                Message::setInfo("Already uploaded: %s.", [$currentAmount]);
+                Message::setInfo("Left to upload: %s.", [$left]);
                 #####
             }
         }
@@ -129,7 +131,7 @@ class FileUpload
         }
         $currentAmount = $this->getCurrentAmount($targetDir);
         if ($currentAmount >= $max) {
-            Message::setDanger("File upload limit exceeded. Already uploaded {$currentAmount} files");
+            Message::setDanger("File upload limit exceeded. Already uploaded %s files", [$currentAmount]);
 
             return FALSE;
         }
