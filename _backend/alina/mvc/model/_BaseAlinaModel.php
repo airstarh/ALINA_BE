@@ -858,14 +858,18 @@ class _BaseAlinaModel
         $fields = [];
         $items  = [];
         $items  = Dal::table('information_schema.columns')
-            ->select('column_name')
+            ->select('COLUMN_NAME')
             ->where('table_name', '=', $this->table)
             ->where('table_schema', '=', AlinaCfg('db/database'))
-            ->pluck('column_name');
+            ->pluck('COLUMN_NAME');
         foreach ($items as $v) {
-            $fields[$v] = [];
+            if (!empty($v)) {
+                $fields[$v] = [];
+            }
         }
-
+        if ($this->table==='tale') {
+            GlobalRequestStorage::set('$items', $items);
+        }
         return $fields;
         ##################################################
         // Previous approach
