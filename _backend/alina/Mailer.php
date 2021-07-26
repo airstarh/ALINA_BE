@@ -23,6 +23,7 @@ class Mailer
             $mail->Password   = AlinaCfg('mailer/admin/Password');                               // SMTP password
             $mail->SMTPSecure = AlinaCfg('mailer/admin/SMTPSecure');
             $mail->Port       = AlinaCfg('mailer/admin/Port');                                    // TCP port to connect to
+            //$mail->SMTPDebug  = 1;                                    // TCP port to connect to
             //Recipients
             //From
             $mail->setFrom(AlinaCfg('mailer/admin/Username'), AlinaCfg('mailer/admin/FromName'));
@@ -36,8 +37,12 @@ class Mailer
             $mail->Subject = $subject;
             $mail->Body    = $message;
             $mail->AltBody = $message;
-            $mail->send();
-            Message::setInfo("Message has been sent");
+            $sendRes = $mail->send();
+            if ($sendRes) {
+                Message::setInfo("Message has been sent");
+            } else {
+                Message::setDanger("Failed");
+            }
         } catch (AppException $e) {
             Message::setDanger("Message could not be sent. Mailer Error: %s", [$mail->ErrorInfo]);
         }

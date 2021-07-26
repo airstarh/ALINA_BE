@@ -164,12 +164,18 @@ class Url
     ##################################################
     static public function addGetFromObject($url, $getObj)
     {
-        $get = http_build_query($getObj);
-        $uri = [
-            'path'  => $url,
-            'query' => $get,
-        ];
-        $res = Url::un_parse_url($uri);
+        $parsedUrs = parse_url($url);
+        $get       = http_build_query($getObj);
+        if (isset($parsedUrs['query'])) {
+            $res = "{$url}&{$get}";
+        }
+        else {
+            $uri = [
+                'path'  => $url,
+                'query' => $get,
+            ];
+            $res = Url::un_parse_url($uri);
+        }
 
         return $res;
     }
