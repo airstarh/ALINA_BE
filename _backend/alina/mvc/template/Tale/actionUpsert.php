@@ -2,6 +2,10 @@
 /** @var $data stdClass */
 ?>
 <div class="container p-0">
+    <!-- -->
+    <!-- -->
+    <!-- -->
+    <?php if ($data->is_header_hidden != 1) { ?>
     <div class="row no-gutters">
         <div class="col" style="position: relative">
             <h1 class="notranslate m-0">
@@ -18,6 +22,11 @@
             </div>
         </div>
     </div>
+    <?php  } ?>
+    <!-- -->
+    <!-- -->
+    <!-- -->
+    <?php if ($data->is_avatar_hidden != 1) { ?>
     <div class="mt-2 mb-2">&nbsp;</div>
     <div class="row no-gutters">
         <div class="col-auto">
@@ -32,6 +41,10 @@
                     </span>
         </div>
     </div>
+    <?php  } ?>
+    <!-- -->
+    <!-- -->
+    <!-- -->
     <div class="mt-1">&nbsp;</div>
     <div class="row no-gutters">
         <div class="col mx-auto">
