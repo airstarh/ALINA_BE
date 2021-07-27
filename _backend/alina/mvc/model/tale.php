@@ -59,6 +59,24 @@ class tale extends _BaseAlinaModel
             'level'             => [
                 'default' => 0,
             ],
+            'is_adult_denied'   => [
+                'default' => 0,
+            ],
+            'is_draft'          => [
+                'default' => 0,
+            ],
+            'is_adv'            => [
+                'default' => 0,
+            ],
+            'is_comment_denied' => [
+                'default' => 0,
+            ],
+            'is_sticked'        => [
+                'default' => 0,
+            ],
+            'is_header_hidden'  => [
+                'default' => 0,
+            ],
         ];
 
         return array_merge($pFields, $fields);
