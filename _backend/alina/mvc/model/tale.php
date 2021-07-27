@@ -77,6 +77,13 @@ class tale extends _BaseAlinaModel
             'is_header_hidden'  => [
                 'default' => 0,
             ],
+            'is_avatar_hidden'  => [
+                'default' => 0,
+            ],
+            'is_social_sharing_hidden'  => [
+                'default' => 0,
+            ],
+
         ];
 
         return array_merge($pFields, $fields);
