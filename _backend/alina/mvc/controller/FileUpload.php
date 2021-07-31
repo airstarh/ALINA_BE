@@ -192,11 +192,11 @@ class FileUpload
         $manager = new ImageManager(['driver' => 'imagick']);
         $image   = $manager
             ->make($realPath);
-        if ($image->width() > 1000) {
-            $image->widen(1000);
+        if ($image->width() > 1500) {
+            $image->widen(1500);
         }
         $image
-            ->save($realPath);
+            ->save($realPath, 100);
 
         return $realPath;
     }

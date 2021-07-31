@@ -326,6 +326,11 @@ class Tale
                         $q->where("tale.owner_id", '=', $owner);
                     });
                 }
+                // #####
+                array_unshift($sort, ["tale.is_sticked", 'DESC']);
+                // #####
+            } else {
+                $q->where("tale.is_draft", '=', 0);
             }
             #endregion POSTS
             ####################
