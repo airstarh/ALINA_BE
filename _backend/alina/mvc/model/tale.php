@@ -16,74 +16,73 @@ class tale extends _BaseAlinaModel
     {
         $pFields = parent::fields();
         $fields  = [
-            'id'                => [],
-            'owner_id'          => [
+            'id'                       => [],
+            'owner_id'                 => [
                 'default' => CurrentUser::obj()->id,
             ],
-            'header'            => [
+            'header'                   => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
-            'body'              => [
+            'body'                     => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStrHtml'],
                 ],
             ],
-            'body_txt'          => [
+            'body_txt'                 => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
-            'created_at'        => [
+            'created_at'               => [
                 'default' => ALINA_TIME,
             ],
-            'modified_at'       => [
+            'modified_at'              => [
                 'default' => ALINA_TIME,
             ],
-            'publish_at'        => [
+            'publish_at'               => [
                 'default' => ALINA_TIME,
             ],
-            'is_submitted'      => [
+            'is_submitted'             => [
                 'default' => 0,
             ],
-            'root_tale_id'      => [
+            'root_tale_id'             => [
                 'default' => NULL,
             ],
-            'answer_to_tale_id' => [
+            'answer_to_tale_id'        => [
                 'default' => NULL,
             ],
-            'type'              => [
+            'type'                     => [
                 'default' => 'POST',
             ],
-            'level'             => [
+            'level'                    => [
                 'default' => 0,
             ],
-            'is_adult_denied'   => [
+            'is_adult_denied'          => [
                 'default' => 0,
             ],
-            'is_draft'          => [
+            'is_draft'                 => [
                 'default' => 0,
             ],
-            'is_adv'            => [
+            'is_adv'                   => [
                 'default' => 0,
             ],
-            'is_comment_denied' => [
+            'is_comment_denied'        => [
                 'default' => 0,
             ],
-            'is_sticked'        => [
+            'is_sticked'               => [
                 'default' => 0,
             ],
-            'is_header_hidden'  => [
+            'is_header_hidden'         => [
                 'default' => 0,
             ],
-            'is_avatar_hidden'  => [
+            'is_avatar_hidden'         => [
                 'default' => 0,
             ],
-            'is_social_sharing_hidden'  => [
+            'is_social_sharing_hidden' => [
                 'default' => 0,
             ],
-
         ];
 
         return array_merge($pFields, $fields);
@@ -92,8 +91,10 @@ class tale extends _BaseAlinaModel
     ##################################################
     public function referencesTo()
     {
+        $_this = $this;
+
         return [
-            'owner' => [
+            'owner'        => [
                 'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'user AS owner', 'owner.id', '=', "{$this->alias}.owner_id"],
@@ -108,7 +109,23 @@ class tale extends _BaseAlinaModel
                     ]],
                 ],
             ],
-            'tag'   => [
+            'router_alias' => [
+                'has'        => 'one',
+                'joins'      => [
+                    //['leftJoin', 'router_alias AS rs', 'rs.table_id', '=', "{$this->alias}.id"],
+                    ['leftJoin', 'router_alias AS rs', function ($join) {
+                        $join->on('rs.table_id', '=', "{$this->alias}.id");
+                        $join->on('rs.table', '=', Dal::raw("'tale'"));
+                    }],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    ['addSelect',
+                        ['rs.alias AS router_alias', 'rs.id AS router_alias_id'],
+                    ],
+                ],
+            ],
+            'tag'          => [
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['leftJoin', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],

@@ -5,8 +5,10 @@ namespace alina\mvc\controller;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\model\_baseAlinaEloquentTransaction as Transaction;
+use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\notification;
+use alina\mvc\model\router_alias;
 use alina\mvc\model\tale as taleAlias;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
@@ -131,7 +133,20 @@ class Tale
                 ##################################################
                 #region Custom route-alias processing
                 //ToDo: ROLES!!!
+                $mRouterAlias = new router_alias();
                 if (isset($attrs->router_alias) && !empty($attrs->router_alias)) {
+                    $raId   = $attrs->router_alias_id ?? NULL;
+                    $raData = (object)[
+                        'id'       => $raId,
+                        'alias'    => $attrs->router_alias,
+                        'url'      => "tale/upsert/{$attrs->id}",
+                        'table'    => 'tale',
+                        'table_id' => $attrs->id,
+                    ];
+                    $mRouterAlias->upsert($raData);
+                }
+                else {
+                    $mRouterAlias->delete(['table' => 'tale', 'table_id' => $attrs->id]);
                 }
                 #emdregion Custom route-alias processing
                 ##################################################
@@ -329,7 +344,8 @@ class Tale
                 // #####
                 array_unshift($sort, ["tale.is_sticked", 'DESC']);
                 // #####
-            } else {
+            }
+            else {
                 $q->where("tale.is_draft", '=', 0);
             }
             #endregion POSTS

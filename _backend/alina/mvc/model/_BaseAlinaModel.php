@@ -7,6 +7,7 @@ use alina\Message;
 use alina\utils\Data;
 use alina\utils\Request;
 use alina\utils\Str;
+use alina\utils\Sys;
 use Exception;
 use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
@@ -120,10 +121,12 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
-    protected function getModelByUniqueKeys($data)
+    protected function getModelByUniqueKeys($data, $uniqueKeys = NULL)
     {
-        $data       = Data::toObject($data);
-        $uniqueKeys = $this->uniqueKeys();
+        $data = Data::toObject($data);
+        if (empty($uniqueKeys)) {
+            $uniqueKeys = $this->uniqueKeys();
+        }
         foreach ($uniqueKeys as $uniqueFields) {
             $conditions = [];
             $uFields    = [];
@@ -143,7 +146,6 @@ class _BaseAlinaModel
             }
             // Check if similar model exists.
             $m = new static(['table' => $this->table]);
-            /*** @var $q BuilderAlias */
             $q = $m->q();
             $q->where($conditions);
             /*
@@ -205,6 +207,7 @@ class _BaseAlinaModel
         //LIMIT / OFFSET
         $this->qApiLimitOffset($pageSize, $pageCurrentNumber, $paginationVersa);
         //Final query.
+        // Sys::fDebug($q->toSql());
         $this->collection = $q->get();
         //Has Many JOINs.
         $this->joinHasMany();
@@ -245,20 +248,22 @@ class _BaseAlinaModel
         $data = Data::toObject($data);
         if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
             $this->updateById($data);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
         return $this;
     }
 
-    public function upsertByUniqueFields($data)
+    public function upsertByUniqueFields($data, $uniqueKeys = NULL)
     {
-        $aRecord = $this->getModelByUniqueKeys($data);
+        $aRecord = $this->getModelByUniqueKeys($data, $uniqueKeys);
         if ($aRecord) {
             $conditions = $this->matchedConditions;
             $this->update($data, $conditions);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
@@ -311,9 +316,11 @@ class _BaseAlinaModel
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
             $pkValue = $id;
-        } else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+        }
+        else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
             $pkValue = $data->{$pkName};
-        } else if (isset($this->id) && !empty($this->id)) {
+        }
+        else if (isset($this->id) && !empty($this->id)) {
             $pkValue = $this->id;
         }
         if (!isset($pkValue) || empty($pkValue)) {
@@ -402,7 +409,8 @@ class _BaseAlinaModel
             $data->{$pkName}  = $id;
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
-        } else {
+        }
+        else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
@@ -622,7 +630,8 @@ class _BaseAlinaModel
                 if (isset($params['filters']) && !empty($params['filters'])) {
                     $filters[$fieldNameCfg] = $params['filters'];
                 }
-            } else {
+            }
+            else {
                 if ($this->mode === 'INSERT' && isset($params['default'])) {
                     $data->{$fieldNameCfg} = $params['default'];
                 }
@@ -659,7 +668,9 @@ class _BaseAlinaModel
     public function validateUniqueKeys($data)
     {
         if ($this->mode === 'UPDATE') {
-            return $this;
+            if (!property_exists($data, $this->pkName) || empty($data->{$this->pkName})) {
+                return $this;
+            }
         }
         if ($this->getModelByUniqueKeys($data)) {
             $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
@@ -689,7 +700,8 @@ class _BaseAlinaModel
             if (property_exists($data, $name)) {
                 if ($this->isFieldIdentity($name)) {
                     $this->dataArrayIdentity[$name] = $data->{$name};
-                } else {
+                }
+                else {
                     $dataArray[$name] = $data->{$name};
                 }
             }
@@ -739,7 +751,8 @@ class _BaseAlinaModel
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
-            } else {
+            }
+            else {
                 $defaultRawObj->{$f} = NULL;
             }
         }
@@ -839,7 +852,8 @@ class _BaseAlinaModel
         $this->alias = $alias ? $alias : $this->alias;
         if ($this->mode === 'INSERT' || $this->mode === 'DELETE' || $alias == -1) {
             $this->q = Dal::table("{$this->table}");
-        } else {
+        }
+        else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
         #####
@@ -867,9 +881,10 @@ class _BaseAlinaModel
                 $fields[$v] = [];
             }
         }
-        if ($this->table==='tale') {
+        if ($this->table === 'tale') {
             GlobalRequestStorage::set('$items', $items);
         }
+
         return $fields;
         ##################################################
         // Previous approach
@@ -952,7 +967,8 @@ class _BaseAlinaModel
             if ($this->tableHasField($f)) {
                 if (is_array($v)) {
                     $q->whereIn("{$t}.{$f}", $v);
-                } else {
+                }
+                else {
                     $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
                 }
             }

@@ -3,6 +3,7 @@
 namespace alina;
 
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\router_alias;
 use alina\utils\Sys;
 use alina\utils\Url;
 
@@ -208,7 +209,9 @@ class App
     public function defineRoute()
     {
         $this->router              = \alina\Router::obj();
-        $this->router->vocAliasUrl = static::getConfig(['vocAliasUrl']);
+        $vocAliasUrl               = static::getConfig(['vocAliasUrl']);
+        $bdVoc                     = (new router_alias())->getAsVoc();
+        $this->router->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
         $this->router->processUrl();
         ##################################################
         #region Redirect
