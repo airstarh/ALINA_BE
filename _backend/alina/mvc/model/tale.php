@@ -83,6 +83,15 @@ class tale extends _BaseAlinaModel
             'is_social_sharing_hidden' => [
                 'default' => 0,
             ],
+            'is_sticked_on_home' => [
+                'default' => 0,
+            ],
+            'geo_latitude' => [
+                'default' => null,
+            ],
+            'geo_longitude' => [
+                'default' => null,
+            ],
         ];
 
         return array_merge($pFields, $fields);
