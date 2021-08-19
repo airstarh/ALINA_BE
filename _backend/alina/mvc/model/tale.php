@@ -83,14 +83,17 @@ class tale extends _BaseAlinaModel
             'is_social_sharing_hidden' => [
                 'default' => 0,
             ],
-            'is_sticked_on_home' => [
+            'is_sticked_on_home'       => [
                 'default' => 0,
             ],
-            'geo_latitude' => [
-                'default' => null,
+            'geo_latitude'             => [
+                'default' => 0,
             ],
-            'geo_longitude' => [
-                'default' => null,
+            'geo_longitude'            => [
+                'default' => 0,
+            ],
+            'geo_is_map_shown'         => [
+                'default' => 0,
             ],
         ];
 
