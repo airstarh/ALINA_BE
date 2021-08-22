@@ -92,6 +92,12 @@ class tale extends _BaseAlinaModel
             'geo_longitude'            => [
                 'default' => 0,
             ],
+            'geo_map_type'             => [
+                'default' => 'hybrid',
+            ],
+            'geo_zoom'                 => [
+                'default' => 10,
+            ],
             'geo_is_map_shown'         => [
                 'default' => 0,
             ],
