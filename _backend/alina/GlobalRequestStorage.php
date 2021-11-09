@@ -20,6 +20,7 @@ class GlobalRequestStorage
         #####
         'pageTitle'              => NULL,
         'pageDescription'        => NULL,
+        'viewData'               => NULL,
         #####
         /**In sub-props*/
         /*

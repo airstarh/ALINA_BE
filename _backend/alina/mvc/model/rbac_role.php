@@ -2,9 +2,9 @@
 
 namespace alina\mvc\model;
 
-class role extends _BaseAlinaModel
+class rbac_role extends _BaseAlinaModel
 {
-    public $table = 'role';
+    public $table = 'rbac_role';
 
     public function fields()
     {

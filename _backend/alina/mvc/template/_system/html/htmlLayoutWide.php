@@ -21,8 +21,7 @@ use alina\mvc\view\html;
 <body id="alina-real-body" style="background-color: #343a40; color: #ffffff">
 <div id="alina-body-wrapper" class="bg-dark text-white">
     <?= (new \alina\mvc\view\html())->piece('/_system/html/menu.php') ?>
-    <div class="container-sm">
-
+    <div class="container-fluid">
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
     </div> <!-- /container -->

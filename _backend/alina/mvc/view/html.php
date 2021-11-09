@@ -43,6 +43,7 @@ class html
 
     public function page($data = NULL, $htmlLayout = FALSE)
     {
+        GlobalRequestStorage::set('viewData', $data);
         if (Sys::isAjax()) {
             return (new jsonView())->standardRestApiResponse($data);
         }

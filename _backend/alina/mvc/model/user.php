@@ -148,7 +148,7 @@ class user extends _BaseAlinaModel
     {
         return [
             'rbac_user_role'  => [
-                'keyBy'      => 'id', //ToDo: Hardcoded, not involved
+                //'keyBy'      => 'id', //ToDo: Hardcoded, not involved
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -221,7 +221,6 @@ class user extends _BaseAlinaModel
                 'keyBy'      => 'id',
                 'human_name' => ['name'],
                 'multiple'   => 'multiple',
-                ####
                 'thisKey'    => 'user_id',
                 'thatKey'    => 'role_id',
             ],
@@ -248,7 +247,7 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
-        //ToDo: Secutity
+        //ToDo: Security
         return $this;
         if (!AlinaAccessIfAdmin()) {
             return $this;

@@ -1035,12 +1035,12 @@ class _BaseAlinaModel
         $qHasManyArray = (new referenceProcessor($this))->joinHasMany([], $forIds);
         foreach ($qHasManyArray as $rName => $q) {
             //ToDO: Hardcoded id
-            $qResult = $q->get()->keyBy('child_id');
+            $qResult = $q->get();
             foreach ($this->collection as $thisModelAttributes) {
                 $thisModelAttributes->{$rName} = [];
-                foreach ($qResult as $keyBy => $row) {
+                foreach ($qResult as $row) {
                     if ($thisModelAttributes->{$this->pkName} === $row->main_id) {
-                        $thisModelAttributes->{$rName}[$keyBy] = $row;
+                        $thisModelAttributes->{$rName}[] = $row;
                     }
                 }
             }
