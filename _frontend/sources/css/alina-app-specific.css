@@ -1,0 +1,10 @@
+/* ################################################## */
+/*region Very Special*/
+.is_draft {
+    border-right: #8F2DA8 solid 10px;
+}
+.is_sticked {
+    border-top: #8F2DA8 solid 10px;
+}
+/*endregion Very Special*/
+/* ################################################## */

@@ -80,6 +80,11 @@ textarea:focus {
     margin-bottom: 1px;
 }
 
+select[multiple] option:checked {
+    background: #8F2DA8 linear-gradient(0deg, #8F2DA8 0%, black 100%);
+    color: white;
+}
+
 /*.btn {
   padding: 1mm;
   margin-left: 1mm;
@@ -169,13 +174,4 @@ pre, .ck-content pre, .ck-content code {
 }
 
 /*endregion ck-editor*/
-/* ################################################## */
-/*region Very Special*/
-.is_draft {
-    border-right: #8F2DA8 solid 10px;
-}
-.is_sticked {
-    border-top: #8F2DA8 solid 10px;
-}
-/*endregion Very Special*/
 /* ################################################## */
