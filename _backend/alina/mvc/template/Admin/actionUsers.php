@@ -55,8 +55,12 @@ $i = 0;
             <td><input form="<?= $formId ?>" type="text" class="form-control" name="lastname" value="<?= $mUser->lastname ?>"/></td>
             <td><input form="<?= $formId ?>" type="text" class="form-control" name="birth" value="<?= $mUser->birth ?>"/></td>
             <td>
-                <button form="<?= $formId ?>" type="submit" name="action" value="update" class="btn btn-primary">Save</button>
-                <button form="<?= $formId ?>" type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                <button form="<?= $formId ?>" type="submit" name="action" value="update" class="btn btn-primary"
+                        onclick="return confirm('Are you sure?')"
+                >Save</button>
+                <button form="<?= $formId ?>" type="submit" name="action" value="delete" class="btn btn-danger"
+                        onclick="return confirm('Are you sure?')"
+                >Delete</button>
             </td>
 
         </tr>
