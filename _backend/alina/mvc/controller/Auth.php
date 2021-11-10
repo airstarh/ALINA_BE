@@ -156,8 +156,9 @@ class Auth
         $u  = new user();
         #####
         if (Request::isPostPutDelete($post)) {
+            $id = $post->id;
             ##################################################
-            AlinaRedirectIfNotAjax('/#/auth/profile', 303, TRUE);
+            AlinaRedirectIfNotAjax("/#/auth/profile/$id", 303, TRUE);
             ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
