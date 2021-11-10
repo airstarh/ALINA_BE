@@ -77,6 +77,7 @@ switch (ALINA_ENV) {
                     '/sources/css/ckeditor.css',
                     // Alina
                     '/sources/css/alina.css',
+                    '/sources/css/alina-app-specific.css',
                 ],
                 'js'   => [
                     // Jquery; Jquery UI
