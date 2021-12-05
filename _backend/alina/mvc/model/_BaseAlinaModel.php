@@ -507,7 +507,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, $backendVersa = FALSE)
+    protected function qApiLimitOffset(int $backendLimit = NULL, int $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
     {
         #####
         if ($backendLimit !== NULL) {
@@ -517,7 +517,6 @@ class _BaseAlinaModel
             $this->pageCurrentNumber = $backendPageCurrentNumber;
         }
         #####
-        /** @var $q BuilderAlias object */
         $q                       = $this->q;
         $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize, $backendVersa);
         $this->pagesTotal        = $PG->pages;

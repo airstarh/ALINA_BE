@@ -11,7 +11,7 @@ $counter = 1;
 ];*/
 ?>
 <div>
-    <table class="table table-responsive table-striped table-hover">
+    <table class="table table-responsive table-striped table-hover table-dark">
         <tbody>
         <?php foreach ($arr as $rowHeader => $colInfo) { ?>
             <tr>
