@@ -2,6 +2,8 @@
 
 namespace alina\mvc\model;
 
+use alina\Message;
+use alina\mvc\model\tale as taleAlias;
 use alina\utils\Data;
 use alina\utils\DateTime;
 use alina\utils\Str;
@@ -326,5 +328,33 @@ class user extends _BaseAlinaModel
     }
 
     #endregion RBAC
+    ##################################################
+    public function bizDelete($id)
+    {
+        $vd = (object)[];
+        if (AlinaAccessIfAdminOrModeratorOrOwner($id)) {
+            _baseAlinaEloquentTransaction::begin();
+            $vd->notifications = (new notification())
+                ->q(-1)
+                ->where(function ($q) use ($id) {
+                    /** @var $q BuilderAlias object */
+                    $q
+                        ->where('to_id', '=', $id)
+                        ->orWhere('from_id', '=', $id);
+                })
+                ->delete();
+            $vd->likes         = (new \alina\mvc\model\like())
+                ->q(-1)
+                ->where('user_id', '=', $id)
+                ->delete();
+            $vd->tales         = (new taleAlias())->delete(['owner_id' => $id,]);
+            $vd->rbac_roles    = (new rbac_user_role())->delete(['user_id' => $id,]);
+            $vd->login         = (new login())->delete(['user_id' => $id,]);
+            $vd->users         = (new user())->deleteById($id);
+            _baseAlinaEloquentTransaction::commit();
+        }
+
+        return $vd;
+    }
     ##################################################
 }

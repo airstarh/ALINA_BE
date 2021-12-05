@@ -156,8 +156,9 @@ class Auth
         $u  = new user();
         #####
         if (Request::isPostPutDelete($post)) {
+            $id = $post->id;
             ##################################################
-            AlinaRedirectIfNotAjax('/#/auth/profile', 303, TRUE);
+            AlinaRedirectIfNotAjax("/#/auth/profile/$id", 303, TRUE);
             ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
@@ -332,25 +333,9 @@ class Auth
         $isPost = Request::isPostPutDelete($post);
         ##################################################
         if ($isPost && AlinaAccessIfAdminOrModeratorOrOwner($id) && $post->id == $id) {
-            _baseAlinaEloquentTransaction::begin();
-            $vd->notifications = (new notification())
-                ->q(-1)
-                ->where(function ($q) use ($id) {
-                    /** @var $q BuilderAlias object */
-                    $q
-                        ->where('to_id', '=', $id)
-                        ->orWhere('from_id', '=', $id);
-                })
-                ->delete();
-            $vd->likes         = (new \alina\mvc\model\like())
-                ->q(-1)
-                ->where('user_id', '=', $id)
-                ->delete();
-            $vd->tales         = (new taleAlias())->delete(['owner_id' => $id,]);
-            $vd->rbac_roles    = (new rbac_user_role())->delete(['user_id' => $id,]);
-            $vd->login         = (new login())->delete(['user_id' => $id,]);
-            $vd->rows          = (new user())->deleteById($id);
-            _baseAlinaEloquentTransaction::commit();
+            $vd = (new user())->bizDelete($id);
+        }
+        if ($vd && $vd->users == 1) {
             Message::setSuccess('Deleted');
         }
         else {

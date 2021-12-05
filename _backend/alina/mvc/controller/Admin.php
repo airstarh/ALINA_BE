@@ -2,6 +2,7 @@
 
 namespace alina\mvc\controller;
 
+use alina\Message;
 use alina\mvc\model\rbac_role;
 use alina\mvc\model\rbac_user_role;
 use alina\mvc\model\user;
@@ -19,6 +20,7 @@ class Admin
     ##################################################
     public function actionUsers($pageSze = 5, $page = 1)
     {
+        $vd = (object)[];
         ########################################
         if (Request::isPost()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
@@ -35,13 +37,15 @@ class Admin
             }
         }
         ########################################
-        $vd = (object)[];
-        ########################################
         #region Users
-        $conditions = [];
-        $sort[]     = ["user.id", 'ASC'];
-        $collection = $this->processResponse($conditions, $sort, $pageSze, $page);
-        $vd->users  = $collection->toArray();
+        $conditions      = [];
+        $sort[]          = ["user.id", 'ASC'];
+        $processResponse = $this->processResponse($conditions, $sort, $pageSze, $page);
+        $collection      = $processResponse['collection'];
+        $pagination      = $processResponse['pagination'];
+        $vd->pagination  = $pagination;
+        $vd->users       = $collection->toArray();
+        $vd->users = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Users
         ########################################
         #egion Roles
@@ -58,8 +62,15 @@ class Admin
         $model      = new user();
         $q          = $model->getAllWithReferencesPart1($conditions);
         $collection = $model->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
+        $pagination = (object)[
+            'pageCurrentNumber' => $model->pageCurrentNumber,
+            'pageSize'          => $model->pageSize,
+            'pagesTotal'        => $model->pagesTotal,
+            'rowsTotal'         => $model->state_ROWS_TOTAL,
+            'paginationVersa'   => $paginationVersa,
+        ];
 
-        return $collection;
+        return ['collection' => $collection, 'pagination' => $pagination];
     }
 
     ##################################################
@@ -81,7 +92,22 @@ class Admin
 
     private function userDelete($post)
     {
-        $m = new user();
-        $m->deleteById($post->id);
+        $id = $post->id;
+        $vd = (new user())->bizDelete($id);
+        if ($vd && $vd->users == 1) {
+            Message::setSuccess('Deleted');
+            Message::setSuccess("Users: {$vd->users}");
+            Message::setSuccess("notifications: {$vd->notifications}");
+            Message::setSuccess("likes: {$vd->likes}");
+            Message::setSuccess("tales: {$vd->tales}");
+            Message::setSuccess("rbac_roles: {$vd->rbac_roles}");
+            Message::setSuccess("login: {$vd->login}");
+        }
+        else {
+            AlinaResponseSuccess(0);
+            Message::setDanger('Failed');
+        }
+
+        return $vd;
     }
 }
