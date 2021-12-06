@@ -1,4 +1,6 @@
 ##################################################
+ssh -i C:\_A001\STATICA\_SSH\127-0-0-1 sewa@saysimsim.ru
+##################################################
 #region RIGHTS
 # CHOWN
 sudo chown www-data:www-data /srv/alina/_backend -R
