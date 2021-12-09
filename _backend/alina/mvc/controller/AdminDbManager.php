@@ -148,12 +148,12 @@ class AdminDbManager
             $m           = modelNamesResolver::getModelObject($modelName);
             $vd->model   = $m;
             $vd->sources = $m->getReferencesSources();
-            $m->getOneWithReferences([$m->pkName => $id]);
+            $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
             ##################################################
             $p = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
             if (!empty((array)$p)) {
                 $m->upsert($p);
-                $m->getOneWithReferences([$m->pkName => $id]);
+                $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
             }
             ##################################################
         } catch (\Exception $e) {
