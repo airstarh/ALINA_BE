@@ -1030,6 +1030,13 @@ class _BaseAlinaModel
         return $this;
     }
 
+    protected function applyQueryOperations($q, array $operations)
+    {
+        foreach ($operations as $operation) {
+            $method = array_shift($operation);
+            call_user_func_array([$q, $method], $operation);
+        }
+    }
     #endregion Helpers
     ##################################################
     #region relations
@@ -1065,19 +1072,21 @@ class _BaseAlinaModel
             foreach ($referencesSources as $rName => $sourceConfig) {
                 $sources[$rName] = [];
                 if (isset($sourceConfig['apply'])) {
-                    $childTable              = $sourceConfig['apply']['childTable'];
-                    $childPk                 = $sourceConfig['apply']['childPk'];
-                    $arrHumanName            = $sourceConfig['apply']['childHumanName'];
-                    $m                       = modelNamesResolver::getModelObject($childTable);
-                    $dataSource              = $m
-                        ->q()
-                        ->addSelect($childPk)
-                        ->addSelect($arrHumanName)
-                        // ToDo: ->where($additionalConditions)
-                        ->orderBy($childPk, 'ASC')
-                        ->get()
-                        ->keyBy($childPk)
-                        ->toArray();
+                    $childTable   = $sourceConfig['apply']['childTable'];
+                    $childPk      = $sourceConfig['apply']['childPk'];
+                    $arrHumanName = $sourceConfig['apply']['childHumanName'];
+                    $conditions   = $sourceConfig['conditions'] ?? [];
+                    #####
+                    $m = modelNamesResolver::getModelObject($childTable);
+                    $q = $m->q();
+                    $q->addSelect($childPk);
+                    $q->addSelect($arrHumanName);
+                    $q->orderBy($childPk, 'ASC');
+                    // ToDo: $this->applyQueryOperations($q, $conditions);
+                    $dataSource              =
+                        $q->get()
+                            ->keyBy($childPk)
+                            ->toArray();
                     $sources[$rName]['list'] = $dataSource;
                 }
                 $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
