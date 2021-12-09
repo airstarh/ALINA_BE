@@ -209,7 +209,6 @@ class user extends _BaseAlinaModel
                 ##############################
                 # for Select With References
                 'has'        => 'many',
-                'model'      => 'file',
                 'joins'      => [
                     ['join', 'file AS child', 'child.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                 ],

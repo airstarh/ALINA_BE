@@ -517,7 +517,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset(int $backendLimit = NULL, int $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
     {
         #####
         if ($backendLimit !== NULL) {
@@ -1057,16 +1057,11 @@ class _BaseAlinaModel
     }
 
     ##################################################
-    protected function referencesSources()
-    {
-        return [];
-    }
-
     public function getReferencesSources()
     {
         $sources = [];
-        if (method_exists($this, 'referencesSources')) {
-            $referencesSources = $this->referencesSources();
+        if (method_exists($this, 'referencesTo')) {
+            $referencesSources = $this->referencesTo();
             foreach ($referencesSources as $rName => $sourceConfig) {
                 $sources[$rName] = [];
                 if (isset($sourceConfig['model'])) {

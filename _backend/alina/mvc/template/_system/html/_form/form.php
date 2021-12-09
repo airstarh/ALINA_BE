@@ -9,11 +9,9 @@ $action  = @$data->action ?: '';
 $enctype = @$data->enctype ?: 'multipart/form-data';
 $model   = $data->model;
 $sources = $data->sources;
-
 // echo '<pre>';
 // var_export($sources, 0);
 // echo '</pre>';
-
 ?>
 <form action="<?= $action ?>" method="post" enctype="<?= $enctype ?>">
     <?= htmlAlias::elFormStandardButtons([]) ?>
@@ -24,7 +22,7 @@ $sources = $data->sources;
         ?>
         <!--##################################################-->
         <!--region SELECT-->
-        <?php if (isset($sources[$f]) && $sources[$f]['list']) { ?>
+        <?php if (array_key_exists($f, $sources) && array_key_exists('list', $sources[$f])) { ?>
             <?= htmlAlias::elFormSelect([
                 'multiple'    => (isset($sources[$f]['multiple'])) ? $sources[$f]['multiple'] : '',
                 'name'        => $f,
