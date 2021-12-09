@@ -1064,18 +1064,19 @@ class _BaseAlinaModel
             $referencesSources = $this->referencesTo();
             foreach ($referencesSources as $rName => $sourceConfig) {
                 $sources[$rName] = [];
-                if (isset($sourceConfig['model'])) {
-                    $model                   = $sourceConfig['model'];
-                    $keyBy                   = $sourceConfig['keyBy'];
-                    $human_name              = $sourceConfig['human_name'];
-                    $m                       = modelNamesResolver::getModelObject($model);
+                if (isset($sourceConfig['apply'])) {
+                    $childTable              = $sourceConfig['apply']['childTable'];
+                    $childPk                 = $sourceConfig['apply']['childPk'];
+                    $arrHumanName            = $sourceConfig['apply']['childHumanName'];
+                    $m                       = modelNamesResolver::getModelObject($childTable);
                     $dataSource              = $m
                         ->q()
-                        ->addSelect($keyBy)
-                        ->addSelect($human_name)
-                        ->orderBy($keyBy, 'ASC')
+                        ->addSelect($childPk)
+                        ->addSelect($arrHumanName)
+                        // ToDo: ->where($additionalConditions)
+                        ->orderBy($childPk, 'ASC')
                         ->get()
-                        ->keyBy($keyBy)
+                        ->keyBy($childPk)
                         ->toArray();
                     $sources[$rName]['list'] = $dataSource;
                 }

@@ -149,18 +149,22 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'rbac_user_role'  => [
+            'rbac_user_role'  => [ // Glue Table
+                'has'        => 'manyThrough',
+                'multiple'   => TRUE,
                 ##############################
-                # for Edit Form
-                'model'      => 'rbac_role', // Slave Table
-                'keyBy'      => 'id', // PK Master
-                'human_name' => ['name'],
-                'multiple'   => 'multiple',
-                'thisKey'    => 'user_id', // PK Glue Master
-                'thatKey'    => 'role_id', // PK Glue Slave
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'rbac_role',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['name'],
+                    'glueTable'      => 'rbac_user_role',
+                    'gluePk'         => 'id',
+                    'glueMasterPk'   => 'user_id',
+                    'glueChildPk'    => 'role_id',
+                ],
                 ##############################
                 # for Select With References
-                'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role AS child', 'child.id', '=', 'glue.role_id'],
@@ -171,12 +175,12 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'rbac_permission' => [
+                'has'        => 'manyThrough',
                 ##############################
                 # for Edit Form
                 # ToDo ...
                 ##############################
                 # for Select With References
-                'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role_permission AS glue2', 'glue2.role_id', '=', 'glue.role_id'],
@@ -188,15 +192,18 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'timezone'        => [
+                'has'        => 'one',
+                'multiple'   => FALSE,
                 ##############################
-                # for Edit Form
-                'model'      => 'timezone',
-                'keyBy'      => 'id',
-                'human_name' => ['name'],
-                'multiple'   => '',
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'timezone',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['name'],
+                    'masterChildPk'  => 'timezone',
+                ],
                 ##############################
                 # for Select With References
-                'has'        => 'one',
                 'joins'      => [
                     ['leftJoin', 'timezone AS timezone', 'timezone.id', '=', "{$this->alias}.timezone"],
                 ],
@@ -206,9 +213,9 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'file'            => [
+                'has'        => 'many',
                 ##############################
                 # for Select With References
-                'has'        => 'many',
                 'joins'      => [
                     ['join', 'file AS child', 'child.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                 ],
@@ -220,9 +227,9 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'tag'             => [
+                'has'        => 'manyThrough',
                 ##############################
                 # for Select With References
-                'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'tag AS child', 'child.id', '=', 'glue.tag_id'],
@@ -240,29 +247,6 @@ class user extends _BaseAlinaModel
             'about_myself'    => [
                 ##############################
                 # for Edit Form
-                'type' => 'textarea',
-            ],
-        ];
-    }
-
-    public function referencesSources()
-    {
-        return [
-            'rbac_user_role' => [ // Glue Table
-                'model'      => 'rbac_role', // Slave Table
-                'keyBy'      => 'id', // PK Master
-                'human_name' => ['name'],
-                'multiple'   => 'multiple',
-                'thisKey'    => 'user_id', // PK Glue Master
-                'thatKey'    => 'role_id', // PK Glue Slave
-            ],
-            'timezone'       => [
-                'model'      => 'timezone',
-                'keyBy'      => 'id',
-                'human_name' => ['name'],
-                'multiple'   => '',
-            ],
-            'about_myself'   => [
                 'type' => 'textarea',
             ],
         ];
@@ -287,7 +271,7 @@ class user extends _BaseAlinaModel
         if (!AlinaAccessIfAdmin()) {
             return $this;
         }
-        $referencesSources = $this->referencesSources();
+        $referencesSources = $this->referencesTo();
         foreach ($referencesSources as $cfgName => $srcCfg) {
             if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {
                 if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
