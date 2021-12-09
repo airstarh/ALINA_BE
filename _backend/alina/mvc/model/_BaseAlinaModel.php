@@ -51,14 +51,15 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    public $mode                   = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $state_DATA_FILTERED    = FALSE;
-    public $state_DATA_VALIDATED   = FALSE;
-    public $state_AFFECTED_ROWS    = NULL;
-    public $matchedUniqueFields    = [];
-    public $matchedConditions      = [];
-    public $addAuditInfo           = FALSE;
-    public $state_APPLY_GET_PARAMS = FALSE;
+    public $mode                        = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $state_DATA_FILTERED         = FALSE;
+    public $state_DATA_VALIDATED        = FALSE;
+    public $state_AFFECTED_ROWS         = NULL;
+    public $state_EXCLUDE_COUNT_REQUEST = FALSE;
+    public $matchedUniqueFields         = [];
+    public $matchedConditions           = [];
+    public $addAuditInfo                = FALSE;
+    public $state_APPLY_GET_PARAMS      = FALSE;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -98,7 +99,8 @@ class _BaseAlinaModel
 
     public function getOne($conditions = [])
     {
-        $data = $this->q()->where($conditions)->first();
+        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $data                              = $this->q()->where($conditions)->first();
         if (empty($data)) {
             $data = (object)[];
         }
@@ -106,6 +108,7 @@ class _BaseAlinaModel
         if ($this->attributes->{$this->pkName}) {
             $this->setPkValue($this->attributes->{$this->pkName});
         }
+        $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
 
         return $this->attributes;
     }
@@ -201,7 +204,13 @@ class _BaseAlinaModel
     {
         $q = $this->q;
         //COUNT
-        $this->state_ROWS_TOTAL = $q->count();
+        if ($this->state_EXCLUDE_COUNT_REQUEST) {
+            $this->state_ROWS_TOTAL            = 1;
+            $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
+        }
+        else {
+            $this->state_ROWS_TOTAL = $q->count();
+        }
         //ORDER
         $this->qApiOrder($backendSortArray);
         //LIMIT / OFFSET
@@ -227,7 +236,8 @@ class _BaseAlinaModel
     //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
-        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
+        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
         if (empty($attributes)) {
             $attributes = (object)[];
         }

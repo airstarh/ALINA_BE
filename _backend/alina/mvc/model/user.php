@@ -150,7 +150,16 @@ class user extends _BaseAlinaModel
     {
         return [
             'rbac_user_role'  => [
-                //'keyBy'      => 'id', //ToDo: Hardcoded, not involved
+                ##############################
+                # for Edit Form
+                'model'      => 'rbac_role', // Slave Table
+                'keyBy'      => 'id', // PK Master
+                'human_name' => ['name'],
+                'multiple'   => 'multiple',
+                'thisKey'    => 'user_id', // PK Glue Master
+                'thatKey'    => 'role_id', // PK Glue Slave
+                ##############################
+                # for Select With References
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -162,6 +171,11 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'rbac_permission' => [
+                ##############################
+                # for Edit Form
+                # ToDo ...
+                ##############################
+                # for Select With References
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -173,17 +187,27 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
-            // 'timezone'        => [
-            //     'has'        => 'one',
-            //     'joins'      => [
-            //         ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
-            //     ],
-            //     'conditions' => [],
-            //     'addSelects' => [
-            //         ['addSelect', ['child.name AS timezone_name']],
-            //     ],
-            // ],
+            'timezone'        => [
+                ##############################
+                # for Edit Form
+                'model'      => 'timezone',
+                'keyBy'      => 'id',
+                'human_name' => ['name'],
+                'multiple'   => '',
+                ##############################
+                # for Select With References
+                'has'        => 'one',
+                'joins'      => [
+                    ['leftJoin', 'timezone AS timezone', 'timezone.id', '=', "{$this->alias}.timezone"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    ['addSelect', ['timezone.name AS timezone_name']],
+                ],
+            ],
             'file'            => [
+                ##############################
+                # for Select With References
                 'has'        => 'many',
                 'model'      => 'file',
                 'joins'      => [
@@ -197,6 +221,8 @@ class user extends _BaseAlinaModel
                 ],
             ],
             'tag'             => [
+                ##############################
+                # for Select With References
                 'has'        => 'manyThrough',
                 'joins'      => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
@@ -212,19 +238,24 @@ class user extends _BaseAlinaModel
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
+            'about_myself'    => [
+                ##############################
+                # for Edit Form
+                'type' => 'textarea',
+            ],
         ];
     }
 
     public function referencesSources()
     {
         return [
-            'rbac_user_role' => [
-                'model'      => 'rbac_role',
-                'keyBy'      => 'id',
+            'rbac_user_role' => [ // Glue Table
+                'model'      => 'rbac_role', // Slave Table
+                'keyBy'      => 'id', // PK Master
                 'human_name' => ['name'],
                 'multiple'   => 'multiple',
-                'thisKey'    => 'user_id',
-                'thatKey'    => 'role_id',
+                'thisKey'    => 'user_id', // PK Glue Master
+                'thatKey'    => 'role_id', // PK Glue Slave
             ],
             'timezone'       => [
                 'model'      => 'timezone',
