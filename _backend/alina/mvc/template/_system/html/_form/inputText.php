@@ -1,29 +1,42 @@
 <?php
 /** @var $data stdClass */
-$inputType   = 'text';
+
+use alina\mvc\view\html as htmlAlias;
+use alina\utils\Data;
+use alina\utils\Str;
+
+$type        = $data->type;
 $name        = $data->name;
 $value       = $data->value;
 $placeholder = @$data->placeholder ?: '';
+$_name       = substr(strip_tags($name), 0, 200);
+$_value      = substr(strip_tags(Data::stringify($value)), 0, 200);
 if ($name === 'password') {
-    $value     = '';
-    $inputType = 'password';
+    $value = '';
+    $type  = 'password';
 }
-
-use alina\mvc\view\html as htmlAlias;
-use alina\utils\Str; ?>
+?>
 <div class="form-group mt-3">
     <?= htmlAlias::elBootstrapBadge([
-        'title' => $name,
-        'badge' => $value,
+        'title' => $_name,
+        'badge' => $_value,
     ]) ?>
-    <input
-        type="<?= $inputType ?>"
-        name="<?= $name ?>"
-        value="<?= $value ?>"
-        placeholder="<?= $placeholder ?>"
-        class="
+    <?php if ($type === 'textarea') { ?>
+        <textarea
+                name="<?= $name ?>"
+                class="form-control"
+                rows="5"
+        ><?= $value ?></textarea>
+    <?php } else { ?>
+        <input
+                type="<?= $type ?>"
+                name="<?= $name ?>"
+                value="<?= $value ?>"
+                placeholder="<?= $placeholder ?>"
+                class="
             <?= Str::ifContains($name, 'date') ? 'datepicker' : '' ?>
             form-control
-        "
-    >
+            "
+        >
+    <?php } ?>
 </div>

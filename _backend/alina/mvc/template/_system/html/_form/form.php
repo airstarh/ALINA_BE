@@ -11,21 +11,30 @@ $model   = $data->model;
 $sources = $data->sources;
 
 // echo '<pre>';
-// print_r($sources);
+// var_export($sources, 0);
 // echo '</pre>';
 
 ?>
 <form action="<?= $action ?>" method="post" enctype="<?= $enctype ?>">
     <?= htmlAlias::elFormStandardButtons([]) ?>
     <?php foreach ($model as $f => $v) { ?>
-        <?php if (isset($sources[$f])) { ?>
+        <?php
+        $_f = substr(strip_tags($f), 0, 200);
+        $_v = substr(strip_tags(Data::stringify($v)), 0, 200);
+        ?>
+        <!--##################################################-->
+        <!--region SELECT-->
+        <?php if (isset($sources[$f]) && $sources[$f]['list']) { ?>
             <?= htmlAlias::elFormSelect([
                 'multiple'    => (isset($sources[$f]['multiple'])) ? $sources[$f]['multiple'] : '',
                 'name'        => $f,
-                'value'       => (Data::isIterable($v)) ? array_keys((array)$v) : $v,
+                'value'       => (Data::isIterable($v)) ? (array)$v : [$v],
                 'options'     => $sources[$f]['list'],
                 'placeholder' => '----------------------',//$f,
             ]) ?>
+            <!--endregion SELECT-->
+            <!--##################################################-->
+            <!--region Simple List-->
         <?php } elseif (Data::isIterable($v)) { ?>
             <div class="form-group mt-3">
                 <?= htmlAlias::elBootstrapBadge([
@@ -34,20 +43,29 @@ $sources = $data->sources;
                 ]) ?>
                 <ul class="list-group">
                     <?php foreach ($v as $i => $d) { ?>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item-dark d-flex justify-content-between align-items-center">
                             (<?= $i ?>) <?= Data::stringify($d) ?>
                         </li>
                     <?php } ?>
                 </ul>
             </div>
+            <!--endregion Simple List-->
+            <!--##################################################-->
+            <!--region Input Text-->
         <?php } else { ?>
+            <?php
+            $type = (isset($sources[$f]) && $sources[$f]['type']) ? $sources[$f]['type'] : 'text';
+            ?>
             <?= htmlAlias::elFormInputText([
+                'type'        => $type,
                 'name'        => $f,
                 'value'       => $v,
                 'placeholder' => '',//$f,
             ]) ?>
-
         <?php } ?>
+        <!--endregion Input Text-->
+        <!--##################################################-->
     <?php } ?>
+    <input type="hidden" name="form_id" value="actionEditRow">
     <?= htmlAlias::elFormStandardButtons([]) ?>
 </form>

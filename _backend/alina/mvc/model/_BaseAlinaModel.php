@@ -1058,6 +1058,7 @@ class _BaseAlinaModel
         if (method_exists($this, 'referencesSources')) {
             $referencesSources = $this->referencesSources();
             foreach ($referencesSources as $rName => $sourceConfig) {
+                $sources[$rName] = [];
                 if (isset($sourceConfig['model'])) {
                     $model                   = $sourceConfig['model'];
                     $keyBy                   = $sourceConfig['keyBy'];
@@ -1072,8 +1073,8 @@ class _BaseAlinaModel
                         ->keyBy($keyBy)
                         ->toArray();
                     $sources[$rName]['list'] = $dataSource;
-                    $sources[$rName]         = array_merge($sources[$rName], $sourceConfig);
                 }
+                $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
             }
         }
 

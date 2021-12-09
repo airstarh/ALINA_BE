@@ -232,6 +232,9 @@ class user extends _BaseAlinaModel
                 'human_name' => ['name'],
                 'multiple'   => '',
             ],
+            'about_myself'   => [
+                'type' => 'textarea',
+            ],
         ];
     }
 
