@@ -47,7 +47,6 @@ class AppExceptionCatcher
     public function exception($objException, $forceExit = TRUE)
     {
         AlinaResponseSuccess(0);
-        Message::setDanger('!!!');
         ##################################################
         #region Clean buffer
         # @link https://stackoverflow.com/a/22069460/3142281
