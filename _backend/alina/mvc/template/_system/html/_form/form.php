@@ -28,7 +28,7 @@ $sources = $data->sources;
                 'name'        => $f,
                 'value'       => (Data::isIterable($v)) ? (array)$v : [$v],
                 'options'     => $sources[$f]['list'],
-                'placeholder' => '----------------------',//$f,
+                'placeholder' => '¯\_(ツ)_/¯',//$f,
             ]) ?>
             <!--endregion SELECT-->
             <!--##################################################-->
