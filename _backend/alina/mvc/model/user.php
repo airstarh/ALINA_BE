@@ -321,7 +321,7 @@ class user extends _BaseAlinaModel
                 }
             }
         }
-        _baseAlinaEloquentTransaction::begin();
+        _baseAlinaEloquentTransaction::commit();
 
         return $this;
     }
