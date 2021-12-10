@@ -286,15 +286,8 @@ class user extends _BaseAlinaModel
                         $arrNewChildPkValues = [];
                         ####################
                         # Preparation
-                        // ToDo: Simplify to clear empty values.
-                        $arrPostedChildIds = $data->{$refName} ?? [];
-                        if (isset($arrPostedChildIds) && count($arrPostedChildIds) > 0) {
-                            foreach ($arrPostedChildIds as $postedChildId) {
-                                if (!empty($postedChildId)) {
-                                    $arrNewChildPkValues[] = $postedChildId;
-                                }
-                            }
-                        }
+                        $arrPostedChildIds   = $data->{$refName} ?? [];
+                        $arrNewChildPkValues = Data::deleteEmptyProps($arrPostedChildIds);
                         ####################
                         # DELETE
                         $q = $mGlueTable->q();
