@@ -286,8 +286,21 @@ class user extends _BaseAlinaModel
                         $arrNewChildPkValues = [];
                         ####################
                         # Preparation
-                        $arrPostedChildIds   = $data->{$refName} ?? [];
-                        $arrNewChildPkValues = Data::deleteEmptyProps($arrPostedChildIds);
+                        $arrPostedChildIds = $data->{$refName} ?? [];
+                        $ids               = [];
+                        foreach ($arrPostedChildIds as $v) {
+                            if (is_object($v)) {
+                                $id = $v->id;
+                            }
+                            elseif (is_array($v)) {
+                                $id = $v['id'];
+                            }
+                            else {
+                                $id = $v;
+                            }
+                            $ids[] = $id;
+                        }
+                        $arrNewChildPkValues = Data::deleteEmptyProps($ids);
                         ####################
                         # DELETE
                         $q = $mGlueTable->q();
