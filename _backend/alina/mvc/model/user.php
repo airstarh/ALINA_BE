@@ -266,28 +266,62 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
+        _baseAlinaEloquentTransaction::begin();
         //ToDo: Security
-        return $this;
         if (!AlinaAccessIfAdmin()) {
             return $this;
         }
-        $referencesSources = $this->referencesTo();
-        foreach ($referencesSources as $cfgName => $srcCfg) {
-            if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {
-                if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
-                    $m = modelNamesResolver::getModelObject($cfgName);
-                    $m->delete([
-                        [$srcCfg['thisKey'], '=', $data->{$this->pkName}],
-                    ]);
-                    foreach ($data->{$cfgName} as $thatKey) {
-                        $m->insert([
-                            $srcCfg['thisKey'] => $data->{$this->pkName},
-                            $srcCfg['thatKey'] => $thatKey,
-                        ]);
+        $refCfg = $this->referencesTo();
+        foreach ($refCfg as $refName => $cfg) {
+            if (isset($cfg['multiple']) && $cfg['multiple']) {
+                if (isset($cfg['apply'])) {
+                    if (isset($data->{$refName}) && !empty($data->{$refName})) {
+                        ####################
+                        # Definitions
+                        $glueTable           = $cfg['apply']['glueTable'];
+                        $glueMasterPk        = $cfg['apply']['glueMasterPk'];
+                        $pkMasterValue       = $this->attributes->{$this->pkName};
+                        $glueChildPk         = $cfg['apply']['glueChildPk'];
+                        $mGlueTable          = modelNamesResolver::getModelObject($glueTable);
+                        $arrNewChildPkValues = [];
+                        ####################
+                        # Preparation
+                        // ToDo: Simplify to clear empty values.
+                        $arrPostedChildIds = $data->{$refName} ?? [];
+                        if (isset($arrPostedChildIds) && count($arrPostedChildIds) > 0) {
+                            foreach ($arrPostedChildIds as $postedChildId) {
+                                if (!empty($postedChildId)) {
+                                    $arrNewChildPkValues[] = $postedChildId;
+                                }
+                            }
+                        }
+                        ####################
+                        # DELETE
+                        $q = $mGlueTable->q();
+                        $q->where($glueMasterPk, '=', $pkMasterValue);
+                        $q->whereNotIn($glueChildPk, $arrNewChildPkValues);
+                        $q->delete();
+                        ####################
+                        # SELECT
+                        $q = $mGlueTable->q();
+                        $q->select($glueChildPk);
+                        $q->where($glueMasterPk, '=', $pkMasterValue);
+                        $currChildIds = $q->pluck($glueChildPk)->toArray();
+                        ####################
+                        # INSERT
+                        foreach ($arrNewChildPkValues as $newChildId) {
+                            if (!in_array($newChildId, $currChildIds)) {
+                                $mGlueTable->insert([
+                                    $glueMasterPk => $pkMasterValue,
+                                    $glueChildPk  => $newChildId,
+                                ]);
+                            }
+                        }
                     }
                 }
             }
         }
+        _baseAlinaEloquentTransaction::begin();
 
         return $this;
     }
