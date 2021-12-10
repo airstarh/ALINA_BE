@@ -141,19 +141,19 @@ class AdminDbManager
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
     }
 
-    public function actionEditRow($modelName, $id)
+    public function actionEditRow($modelName, $id = null)
     {
         try {
             $vd          = (object)[];
             $m           = modelNamesResolver::getModelObject($modelName);
             $vd->model   = $m;
             $vd->sources = $m->getReferencesSources();
-            $m->getAllWithReferences();
+            $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
             ##################################################
             $p = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
             if (!empty((array)$p)) {
                 $m->upsert($p);
-                $m->getAllWithReferences();
+                $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
             }
             ##################################################
         } catch (\Exception $e) {

@@ -28,6 +28,9 @@ class referenceProcessor
                     continue;
                 }
             }
+            if (!isset($rConfig['has'])) {
+                continue;
+            }
             switch ($rConfig['has']) {
                 case 'one':
                 case 1:
@@ -65,6 +68,9 @@ class referenceProcessor
                 if (!in_array($rName, $refNames, TRUE)) {
                     continue;
                 }
+            }
+            if (!isset($rConfig['has'])) {
+                continue;
             }
             switch ($rConfig['has']) {
                 case 'many':

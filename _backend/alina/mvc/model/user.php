@@ -149,9 +149,22 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'rbac_user_role'  => [
-                //'keyBy'      => 'id', //ToDo: Hardcoded, not involved
+            'rbac_user_role'  => [ // Glue Table
                 'has'        => 'manyThrough',
+                'multiple'   => TRUE,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'rbac_role',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['name'],
+                    'glueTable'      => 'rbac_user_role',
+                    'gluePk'         => 'id',
+                    'glueMasterPk'   => 'user_id',
+                    'glueChildPk'    => 'role_id',
+                ],
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role AS child', 'child.id', '=', 'glue.role_id'],
@@ -163,6 +176,11 @@ class user extends _BaseAlinaModel
             ],
             'rbac_permission' => [
                 'has'        => 'manyThrough',
+                ##############################
+                # for Edit Form
+                # ToDo ...
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role_permission AS glue2', 'glue2.role_id', '=', 'glue.role_id'],
@@ -173,19 +191,31 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
-            // 'timezone'        => [
-            //     'has'        => 'one',
-            //     'joins'      => [
-            //         ['leftJoin', 'timezone AS child', 'child.id', '=', "{$this->alias}.timezone"],
-            //     ],
-            //     'conditions' => [],
-            //     'addSelects' => [
-            //         ['addSelect', ['child.name AS timezone_name']],
-            //     ],
-            // ],
+            'timezone'        => [
+                'has'        => 'one',
+                'multiple'   => FALSE,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'timezone',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['name'],
+                    'masterChildPk'  => 'timezone',
+                ],
+                ##############################
+                # for Select With References
+                'joins'      => [
+                    ['leftJoin', 'timezone AS timezone', 'timezone.id', '=', "{$this->alias}.timezone"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    ['addSelect', ['timezone.name AS timezone_name']],
+                ],
+            ],
             'file'            => [
                 'has'        => 'many',
-                'model'      => 'file',
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['join', 'file AS child', 'child.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                 ],
@@ -198,6 +228,8 @@ class user extends _BaseAlinaModel
             ],
             'tag'             => [
                 'has'        => 'manyThrough',
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'tag AS child', 'child.id', '=', 'glue.tag_id'],
@@ -212,25 +244,10 @@ class user extends _BaseAlinaModel
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
-        ];
-    }
-
-    public function referencesSources()
-    {
-        return [
-            'rbac_user_role' => [
-                'model'      => 'rbac_role',
-                'keyBy'      => 'id',
-                'human_name' => ['name'],
-                'multiple'   => 'multiple',
-                'thisKey'    => 'user_id',
-                'thatKey'    => 'role_id',
-            ],
-            'timezone'       => [
-                'model'      => 'timezone',
-                'keyBy'      => 'id',
-                'human_name' => ['name'],
-                'multiple'   => '',
+            'about_myself'    => [
+                ##############################
+                # for Edit Form
+                'type' => 'textarea',
             ],
         ];
     }
@@ -249,28 +266,55 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
+        _baseAlinaEloquentTransaction::begin();
         //ToDo: Security
-        return $this;
         if (!AlinaAccessIfAdmin()) {
             return $this;
         }
-        $referencesSources = $this->referencesSources();
-        foreach ($referencesSources as $cfgName => $srcCfg) {
-            if (isset($srcCfg['multiple']) && !empty($srcCfg['multiple'])) {
-                if (isset($data->{$cfgName}) && !empty($data->{$cfgName})) {
-                    $m = modelNamesResolver::getModelObject($cfgName);
-                    $m->delete([
-                        [$srcCfg['thisKey'], '=', $data->{$this->pkName}],
-                    ]);
-                    foreach ($data->{$cfgName} as $thatKey) {
-                        $m->insert([
-                            $srcCfg['thisKey'] => $data->{$this->pkName},
-                            $srcCfg['thatKey'] => $thatKey,
-                        ]);
+        $refCfg = $this->referencesTo();
+        foreach ($refCfg as $refName => $cfg) {
+            if (isset($cfg['multiple']) && $cfg['multiple']) {
+                if (isset($cfg['apply'])) {
+                    if (isset($data->{$refName}) && !empty($data->{$refName})) {
+                        ####################
+                        # Definitions
+                        $glueTable           = $cfg['apply']['glueTable'];
+                        $glueMasterPk        = $cfg['apply']['glueMasterPk'];
+                        $glueChildPk         = $cfg['apply']['glueChildPk'];
+                        $pkValue             = $this->attributes->{$this->pkName};
+                        $mGlueTable          = modelNamesResolver::getModelObject($glueTable);
+                        $arrNewChildPkValues = [];
+                        ####################
+                        # Preparation
+                        $arrPostedChildIds   = $data->{$refName} ?? [];
+                        $arrNewChildPkValues = Data::deleteEmptyProps($arrPostedChildIds);
+                        ####################
+                        # DELETE
+                        $q = $mGlueTable->q();
+                        $q->where($glueMasterPk, '=', $pkValue);
+                        $q->whereNotIn($glueChildPk, $arrNewChildPkValues);
+                        $q->delete();
+                        ####################
+                        # SELECT
+                        $q = $mGlueTable->q();
+                        $q->select($glueChildPk);
+                        $q->where($glueMasterPk, '=', $pkValue);
+                        $currChildIds = $q->pluck($glueChildPk)->toArray();
+                        ####################
+                        # INSERT
+                        foreach ($arrNewChildPkValues as $newChildId) {
+                            if (!in_array($newChildId, $currChildIds)) {
+                                $mGlueTable->insert([
+                                    $glueMasterPk => $pkValue,
+                                    $glueChildPk  => $newChildId,
+                                ]);
+                            }
+                        }
                     }
                 }
             }
         }
+        _baseAlinaEloquentTransaction::commit();
 
         return $this;
     }

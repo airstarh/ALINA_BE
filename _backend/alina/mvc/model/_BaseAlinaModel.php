@@ -51,14 +51,15 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    public $mode                   = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $state_DATA_FILTERED    = FALSE;
-    public $state_DATA_VALIDATED   = FALSE;
-    public $state_AFFECTED_ROWS    = NULL;
-    public $matchedUniqueFields    = [];
-    public $matchedConditions      = [];
-    public $addAuditInfo           = FALSE;
-    public $state_APPLY_GET_PARAMS = FALSE;
+    public $mode                        = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $state_DATA_FILTERED         = FALSE;
+    public $state_DATA_VALIDATED        = FALSE;
+    public $state_AFFECTED_ROWS         = NULL;
+    public $state_EXCLUDE_COUNT_REQUEST = FALSE;
+    public $matchedUniqueFields         = [];
+    public $matchedConditions           = [];
+    public $addAuditInfo                = FALSE;
+    public $state_APPLY_GET_PARAMS      = FALSE;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -98,7 +99,8 @@ class _BaseAlinaModel
 
     public function getOne($conditions = [])
     {
-        $data = $this->q()->where($conditions)->first();
+        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $data                              = $this->q()->where($conditions)->first();
         if (empty($data)) {
             $data = (object)[];
         }
@@ -106,6 +108,7 @@ class _BaseAlinaModel
         if ($this->attributes->{$this->pkName}) {
             $this->setPkValue($this->attributes->{$this->pkName});
         }
+        $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
 
         return $this->attributes;
     }
@@ -201,7 +204,13 @@ class _BaseAlinaModel
     {
         $q = $this->q;
         //COUNT
-        $this->state_ROWS_TOTAL = $q->count();
+        if ($this->state_EXCLUDE_COUNT_REQUEST) {
+            $this->state_ROWS_TOTAL            = 1;
+            $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
+        }
+        else {
+            $this->state_ROWS_TOTAL = $q->count();
+        }
         //ORDER
         $this->qApiOrder($backendSortArray);
         //LIMIT / OFFSET
@@ -227,7 +236,8 @@ class _BaseAlinaModel
     //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
-        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
+        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
         if (empty($attributes)) {
             $attributes = (object)[];
         }
@@ -507,7 +517,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset(int $backendLimit = NULL, int $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
     {
         #####
         if ($backendLimit !== NULL) {
@@ -1020,6 +1030,13 @@ class _BaseAlinaModel
         return $this;
     }
 
+    protected function applyQueryOperations($q, array $operations)
+    {
+        foreach ($operations as $operation) {
+            $method = array_shift($operation);
+            call_user_func_array([$q, $method], $operation);
+        }
+    }
     #endregion Helpers
     ##################################################
     #region relations
@@ -1047,33 +1064,32 @@ class _BaseAlinaModel
     }
 
     ##################################################
-    protected function referencesSources()
-    {
-        return [];
-    }
-
     public function getReferencesSources()
     {
         $sources = [];
-        if (method_exists($this, 'referencesSources')) {
-            $referencesSources = $this->referencesSources();
+        if (method_exists($this, 'referencesTo')) {
+            $referencesSources = $this->referencesTo();
             foreach ($referencesSources as $rName => $sourceConfig) {
-                if (isset($sourceConfig['model'])) {
-                    $model                   = $sourceConfig['model'];
-                    $keyBy                   = $sourceConfig['keyBy'];
-                    $human_name              = $sourceConfig['human_name'];
-                    $m                       = modelNamesResolver::getModelObject($model);
-                    $dataSource              = $m
-                        ->q()
-                        ->addSelect($keyBy)
-                        ->addSelect($human_name)
-                        ->orderBy($keyBy, 'ASC')
-                        ->get()
-                        ->keyBy($keyBy)
-                        ->toArray();
+                $sources[$rName] = [];
+                if (isset($sourceConfig['apply'])) {
+                    $childTable   = $sourceConfig['apply']['childTable'];
+                    $childPk      = $sourceConfig['apply']['childPk'];
+                    $arrHumanName = $sourceConfig['apply']['childHumanName'];
+                    $conditions   = $sourceConfig['conditions'] ?? [];
+                    #####
+                    $m = modelNamesResolver::getModelObject($childTable);
+                    $q = $m->q();
+                    $q->addSelect($childPk);
+                    $q->addSelect($arrHumanName);
+                    $q->orderBy($childPk, 'ASC');
+                    // ToDo: $this->applyQueryOperations($q, $conditions);
+                    $dataSource              =
+                        $q->get()
+                            ->keyBy($childPk)
+                            ->toArray();
                     $sources[$rName]['list'] = $dataSource;
-                    $sources[$rName]         = array_merge($sources[$rName], $sourceConfig);
                 }
+                $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
             }
         }
 
