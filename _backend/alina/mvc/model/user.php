@@ -280,8 +280,8 @@ class user extends _BaseAlinaModel
                         # Definitions
                         $glueTable           = $cfg['apply']['glueTable'];
                         $glueMasterPk        = $cfg['apply']['glueMasterPk'];
-                        $pkMasterValue       = $this->attributes->{$this->pkName};
                         $glueChildPk         = $cfg['apply']['glueChildPk'];
+                        $pkValue             = $this->attributes->{$this->pkName};
                         $mGlueTable          = modelNamesResolver::getModelObject($glueTable);
                         $arrNewChildPkValues = [];
                         ####################
@@ -298,21 +298,21 @@ class user extends _BaseAlinaModel
                         ####################
                         # DELETE
                         $q = $mGlueTable->q();
-                        $q->where($glueMasterPk, '=', $pkMasterValue);
+                        $q->where($glueMasterPk, '=', $pkValue);
                         $q->whereNotIn($glueChildPk, $arrNewChildPkValues);
                         $q->delete();
                         ####################
                         # SELECT
                         $q = $mGlueTable->q();
                         $q->select($glueChildPk);
-                        $q->where($glueMasterPk, '=', $pkMasterValue);
+                        $q->where($glueMasterPk, '=', $pkValue);
                         $currChildIds = $q->pluck($glueChildPk)->toArray();
                         ####################
                         # INSERT
                         foreach ($arrNewChildPkValues as $newChildId) {
                             if (!in_array($newChildId, $currChildIds)) {
                                 $mGlueTable->insert([
-                                    $glueMasterPk => $pkMasterValue,
+                                    $glueMasterPk => $pkValue,
                                     $glueChildPk  => $newChildId,
                                 ]);
                             }
