@@ -53,7 +53,9 @@ $i = 0;
                     >
                         <input type="hidden" name="form_id" value="<?= $formId ?>"/>
                         <input type="hidden" name="id" value="<?= $mUser->id ?>"/>
+                        <a href="/admindbmanager/editrow/user/<?= $mUser->id ?>">
                         <?= $mUser->id ?>
+                        </a>
                     </form>
                 </td>
                 <td><input form="<?= $formId ?>" type="text" class="form-control" name="mail" value="<?= $mUser->mail ?>"/></td>
