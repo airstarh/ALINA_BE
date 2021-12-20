@@ -109,8 +109,6 @@ class tale extends _BaseAlinaModel
     ##################################################
     public function referencesTo()
     {
-        $_this = $this;
-
         return [
             'owner'        => [
                 'has'        => 'one',
@@ -159,20 +157,12 @@ class tale extends _BaseAlinaModel
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
-            // 'comments' => [
-            //     'has'        => 'many',
-            //     'joins'      => [
-            //         ['join', 'tale AS child', 'child.answer_to_tale_id', '=', "{$this->alias}.{$this->pkName}"],
-            //     ],
-            //     'conditions' => [
-            //     ],
-            //     'orders'     => [
-            //         ['orderBy', 'child.publish_at', 'ASC'],
-            //     ],
-            //     'addSelects' => [
-            //         ['addSelect', ['child.*', 'child.id AS child_id', "{$this->alias}.{$this->pkName} AS main_id"]],
-            //     ],
-            // ],
+            'body'         => [
+                'type' => 'textarea',
+            ],
+            'body_txt'     => [
+                'type' => 'readonly',
+            ],
         ];
     }
 

@@ -517,7 +517,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, $backendVersa = FALSE): BuilderAlias
     {
         #####
         if ($backendLimit !== NULL) {

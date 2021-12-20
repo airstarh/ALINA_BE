@@ -6,7 +6,7 @@ use alina\mvc\view\html as htmlAlias;
 $i = 0;
 ?>
 <h1>User Manager</h1>
-<?= (new htmlAlias)->piece('_system/html/_form/table002.php', [$data->pagination]) ?>
+<?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $data->pagination) ?>
 
 <div class="table-responsive">
     <table class="table table-striped table-hover  table-dark">

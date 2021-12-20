@@ -2,7 +2,10 @@
 
 namespace alina\mvc\controller;
 
+use alina\App;
 use alina\Message;
+use alina\mvc\model\_BaseAlinaModel;
+use alina\mvc\model\modelNamesResolver;
 use alina\mvc\model\rbac_role;
 use alina\mvc\model\rbac_user_role;
 use alina\mvc\model\user;
@@ -15,6 +18,41 @@ class Admin
     public function __construct()
     {
         AlinaRejectIfNotAdmin();
+    }
+
+    ##################################################
+    public function actionModels($model)
+    {
+        $vd    = (object)[];
+        $model = modelNamesResolver::getModelObject($model);
+        ########################################
+        if (Request::isPost()) {
+            $post = Data::deleteEmptyProps(Request::obj()->POST);
+            switch ($post->action) {
+                case 'update':
+                    $model->updateById($post);
+                    break;
+                case 'delete':
+                    $id = $model->{$model->pkName};
+                    $model->deleteById($id);
+                    break;
+            }
+        }
+        ########################################
+        #region Models
+        $model->state_APPLY_GET_PARAMS  = TRUE;
+        $processResponse                = $this->processResponse($model);
+        $collection                     = $processResponse['collection'];
+        $pagination                     = $processResponse['pagination'];
+        $vd->pagination                 = $pagination;
+        $vd->pagination->path           = "/admin/models/{$model->table}";
+        $vd->pagination->flagHrefAsPath = FALSE;
+        $vd->model                      = $model;
+        $vd->models                     = $collection->toArray();
+        $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
+        #endregion Models
+        ########################################
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
     }
 
     ##################################################
@@ -38,14 +76,17 @@ class Admin
         }
         ########################################
         #region Users
-        $conditions      = [];
-        $sort[]          = ["user.id", 'ASC'];
-        $processResponse = $this->processResponse($conditions, $sort, $pageSze, $page);
-        $collection      = $processResponse['collection'];
-        $pagination      = $processResponse['pagination'];
-        $vd->pagination  = $pagination;
-        $vd->users       = $collection->toArray();
-        $vd->users = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
+        $model                          = new user();
+        $conditions                     = [];
+        $sort[]                         = ["user.id", 'ASC'];
+        $processResponse                = $this->processResponse($model, $conditions, $sort, $pageSze, $page);
+        $collection                     = $processResponse['collection'];
+        $pagination                     = $processResponse['pagination'];
+        $vd->pagination                 = $pagination;
+        $vd->pagination->path           = "/admin/users";
+        $vd->pagination->flagHrefAsPath = TRUE;
+        $vd->users                      = $collection->toArray();
+        $vd->users                      = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Users
         ########################################
         #egion Roles
@@ -57,9 +98,18 @@ class Admin
     }
 
     ##################################################
-    protected function processResponse($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1, $paginationVersa = FALSE)
+
+    /**
+     * @param $model _BaseAlinaModel
+     * @param $conditions
+     * @param $sort
+     * @param $pageSize
+     * @param $pageCurrentNumber
+     * @param $paginationVersa
+     * @return array
+     */
+    protected function processResponse($model, $conditions = [], $sort = [], $pageSize = NULL, $pageCurrentNumber = NULL, $paginationVersa = FALSE)
     {
-        $model      = new user();
         $q          = $model->getAllWithReferencesPart1($conditions);
         $collection = $model->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
         $pagination = (object)[

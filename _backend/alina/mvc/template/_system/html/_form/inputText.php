@@ -5,6 +5,10 @@ use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
 use alina\utils\Str;
 
+// echo '<pre>';
+// var_export($data, 0);
+// echo '</pre>';
+
 $type        = $data->type;
 $name        = $data->name;
 $value       = $data->value;
