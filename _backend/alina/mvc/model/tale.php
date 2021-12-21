@@ -11,6 +11,7 @@ class tale extends _BaseAlinaModel
     public $table          = 'tale';
     public $ownerId_root   = NULL;
     public $ownerId_answer = NULL;
+    public $sortDefault    = [['publish_at', 'DESC']];
 
     public function fields()
     {

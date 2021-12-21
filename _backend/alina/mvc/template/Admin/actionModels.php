@@ -3,12 +3,17 @@
 use alina\Message;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Request as RequestAlias;
+use alina\utils\Url;
 
 /** @var $data stdClass */
-$pagination = $data->pagination;
-$models     = $data->models;
-$model      = $data->model;
-$counter    = 0;
+/** @var $model \alina\mvc\model\_BaseAlinaModel */
+$pagination   = $data->pagination;
+$models       = $data->models;
+$model        = $data->model;
+$counter      = 0;
+$formIdSearch = 'formIdSearch';
+$GET          = \alina\utils\Request::obj()->GET;
 if (count($models) <= 0) {
     Message::setWarning('There is no table data.');
 
@@ -16,17 +21,55 @@ if (count($models) <= 0) {
 }
 $colHeaders = array_keys((array)$models[0]);
 ?>
-<h1>Models</h1>
+<h1>Models <?= $model->table ?> <?= $pagination->rowsTotal ?></h1>
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
 
 <div class="table-responsive">
-  <table class="table table-striped table-hover  table-dark">
+  <table class="table-sm table-striped table-hover  table-dark">
     <thead>
     <tr>
       <td></td>
-        <?php foreach ($colHeaders as $h) { ?>
-          <th>
+        <?php foreach ($colHeaders as $h) {
+            #####
+            $nameSortField = $h;
+            if ($model->tableHasField($h)) {
+                $nameSortField = "{$model->table}.{$h}";
+            }
+            #####
+            $clasAsc  = '';
+            $clasDesc = '';
+            if (isset($GET->sn) && isset($GET->sa)) {
+                $clasAsc  = $GET->sn == $nameSortField && $GET->sa == 1 ? 'btn-info' : '';
+                $clasDesc = $GET->sn == $nameSortField && $GET->sa == 0 ? 'btn-info' : '';
+            }
+            #####
+            ?>
+          <th class="text-nowrap">
+            <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 1,]) ?>" class="btn <?= $clasAsc ?>">▲</a>
               <?= $h ?>
+            <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 0,]) ?>" class="btn <?= $clasDesc ?>">▼</a>
+          </th>
+        <?php } ?>
+    </tr>
+    <tr>
+      <td>
+        <form
+          id="<?= $formIdSearch ?>"
+          action=""
+          method="get"
+        >
+          <input type="hidden" name="form_id" value="<?= $formIdSearch ?>"/>
+          <button type="submit" class="btn btn-sm btn-info m-1">Search</button>
+          <br>
+          <a class="btn btn-sm btn-warning m-1" href="<?= RequestAlias::obj()->URL_PATH ?>">Reset</a>
+        </form>
+      </td>
+        <?php foreach ($colHeaders as $h) {
+            $fNameLk  = "lk_{$h}";
+            $fValueLk = $GET->{$fNameLk} ?? '';
+            ?>
+          <th>
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>">
           </th>
         <?php } ?>
     </tr>

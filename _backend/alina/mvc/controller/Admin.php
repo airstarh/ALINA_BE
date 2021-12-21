@@ -34,7 +34,12 @@ class Admin
                     break;
                 case 'delete':
                     $id = $model->{$model->pkName};
-                    $model->deleteById($id);
+                    if (method_exists($model, 'bizDelete')) {
+                        $model->bizDelete($id);
+                    }
+                    else {
+                        $model->deleteById($id);
+                    }
                     break;
             }
         }

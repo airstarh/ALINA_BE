@@ -3,11 +3,8 @@
 
 use alina\utils\Data;
 use alina\utils\Request;
-use function addGetFromObject as addGetFromObjectAlias;
+use \alina\utils\Url;
 
-echo '<pre>';
-var_export($data, 0);
-echo '</pre>';
 $pageCurrentNumber = $data->pageCurrentNumber;
 $pageSize          = $data->pageSize;
 $pagesTotal        = $data->pagesTotal;
@@ -24,16 +21,11 @@ foreach ($arrPages as $p) {
         $href = "{$path}/{$pageSize}/{$p}";
     }
     else {
-        $curGet = Request::obj()->GET;
-        if (property_exists($curGet, 'alinapath')) {
-            unset($curGet->alinapath);
-        }
-        $newGet = Data::mergeObjects(Request::obj()->GET, (object)['p' => $p, 'ps' => $pageSize,]);
-        $href   = \alina\utils\Url::addGetFromObject($path, $newGet);
+        $href = Url::bizAddGetParamsToCurrentState('', ['p' => $p, 'ps' => $pageSize,]);
     }
     ?>
   <a
     href="<?= $href ?>"
-    class="btn btn-sm btn-info"
-  ><?= $href ?></a>
+    class="btn btn-sm m-1 <?= $p == $pageCurrentNumber ? 'btn-info' : 'btn-dark' ?>"
+  ><?= $p ?></a>
 <?php } ?>

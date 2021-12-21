@@ -233,7 +233,6 @@ class _BaseAlinaModel
         return $res;
     }
 
-    //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
@@ -470,13 +469,14 @@ class _BaseAlinaModel
         #####
         if (isset($backendSortArray) && !empty($backendSortArray)) {
             $sortArray = $backendSortArray;
-        } #####
+        }
         else {
-            // User Defined Sort parameters.
-            $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
-            if (empty($sortArray)) {
-                $sortArray = $this->sortDefault;
+            if ($this->state_APPLY_GET_PARAMS) {
+                $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
             }
+        }
+        if (empty($sortArray)) {
+            $sortArray = $this->sortDefault;
         }
         $this->qOrderByArray($sortArray);
 
@@ -503,7 +503,7 @@ class _BaseAlinaModel
                 //ToDo: Validate all necessary parameters.
                 continue;
             }
-            list($field, $direction) = $orderBy;
+            [$field, $direction] = $orderBy;
             $q->orderBy($field, $direction);
         }
 
@@ -971,6 +971,9 @@ class _BaseAlinaModel
         //ToDo: Check $q, $this->o_GET emptiness.
         $q = $this->q;
         foreach ($this->o_GET as $f => $v) {
+            if (empty($v)) {
+                continue;
+            }
             $t = $this->alias;
             //The simplest search case.
             if ($this->tableHasField($f)) {
