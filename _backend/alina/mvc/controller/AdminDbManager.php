@@ -2,20 +2,20 @@
 
 namespace alina\mvc\controller;
 
-use alina\App;
 use alina\Message;
 use alina\mvc\model\DataPlayer;
 use alina\mvc\model\modelNamesResolver;
-use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
+use alina\traits\RequestProcessor;
 use alina\utils\Data;
 use alina\utils\db\mysql\DbManager;
 use alina\utils\Request;
 use alina\utils\Sys;
-use PDO;
 
 class AdminDbManager
 {
+    use RequestProcessor;
+
     public function __construct()
     {
         AlinaRejectIfNotAdmin();
@@ -141,7 +141,46 @@ class AdminDbManager
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
     }
 
-    public function actionEditRow($modelName, $id = null)
+    public function actionModels($model)
+    {
+        $vd    = (object)[];
+        $model = modelNamesResolver::getModelObject($model);
+        ########################################
+        if (Request::isPost()) {
+            $post = Data::deleteEmptyProps(Request::obj()->POST);
+            switch ($post->action) {
+                case 'update':
+                    $model->updateById($post);
+                    break;
+                case 'delete':
+                    $id = $model->{$model->pkName};
+                    if (method_exists($model, 'bizDelete')) {
+                        $model->bizDelete($id);
+                    }
+                    else {
+                        $model->deleteById($id);
+                    }
+                    break;
+            }
+        }
+        ########################################
+        #region Models
+        $model->state_APPLY_GET_PARAMS  = TRUE;
+        $processResponse                = $this->processGetModelList($model);
+        $collection                     = $processResponse['collection'];
+        $pagination                     = $processResponse['pagination'];
+        $vd->pagination                 = $pagination;
+        $vd->pagination->path           = "/admin/models/{$model->table}";
+        $vd->pagination->flagHrefAsPath = FALSE;
+        $vd->model                      = $model;
+        $vd->models                     = $collection->toArray();
+        $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
+        #endregion Models
+        ########################################
+        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
+    }
+
+    public function actionEditRow($modelName, $id = NULL)
     {
         try {
             $vd          = (object)[];
