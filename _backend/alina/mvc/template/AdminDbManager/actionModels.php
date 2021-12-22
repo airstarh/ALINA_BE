@@ -18,9 +18,10 @@ $formIdSearch = 'formIdSearch';
 $GET          = \alina\utils\Request::obj()->GET;
 if (count($models) <= 0) {
     Message::setWarning('There is no table data.');
-    //AlinaRedirectIfNotAjax(Request::obj()->URL_PATH);
+    $models = [$model->fields()];
 
-    return '';
+    //AlinaRedirectIfNotAjax(Request::obj()->URL_PATH);
+    //return '';
 }
 $colHeaders = array_keys((array)$models[0]);
 ?>
@@ -68,18 +69,32 @@ $colHeaders = array_keys((array)$models[0]);
         </form>
       </td>
         <?php foreach ($colHeaders as $h) {
-            $fNameLk     = "lk_{$h}";
-            $fValueLk    = $GET->{$fNameLk} ?? '';
-            $fNameEq     = "eq_{$h}";
-            $fValueEq    = $GET->{$fNameEq} ?? '';
-            $fNameNotLk  = "notlk_{$h}";
-            $fValueNotLk = $GET->{$fNameNotLk} ?? '';
-            $fNameGt     = "ggt_{$h}";
-            $fValueGt    = $GET->{$fNameGt} ?? '';
-            $fNameLt     = "llt_{$h}";
-            $fValueLt    = $GET->{$fNameLt} ?? '';
+            $fNameLk      = "lk_{$h}";
+            $fValueLk     = $GET->{$fNameLk} ?? '';
+            $fNameEq      = "eq_{$h}";
+            $fValueEq     = $GET->{$fNameEq} ?? '';
+            $fNameNotLk   = "notlk_{$h}";
+            $fValueNotLk  = $GET->{$fNameNotLk} ?? '';
+            $fNameGt      = "ggt_{$h}";
+            $fValueGt     = $GET->{$fNameGt} ?? '';
+            $fNameLt      = "llt_{$h}";
+            $fValueLt     = $GET->{$fNameLt} ?? '';
+            $fNameEmp     = "emp_{$h}";
+            $fValueEmp    = $GET->{$fNameEmp} ?? '';
+            $fNameNotEmp  = "notemp_{$h}";
+            $fValueNotEmp = $GET->{$fNameNotEmp} ?? '';
             ?>
           <th>
+            <label>
+              <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty">
+              EMPTY
+            </label>
+            <br>
+            <label>
+              <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameNotEmp ?>" value="1" <?= $fValueNotEmp == 1 ? 'checked' : '' ?> placeholder="Empty">
+              NOT EMPTY
+            </label>
+            <br>
             <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE">
             <br>
             <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE">

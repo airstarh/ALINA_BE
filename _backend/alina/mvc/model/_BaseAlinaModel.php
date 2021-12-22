@@ -34,12 +34,14 @@ class _BaseAlinaModel
     public $q;
     public $o_GET        = NULL;
     public $apiOperators = [
-        'llt_'   => '<',
-        'ggt_'   => '>',
-        'eq_'    => '=',
-        'lk_'    => 'LIKE',
-        'notlk_' => 'NOT LIKE',
-        'noteq_' => '!=',
+        'llt_'    => '<',
+        'ggt_'    => '>',
+        'eq_'     => '=',
+        'lk_'     => 'LIKE',
+        'notlk_'  => 'NOT LIKE',
+        'noteq_'  => '!=',
+        'emp_'    => 'IS NULL',
+        'notemp_' => 'IS NULL',
     ];
     #endregion Request
     ##################################################
@@ -1008,7 +1010,15 @@ class _BaseAlinaModel
                                 $q->where("{$t}.{$fName}", 'NOT LIKE', "%{$v}%");
                                 break;
                             case ('noteq_'):
-                                $q->where("{$t}.{$fName}", '!=', "%{$v}%");
+                                $q->where("{$t}.{$fName}", '!=', $v);
+                                break;
+                            case ('emp_'):
+                                // ATTENTION: In MySQL any_string == 0
+                                $q->whereRaw("({$t}.{$fName} = '' OR {$t}.{$fName} IS NULL)");
+                                break;
+                            case ('notemp_'):
+                                // ATTENTION: In MySQL any_string == 0
+                                $q->whereRaw("({$t}.{$fName} != '' OR {$t}.{$fName} IS NOT NULL)");
                                 break;
                         }
                     }
