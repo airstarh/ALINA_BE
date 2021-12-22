@@ -75,7 +75,7 @@ class _BaseAlinaModel
     public $sortName          = NULL;
     public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
-    public $pageSize          = 15;
+    public $pageSize          = 50;
     #endregion Search Parameters
     ##################################################
     #region Constructor
@@ -893,9 +893,6 @@ class _BaseAlinaModel
             if (!empty($v)) {
                 $fields[$v] = [];
             }
-        }
-        if ($this->table === 'tale') {
-            GlobalRequestStorage::set('$items', $items);
         }
 
         return $fields;

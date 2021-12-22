@@ -17,21 +17,22 @@ $counter      = 0;
 $formIdSearch = 'formIdSearch';
 $GET          = \alina\utils\Request::obj()->GET;
 if (count($models) <= 0) {
-    Message::setWarning('There is no table data.');
-    $models = [$model->fields()];
-
+    Message::setDanger('No data.');
+    $models    = [$model->fields()];
+    $models[0] = array_map(function ($el) { return 'NO DATA'; }, $models[0]);
     //AlinaRedirectIfNotAjax(Request::obj()->URL_PATH);
     //return '';
 }
 $colHeaders = array_keys((array)$models[0]);
 ?>
 <h1>Models <?= $model->table ?> <?= $pagination->rowsTotal ?></h1>
+<div class="clear mt-3">&nbsp;</div>
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
-
+<div class="clear mt-3">&nbsp;</div>
 <div class="table-responsive">
   <table class="table-sm table-striped table-hover  table-dark">
     <thead>
-    <tr>
+    <tr class="bg-primary text-dark">
       <td></td>
         <?php foreach ($colHeaders as $h) {
             #####
@@ -43,14 +44,14 @@ $colHeaders = array_keys((array)$models[0]);
             $clasAsc  = '';
             $clasDesc = '';
             if (isset($GET->sn) && isset($GET->sa)) {
-                $clasAsc  = $GET->sn == $nameSortField && $GET->sa == 1 ? 'btn-info' : '';
-                $clasDesc = $GET->sn == $nameSortField && $GET->sa == 0 ? 'btn-info' : '';
+                $clasAsc  = $GET->sn == $nameSortField && $GET->sa == 1 ? 'btn-danger' : '';
+                $clasDesc = $GET->sn == $nameSortField && $GET->sa == 0 ? 'btn-danger' : '';
             }
             #####
             ?>
           <th class="text-nowrap">
             <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 1,]) ?>" class="btn <?= $clasAsc ?>">▲</a>
-              <?= $h ?>
+              <?= mb_strtoupper($h) ?>
             <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 0,]) ?>" class="btn <?= $clasDesc ?>">▼</a>
           </th>
         <?php } ?>
@@ -85,26 +86,25 @@ $colHeaders = array_keys((array)$models[0]);
             $fValueNotEmp = $GET->{$fNameNotEmp} ?? '';
             ?>
           <th>
-            <label>
-              <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty">
-              EMPTY
-            </label>
-            <br>
-            <label>
-              <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameNotEmp ?>" value="1" <?= $fValueNotEmp == 1 ? 'checked' : '' ?> placeholder="Empty">
-              NOT EMPTY
-            </label>
-            <br>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE">
-            <br>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE">
-            <br>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS">
-            <br>
-            <br>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;">
-            <br>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;">
+            <div>
+              <label>
+                <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty" class="">
+                EMPTY
+              </label>
+              <br>
+              <label>
+                <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameNotEmp ?>" value="1" <?= $fValueNotEmp == 1 ? 'checked' : '' ?> placeholder="Not Empty" class="">
+                NOT EMPTY
+              </label>
+              <br>
+              <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE" class="form-control <?= $fValueLk ? 'bg-warning' : '' ?>">
+              <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE" class="form-control <?= $fValueNotLk ? 'bg-warning' : '' ?>">
+              <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS" class="form-control <?= $fValueEq ? 'bg-warning' : '' ?>">
+              <br>
+              <br>
+              <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;" class="form-control <?= $fValueGt ? 'bg-warning' : '' ?>">
+              <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;" class="form-control <?= $fValueLt ? 'bg-warning' : '' ?>">
+            </div>
           </th>
         <?php } ?>
     </tr>

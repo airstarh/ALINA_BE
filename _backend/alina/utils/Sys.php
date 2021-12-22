@@ -330,15 +330,11 @@ class Sys
      */
     static public function SUPER_DEBUG_INFO()
     {
-        $res = array_merge(
-            Request::obj()->TOTAL_DEBUG_DATA(),
-            [
-                'ROUTER' => Alina()->router,
-                'META'   => GlobalRequestStorage::getAll(),
-            ]
-        );
-
-        return $res;
+        return [
+            'REQUEST' => Request::obj()->TOTAL_DEBUG_DATA(),
+            'ROUTER'  => Alina()->router,
+            'META'    => GlobalRequestStorage::getAll(),
+        ];
     }
 
     ##################################################

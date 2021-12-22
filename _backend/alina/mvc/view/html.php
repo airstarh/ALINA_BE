@@ -5,7 +5,6 @@ namespace alina\mvc\view;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
-use alina\mvc\model\CurrentUser;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Sys;
 
@@ -43,7 +42,7 @@ class html
 
     public function page($data = NULL, $htmlLayout = FALSE)
     {
-        GlobalRequestStorage::set('viewData', $data);
+        //GlobalRequestStorage::set('viewData', $data);
         if (Sys::isAjax()) {
             return (new jsonView())->standardRestApiResponse($data);
         }
