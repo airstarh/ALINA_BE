@@ -34,10 +34,12 @@ class _BaseAlinaModel
     public $q;
     public $o_GET        = NULL;
     public $apiOperators = [
-        'lt_' => '<',
-        'gt_' => '>',
-        'eq_' => '=',
-        'lk_' => 'LIKE',
+        'llt_'   => '<',
+        'ggt_'   => '>',
+        'eq_'    => '=',
+        'lk_'    => 'LIKE',
+        'notlk_' => 'NOT LIKE',
+        'noteq_' => '!=',
     ];
     #endregion Request
     ##################################################
@@ -968,10 +970,9 @@ class _BaseAlinaModel
 
     protected function qApplyGetSearchParams()
     {
-        //ToDo: Check $q, $this->o_GET emptiness.
         $q = $this->q;
         foreach ($this->o_GET as $f => $v) {
-            if (empty($v)) {
+            if ($v == '') {
                 continue;
             }
             $t = $this->alias;
@@ -991,10 +992,10 @@ class _BaseAlinaModel
                     $fName = implode('', explode($o, $f, 2));
                     if ($this->tableHasField($fName)) {
                         switch ($o) {
-                            case ('lt_'):
+                            case ('llt_'):
                                 $q->where("{$t}.{$fName}", '<', $v);
                                 break;
-                            case ('gt_'):
+                            case ('ggt_'):
                                 $q->where("{$t}.{$fName}", '>', $v);
                                 break;
                             case ('eq_'):
@@ -1002,6 +1003,12 @@ class _BaseAlinaModel
                                 break;
                             case ('lk_'):
                                 $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
+                                break;
+                            case ('notlk_'):
+                                $q->where("{$t}.{$fName}", 'NOT LIKE', "%{$v}%");
+                                break;
+                            case ('noteq_'):
+                                $q->where("{$t}.{$fName}", '!=', "%{$v}%");
                                 break;
                         }
                     }

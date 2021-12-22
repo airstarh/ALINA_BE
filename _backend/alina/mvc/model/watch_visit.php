@@ -44,6 +44,9 @@ class watch_visit extends _BaseAlinaModel
             'action'       => [
                 'default' => Alina()->router->action,
             ],
+            'suspicious'   => [
+                'default' => 0,
+            ],
             'ajax'         => [
                 'default' => $Request->AJAX,
             ],

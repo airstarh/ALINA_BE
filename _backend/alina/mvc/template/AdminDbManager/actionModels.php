@@ -1,13 +1,15 @@
 <?php
 
 use alina\Message;
+use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\view\html as htmlAlias;
 use alina\utils\Data;
+use alina\utils\Request;
 use alina\utils\Request as RequestAlias;
 use alina\utils\Url;
 
 /** @var $data stdClass */
-/** @var $model \alina\mvc\model\_BaseAlinaModel */
+/** @var $model _BaseAlinaModel */
 $pagination   = $data->pagination;
 $models       = $data->models;
 $model        = $data->model;
@@ -16,6 +18,7 @@ $formIdSearch = 'formIdSearch';
 $GET          = \alina\utils\Request::obj()->GET;
 if (count($models) <= 0) {
     Message::setWarning('There is no table data.');
+    //AlinaRedirectIfNotAjax(Request::obj()->URL_PATH);
 
     return '';
 }
@@ -65,11 +68,28 @@ $colHeaders = array_keys((array)$models[0]);
         </form>
       </td>
         <?php foreach ($colHeaders as $h) {
-            $fNameLk  = "lk_{$h}";
-            $fValueLk = $GET->{$fNameLk} ?? '';
+            $fNameLk     = "lk_{$h}";
+            $fValueLk    = $GET->{$fNameLk} ?? '';
+            $fNameEq     = "eq_{$h}";
+            $fValueEq    = $GET->{$fNameEq} ?? '';
+            $fNameNotLk  = "notlk_{$h}";
+            $fValueNotLk = $GET->{$fNameNotLk} ?? '';
+            $fNameGt     = "ggt_{$h}";
+            $fValueGt    = $GET->{$fNameGt} ?? '';
+            $fNameLt     = "llt_{$h}";
+            $fValueLt    = $GET->{$fNameLt} ?? '';
             ?>
           <th>
-            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>">
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE">
+            <br>
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE">
+            <br>
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS">
+            <br>
+            <br>
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;">
+            <br>
+            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;">
           </th>
         <?php } ?>
     </tr>
