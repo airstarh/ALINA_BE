@@ -36,6 +36,8 @@ class tale extends _BaseAlinaModel
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
+            'body_free'                => [
+            ],
             'created_at'               => [
                 'default' => ALINA_TIME,
             ],
