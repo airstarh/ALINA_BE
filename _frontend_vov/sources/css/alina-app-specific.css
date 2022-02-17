@@ -10,10 +10,9 @@
 }
 
 .corporate-bg-and-text
-, .corporate-bg-and-text *
 {
     background-color: #f5660b;
-    color: #000 !important;
+    color: #000;
 }
 
 .corporate-border-color {
