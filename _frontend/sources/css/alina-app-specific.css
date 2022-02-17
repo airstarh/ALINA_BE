@@ -2,7 +2,7 @@
 /*region Very Special*/
 /*region Definitions*/
 .corporate-color {
-    color: rgba(255, 255, 255, 0.5)
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .corporate-bg {
@@ -10,7 +10,6 @@
 }
 
 .corporate-bg-and-text
-, .corporate-bg-and-text *
 {
     background-color: #8F2DA8;
     color: rgba(255, 255, 255, 0.5);
