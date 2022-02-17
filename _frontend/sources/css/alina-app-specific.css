@@ -9,9 +9,11 @@
     background-color: #8F2DA8
 }
 
-.corporate-bg-and-text {
+.corporate-bg-and-text
+, .corporate-bg-and-text *
+{
     background-color: #8F2DA8;
-    color: rgba(255, 255, 255, 0.5);;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .corporate-border-color {
