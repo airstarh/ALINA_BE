@@ -11,8 +11,7 @@
                 <h1 class="notranslate m-0">
                     <a
                         href="/#/tale/upsert/<?= $data->id ?>"
-                        class="btn-block btn-secondary text-left h2 p-2"
-                        style="background-color: #8F2DA8; color: #fff;"
+                        class="btn-block btn-secondary text-left h2 p-2 corporate-bg-and-text"
                     ><?= $data->header ?: '¯_(ツ)_/¯' ?></a>
                 </h1>
                 <div style="position: absolute; right: 1%; bottom: -1rem; z-index: 10;">

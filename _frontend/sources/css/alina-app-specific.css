@@ -1,10 +1,37 @@
 /* ################################################## */
 /*region Very Special*/
+/*region Definitions*/
+.corporate-color {
+    color: rgba(255, 255, 255, 0.5)
+}
+
+.corporate-bg {
+    background-color: #8F2DA8
+}
+
+.corporate-bg-and-text
+, .corporate-bg-and-text *
+{
+    background-color: #8F2DA8;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.corporate-border-color {
+    border-color: #8F2DA8 !important;
+}
+
+.corporate-svg-fill {
+    fill: #8F2DA8;
+}
+
+/*endregion Definitions*/
 .is_draft {
-    border-right: #8F2DA8 solid 10px;
+    border-right: solid 5px;
 }
+
 .is_sticked {
-    border-top: #8F2DA8 solid 10px;
+    border-top: solid 5px;
 }
+
 /*endregion Very Special*/
 /* ################################################## */
