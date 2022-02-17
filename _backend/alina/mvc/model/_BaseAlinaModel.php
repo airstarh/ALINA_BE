@@ -41,7 +41,7 @@ class _BaseAlinaModel
         'notlk_'  => 'NOT LIKE',
         'noteq_'  => '!=',
         'emp_'    => 'IS NULL',
-        'notemp_' => 'IS NULL',
+        'notemp_' => 'IS NOT NULL',
     ];
     #endregion Request
     ##################################################
