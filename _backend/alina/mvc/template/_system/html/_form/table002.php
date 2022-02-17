@@ -25,5 +25,4 @@ $headers = array_keys((array)$data[0]);
 
         </tbody>
     </table>
-
 </div>

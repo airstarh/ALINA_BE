@@ -179,4 +179,22 @@ class Url
 
         return $res;
     }
+
+    ##################################################
+    static public function bizAddGetParamsToCurrentState($url, $getToAdd)
+    {
+        if (empty($url)) {
+            $url = Request::obj()->URL_PATH;
+        }
+        $getToAdd = (object)$getToAdd;
+        $curGet   = Request::obj()->GET;
+        if (property_exists($curGet, 'alinapath')) {
+            unset($curGet->alinapath);
+        }
+        $newGet = Data::mergeObjects($curGet, (object)$getToAdd);
+        $res    = Url::addGetFromObject($url, $newGet);
+
+        return $res;
+    }
+    ##################################################
 }

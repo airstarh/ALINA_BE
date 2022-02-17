@@ -7,17 +7,21 @@ use alina\mvc\model\rbac_role;
 use alina\mvc\model\rbac_user_role;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
+use alina\traits\RequestProcessor;
 use alina\utils\Data;
 use alina\utils\Request;
 
 class Admin
 {
+    use RequestProcessor;
+
     public function __construct()
     {
         AlinaRejectIfNotAdmin();
     }
 
     ##################################################
+    # region User Related
     public function actionUsers($pageSze = 5, $page = 1)
     {
         $vd = (object)[];
@@ -38,14 +42,17 @@ class Admin
         }
         ########################################
         #region Users
-        $conditions      = [];
-        $sort[]          = ["user.id", 'ASC'];
-        $processResponse = $this->processResponse($conditions, $sort, $pageSze, $page);
-        $collection      = $processResponse['collection'];
-        $pagination      = $processResponse['pagination'];
-        $vd->pagination  = $pagination;
-        $vd->users       = $collection->toArray();
-        $vd->users = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
+        $model                          = new user();
+        $conditions                     = [];
+        $sort[]                         = ["user.id", 'ASC'];
+        $processResponse                = $this->processGetModelList($model, $conditions, $sort, $pageSze, $page);
+        $collection                     = $processResponse['collection'];
+        $pagination                     = $processResponse['pagination'];
+        $vd->pagination                 = $pagination;
+        $vd->pagination->path           = "/admin/users";
+        $vd->pagination->flagHrefAsPath = TRUE;
+        $vd->users                      = $collection->toArray();
+        $vd->users                      = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Users
         ########################################
         #egion Roles
@@ -56,24 +63,6 @@ class Admin
         echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
     }
 
-    ##################################################
-    protected function processResponse($conditions = [], $sort = [], $pageSize = 5, $pageCurrentNumber = 1, $paginationVersa = FALSE)
-    {
-        $model      = new user();
-        $q          = $model->getAllWithReferencesPart1($conditions);
-        $collection = $model->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
-        $pagination = (object)[
-            'pageCurrentNumber' => $model->pageCurrentNumber,
-            'pageSize'          => $model->pageSize,
-            'pagesTotal'        => $model->pagesTotal,
-            'rowsTotal'         => $model->state_ROWS_TOTAL,
-            'paginationVersa'   => $paginationVersa,
-        ];
-
-        return ['collection' => $collection, 'pagination' => $pagination];
-    }
-
-    ##################################################
     private function userSetRoles($post)
     {
         $uid = $post->id;
@@ -110,4 +99,6 @@ class Admin
 
         return $vd;
     }
+    # region User Related
+    ##################################################
 }

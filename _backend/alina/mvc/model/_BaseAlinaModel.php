@@ -34,10 +34,14 @@ class _BaseAlinaModel
     public $q;
     public $o_GET        = NULL;
     public $apiOperators = [
-        'lt_' => '<',
-        'gt_' => '>',
-        'eq_' => '=',
-        'lk_' => 'LIKE',
+        'llt_'    => '<',
+        'ggt_'    => '>',
+        'eq_'     => '=',
+        'lk_'     => 'LIKE',
+        'notlk_'  => 'NOT LIKE',
+        'noteq_'  => '!=',
+        'emp_'    => 'IS NULL',
+        'notemp_' => 'IS NOT NULL',
     ];
     #endregion Request
     ##################################################
@@ -71,7 +75,7 @@ class _BaseAlinaModel
     public $sortName          = NULL;
     public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
-    public $pageSize          = 15;
+    public $pageSize          = 50;
     #endregion Search Parameters
     ##################################################
     #region Constructor
@@ -233,7 +237,6 @@ class _BaseAlinaModel
         return $res;
     }
 
-    //ToDo: see also $this->getOne VERY similar logic
     public function getOneWithReferences($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
@@ -470,13 +473,14 @@ class _BaseAlinaModel
         #####
         if (isset($backendSortArray) && !empty($backendSortArray)) {
             $sortArray = $backendSortArray;
-        } #####
+        }
         else {
-            // User Defined Sort parameters.
-            $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
-            if (empty($sortArray)) {
-                $sortArray = $this->sortDefault;
+            if ($this->state_APPLY_GET_PARAMS) {
+                $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
             }
+        }
+        if (empty($sortArray)) {
+            $sortArray = $this->sortDefault;
         }
         $this->qOrderByArray($sortArray);
 
@@ -503,7 +507,7 @@ class _BaseAlinaModel
                 //ToDo: Validate all necessary parameters.
                 continue;
             }
-            list($field, $direction) = $orderBy;
+            [$field, $direction] = $orderBy;
             $q->orderBy($field, $direction);
         }
 
@@ -517,7 +521,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, bool $backendVersa = FALSE): BuilderAlias
+    protected function qApiLimitOffset($backendLimit = NULL, $backendPageCurrentNumber = NULL, $backendVersa = FALSE): BuilderAlias
     {
         #####
         if ($backendLimit !== NULL) {
@@ -890,9 +894,6 @@ class _BaseAlinaModel
                 $fields[$v] = [];
             }
         }
-        if ($this->table === 'tale') {
-            GlobalRequestStorage::set('$items', $items);
-        }
 
         return $fields;
         ##################################################
@@ -968,9 +969,11 @@ class _BaseAlinaModel
 
     protected function qApplyGetSearchParams()
     {
-        //ToDo: Check $q, $this->o_GET emptiness.
         $q = $this->q;
         foreach ($this->o_GET as $f => $v) {
+            if ($v == '') {
+                continue;
+            }
             $t = $this->alias;
             //The simplest search case.
             if ($this->tableHasField($f)) {
@@ -988,10 +991,10 @@ class _BaseAlinaModel
                     $fName = implode('', explode($o, $f, 2));
                     if ($this->tableHasField($fName)) {
                         switch ($o) {
-                            case ('lt_'):
+                            case ('llt_'):
                                 $q->where("{$t}.{$fName}", '<', $v);
                                 break;
-                            case ('gt_'):
+                            case ('ggt_'):
                                 $q->where("{$t}.{$fName}", '>', $v);
                                 break;
                             case ('eq_'):
@@ -999,6 +1002,20 @@ class _BaseAlinaModel
                                 break;
                             case ('lk_'):
                                 $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
+                                break;
+                            case ('notlk_'):
+                                $q->where("{$t}.{$fName}", 'NOT LIKE', "%{$v}%");
+                                break;
+                            case ('noteq_'):
+                                $q->where("{$t}.{$fName}", '!=', $v);
+                                break;
+                            case ('emp_'):
+                                // ATTENTION: In MySQL any_string == 0
+                                $q->whereRaw("({$t}.{$fName} = '' OR {$t}.{$fName} IS NULL)");
+                                break;
+                            case ('notemp_'):
+                                // ATTENTION: In MySQL any_string == 0
+                                $q->whereRaw("({$t}.{$fName} != '' OR {$t}.{$fName} IS NOT NULL)");
                                 break;
                         }
                     }

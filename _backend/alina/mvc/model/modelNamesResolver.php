@@ -1,7 +1,6 @@
 <?php
 
 namespace alina\mvc\model;
-
 class modelNamesResolver
 {
     static public $vocTableToClassName = [
@@ -17,46 +16,40 @@ class modelNamesResolver
     static public function getModelObject($describer)
     {
         $message[0] = 'Unresolvable Value of Model!';
-
         if (is_a($describer, '\alina\mvc\model\_BaseAlinaModel')) {
             return $describer;
         }
-
         if (!is_string($describer)) {
             throw new \ErrorException($message[0]);
         }
-
         if (class_exists($describer)) {
             return new $describer(['table' => \alina\utils\Resolver::shortClassName($describer)]);
         }
-
         //$clarifiedDescriber = '\alina\mvc\model\\'.$describer;
         try {
             $clarifiedDescriber = [
                 AlinaCfg('appNamespace'),
-                AlinaCfg('mvc\structure\model'),
-                $describer
+                AlinaCfg('mvc/structure/model'),
+                $describer,
             ];
             $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);
             if (class_exists($mClassName)) {
                 return new $mClassName();
             }
-        } catch (\Exception $e) {
-            try {
+            else {
                 $clarifiedDescriber = [
                     AlinaCfgDefault('appNamespace'),
-                    AlinaCfgDefault('mvc\structure\model'),
-                    $describer
+                    AlinaCfgDefault('mvc/structure/model'),
+                    $describer,
                 ];
                 $mClassName         = \alina\utils\Resolver::buildClassNameFromBlocks($clarifiedDescriber);
                 if (class_exists($mClassName)) {
                     return new $mClassName();
                 }
-            } catch (\Exception $e) {
-                //Nothing is to do here :-)
             }
+        } catch (\Exception $e) {
+            //Nothing is to do here :-)
         }
-
         //ToDo: Implement Class Scanner.
         $voc = static::$vocTableToClassName;
         if (array_key_exists($describer, $voc)) {
@@ -64,7 +57,6 @@ class modelNamesResolver
                 return new $voc[$describer]();
             }
         }
-
         //Finally try...
         try {
             $m        = new _BaseAlinaModel();
@@ -74,7 +66,6 @@ class modelNamesResolver
         } catch (\Exception $e) {
             $message[0] = "There is no table {$describer}";
         }
-
         throw new \ErrorException($message[0]);
     }
 }

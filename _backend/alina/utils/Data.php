@@ -525,8 +525,7 @@ class Data
     }
 
     ##################################################
-    static protected $arrInputDoNotTouch = [
-    ];
+    static protected $arrInputDoNotTouch = [];
     static protected $arrInputDoUnset    = [];
 
     static public function sanitizeInputObj(&$object, $arrInputDoNotTouch = NULL, $arrInputDoUnset = NULL)
@@ -576,7 +575,7 @@ class Data
                                 $argsAmount = count($filter);
                                 switch ($argsAmount) {
                                     case 2:
-                                        list($obj, $method) = $filter;
+                                        [$obj, $method] = $filter;
                                         $data->{$fName} = call_user_func([$obj, $method], $data->{$fName});
                                         break;
                                 }
@@ -699,7 +698,7 @@ class Data
                         $countArgs = count($CHECKER);
                         switch ($countArgs) {
                             case 2:
-                                list($class, $staticMethod) = $CHECKER;
+                                [$class, $staticMethod] = $CHECKER;
                                 $VALIDATION_RESULT = call_user_func([$class, $staticMethod], $fValue);
                                 break;
                         }
