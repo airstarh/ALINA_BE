@@ -1,0 +1,37 @@
+/* ################################################## */
+/*region Very Special*/
+/*region Definitions*/
+.corporate-color {
+    color: #000
+}
+
+.corporate-bg {
+    background-color: #f5660b
+}
+
+.corporate-bg-and-text
+, .corporate-bg-and-text *
+{
+    background-color: #f5660b;
+    color: #000 !important;
+}
+
+.corporate-border-color {
+    border-color: #f5660b !important;
+}
+
+.corporate-svg-fill {
+    fill: #f5660b;
+}
+
+/*endregion Definitions*/
+.is_draft {
+    border-right: solid 5px;
+}
+
+.is_sticked {
+    border-top: solid 5px;
+}
+
+/*endregion Very Special*/
+/* ################################################## */
