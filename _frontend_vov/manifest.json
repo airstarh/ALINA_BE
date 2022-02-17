@@ -1,0 +1,20 @@
+{
+  "name": "Осетровский плацдарм",
+  "short_name": "Осетровский плацдарм",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }, {
+      "src": "/android-chrome-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ],
+  "scope": "/",
+  "start_url": "/",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}

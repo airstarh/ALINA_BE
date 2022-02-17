@@ -2,25 +2,26 @@
 /*region Very Special*/
 /*region Definitions*/
 .corporate-color {
-    color: rgba(255, 255, 255, 0.5);
+    color: #000
 }
 
 .corporate-bg {
-    background-color: #8F2DA8
+    background-color: #f5660b
 }
 
 .corporate-bg-and-text
+, .corporate-bg-and-text *
 {
-    background-color: #8F2DA8;
-    color: rgba(255, 255, 255, 0.5);
+    background-color: #f5660b;
+    color: #000 !important;
 }
 
 .corporate-border-color {
-    border-color: #8F2DA8 !important;
+    border-color: #f5660b !important;
 }
 
 .corporate-svg-fill {
-    fill: #8F2DA8;
+    fill: #f5660b;
 }
 
 /*endregion Definitions*/
