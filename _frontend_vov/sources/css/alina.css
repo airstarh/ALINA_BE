@@ -20,7 +20,6 @@ body::-webkit-scrollbar {
 html, body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
-    width: 100%;
     position: relative;
     /*overflow: hidden;*/
     scrollbar-width: none; /* For Firefox */
@@ -29,6 +28,8 @@ html, body {
 
 #alina-body-wrapper {
     /*border: red solid 5px;*/
+    width: 100vw;
+    margin: 0 auto;
     display: block;
     position: relative;
     min-height: 100vh;
