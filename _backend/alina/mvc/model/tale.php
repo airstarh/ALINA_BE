@@ -77,6 +77,9 @@ class tale extends _BaseAlinaModel
             'is_sticked'               => [
                 'default' => 0,
             ],
+            'is_sticked_on_home'       => [ //ToDo: Seems not in use
+                'default' => 0,
+            ],
             'is_header_hidden'         => [
                 'default' => 0,
             ],
@@ -86,7 +89,7 @@ class tale extends _BaseAlinaModel
             'is_social_sharing_hidden' => [
                 'default' => 0,
             ],
-            'is_sticked_on_home'       => [
+            'is_for_registered'        => [
                 'default' => 0,
             ],
             'geo_latitude'             => [
