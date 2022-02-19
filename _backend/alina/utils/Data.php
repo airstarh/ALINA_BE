@@ -502,6 +502,7 @@ class Data
         'password_confirm',
         'confirm_password',
         'alinapath',
+        'dir',
     ];
 
     static public function sanitizeOutputObj(&$object, $arrOutputDoNotTouch = NULL, $arrOutputDoUnset = NULL)

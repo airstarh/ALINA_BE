@@ -199,6 +199,14 @@ class tale extends _BaseAlinaModel
                     AND user_liked.user_id =  {$uid}
             ) AS current_user_liked
         "));
+        $q->addSelect(Dal::raw("
+            (SELECT COUNT(*)
+                FROM `file` AS files_attached
+                WHERE
+                        files_attached.entity_id = {$this->alias}.{$this->pkName}
+                    AND files_attached.entity_table = 'tale'
+            ) AS count_files
+        "));
     }
 
     ##################################################

@@ -303,7 +303,7 @@ class user extends _BaseAlinaModel
                         $arrNewChildPkValues = Data::deleteEmptyProps($ids);
                         ####################
                         # DELETE
-                        $q = $mGlueTable->q();
+                        $q = $mGlueTable->q(-1);
                         $q->where($glueMasterPk, '=', $pkValue);
                         $q->whereNotIn($glueChildPk, $arrNewChildPkValues);
                         $q->delete();

@@ -4,9 +4,11 @@ namespace alina\mvc\controller;
 
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\mvc\model\file;
 use alina\mvc\model\user;
 use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
+use alina\utils\Data;
 use alina\utils\FS;
 use alina\utils\Request;
 use Intervention\Image\ImageManager;
@@ -14,6 +16,7 @@ use Intervention\Image\ImageManager;
 class FileUpload
 {
     protected $resp;
+    protected $respv2;
     protected $targetDir     = '';
     protected $max           = 0;
     protected $currentAmount = 0;
@@ -21,7 +24,19 @@ class FileUpload
 
     public function __construct()
     {
-        AlinaRejectIfNotLoggedIn();
+        //AlinaRejectIfNotLoggedIn();
+    }
+
+    public function actionIndex()
+    {
+        $vd = NULL;
+        if (Request::isPostPutDelete()) {
+            $resp = $this->processUpload();
+            if ($resp) {
+                $vd = $this->respv2;
+            }
+        }
+        echo (new htmlAlias)->page($vd);
     }
 
     public function actionCommon()
@@ -30,7 +45,7 @@ class FileUpload
         if (Request::isPostPutDelete()) {
             $vd = $this->processUpload();
         }
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd);
     }
 
     public function actionCkEditor()
@@ -42,9 +57,38 @@ class FileUpload
             'newFileName' => $resp->uploaded ? $resp->newFileName[0] : '',
             'url'         => $resp->uploaded ? $resp->url[0] : '',
         ];
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd);
     }
 
+    public function actionDelete($id)
+    {
+        $res = FALSE;
+        if (Request::isPostPutDelete()) {
+            $m        = new file();
+            $deletion = $m->bizDelete($id);
+            if ($deletion) {
+                $res = TRUE;
+            }
+        }
+        if ($res) {
+            Message::setSuccess('Deleted');
+        }
+        else {
+            Message::setDanger('Deletion failed');
+        }
+        echo (new htmlAlias)->page();
+    }
+
+    public function actionGetFiles($entity_table, $entity_id)
+    {
+        $m  = new file();
+        $vd = $m->getAllWithReferences([
+                'entity_table' => $entity_table,
+                'entity_id'    => $entity_id,
+            ]
+        );
+        echo (new htmlAlias)->page($vd);
+    }
     ##################################################
     #region Utils
     protected function processUpload()
@@ -52,6 +96,7 @@ class FileUpload
         #####
         AlinaResponseSuccess(0);
         $stateSuccess = FALSE;
+        $this->respv2 = [];
         $this->resp   = (object)[
             'uploaded'    => 0,
             'fileName'    => [],
@@ -94,6 +139,17 @@ class FileUpload
                             //Message::set("Uploaded: $webPath");
                             $this->resp->url[]    = $webPath;
                             $this->resp->uploaded = ++$counterUploadedFiles;
+                            #####
+                            $this->respv2[$i] = (object)[
+                                'name_human' => $sourceFileCleanName,
+                                'name_fs'    => $newFileName,
+                                'url_path'   => $webPath,
+                                'dir'        => $targetFile,
+                            ];
+                            $this->respv2[$i] = Data::mergeObjects($this->respv2[$i], Request::obj()->POST);
+                            $this->respv2[$i] = $this->processFileModel($this->respv2[$i]);
+                            Data::sanitizeOutputObj($this->respv2[$i]);
+                            #####
                         }
                     }
                 } //end foreach
@@ -112,7 +168,6 @@ class FileUpload
             }
         }
         #####
-        #####
         if (!$stateSuccess) {
             AlinaResponseSuccess(0);
             Message::setDanger('Upload failed');
@@ -120,7 +175,7 @@ class FileUpload
         else {
             AlinaResponseSuccess(1);
         }
-        #####
+
         #####
         return $this->resp;
     }
@@ -201,8 +256,12 @@ class FileUpload
         return $realPath;
     }
 
-    protected function processFileModel()
+    protected function processFileModel($rawObj)
     {
+        $mFile = new file();
+        $mFile->upsertByUniqueFields($rawObj);
+
+        return $mFile->attributes;
     }
 
     protected function destinationDir($uid = NULL)
@@ -251,7 +310,11 @@ class FileUpload
 
     protected function allowedExtensions()
     {
-        return array_merge([], $this->extOfImages());
+        $arr = [
+            'pdf',
+            'mp3',
+        ];
+        return array_merge($arr, $this->extOfImages());
     }
 
     protected function isImage($sourcePath)

@@ -14,6 +14,7 @@ class CurrentUser
     ##################################################
     #region SingleTon
     use Singleton;
+
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
     public    $id    = NULL;
@@ -241,6 +242,30 @@ class CurrentUser
 
         return FALSE;
     }
+
+    public function isModerator()
+    {
+        if ($this->isLoggedIn()) {
+            return $this->hasRole('MODERATOR');
+        }
+
+        return FALSE;
+    }
+
+    public function isPriveleged()
+    {
+        if ($this->isLoggedIn()) {
+            return $this->hasRole('PRIVILEGED');
+        }
+
+        return FALSE;
+    }
+
+    public function isAdminOrModerator()
+    {
+        return $this->isAdmin() || $this->isModerator();
+    }
+
     #endregion States
     ##################################################
     #region Utils

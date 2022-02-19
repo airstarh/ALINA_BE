@@ -260,6 +260,7 @@ class _BaseAlinaModel
     {
         $data = Data::toObject($data);
         if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
+            $this->setPkValue($data->{$this->pkName});
             $this->updateById($data);
         }
         else {
@@ -271,6 +272,8 @@ class _BaseAlinaModel
 
     public function upsertByUniqueFields($data, $uniqueKeys = NULL)
     {
+        $data    = Data::toObject($data);
+        $data    = Data::mergeObjects($this->buildDefaultData(), $data);
         $aRecord = $this->getModelByUniqueKeys($data, $uniqueKeys);
         if ($aRecord) {
             $conditions = $this->matchedConditions;
@@ -331,9 +334,11 @@ class _BaseAlinaModel
             $pkValue = $id;
         }
         else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+            $this->setPkValue($data->{$pkName});
             $pkValue = $data->{$pkName};
         }
         else if (isset($this->id) && !empty($this->id)) {
+            $this->setPkValue($this->id);
             $pkValue = $this->id;
         }
         if (!isset($pkValue) || empty($pkValue)) {
@@ -862,7 +867,12 @@ class _BaseAlinaModel
         if (isset($this->q) && !empty($this->q)) {
             $this->q = NULL;
         }
-        $this->alias = $alias ? $alias : $this->alias;
+        if ($alias == -1) {
+            $this->alias = NULL;
+        }
+        else {
+            $this->alias = $alias ? $alias : $this->alias;
+        }
         if ($this->mode === 'INSERT' || $this->mode === 'DELETE' || $alias == -1) {
             $this->q = Dal::table("{$this->table}");
         }
