@@ -59,7 +59,7 @@ class Sys
             $post = file_get_contents('php://input');
         }
         $res = \alina\utils\Data::toObject($post);
-
+        Data::itrCastToHealth($res);
         return $res;
     }
 

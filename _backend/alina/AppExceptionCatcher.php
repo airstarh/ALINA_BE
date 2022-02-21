@@ -31,7 +31,7 @@ class AppExceptionCatcher
 
     public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext)
     {
-        AlinaResponseSuccess(0);
+        //AlinaResponseSuccess(0);
         if (!(error_reporting() & $strErrLevelExpSeverity)) {
             // This error code is not included in error_reporting
             return;

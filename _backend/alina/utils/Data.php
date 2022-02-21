@@ -145,6 +145,74 @@ class Data
         return $itr;
     }
 
+    static public function itrCastToHealth(&$itr)
+    {
+        /*
+         * $itr is iterable value
+         * */
+        if (static::isIterable($itr)) {
+            foreach ($itr as $k => &$v) {
+                #####
+                /**
+                 * If $v Array or Object
+                 */
+                if (static::isIterable($v)) {
+                    $v = static::itrCastToHealth($v);
+                }
+                /*
+                 * If $v JSON string
+                 * */
+                // elseif (is_string($v) && static::isStringValidJson($v)) {
+                //     Message::setInfo('JFYI: JSON string is inside JSON ');
+                //     $res    = static::jsonSearchReplace($v, $strFrom, $strTo);
+                //     $v      = $res->strRes;
+                // }
+                /**
+                 * If $v Serialized string
+                 */
+                // elseif (FALSE !== static::megaUnserialize($v, $itr2)) {
+                //     Message::setInfo('JFYI: Serialized data is inside JSON');
+                //     $vMid = static::itrCastToHealth($itr2);
+                //     $v    = serialize($vMid);
+                // }
+                /**
+                 * If $v a string or primitive
+                 */
+                else {
+                    $v = static::itrCastToHealth($v);
+                }
+            } // END foreach
+        } // END if
+        #####
+        /*
+         * $itr is primitive
+         * */
+        else {
+            if ($itr === '0' || $itr === 0) {
+                return 0;
+            }
+            if ($itr === NULL) {
+                return NULL;
+            }
+            if ($itr === '') {
+                return NULL;
+            }
+            if ($itr == 'null' || $itr == 'NULL') {
+                return NULL;
+            }
+            try {
+                if (1 * $itr == $itr) {
+                    return 1 * $itr;
+                }
+            } catch (\Exception $e) {
+                //AlinaResponseSuccess(1);
+                return $itr;
+            }
+        }
+
+        return $itr;
+    }
+
     static public function cast($val, $type)
     {
         switch ($type) {

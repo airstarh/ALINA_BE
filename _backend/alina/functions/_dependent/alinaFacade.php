@@ -75,6 +75,9 @@ function alinaErrorLog($m, $force = FALSE)
 
 function AlinaResponseSuccess($success = 1)
 {
+    if ($success != 1) {
+        Message::setDanger('Response is not success');
+    }
     GlobalRequestStorage::set('alina_response_success', $success);
 }
 

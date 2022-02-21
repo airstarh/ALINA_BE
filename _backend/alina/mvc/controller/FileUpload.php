@@ -94,7 +94,6 @@ class FileUpload
     protected function processUpload()
     {
         #####
-        AlinaResponseSuccess(0);
         $stateSuccess = FALSE;
         $this->respv2 = [];
         $this->resp   = (object)[

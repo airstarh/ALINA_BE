@@ -38,6 +38,9 @@ class tale extends _BaseAlinaModel
             ],
             'body_free'                => [
             ],
+            'iframe'                   => [
+                'default' => NULL,
+            ],
             'created_at'               => [
                 'default' => ALINA_TIME,
             ],

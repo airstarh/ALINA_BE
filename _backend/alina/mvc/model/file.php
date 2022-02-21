@@ -22,7 +22,9 @@ class file extends _BaseAlinaModel
             'container'    => [
                 'default' => 'FILE',
             ],
-            'root_id'      => [],
+            'root_id'      => [
+                'default' => NULL,
+            ],
             'parent_id'    => [
                 'default' => NULL,
             ],
