@@ -7,7 +7,8 @@ use alina\utils\Request;
 
 class file extends _BaseAlinaModel
 {
-    public $table = 'file';
+    public $table       = 'file';
+    public $sortDefault = [['name_human', 'ASC']];
 
     public function fields()
     {
