@@ -6,21 +6,21 @@
 }
 
 .corporate-bg {
-    background-color: #8F2DA8
+    background-color: #2778a2
 }
 
 .corporate-bg-and-text
 {
-    background-color: #8F2DA8;
+    background-color: #2778a2;
     color: rgba(255, 255, 255, 0.5);
 }
 
 .corporate-border-color {
-    border-color: #8F2DA8 !important;
+    border-color: #2778a2 !important;
 }
 
 .corporate-svg-fill {
-    fill: #8F2DA8;
+    fill: #2778a2;
 }
 
 /*endregion Definitions*/
