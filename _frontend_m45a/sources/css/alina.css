@@ -1,0 +1,178 @@
+/*#####*/
+@font-face {
+    font-family: "ALINA";
+    src: url("/sources/fonts/XXX.ttf");
+}
+
+/*#####*/
+/*region FUNDAMENTAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0; /* For Chrome, Safari, and Opera */
+}
+
+html, body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    position: relative;
+    /*overflow: hidden;*/
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+}
+
+#alina-body-wrapper {
+    /*border: red solid 5px;*/
+    width: 100vw;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    padding: 0;
+    font-family: 'ALINA', Arial, sans-serif;
+    /*-webkit-font-smoothing: antialiased;*/
+    /*-moz-osx-font-smoothing: grayscale;*/
+    /*overflow: -moz-scrollbars-vertical;*/
+    /*overflow: scroll;*/
+}
+
+.vh-almost-100 {
+    min-height: 90vh;
+}
+
+/*endregion FUNDAMENTAL */
+/*#####*/
+/*region REQUIRED BY INCLUDED FRAMEWORKS*/
+/*region Keen required*/
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+}
+
+/*endregion Keen required*/
+/*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
+/* ################################################## */
+/*region tiny adjustments*/
+/*region Form*/
+.alina-form {
+    background-color: #000;
+    padding: 1px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    background-color: #9BDAFF;
+}
+
+.m-buttons-1 button, .m-buttons-1 a {
+    margin-left: 1px;
+    margin-bottom: 1px;
+}
+
+select[multiple] option:checked {
+    background: #8F2DA8 linear-gradient(0deg, #8F2DA8 0%, black 100%);
+    color: white;
+}
+
+/*.btn {
+  padding: 1mm;
+  margin-left: 1mm;
+  margin-bottom: 1mm;
+}*/
+/*endregion Form*/
+
+.fixed-height-100px {
+    overflow: hidden;
+    max-height: 100px;
+}
+
+.fixed-height-150px {
+    overflow: hidden;
+    max-height: 150px;
+}
+
+.text-white table {
+    color: white;
+}
+
+h1 a:hover, h2 a:hover {
+    text-decoration: none
+}
+
+/*endregion tiny adjustments*/
+/* ################################################## */
+/*region ck-editor*/
+.ck-content {
+    padding: 0;
+}
+
+.ck-content ol,
+.ck-content ul,
+.ck-content dl {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ck-content li {
+    margin-left: 2em;
+}
+
+.ck-content p, .ck-content code {
+    margin: 0;
+    padding: 0 2px 0 2px;
+    border: 0;
+    line-height: 1;
+}
+
+.ck-content p {
+    line-height: 1.5;
+}
+
+.ck-content code {
+    color: black;
+    padding-left: .5em;
+    padding-right: .5em;
+}
+
+.ck-content figure.image,
+.ck-content figure.media,
+.ck-content figcaption {
+    -webkit-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43);
+    -moz-box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43);
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43) !important;
+}
+
+.ck-content pre {
+    white-space: pre;
+    /* https://stackoverflow.com/questions/4652654/how-to-turn-off-word-wrapping-in-html/4652666
+    word-break: unset;
+    word-wrap: unset;
+    overflow-wrap: unset;
+    -webkit-hyphens: unset;
+    -moz-hyphens: unset;
+    -ms-hyphens: unset;
+    hyphens: unset;*/
+
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+pre, .ck-content pre, .ck-content code {
+    background-color: #000;
+    color: #70ff70;
+}
+
+/*endregion ck-editor*/
+/* ################################################## */
