@@ -9,7 +9,7 @@ use alina\utils\Sys;
 <html lang="en">
 <head>
     <?php
-    require_once ALINA_PATH_TO_FRAMEWORK . '/mvc/template/_system/html/searchengiines/google.php';
+    require_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
     ?>
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json"/>
