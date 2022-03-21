@@ -4,14 +4,17 @@ use alina\mvc\model\CurrentUser;
 use alina\utils\Sys;
 
 ?>
-<div class="mt-5 alina-form p-5">
-    Мемориальный комплекс "Осетровский плацдарм"
-    <a href="https://oixm.ru/" target="_blank">
-        Острогожского историко-художественного музея им. И.Н. Крамского
-    </a>
-    <br>
-    Воронежская область, Верхнемамонский район, 720 км федеральной автомобильной дороги М4 «Дон».
-</div>
+<div class="row no-gutters mt-5 alina-form p-5">
+    <div class="col">
+      <h3>
+        Официальнй сайт TCH "ТСЖ Миронова 45 А"
+      </h3>
+      <p>
+        394005, Воронежская область, город Воронеж, улица Миронова 45 А
+      </p>
+      <br>
+    </div>
+  </div>
 <?php if (AlinaAccessIfAdmin()) : ?>
     <div>
         <?php
