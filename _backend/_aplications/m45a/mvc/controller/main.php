@@ -1,6 +1,6 @@
 <?php
 
-namespace vov\mvc\controller;
+namespace m45a\mvc\controller;
 
 use alina\Message;
 
