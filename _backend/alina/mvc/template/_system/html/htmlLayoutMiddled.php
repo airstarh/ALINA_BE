@@ -41,7 +41,7 @@ use alina\utils\Sys;
             </div>
         </div>
     </div> <!-- /container -->
-    <?php require_once(__DIR__ . '/_commonFooter.php') ?>
+    <?= (new html())->piece('/_system/html/_commonFooter.php') ?>
 </div>
 </body>
 </html>
