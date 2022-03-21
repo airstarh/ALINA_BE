@@ -25,7 +25,7 @@ use alina\utils\Sys;
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
     </div> <!-- /container -->
-    <?php require_once(__DIR__ . '/_commonFooter.php') ?>
+    <?= (new html())->piece('/_system/html/_commonFooter.php') ?>
 </div>
 </body>
 </html>
