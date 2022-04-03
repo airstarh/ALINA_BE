@@ -344,6 +344,9 @@ class Tale
                 }
             }
             #####
+            # TODO: May be for comments too.
+            array_unshift($sort, ["tale.is_sticked", 'DESC']);
+            #####
             if (Request::has('owner', $owner)) {
                 $owner = trim($owner);
                 if (!empty($owner) && is_numeric($owner)) {
@@ -352,9 +355,6 @@ class Tale
                         $q->where("tale.owner_id", '=', $owner);
                     });
                 }
-                // #####
-                array_unshift($sort, ["tale.is_sticked", 'DESC']);
-                // #####
             }
             else {
                 $q->where("tale.is_draft", '=', 0);

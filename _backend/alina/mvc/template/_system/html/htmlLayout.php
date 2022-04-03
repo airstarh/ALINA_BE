@@ -23,7 +23,7 @@ use alina\utils\Sys;
 <body id="alina-real-body" style="background-color: #343a40; color: #ffffff">
 <div id="alina-body-wrapper" class="bg-dark text-white">
     <?= (new html())->piece('/_system/html/menu.php') ?>
-    <div class="container p-0">
+    <div class="container p-0 alina-content">
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
     </div> <!-- /container -->
