@@ -86,6 +86,9 @@ class tale extends _BaseAlinaModel
             'is_header_hidden'         => [
                 'default' => 0,
             ],
+            'is_date_hidden'           => [
+                'default' => 0,
+            ],
             'is_avatar_hidden'         => [
                 'default' => 0,
             ],
