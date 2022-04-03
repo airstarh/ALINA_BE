@@ -42,6 +42,10 @@ html, body {
     /*overflow: scroll;*/
 }
 
+#alina-body-wrapper > .alina-content {
+    min-height: 80vh;
+}
+
 .vh-almost-100 {
     min-height: 90vh;
 }
@@ -174,5 +178,25 @@ pre, .ck-content pre, .ck-content code {
     color: #70ff70;
 }
 
+.ck-content a {
+    color: black;
+    background-color: #007bff;
+    padding: 0 3px 0 3px;
+    margin: 0 1px 0 0;
+}
+
+.ck-content a:hover {
+    color: black;
+    background-color: #00ad9c;
+    padding: 0 3px 0 3px;
+    margin: 0 1px 0 0;
+}
+
+.ck-content a:visited {
+    color: black;
+    background-color: #5d5db1;
+    padding: 0 3px 0 3px;
+    margin: 0 1px 0 0;
+}
 /*endregion ck-editor*/
 /* ################################################## */

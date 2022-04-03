@@ -38,5 +38,7 @@
             "type": "image\/png",
             "density": "4.0"
         }
-    ]
+    ],
+	"theme_color": "#000000",
+	"background_color": "#000000"
 }
