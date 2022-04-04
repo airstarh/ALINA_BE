@@ -1,8 +1,8 @@
 <?php
 return [
-    'appNamespace' => 'vov',
-    'title'        => 'Осетровский плацдарм',
-    'description'  => 'Мемориальный комплекс "Осетровский плацдарм"  Острогожского историко-художественного музея им. И.Н. Крамского',
+    'appNamespace' => 'm45a',
+    'title'        => 'Миронова 45А. Официальный сайт',
+    'description'  => 'Официальный сайт ТСН "ТСЖ Миронова 45 А"',
     'logVisitsToDb'       => TRUE,
     'db'                  => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
     'mvc'          => [
