@@ -68,8 +68,10 @@ class Admin
         $uid = $post->id;
         $m   = new rbac_user_role();
         $m->delete(['user_id' => $uid]);
-        foreach ($post->role_ids as $rid) {
-            $m->upsertByUniqueFields(['user_id' => $uid, 'role_id' => $rid]);
+        if (isset($post->role_ids) && Data::isIterable($post->role_ids)) {
+            foreach ($post->role_ids as $rid) {
+                $m->upsertByUniqueFields(['user_id' => $uid, 'role_id' => $rid]);
+            }
         }
     }
 
