@@ -266,11 +266,11 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
-        _baseAlinaEloquentTransaction::begin();
         //ToDo: Security
         if (!AlinaAccessIfAdmin()) {
             return $this;
         }
+        _baseAlinaEloquentTransaction::begin();
         $refCfg = $this->referencesTo();
         foreach ($refCfg as $refName => $cfg) {
             if (isset($cfg['multiple']) && $cfg['multiple']) {

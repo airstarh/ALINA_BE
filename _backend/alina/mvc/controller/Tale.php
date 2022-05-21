@@ -200,7 +200,7 @@ class Tale
             }
         }
         ########################################
-        $vd    = Data::mergeObjects($vd, $attrs);
+        $vd = Data::mergeObjects($vd, $attrs);
         GlobalRequestStorage::obj()->set('pageTitle', $attrs->header);
         GlobalRequestStorage::obj()->set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
         echo (new htmlAlias)->page($vd);
@@ -224,7 +224,8 @@ class Tale
                     $q
                         ->where('id_root', '=', $id)
                         ->orWhere('id_answer', '=', $id)
-                        ->orWhere('id_highlight', '=', $id);
+                        ->orWhere('id_highlight', '=', $id)
+                    ;
                 })
                 ->delete();
             ###
@@ -337,9 +338,10 @@ class Tale
                     $q->where(function ($q) use ($txt) {
                         /** @var $q BuilderAlias object */
                         $q->where("tale.body_txt", 'LIKE', "%{$txt}%")
-                            ->orWhere("tale.header", 'LIKE', "%{$txt}%")
-                            ->orWhere("owner.firstname", 'LIKE', "%{$txt}%")
-                            ->orWhere("owner.lastname", 'LIKE', "%{$txt}%");
+                          ->orWhere("tale.header", 'LIKE', "%{$txt}%")
+                          ->orWhere("owner.firstname", 'LIKE', "%{$txt}%")
+                          ->orWhere("owner.lastname", 'LIKE', "%{$txt}%")
+                        ;
                     });
                 }
             }
@@ -357,7 +359,14 @@ class Tale
                 }
             }
             else {
-                $q->where("tale.is_draft", '=', 0);
+                //$q->where("tale.is_draft", '=', 0);
+                $q->where(function ($q) {
+                    /** @var $q BuilderAlias object */
+                    $q->orWhere("tale.is_draft", '=', 0)
+                      ->orWhere("tale.is_draft", '=', '')
+                      ->orWhereNull("tale.is_draft")
+                    ;
+                });
             }
             #endregion POSTS
             ####################
