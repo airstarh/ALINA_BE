@@ -312,6 +312,8 @@ class FileUpload
         $arr = [
             'pdf',
             'mp3',
+            'doc',
+            'docx',
         ];
         return array_merge($arr, $this->extOfImages());
     }
