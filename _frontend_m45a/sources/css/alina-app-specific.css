@@ -1,21 +1,33 @@
 /* ################################################## */
 /*region Very Special*/
 /*region Definitions*/
-.corporate-color {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.corporate-bg {
-    background-color: #2778a2
-}
-
-.corporate-bg-and-text
+.corporate-color,
+.corporate-color a,
+.corporate-color a:hover
 {
-    background-color: #2778a2;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 1);
 }
 
-.corporate-border-color {
+.corporate-bg,
+.corporate-bg a,
+.corporate-bg a:hover
+{
+   background-color: #2778a2;
+}
+
+.corporate-bg-and-text,
+.corporate-bg-and-text a,
+.corporate-bg-and-text a:hover
+{
+	text-decoration: none;
+	background-color: #2778a2;
+    color: rgba(255, 255, 255, 1);
+}
+
+.corporate-border-color,
+.corporate-border-color a,
+.corporate-border-color a:hover
+{
     border-color: #2778a2 !important;
 }
 
