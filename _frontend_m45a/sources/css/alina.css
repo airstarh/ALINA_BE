@@ -1,10 +1,10 @@
 /*#####*/
 @font-face {
     font-family: "ALINA";
-    src: url("/sources/fonts/XXX.ttf");
+    src: url("/sources/fonts/XXX.ttf") format('truetype');
 }
 
-/*#####*/
+/*##################################################*/
 /*region FUNDAMENTAL */
 * {
     margin: 0;
@@ -35,7 +35,7 @@ html, body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
     padding: 0;
-    font-family: 'ALINA', Arial, sans-serif;
+    font-family: "ALINA", Arial, sans-serif;
     /*-webkit-font-smoothing: antialiased;*/
     /*-moz-osx-font-smoothing: grayscale;*/
     /*overflow: -moz-scrollbars-vertical;*/
@@ -50,8 +50,9 @@ html, body {
     min-height: 90vh;
 }
 
+.cursor-pointer {cursor:pointer;}
 /*endregion FUNDAMENTAL */
-/*#####*/
+/*##################################################*/
 /*region REQUIRED BY INCLUDED FRAMEWORKS*/
 /*region Keen required*/
 *,
@@ -96,7 +97,7 @@ select[multiple] option:checked {
   margin-bottom: 1mm;
 }*/
 /*endregion Form*/
-
+/*##################################################*/
 .fixed-height-100px {
     overflow: hidden;
     max-height: 100px;
@@ -111,10 +112,28 @@ select[multiple] option:checked {
     color: white;
 }
 
-h1 a:hover, h2 a:hover {
-    text-decoration: none
+.alina-tale-header,
+.alina-tale-header a,
+.alina-tale-header a:hover
+{
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
 }
 
+/*##################################################*/
+/*region Messages*/
+.alina-messages-body.modal-body {
+    padding: 0;
+}
+
+.alina-messages-body .alert {
+    margin: 0;
+}
+
+/*endregion Messages*/
 /*endregion tiny adjustments*/
 /* ################################################## */
 /*region ck-editor*/
@@ -179,24 +198,24 @@ pre, .ck-content pre, .ck-content code {
 }
 
 .ck-content a {
+    display: inline-block;
+    text-decoration: none;
     color: black;
     background-color: #007bff;
-    padding: 0 3px 0 3px;
+    padding: 1px 3px 1px 3px;
     margin: 0 1px 0 0;
 }
 
 .ck-content a:hover {
+    text-decoration: none;
     color: black;
     background-color: #00ad9c;
-    padding: 0 3px 0 3px;
-    margin: 0 1px 0 0;
 }
 
 .ck-content a:visited {
     color: black;
     background-color: #5d5db1;
-    padding: 0 3px 0 3px;
-    margin: 0 1px 0 0;
 }
+
 /*endregion ck-editor*/
 /* ################################################## */
