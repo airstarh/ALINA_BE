@@ -245,12 +245,14 @@ class FileUpload
     {
         $manager = new ImageManager(['driver' => 'imagick']);
         $image   = $manager
-            ->make($realPath);
+            ->make($realPath)
+        ;
         if ($image->width() > 1500) {
             $image->widen(1500);
         }
         $image
-            ->save($realPath, 100);
+            ->save($realPath, 100)
+        ;
 
         return $realPath;
     }
@@ -315,6 +317,7 @@ class FileUpload
             'doc',
             'docx',
         ];
+
         return array_merge($arr, $this->extOfImages());
     }
 
@@ -325,6 +328,10 @@ class FileUpload
 
     protected function isExtAllowed($ext)
     {
+        if (CurrentUser::obj()->isAdminOrModerator()) {
+            return TRUE;
+        }
+
         return
             in_array(mb_strtolower($ext), $this->allowedExtensions());
     }
