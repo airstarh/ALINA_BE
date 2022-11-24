@@ -5,6 +5,10 @@ AddCharset utf-8 *
     CharsetDefault utf-8
 </IfModule>
 
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "https://localhost:8082"
+</IfModule>
+
 # All requests to index.php if it is not a file
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f

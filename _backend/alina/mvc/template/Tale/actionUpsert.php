@@ -8,18 +8,20 @@
     <?php if ($data->is_header_hidden != 1) { ?>
         <div class="row no-gutters">
             <div class="col" style="position: relative">
-                <h1 class="notranslate m-0">
+                <h1 class="notranslate m-0 p-3 text-left rounded alina-tale-header corporate-bg-and-text">
                     <a
                         href="/#/tale/upsert/<?= $data->id ?>"
-                        class="btn-block btn-secondary text-left h2 p-2 corporate-bg-and-text"
+                        class="m-0"
                     ><?= $data->header ?: '¯_(ツ)_/¯' ?></a>
                 </h1>
-                <div style="position: absolute; right: 1%; bottom: -1rem; z-index: 10;">
-                    <a
-                        href="/#/tale/upsert/<?= $data->id ?>"
-                        class="btn btn-sm btn-dark text-left"
-                    ><?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
-                </div>
+                <?php if ($data->is_date_hidden != 1) { ?>
+                    <div style="position: absolute; right: 1%; bottom: -1rem; z-index: 10;">
+                        <a
+                            href="/#/tale/upsert/<?= $data->id ?>"
+                            class="btn btn-sm btn-dark text-left"
+                        ><?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
+                    </div>
+                <?php } ?>
             </div>
         </div>
     <?php } ?>
