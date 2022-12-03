@@ -121,7 +121,7 @@ class html
     {
         $res = GlobalRequestStorage::obj()->get('pageTitle');
         if ($res) {
-            return $res;
+            return strip_tags($res);
         }
 
         return AlinaCfg('title');
