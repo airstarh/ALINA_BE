@@ -15,6 +15,7 @@ use alina\utils\Sys;
     <link rel="manifest" href="/manifest.json"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="<?= $data->pageTitle() ?>"/>
     <title><?= $data->pageTitle() ?></title>
     <meta property="og:description" content="<?= $data->pageDescription() ?>"/>
     <?= $data->js() ?>

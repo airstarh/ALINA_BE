@@ -1,0 +1,3 @@
+User-Agent: *
+Allow: /
+Sitemap: https://ospl1942.ru/sitemap
