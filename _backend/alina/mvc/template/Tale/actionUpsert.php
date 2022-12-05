@@ -7,7 +7,7 @@
     <!-- -->
     <?php if ($data->is_header_hidden != 1) { ?>
         <div class="row no-gutters">
-            <div class="col" style="position: relative">
+            <div class="col mb-3" style="position: relative">
                 <h1 class="notranslate m-0 p-3 text-left rounded alina-tale-header corporate-bg-and-text">
                     <a
                         href="/#/tale/upsert/<?= $data->id ?>"
@@ -73,12 +73,12 @@
                         <iframe src="<?= $data->iframe ?>" frameborder="1" width="100%" height="500px"></iframe>
                     </div>
                 <? } ?>
-                <div class="mt-3"></div>
+                <div class="mt-3">&nbsp;</div>
                 <div class="row no-gutters">
                     <div class="col">
                         <iframe
                             id="AlinaIframe001"
-                            class="AlinaIframe"
+                            class="AlinaIframe AlinaIframe-tale AlinaIframe-tale-<?= $data->id ?>"
                             src="/#/tale/upsert/<?= $data->id ?>"
                             width="100%"
                             allowfullscreen
