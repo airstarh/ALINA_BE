@@ -50,7 +50,10 @@ html, body {
     min-height: 90vh;
 }
 
-.cursor-pointer {cursor:pointer;}
+.cursor-pointer {
+    cursor: pointer;
+}
+
 /*endregion FUNDAMENTAL */
 /*##################################################*/
 /*region REQUIRED BY INCLUDED FRAMEWORKS*/
@@ -114,13 +117,20 @@ select[multiple] option:checked {
 
 .alina-tale-header,
 .alina-tale-header a,
-.alina-tale-header a:hover
-{
+.alina-tale-header a:hover {
+    font-size: 3vmax;
     display: block;
     text-decoration: none;
     font-weight: bold;
-    background-color: rgba(0, 0, 0, 1);
+    background-color: rgba(40, 40, 40, 1);
     color: white;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /*white-space: pre-wrap; !* CSS3 *!*/
+    /*white-space: -moz-pre-wrap; !* Firefox *!*/
+    /*white-space: -pre-wrap; !* Opera <7 *!*/
+    /*white-space: -o-pre-wrap; !* Opera 7 *!*/
 }
 
 /*##################################################*/
@@ -161,6 +171,8 @@ select[multiple] option:checked {
 
 .ck-content p {
     line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .ck-content code {
@@ -197,13 +209,22 @@ pre, .ck-content pre, .ck-content code {
     color: #70ff70;
 }
 
-.ck-content a {
-    display: inline-block;
+.ck-content a
+,.ck-content a span
+{
+    display: inline !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /*white-space: pre-wrap; !* CSS3 *!*/
+    /*white-space: -moz-pre-wrap; !* Firefox *!*/
+    /*white-space: -pre-wrap; !* Opera <7 *!*/
+    /*white-space: -o-pre-wrap; !* Opera 7 *!*/
     text-decoration: none;
     color: black;
     background-color: #007bff;
-    padding: 1px 3px 1px 3px;
-    margin: 0 1px 0 0;
+    background-size: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 .ck-content a:hover {
