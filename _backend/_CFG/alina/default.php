@@ -25,7 +25,7 @@ switch (ALINA_ENV) {
                 ],
             ],
             // Routes, Aliases.
-            'forceSysPathToAlias' => FALSE,
+            'forceSysPathToAlias' => TRUE,
             'vocAliasUrl'         => [
                 'Даркнет'                     => 'tale/upsert/635',
                 'lalala/:p1/:p2'              => 'main/CheckAutoload/:p2/:p1',
@@ -51,7 +51,7 @@ switch (ALINA_ENV) {
                         'registered' => 100,
                         'admin'      => -1,
                         'moderator'  => -1,
-                        'privileged' => 1000,
+                        'privileged' => -1,
                     ],
                 ],
                 'newTale'             => [
