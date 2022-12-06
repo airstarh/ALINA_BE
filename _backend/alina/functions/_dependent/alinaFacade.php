@@ -4,6 +4,7 @@ use alina\App;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\model\CurrentUser;
+use alina\Router;
 use alina\utils\Request;
 use alina\utils\Sys;
 
@@ -170,5 +171,32 @@ function Alina_file_exists($fileName, $caseSensitive = FALSE)
     }
 
     return FALSE;
+}
+
+##################################################
+function AlinaGetCurrentDomainUrl()
+{
+    $protocol   = $_SERVER['REQUEST_SCHEME'];
+    $domainName = $_SERVER['HTTP_HOST'];
+    $parts      = [
+        $protocol,
+        '://',
+        $domainName,
+    ];
+
+    return implode('', $parts);
+}
+
+function AlinaDefineTagRelAlternateUrl()
+{
+    $domain = AlinaGetCurrentDomainUrl();
+    $uri    = '';
+    $parts  = [
+        $domain,
+        '/#/',
+        Router::obj()->pathSys,
+    ];
+
+    return implode('', $parts);
 }
 ##################################################

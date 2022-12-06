@@ -137,6 +137,13 @@ class html
         return AlinaCfg('description');
     }
 
+    public function tagRelAlternateUrl()
+    {
+        $res = GlobalRequestStorage::obj()->get('tagRelAlternateUrl');
+
+        return $res;
+    }
+
     public function css()
     {
         $urls = AlinaCfg('html/css');

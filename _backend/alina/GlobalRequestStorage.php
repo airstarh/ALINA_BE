@@ -21,6 +21,7 @@ class GlobalRequestStorage
         'pageTitle'              => NULL,
         'pageDescription'        => NULL,
         'viewData'               => NULL,
+        'tagRelAlternateUrl'     => NULL,
         #####
         /**In sub-props*/
         /*
