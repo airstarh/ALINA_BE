@@ -160,7 +160,8 @@ class Tale
                         ->orWhere(['answer_to_tale_id' => $attrs->id,])
                         ->orWhere(['id' => $attrs->root_tale_id,])
                         ->distinct()
-                        ->pluck('owner_id');
+                        ->pluck('owner_id')
+                    ;
                     $url           = "/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
                     $text          = "Comment! Tale ID# {$attrs->root_tale_id}";
                     $tag           = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
@@ -203,6 +204,7 @@ class Tale
         $vd = Data::mergeObjects($vd, $attrs);
         GlobalRequestStorage::obj()->set('pageTitle', $attrs->header);
         GlobalRequestStorage::obj()->set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
+        GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         echo (new htmlAlias)->page($vd);
     }
 
@@ -227,7 +229,8 @@ class Tale
                         ->orWhere('id_highlight', '=', $id)
                     ;
                 })
-                ->delete();
+                ->delete()
+            ;
             ###
             $all       = (new \alina\mvc\model\tale())
                 ->q('commenters')
@@ -235,12 +238,14 @@ class Tale
                 ->where(['answer_to_tale_id' => $id,])
                 ->orWhere(['id' => $id,])
                 ->distinct()
-                ->pluck('id');
+                ->pluck('id')
+            ;
             $vd->likes = (new \alina\mvc\model\like())
                 ->q(-1)
                 ->where('ref_table', '=', 'tale')
                 ->whereIn('ref_id', $all)
-                ->delete();
+                ->delete()
+            ;
             ###
             $vd->comments1 = (new taleAlias())->delete(['root_tale_id' => $id,]);
             $vd->comments3 = (new taleAlias())->delete(['answer_to_tale_id' => $id,]);
@@ -298,6 +303,8 @@ class Tale
         $collection = $this->processResponse($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
         ########################################
         $vd->tale = $collection->toArray();
+        ########################################
+        GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         ########################################
         echo (new htmlAlias)->page($vd);
     }
@@ -446,7 +453,8 @@ class Tale
                 'type'         => 'POST',
                 ['created_at', '>=', ALINA_TIME - 60 * 60 * 24],
             ])
-            ->count();
+            ->count()
+        ;
 
         return $qAmount;
     }

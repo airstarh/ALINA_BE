@@ -17,6 +17,9 @@ use alina\utils\Sys;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<?= $data->pageTitle() ?>"/>
     <title><?= $data->pageTitle() ?></title>
+    <?php if ($data->tagRelAlternateUrl()) { ?>
+        <link rel="alternate" href="<?= $data->tagRelAlternateUrl() ?>"/>
+    <?php } ?>
     <meta property="og:description" content="<?= $data->pageDescription() ?>"/>
     <?= $data->js() ?>
     <?= $data->css() ?>
