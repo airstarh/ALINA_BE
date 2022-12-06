@@ -27,6 +27,7 @@ switch (ALINA_ENV) {
             // Routes, Aliases.
             'forceSysPathToAlias' => TRUE,
             'vocAliasUrl'         => [
+                'sitemap.xml'                 => 'sitemap',
                 'Даркнет'                     => 'tale/upsert/635',
                 'lalala/:p1/:p2'              => 'main/CheckAutoload/:p2/:p1',
                 'lalala'                      => 'main/CheckAutoload',
