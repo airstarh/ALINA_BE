@@ -5,44 +5,30 @@ use alina\mvc\view\html;
 use alina\utils\Sys;
 
 ?>
-<!DOCTYPE html>
+<!DOCTYPE html style="background-color: #343a40; color: #fff;">
 <html lang="en">
 <head>
-    <?php
-    require_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
-    ?>
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="/manifest.json"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="<?= $data->pageTitle() ?>"/>
-    <title><?= $data->pageTitle() ?></title>
-    <?= $data->js() ?>
-    <?= $data->css() ?>
+    <? require_once '_commonHead.php' ?>
 </head>
-<body id="alina-real-body" style="background-color: #343a40; color: #ffffff">
-<div id="alina-body-wrapper" class="bg-dark text-white">
-    <?= (new html())->piece('/_system/html/menu.php') ?>
-    <div class="container h-100">
-        <div class="row align-items-center h-100">
-            <div class="col">
-
-                <div class="row">
-                    <div class="col-6 mx-auto">
-                        <?= $data->content(); ?>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-8 mx-auto">
-                        <?= $data->messages(); ?>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div> <!-- /container -->
-    <?= (new html())->piece('/_system/html/_commonFooter.php') ?>
+<body id="alina-real-body" class="bg-dark text-white">
+<div class="alina-flex-vertical-container alina-vh-100">
+    <div class="alina-flex-vertical-header">
+        <?= (new html())->piece(html::$htmlMenu) ?>
+    </div>
+    <div class="alina-flex-vertical-content alina-flex-item-wide">
+        &nbsp;
+    </div>
+    <div class="alina-flex-vertical-content alina-flex-item-shrink container">
+        <?= $data->content(); ?>
+        <?= $data->messages(); ?>
+    </div>
+    <div class="alina-flex-vertical-content alina-flex-item-wide">
+        &nbsp;
+    </div>
+    <div class="alina-flex-vertical-footer">
+        <?= (new html())->piece(html::$htmlFooter) ?>
+    </div>
 </div>
+<? require_once '_commonFooter2.php' ?>
 </body>
 </html>

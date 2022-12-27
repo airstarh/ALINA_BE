@@ -11,6 +11,15 @@ use alina\utils\Sys;
 class html
 {
     #region Init
+    static public $htmLayout             = '_system/html/htmlLayout.php';
+    static public $htmLayoutWide         = '_system/html/htmlLayoutWide.php';
+    static public $htmLayoutMiddled      = '_system/html/htmlLayoutMiddled.php';
+    static public $htmLayoutCleanBody    = '_system/html/htmlLayoutCleanBody.php';
+    static public $htmLayoutErrorCatcher = '_system/html/htmlLayoutErrorCatcher.php';
+    #####
+    static public $htmlMenu   = '/_system/html/menu.php';
+    static public $htmlFooter = '/_system/html/_commonFooter.php';
+    #####
     public $mvcTemplateRoot                         = NULL;
     public $mvcTemplateRootDefault                  = 'mvc/template';
     public $currentControllerDir                    = 'root';

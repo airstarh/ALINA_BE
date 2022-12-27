@@ -77,7 +77,6 @@
                 <div class="row no-gutters">
                     <div class="col">
                         <iframe
-                            id="AlinaIframe001"
                             class="AlinaIframe AlinaIframe-tale AlinaIframe-tale-<?= $data->id ?>"
                             src="/#/tale/upsert/<?= $data->id ?>"
                             width="100%"

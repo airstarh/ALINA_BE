@@ -98,6 +98,12 @@ class tale extends _BaseAlinaModel
             'is_for_registered'        => [
                 'default' => 0,
             ],
+            'is_comment_for_owner'     => [
+                'default' => 0,
+            ],
+            'seo_index'                => [
+                'default' => 0.2,
+            ],
             'geo_latitude'             => [
                 'default' => 0,
             ],
@@ -284,7 +290,8 @@ class tale extends _BaseAlinaModel
             ->where('current.id', '=', $id)
             ->leftJoin('tale AS answer', 'answer.id', '=', 'current.answer_to_tale_id')
             ->leftJoin('tale AS root', 'root.id', '=', 'current.root_tale_id')
-            ->first();;
+            ->first()
+        ;;
 
         return $chainOfParents;
     }
