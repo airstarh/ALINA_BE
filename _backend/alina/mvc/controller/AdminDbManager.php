@@ -138,7 +138,7 @@ class AdminDbManager
         //$vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayout.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayout);
     }
 
     public function actionModels($model)
@@ -177,7 +177,7 @@ class AdminDbManager
         $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Models
         ########################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     public function actionEditRow($modelName, $id = NULL)

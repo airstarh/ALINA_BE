@@ -44,7 +44,7 @@ class Auth
             if (empty($vd->mail) || empty($vd->password)) {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Incorrect data');
-                echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+                echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
                 exit;
             }
             ##################################################
@@ -94,7 +94,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
@@ -133,7 +133,7 @@ class Auth
         ##################################################
         $CU->resetDiscoveredData();
         ##################################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
@@ -183,7 +183,6 @@ class Auth
         CurrentUser::obj()->LogOut();
         Message::setSuccess('THanks for being with us!');
         Sys::redirect('/tale/feed', 303);
-        //echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
     }
 
     public function actionResetPasswordRequest()
@@ -219,7 +218,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
@@ -273,7 +272,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
     }
 
     ##################################################
@@ -318,7 +317,7 @@ class Auth
                 Message::setDanger('Password not changed!');
             }
         }
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutMiddled.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
     }
 
     ##################################################

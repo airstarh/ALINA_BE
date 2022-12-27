@@ -3,6 +3,7 @@
 namespace alina\mvc\controller;
 
 use alina\Message;
+use alina\mvc\view\html;
 use alina\utils\Request;
 
 class root
@@ -47,14 +48,14 @@ class root
             '/AdminTests/Serialization'                          => 'Tst Serialization',
             '/AdminTests/JsonEncode'                             => 'Tst Json Encode',
         ];
-        echo (new \alina\mvc\view\html)->page($vd);
+        echo (new html)->page($vd);
     }
 
     public function action404()
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo (new \alina\mvc\view\html)->page();
+        echo (new html)->page();
         exit;
     }
 
@@ -62,7 +63,7 @@ class root
     {
         AlinaResponseSuccess(0);
         http_response_code(500);
-        echo (new \alina\mvc\view\html)->page($vd, '_system/html/htmlLayoutErrorCatcher.php');
+        echo (new html)->page($vd, html::$htmLayoutErrorCatcher);
         exit;
     }
 
@@ -70,7 +71,7 @@ class root
     {
         AlinaResponseSuccess(0);
         http_response_code($code);
-        echo (new \alina\mvc\view\html)->page(NULL, '_system/html/htmlLayoutErrorCatcher.php');
+        echo (new html)->page(NULL, html::$htmLayoutErrorCatcher);
         exit;
     }
 }

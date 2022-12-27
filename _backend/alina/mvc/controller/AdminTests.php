@@ -85,7 +85,7 @@ class AdminTests
     ##############################################
 
     /**
-     * @route /AdminTests/ListTableColumns?table=user
+     * @route https://alinazero/AdminTests/ListTableColumns?table=user
      */
     public function actionListTableColumns()
     {
@@ -269,4 +269,20 @@ class AdminTests
         ];
         echo (new html)->page($vd);
     }
+
+    #####
+
+    /**
+     * @link https://alinazero/admintests/HtmlPageFlex
+     */
+    public function actionHtmlPageFlex()
+    {
+        Message::setInfo('Hello, people');
+        Message::setInfo('Hello, people');
+        Message::setInfo('Hello, people');
+        Message::setInfo('Hello, people');
+        $vd = [];
+        echo (new html)->page($vd, html::$htmLayoutCleanBody);
+    }
+    #####
 }
