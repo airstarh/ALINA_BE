@@ -87,7 +87,7 @@ class SendRestApiQueries
             'reqPostRaw' => $reqPostRaw,
             'q'          => $q,
         ];
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         #endregionn View
         ############################################
         return $this;

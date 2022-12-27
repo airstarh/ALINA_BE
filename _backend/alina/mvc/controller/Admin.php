@@ -60,7 +60,7 @@ class Admin
         $vd->roles = $mRoles->getAllWithReferences()->toArray();
         #endregion Roles
         ########################################
-        echo (new htmlAlias)->page($vd, '_system/html/htmlLayoutWide.php');
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     private function userSetRoles($post)
