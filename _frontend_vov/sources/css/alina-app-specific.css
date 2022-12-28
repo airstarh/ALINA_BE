@@ -1,38 +1,42 @@
 /* ################################################## */
+:root {
+    --corporate-bg: #f5660b;
+    --corporate-txt: #000;
+}
+
+/* ################################################## */
 /*region Very Special*/
 /*region Definitions*/
 .corporate-color,
 .corporate-color a,
-.corporate-color a:hover
-{
-    color: #000;
+.corporate-color a:hover {
+    color: var(--corporate-txt) !important;;
 }
 
 .corporate-bg,
 .corporate-bg a,
-.corporate-bg a:hover
-{
-   background-color: #f5660b;
+.corporate-bg a:hover {
+    background-color: var(--corporate-bg) !important;
 }
 
 .corporate-bg-and-text,
+.corporate-bg-and-text ul,
 .corporate-bg-and-text a,
-.corporate-bg-and-text a:hover
-{
-	text-decoration: none;
-	background-color: #f5660b;
-    color: #000;
+.corporate-bg-and-text a:hover {
+    background-color: var(--corporate-bg) !important;;
+    color: var(--corporate-txt) !important;;
 }
 
 .corporate-border-color,
 .corporate-border-color a,
-.corporate-border-color a:hover
-{
-    border-color: #f5660b !important;
+.corporate-border-color a:hover {
+    border-color: var(--corporate-bg);
 }
 
 .corporate-svg-fill {
-    fill: #f5660b;
+    fill: var(--corporate-bg);;
+    /*background-color: var(--corporate-txt);*/
+    color: var(--corporate-txt);
 }
 
 /*endregion Definitions*/

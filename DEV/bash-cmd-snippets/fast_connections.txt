@@ -8,3 +8,8 @@ cd C:\_A001\REPOS\OWN\vuesandbox\sandbox
 
 git rm -r --cached _backend/alina/vendor/
 git rm -r --cached _backend/alina/components/
+
+git push vuesandbox HEAD:vov/master
+git push vuesandbox HEAD:sss/master
+git push vuesandbox HEAD:m45a/master
+git push vuesandbox HEAD:dev/master
