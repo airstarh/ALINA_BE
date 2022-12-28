@@ -1,69 +1,121 @@
-/*#####*/
+/*##################################################*/
 @font-face {
     font-family: "ALINA";
     src: url("/sources/fonts/XXX.ttf") format('truetype');
 }
 
 /*##################################################*/
-/*region FUNDAMENTAL */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/*region SCROLLER*/
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
     width: 0; /* For Chrome, Safari, and Opera */
 }
 
 html, body {
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    position: relative;
-    /*overflow: hidden;*/
     scrollbar-width: none; /* For Firefox */
     -ms-overflow-style: none; /* For Internet Explorer and Edge */
 }
 
-#alina-body-wrapper {
-    /*border: red solid 5px;*/
-    width: 100vw;
-    margin: 0 auto;
-    display: block;
-    position: relative;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    padding: 0;
-    font-family: "ALINA", Arial, sans-serif;
-    /*-webkit-font-smoothing: antialiased;*/
-    /*-moz-osx-font-smoothing: grayscale;*/
-    /*overflow: -moz-scrollbars-vertical;*/
-    /*overflow: scroll;*/
-}
-
-#alina-body-wrapper > .alina-content {
-    min-height: 80vh;
-}
-
-.vh-almost-100 {
-    min-height: 90vh;
-}
-
-.cursor-pointer {
-    cursor: pointer;
-}
-
-/*endregion FUNDAMENTAL */
+/*endregion SCROLLER*/
 /*##################################################*/
-/*region REQUIRED BY INCLUDED FRAMEWORKS*/
-/*region Keen required*/
+/*region FUNDAMENTAL */
 *,
 *::before,
 *::after {
+    margin: 0;
+    padding: 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
 
+html, body {
+    display: block;
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "ALINA", Arial, sans-serif;
+}
+
+.alina-vh-100 {min-height: 100vh;}
+
+/*endregion FUNDAMENTAL */
+/*##################################################*/
+/*region MAIN LAYOUT*/
+.alina-flex-vertical-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+}
+
+.alina-flex-vertical-header {
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+}
+
+.alina-flex-vertical-content {
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+}
+
+.alina-flex-vertical-footer {
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+}
+
+.alina-flex-item-wide {
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+}
+
+.alina-flex-item-shrink {
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+}
+
+/*endregion MAIN LAYOUT*/
+/* ################################################## */
+/*region REQUIRED BY INCLUDED FRAMEWORKS*/
+/*region Keen required*/
 html {
     font-size: 100%;
 }
@@ -71,7 +123,6 @@ html {
 /*endregion Keen required*/
 /*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
 /* ################################################## */
-/*region tiny adjustments*/
 /*region Form*/
 .alina-form {
     background-color: #000;
@@ -94,13 +145,15 @@ select[multiple] option:checked {
     color: white;
 }
 
-/*.btn {
-  padding: 1mm;
-  margin-left: 1mm;
-  margin-bottom: 1mm;
-}*/
 /*endregion Form*/
 /*##################################################*/
+/*region UTILS*/
+.cursor-pointer {cursor: pointer;}
+
+.vh-almost-100 {min-height: 90vh;}
+
+.bg-black {background-color: black;}
+
 .fixed-height-100px {
     overflow: hidden;
     max-height: 100px;
@@ -111,9 +164,7 @@ select[multiple] option:checked {
     max-height: 150px;
 }
 
-.text-white table {
-    color: white;
-}
+.text-white table {color: white;}
 
 .alina-tale-header,
 .alina-tale-header a,
@@ -133,6 +184,7 @@ select[multiple] option:checked {
     /*white-space: -o-pre-wrap; !* Opera 7 *!*/
 }
 
+/*endregion UTILS*/
 /*##################################################*/
 /*region Messages*/
 .alina-messages-body.modal-body {
@@ -144,7 +196,6 @@ select[multiple] option:checked {
 }
 
 /*endregion Messages*/
-/*endregion tiny adjustments*/
 /* ################################################## */
 /*region ck-editor*/
 .ck-content {
@@ -189,7 +240,8 @@ select[multiple] option:checked {
     box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43) !important;
 }
 
-.ck-content pre {
+.ck-content pre,
+.ck-content code {
     white-space: pre;
     /* https://stackoverflow.com/questions/4652654/how-to-turn-off-word-wrapping-in-html/4652666
     word-break: unset;
@@ -202,16 +254,11 @@ select[multiple] option:checked {
 
     overflow-x: auto;
     overflow-y: auto;
-}
-
-pre, .ck-content pre, .ck-content code {
     background-color: #000;
     color: #70ff70;
 }
 
-.ck-content a
-,.ck-content a span
-{
+.ck-content a, .ck-content a span {
     display: inline !important;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -239,4 +286,25 @@ pre, .ck-content pre, .ck-content code {
 }
 
 /*endregion ck-editor*/
+/* ################################################## */
+/*region DEVELOPER BLOCK*/
+/*
+html {border: #3a8104 solid 10px;}
+
+body {border: gray solid 10px;}
+
+#alina-body-wrapper {border: #87711d solid 10px;}
+
+.btn-light {background-color: #d90004}
+
+.AlinaIframe {border: yellow solid 1px;}
+*/
+.db-1 {border: red solid 5px}
+
+.db-2 {border: green solid 5px}
+
+.db-3 {border: blue solid 5px}
+
+.db-4 {border: purple solid 5px}
+/*endregion DEVELOPER BLOCK*/
 /* ################################################## */
