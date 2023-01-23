@@ -138,7 +138,7 @@ class AdminDbManager
         //$vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayout);
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     public function actionModels($model)

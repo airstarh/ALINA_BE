@@ -40,7 +40,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
         $vd = \alina\utils\Data::mergeObjects($vd, $data);
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }
@@ -77,7 +77,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'JSON Search-Replace-Beautify online');
         $vd = \alina\utils\Data::mergeObjects($vd, $data);
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }
