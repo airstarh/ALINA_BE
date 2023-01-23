@@ -153,6 +153,13 @@ class html
         return $res;
     }
 
+    public function tagRelCanonicalUrl()
+    {
+        $res = GlobalRequestStorage::obj()->get('tagRelCanonicalUrl');
+
+        return $res;
+    }
+
     public function css()
     {
         $urls = AlinaCfg('html/css');

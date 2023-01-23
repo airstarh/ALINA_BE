@@ -1,6 +1,11 @@
 ##################################################
 ssh -i C:\_A001\STATICA\_SSH\127-0-0-1 sewa@saysimsim.ru
 ##################################################
+sudo chown www-data:www-data /srv -R
+sudo chmod -R 755 /srv
+##################################################
+sudo usermod -a -G www-data sewa
+##################################################
 #region RIGHTS
 # CHOWN
 sudo chown www-data:www-data /srv/alina/_backend -R
@@ -20,5 +25,13 @@ sudo systemctl restart nginx
 
 #endregion RESTART
 ##################################################
-
-
+chown -R sewa /var/www/
+chgrp -R www-data /var/www/
+chmod -R 750 /var/www/
+chmod g+s /var/www/
+##################################################
+chown -R sewa /srv/
+chgrp -R www-data /srv/
+chmod -R 750 /srv/
+chmod g+s /srv/
+##################################################

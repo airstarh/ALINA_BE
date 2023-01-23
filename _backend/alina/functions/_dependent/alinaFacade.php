@@ -190,7 +190,6 @@ function AlinaGetCurrentDomainUrl()
 function AlinaDefineTagRelAlternateUrl()
 {
     $domain = AlinaGetCurrentDomainUrl();
-    $uri    = '';
     $parts  = [
         $domain,
         '/#/',
@@ -199,4 +198,17 @@ function AlinaDefineTagRelAlternateUrl()
 
     return implode('', $parts);
 }
+
+function AlinaDefineTagRelCanonicalUrl()
+{
+    $domain = AlinaGetCurrentDomainUrl();
+    $parts  = [
+        $domain,
+        '/',
+        Router::obj()->pathSys,
+    ];
+
+    return implode('', $parts);
+}
+
 ##################################################
