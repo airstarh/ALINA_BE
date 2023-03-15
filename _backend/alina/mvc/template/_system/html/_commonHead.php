@@ -19,5 +19,5 @@ require_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
     <link rel="canonical" href="<?= $data->tagRelCanonicalUrl() ?>"/>
 <?php } ?>
 <meta property="og:description" content="<?= $data->pageDescription() ?>"/>
-<?= $data->js() ?>○
+<?= $data->js() ?>
 <?= $data->css() ?>
