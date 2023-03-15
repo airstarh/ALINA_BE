@@ -147,6 +147,10 @@ class AdminTests
     }
 
     ##############################################
+
+    /**
+     * @rpite http://alinazero:7001/AdminTests/Nailer
+     */
     public function actionMailer()
     {
         $data = Sys::buffer(function () {

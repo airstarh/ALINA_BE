@@ -1,11 +1,11 @@
 <?php
 return [
     'admin' => [
-        'Host'       => 'smtp.mail.ru',
+        'Host'       => 'smtp.yandex.ru',
         'Port'       => 465,
-        'Username'   => 'air_star_h@mail.ru',
-        'Password'   => 'qwasZX!2',
-        'FromName'   => 'Alina Services',
+        'Username'   => 'devnull@saysimsim.ru',
+        'Password'   => 'dqglmktwtqhxzdei',
+        'FromName'   => 'VA Services',
         'SMTPSecure' => 'ssl',
     ],
 ];
