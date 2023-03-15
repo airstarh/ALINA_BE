@@ -14,9 +14,9 @@ error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_STRICT);
 error_reporting(E_ALL);
 ##################################################
 #region SHUTDOWN
-register_shutdown_function(function () {
-    error_log(\alina\utils\Sys::reportSpentTime(['FINAL'], []), 0);
-});
+#### register_shutdown_function(function () {
+####     error_log(\alina\utils\Sys::reportSpentTime(['FINAL'], []), 0);
+#### });
 #endregion SHUTDOWN
 ##################################################
 require_once './index-env.php';

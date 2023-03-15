@@ -14,9 +14,9 @@ define('ALINA_AUTH_EXPIRES', ALINA_TIME + ALINA_MAX_TIME_DIFF_SEC);
 //error_reporting(E_ALL);
 ##################################################
 #region SHUTDOWN
-register_shutdown_function(function () {
-    error_log(\alina\utils\Sys::reportSpentTime(['FINAL'], []), 0);
-});
+#### register_shutdown_function(function () {
+####     error_log(\alina\utils\Sys::reportSpentTime(['FINAL'], []), 0);
+#### });
 #endregion SHUTDOWN
 ##################################################
 require_once './index-env.php';
