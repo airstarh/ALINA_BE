@@ -1,9 +1,8 @@
 <?php /** @var mixed $data */ ?>
 
 <div class="page-header">
-	<h1>Hello, World!!!</h1>
-    <div>Yo! Yo! Yo! Yo! </div>
+    <h1>This is action Index of m45a App</h1>
 </div>
 <p>
-	<?= $data  ?>
+    <?= $data  ?>
 </p>
