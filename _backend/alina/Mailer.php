@@ -31,16 +31,17 @@ class Mailer
             //To
             $mail->addAddress($to, $to);     // Add a recipient
             // Content
-            $subject = "Alina Verification code";
+            $subject = "Reset Password. Verification code.";
             $message = "Your verification code is {$code}. You know, what to do :-)";
             $mail->isHTML(TRUE);                                  // Set email format to HTML
             $mail->Subject = $subject;
             $mail->Body    = $message;
             $mail->AltBody = $message;
-            $sendRes = $mail->send();
+            $sendRes       = $mail->send();
             if ($sendRes) {
                 Message::setInfo("Message has been sent");
-            } else {
+            }
+            else {
                 Message::setDanger("Failed");
             }
         } catch (AppException $e) {
@@ -57,16 +58,16 @@ class Mailer
             //Server settings
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      // Enable verbose debug output
             $mail->isSMTP();                                            // Send using SMTP
-            $mail->Host       = 'smtp.yandex.ru';                    // Set the SMTP server to send through
+            $mail->Host       = AlinaCfg('mailer/admin/Host');                    // Set the SMTP server to send through
             $mail->SMTPAuth   = TRUE;                                   // Enable SMTP authentication
-            $mail->Username   = 'my-customer-mailbox@yandex.ru';                     // SMTP username
-            $mail->Password   = 'qwerty123qwerty';                               // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
-            $mail->Port       = 587;                                    // TCP port to connect to
+            $mail->Username   = AlinaCfg('mailer/admin/Username');                     // SMTP username
+            $mail->Password   = AlinaCfg('mailer/admin/Password');                               // SMTP password
+            $mail->SMTPSecure = AlinaCfg('mailer/admin/SMTPSecure');         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+            $mail->Port       = AlinaCfg('mailer/admin/Port');                                    // TCP port to connect to
             //Recipients
             //From
-            $mail->setFrom('my-customer-mailbox@yandex.ru', 'ALINA Framework');
-            $mail->addReplyTo('my-customer-mailbox@yandex.ru', 'ALINA Framework');
+            $mail->setFrom(AlinaCfg('mailer/admin/Username'), 'ALINA Framework');
+            $mail->addReplyTo(AlinaCfg('mailer/admin/Username'), 'ALINA Framework');
             //To
             $mail->addAddress('air_star_h@mail.ru', 'Sewa Mail');     // Add a recipient
             $mail->addCC('vsevolod.azovsky@gmail.com');
@@ -78,7 +79,7 @@ class Mailer
             // Content
             $mail->isHTML(TRUE);                                  // Set email format to HTML
             $mail->Subject = 'Here is the subject';
-            $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
+            $mail->Body    = '<h1>Hello, Sewa!</h1>This is the HTML message body <b>in bold!</b>';
             $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
             $mail->send();
             Message::setInfo("Message has been sent");

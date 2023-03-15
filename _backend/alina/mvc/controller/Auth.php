@@ -202,17 +202,17 @@ class Auth
                 $mUser = new user();
                 $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
                 if ($mUser->id) {
-                    if ($atrs->reset_required != 1) {
+                    //if ($atrs->reset_required != 1) {
                         $code = ALINA_TIME;
                         (new Mailer())->sendVerificationCode($vd->mail, $code);
                         $mUser->updateById([
                             'reset_code'     => $code,
                             'reset_required' => 1,
                         ]);
-                    }
-                    else {
-                        Message::setWarning('Code was sent earlier', []);
-                    }
+                    //}
+                    // else {
+                    //     Message::setWarning('Code was sent earlier', []);
+                    // }
                     Sys::redirect("/auth/ResetPasswordWithCode?mail={$vd->mail}", 303);
                 }
             }
