@@ -22,7 +22,9 @@ sudo chmod -R 755 /var/www/m45a
 ##################################################
 #region RESTART
 sudo systemctl restart nginx
-
+sudo systemctl restart php7.4-fpm
+sudo service mysql restart
+sudo service ssh restart
 #endregion RESTART
 ##################################################
 chown -R sewa /var/www/
