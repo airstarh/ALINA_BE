@@ -7,6 +7,14 @@
 /* ################################################## */
 /*region Very Special*/
 /*region Definitions*/
+.is_sticked {
+    border-top: solid 5px;
+}
+
+.is_draft {
+    border-right: solid 5px;
+}
+
 .corporate-color,
 .corporate-color a,
 .corporate-color a:hover {
@@ -16,15 +24,15 @@
 .corporate-bg,
 .corporate-bg a,
 .corporate-bg a:hover {
-    background-color: var(--corporate-bg) !important;
+    background-color: var(--corporate-bg);
 }
 
 .corporate-bg-and-text,
 .corporate-bg-and-text ul,
 .corporate-bg-and-text a,
 .corporate-bg-and-text a:hover {
-    background-color: var(--corporate-bg) !important;;
-    color: var(--corporate-txt) !important;;
+    background-color: var(--corporate-bg);
+    color: var(--corporate-txt);
 }
 
 .corporate-border-color,
@@ -40,13 +48,5 @@
 }
 
 /*endregion Definitions*/
-.is_draft {
-    border-right: solid 5px;
-}
-
-.is_sticked {
-    border-top: solid 5px;
-}
-
 /*endregion Very Special*/
 /* ################################################## */
