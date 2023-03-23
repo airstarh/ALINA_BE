@@ -97,10 +97,10 @@ class Url
     #endregion URL's, Aliases, Routes
     ##################################################
     #region PARSE_URL
-    static public function un_parse_url(array $parsedUri)
+    static public function un_parse_url(array $parsedUri): string
     {
         $get          = function ($key) use ($parsedUri) {
-            return isset($parsedUri[$key]) ? $parsedUri[$key] : '';
+            return $parsedUri[$key] ?? '';
         };
         $pass         = $get('pass');
         $user         = $get('user');
