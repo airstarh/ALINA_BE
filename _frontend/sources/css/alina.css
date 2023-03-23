@@ -1,9 +1,10 @@
 /*##################################################*/
+/*region FONT*/
 @font-face {
     font-family: "ALINA";
     src: url("/sources/fonts/XXX.ttf") format('truetype');
 }
-
+/*endregion FONT*/
 /*##################################################*/
 /*region SCROLLER*/
 html::-webkit-scrollbar,
@@ -28,10 +29,6 @@ html, body {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
-
-/** {
-    outline: 1px solid red;
-}*/
 
 body {
     display: block;
@@ -191,6 +188,9 @@ select[multiple] option:checked {
     /*white-space: -o-pre-wrap; !* Opera 7 *!*/
 }
 
+iframe {
+    background-color: #ebebeb;
+}
 /*endregion UTILS*/
 /*##################################################*/
 /*region Messages*/
@@ -308,6 +308,11 @@ body {border: gray solid 10px;}
 
 .AlinaIframe {border: yellow solid 1px;}
 */
+
+/** {
+    outline: 1px solid red;
+}*/
+
 .db-1 {border: red solid 5px}
 
 .db-2 {border: green solid 5px}
@@ -315,5 +320,6 @@ body {border: gray solid 10px;}
 .db-3 {border: blue solid 5px}
 
 .db-4 {border: purple solid 5px}
+
 /*endregion DEVELOPER BLOCK*/
 /* ################################################## */

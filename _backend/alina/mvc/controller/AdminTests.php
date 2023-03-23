@@ -103,11 +103,16 @@ class AdminTests
         echo (new html)->page('1234');
     }
 
+    /**
+     * Test POST Request
+     * @route /admintests/testpost
+    */
     public function actionTestPost()
     {
-        Message::setSuccess('For User');
-        MessageAdmin::setSuccess('For Admin');
-        echo (new html)->page(Request::obj()->POST);
+        Message::setSuccess('AdminTest Response');
+        Message::setSuccess('Message for User');
+        MessageAdmin::setSuccess('Message for Admin');
+        echo (new html)->page(Request::obj());
     }
 
     ##############################################
