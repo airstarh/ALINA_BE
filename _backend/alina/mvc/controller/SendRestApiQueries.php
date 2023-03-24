@@ -27,18 +27,23 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUri     = 'https://alinazero:7002/tale/feed';
-        $reqUri     = 'https://saysimsim.ru/tale/feed';
-        $reqUri     = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
-        $reqUri     = 'https://local.host:7002/php-reply-what-received.php';
-        $reqGet     = (object)[];
-        $reqPost    = (object)[];
-        $reqHeaders = (object)[];
-        $reqCookie  = (object)[];
-        $reqPostRaw = 0;
-        $q          = new HttpRequest();
-        $methods    = $q->take('methods');
-        $reqMethod  = $q->take('reqMethod');
+        $reqUri        = 'https://alinazero:7002/tale/feed';
+        $reqUri        = 'https://saysimsim.ru/tale/feed';
+        $reqUri        = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
+        $reqUri        = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
+        $reqGet        = (object)[
+            'arr1' => [1, 2, 3],
+            'arr2' => (object)['___prop____' => 'val',],
+        ];
+        $reqFields     = (object)[
+            "Hello" => "World",
+        ];
+        $reqHeaders    = (object)[];
+        $reqCookie     = (object)[];
+        $flagFieldsRaw = 1;
+        $q             = new HttpRequest();
+        $methods       = $q->take('methods');
+        $reqMethod     = $q->take('reqMethod');
         #endregion Defaults
         ############################################
         if (Request::isPost($p)) {
@@ -53,13 +58,18 @@ class SendRestApiQueries
             if (property_exists($p, 'reqGet')) {
                 $reqGet = json_decode($p->reqGet, 1) ?: (object)[];
             }
-            if (property_exists($p, 'reqPost')) {
-                if (property_exists($p, 'reqPostRaw')) {
-                    $reqPostRaw = $p->reqPostRaw;
-                    $reqPost    = $p->reqPost;
+            if (property_exists($p, 'flagFieldsRaw')) {
+                $flagFieldsRaw = $p->flagFieldsRaw;
+            }
+            else {
+                $flagFieldsRaw = 0;
+            }
+            if (property_exists($p, 'reqFields')) {
+                if ($flagFieldsRaw) {
+                    $reqFields = $p->reqFields;
                 }
                 else {
-                    $reqPost = json_decode($p->reqPost, 1) ?: (object)[];
+                    $reqFields = json_decode($p->reqFields, 1) ?: (object)[];
                 }
             }
             if (property_exists($p, 'reqHeaders')) {
@@ -74,37 +84,37 @@ class SendRestApiQueries
             $q->setReqUri($reqUri);
             $q->setReqMethod($reqMethod);
             $q->addGet((array)$reqGet);
-            $q->setFields((array)$reqPost);
+            $q->setFlagFieldsRaw($flagFieldsRaw);
+            $q->setFields($reqFields);
             $q->addHeaders((array)$reqHeaders);
             $q->addCookie((array)$reqCookie);
-            $q->setFlagFieldsRaw($reqPostRaw);
             $q->exe();
             #endregion MAIN
             ############################################
             #region Corrections after Request
-            $reqUri     = $q->take('reqUri');
-            $reqMethod  = $q->take('reqMethod');
-            $reqGet     = $q->take('reqGet');
-            $reqPost    = $q->take('reqFields');
-            $reqHeaders = $q->take('reqHeaders');
-            $reqCookie  = $q->take('reqCookie');
-            $reqPostRaw = $q->take('flagFieldsRaw');
+            $reqUri        = $q->take('reqUri');
+            $reqMethod     = $q->take('reqMethod');
+            $reqGet        = $q->take('reqGet');
+            $flagFieldsRaw = $q->take('flagFieldsRaw');
+            $reqFields     = $q->take('reqFields');
+            $reqHeaders    = $q->take('reqHeaders');
+            $reqCookie     = $q->take('reqCookie');
             #endregion Corrections after Request
             ############################################
         }
         ############################################
         #regionn View
         $vd = (object)[
-            'form_id'    => __FUNCTION__,
-            'reqUri'     => $reqUri,
-            'reqGet'     => $reqGet,
-            'reqPost'    => $reqPost,
-            'reqHeaders' => $reqHeaders,
-            'reqCookie'  => $reqCookie,
-            'reqPostRaw' => $reqPostRaw,
-            'methods'    => $methods,
-            'reqMethod'  => $reqMethod,
-            'q'          => $q,
+            'form_id'       => __FUNCTION__,
+            'reqUri'        => $reqUri,
+            'reqGet'        => $reqGet,
+            'reqFields'     => $reqFields,
+            'reqHeaders'    => $reqHeaders,
+            'reqCookie'     => $reqCookie,
+            'flagFieldsRaw' => $flagFieldsRaw,
+            'methods'       => $methods,
+            'reqMethod'     => $reqMethod,
+            'q'             => $q,
         ];
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         #endregionn View

@@ -28,7 +28,7 @@ class HttpRequest
     ];
     public string $reqUri          = '';
     public array  $reqGet          = [];
-    private array $reqFields       = [];
+    private       $reqFields       = [];
     private int   $flagFieldsRaw   = 0;
     private array $reqHeaders      = [
         //'Content-Type' => 'multipart/form-data; charset=utf-8',
@@ -158,18 +158,20 @@ class HttpRequest
 
     /**
      * Sets:
-     * $this->reqFields:[]
+     * $this->reqFields:[]|string
+     *
+     * @param mixed $mixed
      */
-    public function setFields($arr, $method = 'POST'): HttpRequest
+    public function setFields($mixed, $method = 'POST'): HttpRequest
     {
         //#####
-        if (empty($arr)) return $this;
+        if (empty($mixed)) return $this;
         //#####
         if ($this->flagFieldsRaw) {
-            $this->reqFields = $arr;
+            $this->reqFields = $mixed;
         }
         else {
-            $this->reqFields = array_merge($this->reqFields, (array)$arr);
+            $this->reqFields = array_merge($this->reqFields, (array)$mixed);
         }
         if (!empty($this->reqFields) && $this->reqMethod === 'GET') {
             $this->setReqMethod($method);
