@@ -479,15 +479,14 @@ class Data
         return FALSE;
     }
 
-    static public function hlpGetBeautifulJsonString($d)
+    static public function hlpGetBeautifulJsonString($s)
     {
-        $s      = $d;
-        $jflags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
-        if (is_array($d) || is_object($d)) {
-            $s = json_encode($d, $jflags);
+        $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+        if (is_array($s) || is_object($s)) {
+            return json_encode($s, $flags);
         }
         if (static::isStringValidJson($s, $res)) {
-            return json_encode($res, $jflags);
+            return json_encode($res, $flags);
         }
         else {
             return $s;

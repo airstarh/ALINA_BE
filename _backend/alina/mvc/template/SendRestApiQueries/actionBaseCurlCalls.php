@@ -49,21 +49,21 @@ use alina\mvc\view\html as htmlAlias;
                 <div class="col-sm">
                     <div class="form-group mt-3">
                         <span class="btn btn-primary">
-                            POST <span class="badge badge-light">reqPost</span>
+                            POST <span class="badge badge-light">reqFields</span>
                         </span>
                         <textarea
-                            name="reqPost" class="form-control" id="reqPost"
+                            name="reqFields" class="form-control" id="reqFields"
                             rows="11"
-                        ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->reqPost) ?></textarea>
+                        ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->reqFields) ?></textarea>
 
                         <div class="custom-control custom-checkbox">
                             <input
-                                name="reqPostRaw" <?= $data->reqPostRaw ? 'checked' : '' ?>
+                                name="flagFieldsRaw" <?= $data->flagFieldsRaw ? 'checked' : '' ?>
                                 class="custom-control-input"
-                                type="checkbox" value="1" id="reqPostRaw"
+                                type="checkbox" value="1" id="flagFieldsRaw"
                             >
-                            <label class="btn btn-primary custom-control-label" for="reqPostRaw">
-                                reqPostRaw
+                            <label class="btn btn-primary custom-control-label" for="flagFieldsRaw">
+                                flagFieldsRaw
                             </label>
                         </div>
                     </div>
