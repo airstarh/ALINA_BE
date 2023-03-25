@@ -27,7 +27,7 @@ class HttpRequest
         'CONNECT'     => 0,
         'TRACE'       => 0,
     ];
-    public array  $reqGet  = [];
+    private array $reqGet  = [];
     /**@var array|string */
     private       $reqFields       = [];
     private int   $flagFieldsRaw   = 0;
@@ -47,14 +47,14 @@ class HttpRequest
     ];
     #endregion Request
     ##########################################
-    #region Response
-    public array  $curlInfo                = [];
-    public string $resUrl                  = '';
-    public string $respBody                = '';
-    public array  $respHeaders             = [];
-    public array  $respHeadersStructurized = [];
-    public int    $redirections            = 0;
-    #endregion Response
+    #region Response/Results
+    private array  $curlInfo                = [];
+    private string $resUrl                  = '';
+    private string $respBody                = '';
+    private array  $respHeaders             = [];
+    private array  $respHeadersStructurized = [];
+    private int    $redirections            = 0;
+    #endregion Response/Results
     ##########################################
     #region INIT
     public function __construct(
