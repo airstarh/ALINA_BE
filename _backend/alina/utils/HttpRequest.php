@@ -172,10 +172,14 @@ class HttpRequest
      * $this->reqFields:[]|string
      * @param mixed $mixed
      */
-    public function setFields($mixed, $method = 'POST'): HttpRequest
+    public function setFields($mixed, $method = 'POST', $flagFieldsRaw = NULL): HttpRequest
     {
         //#####
         if (empty($mixed)) return $this;
+        //#####
+        if ($flagFieldsRaw !== NULL) {
+            $this->setFlagFieldsRaw($flagFieldsRaw);
+        }
         //#####
         if ($this->flagFieldsRaw) {
             $this->reqFields = $mixed;

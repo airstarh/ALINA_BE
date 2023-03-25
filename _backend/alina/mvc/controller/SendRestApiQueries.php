@@ -31,17 +31,18 @@ class SendRestApiQueries
         $reqUrl                  = 'https://saysimsim.ru/tale/feed';
         $reqUrl                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
         $reqUrl                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
+        $reqUrl                  = 'https://local.host:7002/php-redirect-1.php?sew=pisewa&siski=piski';
         $resUrl                  = ''; // What is finally sent in Request.
         $reqGet                  = (object)[
             'arr1' => [1, 2, 3],
-            'arr2' => (object)['___prop____' => 'val',],
+            'arr2' => ['STRING_PROP' => 'val',],
         ];
         $reqFields               = (object)[
             "Hello" => "World",
         ];
         $reqHeaders              = (object)[];
         $reqCookie               = (object)[];
-        $flagFieldsRaw           = 1;
+        $flagFieldsRaw           = 0;
         $q                       = new HttpRequest();
         $methods                 = $q->take('methods');
         $reqMethod               = $q->take('reqMethod');
