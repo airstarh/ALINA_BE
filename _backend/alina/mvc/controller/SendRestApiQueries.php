@@ -27,10 +27,10 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUri                  = 'https://alinazero:7002/tale/feed';
-        $reqUri                  = 'https://saysimsim.ru/tale/feed';
-        $reqUri                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
-        $reqUri                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
+        $reqUrl                  = 'https://alinazero:7002/tale/feed';
+        $reqUrl                  = 'https://saysimsim.ru/tale/feed';
+        $reqUrl                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
+        $reqUrl                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
         $resUrl                  = ''; // What is finally sent in Request.
         $reqGet                  = (object)[
             'arr1' => [1, 2, 3],
@@ -53,8 +53,8 @@ class SendRestApiQueries
         if (Request::isPost($p)) {
             ############################################
             #region Process POST Query
-            if (property_exists($p, 'reqUri')) {
-                $reqUri = $p->reqUri ?: '';
+            if (property_exists($p, 'reqUrl')) {
+                $reqUrl = $p->reqUrl ?: '';
             }
             if (property_exists($p, 'reqMethod')) {
                 $reqMethod = $p->reqMethod;
@@ -86,7 +86,7 @@ class SendRestApiQueries
             ############################################
             #region MAIN
             $q->setFlagFieldsRaw($flagFieldsRaw);
-            $q->setReqUri($reqUri);
+            $q->setReqUrl($reqUrl);
             $q->setReqMethod($reqMethod);
             $q->addGet((array)$reqGet);
             $q->setFields($reqFields);
@@ -97,7 +97,7 @@ class SendRestApiQueries
             ############################################
             #region Corrections after Request
             $flagFieldsRaw = $q->take('flagFieldsRaw');
-            $reqUri        = $q->take('reqUri');
+            $reqUrl        = $q->take('reqUrl');
             $reqMethod     = $q->take('reqMethod');
             $reqGet        = $q->take('reqGet');
             $reqFields     = $q->take('reqFields');
@@ -115,7 +115,7 @@ class SendRestApiQueries
         #regionn View
         $vd = (object)[
             'form_id'                 => __FUNCTION__,
-            'reqUri'                  => $reqUri,
+            'reqUrl'                  => $reqUrl,
             'reqGet'                  => $reqGet,
             'reqFields'               => $reqFields,
             'reqHeaders'              => $reqHeaders,
