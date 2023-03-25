@@ -17,9 +17,9 @@ use alina\mvc\view\html as htmlAlias;
 
             <div class="form-group mt-3">
                 <span class="btn btn-primary">
-                    URI <span class="badge badge-light">reqUri</span>
+                    URI <span class="badge badge-light">reqUrl</span>
                 </span>
-                <input type="text" name="reqUri" value="<?= $data->reqUri ?>" class="form-control">
+                <input type="text" name="reqUrl" value="<?= $data->reqUrl ?>" class="form-control">
             </div>
             <div class="row">
                 <div class="col">

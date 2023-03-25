@@ -9,7 +9,7 @@ class HttpRequest
     ##########################################
     #region Request
     private        $ch;
-    public string  $reqUri            = '';
+    public string  $reqUrl            = '';
     private string $reqMethod         = 'GET';
     private int    $flagMethodMutator = 0;
     /**
@@ -69,7 +69,7 @@ class HttpRequest
     {
         $this->ch = curl_init();
         if ($flagFieldsRaw !== NULL) $this->flagFieldsRaw = $flagFieldsRaw;
-        if ($uri) $this->setReqUri($uri);
+        if ($uri) $this->setReqUrl($uri);
         if ($query) $this->addGet($query);
         if ($method) $this->setReqMethod($method);
         if ($fields) $this->setFields($fields);
@@ -83,16 +83,16 @@ class HttpRequest
     #region Facade Stuff
     /**
      * Sets:
-     * $this->>reqUri:string
+     * $this->>reqUrl:string
      * $this->>reqGet:[]
      */
-    public function setReqUri(string $str): HttpRequest
+    public function setReqUrl(string $str): HttpRequest
     {
         $parsedUri = parse_url($str);
         ##############################
         #region Extract and add URI
         $this->arrUriInterface = array_merge($this->arrUriInterface, $parsedUri);
-        $this->reqUri          = $this->unParseUrl([
+        $this->reqUrl          = $this->unParseUrl([
             'scheme' => $this->arrUriInterface['scheme'],
             'host'   => $this->arrUriInterface['host'],
             'port'   => $this->arrUriInterface['port'],
@@ -252,10 +252,10 @@ class HttpRequest
     #region Request Prepare Staff
     private function prepareUrlAndGet(): string
     {
-        $reqUriClean  = $this->reqUri;
+        $reqUrlClean  = $this->reqUrl;
         $get          = http_build_query($this->reqGet);
         $arr          = [
-            $reqUriClean,
+            $reqUrlClean,
             empty($get) ? '' : '?',
             $get,
         ];
