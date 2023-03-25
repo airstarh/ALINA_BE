@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var stdClass $data
+ * @var \alina\utils\HttpRequest $data::q
+ */
 
 use alina\mvc\view\html as htmlAlias;
 
@@ -101,65 +105,62 @@ use alina\mvc\view\html as htmlAlias;
             <h2>Response</h2>
             <div class="mt-3">
                 <span class="btn btn-primary">
-                    URI <span class="badge badge-light">$data->q->resUrl</span>
+                    URI <span class="badge badge-light">HttpRequest::resUrl</span>
                 </span>
-                <input type="text" value="<?= $data->q->resUrl ?>" class="form-control">
+                <input type="text" value="<?= $data->resUrl ?>" class="form-control">
             </div>
 
             <div class="mt-3">
                 <span class="btn btn-primary">
-                    Body <span class="badge badge-light">$data->q->respBody</span>
+                    Body <span class="badge badge-light">HttpRequest::respBody</span>
                 </span>
                 <textarea
                     class="form-control w-100" rows="11"
-                ><?= htmlentities(\alina\utils\Data::hlpGetBeautifulJsonString($data->q->respBody)) ?></textarea>
+                ><?= htmlentities(\alina\utils\Data::hlpGetBeautifulJsonString($data->respBody)) ?></textarea>
             </div>
 
             <div class="mt-3">
                 <span class="btn btn-primary">
-                    Headers <span class="badge badge-light">$data->q->respHeadersStructurized </span>
+                    Headers <span class="badge badge-light">HttpRequest::respHeadersStructurized </span>
                 </span>
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->q->respHeadersStructurized) ?></textarea>
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->respHeadersStructurized) ?></textarea>
             </div>
 
             <div class="mt-3">
                 <span class="btn btn-primary">
-                    curlInfo <span class="badge badge-light">$data->q->curlInfo </span>
+                    curlInfo <span class="badge badge-light">HttpRequest::curlInfo </span>
                 </span>
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->q->curlInfo) ?></textarea>
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->curlInfo) ?></textarea>
             </div>
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-sm">
-        <div class="m-5">
+    <div class="col">
             <span class="btn btn-primary">
-                iframe <span class="badge badge-light">$data->q->respBody</span>
+                iframe <span class="badge badge-light">HttpRequest::respBody</span>
             </span>
-            <div class="m5 clear">&nbsp;</div>
-            <!--<?= $data->q->resUrl ?>-->
-            <iframe id="alina-dynamic-request-result" src="" class="w-100" height="500"></iframe>
-            <template id="respBody">
-                <?= $data->q->respBody ?>
-            </template>
-            <script type="text/javascript">
-                var tpl    = document.querySelector('#respBody');
-                //var iframe = document.querySelector('#alina-dynamic-request-result');
-                var iframe = document.querySelector('#alina-dynamic-request-result').contentWindow.document.body;
-                var clon   = tpl.content.cloneNode(true);
-                iframe.appendChild(clon);
-                console.log("Received Node  ++++++++++");
-                console.log(clon);
-                //iframe.srcdoc = clon;
-                //document.body.appendChild(clon);
-            </script>
-        </div>
+        <iframe id="alina-dynamic-request-result" src="" class="w-100" height="500"></iframe>
+        <template id="respBody">
+            <?= $data->respBody ?>
+        </template>
+        <script type="text/javascript">
+            const tpl    = document.querySelector('#respBody');
+            //var iframe = document.querySelector('#alina-dynamic-request-result');
+            const iframe = document.querySelector('#alina-dynamic-request-result').contentWindow.document.body;
+            const clon   = tpl.content.cloneNode(true);
+            iframe.appendChild(clon);
+            console.log("Received Node  ++++++++++");
+            console.log(clon);
+            //iframe.srcdoc = clon;
+            //document.body.appendChild(clon);
+        </script>
     </div>
+</div>
 </div>

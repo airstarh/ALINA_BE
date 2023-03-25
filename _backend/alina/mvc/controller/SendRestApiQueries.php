@@ -27,23 +27,27 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUri        = 'https://alinazero:7002/tale/feed';
-        $reqUri        = 'https://saysimsim.ru/tale/feed';
-        $reqUri        = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
-        $reqUri        = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
-        $reqGet        = (object)[
+        $reqUri                  = 'https://alinazero:7002/tale/feed';
+        $reqUri                  = 'https://saysimsim.ru/tale/feed';
+        $reqUri                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
+        $reqUri                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
+        $resUrl                  = ''; // What is finally sent in Request.
+        $reqGet                  = (object)[
             'arr1' => [1, 2, 3],
             'arr2' => (object)['___prop____' => 'val',],
         ];
-        $reqFields     = (object)[
+        $reqFields               = (object)[
             "Hello" => "World",
         ];
-        $reqHeaders    = (object)[];
-        $reqCookie     = (object)[];
-        $flagFieldsRaw = 1;
-        $q             = new HttpRequest();
-        $methods       = $q->take('methods');
-        $reqMethod     = $q->take('reqMethod');
+        $reqHeaders              = (object)[];
+        $reqCookie               = (object)[];
+        $flagFieldsRaw           = 1;
+        $q                       = new HttpRequest();
+        $methods                 = $q->take('methods');
+        $reqMethod               = $q->take('reqMethod');
+        $respBody                = $q->take('respBody');
+        $curlInfo                = $q->take('curlInfo');
+        $respHeadersStructurized = $q->take('respHeadersStructurized');
         #endregion Defaults
         ############################################
         if (Request::isPost($p)) {
@@ -81,10 +85,10 @@ class SendRestApiQueries
             #endregion Process POST Query
             ############################################
             #region MAIN
+            $q->setFlagFieldsRaw($flagFieldsRaw);
             $q->setReqUri($reqUri);
             $q->setReqMethod($reqMethod);
             $q->addGet((array)$reqGet);
-            $q->setFlagFieldsRaw($flagFieldsRaw);
             $q->setFields($reqFields);
             $q->addHeaders((array)$reqHeaders);
             $q->addCookie((array)$reqCookie);
@@ -92,29 +96,38 @@ class SendRestApiQueries
             #endregion MAIN
             ############################################
             #region Corrections after Request
+            $flagFieldsRaw = $q->take('flagFieldsRaw');
             $reqUri        = $q->take('reqUri');
             $reqMethod     = $q->take('reqMethod');
             $reqGet        = $q->take('reqGet');
-            $flagFieldsRaw = $q->take('flagFieldsRaw');
             $reqFields     = $q->take('reqFields');
             $reqHeaders    = $q->take('reqHeaders');
             $reqCookie     = $q->take('reqCookie');
+            #####
+            $resUrl                  = $q->take('resUrl');
+            $respBody                = $q->take('respBody');
+            $curlInfo                = $q->take('curlInfo');
+            $respHeadersStructurized = $q->take('respHeadersStructurized');
             #endregion Corrections after Request
             ############################################
         }
         ############################################
         #regionn View
         $vd = (object)[
-            'form_id'       => __FUNCTION__,
-            'reqUri'        => $reqUri,
-            'reqGet'        => $reqGet,
-            'reqFields'     => $reqFields,
-            'reqHeaders'    => $reqHeaders,
-            'reqCookie'     => $reqCookie,
-            'flagFieldsRaw' => $flagFieldsRaw,
-            'methods'       => $methods,
-            'reqMethod'     => $reqMethod,
-            'q'             => $q,
+            'form_id'                 => __FUNCTION__,
+            'reqUri'                  => $reqUri,
+            'reqGet'                  => $reqGet,
+            'reqFields'               => $reqFields,
+            'reqHeaders'              => $reqHeaders,
+            'reqCookie'               => $reqCookie,
+            'flagFieldsRaw'           => $flagFieldsRaw,
+            'methods'                 => $methods,
+            'reqMethod'               => $reqMethod,
+            #####
+            'resUrl'                  => $resUrl,
+            'respBody'                => $respBody,
+            'curlInfo'                => $curlInfo,
+            'respHeadersStructurized' => $respHeadersStructurized,
         ];
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         #endregionn View

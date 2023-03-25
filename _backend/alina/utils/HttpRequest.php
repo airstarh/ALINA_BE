@@ -9,12 +9,13 @@ class HttpRequest
     ##########################################
     #region Request
     private        $ch;
+    public string  $reqUri            = '';
     private string $reqMethod         = 'GET';
     private int    $flagMethodMutator = 0;
     /**
      * Documentation: https://developer.mozilla.org/ru/docs/Web/HTTP/Methods
      */
-    private array $methods         = [
+    private array $methods = [
         'Method Name' => 'Does Method causes Mutation?',
         'GET'         => 0,
         'POST'        => 1,
@@ -26,8 +27,8 @@ class HttpRequest
         'CONNECT'     => 0,
         'TRACE'       => 0,
     ];
-    public string $reqUri          = '';
-    public array  $reqGet          = [];
+    public array  $reqGet  = [];
+    /**@var array|string */
     private       $reqFields       = [];
     private int   $flagFieldsRaw   = 0;
     private array $reqHeaders      = [
@@ -56,14 +57,24 @@ class HttpRequest
     #endregion Response
     ##########################################
     #region INIT
-    public function __construct($uri = NULL, $method = NULL, $query = NULL, $fields = NULL, $headers = NULL, $cookie = NULL)
+    public function __construct(
+        $uri = NULL, //string
+        $method = NULL,//string uppercase
+        $query = NULL,//array
+        $fields = NULL,//array|string
+        $headers = NULL,//array ["Header-Name"=>"Header Value"]
+        $cookie = NULL,//array ["Cookie-Name"=>"Cookie Value"]
+        $flagFieldsRaw = NULL// 0|1 
+    )
     {
         $this->ch = curl_init();
+        if ($flagFieldsRaw !== NULL) $this->flagFieldsRaw = $flagFieldsRaw;
         if ($uri) $this->setReqUri($uri);
         if ($query) $this->addGet($query);
         if ($method) $this->setReqMethod($method);
         if ($fields) $this->setFields($fields);
         if ($headers) $this->addHeaders($headers);
+        if ($cookie) $this->addCookie($cookie);
 
         return $this;
     }
@@ -110,7 +121,7 @@ class HttpRequest
      */
     public function addHeaders(array $arr): HttpRequest
     {
-        $this->reqHeaders = array_merge($this->reqHeaders, (array)$arr);
+        $this->reqHeaders = array_merge($this->reqHeaders, $arr);
 
         return $this;
     }
@@ -144,7 +155,7 @@ class HttpRequest
      */
     public function addGet(array $arr): HttpRequest
     {
-        $this->reqGet = array_merge($this->reqGet, (array)$arr);
+        $this->reqGet = array_merge($this->reqGet, $arr);
 
         return $this;
     }
@@ -159,7 +170,6 @@ class HttpRequest
     /**
      * Sets:
      * $this->reqFields:[]|string
-     *
      * @param mixed $mixed
      */
     public function setFields($mixed, $method = 'POST'): HttpRequest
@@ -181,10 +191,10 @@ class HttpRequest
     }
 
     /**
+     * For CURLOPT_CUSTOMREQUEST
      * Sets:
      * $this->method:string
      * $this->flagMethodMutator:Boolean|Int
-     * CURLOPT_CUSTOMREQUEST
      */
     public function setReqMethod(string $method): HttpRequest
     {
@@ -228,7 +238,7 @@ class HttpRequest
         }
         //EXECUTION
         $this->respBody = curl_exec($ch);
-        if ($this->respBody == FALSE) {
+        if (!$this->respBody) {
             $this->respBody = curl_error($ch);
         }
         $this->curlInfo = curl_getinfo($ch);
@@ -261,9 +271,8 @@ class HttpRequest
         if ($this->flagFieldsRaw) {
             return $reqFields;
         }
-        $reqFields = http_build_query($reqFields);
 
-        return $reqFields;
+        return http_build_query($reqFields);
     }
 
     /**
@@ -282,7 +291,7 @@ class HttpRequest
             else {
                 if (is_string($k)) {
                     if (!empty($v)) {
-                        $s = "{$k}: {$v}";
+                        $s = "$k: $v";
                     }
                     else {
                         $s = $k;
@@ -313,7 +322,7 @@ class HttpRequest
             else {
                 if (is_string($k)) {
                     if (!empty($v)) {
-                        $s = "{$k}={$v}";
+                        $s = "$k=$v";
                     }
                     else {
                         $s = $k;
