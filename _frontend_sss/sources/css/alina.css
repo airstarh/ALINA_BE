@@ -1,9 +1,10 @@
 /*##################################################*/
+/*region FONT*/
 @font-face {
     font-family: "ALINA";
     src: url("/sources/fonts/XXX.ttf") format('truetype');
 }
-
+/*endregion FONT*/
 /*##################################################*/
 /*region SCROLLER*/
 html::-webkit-scrollbar,
@@ -29,13 +30,16 @@ html, body {
     box-sizing: border-box;
 }
 
-html, body {
+body {
     display: block;
+    box-sizing: border-box;
     position: relative;
-    min-height: 100%;
-    margin: 0;
+    min-height: 100vh;
+    width: 99vw;
+    margin: 0 auto;
     padding: 0;
     font-family: "ALINA", Arial, sans-serif;
+    /*outline: 1px solid yellow;*/
 }
 
 .alina-vh-100 {min-height: 100vh;}
@@ -184,6 +188,9 @@ select[multiple] option:checked {
     /*white-space: -o-pre-wrap; !* Opera 7 *!*/
 }
 
+iframe {
+    background-color: #ebebeb;
+}
 /*endregion UTILS*/
 /*##################################################*/
 /*region Messages*/
@@ -200,6 +207,8 @@ select[multiple] option:checked {
 /*region ck-editor*/
 .ck-content {
     padding: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .ck-content ol,
@@ -299,6 +308,11 @@ body {border: gray solid 10px;}
 
 .AlinaIframe {border: yellow solid 1px;}
 */
+
+/** {
+    outline: 1px solid red;
+}*/
+
 .db-1 {border: red solid 5px}
 
 .db-2 {border: green solid 5px}
@@ -306,5 +320,6 @@ body {border: gray solid 10px;}
 .db-3 {border: blue solid 5px}
 
 .db-4 {border: purple solid 5px}
+
 /*endregion DEVELOPER BLOCK*/
 /* ################################################## */
