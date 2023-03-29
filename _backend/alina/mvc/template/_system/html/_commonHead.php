@@ -3,7 +3,9 @@
 
 use alina\mvc\view\html;
 
-require_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
+if (file_exists(ALINA_WEB_PATH . '/sources/searchengiines/000.php')) {
+    include_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
+}
 ?>
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/manifest.json"/>
