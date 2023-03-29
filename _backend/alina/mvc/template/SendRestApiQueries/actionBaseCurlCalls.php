@@ -1,7 +1,7 @@
 <?php
 /**
  * @var stdClass $data
- * @var \alina\utils\HttpRequest $data::q
+ * @var \alina\utils\HttpRequest $data- >q
  */
 
 use alina\mvc\view\html as htmlAlias;
@@ -138,9 +138,23 @@ use alina\mvc\view\html as htmlAlias;
                     rows="11"
                 ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->curlInfo) ?></textarea>
             </div>
+
+            <div class="mt-3">
+                <span class="btn btn-primary">
+                    Log <span class="badge badge-light">HttpRequest::log </span>
+                </span>
+                <textarea
+                    class="form-control w-100"
+                    rows="11"
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->log) ?></textarea>
+            </div>
+
         </div>
     </div>
 </div>
+<!-- ######################################## -->
+<!-- ######################################## -->
+<!-- ######################################## -->
 <div class="row">
     <div class="col">
             <span class="btn btn-primary">

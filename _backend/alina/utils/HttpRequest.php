@@ -7,15 +7,11 @@ namespace alina\utils;
 class HttpRequest
 {
     ##########################################
-    #region Request
-    private        $ch;
-    public string  $reqUrl            = '';
-    private string $reqMethod         = 'GET';
-    private int    $flagMethodMutator = 0;
-    /**
-     * Documentation: https://developer.mozilla.org/ru/docs/Web/HTTP/Methods
-     */
-    private array $methods = [
+    #region Class Adjustments
+    private array $log             = [];
+    private int   $attemptMax      = 5;
+    private int   $attempt         = 1;
+    private array $methods         = [
         'Method Name' => 'Does Method causes Mutation?',
         'GET'         => 0,
         'POST'        => 1,
@@ -27,15 +23,7 @@ class HttpRequest
         'CONNECT'     => 0,
         'TRACE'       => 0,
     ];
-    private array $reqGet  = [];
-    /**@var array|string */
-    private       $reqFields       = [];
-    private int   $flagFieldsRaw   = 0;
-    private array $reqHeaders      = [
-        //'Content-Type' => 'multipart/form-data; charset=utf-8',
-    ];
-    private array $reqCookie       = [];
-    private array $arrUriInterface = [
+    private array $arrUrlInterface = [
         'scheme'   => '',
         'host'     => '',
         'port'     => '',
@@ -45,12 +33,31 @@ class HttpRequest
         'query'    => '',
         'fragment' => '',
     ];
+    #endregion Class Adjustments
+    ##########################################
+    #region Request
+    private        $ch;
+    private string $reqUrl            = '';
+    private string $reqMethod         = 'GET';
+    private int    $flagMethodMutator = 0;
+    /**
+     * Documentation: https://developer.mozilla.org/ru/docs/Web/HTTP/Methods
+     */
+    private array $reqGet = [];
+    /**@var array|string */
+    private       $reqFields     = [];
+    private int   $flagFieldsRaw = 0;
+    private array $reqHeaders    = [
+        //'Content-Type' => 'multipart/form-data; charset=utf-8',
+    ];
+    private array $reqCookie     = [];
     #endregion Request
     ##########################################
     #region Response/Results
     private array  $curlInfo                = [];
     private string $resUrl                  = '';
     private string $respBody                = '';
+    private int    $respErrno               = 0;
     private array  $respHeaders             = [];
     private array  $respHeadersStructurized = [];
     private int    $redirections            = 0;
@@ -64,17 +71,19 @@ class HttpRequest
         $fields = NULL,//array|string
         $headers = NULL,//array ["Header-Name"=>"Header Value"]
         $cookie = NULL,//array ["Cookie-Name"=>"Cookie Value"]
-        $flagFieldsRaw = NULL// 0|1 
+        $flagFieldsRaw = NULL, // 0|1
+        $attemptMax = 5// int
     )
     {
         $this->ch = curl_init();
+        if ($attemptMax !== NULL) $this->attemptMax = $attemptMax;
         if ($flagFieldsRaw !== NULL) $this->flagFieldsRaw = $flagFieldsRaw;
         if ($uri) $this->setReqUrl($uri);
-        if ($query) $this->addGet($query);
+        if ($query) $this->addReqGet($query);
         if ($method) $this->setReqMethod($method);
-        if ($fields) $this->setFields($fields);
-        if ($headers) $this->addHeaders($headers);
-        if ($cookie) $this->addCookie($cookie);
+        if ($fields) $this->setReqFields($fields);
+        if ($headers) $this->addReqHeaders($headers);
+        if ($cookie) $this->addReqCookie($cookie);
 
         return $this;
     }
@@ -91,14 +100,14 @@ class HttpRequest
         $parsedUri = parse_url($str);
         ##############################
         #region Extract and add URI
-        $this->arrUriInterface = array_merge($this->arrUriInterface, $parsedUri);
+        $this->arrUrlInterface = array_merge($this->arrUrlInterface, $parsedUri);
         $this->reqUrl          = $this->unParseUrl([
-            'scheme' => $this->arrUriInterface['scheme'],
-            'host'   => $this->arrUriInterface['host'],
-            'port'   => $this->arrUriInterface['port'],
-            'user'   => $this->arrUriInterface['user'],
-            'pass'   => $this->arrUriInterface['pass'],
-            'path'   => $this->arrUriInterface['path'],
+            'scheme' => $this->arrUrlInterface['scheme'],
+            'host'   => $this->arrUrlInterface['host'],
+            'port'   => $this->arrUrlInterface['port'],
+            'user'   => $this->arrUrlInterface['user'],
+            'pass'   => $this->arrUrlInterface['pass'],
+            'path'   => $this->arrUrlInterface['path'],
             // Exclude:
             // 'query'    => '',
             // 'fragment' => '',
@@ -109,9 +118,46 @@ class HttpRequest
         $arrGet = [];
         $strGet = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
         parse_str($strGet, $arrGet);
-        $this->setGet($arrGet);
+        $this->setReqGet($arrGet);
         #endregion Extract and add Get
         ##############################
+        return $this;
+    }
+
+    /**
+     * Sets:
+     * $this->reqGet:[]
+     */
+    public function setReqGet(array $arr): HttpRequest
+    {
+        $this->reqGet = [];
+        $this->addReqGet($arr);
+
+        return $this;
+    }
+
+    /**
+     * Adds:
+     * $this->reqGet:[]
+     */
+    public function addReqGet(array $arr): HttpRequest
+    {
+        $this->reqGet = array_merge($this->reqGet, $arr);
+
+        return $this;
+    }
+
+    /**
+     * For CURLOPT_CUSTOMREQUEST
+     * Sets:
+     * $this->method:string
+     * $this->flagMethodMutator:Boolean|Int
+     */
+    public function setReqMethod(string $method): HttpRequest
+    {
+        $this->reqMethod         = strtoupper($method);
+        $this->flagMethodMutator = $this->methods[$this->reqMethod] ?? 0;
+
         return $this;
     }
 
@@ -119,7 +165,7 @@ class HttpRequest
      * Adds:
      * $this->reqHeaders:[]
      */
-    public function addHeaders(array $arr): HttpRequest
+    public function addReqHeaders(array $arr): HttpRequest
     {
         $this->reqHeaders = array_merge($this->reqHeaders, $arr);
 
@@ -130,32 +176,9 @@ class HttpRequest
      * Adds:
      * $this->reqCookie:[]
      */
-    public function addCookie($arr): HttpRequest
+    public function addReqCookie($arr): HttpRequest
     {
         $this->reqCookie = array_merge($this->reqCookie, (array)$arr);
-
-        return $this;
-    }
-
-    /**
-     * Sets:
-     * $this->reqGet:[]
-     */
-    public function setGet(array $arr): HttpRequest
-    {
-        $this->reqGet = [];
-        $this->addGet($arr);
-
-        return $this;
-    }
-
-    /**
-     * Adds:
-     * $this->reqGet:[]
-     */
-    public function addGet(array $arr): HttpRequest
-    {
-        $this->reqGet = array_merge($this->reqGet, $arr);
 
         return $this;
     }
@@ -172,7 +195,7 @@ class HttpRequest
      * $this->reqFields:[]|string
      * @param mixed $mixed
      */
-    public function setFields($mixed, $method = 'POST', $flagFieldsRaw = NULL): HttpRequest
+    public function setReqFields($mixed, $method = 'POST', $flagFieldsRaw = NULL): HttpRequest
     {
         //#####
         if (empty($mixed)) return $this;
@@ -190,20 +213,6 @@ class HttpRequest
         if (!empty($this->reqFields) && $this->reqMethod === 'GET') {
             $this->setReqMethod($method);
         }
-
-        return $this;
-    }
-
-    /**
-     * For CURLOPT_CUSTOMREQUEST
-     * Sets:
-     * $this->method:string
-     * $this->flagMethodMutator:Boolean|Int
-     */
-    public function setReqMethod(string $method): HttpRequest
-    {
-        $this->reqMethod         = strtoupper($method);
-        $this->flagMethodMutator = $this->methods[$this->reqMethod] ?? 0;
 
         return $this;
     }
@@ -241,11 +250,19 @@ class HttpRequest
             curl_setopt($ch, CURLOPT_COOKIE, $cookie);
         }
         //EXECUTION
-        $this->respBody = curl_exec($ch);
-        if (!$this->respBody) {
-            $this->respBody = curl_error($ch);
-        }
-        $this->curlInfo = curl_getinfo($ch);
+        do {
+            $this->respBody = curl_exec($ch);
+            $errno          = curl_errno($ch);
+            if ($errno > 0 || !$this->respBody) {
+                $this->respBody = curl_error($ch);
+                $this->attempt++;
+            }
+            else break;
+        } while ($this->attempt < $this->attemptMax);
+        $this->log['attempt']    = $this->attempt;
+        $this->log['curl_errno'] = curl_errno($ch);
+        $this->log['curl_error'] = curl_error($ch);
+        $this->curlInfo          = curl_getinfo($ch);
         curl_close($ch);
 
         return $this;
@@ -361,20 +378,24 @@ class HttpRequest
         return Url::un_parse_url($parsedUri);
     }
 
+    /**
+     * Documentation:
+     * @link https://curl.se/libcurl/c/CURLOPT_HEADERFUNCTION.html
+     */
     private function callback_CURLOPT_HEADERFUNCTION($ch, $str): int
     {
+        $this->log['callback_CURLOPT_HEADERFUNCTION'][] = $str;
         //responseHeaderCount
-        $counter             = $this->redirections;
         $this->respHeaders[] = $str;
         if (empty(trim($str))) {
             $this->redirections++;
 
             return strlen($str);
         }
-        $a                                           = explode(':', $str, 2);
-        $n                                           = (isset($a[0])) ? trim($a[0]) : 'UNDEFINED';
-        $v                                           = (isset($a[1])) ? trim($a[1]) : 'UNDEFINED';
-        $this->respHeadersStructurized[$counter][$n] = $v;
+        $a                                                      = explode(':', $str, 2);
+        $n                                                      = (isset($a[0])) ? trim($a[0]) : 'UNDEFINED';
+        $v                                                      = (isset($a[1])) ? trim($a[1]) : 'UNDEFINED';
+        $this->respHeadersStructurized[$this->redirections][$n] = $v;
 
         return strlen($str);
     }
@@ -382,6 +403,63 @@ class HttpRequest
     public function take($prop)
     {
         return $this->{$prop};
+    }
+
+    public function set($prop, ...$value): HttpRequest
+    {
+        #####
+        $commonSetter = function ($obj, $p, $v) {
+            $obj->{$p}                     = $v;
+            $this->log['commonSetter'][$p] = $v;
+        };
+        #####
+        switch ($prop) {
+            /**
+             * Block of Properties available for consumers.
+             */
+            case 'attemptMax':
+                call_user_func($commonSetter, $this, $prop, ...$value);
+                break;
+            case 'flagFieldsRaw':
+                call_user_func([$this, 'setFlagFieldsRaw'], ...$value);
+                break;
+            case 'reqUrl':
+                call_user_func([$this, 'setReqUrl'], ...$value);
+                break;
+            case 'reqMethod':
+                call_user_func([$this, 'setReqMethod'], ...$value);
+                break;
+            case 'reqGet':
+                call_user_func([$this, 'addReqGet'], ...$value);
+                break;
+            case 'reqFields':
+                call_user_func([$this, 'setReqFields'], ...$value);
+                break;
+            case 'reqHeaders':
+                call_user_func([$this, 'addReqHeaders'], ...$value);
+                break;
+            case 'reqCookie':
+                call_user_func([$this, 'addReqCookie'], ...$value);
+                break;
+            /**
+             * Block of Read-Only Properties or Properties are changed during the execution.
+             */
+            case 'ch':
+            case 'methods':
+            case 'flagMethodMutator':
+            case 'arrUriInterface':
+            case 'curlInfo':
+            case 'resUrl':
+            case 'respBody':
+            case 'respHeaders':
+            case 'respHeadersStructurized':
+            case 'redirections':
+            case 'attempt':
+            case 'log':
+                return $this;
+        }
+
+        return $this;
     }
     #endregion Utils
     ##########################################

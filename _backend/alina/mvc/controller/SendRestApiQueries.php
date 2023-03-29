@@ -31,7 +31,8 @@ class SendRestApiQueries
         $reqUrl                  = 'https://saysimsim.ru/tale/feed';
         $reqUrl                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
         $reqUrl                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
-        $reqUrl                  = 'https://local.host:7002/php-redirect-1.php?sew=pisewa&siski=piski';
+        $reqUrl                  = 'https://local.host:7002/http-response-xxx.php?httpCode=400';
+        $reqUrl                  = 'https://local.host:7002/php-redirect-1.php?sewa=pisewa&siski=piski&httpCode=404';
         $resUrl                  = ''; // What is finally sent in Request.
         $reqGet                  = (object)[
             'arr1' => [1, 2, 3],
@@ -49,6 +50,7 @@ class SendRestApiQueries
         $respBody                = $q->take('respBody');
         $curlInfo                = $q->take('curlInfo');
         $respHeadersStructurized = $q->take('respHeadersStructurized');
+        $log                     = $q->take('log');
         #endregion Defaults
         ############################################
         if (Request::isPost($p)) {
@@ -89,10 +91,10 @@ class SendRestApiQueries
             $q->setFlagFieldsRaw($flagFieldsRaw);
             $q->setReqUrl($reqUrl);
             $q->setReqMethod($reqMethod);
-            $q->addGet((array)$reqGet);
-            $q->setFields($reqFields);
-            $q->addHeaders((array)$reqHeaders);
-            $q->addCookie((array)$reqCookie);
+            $q->addReqGet((array)$reqGet);
+            $q->setReqFields($reqFields);
+            $q->addReqHeaders((array)$reqHeaders);
+            $q->addReqCookie((array)$reqCookie);
             $q->exe();
             #endregion MAIN
             ############################################
@@ -104,6 +106,7 @@ class SendRestApiQueries
             $reqFields     = $q->take('reqFields');
             $reqHeaders    = $q->take('reqHeaders');
             $reqCookie     = $q->take('reqCookie');
+            $log           = $q->take('log');
             #####
             $resUrl                  = $q->take('resUrl');
             $respBody                = $q->take('respBody');
@@ -129,6 +132,7 @@ class SendRestApiQueries
             'respBody'                => $respBody,
             'curlInfo'                => $curlInfo,
             'respHeadersStructurized' => $respHeadersStructurized,
+            'log'                     => $log,
         ];
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         #endregionn View
