@@ -4,6 +4,7 @@
     font-family: "ALINA";
     src: url("/sources/fonts/XXX.ttf") format('truetype');
 }
+
 /*endregion FONT*/
 /*##################################################*/
 /*region SCROLLER*/
@@ -191,6 +192,7 @@ select[multiple] option:checked {
 iframe {
     background-color: #ebebeb;
 }
+
 /*endregion UTILS*/
 /*##################################################*/
 /*region Messages*/
@@ -249,6 +251,7 @@ iframe {
     box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.43) !important;
 }
 
+/*pre,*/
 .ck-content pre,
 .ck-content code {
     white-space: pre;
