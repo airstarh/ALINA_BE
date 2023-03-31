@@ -60,7 +60,7 @@ class HttpRequest
     private int    $respErrno               = 0;
     private array  $respHeaders             = [];
     private array  $respHeadersStructurized = [];
-    private int    $redirections            = 0;
+    private int    $amountLocationsVisited  = 0;
     #endregion Response/Results
     ##########################################
     #region INIT
@@ -386,16 +386,14 @@ class HttpRequest
     {
         $this->log['callback_CURLOPT_HEADERFUNCTION'][] = $str;
         //responseHeaderCount
-        $this->respHeaders[] = $str;
+        $this->respHeaders[]                                              = $str;
+        $a                                                                = explode(':', $str, 2);
+        $n                                                                = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
+        $v                                                                = (!empty(trim($a[1]))) ? trim($a[1]) : 'UNDEFINED';
+        $this->respHeadersStructurized[$this->amountLocationsVisited][$n] = $v;
         if (empty(trim($str))) {
-            $this->redirections++;
-
-            return strlen($str);
+            $this->amountLocationsVisited++;
         }
-        $a                                                      = explode(':', $str, 2);
-        $n                                                      = (isset($a[0])) ? trim($a[0]) : 'UNDEFINED';
-        $v                                                      = (isset($a[1])) ? trim($a[1]) : 'UNDEFINED';
-        $this->respHeadersStructurized[$this->redirections][$n] = $v;
 
         return strlen($str);
     }
@@ -453,13 +451,39 @@ class HttpRequest
             case 'respBody':
             case 'respHeaders':
             case 'respHeadersStructurized':
-            case 'redirections':
+            case 'amountLocationsVisited':
             case 'attempt':
             case 'log':
                 return $this;
         }
 
         return $this;
+    }
+
+    public function report()
+    {
+        return [
+            'REQUEST'  => [
+                'reqMethod'     => $this->reqMethod,
+                'reqUrl'        => $this->reqUrl,
+                'reqGet'        => $this->reqGet,
+                'flagFieldsRaw' => $this->flagFieldsRaw,
+                'reqFields'     => $this->reqFields,
+                'reqHeaders'    => $this->reqHeaders,
+                'reqCookie'     => $this->reqCookie,
+            ],
+            'RESPONSE' => [
+                'flagMethodMutator'       => $this->flagMethodMutator,
+                'attempt'                 => $this->attempt,
+                'amountLocationsVisited'  => $this->amountLocationsVisited,
+                'resUrl'                  => $this->resUrl,
+                'respBody'                => $this->respBody,
+                'respHeaders'             => $this->respHeaders,
+                'respHeadersStructurized' => $this->respHeadersStructurized,
+                'curlInfo'                => $this->curlInfo,
+                'log'                     => $this->log,
+            ],
+        ];
     }
     #endregion Utils
     ##########################################
