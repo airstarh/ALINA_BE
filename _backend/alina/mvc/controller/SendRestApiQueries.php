@@ -50,7 +50,7 @@ class SendRestApiQueries
         $respBody                = $q->take('respBody');
         $curlInfo                = $q->take('curlInfo');
         $respHeadersStructurized = $q->take('respHeadersStructurized');
-        $log                     = $q->take('log');
+        $report                  = $q->report();
         #endregion Defaults
         ############################################
         if (Request::isPost($p)) {
@@ -106,7 +106,7 @@ class SendRestApiQueries
             $reqFields     = $q->take('reqFields');
             $reqHeaders    = $q->take('reqHeaders');
             $reqCookie     = $q->take('reqCookie');
-            $log           = $q->take('log');
+            $report        = $q->report();
             #####
             $resUrl                  = $q->take('resUrl');
             $respBody                = $q->take('respBody');
@@ -132,7 +132,7 @@ class SendRestApiQueries
             'respBody'                => $respBody,
             'curlInfo'                => $curlInfo,
             'respHeadersStructurized' => $respHeadersStructurized,
-            'log'                     => $log,
+            'report'                  => $report,
         ];
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         #endregionn View

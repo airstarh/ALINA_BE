@@ -477,7 +477,7 @@ class HttpRequest
                 'attempt'                 => $this->attempt,
                 'amountLocationsVisited'  => $this->amountLocationsVisited,
                 'resUrl'                  => $this->resUrl,
-                'respBody'                => $this->respBody,
+                //'respBody'                => $this->respBody,
                 'respHeaders'             => $this->respHeaders,
                 'respHeadersStructurized' => $this->respHeadersStructurized,
                 'curlInfo'                => $this->curlInfo,
