@@ -14,6 +14,8 @@ class BoxService
     private $_appConfig;
     private $_accessToken;
     private $tokenDelimiter = '|||';
+    private $DIR_STATIC     = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/static';
+    private $DIR_GENERATED  = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/generated';
     #endregion FIELDS
     ##################################################
     #region INIT
@@ -23,9 +25,9 @@ class BoxService
         $this->_accessToken = $this->getAppUserAccessTokenFromBoxApi();
     }
 
-    function getBoxApiConfig()
+    function getBoxApiConfig(): array
     {
-        $DIR_STATIC = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/static';
+        $DIR_STATIC = $this->DIR_STATIC;
 
         return [
             'folder_id'                       => 0,
@@ -73,6 +75,8 @@ class BoxService
         ];
     }
 
+    ##############################
+    #region TOKEN
     function getAppUserAccessTokenFromBoxApi()
     {
         $boxApiConfig                           = $this->_appConfig; //$this->getBoxApiConfig();
@@ -209,6 +213,8 @@ class BoxService
 
         return $this->retrieveAccessTokenFromBoxApi($boxApiConfig);
     }
+    #endregion TOKEN
+    ##############################
     #endregion INIT
     ##################################################
     #region REQUEST
@@ -234,71 +240,7 @@ class BoxService
 
     #endregion REQUEST
     ##################################################
-    #region PREVIEW
-    function retrieveBoxPreviewUrl($fileObj, $boxFolderId = NULL)
-    {
-        // @file api/boxApi/access-token-storage
-        //$this->getAppUserAccessTokenFromBoxApi();
-        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
-        // ToDo: It is possible to set a default 'Preview unavailable' URL;
-        $embedLink             = '';
-        $flagEmbedLinkReceived = FALSE;
-        if (isset($fileObj->box_id) && !empty($fileObj->box_id)) {
-            $boxFileId = $fileObj->box_id;
-            $response  = $this->getBoxEmbedUrl($boxFileId);
-            $response  = json_decode($response);
-            if (isset($response->expiring_embed_link->url) && !empty($response->expiring_embed_link->url)) {
-                $flagEmbedLinkReceived = TRUE;
-                $embedLink             = $response->expiring_embed_link->url;
-            }
-        }
-        //error_log(" link received? {$flagEmbedLinkReceived} link={$embedLink}", 0);
-        // When there is no file in Box storage
-        if (!$flagEmbedLinkReceived) {
-            $path = $fileObj->fullPath;
-            $file = $this->uploadFileToBox($path, $boxFolderId);
-            $file = json_decode($file);
-            if (!isset($file->entries[0]) || empty($file->entries[0]))
-                throw new Exception('File preview failed.');
-            $file      = $file->entries[0];
-            $boxFileId = $file->id;
-            $response  = $this->getBoxEmbedUrl($boxFileId);
-            $response  = json_decode($response);
-            if (!isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url))
-                throw new Exception('File preview failed.');
-            $embedLink = $response->expiring_embed_link->url;
-            if (isset($fileObj->file_id) && !empty($fileObj->file_id)) {
-                dboUpdateByTableName(
-                    'file',
-                    ['box_id' => $boxFileId],
-                    'file_id',
-                    $fileObj->file_id
-                );
-            }
-        }
-
-        return $embedLink;
-    }
-
-    function getBoxEmbedUrl($fileId)
-    {
-        /*
-         * @link https://box-content.readme.io/reference#get-embed-link
-         *
-         * curl https://api.box.com/2.0/files/FILE_ID?fields=expiring_embed_link \
-         * -H "Authorization: Bearer ACCESS_TOKEN"
-         *
-         */
-        $url       = "https://api.box.com/2.0/files/{$fileId}?fields=expiring_embed_link";
-        $headers[] = $this->getAccessTokenHeader();
-        $response  = $this->urlRequest($url, [], $headers);
-
-        return $response;
-    }
-
-    #endregion PREVIEW
-    ##################################################
-    #region User Management
+    #region USER MANAGEMENT
     function createAppUser()
     {
         $this->getEnterpriseAccessTokenFromBoxApi();
@@ -309,14 +251,14 @@ class BoxService
         ];
         $user     = json_encode($user);
         $response = $this->urlRequest($url, $user, [$this->getAccessTokenHeaderEnterprise()]);
-        file_put_contents(__DIR__ . '/boxApi/app-users-storage', $response, FILE_APPEND);
-        file_put_contents(__DIR__ . '/boxApi/app-users-storage', PHP_EOL . PHP_EOL, FILE_APPEND);
+        file_put_contents($this->DIR_GENERATED . '/app-users-storage', $response, FILE_APPEND);
+        file_put_contents($this->DIR_GENERATED . '/app-users-storage', PHP_EOL . PHP_EOL, FILE_APPEND);
         echo $response;
     }
-    #endregion User Management
+    #endregion USER MANAGEMENT
     ##################################################
     #region FOLDERS/FILES
-    function getBoxFolderObject($id = NULL)
+    function getBoxFolderObject($boxFolderId = NULL)
     {
         /*
          * @link https://box-content.readme.io/reference#folder-object
@@ -324,9 +266,9 @@ class BoxService
          * curl https://api.box.com/2.0/folders/FOLDER_ID \
          * -H "Authorization: Bearer ACCESS_TOKEN"
          */
-        $id       = $id === NULL ? $this->_appConfig['folder_id'] : $id;
-        $url      = "https://api.box.com/2.0/folders/{$id}";
-        $response = $this->urlRequest($url, [], [$this->getAccessTokenHeader()]);
+        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
+        $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
+        $response    = $this->urlRequest($url, [], [$this->getAccessTokenHeader()]);
 
         return $response;
     }
@@ -375,6 +317,72 @@ class BoxService
         //error_log('  response='.json_encode($response), 0);
         return $response;
     }
+    ##############################
+    #region PREVIEW
+    function retrieveBoxPreviewUrl($fileObj, $boxFolderId = NULL)
+    {
+        // @file api/boxApi/access-token-storage
+        //$this->getAppUserAccessTokenFromBoxApi();
+        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
+        // ToDo: It is possible to set a default 'Preview unavailable' URL;
+        $embedLink             = '';
+        $flagEmbedLinkReceived = FALSE;
+        if (isset($fileObj->box_id) && !empty($fileObj->box_id)) {
+            $boxFileId = $fileObj->box_id;
+            $response  = $this->getBoxEmbedUrl($boxFileId);
+            $response  = json_decode($response);
+            if (isset($response->expiring_embed_link->url) && !empty($response->expiring_embed_link->url)) {
+                $flagEmbedLinkReceived = TRUE;
+                $embedLink             = $response->expiring_embed_link->url;
+            }
+        }
+        //error_log(" link received? {$flagEmbedLinkReceived} link={$embedLink}", 0);
+        // When there is no file in Box storage
+        if (!$flagEmbedLinkReceived) {
+            $path = $fileObj->fullPath;
+            $file = $this->uploadFileToBox($path, $boxFolderId);
+            $file = json_decode($file);
+            if (!isset($file->entries[0]) || empty($file->entries[0]))
+                throw new Exception('File preview failed.');
+            $file      = $file->entries[0];
+            $boxFileId = $file->id;
+            $response  = $this->getBoxEmbedUrl($boxFileId);
+            $response  = json_decode($response);
+            if (!isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url))
+                throw new Exception('File preview failed.');
+            $embedLink = $response->expiring_embed_link->url;
+            if (isset($fileObj->file_id) && !empty($fileObj->file_id) && function_exists('dboUpdateByTableName')) {
+                dboUpdateByTableName(
+                    'file',
+                    ['box_id' => $boxFileId],
+                    'file_id',
+                    $fileObj->file_id
+                );
+            }
+        }
+
+        return $embedLink;
+    }
+
+    function getBoxEmbedUrl($boxFileId)
+    {
+        /*
+         * @link https://box-content.readme.io/reference#get-embed-link
+         *
+         * curl https://api.box.com/2.0/files/FILE_ID?fields=expiring_embed_link \
+         * -H "Authorization: Bearer ACCESS_TOKEN"
+         *
+         */
+        $url       = "https://api.box.com/2.0/files/{$boxFileId}?fields=expiring_embed_link";
+        $headers[] = $this->getAccessTokenHeader();
+        $response  = $this->urlRequest($url, [], $headers);
+
+        return $response;
+    }
+
+    #endregion PREVIEW
+    ##############################
     #endregion FOLDERS/FILES
+    ##################################################
 }
 
