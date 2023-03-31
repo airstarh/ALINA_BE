@@ -7,8 +7,6 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 
-#endregion Attach all necessary sources
-#region Get URL for preview
 class BoxService
 {
     ##################################################
@@ -179,8 +177,64 @@ class BoxService
         return $tokenArray[0]; // current access token
     }
 
+    function getAccessTokenHeader()
+    {
+        $accessToken = $this->_accessToken;
+
+        return "Authorization: Bearer {$accessToken}";
+    }
+
+    function getAccessTokenHeaderEnterprise()
+    {
+        $accessToken = $this->getAccessTokenEnterprise();
+
+        return "Authorization: Bearer {$accessToken}";
+    }
+
+    function getAccessTokenEnterprise()
+    {
+        $oauth_config = $this->_appConfig; //$this->getBoxApiConfig();
+        $tokenString  = file_get_contents($oauth_config['access_token_storage_enterprise']);
+        $tokenArray   = explode($this->tokenDelimiter, $tokenString);
+
+        return $tokenArray[0];
+    }
+
+    function getEnterpriseAccessTokenFromBoxApi()
+    {
+        $boxApiConfig                           = $this->_appConfig;  //$this->getBoxApiConfig();
+        $boxApiConfig['claims']['sub']          = $boxApiConfig['claims']['sub_enterprise'];
+        $boxApiConfig['claims']['box_sub_type'] = 'enterprise';
+        $boxApiConfig['access_token_storage']   = $boxApiConfig['access_token_storage_enterprise'];
+
+        return $this->retrieveAccessTokenFromBoxApi($boxApiConfig);
+    }
     #endregion INIT
     ##################################################
+    #region REQUEST
+    function urlRequest($url, $post = [], $headers = [])
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        // POST
+        if (!empty($post)) {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        }
+        // Set Headers
+        if (!empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+    #endregion REQUEST
+    ##################################################
+    #region PREVIEW
     function retrieveBoxPreviewUrl($fileObj, $boxFolderId = NULL)
     {
         // @file api/boxApi/access-token-storage
@@ -225,21 +279,25 @@ class BoxService
 
         return $embedLink;
     }
-    #endregion Get URL for preview
-    #region Access Tokens Retriever
-    // Enterprise
-    function getEnterpriseAccessTokenFromBoxApi()
-    {
-        $boxApiConfig                           = $this->_appConfig;  //$this->getBoxApiConfig();
-        $boxApiConfig['claims']['sub']          = $boxApiConfig['claims']['sub_enterprise'];
-        $boxApiConfig['claims']['box_sub_type'] = 'enterprise';
-        $boxApiConfig['access_token_storage']   = $boxApiConfig['access_token_storage_enterprise'];
 
-        return $this->retrieveAccessTokenFromBoxApi($boxApiConfig);
+    function getBoxEmbedUrl($fileId)
+    {
+        /*
+         * @link https://box-content.readme.io/reference#get-embed-link
+         *
+         * curl https://api.box.com/2.0/files/FILE_ID?fields=expiring_embed_link \
+         * -H "Authorization: Bearer ACCESS_TOKEN"
+         *
+         */
+        $url       = "https://api.box.com/2.0/files/{$fileId}?fields=expiring_embed_link";
+        $headers[] = $this->getAccessTokenHeader();
+        $response  = $this->urlRequest($url, [], $headers);
+
+        return $response;
     }
 
-    // User
-    #endregion Access Tokens Retriever
+    #endregion PREVIEW
+    ##################################################
     #region User Management
     function createAppUser()
     {
@@ -256,7 +314,8 @@ class BoxService
         echo $response;
     }
     #endregion User Management
-    #region helpers
+    ##################################################
+    #region FOLDERS/FILES
     function getBoxFolderObject($id = NULL)
     {
         /*
@@ -316,64 +375,6 @@ class BoxService
         //error_log('  response='.json_encode($response), 0);
         return $response;
     }
-
-    function getBoxEmbedUrl($fileId)
-    {
-        /*
-         * @link https://box-content.readme.io/reference#get-embed-link
-         *
-         * curl https://api.box.com/2.0/files/FILE_ID?fields=expiring_embed_link \
-         * -H "Authorization: Bearer ACCESS_TOKEN"
-         *
-         */
-        $url       = "https://api.box.com/2.0/files/{$fileId}?fields=expiring_embed_link";
-        $headers[] = $this->getAccessTokenHeader();
-        $response  = $this->urlRequest($url, [], $headers);
-
-        return $response;
-    }
-
-    function urlRequest($url, $post = [], $headers = [])
-    {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        // POST
-        if (!empty($post)) {
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        }
-        // Set Headers
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
-    }
-
-    function getAccessTokenHeader()
-    {
-        $accessToken = $this->_accessToken;
-
-        return "Authorization: Bearer {$accessToken}";
-    }
-
-    function getAccessTokenHeaderEnterprise()
-    {
-        $accessToken = $this->getAccessTokenEnterprise();
-
-        return "Authorization: Bearer {$accessToken}";
-    }
-
-    function getAccessTokenEnterprise()
-    {
-        $oauth_config = $this->_appConfig; //$this->getBoxApiConfig();
-        $tokenString  = file_get_contents($oauth_config['access_token_storage_enterprise']);
-        $tokenArray   = explode($this->tokenDelimiter, $tokenString);
-
-        return $tokenArray[0];
-    }
+    #endregion FOLDERS/FILES
 }
-#endregion helpers
+
