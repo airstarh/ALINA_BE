@@ -319,7 +319,13 @@ class BoxService
     }
     ##############################
     #region PREVIEW
-    function retrieveBoxPreviewUrl($fileObj, $boxFolderId = NULL)
+    /**
+     * @param object $fileObj : {file_id, box_id, fullPath}
+     * @param string|null $boxFolderId
+     * @return string
+     * @throws Exception
+     */
+    function retrieveBoxPreviewUrl(object $fileObj, string $boxFolderId = NULL): string
     {
         // @file api/boxApi/access-token-storage
         //$this->getAppUserAccessTokenFromBoxApi();
