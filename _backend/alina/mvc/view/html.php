@@ -65,9 +65,11 @@ class html
             }
             else {
                 $this->content = [
+                    '<div class="ck-content">',
                     '<pre>',
                     var_export($data, 1),
                     '</pre>',
+                    '</div>',
                 ];
                 $this->content = implode('', $this->content);
             }
