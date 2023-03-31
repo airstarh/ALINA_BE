@@ -141,12 +141,12 @@ use alina\mvc\view\html as htmlAlias;
 
             <div class="mt-3">
                 <span class="btn btn-primary">
-                    Log <span class="badge badge-light">HttpRequest::log </span>
+                    Report <span class="badge badge-light">HttpRequest::report() </span>
                 </span>
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->log) ?></textarea>
+                ><?= \alina\utils\Data::hlpGetBeautifulJsonString($data->report) ?></textarea>
             </div>
 
         </div>
