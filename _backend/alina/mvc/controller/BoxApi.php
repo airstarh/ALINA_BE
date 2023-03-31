@@ -21,8 +21,16 @@ class BoxApi
      */
     public function actionIndex(...$arg)
     {
-        $vd = [
-            'boxApiConfig' => $this->srvBoxApi->getBoxApiConfig(),
+        $objFile       = (object)[
+            'file_id'  => -1,
+            'box_id'   => NULL,
+            'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
+        ];
+        $strUrlPreview = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
+        #####
+        $vd = (object)[
+            'objFile'       => $objFile,
+            'strUrlPreview' => $strUrlPreview,
         ];
         #####
         // echo '<div class="ck-content">';
