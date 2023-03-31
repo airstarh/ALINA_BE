@@ -1,0 +1,1 @@
+composer require lcobucci/jwt:3.3

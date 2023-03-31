@@ -9,9 +9,12 @@
         "phpmailer/phpmailer": "~6.1",
         "ezyang/htmlpurifier": "^4.12",
         "ivopetkov/html5-dom-document-php": "2.*",
-        "intervention/image": "^2.5"
+        "intervention/image": "^2.5",
+        "lcobucci/jwt": "3.3"
     },
-    "require-dev": {
-
+    "config": {
+        "allow-plugins": {
+            "robloach/component-installer": true
+        }
     }
 }
