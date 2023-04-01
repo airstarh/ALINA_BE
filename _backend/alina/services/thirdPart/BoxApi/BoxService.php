@@ -34,50 +34,7 @@ class BoxService
         $DIR_STATIC  = $this->DIR_STATIC;
         $DIR_DYNAMIC = $this->DIR_DYNAMIC;
 
-        return [
-            'folder_id'                       => 0,
-            'access_token_storage'            => $DIR_DYNAMIC . '/access-token-storage',
-            'access_token_storage_enterprise' => $DIR_DYNAMIC . '/access-token-storage-enterprise',
-            'header'                          => [
-                // @link https://box-content.readme.io/v2.0/docs/app-auth
-                'alg' => 'RS256',    // The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
-                'typ' => 'JWT',      // Type of token. Default is “JWT” to specify a JSON Web Token (JWT).
-                'kid' => 'ejgrxup7', // Public Key ID
-            ],
-            // Claims Attributes
-            'claims'                          => [
-                'iss'            => 'yt193kvi5tm9jlmr6hpb4793wckn2qst', // The API key of the service that created the JWT assertion.
-                // For Enterprise
-                //'sub' => '911269', //enterprise_id for a token specific to an enterprise when creating and managing app users. app user_id for a token specific to an individual app user.
-                //'box_sub_type' => 'enterprise', // “enterprise” or “user” depending on the ID that was passed in the sub claim.
-                // For App User
-                // App User id
-                'sub'            => '271874469',
-                'box_sub_type'   => 'user',
-                // For the flexible switching between Enterprise and App User actions
-                'sub_enterprise' => '911269',                           // Enterprise ID
-                'sub_user'       => '271874469',                        // App User ID
-                'aud'            => 'https://api.box.com/oauth2/token',
-                'jti'            => base64_encode(random_bytes(32)), // A unique identifier specified by the client for this JWT. This is a unique string that is at least 16 characters and at most 128 characters.
-                'exp'            => time() + 60,                     // The unix time as to when this JWT will expire. This can be set to a maximum value of 60 seconds beyond the issue time. Note: It is recommended to set this value to less than the maximum allowed 60 seconds.
-                // Optional
-                'iat'            => time(),                          // Issued at time. The token cannot be used before this time.
-                'nbf'            => time() + 60,                     // Not before. Specifies when the token will start being valid.
-            ],
-            //'signature' => file_get_contents($DIR_STATIC.'/public_key.pem'),
-            'signature'                       => [
-                'public_key'  => file_get_contents($DIR_STATIC . '/public_key.pem'),
-                'private_key' => file_get_contents($DIR_STATIC . '/private_key.pem'),
-                'pass'        => 'qqqwwweee',
-            ],
-            'oauth_request'                   => [
-                'url'           => 'https://api.box.com/oauth2/token',
-                'grant_type'    => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                'client_id'     => 'yt193kvi5tm9jlmr6hpb4793wckn2qst',
-                'client_secret' => 'hrRMWdoCeQXOHaWDFzO7zUPmNqGVdill',
-                'assertion'     => FALSE, // Parameter is set while runtime
-            ],
-        ];
+        return require $DIR_STATIC . '/config-box-api.php';
     }
 
     ##############################
@@ -91,6 +48,11 @@ class BoxService
         return $this->retrieveAccessTokenFromBoxApi($boxApiConfig);
     }
 
+    /**
+     * Documentation:
+     * https://developer.box.com/guides/authentication/jwt/without-sdk/
+     * https://stackoverflow.com/a/45989059/6369072
+     */
     function retrieveAccessTokenFromBoxApi($boxApiConfig = [])
     {
         error_log("retrieveAccessTokenFromBoxApi()", 0);
@@ -102,6 +64,7 @@ class BoxService
         $currentToken = $this->currentTokenIsValid($oauth_config['access_token_storage']);
         error_log("  token=" . json_encode($currentToken), 0);
         if ($currentToken) return $currentToken;
+        ##############################
         #region Generate JWT
         $token = new Builder();
         // Header
@@ -129,8 +92,8 @@ class BoxService
         $privateKey = new Key($oauth_config['signature']['private_key'], $oauth_config['signature']['pass']);
         $token->sign($signer, $privateKey);
         $JWT = $token->getToken();
-        //echo $JWT;
         #endregion Generate JWT
+        ##############################
         #region Constructing the OAuth2 Request
         $url     = $oauth_config['oauth_request']['url'];
         $request = [
@@ -140,12 +103,10 @@ class BoxService
             'assertion'     => $JWT,
         ];
         #endregion Constructing the OAuth2 Request
+        ##############################
         #region Send request to Box API
         $response = $this->urlRequest($url, $request);
         $response = json_decode($response);
-        //	echo '<pre>';
-        //	print_r($response);
-        //	echo '</pre>';die;
         if (isset($response->error) && !empty($response->error)) {
             error_log("  box login error {$response->error_description}", 0);
             throw new Exception("BoxAPI Error: " . $response->error_description);
@@ -162,6 +123,7 @@ class BoxService
         file_put_contents($oauth_config['access_token_storage'], $this->tokenDelimiter, FILE_APPEND);
         file_put_contents($oauth_config['access_token_storage'], $expiresAt, FILE_APPEND);
         #endregion Send request to Box API
+        ##############################
         error_log("  new token=" . json_encode($response), 0);
 
         return $access_token;
