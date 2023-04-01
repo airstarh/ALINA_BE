@@ -1,4 +1,8 @@
 <?php
+/**
+ * Box API Service.
+ *
+ */
 
 namespace alina\services\thirdPart\BoxApi;
 
@@ -11,11 +15,11 @@ class BoxService
 {
     ##################################################
     #region FIELDS
-    private $_appConfig;
-    private $_accessToken;
-    private $tokenDelimiter = '|||';
-    private $DIR_STATIC     = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/static';
-    private $DIR_GENERATED  = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/generated';
+    private array  $_appConfig;
+    private        $_accessToken;
+    private string $tokenDelimiter = '|||';
+    private string $DIR_STATIC     = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/static';
+    private string $DIR_DYNAMIC    = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/generated';
     #endregion FIELDS
     ##################################################
     #region INIT
@@ -27,12 +31,13 @@ class BoxService
 
     function getBoxApiConfig(): array
     {
-        $DIR_STATIC = $this->DIR_STATIC;
+        $DIR_STATIC  = $this->DIR_STATIC;
+        $DIR_DYNAMIC = $this->DIR_DYNAMIC;
 
         return [
             'folder_id'                       => 0,
-            'access_token_storage'            => $DIR_STATIC . '/access-token-storage',
-            'access_token_storage_enterprise' => $DIR_STATIC . '/access-token-storage-enterprise',
+            'access_token_storage'            => $DIR_DYNAMIC . '/access-token-storage',
+            'access_token_storage_enterprise' => $DIR_DYNAMIC . '/access-token-storage-enterprise',
             'header'                          => [
                 // @link https://box-content.readme.io/v2.0/docs/app-auth
                 'alg' => 'RS256',    // The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
@@ -251,8 +256,8 @@ class BoxService
         ];
         $user     = json_encode($user);
         $response = $this->urlRequest($url, $user, [$this->getAccessTokenHeaderEnterprise()]);
-        file_put_contents($this->DIR_GENERATED . '/app-users-storage', $response, FILE_APPEND);
-        file_put_contents($this->DIR_GENERATED . '/app-users-storage', PHP_EOL . PHP_EOL, FILE_APPEND);
+        file_put_contents($this->DIR_DYNAMIC . '/app-users-storage', $response, FILE_APPEND);
+        file_put_contents($this->DIR_DYNAMIC . '/app-users-storage', PHP_EOL . PHP_EOL, FILE_APPEND);
         echo $response;
     }
     #endregion USER MANAGEMENT
