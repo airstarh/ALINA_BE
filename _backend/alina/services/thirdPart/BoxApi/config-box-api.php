@@ -5,7 +5,6 @@ return [
     'access_token_storage'            => $DIR_DYNAMIC . '/access-token-storage',
     'access_token_storage_enterprise' => $DIR_DYNAMIC . '/access-token-storage-enterprise',
     'header'                          => [
-        // @link https://box-content.readme.io/v2.0/docs/app-auth
         'alg' => 'RS256',    // The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
         'typ' => 'JWT',      // Type of token. Default is “JWT” to specify a JSON Web Token (JWT).
         'kid' => 'ejgrxup7', // Public Key ID
