@@ -6,6 +6,7 @@
  * Box API admin: https://app.box.com/master
  * Box API developer: https://app.box.com/developers/console
  * Box API disk: https://app.box.com/folder/0
+ * Box API code samples: https://github.com/box-community/samples-docs-authenticate-with-jwt-api/blob/main/sample.php
  *
  * JWT Documentation:
  * Official Box API about JWT creation:
