@@ -2,6 +2,12 @@
 /**
  * Box API Service.
  *
+ * JWT Documentation:
+ * Box API about JWT creation:
+ * https://developer.box.com/guides/authentication/jwt/without-sdk/
+ * StackOverFlow JWT discussion:
+ * https://stackoverflow.com/a/45989059/6369072
+ *
  */
 
 namespace alina\services\thirdPart\BoxApi;
@@ -18,8 +24,8 @@ class BoxService
     private array  $_appConfig;
     private        $_accessToken;
     private string $tokenDelimiter = '|||';
-    private string $DIR_STATIC     = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/static';
-    private string $DIR_DYNAMIC    = ALINA_PATH_TO_FRAMEWORK . '/services/thirdPart/BoxApi/generated';
+    private string $DIR_STATIC     = __DIR__ . '/static';
+    private string $DIR_DYNAMIC    = __DIR__ . '/dynamic';
     #endregion FIELDS
     ##################################################
     #region INIT
@@ -31,10 +37,7 @@ class BoxService
 
     function getBoxApiConfig(): array
     {
-        $DIR_STATIC  = $this->DIR_STATIC;
-        $DIR_DYNAMIC = $this->DIR_DYNAMIC;
-
-        return require $DIR_STATIC . '/config-box-api.php';
+        return require __DIR__ . '/config-box-api.php';
     }
 
     ##############################
@@ -50,7 +53,9 @@ class BoxService
 
     /**
      * Documentation:
+     * Box API about JWT creation:
      * https://developer.box.com/guides/authentication/jwt/without-sdk/
+     * StackOverFlow JWT discussion:
      * https://stackoverflow.com/a/45989059/6369072
      */
     function retrieveAccessTokenFromBoxApi($boxApiConfig = [])
@@ -83,7 +88,7 @@ class BoxService
             ->set('alg', $oauth_config['header']['alg'])
             ->set('typ', $oauth_config['header']['typ'])
             ->set('kid', $oauth_config['header']['kid'])
-            // Optional parameters. @link https://box-content.readme.io/docs/app-auth
+            // Optional parameters. @link
             //->setIssuedAt($oauth_config['claims']['iat'])// Configures the time that the token was issue (iat claim)
             //->setNotBefore($oauth_config['claims']['nbf'])// Configures the time that the token can be used (nbf claim)
         ;
@@ -340,7 +345,6 @@ class BoxService
     function getBoxEmbedUrl($boxFileId)
     {
         /*
-         * @link https://box-content.readme.io/reference#get-embed-link
          *
          * curl https://api.box.com/2.0/files/FILE_ID?fields=expiring_embed_link \
          * -H "Authorization: Bearer ACCESS_TOKEN"

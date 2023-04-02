@@ -1,9 +1,8 @@
 <?php
-
 return [
     'folder_id'                       => 0,
-    'access_token_storage'            => $DIR_DYNAMIC . '/access-token-storage',
-    'access_token_storage_enterprise' => $DIR_DYNAMIC . '/access-token-storage-enterprise',
+    'access_token_storage'            => __DIR__ . '/dynamic/access-token-storage',
+    'access_token_storage_enterprise' => __DIR__ . '/dynamic/access-token-storage-enterprise',
     'header'                          => [
         'alg' => 'RS256',    // The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
         'typ' => 'JWT',      // Type of token. Default is “JWT” to specify a JSON Web Token (JWT).
@@ -29,10 +28,9 @@ return [
         'iat'            => time(),                          // Issued at time. The token cannot be used before this time.
         'nbf'            => time() + 60,                     // Not before. Specifies when the token will start being valid.
     ],
-    //'signature' => file_get_contents($DIR_STATIC.'/public_key.pem'),
     'signature'                       => [
-        'public_key'  => file_get_contents($DIR_STATIC . '/public_key.pem'),
-        'private_key' => file_get_contents($DIR_STATIC . '/private_key.pem'),
+        'public_key'  => file_get_contents(__DIR__ . '/static/public_key.pem'),
+        'private_key' => file_get_contents(__DIR__ . '/static/private_key.pem'),
         'pass'        => 'qqqwwweee',
     ],
     'oauth_request'                   => [
