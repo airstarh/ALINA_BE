@@ -3,6 +3,7 @@ return [
     'folder_id'                       => 0,
     'access_token_storage'            => __DIR__ . '/dynamic/access-token-storage',
     'access_token_storage_enterprise' => __DIR__ . '/dynamic/access-token-storage-enterprise',
+
     'header'                          => [
         'alg' => 'RS256',    // The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
         'typ' => 'JWT',      // Type of token. Default is “JWT” to specify a JSON Web Token (JWT).

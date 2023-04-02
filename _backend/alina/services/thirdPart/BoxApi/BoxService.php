@@ -3,7 +3,7 @@
  * Box API Service.
  *
  * JWT Documentation:
- * Box API about JWT creation:
+ * Official Box API about JWT creation:
  * https://developer.box.com/guides/authentication/jwt/without-sdk/
  * StackOverFlow JWT discussion:
  * https://stackoverflow.com/a/45989059/6369072
@@ -233,7 +233,6 @@ class BoxService
     function getBoxFolderObject($boxFolderId = NULL)
     {
         /*
-         * @link https://box-content.readme.io/reference#folder-object
          *
          * curl https://api.box.com/2.0/folders/FOLDER_ID \
          * -H "Authorization: Bearer ACCESS_TOKEN"
@@ -254,7 +253,6 @@ class BoxService
     {
         error_log('uploadFileToBox path=' . $path, 0);
         /*
-         * @link https://box-content.readme.io/reference#upload-a-file
          *
          * curl https://upload.box.com/api/2.0/files/content \
          * -H "Authorization: Bearer ACCESS_TOKEN" -X POST \
