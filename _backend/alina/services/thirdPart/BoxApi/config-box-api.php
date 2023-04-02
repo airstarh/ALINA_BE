@@ -9,7 +9,7 @@ return [
      */
     'folder_id'                       => 0,
     ##################################################
-    #region Header
+    #region HEADER
     'header'                          => [
         /**
          * The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
@@ -30,7 +30,7 @@ return [
          */
         'kid' => 'ejgrxup7',
     ],
-    #endregion Header
+    #endregion HEADER
     ##################################################
     #region CLAIMS
     /**
