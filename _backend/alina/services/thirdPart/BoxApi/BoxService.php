@@ -53,7 +53,7 @@ class BoxService
 
     /**
      * Documentation:
-     * Box API about JWT creation:
+     * Official Box API about JWT creation:
      * https://developer.box.com/guides/authentication/jwt/without-sdk/
      * StackOverFlow JWT discussion:
      * https://stackoverflow.com/a/45989059/6369072
