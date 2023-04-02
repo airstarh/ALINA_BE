@@ -3,8 +3,9 @@ return [
     'access_token_storage'            => __DIR__ . '/dynamic/access-token-storage',
     'access_token_storage_enterprise' => __DIR__ . '/dynamic/access-token-storage-enterprise',
     /**
-     * Get here:
-     * ToDo...
+     * Some folder ID in Box Disk.
+     * Get here (see URL path):
+     * https://app.box.com/folder/0
      */
     'folder_id'                       => 0,
     ##################################################
@@ -13,13 +14,13 @@ return [
         /**
          * The algorithm used to verify the signature. Values may only be set to: “RS256″, “RS384″, or “RS512.″
          * Get here:
-         * ToDo...
+         * https://developer.box.com/guides/authentication/jwt/without-sdk/
          */
         'alg' => 'RS256',
         /**
          * Type of token. Default is “JWT” to specify a JSON Web Token (JWT).
          * Get here:
-         * ToDo...
+         * https://developer.box.com/guides/authentication/jwt/without-sdk/
          */
         'typ' => 'JWT',
         /**
@@ -128,12 +129,12 @@ return [
     'oauth_request'                   => [
         /**
          * Get here:
-         * ToDo...
+         * https://developer.box.com/guides/authentication/jwt/without-sdk/
          */
         'url'           => 'https://api.box.com/oauth2/token',
         /**
          * Get here:
-         * ToDo...
+         * https://developer.box.com/guides/authentication/jwt/without-sdk/
          */
         'grant_type'    => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         /**
