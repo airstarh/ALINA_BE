@@ -62,11 +62,11 @@ class BoxService
     {
         error_log("retrieveAccessTokenFromBoxApi()", 0);
         //error_log("  config=".json_encode($boxApiConfig),0);
-        $oauth_config = (isset($boxApiConfig) && !empty($boxApiConfig))
+        $boxCfg = (isset($boxApiConfig) && !empty($boxApiConfig))
             ? $boxApiConfig
             : $this->getBoxApiConfig();
         // If current token is valid, return current token.
-        $currentToken = $this->currentTokenIsValid($oauth_config['access_token_storage']);
+        $currentToken = $this->currentTokenIsValid($boxCfg['access_token_storage']);
         error_log("  token=" . json_encode($currentToken), 0);
         if ($currentToken) return $currentToken;
         ##############################
@@ -74,37 +74,37 @@ class BoxService
         $token = new Builder();
         // Header
         /*
-        $token->setHeader('alg', $oauth_config['header']['alg']);
-        $token->setHeader('typ', $oauth_config['header']['typ']);
-        $token->setHeader('kid', $oauth_config['header']['kid']);
+        $token->setHeader('alg', $boxCfg['header']['alg']);
+        $token->setHeader('typ', $boxCfg['header']['typ']);
+        $token->setHeader('kid', $boxCfg['header']['kid']);
         */
         $token
-            ->setIssuer($oauth_config['claims']['iss'])// Configures the issuer (iss claim)
-            ->setAudience($oauth_config['claims']['aud'])// Configures the audience (aud claim)
-            ->setId($oauth_config['claims']['jti'], TRUE)// Configures the id (jti claim), replicating as a header item
-            ->setExpiration($oauth_config['claims']['exp'])// Configures the expiration time of the token (exp claim)
-            ->set('sub', $oauth_config['claims']['sub'])// Configures a new claim, called "uid"
-            ->set('box_sub_type', $oauth_config['claims']['box_sub_type'])// Configures a new claim, called "uid"
-            ->set('alg', $oauth_config['header']['alg'])
-            ->set('typ', $oauth_config['header']['typ'])
-            ->set('kid', $oauth_config['header']['kid'])
+            ->setIssuer($boxCfg['claims']['iss'])// Configures the issuer (iss claim)
+            ->setAudience($boxCfg['claims']['aud'])// Configures the audience (aud claim)
+            ->setId($boxCfg['claims']['jti'], TRUE)// Configures the id (jti claim), replicating as a header item
+            ->setExpiration($boxCfg['claims']['exp'])// Configures the expiration time of the token (exp claim)
+            ->set('sub', $boxCfg['claims']['sub'])// Configures a new claim, called "uid"
+            ->set('box_sub_type', $boxCfg['claims']['box_sub_type'])// Configures a new claim, called "uid"
+            ->set('alg', $boxCfg['header']['alg'])
+            ->set('typ', $boxCfg['header']['typ'])
+            ->set('kid', $boxCfg['header']['kid'])
             // Optional parameters. @link
-            //->setIssuedAt($oauth_config['claims']['iat'])// Configures the time that the token was issue (iat claim)
-            //->setNotBefore($oauth_config['claims']['nbf'])// Configures the time that the token can be used (nbf claim)
+            //->setIssuedAt($boxCfg['claims']['iat'])// Configures the time that the token was issue (iat claim)
+            //->setNotBefore($boxCfg['claims']['nbf'])// Configures the time that the token can be used (nbf claim)
         ;
         // Signature (Private Key)
         $signer     = new Sha256();
-        $privateKey = new Key($oauth_config['signature']['private_key'], $oauth_config['signature']['pass']);
+        $privateKey = new Key($boxCfg['signature']['private_key'], $boxCfg['signature']['pass']);
         $token->sign($signer, $privateKey);
         $JWT = $token->getToken();
         #endregion Generate JWT
         ##############################
         #region Constructing the OAuth2 Request
-        $url     = $oauth_config['oauth_request']['url'];
+        $url     = $boxCfg['oauth_request']['url'];
         $request = [
-            'grant_type'    => $oauth_config['oauth_request']['grant_type'],
-            'client_id'     => $oauth_config['oauth_request']['client_id'],
-            'client_secret' => $oauth_config['oauth_request']['client_secret'],
+            'grant_type'    => $boxCfg['oauth_request']['grant_type'],
+            'client_id'     => $boxCfg['oauth_request']['client_id'],
+            'client_secret' => $boxCfg['oauth_request']['client_secret'],
             'assertion'     => $JWT,
         ];
         #endregion Constructing the OAuth2 Request
@@ -124,9 +124,9 @@ class BoxService
             : 0;
         $expiresAt    = $expiresIn + time();
         // Write current token to file
-        file_put_contents($oauth_config['access_token_storage'], $access_token);
-        file_put_contents($oauth_config['access_token_storage'], $this->tokenDelimiter, FILE_APPEND);
-        file_put_contents($oauth_config['access_token_storage'], $expiresAt, FILE_APPEND);
+        file_put_contents($boxCfg['access_token_storage'], $access_token);
+        file_put_contents($boxCfg['access_token_storage'], $this->tokenDelimiter, FILE_APPEND);
+        file_put_contents($boxCfg['access_token_storage'], $expiresAt, FILE_APPEND);
         #endregion Send request to Box API
         ##############################
         error_log("  new token=" . json_encode($response), 0);
@@ -169,9 +169,9 @@ class BoxService
 
     function getAccessTokenEnterprise()
     {
-        $oauth_config = $this->_appConfig; //$this->getBoxApiConfig();
-        $tokenString  = file_get_contents($oauth_config['access_token_storage_enterprise']);
-        $tokenArray   = explode($this->tokenDelimiter, $tokenString);
+        $boxCfg      = $this->_appConfig; //$this->getBoxApiConfig();
+        $tokenString = file_get_contents($boxCfg['access_token_storage_enterprise']);
+        $tokenArray  = explode($this->tokenDelimiter, $tokenString);
 
         return $tokenArray[0];
     }
