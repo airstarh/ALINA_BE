@@ -108,12 +108,13 @@ return [
     'signature'                       => [
         /**
          * Get here:
-         * ToDo...
+         * https://app.box.com/developers/console/app/217558/configuration
          */
         'public_key'  => file_get_contents(__DIR__ . '/static/public_key.pem'),
         /**
+         * Could be generated and copied only once on page below:
          * Get here:
-         * ToDo...
+         * https://app.box.com/developers/console/app/217558/configuration
          */
         'private_key' => file_get_contents(__DIR__ . '/static/private_key.pem'),
         /**
