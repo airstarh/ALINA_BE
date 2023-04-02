@@ -2,6 +2,11 @@
 /**
  * Box API Service.
  *
+ * Box API key pages:
+ * Box API admin: https://app.box.com/master
+ * Box API developer: https://app.box.com/developers/console
+ * Box API disk: https://app.box.com/folder/0
+ *
  * JWT Documentation:
  * Official Box API about JWT creation:
  * https://developer.box.com/guides/authentication/jwt/without-sdk/
