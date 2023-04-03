@@ -1,6 +1,6 @@
 <?php
 /**
- * Box API Service.
+ * Box API Service 2023.
  *
  * Box API key pages:
  * Box API admin: https://app.box.com/master
@@ -24,7 +24,7 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 
-class BoxService
+class BoxService2023
 {
     ##################################################
     #region FIELDS
