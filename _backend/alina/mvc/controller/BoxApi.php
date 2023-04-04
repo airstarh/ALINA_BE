@@ -13,7 +13,6 @@ class BoxApi
     public function __construct()
     {
         //AlinaRejectIfNotAdmin();
-        $this->srvBoxApi = new BoxService();
     }
 
     /**
@@ -22,12 +21,13 @@ class BoxApi
      */
     public function actionIndex(...$arg)
     {
-        $objFile       = (object)[
+        $this->srvBoxApi = new BoxService();
+        $objFile         = (object)[
             'file_id'  => -1,
             'box_id'   => NULL,
             'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
         ];
-        $strUrlPreview = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
+        $strUrlPreview   = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
         #####
         $vd = (object)[
             'objFile'       => $objFile,
@@ -41,19 +41,23 @@ class BoxApi
         // echo '</div>';
         #####
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
-
-        return $this;
     }
 
     public function actionBox2023()
     {
-        #####
-        $box = new BoxService2023();
-
+        $this->srvBoxApi = new BoxService2023();
+        $objFile         = (object)[
+            'file_id'  => -1,
+            'box_id'   => NULL,
+            'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
+        ];
+        $strUrlPreview   = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
         #####
         $vd = (object)[
-            '$box' => $box->egPrimitive(),
+            'objFile'       => $objFile,
+            'strUrlPreview' => $strUrlPreview,
         ];
+        #####
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
     #########################
