@@ -41,8 +41,13 @@ class BoxService2023
         $authenticationUrl = 'https://api.box.com/oauth2/token';
         $claims            = [
             'iss'          => $config->boxAppSettings->clientID,
+            #########
             'sub'          => $config->enterpriseID,
             'box_sub_type' => 'enterprise',
+            ###
+            // 'sub'          => '271874469',
+            // 'box_sub_type' => 'user',
+            #########
             'aud'          => $authenticationUrl,
             // This is an identifier that helps protect against
             // replay attacks
@@ -80,7 +85,7 @@ class BoxService2023
             ],
         ])->getBody()->getContents();
 
-        return $response;
+        return json_decode($response);
     }
     #endregion FROM OFFICIAL DOCUMENTATION
     ##################################################
