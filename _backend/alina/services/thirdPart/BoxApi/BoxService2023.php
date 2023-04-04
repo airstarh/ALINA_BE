@@ -164,8 +164,8 @@ class BoxService2023
     {
         $http     = new HttpRequest(
             $url,              // URL
-            NULL,          // METHOD        will be autodetected
-            NULL,            // GET           will be autodetected
+            NULL,          // METHOD
+            NULL,            // GET
             $post,           // POST
             $headers,      // HEADERS
             NULL,           // COOKIE
