@@ -288,12 +288,12 @@ class HttpRequest
 
     private function prepareFields()
     {
-        $reqFields = $this->reqFields;
-        if ($this->flagFieldsRaw) {
-            return $reqFields;
-        }
-
-        return http_build_query($reqFields);
+        return $this->reqFields;
+        // $reqFields = $this->reqFields;
+        // if ($this->flagFieldsRaw) {
+        //     return $reqFields;
+        // }
+        // return http_build_query($reqFields);
     }
 
     /**
@@ -477,7 +477,7 @@ class HttpRequest
                 'attempt'                 => $this->attempt,
                 'amountLocationsVisited'  => $this->amountLocationsVisited,
                 'resUrl'                  => $this->resUrl,
-                //'respBody'                => $this->respBody,
+                'respBody'                => $this->respBody,
                 'respHeaders'             => $this->respHeaders,
                 'respHeadersStructurized' => $this->respHeadersStructurized,
                 'curlInfo'                => $this->curlInfo,

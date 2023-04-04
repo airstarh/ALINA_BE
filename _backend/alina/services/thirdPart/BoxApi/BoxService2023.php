@@ -20,8 +20,9 @@
 namespace alina\services\thirdPart\BoxApi;
 
 use alina\utils\Data;
+use alina\utils\HttpRequest;
 use Exception;
-use \Firebase\JWT\JWT;
+use Firebase\JWT\JWT;
 use GuzzleHttp\Client;
 
 class BoxService2023
@@ -161,20 +162,17 @@ class BoxService2023
     #region REQUEST
     private function httpRequest($url, $post = [], $headers = [])
     {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        // POST
-        if (!empty($post)) {
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        }
-        // Set Headers
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-        $response = curl_exec($ch);
-        curl_close($ch);
+        $http     = new HttpRequest(
+            $url,              // URL
+            NULL,          // METHOD        will be autodetected
+            NULL,            // GET           will be autodetected
+            $post,           // POST
+            $headers,      // HEADERS
+            NULL,           // COOKIE
+            NULL,      // FLAG FIELD IS RAW
+            3,          // MAX ATTEMPTS
+        );
+        $response = $http->exe()->take('respBody');
 
         return $response;
     }
@@ -210,9 +208,8 @@ class BoxService2023
         $realPath    = realpath($path);
         if (!file_exists($realPath)) throw new Exception('No original file on server.');
         // Preparations
-        $fileName = time() . '-' . basename($realPath);
-        $fileSha1 = $this->getFileSha1($realPath);
-        //$boxFolderObj = $this->getBoxFolderObject($boxFolderId); // Seems unnecessary
+        $fileName   = time() . '-' . basename($realPath);
+        $fileSha1   = $this->getFileSha1($realPath);
         $attributes = [
             'name'   => $fileName,
             'parent' => [
@@ -224,13 +221,9 @@ class BoxService2023
         $headers[]           = $this->getAccessTokenHeader();
         $post['Content-MD5'] = $fileSha1;
         $post['attributes']  = json_encode($attributes);
-        //$post['name'] = $fileName;
-        //$post['parent'] = $boxFolderObj;
-        //$post['id'] = $boxFolderId;
-        //$post['file'] = '@'.$realPath;
-        $post['parent_id'] = $boxFolderId;
-        $post['file']      = new \CURLFile($realPath); // For PHP 5.6 only
-        $response          = $this->httpRequest($url, $post, $headers);
+        $post['parent_id']   = $boxFolderId;
+        $post['file']        = new \CURLFile($realPath); // For PHP 5.6 only
+        $response            = $this->httpRequest($url, $post, $headers);
 
         return $response;
     }
