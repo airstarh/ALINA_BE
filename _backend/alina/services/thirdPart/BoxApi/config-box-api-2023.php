@@ -9,7 +9,7 @@ return (object)[
      * Get here (see URL path):
      * https://app.box.com/folder/0
      */
-    'folder_id'                 => 0,
+    'folderId'                  => 0,
     #endregion LOCAL DEFINITIONS
     ##################################################
     #region AUTH
