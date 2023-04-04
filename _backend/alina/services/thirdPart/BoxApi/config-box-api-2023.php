@@ -49,15 +49,15 @@ return (object)[
              */
             'passphrase'  => 'qqqwwweee',
         ],
-        /**
-         * Enterprise ID
-         * Get here:
-         * https://app.box.com/master/settings/accountBilling
-         * or Get here:
-         * https://app.box.com/developers/console/app/217558
-         */
-        'enterpriseID' => '911269',
     ],
+    /**
+     * Enterprise ID
+     * Get here:
+     * https://app.box.com/master/settings/accountBilling
+     * or Get here:
+     * https://app.box.com/developers/console/app/217558
+     */
+    'enterpriseID'              => '911269',
     #endregion AUTH
     ##################################################
 ];
