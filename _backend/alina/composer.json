@@ -1,16 +1,16 @@
 {
     "require": {
-        "illuminate/database": "^v8.46.0",
-        "illuminate/events": "^v8.46.0",
-        "cboden/ratchet": "^0.3.6",
-        "components/elfinder": "^2.2",
+        "illuminate/database": "^8",
+        "illuminate/events": "^8",
+        "cboden/ratchet": "^0.4",
         "ralouphie/mimey": "^1.0",
-        "ckeditor/ckeditor": "4.*",
         "phpmailer/phpmailer": "~6.1",
         "ezyang/htmlpurifier": "^4.12",
         "ivopetkov/html5-dom-document-php": "2.*",
         "intervention/image": "^2.5",
-        "lcobucci/jwt": "3.3"
+        "lcobucci/jwt": "3.3",
+        "firebase/php-jwt": "^6.4.0",
+        "guzzlehttp/guzzle": "^7.5"
     },
     "config": {
         "allow-plugins": {
