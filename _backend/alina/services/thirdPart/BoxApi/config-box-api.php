@@ -52,12 +52,12 @@ return [
         /**
          * App User id
          * Get here:
-         * ToDo...
+         * https://app.box.com/master/users
+         * https://app.box.com/master/users/271874469
          */
         'sub'            => '271874469',
         /**
-         * Get here:
-         * ToDo...
+         * Could be: "user" or "enterprise"
          */
         'box_sub_type'   => 'user',
         // For the flexible switching between Enterprise and App User actions
