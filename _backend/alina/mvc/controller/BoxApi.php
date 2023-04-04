@@ -4,6 +4,7 @@ namespace alina\mvc\controller;
 
 use alina\mvc\view\html as htmlAlias;
 use alina\services\thirdPart\BoxApi\BoxService;
+use alina\services\thirdPart\BoxApi\BoxService2023;
 
 class BoxApi
 {
@@ -42,6 +43,18 @@ class BoxApi
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
+    }
+
+    public function actionBox2023()
+    {
+        #####
+        $box = new BoxService2023();
+
+        #####
+        $vd = (object)[
+            '$box' => $box->egPrimitive(),
+        ];
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
     #########################
     #region CONFIGURATION
