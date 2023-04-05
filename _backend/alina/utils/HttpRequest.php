@@ -40,7 +40,7 @@ class HttpRequest
     #endregion Class Adjustments
     ##########################################
     #region Request
-    private        $ch;
+    private        $ch                = NULL;
     private string $reqUrl            = '';
     private string $reqMethod         = 'GET';
     private int    $flagMethodMutator = 0;
@@ -58,16 +58,16 @@ class HttpRequest
     #endregion Request
     ##########################################
     #region Response/Results
-    public array   $curlInfo                = [];
-    private string $resUrl                  = '';
-    private string $respBody                = '';
-    private        $respBodyObject          = NULL;
-    private int    $httpCode                = 0;
-    private int    $respErrno               = 0;
-    private string $respErr                 = '';
-    private array  $respHeaders             = [];
-    private array  $respHeadersStructurized = [];
-    private int    $amountLocationsVisited  = 0;
+    public array    $curlInfo                = [];
+    private string  $resUrl                  = '';
+    private string  $respBody                = '';
+    private ?object $respBodyObject          = NULL;
+    private int     $httpCode                = 0;
+    private int     $respErrno               = 0;
+    private string  $respErr                 = '';
+    private array   $respHeaders             = [];
+    private array   $respHeadersStructurized = [];
+    private int     $amountLocationsVisited  = 0;
     #endregion Response/Results
     ##########################################
     #region INIT
