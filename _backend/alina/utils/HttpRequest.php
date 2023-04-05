@@ -10,7 +10,7 @@ class HttpRequest
     #region Class Adjustments
     private array $log             = [];
     private int   $attemptMax      = 5;
-    private int   $attempt         = 1;
+    private int   $attempt         = 0;
     private array $methods         = [
         'Method Name' => 'Does Method causes Mutation?',
         'GET'         => 0,
@@ -54,10 +54,12 @@ class HttpRequest
     #endregion Request
     ##########################################
     #region Response/Results
-    private array  $curlInfo                = [];
+    public array   $curlInfo                = [];
     private string $resUrl                  = '';
     private string $respBody                = '';
+    private int    $httpCode                = 0;
     private int    $respErrno               = 0;
+    private string $respErr                 = '';
     private array  $respHeaders             = [];
     private array  $respHeadersStructurized = [];
     private int    $amountLocationsVisited  = 0;
@@ -75,7 +77,6 @@ class HttpRequest
         $attemptMax = 5// int
     )
     {
-        $this->ch = curl_init();
         if ($attemptMax !== NULL) $this->attemptMax = $attemptMax;
         if ($flagFieldsRaw !== NULL) $this->flagFieldsRaw = $flagFieldsRaw;
         if ($uri) $this->setReqUrl($uri);
@@ -90,6 +91,13 @@ class HttpRequest
     #endregion INIT
     ##########################################
     #region Facade Stuff
+    public function setAttemptMax($v): HttpRequest
+    {
+        $this->attemptMax = $v;
+
+        return $this;
+    }
+
     /**
      * Sets:
      * $this->>reqUrl:string
@@ -219,51 +227,72 @@ class HttpRequest
 
     public function exe(): HttpRequest
     {
-        $ch      =& $this->ch;
+        #####
+        $closeConnection = function () {
+            if ($this->ch && gettype($this->ch) == 'resource') {
+                curl_close($this->ch);
+                sleep(1);
+            }
+        };
+        #####
         $url     = $this->prepareUrlAndGet();
         $headers = $this->prepareHeaders();
         $cookie  = $this->prepareCookie();
         $fields  = $this->prepareFields();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->reqMethod);
-        //curl_setopt($ch, CURLOPT_USERAGENT, 'VA Services');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 11);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, [$this, 'callback_CURLOPT_HEADERFUNCTION']);
-        // POST PUT PATCH
-        if (!empty($fields)) {
-            if ($this->flagFieldsRaw) {
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/plain']);
-                //$this->addHeaders(['Content-Type' => 'text/plain',]);
-            }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        }
-        // Set Headers
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-        if (!empty($cookie)) {
-            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
-        }
-        //EXECUTION
         do {
-            $this->respBody = curl_exec($ch);
-            $errno          = curl_errno($ch);
-            if ($errno > 0 || !$this->respBody) {
-                $this->respBody = curl_error($ch);
-                $this->attempt++;
+            ++$this->attempt;
+            error_log($this->attempt);
+            #####
+            $closeConnection();
+            #####
+            $max_execution_time = ini_get('max_execution_time');
+            $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax - 1;
+            #####
+            $this->ch = curl_init();
+            ##### curl_setopt($this->ch, CURLOPT_USERAGENT, 'VA Services');
+            curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, 1);
+            curl_setopt($this->ch, CURLOPT_TIMEOUT, $CURLOPT_TIMEOUT,);
+            curl_setopt($this->ch, CURLOPT_URL, $url);
+            curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->reqMethod);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, TRUE);
+            curl_setopt($this->ch, CURLOPT_MAXREDIRS, 11);
+            curl_setopt($this->ch, CURLOPT_HEADER, FALSE);
+            curl_setopt($this->ch, CURLOPT_HEADERFUNCTION, [$this, 'callback_CURLOPT_HEADERFUNCTION']);
+            ##### POST PUT PATCH
+            if (!empty($fields)) {
+                if ($this->flagFieldsRaw) {
+                    curl_setopt($this->ch, CURLOPT_HTTPHEADER, ['Content-Type: text/plain']);
+                    //$this->addHeaders(['Content-Type' => 'text/plain',]);
+                }
+                curl_setopt($this->ch, CURLOPT_POSTFIELDS, $fields);
             }
-            else break;
+            ##### HEADERS
+            if (!empty($headers)) {
+                curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
+            }
+            ##### COOKIE
+            if (!empty($cookie)) {
+                curl_setopt($this->ch, CURLOPT_COOKIE, $cookie);
+            }
+            ##### EXECUTION
+            $this->respBody = curl_exec($this->ch);
+            error_log($this->respBody);
+            $this->curlInfo = curl_getinfo($this->ch);
+            $this->httpCode = (int)$this->curlInfo['http_code'];
+            $errno          = curl_errno($this->ch);
+            if ($errno > 0 || !$this->flagRespSuccess()) {
+                $this->respErrno = $errno;
+                $this->respErr   = curl_error($this->ch);
+            }
+            else {
+                $closeConnection();
+                break;
+            }
+            $closeConnection();
         } while ($this->attempt < $this->attemptMax);
-        $this->log['attempt']    = $this->attempt;
-        $this->log['curl_errno'] = curl_errno($ch);
-        $this->log['curl_error'] = curl_error($ch);
-        $this->curlInfo          = curl_getinfo($ch);
-        curl_close($ch);
 
         return $this;
     }
@@ -367,6 +396,11 @@ class HttpRequest
     #endregion Request Prepare Staff
     ##########################################
     #region Utils
+    public function flagRespSuccess(): bool
+    {
+        return in_array($this->httpCode, range(200, 299));
+    }
+
     /**
      * Reverse parse_url
      * @link https://stackoverflow.com/a/31691249/3142281
@@ -442,6 +476,8 @@ class HttpRequest
             /**
              * Block of Read-Only Properties or Properties are changed during the execution.
              */
+            case 'respErr':
+            case 'respErrno':
             case 'ch':
             case 'methods':
             case 'flagMethodMutator':
@@ -473,15 +509,18 @@ class HttpRequest
                 'reqCookie'     => $this->reqCookie,
             ],
             'RESPONSE' => [
-                'flagMethodMutator'       => $this->flagMethodMutator,
+                'httpCode'                => $this->httpCode,
                 'attempt'                 => $this->attempt,
                 'amountLocationsVisited'  => $this->amountLocationsVisited,
+                'respErrno'               => $this->respErrno,
+                'respErr'                 => $this->respErr,
+                'flagMethodMutator'       => $this->flagMethodMutator,
                 'resUrl'                  => $this->resUrl,
-                'respBody'                => $this->respBody,
                 'respHeaders'             => $this->respHeaders,
                 'respHeadersStructurized' => $this->respHeadersStructurized,
                 'curlInfo'                => $this->curlInfo,
                 'log'                     => $this->log,
+                'respBody'                => $this->respBody,
             ],
         ];
     }

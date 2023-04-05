@@ -51,21 +51,15 @@ class BoxApi
             'box_id'   => NULL,
             'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
         ];
-        $strUrlPreview   = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
         #####
         $vd = (object)[
-            'objFile'       => $objFile,
-            'strUrlPreview' => $strUrlPreview,
+            'list'          => $this->srvBoxApi->requestFileList(0),
+            //'objFile'       => $objFile,
+            //'folder0'       => $this->srvBoxApi->requestFolder(0),
+            //'delete'        => $this->srvBoxApi->requestDeleteAllFilesInFolder(0),
+            'strUrlPreview' => $this->srvBoxApi->requestPreview($objFile),
         ];
         #####
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
-    #########################
-    #region CONFIGURATION
-    public function boxApiConfig()
-    {
-        ##### \alina\services\thirdPart\BoxApi\BoxService::getBoxApiConfig
-    }
-    #endregion CONFIGURATION
-    #########################
 }
