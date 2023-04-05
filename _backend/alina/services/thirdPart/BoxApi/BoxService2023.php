@@ -174,10 +174,11 @@ class BoxService2023
         );
         $response = $http->exe()->take('respBody');
 
+        //$response = json_decode($response);
         return $response;
     }
 
-    function getAccessTokenHeader(): string
+    function getTokenHeader(): string
     {
         $accessToken = $this->token;
 
@@ -192,13 +193,51 @@ class BoxService2023
         return sha1_file($path);
     }
 
-    function requestBoxFolderObject($boxFolderId = NULL)
+    public function requestFileList($boxFolderId)
+    {
+        $http = new HttpRequest();
+        $http->setReqUrl("https://api.box.com/2.0/folders/$boxFolderId/items");
+        $http->setReqMethod('GET');
+        $http->addReqHeaders([$this->getTokenHeader()]);
+        $res = $http->exe()->take('respBody');
+        $res = json_decode($res);
+
+        return $res;
+    }
+
+    function requestFolder($boxFolderId = NULL)
     {
         $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
         $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
-        $response    = $this->httpRequest($url, [], [$this->getAccessTokenHeader()]);
+        $response    = $this->httpRequest($url, [], [$this->getTokenHeader()]);
+        $response    = json_decode($response);
 
         return $response;
+    }
+
+    public function requestDeleteFile($boxFileId)
+    {
+        $http = new HttpRequest();
+        $http->setReqUrl("https://api.box.com/2.0/files/$boxFileId");
+        $http->setReqMethod('DELETE');
+        $http->addReqHeaders([$this->getTokenHeader()]);
+        $res = $http->exe()->take('respBody');
+        $res = json_decode($res);
+
+        return $res;
+    }
+
+    public function requestDeleteAllFilesInFolder($boxFolderId)
+    {
+        $res    = [];
+        $folder = $this->requestFolder($boxFolderId);
+        foreach ($folder->item_collection->entries as $i => $v) {
+            if ($v->type == 'file') {
+                $res[] = $this->requestDeleteFile($v->id);
+            }
+        }
+
+        return $res;
     }
 
     function uploadFileToBox($path, $boxFolderId = NULL)
@@ -208,8 +247,9 @@ class BoxService2023
         $realPath    = realpath($path);
         if (!file_exists($realPath)) throw new Exception('No original file on server.');
         // Preparations
-        $fileName   = time() . '-' . basename($realPath);
-        $fileSha1   = $this->getFileSha1($realPath);
+        $fileSha1 = $this->getFileSha1($realPath);
+        //$fileName   = time() . '-' . basename($realPath);
+        $fileName   = $fileSha1 . '-' . basename($realPath);
         $attributes = [
             'name'   => $fileName,
             'parent' => [
@@ -218,12 +258,23 @@ class BoxService2023
         ];
         // Build Request
         $url                 = 'https://upload.box.com/api/2.0/files/content';
-        $headers[]           = $this->getAccessTokenHeader();
+        $headers[]           = $this->getTokenHeader();
         $post['Content-MD5'] = $fileSha1;
         $post['attributes']  = json_encode($attributes);
         $post['parent_id']   = $boxFolderId;
         $post['file']        = new \CURLFile($realPath); // For PHP 5.6 only
-        $response            = $this->httpRequest($url, $post, $headers);
+        //$response            = $this->httpRequest($url, $post, $headers);
+        #####
+        $http = new HttpRequest();
+        $http->setAttemptMax(2);
+        $http->setReqUrl($url);
+        $http->addReqHeaders($headers);
+        $http->setReqFields($post);
+        $response = $http->exe()->take('respBody');
+        if (!$http->flagRespSuccess()) {
+            throw new Exception(Data::hlpGetBeautifulJsonString($http->report()['RESPONSE']['respBody']));
+            //throw new Exception("$httpCode File upload failed.");
+        }
 
         return $response;
     }
@@ -235,7 +286,7 @@ class BoxService2023
      * @return string
      * @throws Exception
      */
-    function retrieveBoxPreviewUrl(object $fileObj, string $boxFolderId = NULL): string
+    function requestPreview(object $fileObj, string $boxFolderId = NULL): string
     {
         // @file api/boxApi/access-token-storage
         //$this->getAppUserAccessTokenFromBoxApi();
@@ -283,7 +334,7 @@ class BoxService2023
     function requestBoxEmbedUrl($boxFileId)
     {
         $url       = "https://api.box.com/2.0/files/{$boxFileId}?fields=expiring_embed_link";
-        $headers[] = $this->getAccessTokenHeader();
+        $headers[] = $this->getTokenHeader();
         $response  = $this->httpRequest($url, [], $headers);
 
         return $response;

@@ -10,6 +10,7 @@ use alina\mvc\model\_BaseAlinaModel;
 use alina\mvc\model\CurrentUser;
 use alina\mvc\model\user;
 use alina\mvc\view\html;
+use alina\mvc\view\html as htmlAlias;
 use alina\mvc\view\json as jsonView;
 use alina\utils\Crypy;
 use alina\utils\Data;
@@ -106,7 +107,7 @@ class AdminTests
     /**
      * Test POST Request
      * @route /admintests/testpost
-    */
+     */
     public function actionTestPost()
     {
         Message::setSuccess('AdminTest Response');
@@ -292,6 +293,18 @@ class AdminTests
         Message::setInfo('Hello, people');
         $vd = [];
         echo (new html)->page($vd, html::$htmLayoutCleanBody);
+    }
+
+    #####
+    public function actionTestTimeout()
+    {
+        $max_execution_time = ini_get('max_execution_time');
+        //sleep($max_execution_time + 1);
+        http_response_code(403);
+        $vd = (object)[
+            'max_execution_time' => $max_execution_time,
+        ];
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
     #####
 }
