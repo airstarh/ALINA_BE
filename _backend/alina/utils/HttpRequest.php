@@ -52,7 +52,7 @@ class HttpRequest
     private       $reqFields     = [];
     private int   $flagFieldsRaw = 0;
     private array $reqHeaders    = [
-        //'Content-Type' => 'multipart/form-data; charset=utf-8',
+        'Pragma' => 'no-cache',
     ];
     private array $reqCookie     = [];
     #endregion Request
