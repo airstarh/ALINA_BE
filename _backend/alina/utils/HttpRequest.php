@@ -1,8 +1,12 @@
 <?php
 
 namespace alina\utils;
+
+use Exception;
+
 /**
  * https://www.php.net/manual/ru/function.curl-setopt.php
+ * @property HttpRequest::ch resource
  */
 class HttpRequest
 {
@@ -57,6 +61,7 @@ class HttpRequest
     public array   $curlInfo                = [];
     private string $resUrl                  = '';
     private string $respBody                = '';
+    private        $respBodyObject          = NULL;
     private int    $httpCode                = 0;
     private int    $respErrno               = 0;
     private string $respErr                 = '';
@@ -241,17 +246,16 @@ class HttpRequest
         $fields  = $this->prepareFields();
         do {
             ++$this->attempt;
-            error_log($this->attempt);
             #####
             $closeConnection();
             #####
             $max_execution_time = ini_get('max_execution_time');
-            $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax - 1;
+            $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax;
             #####
             $this->ch = curl_init();
             ##### curl_setopt($this->ch, CURLOPT_USERAGENT, 'VA Services');
             curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, 1);
-            curl_setopt($this->ch, CURLOPT_TIMEOUT, $CURLOPT_TIMEOUT,);
+            curl_setopt($this->ch, CURLOPT_TIMEOUT, $CURLOPT_TIMEOUT);
             curl_setopt($this->ch, CURLOPT_URL, $url);
             curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->reqMethod);
             curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -279,7 +283,11 @@ class HttpRequest
             }
             ##### EXECUTION
             $this->respBody = curl_exec($this->ch);
-            error_log($this->respBody);
+            try {
+                $this->respBodyObject = json_decode($this->respBody);
+            } catch (Exception $e) {
+                $this->respBodyObject = (object)[];
+            }
             $this->curlInfo = curl_getinfo($this->ch);
             $this->httpCode = (int)$this->curlInfo['http_code'];
             $errno          = curl_errno($this->ch);
@@ -418,7 +426,6 @@ class HttpRequest
      */
     private function callback_CURLOPT_HEADERFUNCTION($ch, $str): int
     {
-        $this->log['callback_CURLOPT_HEADERFUNCTION'][] = $str;
         //responseHeaderCount
         $this->respHeaders[]                                              = $str;
         $a                                                                = explode(':', $str, 2);
@@ -485,6 +492,7 @@ class HttpRequest
             case 'curlInfo':
             case 'resUrl':
             case 'respBody':
+            case 'respBodyObject':
             case 'respHeaders':
             case 'respHeadersStructurized':
             case 'amountLocationsVisited':
@@ -496,7 +504,7 @@ class HttpRequest
         return $this;
     }
 
-    public function report()
+    public function report(): array
     {
         return [
             'REQUEST'  => [
@@ -520,6 +528,7 @@ class HttpRequest
                 'respHeadersStructurized' => $this->respHeadersStructurized,
                 'curlInfo'                => $this->curlInfo,
                 'log'                     => $this->log,
+                'respBodyObject'          => $this->respBodyObject,
                 'respBody'                => $this->respBody,
             ],
         ];
