@@ -240,6 +240,40 @@ class BoxService2023
         return $res;
     }
 
+    /**
+     * Documentation:
+     * https://developer.box.com/reference/get-search/#param-ancestor_folder_ids
+     */
+    public function searchFileByName($name, $folderId = NULL)
+    {
+        $res  = NULL;
+        $url  = 'https://api.box.com/2.0/search';
+        $get  = [
+            'query'               => $name,
+            'type'                => 'file',
+            'ancestor_folder_ids' => $folderId,
+            'limit'               => 1,
+            'fields'              => 'name',
+        ];
+        $http = new HttpRequest();
+        $http->setAttemptMax(1);
+        $http->setReqUrl($url);
+        $http->addReqGet($get);
+        $http->addReqHeaders([$this->getTokenHeader()]);
+        $file = $http->exe()->take('respBodyObject');
+        #####
+        if ($file) {
+            if (property_exists($file, 'entries')) {
+                if (isset($file->entries[0])) {
+                    $res = $file;
+                }
+            }
+        }
+
+        #####
+        return $res;
+    }
+
     function uploadFileToBox($path, $boxFolderId = NULL)
     {
         error_log('uploadFileToBox path=' . $path, 0);
@@ -249,7 +283,13 @@ class BoxService2023
         // Preparations
         $fileSha1 = $this->getFileSha1($realPath);
         //$fileName   = time() . '-' . basename($realPath);
-        $fileName   = $fileSha1 . '-' . basename($realPath);
+        $fileName = $fileSha1 . '-' . basename($realPath);
+        #####
+        $f = $this->searchFileByName($fileName, $boxFolderId);
+        if ($f) {
+            return $f;
+        }
+        #####
         $attributes = [
             'name'   => $fileName,
             'parent' => [
@@ -258,7 +298,6 @@ class BoxService2023
         ];
         // Build Request
         $url                 = 'https://upload.box.com/api/2.0/files/content';
-        $headers[]           = $this->getTokenHeader();
         $post['Content-MD5'] = $fileSha1;
         $post['attributes']  = json_encode($attributes);
         $post['parent_id']   = $boxFolderId;
@@ -268,11 +307,11 @@ class BoxService2023
         $http = new HttpRequest();
         $http->setAttemptMax(2);
         $http->setReqUrl($url);
-        $http->addReqHeaders($headers);
+        $http->addReqHeaders([$this->getTokenHeader()]);
         $http->setReqFields($post);
-        $response = $http->exe()->take('respBody');
+        $response = $http->exe()->take('respBodyObject');
         if (!$http->flagRespSuccess()) {
-            throw new Exception(Data::hlpGetBeautifulJsonString($http->report()['RESPONSE']['respBody']));
+            throw new Exception(Data::hlpGetBeautifulJsonString($response));
             //throw new Exception("$httpCode File upload failed.");
         }
 
@@ -308,7 +347,6 @@ class BoxService2023
         if (!$flagEmbedLinkReceived) {
             $path = $fileObj->fullPath;
             $file = $this->uploadFileToBox($path, $boxFolderId);
-            $file = json_decode($file);
             if (!isset($file->entries[0]) || empty($file->entries[0]))
                 throw new Exception('File preview failed.');
             $file      = $file->entries[0];
