@@ -104,12 +104,29 @@ class BoxService2023
     public function __construct()
     {
         $this->cfg   = $this->getBoxApiConfig();
-        $this->token = $this->requestNewToken();
+        $this->token = $this->getToken();
     }
 
     private function getBoxApiConfig()
     {
         return require('config-box-api-2023.php');
+    }
+
+    private function getToken()
+    {
+        if ($this->flagTokenExpired()) {
+            return $this->requestNewToken();
+        }
+        else {
+            return file_get_contents($this->cfg->accessTokenFile);
+        }
+    }
+
+    private function flagTokenExpired(): bool
+    {
+        $tokenExpiresAt = (int)file_get_contents($this->cfg->accessTokenExpiresTimeFile);
+
+        return $tokenExpiresAt < time() - 3;
     }
 
     private function requestNewToken()
@@ -169,7 +186,7 @@ class BoxService2023
     #endregion INIT
     ##################################################
     #region REQUEST
-    function getTokenHeader(): string
+    private function getTokenHeader(): string
     {
         $accessToken = $this->token;
 
