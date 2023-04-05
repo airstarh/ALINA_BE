@@ -160,23 +160,6 @@ class BoxService2023
     #endregion INIT
     ##################################################
     #region REQUEST
-    private function httpRequest($url, $post = [], $headers = [])
-    {
-        $http     = new HttpRequest(
-            $url,              // URL
-            NULL,          // METHOD
-            NULL,            // GET
-            $post,           // POST
-            $headers,      // HEADERS
-            NULL,           // COOKIE
-            NULL,      // FLAG FIELD IS RAW
-            3,          // MAX ATTEMPTS
-        );
-        $response = $http->exe()->take('respBodyObject');
-
-        return $response;
-    }
-
     function getTokenHeader(): string
     {
         $accessToken = $this->token;
@@ -194,8 +177,9 @@ class BoxService2023
 
     public function requestFileList($boxFolderId)
     {
+        $url  = "https://api.box.com/2.0/folders/$boxFolderId/items";
         $http = new HttpRequest();
-        $http->setReqUrl("https://api.box.com/2.0/folders/$boxFolderId/items");
+        $http->setReqUrl($url);
         $http->setReqMethod('GET');
         $http->addReqHeaders([$this->getTokenHeader()]);
         $res = $http->exe()->take('respBodyObject');
@@ -207,15 +191,18 @@ class BoxService2023
     {
         $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
         $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
-        $response    = $this->httpRequest($url, [], [$this->getTokenHeader()]);
+        $http        = new HttpRequest($url);
+        $http->addReqHeaders([$this->getTokenHeader()]);
+        $response = $http->exe()->take('respBodyObject');
 
         return $response;
     }
 
     public function requestDeleteFile($boxFileId)
     {
+        $url  = "https://api.box.com/2.0/files/$boxFileId";
         $http = new HttpRequest();
-        $http->setReqUrl("https://api.box.com/2.0/files/$boxFileId");
+        $http->setReqUrl($url);
         $http->setReqMethod('DELETE');
         $http->addReqHeaders([$this->getTokenHeader()]);
         $res = $http->exe()->take('respBodyObject');
@@ -281,10 +268,12 @@ class BoxService2023
         //$fileName   = time() . '-' . basename($realPath);
         $fileName = $fileSha1 . '-' . basename($realPath);
         #####
+        #region FILE EXISTS
         $f = $this->searchFileByName($fileName, $boxFolderId);
         if ($f) {
             return $f;
         }
+        #endregion FILE EXISTS
         #####
         $attributes = [
             'name'   => $fileName,
@@ -298,7 +287,6 @@ class BoxService2023
         $post['attributes']  = json_encode($attributes);
         $post['parent_id']   = $boxFolderId;
         $post['file']        = new \CURLFile($realPath); // For PHP 5.6 only
-        //$response            = $this->httpRequest($url, $post, $headers);
         #####
         $http = new HttpRequest();
         $http->setAttemptMax(2);
@@ -366,9 +354,10 @@ class BoxService2023
 
     function requestBoxEmbedUrl($boxFileId)
     {
-        $url       = "https://api.box.com/2.0/files/{$boxFileId}?fields=expiring_embed_link";
-        $headers[] = $this->getTokenHeader();
-        $response  = $this->httpRequest($url, [], $headers);
+        $url  = "https://api.box.com/2.0/files/{$boxFileId}?fields=expiring_embed_link";
+        $http = (new HttpRequest($url));
+        $http->addReqHeaders([$this->getTokenHeader()]);
+        $response = $http->exe()->take('respBodyObject');
 
         return $response;
     }
