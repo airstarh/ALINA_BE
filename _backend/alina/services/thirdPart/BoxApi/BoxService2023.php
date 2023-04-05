@@ -114,12 +114,14 @@ class BoxService2023
 
     private function requestNewToken()
     {
-        $config     = $this->getBoxApiConfig();
-        $privateKey = $config->boxAppSettings->appAuth->privateKey;
-        $passphrase = $config->boxAppSettings->appAuth->passphrase;
-        $key        = openssl_pkey_get_private($privateKey, $passphrase);
-        // We will need the authenticationUrl  again later,
-        // so it is handy to define here
+        $config            = $this->getBoxApiConfig();
+        $privateKey        = $config->boxAppSettings->appAuth->privateKey;
+        $passphrase        = $config->boxAppSettings->appAuth->passphrase;
+        $key               = openssl_pkey_get_private($privateKey, $passphrase);
+        $tokenExpiresAfter = time() + 45;
+        #####
+        # We will need the authenticationUrl  again later,
+        # so it is handy to define here
         $authenticationUrl = 'https://api.box.com/oauth2/token';
         $claims            = [
             'iss'          => $config->boxAppSettings->clientID,
@@ -131,7 +133,7 @@ class BoxService2023
             'jti'          => base64_encode(random_bytes(64)),
             // We give the assertion a lifetime of 45 seconds
             // before it expires
-            'exp'          => time() + 45,
+            'exp'          => $tokenExpiresAfter,
             'kid'          => $config->boxAppSettings->appAuth->publicKeyID,
         ];
         // Rather than constructing the JWT assertion manually, we are
@@ -152,9 +154,16 @@ class BoxService2023
             'form_params' => $params,
         ]);
         // Parse the JSON and extract the access token
-        $data = $response->getBody()->getContents();
-
-        return json_decode($data)->access_token;
+        $data  = $response->getBody()->getContents();
+        $data  = json_decode($data);
+        $token = $data->access_token;
+        #####
+        #region STORE TOKEN
+        file_put_contents($this->cfg->accessTokenFile, $token);
+        file_put_contents($this->cfg->accessTokenExpiresTimeFile, $tokenExpiresAfter);
+        #endregion STORE TOKEN
+        #####
+        return $token;
     }
 
     #endregion INIT
@@ -234,7 +243,7 @@ class BoxService2023
         $get  = [
             'query'               => $name,
             'type'                => 'file',
-            'ancestor_folder_ids' => $folderId,
+            'ancestor_folder_ids' => "$folderId",
             'limit'               => 1,
             'fields'              => 'name',
         ];
@@ -259,21 +268,21 @@ class BoxService2023
 
     function uploadFileToBox($path, $boxFolderId = NULL)
     {
-        error_log('uploadFileToBox path=' . $path, 0);
         $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
         $realPath    = realpath($path);
         if (!file_exists($realPath)) throw new Exception('No original file on server.');
-        // Preparations
+        #####
+        # Prepare. Generate File Name.
         $fileSha1 = $this->getFileSha1($realPath);
         //$fileName   = time() . '-' . basename($realPath);
         $fileName = $fileSha1 . '-' . basename($realPath);
         #####
-        #region FILE EXISTS
+        #region FILE EXISTS in Box Disk.
         $f = $this->searchFileByName($fileName, $boxFolderId);
         if ($f) {
             return $f;
         }
-        #endregion FILE EXISTS
+        #endregion FILE EXISTS in Box Disk.
         #####
         $attributes = [
             'name'   => $fileName,
@@ -295,8 +304,8 @@ class BoxService2023
         $http->setReqFields($post);
         $response = $http->exe()->take('respBodyObject');
         if (!$http->flagRespSuccess()) {
-            throw new Exception(Data::hlpGetBeautifulJsonString($response));
-            //throw new Exception("$httpCode File upload failed.");
+            throw new Exception(json_encode($response));
+            //throw new Exception(Data::hlpGetBeautifulJsonString($response));
         }
 
         return $response;
@@ -311,12 +320,11 @@ class BoxService2023
      */
     function requestPreview(object $fileObj, string $boxFolderId = NULL): string
     {
-        // @file api/boxApi/access-token-storage
-        //$this->getAppUserAccessTokenFromBoxApi();
-        $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
-        // ToDo: It is possible to set a default 'Preview unavailable' URL;
+        $boxFolderId           = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
         $embedLink             = '';
         $flagEmbedLinkReceived = FALSE;
+        #####
+        # When source file object has box_id.
         if (isset($fileObj->box_id) && !empty($fileObj->box_id)) {
             $boxFileId = $fileObj->box_id;
             $response  = $this->requestBoxEmbedUrl($boxFileId);
@@ -326,8 +334,8 @@ class BoxService2023
                 $embedLink             = $response->expiring_embed_link->url;
             }
         }
-        //error_log(" link received? {$flagEmbedLinkReceived} link={$embedLink}", 0);
-        // When there is no file in Box storage
+        #####
+        # When there is no box_id in the source file object.
         if (!$flagEmbedLinkReceived) {
             $path = $fileObj->fullPath;
             $file = $this->uploadFileToBox($path, $boxFolderId);
@@ -349,10 +357,11 @@ class BoxService2023
             }
         }
 
+        #####
         return $embedLink;
     }
 
-    function requestBoxEmbedUrl($boxFileId)
+    private function requestBoxEmbedUrl($boxFileId)
     {
         $url  = "https://api.box.com/2.0/files/{$boxFileId}?fields=expiring_embed_link";
         $http = (new HttpRequest($url));

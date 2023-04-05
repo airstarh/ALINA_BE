@@ -53,12 +53,12 @@ class BoxApi
         ];
         #####
         $vd = (object)[
-            //'file' => $this->srvBoxApi->searchFileByName('fc80d59877b4ae21911591b53664b2da1324cf25-PDF_1_PAGE.pdf', 0),
+            'file' => $this->srvBoxApi->searchFileByName('fc80d59877b4ae21911591b53664b2da1324cf25-PDF_1_PAGE.pdf', 0),
             //'objFile'       => $objFile,
             //'delete'        => $this->srvBoxApi->requestDeleteAllFilesInFolder(0),
-            //'list' => $this->srvBoxApi->requestFileList(0),
             //'folder0'       => $this->srvBoxApi->requestFolder(0),
-            'strUrlPreview' => $this->srvBoxApi->requestPreview($objFile),
+            //'strUrlPreview' => $this->srvBoxApi->requestPreview($objFile),
+            //'list' => $this->srvBoxApi->requestFileList(0),
         ];
         #####
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);

@@ -2,14 +2,14 @@
 return (object)[
     ##################################################
     #region LOCAL DEFINITIONS
-    'accessTokenFile'           => __DIR__ . '/dynamic/access-token-storage',
-    'accessTokenFileEnterprise' => __DIR__ . '/dynamic/access-token-storage-enterprise',
+    'accessTokenFile'            => __DIR__ . '/dynamic/access-token-storage',
+    'accessTokenExpiresTimeFile' => __DIR__ . '/dynamic/access-token-time-storage',
     /**
      * Some folder ID in Box Disk.
      * Get here (see URL path):
      * https://app.box.com/folder/0
      */
-    'folderId'                  => 0,
+    'folderId'                   => 0,
     #endregion LOCAL DEFINITIONS
     ##################################################
     #region AUTH
@@ -17,7 +17,7 @@ return (object)[
      * Documentation:
      * https://github.com/box-community/samples-docs-authenticate-with-jwt-api/blob/main/config.json.example
      */
-    'boxAppSettings'            => (object)[
+    'boxAppSettings'             => (object)[
         /**
          * Get here:
          * https://app.box.com/master/custom-apps/configure/4853
@@ -57,7 +57,7 @@ return (object)[
      * or Get here:
      * https://app.box.com/developers/console/app/217558
      */
-    'enterpriseID'              => '911269',
+    'enterpriseID'               => '911269',
     #endregion AUTH
     ##################################################
 ];
