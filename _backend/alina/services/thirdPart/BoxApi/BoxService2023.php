@@ -172,9 +172,8 @@ class BoxService2023
             NULL,      // FLAG FIELD IS RAW
             3,          // MAX ATTEMPTS
         );
-        $response = $http->exe()->take('respBody');
+        $response = $http->exe()->take('respBodyObject');
 
-        //$response = json_decode($response);
         return $response;
     }
 
@@ -199,8 +198,7 @@ class BoxService2023
         $http->setReqUrl("https://api.box.com/2.0/folders/$boxFolderId/items");
         $http->setReqMethod('GET');
         $http->addReqHeaders([$this->getTokenHeader()]);
-        $res = $http->exe()->take('respBody');
-        $res = json_decode($res);
+        $res = $http->exe()->take('respBodyObject');
 
         return $res;
     }
@@ -210,7 +208,6 @@ class BoxService2023
         $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
         $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
         $response    = $this->httpRequest($url, [], [$this->getTokenHeader()]);
-        $response    = json_decode($response);
 
         return $response;
     }
@@ -221,8 +218,7 @@ class BoxService2023
         $http->setReqUrl("https://api.box.com/2.0/files/$boxFileId");
         $http->setReqMethod('DELETE');
         $http->addReqHeaders([$this->getTokenHeader()]);
-        $res = $http->exe()->take('respBody');
-        $res = json_decode($res);
+        $res = $http->exe()->take('respBodyObject');
 
         return $res;
     }
@@ -352,7 +348,6 @@ class BoxService2023
             $file      = $file->entries[0];
             $boxFileId = $file->id;
             $response  = $this->requestBoxEmbedUrl($boxFileId);
-            $response  = json_decode($response);
             if (!isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url))
                 throw new Exception('File preview failed.');
             $embedLink = $response->expiring_embed_link->url;
