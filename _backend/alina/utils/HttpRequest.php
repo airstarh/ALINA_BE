@@ -13,7 +13,7 @@ class HttpRequest
     ##########################################
     #region Class Adjustments
     private array $log             = [];
-    private int   $attemptMax      = 5;
+    private int   $attemptMax      = 1;
     private int   $attempt         = 0;
     private array $methods         = [
         'Method Name' => 'Does Method causes Mutation?',
@@ -52,7 +52,7 @@ class HttpRequest
     private       $reqFields     = [];
     private int   $flagFieldsRaw = 0;
     private array $reqHeaders    = [
-        'Pragma' => 'no-cache',
+        ###'Pragma' => 'no-cache',
     ];
     private array $reqCookie     = [];
     #endregion Request
@@ -72,14 +72,14 @@ class HttpRequest
     ##########################################
     #region INIT
     public function __construct(
-        $uri = NULL, //string
-        $method = NULL,//string uppercase
-        $query = NULL,//array
-        $fields = NULL,//array|string
-        $headers = NULL,//array ["Header-Name"=>"Header Value"]
-        $cookie = NULL,//array ["Cookie-Name"=>"Cookie Value"]
+        $uri = NULL,           //string
+        $method = NULL,        //string uppercase
+        $query = NULL,         //array
+        $fields = NULL,        //array|string
+        $headers = NULL,       //array ["Header-Name"=>"Header Value"]
+        $cookie = NULL,        //array ["Cookie-Name"=>"Cookie Value"]
         $flagFieldsRaw = NULL, // 0|1
-        $attemptMax = 5// int
+        $attemptMax = 1// int
     )
     {
         if ($attemptMax !== NULL) $this->attemptMax = $attemptMax;
@@ -94,6 +94,19 @@ class HttpRequest
         return $this;
     }
     #endregion INIT
+    ##########################################
+    #region SELF CHECK
+    static public function selfCheck(): array
+    {
+        $url  = 'http://www.example.com';
+        $http = new static($url);
+        $res  = $http->exe()->take('respBody');
+
+        return [
+            'report' => $http->report(),
+        ];
+    }
+    #endregion SELF CHECK
     ##########################################
     #region Facade Stuff
     public function setAttemptMax($v): HttpRequest
@@ -236,7 +249,7 @@ class HttpRequest
         $closeConnection = function () {
             if ($this->ch && gettype($this->ch) == 'resource') {
                 curl_close($this->ch);
-                sleep(1);
+                sleep(2);
             }
         };
         #####
@@ -250,7 +263,7 @@ class HttpRequest
             $closeConnection();
             #####
             $max_execution_time = ini_get('max_execution_time');
-            $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax;
+            $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax - $this->attemptMax;
             #####
             $this->ch = curl_init();
             ##### curl_setopt($this->ch, CURLOPT_USERAGENT, 'VA Services');
@@ -291,7 +304,8 @@ class HttpRequest
             $this->curlInfo = curl_getinfo($this->ch);
             $this->httpCode = (int)$this->curlInfo['http_code'];
             $errno          = curl_errno($this->ch);
-            if ($errno > 0 || !$this->flagRespSuccess()) {
+            //if ($errno > 0 || !$this->flagRespSuccess()) {
+            if ($errno > 0) {
                 $this->respErrno = $errno;
                 $this->respErr   = curl_error($this->ch);
             }
@@ -426,11 +440,17 @@ class HttpRequest
      */
     private function callback_CURLOPT_HEADERFUNCTION($ch, $str): int
     {
-        //responseHeaderCount
-        $this->respHeaders[]                                              = $str;
-        $a                                                                = explode(':', $str, 2);
-        $n                                                                = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
-        $v                                                                = (!empty(trim($a[1]))) ? trim($a[1]) : 'UNDEFINED';
+        $this->respHeaders[] = $str;
+        $counter             = count($this->respHeaders);
+        $a                   = explode(':', $str, 2);
+        if (count($a) === 2) {
+            $n = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
+            $v = (!empty(trim($a[1]))) ? trim($a[1]) : 'UNDEFINED';
+        }
+        else if (count($a) === 1) {
+            $n = "_header_$counter";
+            $v = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
+        }
         $this->respHeadersStructurized[$this->amountLocationsVisited][$n] = $v;
         if (empty(trim($str))) {
             $this->amountLocationsVisited++;

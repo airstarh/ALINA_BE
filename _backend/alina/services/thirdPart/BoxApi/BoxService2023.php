@@ -19,7 +19,6 @@
 
 namespace alina\services\thirdPart\BoxApi;
 
-use alina\utils\Data;
 use alina\utils\HttpRequest;
 use Exception;
 use Firebase\JWT\JWT;
@@ -97,6 +96,20 @@ class BoxService2023
         ])->getBody()->getContents();
 
         return json_decode($response);
+    }
+
+    static public function selfCheck(): array
+    {
+        $_this     = new static();
+        $aFile     = __DIR__ . '/static/self-check.png';
+        $aFileName = 'fc80d59877b4ae21911591b53664b2da1324cf25-PDF_1_PAGE.pdf';
+
+        return [
+            //'token'              => $_this->token,
+            //'max_execution_time' => ini_get('max_execution_time'),
+            //'upload'             => $_this->uploadFileToBox($aFile),
+            'searchFileByName' => $_this->searchFileByName($aFileName),
+        ];
     }
     #endregion EXAMPLE FROM OFFICIAL DOCUMENTATION
     ##################################################
@@ -255,6 +268,7 @@ class BoxService2023
      */
     public function searchFileByName($name, $folderId = NULL)
     {
+        if ($folderId === NULL) $folderId = $this->cfg->folderId;
         $res  = NULL;
         $url  = 'https://api.box.com/2.0/search';
         $get  = [
@@ -322,7 +336,6 @@ class BoxService2023
         $response = $http->exe()->take('respBodyObject');
         if (!$http->flagRespSuccess()) {
             throw new Exception(json_encode($response));
-            //throw new Exception(Data::hlpGetBeautifulJsonString($response));
         }
 
         return $response;
