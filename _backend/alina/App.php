@@ -17,8 +17,6 @@ class App
     #region Initiation
     protected function __construct($config = [])
     {
-        require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
-        #####
         $this->autoload($config);
         $this->setConfig($config);
         #####
@@ -36,6 +34,8 @@ class App
 
     protected function autoload($config)
     {
+        require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
+        require_once __DIR__ . '/vendor/autoload.php';
         spl_autoload_extensions(".php");
         spl_autoload_register();
         // Fix of PHP bug. Please, see: https://bugs.php.net/bug.php?id=52339
@@ -43,18 +43,19 @@ class App
         spl_autoload_register(function ($class) use ($config) {
             $extension = '.php';
             // For Application
-            if (!isset($config['appNamespace']) || empty($config['appNamespace'])) {
-                return NULL;
-            }
-            $appNamespace = $config['appNamespace'];
-            $className    = ltrim($class, '\\');
-            $className    = ltrim($className, $appNamespace);
-            $className    = ltrim($className, '\\');
-            $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-            $classFile    = $className . $extension;
-            $classPath    = ALINA_PATH_TO_APP . DIRECTORY_SEPARATOR . $classFile;
-            if (FALSE !== ($res = Alina_file_exists($classPath))) {
-                require_once $res;
+            if (isset($config['appNamespace'])) {
+                $appNamespace = $config['appNamespace'];
+                $className    = ltrim($class, '\\');
+                $className    = ltrim($className, $appNamespace);
+                $className    = ltrim($className, '\\');
+                $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+                $classFile    = $className . $extension;
+                $classPath    = ALINA_PATH_TO_APP . DIRECTORY_SEPARATOR . $classFile;
+                if (FALSE !== ($res = Alina_file_exists($classPath))) {
+                    require_once $res;
+
+                    return NULL;
+                }
             }
             // For Alina
             $appNamespace = 'alina';
@@ -66,9 +67,14 @@ class App
             $classPath    = ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . $classFile;
             if (FALSE !== ($res = Alina_file_exists($classPath))) {
                 require_once $res;
+
+                return NULL;
             }
+
+            return NULL;
         });
-        require_once __DIR__ . '/vendor/autoload.php';
+
+        return NULL;
     }
 
     protected $config        = [];
@@ -109,7 +115,8 @@ class App
     static public function set($config)
     {
         if (isset(static::$instance) && is_a(static::$instance, get_class())) {
-            throw new \Exception("Alina App is set already.");
+            return static::$instance;
+            //throw new \Exception("Alina App is set already.");
         }
         $_this = new static($config);
 
@@ -135,24 +142,6 @@ class App
 
     #endregion Config manipulations
     #region Namespace Resolver
-    public function resolveClassName($nsPath)
-    {
-        $ns       = static::getConfig('appNamespace');
-        $fullPath = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $nsPath);
-        if (class_exists($fullPath)) {
-            return $fullPath;
-        }
-        $ns       = static::getConfigDefault('appNamespace');
-        $fullPath = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $nsPath);
-        if (class_exists($fullPath)) {
-            return $fullPath;
-        }
-        if (class_exists($nsPath)) {
-            return $nsPath;
-        }
-        throw new \ErrorException("Relative Class {$nsPath} is not defined.");
-    }
-
     /**
      * Resolve Method Name in proper Case-Sensitive name.
      * @param object|string $classNameOrObject
