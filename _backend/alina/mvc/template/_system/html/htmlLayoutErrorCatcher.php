@@ -22,7 +22,7 @@ use alina\utils\Sys;
             <?= $data->content(); ?>
         </div>
     </div>
-    <div class="alina-flex-vertical-footer" v-if="!fullScreen">
+    <div class="alina-flex-vertical-footer">
         <?= (new html())->piece(html::$htmlFooter) ?>
     </div>
 </div>

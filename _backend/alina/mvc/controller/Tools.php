@@ -48,7 +48,6 @@ class Tools
     #####
 
     /**
-     * http://alinazero/CtrlDataTransformations/index
      * @file _backend/alina/mvc/template/CtrlDataTransformations/actionJson.php
      */
     public function actionJsonSearchReplaceBeautify()
