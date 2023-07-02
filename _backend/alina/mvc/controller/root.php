@@ -51,6 +51,12 @@ class root
         echo (new html)->page($vd);
     }
 
+    public function actionIndex3()
+    {
+        $vd = \alina\utils\FS::dirToClassActionIndex(ALINA_PATH_TO_FRAMEWORK . '/mvc/controller');
+        echo (new html)->page($vd);
+    }
+
     public function action404()
     {
         AlinaResponseSuccess(0);
