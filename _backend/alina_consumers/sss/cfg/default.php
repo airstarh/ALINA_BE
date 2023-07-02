@@ -1,6 +1,6 @@
 <?php
 return [
-    'appNamespace'  => 'zero',
+    'appNamespace'  => 'sss',
     'title'         => '¯\_(ツ)_/¯',
     'description'   => 'Коллектив индивидуалистовю. Идейная синь. Славные ублюдки. lucky fucky',
     'logVisitsToDb' => TRUE,

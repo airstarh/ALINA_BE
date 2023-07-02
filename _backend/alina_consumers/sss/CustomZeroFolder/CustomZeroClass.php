@@ -1,6 +1,6 @@
 <?php
 
-namespace zero\CustomZeroFolder;
+namespace sss\CustomZeroFolder;
 class CustomZeroClass
 {
     static public function someMethod()
