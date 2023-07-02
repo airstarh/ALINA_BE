@@ -2,7 +2,7 @@
 return [
     'appNamespace' => 'zero',
     'title'        => 'ZERO',
-    'description'  => 'ZERO ZERO ZERO',
+    'description'  => 'OREZ',
     'mvc'          => [
         'defaultController'      => 'root',
         'defaultAction'          => 'index',
