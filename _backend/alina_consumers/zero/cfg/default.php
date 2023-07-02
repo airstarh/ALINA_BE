@@ -1,7 +1,7 @@
 <?php
 return [
     'appNamespace' => 'zero',
-    'title'        => '¯\_(ツ)_/¯',
+    'title'        => 'ZERO ¯\_(ツ)_/¯',
     'description'  => 'Коллектив индивидуалистовю  Идейная синь. Славные ублюдки. lucky fucky',
     'mvc'          => [
         'defaultController'      => 'root',
