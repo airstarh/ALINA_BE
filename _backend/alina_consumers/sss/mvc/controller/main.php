@@ -1,9 +1,9 @@
 <?php
 
-namespace zero\mvc\controller;
+namespace sss\mvc\controller;
 
 use alina\Message;
-use zero\CustomZeroFolder\CustomZeroClass;
+use sss\CustomZeroFolder\CustomZeroClass;
 
 class main
 {
