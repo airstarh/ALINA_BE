@@ -27,12 +27,11 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUrl                  = 'https://alinazero:7002/tale/feed';
         $reqUrl                  = 'https://saysimsim.ru/tale/feed';
         $reqUrl                  = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
         $reqUrl                  = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
         $reqUrl                  = 'https://local.host:7002/http-response-xxx.php?httpCode=400';
-        $reqUrl                  = 'https://local.host:7002/php-redirect-1.php?sewa=pisewa&siski=piski&httpCode=404';
+        $reqUrl                  = 'https://local.host:7002/eg/php/php-redirect-1.php?sewa=pisewa&siski=piski&httpCode=404';
         $resUrl                  = ''; // What is finally sent in Request.
         $reqGet                  = (object)[
             'arr1' => [1, 2, 3],

@@ -35,6 +35,9 @@ class alinaLaravelCapsuleLoader
 
         //region DB Environment configs.
         $config = AlinaCfg('db');
+        if (!is_array($config)) {
+            $config = AlinaCfgDefault('db');
+        }
 
         $capsule = new Manager;
         $capsule->addConnection($config);

@@ -4,8 +4,8 @@
  * short:
  * /alinaRestAccept?cmd=model&m=user
  * current full:
- * http://alinazero/alinaRestAccept?cmd=collection&m=user&ps=2
- * http://alinazero:8080/alinaRestAccept?cmd=collection&m=user&ps=2
+ * /alinaRestAccept?cmd=collection&m=user&ps=2
+ * /alinaRestAccept?cmd=collection&m=user&ps=2
  */
 
 namespace alina\mvc\controller;

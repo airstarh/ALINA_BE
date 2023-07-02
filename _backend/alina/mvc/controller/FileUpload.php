@@ -1,5 +1,4 @@
 <?php
-// @link http://alinazero/egFileUpload
 namespace alina\mvc\controller;
 
 use alina\Message;

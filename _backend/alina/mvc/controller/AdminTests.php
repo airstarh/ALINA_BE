@@ -86,7 +86,7 @@ class AdminTests
     ##############################################
 
     /**
-     * @route https://alinazero/AdminTests/ListTableColumns?table=user
+     * @route /AdminTests/ListTableColumns?table=user
      */
     public function actionListTableColumns()
     {
@@ -120,7 +120,7 @@ class AdminTests
 
     /**
      * URLs:
-     * http://alinazero/egCaseSensitivity/TestCase/lalala?hello='world'
+     * /egCaseSensitivity/TestCase/lalala?hello='world'
      */
     public function actionTestCase()
     {
@@ -155,7 +155,7 @@ class AdminTests
     ##############################################
 
     /**
-     * @rpite http://alinazero:7001/AdminTests/Nailer
+     * /AdminTests/Mailer
      */
     public function actionMailer()
     {
@@ -210,7 +210,7 @@ class AdminTests
     }
 
     ##############################################
-    // http://alinazero:8080/AdminTests/DomDocument
+    // /AdminTests/DomDocument
     public function actionDomDocument()
     {
         $vd = (object)[
@@ -283,7 +283,7 @@ class AdminTests
     #####
 
     /**
-     * @link https://alinazero/admintests/HtmlPageFlex
+     * /admintests/HtmlPageFlex
      */
     public function actionHtmlPageFlex()
     {
