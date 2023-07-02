@@ -37,13 +37,13 @@ class Resolver
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
             } else {
-                $blocks[] = $block;
+                $blocks[] = trim($block);
             }
         }
 
         $NAMESPACE_SEPARATOR = '\\';
         foreach ($blocks as $i => $block) {
-            $blocks[$i] = \alina\utils\FS::normalizePath($block);
+            //$blocks[$i] = \alina\utils\FS::normalizePath($block);
             $blocks[$i] = trim($block, DIRECTORY_SEPARATOR);
             $blocks[$i] = str_replace(DIRECTORY_SEPARATOR, $NAMESPACE_SEPARATOR, $blocks[$i]);
         }

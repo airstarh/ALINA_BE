@@ -1,6 +1,9 @@
 <?php
 
 namespace alina\utils;
+
+use alina\mvc\model\error_log;
+
 class FS
 {
     /**
@@ -83,7 +86,7 @@ class FS
             $dirFile = $dir . DIRECTORY_SEPARATOR . $uniqueFileName;
             if (file_exists($dirFile)) {
                 // Build suffix
-                list($usec, $sec) = explode(" ", microtime());
+                [$usec, $sec] = explode(" ", microtime());
                 $suffix = $sec;
                 $suffix .= '-';
                 $suffix .= str_replace(['.', ','], '', $usec);
@@ -217,5 +220,121 @@ class FS
         $res = count(glob($dir));
 
         return $res;
+    }
+
+    static public function dirToRelativeUrlList($scan, $pathToRemove = NULL)
+    {
+        $log  = [];
+        $scan = realpath($scan) . DIRECTORY_SEPARATOR . '*';
+        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT'];
+        $pathToRemove = realpath($pathToRemove);
+        $list         = glob($scan);
+        foreach ($list as $index => $item) {
+            $source      = $item;
+            $link        = $item;
+            $header      = $item;
+            $description = '';
+            if (is_file($item)) {
+                #####
+                $link = $item;
+                $link = str_replace($pathToRemove, '', $link);
+                $link = str_replace('\\', '/', $link);
+                #####
+                $source = $item;
+                $source = str_replace('\\', '/', $source);
+                #####
+                $header      = basename($link);
+                $description = '';
+                #####
+                $content = file_get_contents($item);
+                if (preg_match("'<h1>(.*?)</h1>'si", $content, $match)) {
+                    $header = $match[1];
+                }
+                if (preg_match("'<section>(.*?)</section>'si", $content, $match)) {
+                    $description = $match[1];
+                }
+                $log[$index] = [
+                    'source'      => $source,
+                    'link'        => $link,
+                    'header'      => $header,
+                    'description' => $description,
+                ];
+            }
+            #####
+        }
+
+        return $log;
+    }
+
+    static public function dirToClassActionIndex($scan, $pathToRemove = NULL)
+    {
+        $log  = [];
+        $scan = realpath($scan) . DIRECTORY_SEPARATOR . '*';
+        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT'];
+        $pathToRemove = realpath($pathToRemove);
+        $list         = glob($scan);
+        foreach ($list as $index => $item) {
+            $source      = $item;
+            $link        = $item;
+            $header      = $item;
+            $description = '';
+            $ns          = '';
+            $class       = '';
+            $ns_class    = '';
+            $methodList  = [];
+            $url         = [];
+            if (is_file($item)) {
+                #####
+                $link = $item;
+                $link = str_replace($pathToRemove, '', $link);
+                $link = str_replace('\\', '/', $link);
+                #####
+                $source = $item;
+                $source = str_replace('\\', '/', $source);
+                #####
+                $header      = basename($link);
+                $description = '';
+                #####
+                $content = file_get_contents($item);
+                if (preg_match("'<h1>(.*?)</h1>'si", $content, $match)) {
+                    $header = $match[1];
+                }
+                if (preg_match("'<section>(.*?)</section>'si", $content, $match)) {
+                    $description = $match[1];
+                }
+                if (preg_match("'namespace(.*?);'si", $content, $match)) {
+                    $ns = $match[1];
+                }
+                if (preg_match("'class\s(.*?)[\s\n]'si", $content, $match)) {
+                    $class = $match[1];
+                }
+                #####
+                if ($class) {
+                    $ns_class   = \alina\utils\Resolver::buildClassNameFromBlocks($ns, $class);
+                    $methodList = get_class_methods($ns_class);
+                    foreach ($methodList as $i => $m) {
+                        if (str_starts_with($m, 'action')) {
+                            $path  = ltrim($m, 'action');
+                            $url[] = "/$class/$path";
+                        }
+                    }
+                }
+                #####
+                $log[$index] = [
+                    'source'      => $source,
+                    'link'        => $link,
+                    'header'      => $header,
+                    'description' => $description,
+                    'ns'          => $ns,
+                    'class'       => $class,
+                    'ns_class'    => $ns_class,
+                    'methodList'  => $methodList,
+                    'url'         => $url,
+                ];
+            }
+            #####
+        }
+
+        return $log;
     }
 }

@@ -3,6 +3,7 @@
 namespace alina\utils;
 
 use alina\Message;
+use alina\mvc\model\router_alias;
 
 class Html
 {
@@ -85,6 +86,8 @@ class Html
             return $url;
         }
         $vocAliasToUrl = AlinaCfg(['vocAliasUrl']);
+        $bdVoc         = (new router_alias())->getAsVoc();
+        $vocAliasToUrl = array_merge($vocAliasToUrl, $bdVoc);
         $url           = \alina\utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
         $url           = ltrim($url, '/');
         $url           = ltrim($url, '\\');
