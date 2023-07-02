@@ -1,8 +1,8 @@
 <?php
 return [
     'appNamespace' => 'zero',
-    'title'        => 'ZERO',
-    'description'  => 'ZERO ZERO ZERO',
+    'title'        => '¯\_(ツ)_/¯',
+    'description'  => 'Коллектив индивидуалистовю  Идейная синь. Славные ублюдки. lucky fucky',
     'mvc'          => [
         'defaultController'      => 'root',
         'defaultAction'          => 'index',
