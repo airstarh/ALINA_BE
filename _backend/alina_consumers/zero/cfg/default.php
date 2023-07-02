@@ -2,7 +2,7 @@
 return [
     'appNamespace' => 'zero',
     'title'        => 'ZERO ¯\_(ツ)_/¯',
-    'description'  => 'Коллектив индивидуалистовю  Идейная синь. Славные ублюдки. lucky fucky',
+    'description'  => 'ZERO Коллектив индивидуалистовю  Идейная синь. Славные ублюдки. lucky fucky',
     'mvc'          => [
         'defaultController'      => 'root',
         'defaultAction'          => 'index',
