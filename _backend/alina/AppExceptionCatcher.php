@@ -119,6 +119,7 @@ class AppExceptionCatcher
             }
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
                 Message::setDanger('¯\_(ツ)_/¯');
+                //Message::setDanger($this->strMessage());
                 MessageAdmin::setDanger($this->strMessage());
             }
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
