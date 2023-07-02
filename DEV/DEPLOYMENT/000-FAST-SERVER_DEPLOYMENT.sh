@@ -9,12 +9,14 @@ sudo usermod -a -G www-data sewa
 #region RIGHTS
 # CHOWN
 sudo chown www-data:www-data /srv/alina/_backend -R
+sudo chown www-data:www-data /srv/php/_backend -R
 sudo chown www-data:www-data /var/www/saysimsim.ru -R
 sudo chown www-data:www-data /var/www/vov -R
 sudo chown www-data:www-data /var/www/m45a -R
 #####
 # CHMOD
 sudo chmod -R 755 /srv/alina/_backend
+sudo chmod -R 755 /srv/php/_backend
 sudo chmod -R 755 /var/www/saysimsim.ru
 sudo chmod -R 755 /var/www/vov
 sudo chmod -R 755 /var/www/m45a
