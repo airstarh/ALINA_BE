@@ -266,16 +266,16 @@ class FS
         return $log;
     }
 
-    static public function dirToClassActionIndex($scan, $pathToRemove = NULL)
+    static public function dirToClassActionIndex($scan)
     {
         $log  = [];
-        $scan = realpath($scan) . DIRECTORY_SEPARATOR . '*';
-        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT'];
-        $pathToRemove = realpath($pathToRemove);
-        $list         = glob($scan);
+        $scan = str_replace('\\', '/', $scan);
+        $scan = $scan . '/' . '*';
+        $list = glob($scan);
         foreach ($list as $index => $item) {
+            #####
+            # Defaults:
             $source      = $item;
-            $link        = $item;
             $header      = $item;
             $description = '';
             $ns          = '';
@@ -283,16 +283,14 @@ class FS
             $ns_class    = '';
             $methodList  = [];
             $url         = [];
+            #####
             if (is_file($item)) {
                 #####
-                $link = $item;
-                $link = str_replace($pathToRemove, '', $link);
-                $link = str_replace('\\', '/', $link);
                 #####
                 $source = $item;
                 $source = str_replace('\\', '/', $source);
                 #####
-                $header      = basename($link);
+                $header      = basename($item);
                 $description = '';
                 #####
                 $content = file_get_contents($item);
@@ -321,8 +319,8 @@ class FS
                 }
                 #####
                 $log[$index] = [
+                    'scan'        => $scan,
                     'source'      => $source,
-                    'link'        => $link,
                     'header'      => $header,
                     'description' => $description,
                     'ns'          => $ns,

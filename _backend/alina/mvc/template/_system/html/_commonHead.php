@@ -21,5 +21,8 @@ if (file_exists(ALINA_WEB_PATH . '/sources/searchengiines/000.php')) {
     <link rel="canonical" href="<?= $data->tagRelCanonicalUrl() ?>"/>
 <?php } ?>
 <meta property="og:description" content="<?= $data->pageDescription() ?>"/>
-<?= $data->js() ?>
+<!--CSS-->
 <?= $data->css() ?>
+<!--JS-->
+<?= $data->js() ?>
+

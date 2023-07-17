@@ -2,9 +2,13 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
-const ALINA_ENV      = 'zero';
+const ALINA_ENV      = 'server001';
 const ALINA_MODE     = 'DEV';
 switch (ALINA_ENV) {
+    case 'server001':
+        define("ALINA_BACKEND", '/srv/php/_backend');
+        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
+        break;
     case 'zero':
         define("ALINA_BACKEND", 'C:/_A001/REPOS/OWN/ALINA/_backend');
         define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
