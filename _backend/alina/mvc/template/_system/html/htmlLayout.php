@@ -2,7 +2,6 @@
 /** @var $data html */
 
 use alina\mvc\view\html;
-use alina\utils\Sys;
 
 ?>
 <!DOCTYPE html>

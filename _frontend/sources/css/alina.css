@@ -121,9 +121,7 @@ body {
 /* ################################################## */
 /*region REQUIRED BY INCLUDED FRAMEWORKS*/
 /*region Keen required*/
-html {
-    font-size: 100%;
-}
+
 
 /*endregion Keen required*/
 /*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
@@ -133,13 +131,6 @@ html {
     background-color: #000;
     padding: 1px;
 }
-
-input:focus,
-select:focus,
-textarea:focus {
-    background-color: #9BDAFF;
-}
-
 .m-buttons-1 button, .m-buttons-1 a {
     margin-left: 1px;
     margin-bottom: 1px;
