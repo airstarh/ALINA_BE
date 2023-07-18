@@ -140,9 +140,16 @@ https://the-echoplex.net/flexyboxes/
     margin-bottom: 1px;
 }
 
+select[multiple] option {
+    padding: 0 5px;
+    margin: 3px 0;
+}
+
 select[multiple] option:checked {
-    background: #8F2DA8 linear-gradient(0deg, #8F2DA8 0%, black 100%);
+    display: block;
+    background: #8F2DA8 linear-gradient(var(--corporate-gradient));
     color: white;
+    border-radius: 25px;
 }
 
 /*endregion Form*/
@@ -312,13 +319,13 @@ body {border: gray solid 10px;}
     outline: 1px solid red;
 }*/
 
-.db-1 {border: red solid 5px}
+.db-1 {outline: red solid 5px}
 
-.db-2 {border: green solid 5px}
+.db-2 {outline: green solid 5px}
 
-.db-3 {border: blue solid 5px}
+.db-3 {outline: blue solid 5px}
 
-.db-4 {border: purple solid 5px}
+.db-4 {outline: purple solid 5px}
 
 /*endregion DEVELOPER BLOCK*/
 /* ################################################## */

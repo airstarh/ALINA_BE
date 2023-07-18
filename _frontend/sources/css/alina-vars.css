@@ -1,7 +1,8 @@
 :root {
     --corporate-bg: #5c176f;
-    --corporate-bg-a: #5c176f;
+    --corporate-bg-a: #8F2DA8;
     --corporate-bg-a-visited: #5d3b70;
     --corporate-bg-a-hover: #000;
     --corporate-txt: 255, 255, 255;
+    --corporate-gradient: 0deg, #8F2DA8 0%, black 100%;
 }
