@@ -48,6 +48,10 @@ body {
 /*endregion FUNDAMENTAL */
 /*##################################################*/
 /*region MAIN LAYOUT*/
+/**
+Online tool:
+https://the-echoplex.net/flexyboxes/
+*/
 .alina-flex-vertical-container {
     display: -ms-flexbox;
     display: -webkit-flex;
@@ -122,7 +126,6 @@ body {
 /*region REQUIRED BY INCLUDED FRAMEWORKS*/
 /*region Keen required*/
 
-
 /*endregion Keen required*/
 /*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
 /* ################################################## */
@@ -131,6 +134,7 @@ body {
     background-color: #000;
     padding: 1px;
 }
+
 .m-buttons-1 button, .m-buttons-1 a {
     margin-left: 1px;
     margin-bottom: 1px;
@@ -270,22 +274,23 @@ iframe {
     /*white-space: -pre-wrap; !* Opera <7 *!*/
     /*white-space: -o-pre-wrap; !* Opera 7 *!*/
     text-decoration: none;
-    color: black;
-    background-color: #007bff;
+    color: rgba(var(--corporate-txt));
+    background-color: var(--corporate-bg-a);
     background-size: 100%;
-    padding: 0;
+    padding: 0 .5rem;
     margin: 0;
+    border-radius: 25px;
+}
+
+.ck-content a:visited {
+    color: rgba(var(--corporate-txt));
+    background-color: var(--corporate-bg-a-visited);
 }
 
 .ck-content a:hover {
     text-decoration: none;
-    color: black;
-    background-color: #00ad9c;
-}
-
-.ck-content a:visited {
-    color: black;
-    background-color: #5d5db1;
+    color: rgba(var(--corporate-txt));
+    background-color: var(--corporate-bg-a-hover);
 }
 
 /*endregion ck-editor*/
