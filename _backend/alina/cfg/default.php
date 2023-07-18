@@ -68,6 +68,7 @@ return [
             //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
             '/sources/css/ckeditor.css',
             // Alina
+            '/sources/css/alina-vars.css',
             '/sources/css/alina.css',
             '/sources/css/alina-app-specific.css',
         ],
