@@ -35,10 +35,14 @@
 }
 
 .corporate-svg-fill {
-    fill: var(--corporate-bg);;
+    fill: var(--corporate-bg-a);;
     /*background-color: rgba(var(--corporate-txt));*/
     color: rgba(var(--corporate-txt));
 }
 
+.corporate-bg-gradient {
+    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient)); color: white;
+    color: var(--corporate-txt);
+}
 /*endregion Very Special*/
 /* ################################################## */
