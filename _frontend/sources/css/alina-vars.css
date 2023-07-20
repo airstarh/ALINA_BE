@@ -4,5 +4,6 @@
     --corporate-bg-a-visited: #5d3b70;
     --corporate-bg-a-hover: #000;
     --corporate-txt: 255, 255, 255;
-    --corporate-gradient: 0deg, #8F2DA8 0%, black 100%;
+    --corporate-gradient: 0deg, #5c176f 0%, black 100%;
+    --corporate-gradient-danger: 0deg, #f00 0%, black 100%;
 }

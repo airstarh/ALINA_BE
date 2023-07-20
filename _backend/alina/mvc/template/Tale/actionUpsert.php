@@ -8,7 +8,7 @@
     <?php if ($data->is_header_hidden != 1) { ?>
         <div class="row no-gutters">
             <div class="col mb-3" style="position: relative">
-                <h1 class="notranslate m-0 p-3 text-left rounded alina-tale-header corporate-bg-and-text">
+                <h1 class="notranslate m-0 p-3 text-left rounded alina-tale-header corporate-bg-gradient">
                     <a
                         href="/#/tale/upsert/<?= $data->id ?>"
                         class="m-0"
@@ -18,7 +18,7 @@
                     <div style="position: absolute; right: 1%; bottom: -1rem; z-index: 10;">
                         <a
                             href="/#/tale/upsert/<?= $data->id ?>"
-                            class="btn btn-sm btn-dark text-left"
+                            class="btn-sm text-left mb-1 corporate-bg-gradient no-decoration"
                         ><?= \alina\utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
                     </div>
                 <?php } ?>
