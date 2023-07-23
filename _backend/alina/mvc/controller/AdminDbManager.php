@@ -18,7 +18,7 @@ class AdminDbManager
 
     public function __construct()
     {
-        AlinaRejectIfNotAdmin();
+        //AlinaRejectIfNotAdmin();
     }
 
     /**
@@ -182,24 +182,21 @@ class AdminDbManager
 
     public function actionEditRow($modelName, $id = NULL)
     {
-        try {
-            $vd          = (object)[];
-            $m           = modelNamesResolver::getModelObject($modelName);
-            $vd->model   = $m;
-            $vd->sources = $m->getReferencesSources();
-            $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
-            ##################################################
-            $p = Data::deleteEmptyProps(Sys::resolvePostDataAsObject());
-            if (!empty((array)$p)) {
-                $m->upsert($p);
-                $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
+        $vd          = (object)[];
+        $m           = modelNamesResolver::getModelObject($modelName);
+        $vd->model   = $m;
+        $vd->sources = $m->getReferencesSources();
+        $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
+        ##################################################
+        $p = Sys::resolvePostDataAsObject();
+        if (!empty((array)$p)) {
+            if (property_exists($p, 'owner_id')) {
+                AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
             }
-            ##################################################
-        } catch (\Exception $e) {
-            Message::setDanger($e->getMessage(), []);
-            Message::setDanger($e->getFile(), []);
-            Message::setDanger($e->getLine(), []);
+            $m->upsert($p);
+            $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
         }
+        ##################################################
         echo (new htmlAlias)->page($vd);
     }
 }
