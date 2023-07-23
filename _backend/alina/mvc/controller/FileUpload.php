@@ -1,4 +1,5 @@
 <?php
+
 namespace alina\mvc\controller;
 
 use alina\Message;
@@ -82,9 +83,10 @@ class FileUpload
     {
         $m  = new file();
         $vd = $m->getAllWithReferences([
-                'entity_table' => $entity_table,
-                'entity_id'    => $entity_id,
-            ]
+            'entity_table' => $entity_table,
+            'entity_id'    => $entity_id,
+        ],
+            [['order', 'ASC'], ['id', 'ASC']]
         );
         echo (new htmlAlias)->page($vd);
     }
