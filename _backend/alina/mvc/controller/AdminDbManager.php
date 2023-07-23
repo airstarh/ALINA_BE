@@ -180,13 +180,12 @@ class AdminDbManager
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
-    public function actionEditRow($modelName, $id = NULL)
+    public function actionEditRow($table, $id, $flagReturn = FALSE)
     {
         $vd          = (object)[];
-        $m           = modelNamesResolver::getModelObject($modelName);
+        $m           = modelNamesResolver::getModelObject($table);
         $vd->model   = $m;
         $vd->sources = $m->getReferencesSources();
-        $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
         ##################################################
         $p = Sys::resolvePostDataAsObject();
         if (!empty((array)$p)) {
@@ -197,6 +196,30 @@ class AdminDbManager
             $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
         }
         ##################################################
-        echo (new htmlAlias)->page($vd);
+        if ($flagReturn) {
+            return $vd;
+        }
+        else {
+            echo (new htmlAlias)->page($vd);
+        }
+    }
+
+    public function actionUpdate($table, $id, $data)
+    {
+        $m = modelNamesResolver::getModelObject($table);
+        $data = \alina\utils\Data::toObject($data);
+        $m->upsert($data);
+        $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
+
+        return $m->attributes;
+    }
+
+    public function actionUpdateBulk($table)
+    {
+        $p = Request::obj()->POST;
+        foreach ($p->list as $i => $m) {
+            $p->list[$i] = $this->actionUpdate($table, $m->id, $m);
+        }
+        echo (new htmlAlias)->page($p);
     }
 }
