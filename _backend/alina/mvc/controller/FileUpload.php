@@ -86,7 +86,8 @@ class FileUpload
             'entity_table' => $entity_table,
             'entity_id'    => $entity_id,
         ],
-            [['order', 'ASC'], ['name_human', 'ASC']]
+            [['order', 'ASC'], ['name_human', 'ASC']],
+            1000
         );
         echo (new htmlAlias)->page($vd);
     }
