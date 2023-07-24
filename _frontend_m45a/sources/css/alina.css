@@ -289,7 +289,7 @@ a.no-decoration:active {
 .ck-content a {
     display: inline-block !important;
     word-wrap: break-word !important;
-    overflow-wrap: anywhere     !important;
+    overflow-wrap: anywhere !important;
     /*white-space: pre-wrap; !* CSS3 *!*/
     /*white-space: -moz-pre-wrap; !* Firefox *!*/
     /*white-space: -pre-wrap; !* Opera <7 *!*/
