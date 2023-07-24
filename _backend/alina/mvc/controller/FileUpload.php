@@ -82,10 +82,11 @@ class FileUpload
     public function actionGetFiles($entity_table, $entity_id)
     {
         $m  = new file();
-        $vd = $m->getAllWithReferences([
-            'entity_table' => $entity_table,
-            'entity_id'    => $entity_id,
-        ],
+        $vd = $m->getAllWithReferences(
+            [
+                'entity_table' => $entity_table,
+                'entity_id'    => $entity_id,
+            ],
             [['order', 'ASC'], ['name_human', 'ASC']],
             1000
         );
