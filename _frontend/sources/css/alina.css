@@ -1,12 +1,4 @@
 /*##################################################*/
-/*region FONT*/
-@font-face {
-    font-family: "ALINA";
-    src: url("/sources/fonts/XXX.ttf") format('truetype');
-}
-
-/*endregion FONT*/
-/*##################################################*/
 /*region SCROLLER*/
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
@@ -44,6 +36,10 @@ body {
 }
 
 .alina-vh-100 {min-height: 100vh;}
+
+.alina-main-bg {background-color: var(--alina-main-bg) !important;}
+
+.alina-main-txt {color: var(--alina-main-txt) !important;}
 
 /*endregion FUNDAMENTAL */
 /*##################################################*/
@@ -180,11 +176,13 @@ select[multiple] option:checked {
     color: rgba(var(--corporate-txt));
 }
 
-.alina-tale-header {
-    font-size: 3vmax;
+.alina-tale-header
+{
+    font-size: 4vw;
     display: block;
     font-weight: bold;
     background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
+    color: var(--corporate-txt-hard);
     word-wrap: break-word;
     overflow-wrap: break-word;
     /*white-space: pre-wrap; !* CSS3 *!*/
@@ -194,7 +192,7 @@ select[multiple] option:checked {
 }
 
 .alina-tale-header.bg-danger {
-    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient-danger));
+    background: #f00 linear-gradient(var(--corporate-gradient-danger));
 }
 
 iframe {
