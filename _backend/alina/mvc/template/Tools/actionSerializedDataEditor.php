@@ -122,14 +122,3 @@ use alina\utils\Data as DataAlias;
         </div>
     </div>
 </div>
-<div>
-    <iframe
-            id="AlinaIframe001"
-            class="AlinaIframe"
-            src="/#/tale/upsert/512"
-            width="100%"
-            allowfullscreen
-            frameborder="0"
-            scrolling="no"
-    ></iframe>
-</div>

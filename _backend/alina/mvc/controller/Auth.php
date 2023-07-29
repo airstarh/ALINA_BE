@@ -28,7 +28,11 @@ class Auth
     public function actionLogin()
     {
         ##################################################
-        AlinaRedirectIfNotAjax('/#/auth/login', 303, TRUE);
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/login'),
+        );
+        AlinaRedirectIfNotAjax($path, 303, TRUE);
         ##################################################
         $vd = (object)[
             'form_id'  => __FUNCTION__,
@@ -76,7 +80,7 @@ class Auth
                 Request::obj()->METHOD = 'GET';
                 Alina()->mvcGo('auth', 'profile');
                 exit;
-                //Sys::r-edirect('/auth/profile', 303);
+                //Sys::r-redirect('/auth/profile', 303);
             }
             /**
              * FAIL
@@ -105,7 +109,11 @@ class Auth
     public function actionRegister()
     {
         ##################################################
-        AlinaRedirectIfNotAjax('/#/auth/register', 303, TRUE);
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/register'),
+        );
+        AlinaRedirectIfNotAjax($path, 303, TRUE);
         ##################################################
         $vd = (object)[
             'form_id'          => __FUNCTION__,
@@ -141,6 +149,13 @@ class Auth
     ##################################################
     public function actionProfile($id = NULL)
     {
+        ##################################################
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/profile'),
+        );
+        AlinaRedirectIfNotAjax($path, 303, TRUE);
+        ##################################################
         if (empty($id)) {
             $id = CurrentUser::obj()->id;
         }
@@ -158,7 +173,11 @@ class Auth
         if (Request::isPostPutDelete($post)) {
             $id = $post->id;
             ##################################################
-            AlinaRedirectIfNotAjax("/#/auth/profile/$id", 303, TRUE);
+            $path = \alina\utils\FS::buildPathFromBlocks(
+                AlinaCfg('frontend/path'),
+                AlinaCfg('frontend/profile'),
+            );
+            AlinaRedirectIfNotAjax($path, 303, TRUE);
             ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
@@ -188,7 +207,11 @@ class Auth
     public function actionResetPasswordRequest()
     {
         ##################################################
-        AlinaRedirectIfNotAjax('/#/auth/reset_password_request', 303, TRUE);
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/resetPasswordRequest'),
+        );
+        AlinaRedirectIfNotAjax($path, 303, TRUE);
         ##################################################
         $vd = (object)[
             'form_id' => __FUNCTION__,
@@ -203,12 +226,12 @@ class Auth
                 $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
                 if ($mUser->id) {
                     //if ($atrs->reset_required != 1) {
-                        $code = ALINA_TIME;
-                        (new Mailer())->sendVerificationCode($vd->mail, $code);
-                        $mUser->updateById([
-                            'reset_code'     => $code,
-                            'reset_required' => 1,
-                        ]);
+                    $code = ALINA_TIME;
+                    (new Mailer())->sendVerificationCode($vd->mail, $code);
+                    $mUser->updateById([
+                        'reset_code'     => $code,
+                        'reset_required' => 1,
+                    ]);
                     //}
                     // else {
                     //     Message::setWarning('Code was sent earlier', []);
@@ -228,7 +251,11 @@ class Auth
     public function actionResetPasswordWithCode()
     {
         ##################################################
-        AlinaRedirectIfNotAjax('/#/auth/reset_password_with_code', 303, TRUE);
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/resetPasswordWithCode'),
+        );
+        AlinaRedirectIfNotAjax($path, 303, TRUE);
         ##################################################
         $rd = Request::obj()->R;
         $vd = (object)[
@@ -279,7 +306,11 @@ class Auth
     public function actionChangePassword()
     {
         ##################################################
-        AlinaRedirectIfNotAjax('/#/auth/change_password', 303, TRUE);
+        $path = \alina\utils\FS::buildPathFromBlocks(
+            AlinaCfg('frontend/path'),
+            AlinaCfg('frontend/changePassword'),
+        );
+        AlinaRedirectIfNotAjax('$path', 303, TRUE);
         ##################################################
         if (!AlinaAccessIfLoggedIn()) {
             Message::setDanger('Login first');

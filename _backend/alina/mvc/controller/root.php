@@ -13,6 +13,11 @@ class root
         require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
     }
 
+    public function actionFrontend()
+    {
+        require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
+    }
+
     public function actionIndex2()
     {
         $vd = (object)[
