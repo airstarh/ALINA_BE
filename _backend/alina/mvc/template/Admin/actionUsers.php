@@ -34,7 +34,7 @@ $i = 0;
                     </div>
                 </td>
                 <td>
-                    <a href="/#/auth/profile/<?= $mUser->id ?>">
+                    <a href="/auth/profile/<?= $mUser->id ?>">
                         <?php if ($mUser->emblem) { ?>
                             <img src="<?= $mUser->emblem ?>" alt="" width="100">
                         <?php } else { ?>
