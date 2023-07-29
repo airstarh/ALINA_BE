@@ -1,4 +1,15 @@
+/*##################################################*/
+/*region FONT*/
+@font-face {
+    font-family: "ALINA";
+    src: url("/sources/fonts/XXX.ttf") format('truetype');
+}
+
+/*endregion FONT*/
+/*##################################################*/
 :root {
+    --alina-main-bg: #343a40;
+    --alina-main-txt: #fff;
     --corporate-bg: #5c176f;
     --corporate-bg-a: #8F2DA8;
     --corporate-bg-a-visited: #5d3b70;
