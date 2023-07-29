@@ -9,7 +9,7 @@ use alina\mvc\view\html;
 <head>
     <? require_once '_commonHead.php' ?>
 </head>
-<body id="alina-real-body" class="bg-dark text-white">
+<body id="alina-real-body" class="alina-main-bg alina-main-txt">
 
 <div class="alina-flex-vertical-container alina-vh-100">
     <div class="alina-flex-vertical-header">
