@@ -85,7 +85,16 @@ return [
         ],
         'meta' => [],
     ],
-    'ui'                  => [
-        'domain' => 'http://127.0.0.1:8082',
+    'frontend'            => [
+        'path'                  => '/root/frontend',
+        'login'                 => '/#/auth/login',
+        'register'              => '/#/auth/register',
+        'profile'               => '/#/auth/profile',
+        'resetPasswordRequest'  => '/#/auth/reset_password_request',
+        'resetPasswordWithCode' => '/#/auth/reset_password_with_code',
+        'changePassword'        => '/#/auth/change_password',
+        'feed'                  => '/#/tale/feed',
+        'taleUpsert'            => '/#/tale/upsert',
+        'taleNew'               => '/#/tale/new',
     ],
 ];

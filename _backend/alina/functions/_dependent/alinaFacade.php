@@ -194,6 +194,7 @@ function AlinaDefineTagRelAlternateUrl()
     $domain = AlinaGetCurrentDomainUrl();
     $parts  = [
         $domain,
+        AlinaCfg('frontend/path'),
         '/#/',
         Router::obj()->pathSys,
     ];
@@ -213,4 +214,13 @@ function AlinaDefineTagRelCanonicalUrl()
     return implode('', $parts);
 }
 
+function AlinaFePath($routeName)
+{
+    $frontend = AlinaCfg('frontend');
+    $blocks   = [];
+    $blocks[] = $frontend['path'];
+    $blocks[] = $frontend[$routeName];
+
+    return \alina\utils\FS::buildPathFromBlocks($blocks);
+}
 ##################################################
