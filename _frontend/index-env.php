@@ -3,10 +3,10 @@
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
 const ALINA_ENV      = 'osspb';
-//const ALINA_ENV      = 'server001';
+//const ALINA_ENV      = 'zero.home';
 const ALINA_MODE     = 'DEV';
 switch (ALINA_ENV) {
-    case 'server001':
+    case 'zero.home':
         define("ALINA_BACKEND", '/srv/php/_backend');
         define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
         break;
