@@ -39,9 +39,7 @@ body {
 
 .alina-main-bg {background-color: var(--alina-main-bg) !important;}
 
-.alina-main-txt
-, .alina-main-txt table
-{color: var(--alina-main-txt) !important;}
+.alina-main-txt, .alina-main-txt table {color: var(--alina-main-txt) !important;}
 
 /*endregion FUNDAMENTAL */
 /*##################################################*/
@@ -130,10 +128,12 @@ https://the-echoplex.net/flexyboxes/
 /*region Form*/
 .alina-form {
     background-color: #000;
+    color: #fff;
     padding: 1px;
 }
 
-.m-buttons-1 button, .m-buttons-1 a {
+.m-buttons-1 button,
+.m-buttons-1 a {
     margin-left: 1px;
     margin-bottom: 1px;
 }
@@ -178,8 +178,7 @@ select[multiple] option:checked {
     color: rgba(var(--corporate-txt));
 }
 
-.alina-tale-header
-{
+.alina-tale-header {
     font-size: 4vw;
     display: block;
     font-weight: bold;
