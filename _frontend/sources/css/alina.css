@@ -108,9 +108,9 @@ https://the-echoplex.net/flexyboxes/
 }
 
 .alina-flex-item-wide {
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
 }
 
 .alina-flex-item-shrink {
