@@ -9,9 +9,7 @@ class main
 {
     public function actionIndex()
     {
-        Message::setInfo('Yo! This is the status message of the age!');
-        $content = 'This is Zero Application, built on Alina Framework.';
-        echo (new \alina\mvc\view\html)->page($content);
+        require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
     }
 
     public function action404()
