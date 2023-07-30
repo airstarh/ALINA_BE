@@ -20,6 +20,7 @@
  chmod -R 770 /var/www/saysimsim.ru/uploads
  chmod -R 770 /var/www/m45a/uploads
  chmod -R 770 /var/www/vov/uploads
+ chmod -R 770 /var/www/osspb/uploads
 #endregion UPLOADS
 ##################################################
 #region HOME SEWA DEPLOYMENT
@@ -30,8 +31,8 @@ chmod -R u+x /home/sewa/DEPLOYMENT/
 #endregion HOME SEWA DEPLOYMENT
 ##################################################
 #region RESTART
-#systemctl restart nginx
-#systemctl restart php7.4-fpm
-#service mysql restart
+systemctl restart nginx
+systemctl restart php7.4-fpm
+service mysql restart
 #endregion RESTART
 ##################################################
