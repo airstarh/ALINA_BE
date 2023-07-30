@@ -39,7 +39,9 @@ body {
 
 .alina-main-bg {background-color: var(--alina-main-bg) !important;}
 
-.alina-main-txt {color: var(--alina-main-txt) !important;}
+.alina-main-txt
+, .alina-main-txt table
+{color: var(--alina-main-txt) !important;}
 
 /*endregion FUNDAMENTAL */
 /*##################################################*/
