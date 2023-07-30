@@ -2,12 +2,9 @@
 /** @var $data stdClass */
 ?>
 <div class="container p-0">
-    <!-- -->
-    <!-- -->
-    <!-- -->
     <?php if ($data->is_header_hidden != 1) { ?>
         <div class="row no-gutters">
-            <div class="col mb-3" style="position: relative">
+            <div class="col mb-3 mt-3" style="position: relative">
                 <h1 class="notranslate m-0 p-3 text-left rounded alina-tale-header corporate-bg-gradient">
                     <a
                         href="<?= AlinaFePath('taleUpsert') ?>/<?= $data->id ?>"
