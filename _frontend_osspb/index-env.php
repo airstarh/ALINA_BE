@@ -1,36 +1,10 @@
 <?php
 ##################################################
 #region HOST SPECIFIC
-const ALINA_WEB_PATH = __DIR__;
-const ALINA_ENV      = 'osspb';
-//const ALINA_ENV      = 'server001';
-const ALINA_MODE     = 'DEV';
-switch (ALINA_ENV) {
-    case 'server001':
-        define("ALINA_BACKEND", '/srv/php/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
-        break;
-    case 'zero':
-        define("ALINA_BACKEND", 'C:/_A001/REPOS/OWN/ALINA/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
-        break;
-    case 'vov':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/vov');
-        break;
-    case 'm45a':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/m45a');
-        break;
-    case 'sss':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/sss');
-        break;
-    case 'osspb':
-        define("ALINA_BACKEND", '/srv/php/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/osspb');
-        break;
-}
+const ALINA_WEB_PATH    = __DIR__;
+const ALINA_MODE        = 'DEV';
+const ALINA_BACKEND     = '/srv/php/_backend';
+const ALINA_PATH_TO_APP = ALINA_BACKEND . '/alina_consumers/osspb';
 #endregion HOST SPECIFIC
 ##################################################
 #region AUTOMATIC
