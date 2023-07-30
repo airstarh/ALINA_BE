@@ -2,7 +2,8 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
-const ALINA_ENV      = 'server001';
+const ALINA_ENV      = 'osspb';
+//const ALINA_ENV      = 'server001';
 const ALINA_MODE     = 'DEV';
 switch (ALINA_ENV) {
     case 'server001':
@@ -24,6 +25,10 @@ switch (ALINA_ENV) {
     case 'sss':
         define("ALINA_BACKEND", '/srv/alina/_backend');
         define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/sss');
+        break;
+    case 'osspb':
+        define("ALINA_BACKEND", '/srv/php/_backend');
+        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/osspb');
         break;
 }
 #endregion HOST SPECIFIC
