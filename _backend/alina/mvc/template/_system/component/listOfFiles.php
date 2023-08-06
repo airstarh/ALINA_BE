@@ -24,6 +24,7 @@ use alina\utils\FS;
                 <a
                     class="btn <?= $class ?>"
                     href="<?= $item['link'] ?>"
+                    target="_blank"
                 ><?= $item['header'] ?></a>
             </div>
             <div class="col">
