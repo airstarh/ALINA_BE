@@ -2,8 +2,7 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
-const ALINA_ENV      = 'osspb';
-//const ALINA_ENV      = 'zero.home';
+const ALINA_ENV      = 'zero.home';
 const ALINA_MODE     = 'DEV';
 switch (ALINA_ENV) {
     case 'zero.home':
