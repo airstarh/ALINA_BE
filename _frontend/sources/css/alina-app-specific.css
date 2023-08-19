@@ -41,8 +41,8 @@
 }
 
 .corporate-bg-gradient {
-    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient)); color: white;
-    color: var(--corporate-txt);
+    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
+    color: var(--corporate-txt-hard);
 }
 /*endregion Very Special*/
 /* ################################################## */

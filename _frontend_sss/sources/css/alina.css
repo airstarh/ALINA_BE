@@ -1,12 +1,4 @@
 /*##################################################*/
-/*region FONT*/
-@font-face {
-    font-family: "ALINA";
-    src: url("/sources/fonts/XXX.ttf") format('truetype');
-}
-
-/*endregion FONT*/
-/*##################################################*/
 /*region SCROLLER*/
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
@@ -44,6 +36,10 @@ body {
 }
 
 .alina-vh-100 {min-height: 100vh;}
+
+.alina-main-bg {background-color: var(--alina-main-bg) !important;}
+
+.alina-main-txt, .alina-main-txt table {color: var(--alina-main-txt) !important;}
 
 /*endregion FUNDAMENTAL */
 /*##################################################*/
@@ -110,9 +106,9 @@ https://the-echoplex.net/flexyboxes/
 }
 
 .alina-flex-item-wide {
-    -webkit-flex: 1 1 auto;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
 }
 
 .alina-flex-item-shrink {
@@ -132,10 +128,12 @@ https://the-echoplex.net/flexyboxes/
 /*region Form*/
 .alina-form {
     background-color: #000;
+    color: #fff;
     padding: 1px;
 }
 
-.m-buttons-1 button, .m-buttons-1 a {
+.m-buttons-1 button,
+.m-buttons-1 a {
     margin-left: 1px;
     margin-bottom: 1px;
 }
@@ -181,10 +179,11 @@ select[multiple] option:checked {
 }
 
 .alina-tale-header {
-    font-size: 3vmax;
+    font-size: 4vw;
     display: block;
     font-weight: bold;
     background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
+    color: var(--corporate-txt-hard);
     word-wrap: break-word;
     overflow-wrap: break-word;
     /*white-space: pre-wrap; !* CSS3 *!*/
@@ -194,7 +193,7 @@ select[multiple] option:checked {
 }
 
 .alina-tale-header.bg-danger {
-    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient-danger));
+    background: #f00 linear-gradient(var(--corporate-gradient-danger));
 }
 
 iframe {
