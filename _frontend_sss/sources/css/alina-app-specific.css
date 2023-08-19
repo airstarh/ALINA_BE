@@ -1,12 +1,5 @@
 /* ################################################## */
-:root {
-    --corporate-bg: #8f2da8;
-    --corporate-txt: rgba(255, 255, 255, 0.7);
-}
-
-/* ################################################## */
 /*region Very Special*/
-/*region Definitions*/
 .is_sticked {
     border-top: solid 5px;
 }
@@ -18,7 +11,7 @@
 .corporate-color,
 .corporate-color a,
 .corporate-color a:hover {
-    color: var(--corporate-txt) !important;;
+    color: rgba(var(--corporate-txt));
 }
 
 .corporate-bg,
@@ -32,7 +25,7 @@
 .corporate-bg-and-text a,
 .corporate-bg-and-text a:hover {
     background-color: var(--corporate-bg);
-    color: var(--corporate-txt);
+    color: rgba(var(--corporate-txt));
 }
 
 .corporate-border-color,
@@ -42,11 +35,14 @@
 }
 
 .corporate-svg-fill {
-    fill: var(--corporate-bg);;
-    /*background-color: var(--corporate-txt);*/
-    color: var(--corporate-txt);
+    fill: var(--corporate-bg-a);;
+    /*background-color: rgba(var(--corporate-txt));*/
+    color: rgba(var(--corporate-txt));
 }
 
-/*endregion Definitions*/
+.corporate-bg-gradient {
+    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
+    color: var(--corporate-txt-hard);
+}
 /*endregion Very Special*/
 /* ################################################## */
