@@ -25,8 +25,6 @@ return [
     'vocAliasUrl'         => [
         'sitemap.xml'                 => 'sitemap',
         'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
-        'Пользователь/Логин'          => 'Auth/Login',
-        'Регистрация'                 => 'Auth/Register',
         'Рест_Запрос'                 => 'alinaRestAccept/index',
     ],
     'debug'               => [

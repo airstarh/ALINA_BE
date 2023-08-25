@@ -76,11 +76,12 @@ class Auth
                     'ip'          => Request::obj()->IP,
                     'browser_enc' => Request::obj()->BROWSER_enc,
                 ]);
-                Message::setSuccess("Welcome, %s!", [$user]);
-                Request::obj()->METHOD = 'GET';
-                Alina()->mvcGo('auth', 'profile');
+                //Message::setSuccess("Welcome, %s!", [$user]);
+                // Request::obj()->METHOD = 'GET';
+                // Alina()->mvcGo('auth', 'profile');
+                //Sys::redirect('/auth/profile', 303);
+                echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
                 exit;
-                //Sys::r-redirect('/auth/profile', 303);
             }
             /**
              * FAIL
@@ -200,7 +201,7 @@ class Auth
         $vd       = (object)[];
         $vd->name = CurrentUser::obj()->name();
         CurrentUser::obj()->LogOut();
-        Message::setSuccess('THanks for being with us!');
+        //Message::setSuccess('THanks for being with us!');
         Sys::redirect('/tale/feed', 303);
     }
 
