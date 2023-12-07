@@ -1,4 +1,4 @@
 This file exists mostly to store a version of release.
 In order to make Git History commits more obvious.
 
-CURRENT VERSION = 3.0.1
+CURRENT VERSION = 3.0.2 Before move on server001
