@@ -1,0 +1,21 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = zero.home
+DNS.2 = sss.zero.home
+DNS.3 = vov.zero.home
+DNS.4 = m45a.zero.home
+DNS.5 = borg.home
+DNS.6 = router.home
+DNS.7 = cameras.home
+DNS.8 = printer.home
+DNS.9 = chat.home
+DNS.10 = a.home
+DNS.11 = b.home
+DNS.12 = c.home
+DNS.13 = d.home
+DNS.14 = e.home
+DNS.15 = f.home
+

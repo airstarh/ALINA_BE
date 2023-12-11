@@ -1,0 +1,14 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+
+[dn]
+C=KZ
+ST=ZKO
+L=Borg
+O=BorgTechService
+OU=Unimatrix
+emailAddress=vsevolod.azovsky@gmail.com
+CN = borg.home
