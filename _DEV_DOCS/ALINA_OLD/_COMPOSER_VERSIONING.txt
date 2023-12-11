@@ -1,0 +1,6 @@
+# JWT for old Box API
+composer require lcobucci/jwt:3.3
+
+# JWT for Box API 2023
+composer require firebase/php-jwt:^6.4.0
+composer require guzzlehttp/guzzle:^7.5.0

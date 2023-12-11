@@ -1,0 +1,56 @@
+##################################################
+ISSUE
+#region Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:65501 -> 0.0.0.0:0: listen tcp 0.0.0.0:65501: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+DOCUMENTATION:
+https://github.com/docker/for-win/issues/9272
+
+WAS PROBLEM
+Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:65501 -> 0.0.0.0:0: listen tcp 0.0.0.0:65501: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+
+### What takes port?
+### TCP
+Get-Process -Id (Get-NetTCPConnection -LocalPort 80).OwningProcess
+Get-NetTCPConnection -State Listen
+netstat -a -b
+### UDP
+Get-Process -Id (Get-NetUDPEndpoint -LocalPort 53).OwningProcess
+
+
+WAY
+1.
+netstat -aon
+NO RESULTS
+
+2. (https://github.com/docker/for-win/issues/9272)
+netsh int ipv4 show excludedportrange protocol=tcp
+RESULT:
+##################################################
+Protocol tcp Port Exclusion Ranges
+
+Start Port    End Port
+----------    --------
+      5357        5357
+      5426        5426
+     50000       50059     *
+     54235       54235
+     54236       54236
+     65211       65310
+     65311       65410
+     65411       65510
+
+* - Administered port exclusions.
+##################################################
+3. Also helps
+net stop winnat
+docker-compose up ...
+net start winnat
+##################################################
+#endregion Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:65501 -> 0.0.0.0:0: listen tcp 0.0.0.0:65501: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
+##################################################
+ISSUE
+PowerShell does not run ps1 files
+Solution
+set-executionpolicy remotesigned
+Documentation
+https://stackoverflow.com/questions/10635/why-are-my-powershell-scripts-not-running
+##################################################
