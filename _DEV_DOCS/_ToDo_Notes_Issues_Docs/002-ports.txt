@@ -1,0 +1,34 @@
+ROUTER
+http://router.borg.home/login.html
+
+---
+DEFAULT
+http://borg.home/
+
+---
+DEFAULT BY IP
+http://192.168.0.12/
+
+
+---
+A
+http://a.borg.home/
+
+
+---
+BUILT-IN 1
+http://builtin.borg.home/
+
+---
+BUILT-IN 2
+http://builtin2.borg.home/
+
+
+---
+FAKE
+http://fake.home/
+
+
+---
+FAKE 3 level
+http://fake.borg.home/
