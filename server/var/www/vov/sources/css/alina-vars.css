@@ -1,0 +1,21 @@
+/*##################################################*/
+/*region FONT*/
+@font-face {
+    font-family: "ALINA";
+    src: url("/sources/fonts/XXX.ttf") format('truetype');
+}
+
+/*endregion FONT*/
+/*##################################################*/
+:root {
+    --alina-main-bg: #343a40;
+    --alina-main-txt: #fff;
+    --corporate-bg: #f5660b;
+    --corporate-bg-a: #f5660b;
+    --corporate-bg-a-visited: #ae8c6c;
+    --corporate-bg-a-hover: #000;
+    --corporate-txt: 0, 0, 0;
+    --corporate-txt-hard: rgba(0, 0, 0, 1);
+    --corporate-gradient: 0deg, #f5660b 0%, #b04807 100%;
+    --corporate-gradient-danger: 0deg, #f00 0%, black 100%;
+}

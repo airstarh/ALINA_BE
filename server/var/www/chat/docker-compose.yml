@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  briefing2:
+    env_file: .env
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: "always"
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8080:8080"
+      - "3478:3478"
+
+# networks:
+#   default:
+#     external:
+#       name: proxy

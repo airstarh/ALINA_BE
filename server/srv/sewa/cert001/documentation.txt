@@ -1,0 +1,50 @@
+### Main DOc
+https://betterprogramming.pub/trusted-self-signed-certificate-and-local-domains-for-testing-7c6e6e3f9548
+### Enable on FireFox
+https://blog.jeroenhd.nl/article/firefox-for-android-using-a-custom-certificate-authority
+##################################################
+### on Linux
+cd /srv/sewa/cert001
+##################################################
+# Generate root ssl certificate.
+
+openssl genrsa -des3 -out rootCA.key 2048
+
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1460 -out rootCA.pem
+
+### Add root certificate on windows
+
+cd C:\_A001\REPOS\OWN\server001\server\srv\sewa\cert001
+
+certutil -addstore -f "ROOT" rootCA.pem
+
+### ~outputs
+ROOT "Trusted Root Certification Authorities"
+Signature matches Public Key
+Certificate "Sewa" added to store.
+CertUtil: -addstore command completed successfully.
+###
+
+### Add root certificate on Manjaro Linux
+sudo trust anchor /home/qqq/---mpoint---/REPOS/OWN/server001/server/srv/sewa/cert001/rootCA.pem
+sudo update-ca-trust
+
+##################################################
+##################################################
+##################################################
+# Generate an SSL SAN Certificate With the Root Certificate
+##################################################
+# FILE:
+server.csr.cnf
+##################################################
+# FILE:
+v3.ext
+##################################################
+
+openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.key -config server.csr.cnf
+
+openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 500 -sha256 -extfile v3.ext
+
+##################################################
+##################################################
+##################################################
