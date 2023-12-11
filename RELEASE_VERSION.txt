@@ -1,4 +1,4 @@
 This file exists mostly to store a version of release.
 In order to make Git History commits more obvious.
 
-CURRENT VERSION = 4.0.0-alpha SERVER 001 BEGINNING
+CURRENT VERSION = 5.0.0 In Docker
