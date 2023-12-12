@@ -1,10 +1,12 @@
 <?php
 
+namespace alina;
+
 /**
  * This File exists mostly for Unit Test needs.
  *This file DOES NOT participate in Application usage!!!
  */
-class AlinaAdapter
+class AppBoot
 {
     static public function initiate()
     {
