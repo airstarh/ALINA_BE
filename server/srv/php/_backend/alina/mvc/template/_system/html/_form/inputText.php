@@ -21,6 +21,7 @@ if ($name === 'password') {
 }
 ?>
 <div class="form-group mt-3">
+    <label class="d-block">
     <?= htmlAlias::elBootstrapBadge([
         'title' => $_name,
         'badge' => $_value,
@@ -43,4 +44,5 @@ if ($name === 'password') {
             "
         >
     <?php } ?>
+    </label>
 </div>
