@@ -6,23 +6,69 @@ use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
+use alina\Utils\Data as DataAlias;
 
 class Sys
 {
     ##################################################
-    static public function fDebug($data, $flags = FILE_APPEND, $fPath = NULL)
+    private static string $fPath;
+
+    static protected function fPath(string $fPath = null)
     {
-        if (!isset($fPath) || empty($fPath)) {
-            $fPath = ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'deleteOnProdDebug.html';
+        if ($fPath) {
+            static::$fPath = $fPath;
         }
-        ob_start();
-        ob_implicit_flush(FALSE);
-        echo '<hr><pre>';
-        echo PHP_EOL;
-        print_r($data);
-        echo PHP_EOL;
-        echo '</pre>';
-        $output = ob_get_clean();
+
+        if (empty(static::$fPath)) {
+            static::$fPath = ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
+        }
+
+        return static::$fPath;
+    }
+
+
+    static public function fDebug($data, $flags = FILE_APPEND, $fPath = null, string $transform = null): void
+    {
+        static $flagStarted = false;
+
+        $fPath = static::fPath($fPath);
+
+        switch ($transform) {
+            case 'json':
+                $output = DataAlias::hlpGetBeautifulJsonString($data);
+                $fPath  = $fPath . '.yaml';
+                break;
+            case 'flat':
+                //ToDO:
+                //$output = static::dataToFlat($data);
+                break;
+            default:
+                $output = $data;
+                ##################################################
+                #region TEMPLATE
+                ob_start();
+                ob_implicit_flush(FALSE);
+                echo PHP_EOL;
+                echo '<h1>START_OF_DATA</h1>';
+                echo PHP_EOL;
+                echo '<pre>';
+                echo PHP_EOL;
+                print_r($output);
+                echo PHP_EOL;
+                echo '</pre>';
+                echo PHP_EOL;
+                echo '<h2>END_OF_DATA</h2>';
+                echo PHP_EOL;
+                #endregion TEMPLATE
+                ##################################################
+                $output = ob_get_clean();
+                break;
+        }
+
+        if (!$flagStarted) {
+            file_put_contents($fPath, PHP_EOL, 0);
+            $flagStarted = true;
+        }
         file_put_contents($fPath, $output, $flags);
         file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
     }
@@ -58,7 +104,7 @@ class Sys
         if (empty($post)) {
             $post = file_get_contents('php://input');
         }
-        $res = \alina\Utils\Data::toObject($post);
+        $res = DataAlias::toObject($post);
         Data::itrCastToHealth($res);
         return $res;
     }
@@ -66,7 +112,7 @@ class Sys
     static public function resolveGetDataAsObject()
     {
         $get = $_GET;
-        $res = \alina\Utils\Data::toObject($get);
+        $res = DataAlias::toObject($get);
 
         return $res;
     }
@@ -205,8 +251,7 @@ class Sys
                 trim($url, '/'),
                 ltrim($page, '/'),
             ]);
-        }
-        else {
+        } else {
             $page = \alina\Utils\Html::ref($page);
         }
         #####

@@ -154,8 +154,7 @@ class AdminDbManager
                     $id = $model->{$model->pkName};
                     if (method_exists($model, 'bizDelete')) {
                         $model->bizDelete($id);
-                    }
-                    else {
+                    } else {
                         $model->deleteById($id);
                     }
                     break;
@@ -180,8 +179,9 @@ class AdminDbManager
 
     public function actionEditRow($table, $id, $flagReturn = FALSE)
     {
-        $vd          = (object)[];
-        $m           = modelNamesResolver::getModelObject($table);
+        $vd = (object)[];
+        $m  = modelNamesResolver::getModelObject($table);
+        $m->getOneWithReferences([["{$m->alias}.{$m->pkName}", '=', $id]]);
         $vd->model   = $m;
         $vd->sources = $m->getReferencesSources();
         ##################################################
@@ -196,15 +196,14 @@ class AdminDbManager
         ##################################################
         if ($flagReturn) {
             return $vd;
-        }
-        else {
+        } else {
             echo (new htmlAlias)->page($vd);
         }
     }
 
     public function actionUpdate($table, $id, $data)
     {
-        $m = modelNamesResolver::getModelObject($table);
+        $m    = modelNamesResolver::getModelObject($table);
         $data = \alina\Utils\Data::toObject($data);
         $m->upsert($data);
         $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
