@@ -211,7 +211,7 @@ class html
     #endregion HTML page specials (css, js, etc.)
     ##################################################
     #region Elements
-    static public function elForm(array $p = [])
+    static public function elForm($p = [])
     {
         return (new static())->piece('_system/html/_form/form.php', (object)$p);
     }

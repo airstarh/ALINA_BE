@@ -291,7 +291,7 @@ class tale extends _BaseAlinaModel
             ->leftJoin('tale AS answer', 'answer.id', '=', 'current.answer_to_tale_id')
             ->leftJoin('tale AS root', 'root.id', '=', 'current.root_tale_id')
             ->first()
-        ;;
+        ;
 
         return $chainOfParents;
     }

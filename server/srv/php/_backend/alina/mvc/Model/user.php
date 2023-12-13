@@ -149,7 +149,7 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'rbac_user_role'  => [ // Glue Table
+            'rbac_user_role'  => [
                 'has'        => 'manyThrough',
                 'multiple'   => TRUE,
                 ##############################
@@ -291,11 +291,9 @@ class user extends _BaseAlinaModel
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
-                            }
-                            elseif (is_array($v)) {
+                            } elseif (is_array($v)) {
                                 $id = $v['id'];
-                            }
-                            else {
+                            } else {
                                 $id = $v;
                             }
                             $ids[] = $id;
@@ -397,13 +395,16 @@ class user extends _BaseAlinaModel
                     /** @var $q BuilderAlias object */
                     $q
                         ->where('to_id', '=', $id)
-                        ->orWhere('from_id', '=', $id);
+                        ->orWhere('from_id', '=', $id)
+                    ;
                 })
-                ->delete();
+                ->delete()
+            ;
             $vd->likes         = (new \alina\mvc\Model\like())
                 ->q(-1)
                 ->where('user_id', '=', $id)
-                ->delete();
+                ->delete()
+            ;
             $vd->tales         = (new taleAlias())->delete(['owner_id' => $id,]);
             $vd->rbac_roles    = (new rbac_user_role())->delete(['user_id' => $id,]);
             $vd->login         = (new login())->delete(['user_id' => $id,]);
