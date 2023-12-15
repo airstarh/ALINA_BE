@@ -28,15 +28,6 @@ class CurrentUser
     ##################################################
     protected $state_AUTHORIZATION_PASSED  = FALSE;
     protected $state_AUTHORIZATION_SUCCESS = FALSE;
-    protected $state_USER_DEFINED          = FALSE;
-    ##################################################
-    protected $state_CONSISTANCY_WRONG = FALSE;
-    protected $ERR_TOKEN_EXPIRED       = 'ERR_TOKEN_EXPIRED';
-    protected $ERR_IP                  = 'ERR_IP';
-    protected $ERR_BROWSER             = 'ERR_BROWSER';
-    protected $ERR_TOKEN_MISMATCH      = 'ERR_TOKEN_MISMATCH';
-    protected $ERR_LOGIN_ID            = 'ERR_LOGIN_ID';
-    protected $ERR_USER_ID             = 'ERR_USER_ID';
     ##################################################
     public $msg = [];
 
@@ -71,7 +62,6 @@ class CurrentUser
     {
         $this->state_AUTHORIZATION_PASSED  = FALSE;
         $this->state_AUTHORIZATION_SUCCESS = FALSE;
-        $this->state_USER_DEFINED          = FALSE;
 
         return $this;
     }
@@ -171,7 +161,7 @@ class CurrentUser
 
     protected function updateLoginToken($uid)
     {
-        $data = $this->buildLoginData();
+        $data = $this->buildLoginData($uid);
         $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
         $this->token = $this->LOGIN->attributes->token;
         $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
@@ -336,11 +326,11 @@ class CurrentUser
         return $token;
     }
 
-    protected function buildLoginData()
+    protected function buildLoginData($uid)
     {
         $newToken = $this->buildToken();
         $data     = [
-            'user_id'     => $this->USER->id,
+            'user_id'     => $uid,
             'token'       => $newToken,
             'ip'          => $this->device_ip,
             'browser_enc' => $this->device_browser_enc,
