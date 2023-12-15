@@ -232,7 +232,6 @@ class _BaseAlinaModel
         //LIMIT / OFFSET
         $this->qApiLimitOffset($pageSize, $pageCurrentNumber, $paginationVersa);
         //Final query.
-        // Sys::fDebug($q->toSql());
         $this->collection = $q->get();
         //Has Many JOINs.
         $this->joinHasMany();
@@ -474,12 +473,10 @@ class _BaseAlinaModel
         // LIMIT partial
         $this->qApiLimitOffset();
         // Result
-        //fDebug($q->toSql());
         $this->collection = $q->get();
         $page             = $this->pageCurrentNumber;
         $output           = ["total" => $total, "page" => $page, "models" => $this->collection];
 
-        //fDebug($output);
         return $output;
     }
 
@@ -845,10 +842,6 @@ class _BaseAlinaModel
     public function addAuditInfoEventLog($eventData = null, string $eventName = null, string $tableName = null, int $tableId = null)
     {
         ###
-        error_log('>>>>> >>>>> >>>>> >>>>> >>>>>');
-        error_log(var_export($this->table, 1));
-        error_log(var_export($this->mode, 1));
-        \alina\Utils\Sys::fDebug(debug_backtrace(0), FILE_APPEND, null, 'json');
         ###
         $eventName = $eventName ?? $this->mode;
         $tableName = $tableName ?? $this->table;
