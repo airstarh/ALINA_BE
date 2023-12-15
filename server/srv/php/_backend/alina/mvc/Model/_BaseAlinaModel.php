@@ -393,8 +393,6 @@ class _BaseAlinaModel
         #####
         GlobalRequestStorage::setPlus1('BaseModelQueries');
         $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog([$data, $conditions], $this->mode, $this->table, $this->id) : null;
-        error_log('update >>>>> >>>>> >>>>> >>>>> >>>>>');
-        error_log(var_export($this->table, 1));
         #####
         ##################################################
         $this->resetFlags();
@@ -842,6 +840,7 @@ class _BaseAlinaModel
     public function addAuditInfoEventLog($eventData = null, string $eventName = null, string $tableName = null, int $tableId = null)
     {
         ###
+        //\alina\Utils\Sys::fDebug(debug_backtrace(0), FILE_APPEND, null, 'json');
         ###
         $eventName = $eventName ?? $this->mode;
         $tableName = $tableName ?? $this->table;
