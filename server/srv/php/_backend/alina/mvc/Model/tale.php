@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class tale extends _BaseAlinaModel
 {
+    public $flagAuditInfoLog = false;
     public $table          = 'tale';
     public $ownerId_root   = NULL;
     public $ownerId_answer = NULL;

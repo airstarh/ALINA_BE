@@ -17,12 +17,12 @@ class CurrentUser
 
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    public    $id    = NULL;
-    protected $token = NULL;
+    public    $id    = null;
+    protected $token = null;
     /**@var user */
-    protected $USER = NULL;
+    protected $USER = null;
     /**@var login */
-    protected $LOGIN = NULL;
+    protected $LOGIN = null;
     protected $device_ip;
     protected $device_browser_enc;
     ##################################################
@@ -59,8 +59,8 @@ class CurrentUser
 
     public function resetDiscoveredData()
     {
-        $this->id    = NULL;
-        $this->token = NULL;
+        $this->id    = null;
+        $this->token = null;
         $this->USER  = new user();
         $this->LOGIN = new login();
 
@@ -85,50 +85,33 @@ class CurrentUser
     #endregion SingleTon
     ##################################################
     #region LogIn
-    protected function identify($conditions)
-    {
-        if ($this->authenticate()) {
-            $this->msg[] = 'You are already Logged-in';
-
-            return FALSE;
-        }
-        #####
-        $this->reset();
-        #####
-        $this->getUSER($conditions);
-        if (empty($this->USER->id)) {
-            $this->msg[] = 'Incorrect credentials';
-
-            return FALSE;
-        }
-        $data = $this->buildLoginData();
-        $this->LOGIN->upsertByUniqueFields($data);
-        $this->getLOGIN($data);
-
-        return $this->rememberAuthInfo($this->USER->id, $this->LOGIN->attributes->token);
-    }
 
     /**
      * Just check if Request contains Auth Data.
      * No database data is changed here.
      */
-    protected function authenticate()
+    protected function discoverLogin()
     {
         $userId   = $this->discoverUserId();
         $oldToken = $this->discoverToken();
         #####
-        $this->getLOGIN([
-            'user_id' => $userId,
-            'token'   => $oldToken,
+        $this->LOGIN->getOne([
+            ['user_id', '=', $userId],
+            ['token', '=', $oldToken],
+            ['expires_at', '>', ALINA_TIME],
         ]);
         if ($this->LOGIN->id) {
+            $this->token = $this->LOGIN->attributes->token;
             $this->getUSER([
                 "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
             ]);
+            if ($this->USER->id) {
+                $this->id = $this->USER->id;
+                return true;
+            }
         }
 
-        #####
-        return $this->analyzeConsistency();
+        return false;
     }
 
     /**
@@ -137,28 +120,25 @@ class CurrentUser
      */
     protected function authorize()
     {
-        #####
         if ($this->state_AUTHORIZATION_PASSED) {
             return $this->state_AUTHORIZATION_SUCCESS;
         }
-        #####
-        $isAuthenticated = $this->authenticate();
+        $isAuthenticated = $this->discoverLogin();
         if ($isAuthenticated) {
-            $data     = $this->buildLoginData();
-            $newToken = $data['token']; // ACCENT
-            $this->LOGIN->updateById($data);
-            $this->token = $newToken;
-            ##########
-            $this->state_AUTHORIZATION_SUCCESS = $this->rememberAuthInfo($this->id, $newToken);
+            $this->state_AUTHORIZATION_SUCCESS = TRUE;
         }
-        #####
         $this->state_AUTHORIZATION_PASSED = TRUE;
-
         return $this->state_AUTHORIZATION_SUCCESS;
     }
 
     public function LogInByPass($mail, $password)
     {
+        if ($this->discoverLogin()) {
+            $this->msg[] = 'You are already Logged-in';
+
+            return FALSE;
+        }
+
         if (!Data::isValidMd5($password)) {
             $password = md5($password);
         }
@@ -166,12 +146,37 @@ class CurrentUser
             'mail'     => $mail,
             'password' => $password,
         ];
-        if ($this->identify($conditions)) {
+        if ($this->loginProcess($conditions)) {
             return $this->authorize();
         }
 
         return FALSE;
     }
+
+    protected function loginProcess($conditions)
+    {
+        $this->reset();
+        $this->USER->getOneWithReferences($conditions);
+        $this->id = $this->USER->id;
+
+        # validate
+        if (empty($this->id)) {
+            $this->msg[] = 'Incorrect credentials';
+            return FALSE;
+        }
+
+        $this->updateLoginToken($this->id);
+        return true;
+    }
+
+    protected function updateLoginToken($uid)
+    {
+        $data = $this->buildLoginData();
+        $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
+        $this->token = $this->LOGIN->attributes->token;
+        $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
+    }
+
     #endregion LogIn
     ##################################################
     #region LogOut
@@ -271,7 +276,7 @@ class CurrentUser
     #region Utils
     protected function discoverUserId()
     {
-        $id = NULL;
+        $id = null;
         if (empty($id)) {
             $id = $this->USER->id;
         }
@@ -282,7 +287,7 @@ class CurrentUser
             $id = Request::obj()->tryHeader(static::KEY_USER_ID);
         }
         if (!is_numeric($id)) {
-            $id = NULL;
+            $id = null;
         }
         $this->id = $id;
 
@@ -291,7 +296,7 @@ class CurrentUser
 
     protected function discoverToken()
     {
-        $token = NULL;
+        $token = null;
         if (empty($token)) {
             $token = $this->token;
         }
@@ -302,7 +307,7 @@ class CurrentUser
             $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
         }
         if (strlen($token) < 10) {
-            $token = NULL;
+            $token = null;
         }
         $this->token = $token;
 
@@ -355,11 +360,8 @@ class CurrentUser
         return $res;
     }
 
-    protected function rememberAuthInfo($uid, $token)
+    protected function setTokenOnClient($uid, $token)
     {
-        if (!$this->analyzeConsistency()) {
-            return FALSE;
-        }
         #####
         AppCookie::set(static::KEY_USER_TOKEN, $token);
         AppCookie::set(static::KEY_USER_ID, $uid);
@@ -414,110 +416,9 @@ class CurrentUser
 
     protected function getUSER($conditions)
     {
-        if ($this->state_USER_DEFINED) {
-            return $this->USER;
-        }
         $this->USER->getOneWithReferences($conditions);
-        $this->id                 = $this->USER->id;
-        $this->state_USER_DEFINED = TRUE;
 
         return $this->USER;
-    }
-
-    protected function getLOGIN($conditions)
-    {
-        $this->LOGIN->getOne($conditions);
-        $this->token = $this->LOGIN->attributes->token;
-
-        return $this->LOGIN;
-    }
-
-    protected function checkConsistency()
-    {
-        if (empty($this->LOGIN->id)) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_LOGIN_ID;
-            $this->msg[]                   = 'Login undefined';
-
-            return FALSE;
-        }
-        if ($this->token !== $this->LOGIN->attributes->token) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_TOKEN_MISMATCH;
-            $this->msg[]                   = 'Token mismatch';
-
-            return FALSE;
-        }
-        if (ALINA_TIME >= $this->LOGIN->attributes->expires_at) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_TOKEN_EXPIRED;
-            $this->msg[]                   = 'Token expired';
-
-            return FALSE;
-        }
-        ##################################################
-        if (empty($this->USER->id)) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
-            $this->msg[]                   = 'User undefined';
-
-            return FALSE;
-        }
-        if ($this->id !== $this->USER->id) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
-            $this->msg[]                   = 'User mismatch';
-
-            return FALSE;
-        }
-        ##################################################
-        if ($this->USER->id !== $this->LOGIN->attributes->user_id) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_USER_ID;
-            $this->msg[]                   = 'User ID differs from Logged one';
-
-            return FALSE;
-        }
-        ##################################################
-        // if ($this->device_ip !== $this->LOGIN->attributes->ip) {
-        //     $this->state_CONSISTANCY_WRONG = $this->ERR_IP;
-        //     $this->msg[]                   = 'IP mismatch';
-        //
-        //     return FALSE;
-        // }
-        if ($this->device_browser_enc !== $this->LOGIN->attributes->browser_enc) {
-            $this->state_CONSISTANCY_WRONG = $this->ERR_BROWSER;
-            $this->msg[]                   = 'Browser mismatch';
-
-            return FALSE;
-        }
-        ##################################################
-        if (ALINA_TIME <= $this->USER->attributes->banned_till) {
-            $this->msg[] = 'User banned';
-
-            return FALSE;
-        }
-
-        return TRUE;
-    }
-
-    protected function analyzeConsistency()
-    {
-        $consistency = $this->checkConsistency();
-        if (!$consistency) {
-            switch ($this->state_CONSISTANCY_WRONG) {
-                case $this->ERR_TOKEN_EXPIRED:
-                    $this->forgetAuthInfo();
-                    break;
-                case $this->ERR_BROWSER:
-                case $this->ERR_IP:
-                case $this->ERR_TOKEN_MISMATCH:
-                    $this->LOGIN->delete([
-                        'user_id' => $this->USER->id,
-                    ]);
-                    break;
-                case $this->ERR_LOGIN_ID:
-                case $this->ERR_USER_ID:
-                    //ToDo:...
-                    break;
-            }
-        }
-
-        return $consistency;
     }
 
     public function messages()

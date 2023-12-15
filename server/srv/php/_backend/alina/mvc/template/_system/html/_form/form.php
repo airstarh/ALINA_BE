@@ -9,7 +9,7 @@ $action  = @$data->action ?: '';
 $enctype = @$data->enctype ?: 'multipart/form-data';
 $model   = $data->model;
 $sources = $data->sources;
-\alina\Utils\Sys::fDebug($model, FILE_APPEND, null, 'json');
+
 ?>
 <form action="<?= $action ?>" method="post" enctype="<?= $enctype ?>">
     <?= htmlAlias::elFormStandardButtons([]) ?>
