@@ -6,14 +6,17 @@ use alina\Utils\Data;
 
 class login extends _BaseAlinaModel
 {
-    public $table = 'login';
+    public $flagAuditInfoLog = false;
+    public $table            = 'login';
 
     public function fields()
     {
         return [
             'id'          => [],
             'user_id'     => [],
-            'token'       => [],
+            'token'       => [
+                'default' => null,
+            ],
             'ip'          => [],
             'browser_enc' => [],
             'lastentered' => [

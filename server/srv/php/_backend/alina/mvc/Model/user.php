@@ -153,7 +153,7 @@ class user extends _BaseAlinaModel
                 'has'        => 'manyThrough',
                 'multiple'   => TRUE,
                 ##############################
-                # for Apply dependencies
+                # for Edit Form
                 'apply'      => [
                     'childTable'     => 'rbac_role',
                     'childPk'        => 'id',
@@ -178,7 +178,7 @@ class user extends _BaseAlinaModel
                 'has'        => 'manyThrough',
                 ##############################
                 # for Edit Form
-                # ToDo ...
+                # ... There is no way to edit Permissions on User model: Permissions related to Roles only now...
                 ##############################
                 # for Select With References
                 'joins'      => [

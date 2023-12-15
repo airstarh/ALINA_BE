@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Controller;
 
-use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\tale as taleAlias;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Request;
