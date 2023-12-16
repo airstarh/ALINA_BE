@@ -26,8 +26,8 @@ class CurrentUser
     protected $device_ip;
     protected $device_browser_enc;
     ##################################################
-    static protected bool $state_AUTHORIZATION_PASSED  = FALSE;
-    static protected bool $state_AUTHORIZATION_SUCCESS = FALSE;
+    static protected bool $state_AUTHORIZATION_PASSED  = false;
+    static protected bool $state_AUTHORIZATION_SUCCESS = false;
     ##################################################
     public $msg = [];
 
@@ -35,7 +35,7 @@ class CurrentUser
     {
         $this->reset();
         $this->authorize();
-        if (static::$state_AUTHORIZATION_SUCCESS){
+        if (static::$state_AUTHORIZATION_SUCCESS) {
             $this->updateLoginToken($this->id());
         }
     }
@@ -63,8 +63,8 @@ class CurrentUser
 
     protected function resetStates()
     {
-        static::$state_AUTHORIZATION_PASSED  = FALSE;
-        static::$state_AUTHORIZATION_SUCCESS = FALSE;
+        static::$state_AUTHORIZATION_PASSED  = false;
+        static::$state_AUTHORIZATION_SUCCESS = false;
 
         return $this;
     }
@@ -118,9 +118,9 @@ class CurrentUser
         }
         $isAuthenticated = $this->discoverLogin();
         if ($isAuthenticated) {
-            static::$state_AUTHORIZATION_SUCCESS = TRUE;
+            static::$state_AUTHORIZATION_SUCCESS = true;
         }
-        static::$state_AUTHORIZATION_PASSED = TRUE;
+        static::$state_AUTHORIZATION_PASSED = true;
         return static::$state_AUTHORIZATION_SUCCESS;
     }
 
@@ -129,7 +129,7 @@ class CurrentUser
         if ($this->discoverLogin()) {
             $this->msg[] = 'You are already Logged-in';
 
-            return FALSE;
+            return false;
         }
 
         if (!Data::isValidMd5($password)) {
@@ -143,7 +143,7 @@ class CurrentUser
             return $this->authorize();
         }
 
-        return FALSE;
+        return false;
     }
 
     protected function loginProcess($conditions)
@@ -155,7 +155,7 @@ class CurrentUser
         # validate
         if (empty($this->id())) {
             $this->msg[] = 'Incorrect credentials';
-            return FALSE;
+            return false;
         }
 
         $this->updateLoginToken($this->id());
@@ -218,7 +218,7 @@ class CurrentUser
             return $this->USER->hasRole($role);
         }
 
-        return FALSE;
+        return false;
     }
 
     public function hasPerm($perm)
@@ -227,7 +227,7 @@ class CurrentUser
             return $this->USER->hasPerm($perm);
         }
 
-        return FALSE;
+        return false;
     }
 
     public function isLoggedIn()
@@ -243,7 +243,7 @@ class CurrentUser
             return $this->hasRole('ADMIN');
         }
 
-        return FALSE;
+        return false;
     }
 
     public function isModerator()
@@ -252,7 +252,7 @@ class CurrentUser
             return $this->hasRole('MODERATOR');
         }
 
-        return FALSE;
+        return false;
     }
 
     public function isPriveleged()
@@ -261,7 +261,7 @@ class CurrentUser
             return $this->hasRole('PRIVILEGED');
         }
 
-        return FALSE;
+        return false;
     }
 
     public function isAdminOrModerator()
@@ -376,7 +376,7 @@ class CurrentUser
             $uid,
         ]));
 
-        return TRUE;
+        return true;
     }
 
     protected function forgetAuthInfo()
@@ -394,7 +394,7 @@ class CurrentUser
         $this->resetStates();
 
         #####
-        return TRUE;
+        return true;
     }
 
     public function name()
