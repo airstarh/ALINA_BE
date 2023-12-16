@@ -14,7 +14,7 @@ class audit extends _BaseAlinaModel
                 'default' => ALINA_TIME,
             ],
             'user_id'    => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'table_name' => [
 

@@ -27,7 +27,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $Request->QUERY_STRING,
             ],
             'user_id'      => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'visited_at'   => [
                 'default' => ALINA_TIME,

@@ -158,7 +158,7 @@ class Auth
         AlinaRedirectIfNotAjax($path, 303, TRUE);
         ##################################################
         if (empty($id)) {
-            $id = CurrentUser::obj()->id;
+            $id = CurrentUser::obj()->id();
         }
         if (empty($id)) {
             AlinaRejectIfNotLoggedIn();
@@ -337,7 +337,7 @@ class Auth
             ]);
             #####
             $m = new user();
-            $m->updateById($vd, CurrentUser::obj()->id);
+            $m->updateById($vd, CurrentUser::obj()->id());
             if ($m->state_AFFECTED_ROWS === 1) {
                 Message::setSuccess('Password is changed');
                 Sys::redirect('/auth/profile', 303);

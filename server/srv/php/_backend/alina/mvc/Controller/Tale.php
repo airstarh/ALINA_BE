@@ -59,7 +59,7 @@ class Tale
             $id    = $attrs->id;
         }
         if (empty($id)) {
-            $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id,]);
+            $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id(),]);
             if (!isset($attrs->id) || empty($attrs->id)) {
                 $attrs = $mTale->insert($vd);
             }
@@ -167,12 +167,12 @@ class Tale
                     $tag           = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                     $text          = "You are commented!";
                     foreach ($allCommenters as $humanId) {
-                        if ($humanId == CurrentUser::obj()->id) {
+                        if ($humanId == CurrentUser::obj()->id()) {
                             continue;
                         }
                         (new notification())->insert((object)[
                             'to_id'        => $humanId,
-                            'from_id'      => CurrentUser::obj()->id,
+                            'from_id'      => CurrentUser::obj()->id(),
                             'txt'          => $text,
                             'link'         => $url,
                             'id_root'      => $attrs->root_tale_id,
@@ -442,7 +442,7 @@ class Tale
     {
         #####
         if (empty($uid)) {
-            $uid = CurrentUser::obj()->id;
+            $uid = CurrentUser::obj()->id();
         }
         #####
         $mAmount = new \alina\mvc\Model\tale();

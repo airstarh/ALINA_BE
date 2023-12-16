@@ -20,7 +20,7 @@ class tale extends _BaseAlinaModel
         $fields  = [
             'id'                       => [],
             'owner_id'                 => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'header'                   => [
                 'filters' => [
@@ -188,7 +188,7 @@ class tale extends _BaseAlinaModel
     ##################################################
     public function hookGetWithReferences($q)
     {
-        $uid = CurrentUser::obj()->id ?: -1;
+        $uid = CurrentUser::obj()->id() ?: -1;
         //ToDo: Cross DataBase.
         /** @var $q BuilderAlias object */
         $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName} AND tale1.created_at > {$this->alias}.created_at) AS count_answer_to_tale_id"));

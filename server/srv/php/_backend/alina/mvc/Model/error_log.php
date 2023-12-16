@@ -27,7 +27,7 @@ class error_log extends _BaseAlinaModel
                 'default' => Request::obj()->AJAX,
             ],
             'user_id'        => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'url_path'       => [
                 'default' => Request::obj()->URL_PATH,
