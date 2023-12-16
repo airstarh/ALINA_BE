@@ -17,7 +17,7 @@ class CurrentUser
 
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    public    $id    = null;
+    protected $id    = null;
     protected $token = null;
     /**@var user */
     protected $USER = null;
@@ -26,8 +26,8 @@ class CurrentUser
     protected $device_ip;
     protected $device_browser_enc;
     ##################################################
-    protected $state_AUTHORIZATION_PASSED  = FALSE;
-    protected $state_AUTHORIZATION_SUCCESS = FALSE;
+    static protected bool $state_AUTHORIZATION_PASSED  = FALSE;
+    static protected bool $state_AUTHORIZATION_SUCCESS = FALSE;
     ##################################################
     public $msg = [];
 
@@ -35,6 +35,9 @@ class CurrentUser
     {
         $this->reset();
         $this->authorize();
+        if (static::$state_AUTHORIZATION_SUCCESS){
+            $this->updateLoginToken($this->id());
+        }
     }
 
     protected function reset()
@@ -60,8 +63,8 @@ class CurrentUser
 
     protected function resetStates()
     {
-        $this->state_AUTHORIZATION_PASSED  = FALSE;
-        $this->state_AUTHORIZATION_SUCCESS = FALSE;
+        static::$state_AUTHORIZATION_PASSED  = FALSE;
+        static::$state_AUTHORIZATION_SUCCESS = FALSE;
 
         return $this;
     }
@@ -92,7 +95,7 @@ class CurrentUser
         ]);
         if ($this->LOGIN->id) {
             $this->token = $this->LOGIN->attributes->token;
-            $this->getUSER([
+            $this->USER->getOneWithReferences([
                 "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
             ]);
             if ($this->USER->id) {
@@ -110,15 +113,15 @@ class CurrentUser
      */
     protected function authorize()
     {
-        if ($this->state_AUTHORIZATION_PASSED) {
-            return $this->state_AUTHORIZATION_SUCCESS;
+        if (static::$state_AUTHORIZATION_PASSED) {
+            return static::$state_AUTHORIZATION_SUCCESS;
         }
         $isAuthenticated = $this->discoverLogin();
         if ($isAuthenticated) {
-            $this->state_AUTHORIZATION_SUCCESS = TRUE;
+            static::$state_AUTHORIZATION_SUCCESS = TRUE;
         }
-        $this->state_AUTHORIZATION_PASSED = TRUE;
-        return $this->state_AUTHORIZATION_SUCCESS;
+        static::$state_AUTHORIZATION_PASSED = TRUE;
+        return static::$state_AUTHORIZATION_SUCCESS;
     }
 
     public function LogInByPass($mail, $password)
@@ -150,12 +153,12 @@ class CurrentUser
         $this->id = $this->USER->id;
 
         # validate
-        if (empty($this->id)) {
+        if (empty($this->id())) {
             $this->msg[] = 'Incorrect credentials';
             return FALSE;
         }
 
-        $this->updateLoginToken($this->id);
+        $this->updateLoginToken($this->id());
         return true;
     }
 
@@ -204,6 +207,11 @@ class CurrentUser
     #endregion Register
     ##################################################
     #region States
+    public function id()
+    {
+        return $this->id;
+    }
+
     public function hasRole($role)
     {
         if ($this->isLoggedIn()) {
@@ -401,14 +409,7 @@ class CurrentUser
 
     public function ownsId($id)
     {
-        return $this->isLoggedIn() && $this->id === $id;
-    }
-
-    protected function getUSER($conditions)
-    {
-        $this->USER->getOneWithReferences($conditions);
-
-        return $this->USER;
+        return $this->isLoggedIn() && $this->id() === $id;
     }
 
     public function messages()

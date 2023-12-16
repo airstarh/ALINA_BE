@@ -271,7 +271,7 @@ class FileUpload
     protected function destinationDir($uid = NULL)
     {
         if (empty($uid)) {
-            $uid = CurrentUser::obj()->id ?: 0;
+            $uid = CurrentUser::obj()->id() ?: 0;
         }
         $blocks = [
             AlinaCfg('fileUploadDir'),

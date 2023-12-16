@@ -28,7 +28,7 @@ class Like
             $mLikeAttrs = $this->model->getOne([
                 'ref_table' => $ref_table,
                 'ref_id'    => $ref_id,
-                'user_id'   => CurrentUser::obj()->id,
+                'user_id'   => CurrentUser::obj()->id(),
             ]);
             ###
             #remove Like
@@ -58,7 +58,7 @@ class Like
                 $tag               = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                 (new notification())->insert((object)[
                     'to_id'        => $to_id,
-                    'from_id'      => CurrentUser::obj()->id,
+                    'from_id'      => CurrentUser::obj()->id(),
                     'txt'          => $text,
                     'link'         => $url,
                     'id_root'      => $root_tale_id,

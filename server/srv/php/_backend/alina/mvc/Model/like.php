@@ -15,7 +15,7 @@ class like extends _BaseAlinaModel
             'ref_table'  => [],
             'ref_id'     => [],
             'user_id'    => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'val'        => [
                 'default' => 1,

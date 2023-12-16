@@ -21,7 +21,7 @@ class Notification
     public function actionSelectListLatest($pageSze = 5, $pageNumber = 1)
     {
         $conditions       = [
-            'notification.to_id' => CurrentUser::obj()->id,
+            'notification.to_id' => CurrentUser::obj()->id(),
         ];
         $backendSortArray = [
             ['notification.is_shown', 'ASC'],
@@ -36,7 +36,7 @@ class Notification
     public function actionMarkAsShownEarlierThan($timestamp)
     {
         $CU         = CurrentUser::obj();
-        $cuId       = $CU->id;
+        $cuId       = $CU->id();
         $data       = (object)[
             'is_shown' => '1',
         ];
@@ -56,7 +56,7 @@ class Notification
             if ($id) {
                 $conditions['id'] = $id;
             }
-            $conditions['to_id'] = CurrentUser::obj()->id;
+            $conditions['to_id'] = CurrentUser::obj()->id();
             $affectedRows        = $this->model->delete($conditions);
             if ($affectedRows < 1) {
                 AlinaResponseSuccess(0);

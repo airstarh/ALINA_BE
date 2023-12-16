@@ -33,7 +33,7 @@ class file extends _BaseAlinaModel
                 'default' => 1,
             ],
             'owner_id'     => [
-                'default' => CurrentUser::obj()->id,
+                'default' => CurrentUser::obj()->id(),
             ],
             'created_at'   => [
                 'default' => ALINA_TIME,

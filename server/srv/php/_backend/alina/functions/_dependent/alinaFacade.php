@@ -42,11 +42,6 @@ function AlinaCfgDefault($path)
     return App::getConfigDefault($path);
 }
 
-function AlinaCurrentUserId()
-{
-    return \alina\mvc\Model\CurrentUser::obj()->id;
-}
-
 function AlinaGetNowInDbFormat()
 {
     if (defined('ALINA_TIME')) {
@@ -96,7 +91,7 @@ function AlinaAccessIfModerator()
 
 function AlinaAccessIfOwner($id)
 {
-    return CurrentUser::obj()->id == $id;
+    return CurrentUser::obj()->id() == $id;
 }
 
 function AlinaAccessIfAdminOrModeratorOrOwner($id)
