@@ -1,3 +1,30 @@
+
+-- DONE
+
+ALTER TABLE tale DROP INDEX IND_TALE_PUBLISH_AT;
+ALTER TABLE tale DROP INDEX IND_TALE_CREATED_AT;
+CREATE INDEX tale_publish_at_IDX USING BTREE ON tale (publish_at DESC);
+ALTER TABLE watch_visit DROP INDEX IND_WV_VISITED_AT;
+CREATE INDEX watch_visit_visited_at_IDX USING BTREE ON watch_visit (visited_at DESC);
+
+CREATE TABLE audit
+(
+    id         BIGINT auto_increment             NOT NULL,
+    `at`       BIGINT DEFAULT (UNIX_TIMESTAMP()) NOT NULL,
+    user_id    BIGINT                            NULL,
+    table_name varchar(100)                      NOT NULL,
+    table_id   BIGINT                            NOT NULL,
+    event_name varchar(100)                      NOT NULL,
+    event_data json                              NULL,
+    CONSTRAINT audit_PK PRIMARY KEY (id)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+CREATE INDEX audit_at_IDX USING BTREE ON audit (`at` DESC);
+
+-- NOR DONE
+
 CREATE TABLE `pm_organization`
 (
     `id`         BIGINT       NOT NULL AUTO_INCREMENT,
@@ -65,22 +92,7 @@ CREATE TABLE `pm_executed_subtasks`
     COLLATE = 'utf8mb4_unicode_ci'
 ;
 
--- `home.zero`.audit definition
+-- audit definition
 
--- `home.zero`.audit definition
+-- audit definition
 
-CREATE TABLE `home.zero`.audit
-(
-    id         BIGINT auto_increment             NOT NULL,
-    `at`       BIGINT DEFAULT (UNIX_TIMESTAMP()) NOT NULL,
-    user_id    BIGINT                            NULL,
-    table_name varchar(100)                      NOT NULL,
-    table_id   BIGINT                            NOT NULL,
-    event_name varchar(100)                      NOT NULL,
-    event_data json                              NULL,
-    CONSTRAINT audit_PK PRIMARY KEY (id)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-CREATE INDEX audit_at_IDX USING BTREE ON `home.zero`.audit (`at` DESC);
