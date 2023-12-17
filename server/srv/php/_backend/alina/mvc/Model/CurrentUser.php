@@ -41,32 +41,6 @@ class CurrentUser
     #region LogIn
 
     /**
-     * Just check if Request contains Auth Data.
-     * No database data is changed here.
-     */
-    protected function discoverLogin()
-    {
-        $userId   = $this->discoverUserId();
-        $oldToken = $this->discoverToken();
-        #####
-        $this->LOGIN->getOne([
-            ['user_id', '=', $userId],
-            ['token', '=', $oldToken],
-            ['expires_at', '>', ALINA_TIME],
-        ]);
-        if ($this->LOGIN->id) {
-            $this->USER->getOneWithReferences([
-                "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
-            ]);
-            if ($this->USER->id) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Is Logged In?
      * Grant or Deny access.
      */
@@ -123,11 +97,96 @@ class CurrentUser
         return false;
     }
 
+    /**
+     * Just check if Request contains Auth Data.
+     * No database data is changed here.
+     */
+    protected function discoverLogin()
+    {
+        $userId   = $this->discoverUserId();
+        $oldToken = $this->discoverToken();
+        #####
+        $this->LOGIN->getOne([
+            ['user_id', '=', $userId],
+            ['token', '=', $oldToken],
+            ['expires_at', '>', ALINA_TIME],
+        ]);
+        if ($this->LOGIN->id) {
+            $this->USER->getOneWithReferences([
+                "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
+            ]);
+            if ($this->USER->id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function discoverUserId()
+    {
+        $id = null;
+        if (empty($id)) {
+            $id = $this->USER->id;
+        }
+        if (empty($id)) {
+            $id = AppCookie::get(static::KEY_USER_ID);
+        }
+        if (empty($id)) {
+            $id = Request::obj()->tryHeader(static::KEY_USER_ID);
+        }
+        if (!is_numeric($id)) {
+            $id = null;
+        }
+
+        return $id;
+    }
+
+    protected function discoverToken()
+    {
+        $token = null;
+        if (empty($token)) {
+            $token = $this->LOGIN->attributes->token;
+        }
+        if (empty($token)) {
+            $token = AppCookie::get(static::KEY_USER_TOKEN);
+        }
+        if (empty($token)) {
+            $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
+        }
+        if (strlen($token) < 10) {
+            $token = null;
+        }
+
+        return $token;
+    }
+
     protected function upsertLogin($uid)
     {
         $data = $this->buildLoginData($uid);
         $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
         $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
+    }
+
+    protected function setTokenOnClient($uid, $token)
+    {
+        #####
+        AppCookie::set(static::KEY_USER_TOKEN, $token);
+        AppCookie::set(static::KEY_USER_ID, $uid);
+        #####
+        // session::set(static::KEY_USER_TOKEN, $token);
+        // session::set(static::KEY_USER_ID, $uid);
+        #####
+        header(implode(': ', [
+            static::KEY_USER_TOKEN,
+            $token,
+        ]));
+        header(implode(': ', [
+            static::KEY_USER_ID,
+            $uid,
+        ]));
+
+        return true;
     }
 
     #endregion LogIn
@@ -140,6 +199,25 @@ class CurrentUser
         }
         return false;
     }
+
+    protected function forgetAuthInfo()
+    {
+        #####
+        $this->LOGIN->deleteById($this->LOGIN->id);
+        #####
+        AppCookie::delete(static::KEY_USER_TOKEN);
+        AppCookie::delete(static::KEY_USER_ID);
+        #####
+        header_remove(static::KEY_USER_ID);
+        header_remove(static::KEY_USER_TOKEN);
+        #####
+        $this->resetDiscoveredData();
+        $this->resetStates();
+
+        #####
+        return true;
+    }
+
     #endregion LogOut
     ##################################################
     #region Register
@@ -209,6 +287,31 @@ class CurrentUser
         return $this->USER->id;
     }
 
+    public function attributes()
+    {
+        $res        = Obj::deepClone($this->USER->attributes);
+        $res->token = $this->LOGIN->attributes->token;
+        unset($res->password);
+
+        return $res;
+    }
+
+
+    public function name()
+    {
+        $res = $this->USER->attributes->mail;
+        if (empty($res)) {
+            $res = 'Not Logged-in';
+        }
+
+        return $res;
+    }
+
+    public function ownsId($id)
+    {
+        return $this->isLoggedIn() && $this->id() === $id;
+    }
+
     public function hasRole($role)
     {
         if ($this->isLoggedIn()) {
@@ -269,43 +372,7 @@ class CurrentUser
     #endregion States
     ##################################################
     #region Utils
-    protected function discoverUserId()
-    {
-        $id = null;
-        if (empty($id)) {
-            $id = $this->USER->id;
-        }
-        if (empty($id)) {
-            $id = AppCookie::get(static::KEY_USER_ID);
-        }
-        if (empty($id)) {
-            $id = Request::obj()->tryHeader(static::KEY_USER_ID);
-        }
-        if (!is_numeric($id)) {
-            $id = null;
-        }
 
-        return $id;
-    }
-
-    protected function discoverToken()
-    {
-        $token = null;
-        if (empty($token)) {
-            $token = $this->LOGIN->attributes->token;
-        }
-        if (empty($token)) {
-            $token = AppCookie::get(static::KEY_USER_TOKEN);
-        }
-        if (empty($token)) {
-            $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
-        }
-        if (strlen($token) < 10) {
-            $token = null;
-        }
-
-        return $token;
-    }
 
     protected function buildToken()
     {
@@ -344,68 +411,6 @@ class CurrentUser
         return $data;
     }
 
-    public function attributes()
-    {
-        $res        = Obj::deepClone($this->USER->attributes);
-        $res->token = $this->LOGIN->attributes->token;
-        unset($res->password);
-
-        return $res;
-    }
-
-    protected function setTokenOnClient($uid, $token)
-    {
-        #####
-        AppCookie::set(static::KEY_USER_TOKEN, $token);
-        AppCookie::set(static::KEY_USER_ID, $uid);
-        #####
-        // session::set(static::KEY_USER_TOKEN, $token);
-        // session::set(static::KEY_USER_ID, $uid);
-        #####
-        header(implode(': ', [
-            static::KEY_USER_TOKEN,
-            $token,
-        ]));
-        header(implode(': ', [
-            static::KEY_USER_ID,
-            $uid,
-        ]));
-
-        return true;
-    }
-
-    protected function forgetAuthInfo()
-    {
-        #####
-        $this->LOGIN->deleteById($this->LOGIN->id);
-        #####
-        AppCookie::delete(static::KEY_USER_TOKEN);
-        AppCookie::delete(static::KEY_USER_ID);
-        #####
-        header_remove(static::KEY_USER_ID);
-        header_remove(static::KEY_USER_TOKEN);
-        #####
-        $this->resetDiscoveredData();
-        $this->resetStates();
-
-        #####
-        return true;
-    }
-
-    public function name()
-    {
-        $res = $this->USER->attributes->mail;
-        if (empty($res)) {
-            $res = 'Not Logged-in';
-        }
-
-        return $res;
-    }
-
-    public function ownsId($id)
-    {
-        return $this->isLoggedIn() && $this->id() === $id;
-    }
 
     public function messages()
     {
