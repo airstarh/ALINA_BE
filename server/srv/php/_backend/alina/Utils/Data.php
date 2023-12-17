@@ -201,7 +201,7 @@ class Data
                 return NULL;
             }
             try {
-                if (1 * $itr == $itr) {
+                if (is_numeric($itr) && 1 * $itr == $itr) {
                     return 1 * $itr;
                 }
             } catch (\Exception $e) {
