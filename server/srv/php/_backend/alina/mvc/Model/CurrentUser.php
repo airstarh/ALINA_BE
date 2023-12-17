@@ -17,14 +17,11 @@ class CurrentUser
 
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    protected $id    = null;
-    protected $token = null;
     /**@var user */
-    protected $USER = null;
-    /**@var login */
-    protected $LOGIN = null;
-    protected $device_ip;
-    protected $device_browser_enc;
+    protected user   $USER;
+    protected login  $LOGIN;
+    protected string $device_ip;
+    protected string $device_browser_enc;
     ##################################################
     static protected bool $state_AUTHORIZATION_PASSED  = false;
     static protected bool $state_AUTHORIZATION_SUCCESS = false;
@@ -36,44 +33,8 @@ class CurrentUser
         $this->reset();
         $this->authorize();
         if (static::$state_AUTHORIZATION_SUCCESS) {
-            $this->updateLoginToken($this->id());
+            $this->upsertLogin($this->USER->id);
         }
-    }
-
-    protected function reset()
-    {
-        $this->device_ip          = Request::obj()->IP;
-        $this->device_browser_enc = Request::obj()->BROWSER_enc;
-        $this->resetDiscoveredData();
-        $this->resetStates();
-        $this->resetMsg();
-
-        return $this;
-    }
-
-    public function resetDiscoveredData()
-    {
-        $this->id    = null;
-        $this->token = null;
-        $this->USER  = new user();
-        $this->LOGIN = new login();
-
-        return $this;
-    }
-
-    protected function resetStates()
-    {
-        static::$state_AUTHORIZATION_PASSED  = false;
-        static::$state_AUTHORIZATION_SUCCESS = false;
-
-        return $this;
-    }
-
-    protected function resetMsg()
-    {
-        $this->msg = [];
-
-        return $this;
     }
     #endregion SingleTon
     ##################################################
@@ -94,12 +55,10 @@ class CurrentUser
             ['expires_at', '>', ALINA_TIME],
         ]);
         if ($this->LOGIN->id) {
-            $this->token = $this->LOGIN->attributes->token;
             $this->USER->getOneWithReferences([
                 "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
             ]);
             if ($this->USER->id) {
-                $this->id = $this->USER->id;
                 return true;
             }
         }
@@ -128,17 +87,18 @@ class CurrentUser
     {
         if ($this->discoverLogin()) {
             $this->msg[] = 'You are already Logged-in';
-
             return false;
         }
 
         if (!Data::isValidMd5($password)) {
             $password = md5($password);
         }
+
         $conditions = [
             'mail'     => $mail,
             'password' => $password,
         ];
+
         if ($this->loginProcess($conditions)) {
             return $this->authorize();
         }
@@ -150,23 +110,23 @@ class CurrentUser
     {
         $this->reset();
         $this->USER->getOneWithReferences($conditions);
-        $this->id = $this->USER->id;
-
-        # validate
-        if (empty($this->id())) {
-            $this->msg[] = 'Incorrect credentials';
-            return false;
+        if ($this->USER->id) {
+            $this->upsertLogin($this->USER->id);
+            return true;
         }
 
-        $this->updateLoginToken($this->id());
-        return true;
+        # validate
+        if (empty($this->USER->id)) {
+            $this->msg[] = 'Incorrect credentials';
+        }
+
+        return false;
     }
 
-    protected function updateLoginToken($uid)
+    protected function upsertLogin($uid)
     {
         $data = $this->buildLoginData($uid);
         $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
-        $this->token = $this->LOGIN->attributes->token;
         $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
     }
 
@@ -178,6 +138,7 @@ class CurrentUser
         if ($this->isLoggedIn()) {
             return $this->forgetAuthInfo();
         }
+        return false;
     }
     #endregion LogOut
     ##################################################
@@ -206,10 +167,46 @@ class CurrentUser
     }
     #endregion Register
     ##################################################
+    #region RESET
+    protected function reset()
+    {
+        $this->device_ip          = Request::obj()->IP;
+        $this->device_browser_enc = Request::obj()->BROWSER_enc;
+        $this->resetDiscoveredData();
+        $this->resetStates();
+        $this->resetMsg();
+
+        return $this;
+    }
+
+    public function resetDiscoveredData()
+    {
+        $this->USER  = new user();
+        $this->LOGIN = new login();
+
+        return $this;
+    }
+
+    protected function resetStates()
+    {
+        static::$state_AUTHORIZATION_PASSED  = false;
+        static::$state_AUTHORIZATION_SUCCESS = false;
+
+        return $this;
+    }
+
+    protected function resetMsg()
+    {
+        $this->msg = [];
+
+        return $this;
+    }
+    #endregion RESET
+    ##################################################
     #region States
     public function id()
     {
-        return $this->id;
+        return $this->USER->id;
     }
 
     public function hasRole($role)
@@ -287,7 +284,6 @@ class CurrentUser
         if (!is_numeric($id)) {
             $id = null;
         }
-        $this->id = $id;
 
         return $id;
     }
@@ -296,7 +292,7 @@ class CurrentUser
     {
         $token = null;
         if (empty($token)) {
-            $token = $this->token;
+            $token = $this->LOGIN->attributes->token;
         }
         if (empty($token)) {
             $token = AppCookie::get(static::KEY_USER_TOKEN);
@@ -307,7 +303,6 @@ class CurrentUser
         if (strlen($token) < 10) {
             $token = null;
         }
-        $this->token = $token;
 
         return $token;
     }
@@ -352,7 +347,7 @@ class CurrentUser
     public function attributes()
     {
         $res        = Obj::deepClone($this->USER->attributes);
-        $res->token = $this->token;
+        $res->token = $this->LOGIN->attributes->token;
         unset($res->password);
 
         return $res;

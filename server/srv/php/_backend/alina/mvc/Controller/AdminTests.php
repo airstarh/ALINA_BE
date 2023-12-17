@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Controller;
 
-use alina\AppExceptionCatcher;
 use alina\Mailer;
 use alina\Message;
 use alina\MessageAdmin;
@@ -17,14 +16,30 @@ use alina\Utils\Data;
 use alina\Utils\FS;
 use alina\Utils\Request;
 use alina\Utils\Sys;
-use Ratchet\Wamp\Exception;
-use \Illuminate\Database\Capsule\Manager as Dal;
 
 class AdminTests
 {
     public function __construct()
     {
         AlinaRejectIfNotAdmin();
+    }
+
+    public function actionFast()
+    {
+        $vd = [];
+        ##################################################
+        $var = '<p>102.285</p>';
+        $var = '102.285';
+        $vd[] = empty($var);
+        $vd[] = $var == 0;
+        $vd[] = 0 == $var;
+        @$vd[] = 1 * $var == $var;
+        @$vd[] = 1 * $var;
+        $vd[] = is_numeric($var);
+        $vd[] = 10/7;
+        ##################################################
+        ##################################################
+        echo (new html)->page($vd);
     }
 
     ##############################################
@@ -35,8 +50,8 @@ class AdminTests
         $vd   = [];
         $m    = new \alina\mvc\Model\tale();
         $vd[] = $m->getChainOfParents(405);
-        $vd[] = $m->getChainOfParents(387);
-        $vd[] = $m->getChainOfParents(367);
+        $vd[] = $m->getChainOfParents(1008);
+        $vd[] = $m->getChainOfParents(1009);
         echo (new html)->page($vd);
     }
 
@@ -138,14 +153,16 @@ class AdminTests
         $offset     = 2;
         $m          = new user();
         $conditions = [
-            [function ($qu) {
-                $qu->whereIn('user.id', [2, 3]);
-            }],
+            [
+                function ($qu) {
+                    $qu->whereIn('user.id', [2, 3]);
+                },
+            ],
             'firstname' => 'Третий',
         ];
         $orderArray = [["{$m->alias}.id", 'DESC']];
-        $limit      = NULL;
-        $offset     = NULL;
+        $limit      = null;
+        $offset     = null;
         $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
         echo '<pre>';
         print_r($m->collection->toArray());
@@ -227,8 +244,8 @@ class AdminTests
         $html = 1234;
         ##################################################
         $HTML5DOMDocument                     = new \IvoPetkov\HTML5DOMDocument();
-        $HTML5DOMDocument->preserveWhiteSpace = TRUE;
-        $HTML5DOMDocument->formatOutput       = FALSE;
+        $HTML5DOMDocument->preserveWhiteSpace = true;
+        $HTML5DOMDocument->formatOutput       = false;
         $HTML5DOMDocument->loadHTML($html);
         ##################################################
         $DOMXpath = new \DOMXpath($HTML5DOMDocument);

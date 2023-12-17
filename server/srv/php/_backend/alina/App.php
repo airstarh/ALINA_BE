@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\router_alias;
 use alina\Utils\Sys;
 use alina\Utils\Url;
@@ -22,6 +23,8 @@ class App
         set_exception_handler([\alina\AppExceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\AppExceptionCatcher::obj(), 'error']);
         #####
+        CurrentUser::obj();
+        #####
         AlinaResponseSuccess(1);
         #####
         Sys::setCrossDomainHeaders();
@@ -29,6 +32,7 @@ class App
         Message::fromRequest();
         MessageAdmin::fromRequest();
         #####
+
     }
 
     protected function autoload($config)

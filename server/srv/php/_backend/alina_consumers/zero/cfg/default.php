@@ -3,7 +3,7 @@ return [
     'appNamespace'  => 'zero',
     'title'         => 'ZERO',
     'description'   => 'OREZ',
-    'logVisitsToDb' => false,
+    'logVisitsToDb' => true,
     'db'            => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
     'mvc'           => [
         'defaultController'      => 'Main',

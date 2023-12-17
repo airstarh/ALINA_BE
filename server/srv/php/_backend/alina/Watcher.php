@@ -41,7 +41,7 @@ class Watcher
     protected        $mBROWSER;
     protected        $mURL_PATH;
     protected        $mVISIT;
-    protected static $state_VISIT_LOGGED = FALSE;
+    protected static $state_VISIT_LOGGED = false;
 
     public function logVisitsToDb()
     {
@@ -63,7 +63,7 @@ class Watcher
                 ##################################################
                 $this->mVISIT->insert([]);
                 #####
-                static::$state_VISIT_LOGGED = TRUE;
+                static::$state_VISIT_LOGGED = true;
             }
         }
 
@@ -82,7 +82,7 @@ class Watcher
         if ($per10secs > $maxPer10secs) {
             $this->banVisit();
             $msg = 'Are you trying to DDOS me?';
-            AlinaReject(FALSE, 403, $msg);
+            AlinaReject(false, 403, $msg);
             exit;
         }
     }
@@ -98,10 +98,11 @@ class Watcher
             ->where([
                 'ip' => Request::obj()->IP,
             ])
-            ->first();
+            ->first()
+        ;
         if ($res) {
             $msg = 'Your IP is banned';
-            AlinaReject(FALSE, 403, $msg);
+            AlinaReject(false, 403, $msg);
             exit;
         }
     }
@@ -117,10 +118,11 @@ class Watcher
             ->where([
                 'enc' => Request::obj()->BROWSER_enc,
             ])
-            ->first();
+            ->first()
+        ;
         if ($res) {
             $msg = 'Your browser is banned';
-            AlinaReject(FALSE, 403, $msg);
+            AlinaReject(false, 403, $msg);
             exit;
         }
     }
@@ -137,10 +139,11 @@ class Watcher
                 'ip'          => Request::obj()->IP,
                 'browser_enc' => Request::obj()->BROWSER_enc,
             ])
-            ->first();
+            ->first()
+        ;
         if ($res) {
             $msg = 'You are completely banned';
-            AlinaReject(FALSE, 403, $msg);
+            AlinaReject(false, 403, $msg);
             exit;
         }
     }
@@ -169,7 +172,7 @@ class Watcher
         ) {
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
-            AlinaReject(FALSE, 403, $msg);
+            AlinaReject(false, 403, $msg);
             exit;
         }
     }
@@ -180,7 +183,7 @@ class Watcher
             if (Request::obj()->tryHeader('fgp', $fgp)) {
                 if (empty($fgp)) {
                     (new error_log())->insert(['error_text' => 'Suspicious request. Empty fgp',]);
-                    AlinaReject(NULL, 403);
+                    AlinaReject(null, 403);
                     exit;
                 }
                 if ($fgp !== Request::obj()->BROWSER) {
@@ -207,14 +210,15 @@ class Watcher
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
             ->limit($maxPossible + 100)
-            ->count();
+            ->count()
+        ;
 
         return $res;
     }
     #endregion Utils
     ##################################################
     #region Ban
-    public function banIp($ip = NULL, $reason = 'spam')
+    public function banIp($ip = null, $reason = 'spam')
     {
         if (empty($ip)) {
             $ip = Request::obj()->IP;
@@ -225,7 +229,7 @@ class Watcher
         ]);
     }
 
-    public function banBrowser($browser_enc = NULL, $reason = 'spam')
+    public function banBrowser($browser_enc = null, $reason = 'spam')
     {
         if (empty($browser_enc)) {
             $browser_enc = Request::obj()->BROWSER_enc;
@@ -236,7 +240,7 @@ class Watcher
         ]);
     }
 
-    public function banVisit($ip = NULL, $browser_enc = NULL, $reason = 'spam')
+    public function banVisit($ip = null, $browser_enc = null, $reason = 'spam')
     {
         if (empty($ip)) {
             $ip = Request::obj()->IP;

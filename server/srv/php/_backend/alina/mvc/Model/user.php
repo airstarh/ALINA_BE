@@ -32,7 +32,7 @@ class user extends _BaseAlinaModel
                 'validators' => [
                     [
                         'f'       => 'strlen',
-                        'errorIf' => [FALSE, 0],
+                        'errorIf' => [false, 0],
                         'msg'     => 'Email is required!',
                     ],
                     [
@@ -41,7 +41,7 @@ class user extends _BaseAlinaModel
                             function ($v) {
                                 return filter_var($v, FILTER_VALIDATE_EMAIL);
                             },
-                        'errorIf' => [FALSE, 0],
+                        'errorIf' => [false, 0],
                         'msg'     => 'Invalid Email Address!',
                     ],
                 ],
@@ -56,7 +56,7 @@ class user extends _BaseAlinaModel
                     [
                         // 'f' - Could be a closure, string with function name or an array
                         'f'       => 'strlen',
-                        'errorIf' => [FALSE, 0],
+                        'errorIf' => [false, 0],
                         'msg'     => 'Password cannot be empty',
                     ],
                     [
@@ -64,7 +64,7 @@ class user extends _BaseAlinaModel
                         'f'       => function ($v) {
                             return Str::lessThan($v, 8);
                         },
-                        'errorIf' => [TRUE],
+                        'errorIf' => [true],
                         'msg'     => 'Password length cannot be less than 8 symbols',
                     ],
                 ],
@@ -151,7 +151,7 @@ class user extends _BaseAlinaModel
         return [
             'rbac_user_role'  => [
                 'has'        => 'manyThrough',
-                'multiple'   => TRUE,
+                'multiple'   => true,
                 ##############################
                 # for Edit Form
                 'apply'      => [
@@ -193,7 +193,7 @@ class user extends _BaseAlinaModel
             ],
             'timezone'        => [
                 'has'        => 'one',
-                'multiple'   => FALSE,
+                'multiple'   => false,
                 ##############################
                 # for Apply dependencies
                 'apply'      => [
@@ -353,12 +353,12 @@ class user extends _BaseAlinaModel
             $roles = $this->attributes->rbac_user_role;
             foreach ($roles as $r) {
                 if (strtoupper($r->name) === strtoupper($role)) {
-                    return TRUE;
+                    return true;
                 }
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     public function hasPerm($perm)
@@ -374,12 +374,12 @@ class user extends _BaseAlinaModel
             $perms = $this->attributes->rbac_permission;
             foreach ($perms as $p) {
                 if (strtoupper($p->name) === strtoupper($perm)) {
-                    return TRUE;
+                    return true;
                 }
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     #endregion RBAC
