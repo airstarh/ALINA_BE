@@ -283,7 +283,7 @@ class CurrentUser
     #endregion RESET
     ##################################################
     #region States
-    public function id()
+    public static function id()
     {
         return static::$USER->id;
     }
@@ -306,11 +306,6 @@ class CurrentUser
         }
 
         return $res;
-    }
-
-    public function ownsId($id)
-    {
-        return $this->isLoggedIn() && $this->id() === $id;
     }
 
     public function hasRole($role)

@@ -36,7 +36,7 @@ class Notification
     public function actionMarkAsShownEarlierThan($timestamp)
     {
         $CU         = CurrentUser::obj();
-        $cuId       = $CU->id();
+        $cuId       = CurrentUser::id();
         $data       = (object)[
             'is_shown' => '1',
         ];
@@ -48,7 +48,7 @@ class Notification
         echo (new htmlAlias)->page([]);
     }
 
-    public function actionDelete($id = NULL)
+    public function actionDelete($id = null)
     {
         $affectedRows = 0;
         if (Request::isPostPutDelete($post)) {
