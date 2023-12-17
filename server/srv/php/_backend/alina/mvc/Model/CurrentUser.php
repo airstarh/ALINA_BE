@@ -17,11 +17,10 @@ class CurrentUser
 
     const KEY_USER_ID    = 'uid';
     const KEY_USER_TOKEN = 'token';
-    /**@var user */
-    protected user   $USER;
-    protected login  $LOGIN;
-    protected string $device_ip;
-    protected string $device_browser_enc;
+    static protected user $USER;
+    protected login       $LOGIN;
+    protected string      $device_ip;
+    protected string      $device_browser_enc;
     ##################################################
     static protected bool $state_AUTHORIZATION_PASSED  = false;
     static protected bool $state_AUTHORIZATION_SUCCESS = false;
@@ -33,7 +32,7 @@ class CurrentUser
         $this->reset();
         $this->authorize();
         if (static::$state_AUTHORIZATION_SUCCESS) {
-            $this->upsertLogin($this->USER->id);
+            $this->upsertLogin(static::$USER->id);
         }
     }
     #endregion SingleTon
@@ -83,14 +82,14 @@ class CurrentUser
     protected function loginProcess($conditions)
     {
         $this->reset();
-        $this->USER->getOneWithReferences($conditions);
-        if ($this->USER->id) {
-            $this->upsertLogin($this->USER->id);
+        static::$USER->getOneWithReferences($conditions);
+        if (static::$USER->id) {
+            $this->upsertLogin(static::$USER->id);
             return true;
         }
 
         # validate
-        if (empty($this->USER->id)) {
+        if (empty(static::$USER->id)) {
             $this->msg[] = 'Incorrect credentials';
         }
 
@@ -112,10 +111,12 @@ class CurrentUser
             ['expires_at', '>', ALINA_TIME],
         ]);
         if ($this->LOGIN->id) {
-            $this->USER->getOneWithReferences([
-                "{$this->USER->alias}.{$this->USER->pkName}" => $userId,
+            $uId = static::$USER->alias;
+            $uPk = static::$USER->pkName;
+            static::$USER->getOneWithReferences([
+                "{$uId}.{$uPk}" => $userId,
             ]);
-            if ($this->USER->id) {
+            if (static::$USER->id) {
                 return true;
             }
         }
@@ -127,7 +128,7 @@ class CurrentUser
     {
         $id = null;
         if (empty($id)) {
-            $id = $this->USER->id;
+            $id = static::$USER->id;
         }
         if (empty($id)) {
             $id = AppCookie::get(static::KEY_USER_ID);
@@ -165,7 +166,7 @@ class CurrentUser
     {
         $data = $this->buildLoginData($uid);
         $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
-        $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
+        $this->setTokenOnClient(static::$USER->id, $this->LOGIN->attributes->token);
     }
 
     protected function setTokenOnClient($uid, $token)
@@ -224,7 +225,7 @@ class CurrentUser
     public function Register($vd)
     {
         $this->resetMsg();
-        $u               = $this->USER;
+        $u               = static::$USER;
         $vd->created_at  = ALINA_TIME;
         $vd->is_verified = 0;
         $vd->is_deleted  = 0;
@@ -259,8 +260,8 @@ class CurrentUser
 
     public function resetDiscoveredData()
     {
-        $this->USER  = new user();
-        $this->LOGIN = new login();
+        static::$USER = new user();
+        $this->LOGIN  = new login();
 
         return $this;
     }
@@ -284,12 +285,12 @@ class CurrentUser
     #region States
     public function id()
     {
-        return $this->USER->id;
+        return static::$USER->id;
     }
 
     public function attributes()
     {
-        $res        = Obj::deepClone($this->USER->attributes);
+        $res        = Obj::deepClone(static::$USER->attributes);
         $res->token = $this->LOGIN->attributes->token;
         unset($res->password);
 
@@ -299,7 +300,7 @@ class CurrentUser
 
     public function name()
     {
-        $res = $this->USER->attributes->mail;
+        $res = static::$USER->attributes->mail;
         if (empty($res)) {
             $res = 'Not Logged-in';
         }
@@ -315,7 +316,7 @@ class CurrentUser
     public function hasRole($role)
     {
         if ($this->isLoggedIn()) {
-            return $this->USER->hasRole($role);
+            return static::$USER->hasRole($role);
         }
 
         return false;
@@ -324,7 +325,7 @@ class CurrentUser
     public function hasPerm($perm)
     {
         if ($this->isLoggedIn()) {
-            return $this->USER->hasPerm($perm);
+            return static::$USER->hasPerm($perm);
         }
 
         return false;
@@ -383,7 +384,7 @@ class CurrentUser
         ) {
             return $this->LOGIN->attributes->token;
         }
-        $u           = $this->USER;
+        $u           = static::$USER;
         $ua          = $u->attributes;
         $tokenSource = [
             $ua->id,
