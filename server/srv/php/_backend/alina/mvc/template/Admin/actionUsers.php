@@ -38,7 +38,7 @@ $i = 0;
                         <?php if ($mUser->emblem) { ?>
                             <img src="<?= $mUser->emblem ?>" alt="" width="100">
                         <?php } else { ?>
-                            <img src="undefined" alt="NO AVATAR" width="100">
+                            <img src="undefined.png" alt="NO AVATAR" width="100">
                         <?php } ?>
                     </a>
                 </td>
