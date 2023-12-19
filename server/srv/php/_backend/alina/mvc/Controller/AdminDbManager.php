@@ -190,6 +190,15 @@ class AdminDbManager
             if (property_exists($p, 'owner_id')) {
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
             }
+
+            #####
+            #reguin FIXES
+            if ($m->table === 'user') {
+                unset($p->password);
+            }
+            #endreguin FIXES
+            #####
+
             $m->upsert($p);
             $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
         }
