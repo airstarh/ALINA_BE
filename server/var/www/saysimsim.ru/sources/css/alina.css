@@ -35,11 +35,17 @@ body {
     /*outline: 1px solid yellow;*/
 }
 
-.alina-vh-100 {min-height: 100vh;}
+.alina-vh-100 {
+    min-height: 100vh;
+}
 
-.alina-main-bg {background-color: var(--alina-main-bg) !important;}
+.alina-main-bg {
+    background-color: var(--alina-main-bg) !important;
+}
 
-.alina-main-txt, .alina-main-txt table {color: var(--alina-main-txt) !important;}
+.alina-main-txt, .alina-main-txt table {
+    color: var(--alina-main-txt) !important;
+}
 
 /*endregion FUNDAMENTAL */
 /*##################################################*/
@@ -138,25 +144,39 @@ https://the-echoplex.net/flexyboxes/
     margin-bottom: 1px;
 }
 
+.form-control
+, .form-control:focus
+{
+    background-color: #000;
+    color: #fff;
+}
+
 select[multiple] option {
-    padding: 0 5px;
+    padding: 5px;
     margin: 3px 0;
 }
 
 select[multiple] option:checked {
     display: block;
-    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient)); color: white;
+    background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
+    color: white;
     border-radius: 25px;
 }
 
 /*endregion Form*/
 /*##################################################*/
 /*region UTILS*/
-.cursor-pointer {cursor: pointer;}
+.cursor-pointer {
+    cursor: pointer;
+}
 
-.vh-almost-100 {min-height: 90vh;}
+.vh-almost-100 {
+    min-height: 90vh;
+}
 
-.bg-black {background-color: black;}
+.bg-black {
+    background-color: black;
+}
 
 .fixed-height-100px {
     overflow: hidden;
@@ -168,7 +188,9 @@ select[multiple] option:checked {
     max-height: 150px;
 }
 
-.text-white table {color: white;}
+.text-white table {
+    color: white;
+}
 
 .alina-tale-header a,
 .alina-tale-header a:hover,
@@ -332,13 +354,21 @@ body {border: gray solid 10px;}
     outline: 1px solid red;
 }*/
 
-.db-1 {outline: red solid 5px}
+.db-1 {
+    outline: red solid 5px
+}
 
-.db-2 {outline: green solid 5px}
+.db-2 {
+    outline: green solid 5px
+}
 
-.db-3 {outline: blue solid 5px}
+.db-3 {
+    outline: blue solid 5px
+}
 
-.db-4 {outline: purple solid 5px}
+.db-4 {
+    outline: purple solid 5px
+}
 
 /*endregion DEVELOPER BLOCK*/
 /* ################################################## */
