@@ -163,6 +163,11 @@ select option:checked {
     border-radius: 25px;
 }
 
+.list-group-item-dark {
+    color: #ebebeb;
+    background-color: #1b1e21;
+    padding: 1px 5px;
+}
 /*endregion Form*/
 /*##################################################*/
 /*region UTILS*/
