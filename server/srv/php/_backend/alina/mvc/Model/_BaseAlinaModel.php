@@ -65,15 +65,15 @@ class _BaseAlinaModel
     ##################################################
     #region Flags, CHeck-Points
     private $mode                        = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public  $state_DATA_FILTERED         = FALSE;
-    public  $state_DATA_VALIDATED        = FALSE;
+    public  $state_DATA_FILTERED         = false;
+    public  $state_DATA_VALIDATED        = false;
     public  $state_AFFECTED_ROWS         = null;
-    public  $state_EXCLUDE_COUNT_REQUEST = FALSE;
+    public  $state_EXCLUDE_COUNT_REQUEST = false;
     public  $matchedUniqueFields         = [];
     public  $matchedConditions           = [];
-    public  $addAuditInfo                = FALSE;
-    public  $flagAuditInfoLog            = FALSE;
-    public  $state_APPLY_GET_PARAMS      = FALSE;
+    public  $addAuditInfo                = false;
+    public  $flagAuditInfoLog            = false;
+    public  $state_APPLY_GET_PARAMS      = false;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -113,7 +113,7 @@ class _BaseAlinaModel
 
     public function getOne($conditions = [])
     {
-        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $this->state_EXCLUDE_COUNT_REQUEST = true;
         $data                              = $this->q()->where($conditions)->first();
         if (empty($data)) {
             $data = (object)[];
@@ -122,7 +122,7 @@ class _BaseAlinaModel
         if ($this->attributes->{$this->pkName}) {
             $this->setPkValue($this->attributes->{$this->pkName});
         }
-        $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
+        $this->state_EXCLUDE_COUNT_REQUEST = false;
 
         return $this->attributes;
     }
@@ -190,7 +190,7 @@ class _BaseAlinaModel
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     ###############
@@ -217,13 +217,13 @@ class _BaseAlinaModel
         return $q;
     }
 
-    public function getAllWithReferencesPart2($backendSortArray = null, $pageSize = null, $pageCurrentNumber = null, $paginationVersa = FALSE)
+    public function getAllWithReferencesPart2($backendSortArray = null, $pageSize = null, $pageCurrentNumber = null, $paginationVersa = false)
     {
         $q = $this->q;
         //COUNT
         if ($this->state_EXCLUDE_COUNT_REQUEST) {
             $this->state_ROWS_TOTAL            = 1;
-            $this->state_EXCLUDE_COUNT_REQUEST = FALSE;
+            $this->state_EXCLUDE_COUNT_REQUEST = false;
         } else {
             $this->state_ROWS_TOTAL = $q->count();
         }
@@ -239,7 +239,7 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
-    public function getAllWithReferences($conditions = [], $backendSortArray = null, $pageSize = null, $pgeCurrentNumber = null, $paginationVersa = FALSE)
+    public function getAllWithReferences($conditions = [], $backendSortArray = null, $pageSize = null, $pgeCurrentNumber = null, $paginationVersa = false)
     {
         /** @var $q BuilderAlias object */
         $q   = $this->getAllWithReferencesPart1($conditions);
@@ -250,7 +250,7 @@ class _BaseAlinaModel
 
     public function getOneWithReferences($conditions = [])
     {
-        $this->state_EXCLUDE_COUNT_REQUEST = TRUE;
+        $this->state_EXCLUDE_COUNT_REQUEST = true;
         $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
         if (empty($attributes)) {
             $attributes = (object)[];
@@ -537,7 +537,7 @@ class _BaseAlinaModel
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
-    protected function qApiLimitOffset($backendLimit = null, $backendPageCurrentNumber = null, $backendVersa = FALSE): BuilderAlias
+    protected function qApiLimitOffset($backendLimit = null, $backendPageCurrentNumber = null, $backendVersa = false): BuilderAlias
     {
         #####
         if ($backendLimit !== null) {
@@ -667,7 +667,7 @@ class _BaseAlinaModel
         }
         Data::filterObject($data, $filters);
         #####
-        $this->state_DATA_FILTERED = TRUE;
+        $this->state_DATA_FILTERED = true;
 
         return $this;
     }
@@ -688,7 +688,7 @@ class _BaseAlinaModel
         }
         Data::validateObject($data, $validators);
         $this->validateUniqueKeys($data);
-        $this->state_DATA_VALIDATED = TRUE;
+        $this->state_DATA_VALIDATED = true;
 
         return $this;
     }
@@ -761,8 +761,8 @@ class _BaseAlinaModel
     protected function resetFlags()
     {
         $this->mode                 = self::MODE_SELECT;
-        $this->state_DATA_FILTERED  = FALSE;
-        $this->state_DATA_VALIDATED = FALSE;
+        $this->state_DATA_FILTERED  = false;
+        $this->state_DATA_VALIDATED = false;
         $this->matchedUniqueFields  = [];
         $this->matchedConditions    = [];
     }
@@ -936,6 +936,7 @@ class _BaseAlinaModel
                      ->select('COLUMN_NAME')
                      ->where('table_name', '=', $this->table)
                      ->where('table_schema', '=', AlinaCfg('db/database'))
+                     ->orderBy('ORDINAL_POSITION', 'ASC')
                      ->pluck('COLUMN_NAME')
         ;
         foreach ($items as $v) {
@@ -1080,7 +1081,7 @@ class _BaseAlinaModel
             return $this->attributes->{$f};
         }
 
-        return FALSE;
+        return false;
     }
 
     protected function setPkValue($id, \stdClass $data = null)
@@ -1196,7 +1197,7 @@ class _BaseAlinaModel
                         [
                             // 'f' - Could be a closure, string with function name or an array
                             'f'       => 'strlen',
-                            'errorIf' => [FALSE, 0],
+                            'errorIf' => [false, 0],
                             'msg'     => 'Please, fill Name',
                         ],
                     ],
