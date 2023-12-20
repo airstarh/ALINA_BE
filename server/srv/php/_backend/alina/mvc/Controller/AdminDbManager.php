@@ -198,6 +198,7 @@ class AdminDbManager
 
             #####
             #reguin FIXES
+            unset($p->form_id);
             if ($m->table === 'user') {
                 unset($p->password);
             }

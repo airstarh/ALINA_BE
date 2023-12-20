@@ -40,7 +40,7 @@ $sources = $data->sources;
                 <ul class="list-group">
                     <?php foreach ($v as $i => $d) { ?>
                         <li class="list-group-item-dark d-flex justify-content-between align-items-center">
-                            (<?= $i ?>) <?= Data::stringify($d) ?>
+                            <?= Data::stringify($d) ?>
                         </li>
                     <?php } ?>
                 </ul>
