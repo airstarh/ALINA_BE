@@ -10,7 +10,7 @@ $sources = $data->sources;
 
 ?>
 <h1 class="mt-3">Edit <?= $table ?> (<?= $model->{$pkName} ?>)</h1>
-<div class="notranslate ck ck-content p-5">
+<div class="notranslate">
     <?= htmlAlias::elForm((object)[
         'action'  => '',
         'enctype' => 'multipart/form-data',

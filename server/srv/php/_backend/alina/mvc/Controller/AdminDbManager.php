@@ -179,11 +179,14 @@ class AdminDbManager
 
     public function actionEditRow($table, $id, $flagReturn = false)
     {
-        $vd = (object)[];
-        $m  = modelNamesResolver::getModelObject($table);
+        $newId          = null;
+        $flagModelIsNew = false;
+        $vd             = (object)[];
+        $m              = modelNamesResolver::getModelObject($table);
         if ($id && $id != 'new') {
             $m->getOneWithReferences([["{$m->alias}.{$m->pkName}", '=', $id]]);
         } else {
+            $flagModelIsNew = true;
             $m->buildDefaultData();
         }
 
@@ -207,11 +210,15 @@ class AdminDbManager
 
             $m->upsert($p);
             $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
+            $newId = $m->id;
         }
         ##################################################
         if ($flagReturn) {
             return $vd;
         } else {
+            if ($flagModelIsNew && $newId) {
+                Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
+            }
             echo (new htmlAlias)->page($vd);
         }
     }

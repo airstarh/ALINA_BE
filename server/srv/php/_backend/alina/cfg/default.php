@@ -68,7 +68,7 @@ return [
             'https://saysimsim.ru/sources/css/ckeditor-theme.css',
             // Alina
             '/sources/css/alina-vars.css',
-            'https://saysimsim.ru/sources/css/alina.css',
+            '/sources/css/alina.css',
             '/sources/css/alina-app-specific.css',
         ],
         'js'   => [
