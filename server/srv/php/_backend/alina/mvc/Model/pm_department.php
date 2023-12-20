@@ -42,9 +42,9 @@ class pm_department extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'manager.firstname AS manager_firstname',
-                            'manager.lastname AS manager_lastname',
-                            'manager.emblem AS manager_emblem',
+                            'manager.firstname AS _manager_firstname',
+                            'manager.lastname AS _manager_lastname',
+                            'manager.emblem AS _manager_emblem',
                         ],
                     ],
                 ],
@@ -71,7 +71,7 @@ class pm_department extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'pm_organization.name_human AS pm_organization_name_human',
+                            'pm_organization.name_human AS _pm_organization_name_human',
                         ],
                     ],
                 ],
