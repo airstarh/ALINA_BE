@@ -1,6 +1,8 @@
-SET @tableName = 'timezone';
-SET @dbName = 'alina';
-SELECT column_name
+SET @tableName = 'user';
+SET @dbName = 'home.zero';
+SELECT *
 FROM information_schema.columns
 WHERE table_name = @tableName
-      AND table_schema = @dbName
+  AND table_schema = @dbName
+ORDER BY ORDINAL_POSITION
+;
