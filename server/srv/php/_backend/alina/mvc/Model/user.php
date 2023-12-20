@@ -149,6 +149,7 @@ class user extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
+            ##### field #####
             'rbac_user_role'  => [
                 'has'        => 'manyThrough',
                 'multiple'   => true,
@@ -174,6 +175,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
+            ##### field #####
             'rbac_permission' => [
                 'has'        => 'manyThrough',
                 ##############################
@@ -191,6 +193,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
+            ##### field #####
             'timezone'        => [
                 'has'        => 'one',
                 'multiple'   => false,
@@ -212,6 +215,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['timezone.name AS timezone_name']],
                 ],
             ],
+            ##### field #####
             'file'            => [
                 'has'        => 'many',
                 ##############################
@@ -226,6 +230,7 @@ class user extends _BaseAlinaModel
                     ['addSelect', ['child.*', 'child.id AS child_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
             ],
+            ##### field #####
             'tag'             => [
                 'has'        => 'manyThrough',
                 ##############################
@@ -244,11 +249,13 @@ class user extends _BaseAlinaModel
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
+            ##### field #####
             'about_myself'    => [
                 ##############################
                 # for Edit Form
                 'type' => 'textarea',
             ],
+            ##### field #####
         ];
     }
 
