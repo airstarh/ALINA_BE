@@ -12,12 +12,15 @@ $sources = $data->sources;
 
 ?>
 <form action="<?= $action ?>" method="post" enctype="<?= $enctype ?>">
+
     <?= htmlAlias::elFormStandardButtons([]) ?>
+
     <?php foreach ($model as $f => $v) { ?>
         <?php
         $_f = substr(strip_tags($f), 0, 200);
         $_v = substr(strip_tags(Data::stringify($v)), 0, 200);
         ?>
+
         <!--##################################################-->
         <!--region SELECT-->
         <?php if (array_key_exists($f, $sources) && array_key_exists('list', $sources[$f])) { ?>
@@ -29,6 +32,8 @@ $sources = $data->sources;
                 'placeholder' => '¯\_(ツ)_/¯',//$f,
             ]) ?>
             <!--endregion SELECT-->
+            <!--##################################################-->
+
             <!--##################################################-->
             <!--region Simple List-->
         <?php } elseif (Data::isIterable($v)) { ?>
@@ -47,16 +52,31 @@ $sources = $data->sources;
             </div>
             <!--endregion Simple List-->
             <!--##################################################-->
+
+            <!--##################################################-->
             <!--region Input Text-->
         <?php } else { ?>
             <?php
-            $type = (isset($sources[$f]) && array_key_exists('type', $sources[$f])) ? $sources[$f]['type'] : 'text';
+            $type = (isset($sources[$f]) && array_key_exists('type', $sources[$f]))
+                ? $sources[$f]['type']
+                : 'text';
+            if (\alina\Utils\Str::startsWith($_f, '_')) {
+                $type = 'readonly';
+            }
             ?>
+
             <?php if ($type === 'readonly') { ?>
-                <div>READ ONLY</div>
-                <?= $_f ?>
-                <br>
-                <?= $_v ?>
+                <div class="mt-3">&nbsp;</div>
+                <?= htmlAlias::elBootstrapBadge([
+                'title' => $_f,
+                'badge' => null,
+            ]) ?>
+                <ul class="list-group">
+                    <li class="list-group-item-dark d-flex justify-content-between align-items-center">
+                        <?= $_v ?>
+                    </li>
+                </ul>
+
             <?php } else { ?>
                 <?= htmlAlias::elFormInputText([
                     'type'        => $type,
