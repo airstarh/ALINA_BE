@@ -720,7 +720,7 @@ class _BaseAlinaModel
      * @param \stdClass $data
      * @return array
      */
-    protected function restrictIdentityAutoincrementReadOnlyFields($data)
+    private function restrictIdentityAutoincrementReadOnlyFields($data)
     {
         $dataArray = [];
         $fields    = $this->fields();
@@ -771,7 +771,7 @@ class _BaseAlinaModel
      * Creates $defaultRawObj with default values for DB.
      * @return \stdClass object $defaultRawObj.
      */
-    protected function buildDefaultData()
+    public function buildDefaultData()
     {
         $fields        = $this->fields();
         $defaultRawObj = new \stdClass();

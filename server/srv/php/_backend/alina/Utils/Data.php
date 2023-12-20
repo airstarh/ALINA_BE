@@ -510,7 +510,7 @@ class Data
     {
         $res = json_encode($data, JSON_UNESCAPED_UNICODE);
         $res = str_replace('"', '', $res);
-        $res = str_replace(',', ' ', $res);
+        $res = str_replace(',', ' | ', $res);
         $res = str_replace('{', '', $res);
         $res = str_replace('}', '', $res);
         $res = str_replace(':', ': ', $res);

@@ -65,10 +65,12 @@ $_value_keys = array_keys($_value);
     >
         <option value=""><?= $placeholder ?></option>
         <?php foreach ($_options as $i => $v) { ?>
+            <option value="" style="font-size:10px;" disabled>&nbsp;</option>
             <option
                     value="<?= $i ?>"
                 <?= in_array($i, $_value_keys) ? 'selected' : '' ?>
-            >(<?= $i ?>) <?= $v ?></option>
+            ><?= $v ?></option>
+
         <?php } ?>
     </select>
 </div>

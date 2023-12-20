@@ -21,7 +21,7 @@ class AdminDbManager
 
     /**
      * @route /AdminDbManager/DbTablesColumnsInfo
-     * @file _backend/alina/mvc/template/AdminDbManager/actionDbTablesColumnsInfo.php
+     * @file  _backend/alina/mvc/template/AdminDbManager/actionDbTablesColumnsInfo.php
      */
     public function actionDbTablesColumnsInfo()
     {
@@ -162,13 +162,13 @@ class AdminDbManager
         }
         ########################################
         #region Models
-        $model->state_APPLY_GET_PARAMS  = TRUE;
+        $model->state_APPLY_GET_PARAMS  = true;
         $processResponse                = $this->processGetModelList($model);
         $collection                     = $processResponse['collection'];
         $pagination                     = $processResponse['pagination'];
         $vd->pagination                 = $pagination;
         $vd->pagination->path           = "/admin/models/{$model->table}";
-        $vd->pagination->flagHrefAsPath = FALSE;
+        $vd->pagination->flagHrefAsPath = false;
         $vd->model                      = $model;
         $vd->models                     = $collection->toArray();
         $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
@@ -177,11 +177,16 @@ class AdminDbManager
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
-    public function actionEditRow($table, $id, $flagReturn = FALSE)
+    public function actionEditRow($table, $id, $flagReturn = false)
     {
         $vd = (object)[];
         $m  = modelNamesResolver::getModelObject($table);
-        $m->getOneWithReferences([["{$m->alias}.{$m->pkName}", '=', $id]]);
+        if ($id && $id != 'new') {
+            $m->getOneWithReferences([["{$m->alias}.{$m->pkName}", '=', $id]]);
+        } else {
+            $m->buildDefaultData();
+        }
+
         $vd->model   = $m;
         $vd->sources = $m->getReferencesSources();
         ##################################################
