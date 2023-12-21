@@ -7,6 +7,7 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
+use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
@@ -28,17 +29,11 @@ class AdminTests
     {
         $vd = [];
         ##################################################
-        $var = '<p>102.285</p>';
-        $var = '102.285';
-        $vd[] = empty($var);
-        $vd[] = $var == 0;
-        $vd[] = 0 == $var;
-        @$vd[] = 1 * $var == $var;
-        @$vd[] = 1 * $var;
-        $vd[] = is_numeric($var);
-        $vd[] = 10/7;
+        $pm_subtask = new pm_subtask();
+        $pm_subtask->getOneWithReferences([["$pm_subtask->alias.id", '=', 1]]);
+        $pm_subtask->getListOfParents();
         ##################################################
-        ##################################################
+        $vd = $pm_subtask->attributes;
         echo (new html)->page($vd);
     }
 

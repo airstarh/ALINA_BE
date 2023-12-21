@@ -504,7 +504,7 @@ class Data
         $res = json_decode($res, true);
         if (is_array($res)) {
             $flattened_array = [];
-            array_walk_recursive($res, function($a) use (&$flattened_array) {
+            array_walk_recursive($res, function ($a) use (&$flattened_array) {
                 $flattened_array[] = $a;
             });
             //$res = (array)$res;
@@ -631,6 +631,13 @@ class Data
     ##################################################
     ##################################################
     #region Filter_Var
+    static public function smartTrim($v)
+    {
+        $v = trim($v);
+        if ($v === '') $v = null;
+        return $v;
+    }
+
     static public function filterObject(stdClass &$data, array $filters)
     {
         foreach ($data as $fName => $fValue) {

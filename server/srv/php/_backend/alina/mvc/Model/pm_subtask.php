@@ -4,7 +4,8 @@ namespace alina\mvc\Model;
 
 class pm_subtask extends _BaseAlinaModel
 {
-    public $table = 'pm_subtask';
+    public $table        = 'pm_subtask';
+    public $addAuditInfo = true;
 
     public function fields()
     {
@@ -27,7 +28,7 @@ class pm_subtask extends _BaseAlinaModel
     {
         return [
             ##### field ######
-            'manager_id'    => [
+            'manager_id'  => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -57,7 +58,7 @@ class pm_subtask extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'assignee_id'   => [
+            'assignee_id' => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -87,7 +88,7 @@ class pm_subtask extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'pm_task_id' => [
+            'pm_task_id'  => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -116,5 +117,27 @@ class pm_subtask extends _BaseAlinaModel
             ##### field ######
         ];
     }
+
     #####
+    public function getListOfParents()
+    {
+        $pm_subtask      = $this;
+        $pm_task         = new pm_task();
+        $pm_project      = new pm_project;
+        $pm_department   = new pm_department();
+        $pm_organization = new pm_organization();
+        $pm_work         = new pm_work();
+
+        $pm_task->getOneWithReferences([["$pm_task->alias.id", '=', $pm_subtask->attributes->pm_task_id]]);
+        $pm_project->getOneWithReferences([["$pm_project->alias.id", '=', $pm_task->attributes->pm_project_id]]);
+        $pm_department->getOneWithReferences([["$pm_department->alias.id", '=', $pm_project->attributes->pm_department_id]]);
+        $pm_organization->getOneWithReferences([["$pm_organization->alias.id", '=', $pm_department->attributes->pm_organization_id]]);
+
+        $this->attributes->pm_task         = $pm_task->attributes;
+        $this->attributes->pm_project      = $pm_project->attributes;
+        $this->attributes->pm_department   = $pm_department->attributes;
+        $this->attributes->pm_organization = $pm_organization->attributes;
+
+        return $this;
+    }
 }

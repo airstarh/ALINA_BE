@@ -8,7 +8,7 @@ use alina\Utils\Str;
 // echo '<pre>';
 // var_export($data, 0);
 // echo '</pre>';
-
+$disabled    = false;
 $type        = $data->type;
 $name        = $data->name;
 $value       = $data->value;
@@ -19,30 +19,40 @@ if ($name === 'password') {
     $value = '';
     $type  = 'password';
 }
+
+if ($name === 'id') {
+    $disabled = true;
+}
+
+//if ($name === 'created_at') {
+//    $value = '';
+//    $type  = 'date';
+//}
 ?>
 <div class="form-group mt-3">
     <label class="d-block">
-    <?= htmlAlias::elBootstrapBadge([
-        'title' => $_name,
-        'badge' => $_value,
-    ]) ?>
-    <?php if ($type === 'textarea') { ?>
-        <textarea
-                name="<?= $name ?>"
-                class="form-control"
-                rows="5"
-        ><?= $value ?></textarea>
-    <?php } else { ?>
-        <input
-                type="<?= $type ?>"
-                name="<?= $name ?>"
-                value="<?= $value ?>"
-                placeholder="<?= $placeholder ?>"
-                class="
-            <?= Str::ifContains($name, 'date') ? 'datepicker' : '' ?>
-            form-control
-            "
-        >
-    <?php } ?>
+        <?= htmlAlias::elBootstrapBadge([
+            'title' => $_name,
+            'badge' => $_value,
+        ]) ?>
+        <?php if ($type === 'textarea') { ?>
+            <textarea
+                    name="<?= $name ?>"
+                    class="form-control"
+                    rows="5"
+            ><?= $value ?></textarea>
+        <?php } else { ?>
+            <input
+                <?= $disabled ? 'disabled' : '' ?>
+                    type="<?= $type ?>"
+                    name="<?= $name ?>"
+                    value="<?= $value ?>"
+                    placeholder="<?= $placeholder ?>"
+                    class="
+                        <?= Str::ifContains($name, 'date') ? 'datepicker' : '' ?>
+                        form-control
+                    "
+            >
+        <?php } ?>
     </label>
 </div>
