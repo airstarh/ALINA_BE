@@ -20,6 +20,13 @@ $sources = $data->sources;
         class="btn btn-primary"
 >Create New</a>
 
+<?php if ($model->id): ?>
+    <a
+            href="/admindbmanager/delete/<?= $data->model->table ?>/<?= $model->id ?>"
+            class="btn btn-danger"
+    >Delete</a>
+<?php endif ?>
+
 <div class="notranslate">
     <?= htmlAlias::elForm((object)[
         'action'  => '',

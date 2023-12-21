@@ -144,7 +144,7 @@ class AdminDbManager
         $vd    = (object)[];
         $model = modelNamesResolver::getModelObject($model);
         ########################################
-        if (Request::isPost()) {
+        if (Request::isPostPutDelete()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
             switch ($post->action) {
                 case 'update':
@@ -152,11 +152,7 @@ class AdminDbManager
                     break;
                 case 'delete':
                     $id = $model->{$model->pkName};
-                    if (method_exists($model, 'bizDelete')) {
-                        $model->bizDelete($id);
-                    } else {
-                        $model->deleteById($id);
-                    }
+                    $model->smartDeleteById($id);
                     break;
             }
         }
@@ -240,5 +236,12 @@ class AdminDbManager
             $p->list[$i] = $this->actionUpdate($table, $m->id, $m);
         }
         echo (new htmlAlias)->page($p);
+    }
+
+    public function actionDelete($table, $id)
+    {
+        $m = modelNamesResolver::getModelObject($table);
+        $m->smartDeleteById($id);
+        Sys::redirect("/admindbmanager/models/$table", 303);
     }
 }

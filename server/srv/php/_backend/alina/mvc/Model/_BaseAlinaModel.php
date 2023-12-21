@@ -431,6 +431,10 @@ class _BaseAlinaModel
 
     public function smartDeleteById($id, $additionalData = null)
     {
+        if (method_exists($this, 'bizDelete')) {
+            $this->bizDelete($id);
+            return true;
+        }
         if ($this->tableHasField('is_deleted') || (isset($additionalData) && !empty($additionalData))) {
             $pkName = $this->pkName;
             $data   = (isset($additionalData) && !empty($additionalData))
@@ -442,10 +446,12 @@ class _BaseAlinaModel
             $data->{$pkName}  = $id;
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
+            return true;
         } else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
+            return true;
         }
     }
     #endregion DELETE
