@@ -11,10 +11,11 @@ class pm_subtask extends _BaseAlinaModel
         return [
             'id'             => [],
             'name_human'     => [],
-            'time_estimated' => [],
-            'price'          => [],
             'manager_id'     => [],
             'assignee_id'    => [],
+            'pm_task_id'     => [],
+            'time_estimated' => [],
+            'price'          => [],
             'created_at'     => [],
             'completed_at'   => [],
             'status'         => [],
@@ -26,8 +27,19 @@ class pm_subtask extends _BaseAlinaModel
     {
         return [
             ##### field ######
-            'manager' => [
+            'manager_id'    => [
                 'has'        => 'one',
+                'multiple'   => false,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'user',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['firstname', 'lastname', 'mail'],
+                    'masterChildPk'  => 'manager_id',
+                ],
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
                 ],
@@ -36,9 +48,67 @@ class pm_subtask extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'manager.firstname AS manager_firstname',
-                            'manager.lastname AS manager_lastname',
-                            'manager.emblem AS manager_emblem',
+                            'manager.firstname AS _manager_firstname',
+                            'manager.lastname AS _manager_lastname',
+                            'manager.mail AS _manager_mail',
+                            'manager.emblem AS _manager_emblem',
+                        ],
+                    ],
+                ],
+            ],
+            ##### field ######
+            'assignee_id'   => [
+                'has'        => 'one',
+                'multiple'   => false,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'user',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['firstname', 'lastname', 'mail'],
+                    'masterChildPk'  => 'manager_id',
+                ],
+                ##############################
+                # for Select With References
+                'joins'      => [
+                    ['leftJoin', 'user AS assignee', 'assignee.id', '=', "{$this->alias}.assignee_id"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    [
+                        'addSelect',
+                        [
+                            'assignee.firstname AS _assignee_firstname',
+                            'assignee.lastname AS _assignee_lastname',
+                            'assignee.mail AS _assignee_mail',
+                            'assignee.emblem AS _assignee_emblem',
+                        ],
+                    ],
+                ],
+            ],
+            ##### field ######
+            'pm_task_id' => [
+                'has'        => 'one',
+                'multiple'   => false,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'pm_task',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['name_human'],
+                    'masterChildPk'  => 'pm_task_id',
+                ],
+                ##############################
+                # for Select With References
+                'joins'      => [
+                    ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    [
+                        'addSelect',
+                        [
+                            'pm_task.name_human AS _pm_task_name_human',
                         ],
                     ],
                 ],
