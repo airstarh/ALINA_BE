@@ -21,7 +21,7 @@ if ($name === 'password') {
 }
 
 if ($name === 'id') {
-    $disabled = true;
+    $type = 'hidden';
 }
 
 //if ($name === 'created_at') {
