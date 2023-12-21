@@ -37,6 +37,7 @@ if ($name === 'id') {
         ]) ?>
         <?php if ($type === 'textarea') { ?>
             <textarea
+                    <?= $disabled ? 'disabled' : '' ?>
                     name="<?= $name ?>"
                     class="form-control"
                     rows="5"
