@@ -150,7 +150,7 @@ class user extends _BaseAlinaModel
     {
         return [
             ##### field #####
-            'rbac_user_role'  => [
+            'rbac_user_role'   => [
                 'has'        => 'manyThrough',
                 'multiple'   => true,
                 ##############################
@@ -203,7 +203,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'timezone'        => [
+            'timezone'         => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -225,7 +225,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'file'            => [
+            'file'             => [
                 'has'        => 'many',
                 ##############################
                 # for Select With References
@@ -240,7 +240,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'tag'             => [
+            'tag'              => [
                 'has'        => 'manyThrough',
                 ##############################
                 # for Select With References
@@ -259,7 +259,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'about_myself'    => [
+            'about_myself'     => [
                 ##############################
                 # for Edit Form
                 'type' => 'textarea',
@@ -289,7 +289,9 @@ class user extends _BaseAlinaModel
         _baseAlinaEloquentTransaction::begin();
         $refCfg = $this->referencesTo();
         foreach ($refCfg as $refName => $cfg) {
-            if (isset($cfg['multiple']) && $cfg['multiple']) {
+            if (
+                (isset($cfg['has']) && $cfg['has'] === 'manyThrough')
+            ) {
                 if (isset($cfg['apply'])) {
                     if (isset($data->{$refName}) && !empty($data->{$refName})) {
                         ####################
