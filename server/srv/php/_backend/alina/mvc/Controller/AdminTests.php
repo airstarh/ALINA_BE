@@ -7,6 +7,7 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
+use alina\mvc\Model\pm_organization;
 use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
@@ -26,6 +27,18 @@ class AdminTests
     }
 
     public function actionFast()
+    {
+        $vd = [];
+        ##################################################
+        $m = new pm_organization();
+        $m->getOneWithReferences([["$m->alias.id", '=', 1]]);
+        //$pm_subtask->getListOfParents();
+        ##################################################
+        $vd = $m->attributes;
+        echo (new html)->page($vd);
+    }
+
+    public function actionFast_1()
     {
         $vd = [];
         ##################################################
