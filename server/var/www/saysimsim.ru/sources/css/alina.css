@@ -151,6 +151,10 @@ https://the-echoplex.net/flexyboxes/
     color: #fff;
 }
 
+ .form-control:disabled{
+     background-color: var(--alina-main-bg);
+ }
+
 select.form-control option
 {
     font-size: 1.5rem;
