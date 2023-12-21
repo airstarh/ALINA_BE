@@ -4,7 +4,8 @@ namespace alina\mvc\Model;
 
 class pm_department extends _BaseAlinaModel
 {
-    public $table = 'pm_department';
+    public $table        = 'pm_department';
+    public $addAuditInfo = true;
 
     public function fields()
     {

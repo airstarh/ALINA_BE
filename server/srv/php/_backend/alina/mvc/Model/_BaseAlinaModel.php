@@ -647,21 +647,22 @@ class _BaseAlinaModel
         $filters = [];
         $fields  = $this->fields();
         #####
-        foreach ($fields as $fieldNameCfg => $params) {
-            if (property_exists($data, $fieldNameCfg)) {
+        foreach ($fields as $fieldName => $cfg) {
+            if (property_exists($data, $fieldName)) {
                 #####
-                if ($this->mode === self::MODE_INSERT && empty($data->{$fieldNameCfg}) && isset($params['default'])) {
-                    $data->{$fieldNameCfg} = $params['default'];
+                if ($this->mode === self::MODE_INSERT && empty($data->{$fieldName}) && isset($cfg['default'])) {
+                    $data->{$fieldName} = $cfg['default'];
                     continue;
                 }
                 #####
                 ##################################################
-                if (isset($params['filters']) && !empty($params['filters'])) {
-                    $filters[$fieldNameCfg] = $params['filters'];
+                $cfg['filters'][] = [Data::class, 'smartTrim'];
+                if (!empty($cfg['filters'])) {
+                    $filters[$fieldName] = $cfg['filters'];
                 }
             } else {
-                if ($this->mode === self::MODE_INSERT && isset($params['default'])) {
-                    $data->{$fieldNameCfg} = $params['default'];
+                if ($this->mode === self::MODE_INSERT && isset($cfg['default'])) {
+                    $data->{$fieldName} = $cfg['default'];
                 }
             }
         }
@@ -792,10 +793,10 @@ class _BaseAlinaModel
         $data = Data::toObject($data);
         $this->applyFilters($data);
         $this->validate($data);
-        # OLD APPROACH, see @method addAuditInfoEventLog
-        //if ($this->addAuditInfo) {
-        //    $this->addAuditInfo($data, $this->mode);
-        //}
+
+        if ($this->addAuditInfo) {
+            $this->addAuditInfo($data, $this->mode);
+        }
         $dataArray = $this->restrictIdentityAutoincrementReadOnlyFields($data);
 
         return $dataArray;
@@ -820,20 +821,28 @@ class _BaseAlinaModel
      * @return null
      * ToDo: Consider to delete.
      */
-    //protected function addAuditInfo(\stdClass $data, string $saveMode = NULL)
-    //{
-    //    $saveMode            = $saveMode ?? $this->mode;
-    //    $userId              = AlinaCurrentUserId();
-    //    $nowDbDateFormat     = AlinaGetNowInDbFormat();
-    //    $data->modified_by   = $userId;
-    //    $data->modified_date = $nowDbDateFormat;
-    //    if ($saveMode === self::MODE_INSERT) {
-    //        $data->created_by   = $userId;
-    //        $data->created_date = $nowDbDateFormat;
-    //    }
-    //
-    //    return NULL;
-    //}
+    protected function addAuditInfo(\stdClass $data, string $saveMode = null)
+    {
+        $saveMode = $saveMode ?? $this->mode;
+        $userId   = CurrentUser::id();
+        $now      = ALINA_TIME;
+        if ($this->tableHasField('modified_at')) {
+            $data->modified_at = $now;
+        }
+        if ($this->tableHasField('modified_by')) {
+            $data->modified_by = $userId;
+        }
+        if ($saveMode === self::MODE_INSERT) {
+            if ($this->tableHasField('created_at')) {
+                $data->created_at = $now;
+            }
+            if ($this->tableHasField('created_by')) {
+                $data->created_by = $userId;
+            }
+        }
+
+        return null;
+    }
     #endregion OLD AuditInfo approach
     ##############################
     #region NEW AuditInfo approach
