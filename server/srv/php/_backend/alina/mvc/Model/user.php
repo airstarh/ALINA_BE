@@ -176,7 +176,7 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'rbac_permission' => [
+            '_rbac_permission' => [
                 'has'        => 'manyThrough',
                 ##############################
                 # for Edit Form
@@ -190,7 +190,16 @@ class user extends _BaseAlinaModel
                 ],
                 'conditions' => [],
                 'addSelects' => [
-                    ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', 'glue2.id AS ref_id2', "{$this->alias}.{$this->pkName} AS main_id"]],
+                    [
+                        'addSelect',
+                        [
+                            'child.id AS _permission_id',
+                            'child.name AS _permission_name',
+                            //'glue.id AS _rbac_user_role_id',
+                            //'glue2.id AS _rbac_role_permission_id',
+                            "{$this->alias}.{$this->pkName} AS main_id",
+                        ],
+                    ],
                 ],
             ],
             ##### field #####

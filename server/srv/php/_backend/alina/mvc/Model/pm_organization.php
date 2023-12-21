@@ -22,8 +22,19 @@ class pm_organization extends _BaseAlinaModel
     {
         return [
             ##### field #####
-            'manager' => [
+            'manager_id' => [
                 'has'        => 'one',
+                'multiple'   => false,
+                ##############################
+                # for Apply dependencies
+                'apply'      => [
+                    'childTable'     => 'user',
+                    'childPk'        => 'id',
+                    'childHumanName' => ['firstname', 'lastname', 'mail'],
+                    'masterChildPk'  => 'manager_id',
+                ],
+                ##############################
+                # for Select With References
                 'joins'      => [
                     ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
                 ],
@@ -32,9 +43,10 @@ class pm_organization extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'manager.firstname AS manager_firstname',
-                            'manager.lastname AS manager_lastname',
-                            'manager.emblem AS manager_emblem',
+                            'manager.firstname AS _manager_firstname',
+                            'manager.lastname AS _manager_lastname',
+                            'manager.mail AS _manager_mail',
+                            'manager.emblem AS _manager_emblem',
                         ],
                     ],
                 ],

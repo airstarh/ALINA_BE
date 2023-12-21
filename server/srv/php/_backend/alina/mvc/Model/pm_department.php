@@ -11,8 +11,11 @@ class pm_department extends _BaseAlinaModel
         return [
             'id'                 => [],
             'name_human'         => [],
-            'manager_id'         => [],
             'pm_organization_id' => [],
+            'manager_id'         => [],
+            'price_min'          => [
+                'default' => 1,
+            ],
         ];
     }
 
@@ -29,7 +32,7 @@ class pm_department extends _BaseAlinaModel
                 'apply'      => [
                     'childTable'     => 'user',
                     'childPk'        => 'id',
-                    'childHumanName' => ['mail'],
+                    'childHumanName' => ['firstname', 'lastname', 'mail'],
                     'masterChildPk'  => 'manager_id',
                 ],
                 ##############################
@@ -44,6 +47,7 @@ class pm_department extends _BaseAlinaModel
                         [
                             'manager.firstname AS _manager_firstname',
                             'manager.lastname AS _manager_lastname',
+                            'manager.mail AS _manager_mail',
                             'manager.emblem AS _manager_emblem',
                         ],
                     ],

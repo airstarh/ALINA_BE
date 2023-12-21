@@ -41,15 +41,7 @@ foreach ($value as $i => $v) {
 $_value_keys = array_keys($_value);
 #####
 ?>
-<div>
-    <?php
-    // echo '<pre>';
-    // var_export($_options, 0);
-    // echo '<br>';
-    // var_export($value, 0);
-    // echo '</pre>';
-    ?>
-</div>
+
 <div class="form-group mt-3">
     <label class="d-block">
         <?= htmlAlias::elBootstrapBadge([

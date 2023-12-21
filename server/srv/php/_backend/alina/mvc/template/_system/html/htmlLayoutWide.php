@@ -15,7 +15,7 @@ use alina\mvc\View\html;
     <div class="alina-flex-vertical-header">
         <?= (new html())->piece(html::$htmlMenu) ?>
     </div>
-    <div class="alina-flex-vertical-content p-3">
+    <div class="alina-flex-vertical-content">
         <div class="container-fluid">
             <?= $data->messages(); ?>
             <?= $data->content(); ?>

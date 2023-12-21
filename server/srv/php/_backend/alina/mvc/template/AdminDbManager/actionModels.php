@@ -25,7 +25,14 @@ if (count($models) <= 0) {
 }
 $colHeaders = array_keys((array)$models[0]);
 ?>
-<h1>Models <?= $model->table ?> <?= $pagination->rowsTotal ?></h1>
+
+<h1>Models <?= $model->table ?> (<?= $pagination->rowsTotal ?>)</h1>
+
+<a
+        href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
+        class="btn btn-primary"
+>Create New</a>
+
 <div class="clear mt-3">&nbsp;</div>
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
 <div class="clear mt-3">&nbsp;</div>
