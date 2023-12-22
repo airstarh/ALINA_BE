@@ -78,10 +78,10 @@ class pm_project extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'manager.firstname AS _manager_firstname',
-                            'manager.lastname AS _manager_lastname',
-                            'manager.mail AS _manager_mail',
-                            'manager.emblem AS _manager_emblem',
+                            'manager.firstname AS manager.firstname',
+                            'manager.lastname AS manager.lastname',
+                            'manager.mail AS manager.mail',
+                            'manager.emblem AS manager.emblem',
                         ],
                     ],
                 ],
@@ -108,10 +108,10 @@ class pm_project extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'assignee.firstname AS _assignee_firstname',
-                            'assignee.lastname AS _assignee_lastname',
-                            'assignee.mail AS _assignee_mail',
-                            'assignee.emblem AS _assignee_emblem',
+                            'assignee.firstname AS assignee.firstname',
+                            'assignee.lastname AS assignee.lastname',
+                            'assignee.mail AS assignee.mail',
+                            'assignee.emblem AS assignee.emblem',
                         ],
                     ],
                 ],
