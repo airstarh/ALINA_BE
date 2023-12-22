@@ -51,7 +51,7 @@ class pm_project extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'pm_department.name_human AS _pm_department_name_human',
+                            'pm_department.name_human AS pm_department.name_human',
                         ],
                     ],
                 ],

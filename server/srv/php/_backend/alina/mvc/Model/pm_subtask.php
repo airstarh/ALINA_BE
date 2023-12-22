@@ -115,7 +115,7 @@ class pm_subtask extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'pm_task.name_human AS _pm_task_name_human',
+                            'pm_task.name_human AS pm_task.name_human',
                         ],
                     ],
                 ],

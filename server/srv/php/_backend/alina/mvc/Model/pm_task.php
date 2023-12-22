@@ -12,9 +12,9 @@ class pm_task extends _BaseAlinaModel
         return [
             'id'            => [],
             'name_human'    => [],
+            'pm_project_id' => [],
             'manager_id'    => [],
             'assignee_id'   => [],
-            'pm_project_id' => [],
             'created_at'    => [],
             'completed_at'  => [],
             'status'        => [],
@@ -107,8 +107,8 @@ class pm_task extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'pm_project.name_human AS _pm_project_name_human',
-                            'pm_project.price_multiplier AS _pm_project_price_multiplier',
+                            'pm_project.name_human AS pm_project.name_human',
+                            'pm_project.price_multiplier AS pm_project.price_multiplier',
                         ],
                     ],
                 ],

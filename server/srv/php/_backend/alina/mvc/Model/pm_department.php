@@ -13,10 +13,10 @@ class pm_department extends _BaseAlinaModel
             'id'                 => [],
             'name_human'         => [],
             'pm_organization_id' => [],
-            'manager_id'         => [],
             'price_min'          => [
                 'default' => 1,
             ],
+            'manager_id'         => [],
         ];
     }
 
