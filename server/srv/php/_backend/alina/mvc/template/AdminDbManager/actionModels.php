@@ -26,8 +26,9 @@ if (count($models) <= 0) {
 }
 $colHeaders = array_keys((array)$models[0]);
 ?>
-
-<h1>Models <?= $model->table ?> (<?= $pagination->rowsTotal ?>)</h1>
+<div class="clear m-1">&nbsp;</div>
+<h1><?= $model->table ?> <sup>[ total: <?= $pagination->rowsTotal ?>]</sup> </h1>
+<div class="clear m-1">&nbsp;</div>
 
 <a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
    class="btn btn-primary"
