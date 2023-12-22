@@ -11,12 +11,13 @@ class pm_work extends _BaseAlinaModel
     {
         return [
             'id'                 => [],
+            'name_human'         => [],
+            'price_this_project' => [],
             'pm_organization_id' => [],
             'pm_department_id'   => [],
             'pm_project_id'      => [],
             'pm_task_id'         => [],
             'pm_subtask_id'      => [],
-            'price_this_project' => [],
         ];
     }
 
@@ -74,6 +75,7 @@ class pm_work extends _BaseAlinaModel
                         'addSelect',
                         [
                             'pm_department.name_human AS _pm_department_name_human',
+                            'pm_department.price_min AS _pm_department_price_min',
                         ],
                     ],
                 ],
@@ -155,7 +157,9 @@ class pm_work extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'pm_subtask.name_human AS pm_subtask_name_human',
+                            'pm_subtask.name_human AS _pm_subtask_name_human',
+                            'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                            'pm_subtask.price AS _pm_subtask_price',
                         ],
                     ],
                 ],
