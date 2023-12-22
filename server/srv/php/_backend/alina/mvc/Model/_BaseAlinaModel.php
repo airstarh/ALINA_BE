@@ -85,7 +85,7 @@ class _BaseAlinaModel
     public $sortName          = null;
     public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
-    public $pageSize          = 50;
+    public $pageSize          = 500;
     #endregion Search Parameters
     ##################################################
     #region Constructor
