@@ -2,6 +2,7 @@
 
 namespace alina\mvc\Model;
 
+use alina\Message;
 use alina\Utils\Data;
 
 class pm_subtask extends _BaseAlinaModel
@@ -14,14 +15,17 @@ class pm_subtask extends _BaseAlinaModel
         return [
             'id'             => [],
             'name_human'     => [],
-            'pm_task_id'     => [],
             'time_estimated' => [],
-            'price'          => [],
-            'manager_id'     => [],
-            'assignee_id'    => [],
-            'completed_at'   => [],
-            'status'         => [],
-            'created_at'     => [],
+            'pm_task_id'     => [
+                'default' => 1,
+            ],
+
+            'price'        => [],
+            'manager_id'   => [],
+            'assignee_id'  => [],
+            'completed_at' => [],
+            'status'       => [],
+            'created_at'   => [],
         ];
     }
 
@@ -51,10 +55,10 @@ class pm_subtask extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'manager.firstname AS _manager_firstname',
-                            'manager.lastname AS _manager_lastname',
-                            'manager.mail AS _manager_mail',
-                            'manager.emblem AS _manager_emblem',
+                            'manager.firstname AS manager.firstname',
+                            'manager.lastname AS manager.lastname',
+                            'manager.mail AS manager.mail',
+                            'manager.emblem AS manager.emblem',
                         ],
                     ],
                 ],
@@ -81,10 +85,10 @@ class pm_subtask extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'assignee.firstname AS _assignee_firstname',
-                            'assignee.lastname AS _assignee_lastname',
-                            'assignee.mail AS _assignee_mail',
-                            'assignee.emblem AS _assignee_emblem',
+                            'assignee.firstname AS assignee.firstname',
+                            'assignee.lastname AS assignee.lastname',
+                            'assignee.mail AS assignee.mail',
+                            'assignee.emblem AS assignee.emblem',
                         ],
                     ],
                 ],
@@ -212,6 +216,15 @@ class pm_subtask extends _BaseAlinaModel
                 'pm_subtask_id',
             ],
         ]);
+
+        Message::setSuccess(implode(' ', [
+            $price_this_project,
+            ' ||| ',
+            $this->attributes->id,
+            $name_human,
+
+
+        ]));
 
         return $this;
     }
