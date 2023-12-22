@@ -121,8 +121,8 @@ $colHeaders = array_keys((array)$models[0]);
       <tr>
         <td><?= ++$counter ?></td>
           <?php foreach ($m as $f => $v) {
-              $_f = substr(strip_tags($f), 0, 200);
-              $_v = substr(strip_tags(Data::stringify($v)), 0, 200);
+              $_f = substr(strip_tags($f), 0, 2000);
+              $_v = substr(strip_tags(Data::stringify($v)), 0, 2000);
               ?>
             <td>
                 <?php if (Data::isIterable($v)) { ?>

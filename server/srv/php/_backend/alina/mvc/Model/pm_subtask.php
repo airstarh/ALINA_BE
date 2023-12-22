@@ -14,14 +14,14 @@ class pm_subtask extends _BaseAlinaModel
         return [
             'id'             => [],
             'name_human'     => [],
-            'manager_id'     => [],
-            'assignee_id'    => [],
             'pm_task_id'     => [],
             'time_estimated' => [],
             'price'          => [],
-            'created_at'     => [],
+            'manager_id'     => [],
+            'assignee_id'    => [],
             'completed_at'   => [],
             'status'         => [],
+            'created_at'     => [],
         ];
     }
 
@@ -125,17 +125,23 @@ class pm_subtask extends _BaseAlinaModel
         if (!AlinaAccessIfAdmin() || AlinaAccessIfModerator()) {
             return $this;
         }
-        _baseAlinaEloquentTransaction::begin();
-        $this->getListOfParents();
-        $this->upsertPmWork();
-        _baseAlinaEloquentTransaction::commit();
+
+        $this->bulkUpdate();
 
         return $this;
     }
 
 
     #####
-    public function getListOfParents()
+    public function bulkUpdate()
+    {
+        _baseAlinaEloquentTransaction::begin();
+        $this->getListOfParents();
+        $this->upsertPmWork();
+        _baseAlinaEloquentTransaction::commit();
+    }
+
+    public function getListOfParents($id = null)
     {
         $pm_subtask      = $this;
         $pm_task         = new pm_task();
@@ -143,6 +149,7 @@ class pm_subtask extends _BaseAlinaModel
         $pm_department   = new pm_department();
         $pm_organization = new pm_organization();
 
+        if ($id) $this->getOneWithReferences([["$pm_subtask->alias.id", '=', $id]]);
         $pm_task->getOneWithReferences([["$pm_task->alias.id", '=', $pm_subtask->attributes->pm_task_id]]);
         $pm_project->getOneWithReferences([["$pm_project->alias.id", '=', $pm_task->attributes->pm_project_id]]);
         $pm_department->getOneWithReferences([["$pm_department->alias.id", '=', $pm_project->attributes->pm_department_id]]);
@@ -162,9 +169,12 @@ class pm_subtask extends _BaseAlinaModel
         #region CALCULATE WORK NAME
         $name_human = implode(' | ', [
             $this->attributes->pm_department->name_human,
+            $this->attributes->pm_department->price_min,
             $this->attributes->pm_project->name_human,
+            $this->attributes->pm_project->price_multiplier,
             $this->attributes->pm_task->name_human,
             $this->attributes->name_human,
+            $this->attributes->time_estimated,
         ]);
         #endregion CALCULATE WORK NAME
         #####

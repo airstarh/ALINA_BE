@@ -82,6 +82,33 @@ class pm_department extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
+            '_pm_subtask'        => [
+                'has'        => 'many',
+                ##############################
+                # for Select With References
+                'joins'      => [
+                    ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', "{$this->alias}.{$this->pkName}"],
+                    ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
+                    ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    [
+                        'addSelect',
+                        [
+                            'pm_project.id AS _pm_project_id',
+                            'pm_project.name_human AS _pm_project_name_human',
+                            'pm_task.id AS _pm_task_id',
+                            'pm_task.name_human AS _pm_task_name_human',
+                            'pm_subtask.id AS _pm_subtask_id',
+                            'pm_subtask.name_human AS _pm_subtask_name_human',
+                            'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                            "{$this->alias}.{$this->pkName} AS main_id",
+                        ],
+                    ],
+                ],
+            ],
+            ##### field #####
         ];
     }
     #####
