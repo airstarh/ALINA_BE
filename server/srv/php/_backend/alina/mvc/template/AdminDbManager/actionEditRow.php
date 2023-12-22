@@ -9,7 +9,9 @@ $pkName  = $data->model->pkName;
 $sources = $data->sources;
 
 ?>
-<h1 class="mt-3">Edit <?= $table ?> (<?= $model->{$pkName} ?>)</h1>
+<div class="clear m-1">&nbsp;</div>
+<h1><?= $table ?> <sup>[ID: <?= $model->{$pkName} ?>]</sup></h1>
+<div class="clear m-1">&nbsp;</div>
 <a
         href="/admindbmanager/models/<?= $data->model->table ?>"
         class="btn btn-primary"
