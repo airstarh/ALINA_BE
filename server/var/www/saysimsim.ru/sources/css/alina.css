@@ -47,6 +47,13 @@ body {
     color: var(--alina-main-txt) !important;
 }
 
+table.alina-data-table th
+,table.alina-data-table td
+{
+    padding-left: 2ch;
+    vertical-align: top;
+}
+
 /*endregion FUNDAMENTAL */
 /*##################################################*/
 /*region MAIN LAYOUT*/

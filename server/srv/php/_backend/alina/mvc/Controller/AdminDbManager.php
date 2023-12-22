@@ -215,7 +215,7 @@ class AdminDbManager
             if ($flagModelIsNew && $newId) {
                 Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
             }
-            echo (new htmlAlias)->page($vd);
+            echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         }
     }
 

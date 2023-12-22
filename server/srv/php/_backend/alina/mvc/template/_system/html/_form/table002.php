@@ -1,15 +1,16 @@
-<?php /** @var $data stdClass | array */ ?>
-<?php
-$counter = 1;
-$headers = array_keys((array)$data[0]);
+<?php /** @var $data stdClass | array */
+if (empty($data)) return;
+$counter  = 1;
+$firstRow = $data[0];
+$headers  = array_keys((array)$firstRow);
 ?>
-<div>
-    <table class="table table-responsive table-striped table-hover  table-dark">
+<div class="text-nowrap">
+    <table class="bg-black alina-data-table">
         <thead>
         <tr>
-            <td>Counter</td>
+            <th>#</th>
             <?php foreach ($headers as $h) { ?>
-                <td><?= $h ?></td>
+                <th><?= $h ?></th>
             <?php } ?>
         </tr>
         </thead>
