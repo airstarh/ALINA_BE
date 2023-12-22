@@ -29,15 +29,15 @@ $colHeaders = array_keys((array)$models[0]);
 
 <h1>Models <?= $model->table ?> (<?= $pagination->rowsTotal ?>)</h1>
 
-<a
-        href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
-        class="btn btn-primary"
+<a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
+   class="btn btn-primary"
+   target="_blank"
 >Create New</a>
 
 <div class="clear mt-3">&nbsp;</div>
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
 <div class="clear mt-3">&nbsp;</div>
-<div >
+<div>
     <table class="table-sm table-striped table-hover  table-dark">
         <thead>
         <tr class="bg-primary text-dark">
@@ -142,9 +142,9 @@ $colHeaders = array_keys((array)$models[0]);
                             <div><?= $_v ?></div>
                             <?php if ($f === $model->pkName) { ?>
                                 <div>
-                                    <a
-                                            href="/admindbmanager/editrow/<?= $model->table ?>/<?= $v ?>"
-                                            class="btn btn-sm btn-info"
+                                    <a href="/admindbmanager/editrow/<?= $model->table ?>/<?= $v ?>"
+                                       class="btn btn-sm btn-info"
+                                       target="_blank"
                                     >Edit</a>
                                 </div>
                             <?php } ?>
