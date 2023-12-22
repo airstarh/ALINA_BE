@@ -122,7 +122,7 @@ class pm_subtask extends _BaseAlinaModel
 
     public function hookRightAfterSave($data)
     {
-        if (!AlinaAccessIfAdmin() || AlinaAccessIfModerator()) {
+        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
             return $this;
         }
 
@@ -133,12 +133,16 @@ class pm_subtask extends _BaseAlinaModel
 
 
     #####
-    public function bulkUpdate()
+    public function bulkUpdate($id = null)
     {
         _baseAlinaEloquentTransaction::begin();
-        $this->getListOfParents();
-        $this->upsertPmWork();
+        $this
+            ->getListOfParents($id)
+            ->upsertPmWork()
+        ;
         _baseAlinaEloquentTransaction::commit();
+
+        return $this;
     }
 
     public function getListOfParents($id = null)
@@ -149,7 +153,7 @@ class pm_subtask extends _BaseAlinaModel
         $pm_department   = new pm_department();
         $pm_organization = new pm_organization();
 
-        if ($id) $this->getOneWithReferences([["$pm_subtask->alias.id", '=', $id]]);
+        if (!empty($id)) $pm_subtask->getOneWithReferences([["$pm_subtask->alias.id", '=', $id]]);
         $pm_task->getOneWithReferences([["$pm_task->alias.id", '=', $pm_subtask->attributes->pm_task_id]]);
         $pm_project->getOneWithReferences([["$pm_project->alias.id", '=', $pm_task->attributes->pm_project_id]]);
         $pm_department->getOneWithReferences([["$pm_department->alias.id", '=', $pm_project->attributes->pm_department_id]]);
