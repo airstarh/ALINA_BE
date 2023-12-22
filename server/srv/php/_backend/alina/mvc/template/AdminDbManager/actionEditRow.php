@@ -13,21 +13,22 @@ $sources = $data->sources;
 <h1><?= $table ?> <sup>[ID: <?= $model->{$pkName} ?>]</sup></h1>
 <div class="clear m-1">&nbsp;</div>
 
-<a
-        href="/admindbmanager/models/<?= $data->model->table ?>"
-        class="btn btn-primary"
+<a href="/admindbmanager/models/<?= $data->model->table ?>"
+   class="btn btn-primary"
 >List Models</a>
 
-<a
-        href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
-        class="btn btn-primary"
+<a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
+   class="btn btn-primary"
 >Create New</a>
 
 <?php if ($model->id): ?>
-    <a
-            href="/admindbmanager/delete/<?= $data->model->table ?>/<?= $model->id ?>"
-            class="btn btn-danger"
+    <a href="/admindbmanager/delete/<?= $data->model->table ?>/<?= $model->id ?>"
+       class="btn btn-danger"
     >Delete</a>
+
+    <a href="/admindbmanager/copy/<?= $data->model->table ?>/<?= $model->id ?>"
+       class="btn btn-success"
+    >Copy</a>
 <?php endif ?>
 
 <div class="notranslate">

@@ -244,4 +244,17 @@ class AdminDbManager
         $m->smartDeleteById($id);
         Sys::redirect("/admindbmanager/models/$table", 303);
     }
+
+    public function actionCopy($table, $id)
+    {
+        $m = modelNamesResolver::getModelObject($table);
+        $m->getById($id);
+        $data = $m->attributes;
+        unset($data->{$m->pkName});
+        $mNew = modelNamesResolver::getModelObject($table);
+        $mNew->insert($data);
+        $newId = $mNew->id;
+        Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
+    }
+    ###
 }

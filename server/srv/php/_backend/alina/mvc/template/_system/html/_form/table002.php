@@ -1,10 +1,16 @@
 <?php /** @var $data stdClass | array */
+
+use alina\mvc\View\html;
+use alina\Utils\Data;
+
+if (is_object($data)) $data = [$data];
 if (empty($data)) return;
-$counter  = 1;
+$counter = 1;
+
 $firstRow = $data[0];
 $headers  = array_keys((array)$firstRow);
 ?>
-<div class="text-nowrap">
+<div class="text-nowrap bg-black p-1 m-1">
     <table class="bg-black alina-data-table">
         <thead>
         <tr>
@@ -19,7 +25,13 @@ $headers  = array_keys((array)$firstRow);
             <tr>
                 <td><?= $counter++ ?></td>
                 <?php foreach ($row as $colName => $colValue) { ?>
-                    <td><?= $colValue ?></td>
+                    <td>
+                        <?php if (Data::isIterable($colValue)) { ?>
+                            <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
+                        <?php } else { ?>
+                            <?= $colValue ?>
+                        <?php } ?>
+                    </td>
                 <?php } ?>
             </tr>
         <?php } ?>
