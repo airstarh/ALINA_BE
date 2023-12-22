@@ -27,7 +27,7 @@ if (count($models) <= 0) {
 $colHeaders = array_keys((array)$models[0]);
 ?>
 <div class="clear m-1">&nbsp;</div>
-<h1><?= $model->table ?> <sup>[ total: <?= $pagination->rowsTotal ?>]</sup> </h1>
+<h1><?= $model->table ?> <sup>[ total: <?= $pagination->rowsTotal ?>]</sup></h1>
 <div class="clear m-1">&nbsp;</div>
 
 <a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
@@ -39,7 +39,7 @@ $colHeaders = array_keys((array)$models[0]);
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
 <div class="clear mt-3">&nbsp;</div>
 <div>
-    <table class="table-sm table-striped table-hover  table-dark">
+    <table class="table-sm table-striped table-hover  table-dark alina-data-table">
         <thead>
         <tr class="bg-primary text-dark">
             <th class="bg-primary sticky-top border-bottom"></th>
@@ -99,25 +99,26 @@ $colHeaders = array_keys((array)$models[0]);
                 $fValueNotEmp = $GET->{$fNameNotEmp} ?? '';
                 ?>
                 <th>
-                    <div>
-                        <label>
-                            <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty" class="">
-                            EMPTY
-                        </label>
-                        <br>
-                        <label>
-                            <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameNotEmp ?>" value="1" <?= $fValueNotEmp == 1 ? 'checked' : '' ?> placeholder="Not Empty" class="">
-                            NOT EMPTY
-                        </label>
-                        <br>
-                        <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE" class="form-control <?= $fValueLk ? 'bg-warning' : '' ?>">
-                        <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE" class="form-control <?= $fValueNotLk ? 'bg-warning' : '' ?>">
-                        <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS" class="form-control <?= $fValueEq ? 'bg-warning' : '' ?>">
-                        <br>
-                        <br>
-                        <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;" class="form-control <?= $fValueGt ? 'bg-warning' : '' ?>">
-                        <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;" class="form-control <?= $fValueLt ? 'bg-warning' : '' ?>">
-                    </div>
+                    <?php if (!Str::startsWith($h, '_')): ?>
+                        <div>
+                            <label>
+                                <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty" class="">
+                                EMPTY
+                            </label>
+                            <br>
+                            <label>
+                                <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameNotEmp ?>" value="1" <?= $fValueNotEmp == 1 ? 'checked' : '' ?> placeholder="Not Empty" class="">
+                                NOT EMPTY
+                            </label>
+                            <br>
+                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE" class="form-control <?= $fValueLk ? 'bg-warning' : '' ?>">
+                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE" class="form-control <?= $fValueNotLk ? 'bg-warning' : '' ?>">
+                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS" class="form-control <?= $fValueEq ? 'bg-warning' : '' ?>">
+                            <br>
+                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;" class="form-control <?= $fValueGt ? 'bg-warning' : '' ?>">
+                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;" class="form-control <?= $fValueLt ? 'bg-warning' : '' ?>">
+                        </div>
+                    <?php endif; ?>
                 </th>
             <?php } ?>
         </tr>
@@ -132,13 +133,7 @@ $colHeaders = array_keys((array)$models[0]);
                     ?>
                     <td>
                         <?php if (Data::isIterable($v)) { ?>
-                            <ul class="list-group">
-                                <?php foreach ($v as $i => $d) { ?>
-                                    <li class="list-group-item-dark d-flex justify-content-between align-items-center text-nowrap">
-                                        (<?= $i ?>) <?= Data::stringify($d) ?>
-                                    </li>
-                                <?php } ?>
-                            </ul>
+                            <?= (new htmlAlias)->piece('_system/html/_form/table002.php', $v) ?>
                         <?php } else { ?>
                             <div><?= $_v ?></div>
                             <?php if ($f === $model->pkName) { ?>

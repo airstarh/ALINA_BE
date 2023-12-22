@@ -11,6 +11,7 @@ $model   = $data->model;
 $sources = $data->sources;
 
 ?>
+
 <form action="<?= $action ?>" method="post" enctype="<?= $enctype ?>">
 
     <?= htmlAlias::elFormStandardButtons([]) ?>
@@ -37,19 +38,13 @@ $sources = $data->sources;
             <!--##################################################-->
             <!--region Simple List-->
         <?php } elseif (Data::isIterable($v)) { ?>
-            <div class="form-group mt-3">
-                <?= htmlAlias::elBootstrapBadge([
-                    'title' => $f,
-                    'badge' => count((array)$v),
-                ]) ?>
-                <ul class="list-group">
-                    <?php foreach ($v as $i => $d) { ?>
-                        <li class="list-group-item-dark d-flex justify-content-between align-items-center">
-                            <?= Data::stringify($d) ?>
-                        </li>
-                    <?php } ?>
-                </ul>
-            </div>
+            <?= htmlAlias::elBootstrapBadge([
+                'title' => $f,
+                'badge' => count((array)$v),
+            ]) ?>
+
+            <?= (new htmlAlias)->piece('_system/html/_form/table002.php', $v) ?>
+
             <!--endregion Simple List-->
             <!--##################################################-->
 
