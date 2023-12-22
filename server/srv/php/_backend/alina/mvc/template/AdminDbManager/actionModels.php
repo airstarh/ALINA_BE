@@ -69,7 +69,7 @@ $colHeaders = array_keys((array)$models[0]);
             <?php } ?>
         </tr>
         <tr>
-            <td>
+            <th class="bg-primary">
                 <form
                         id="<?= $formIdSearch ?>"
                         action=""
@@ -80,7 +80,7 @@ $colHeaders = array_keys((array)$models[0]);
                     <br>
                     <a class="btn btn-sm btn-warning m-1" href="<?= RequestAlias::obj()->URL_PATH ?>">Reset</a>
                 </form>
-            </td>
+            </th>
             <?php foreach ($colHeaders as $h) {
                 $fNameLk      = "lk_{$h}";
                 $fValueLk     = $GET->{$fNameLk} ?? '';
@@ -124,7 +124,7 @@ $colHeaders = array_keys((array)$models[0]);
         <tbody>
         <?php foreach ($models as $m) { ?>
             <tr>
-                <td><?= ++$counter ?></td>
+                <td class="bg-black text-center text-primary"><?= ++$counter ?></td>
                 <?php foreach ($m as $f => $v) {
                     $_f = substr(strip_tags($f), 0, 2000);
                     $_v = substr(strip_tags(Data::stringify($v)), 0, 2000);
