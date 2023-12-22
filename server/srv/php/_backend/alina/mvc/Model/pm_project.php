@@ -14,14 +14,14 @@ class pm_project extends _BaseAlinaModel
             'id'               => [],
             'name_human'       => [],
             'pm_department_id' => [],
+            'price_multiplier' => [
+                'default' => 1,
+            ],
             'manager_id'       => [],
             'assignee_id'      => [],
             'created_at'       => [],
             'completed_at'     => [],
             'status'           => [],
-            'price_multiplier' => [
-                'default' => 1,
-            ],
         ];
     }
 

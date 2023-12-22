@@ -24,10 +24,17 @@ if ($name === 'id') {
     $type = 'hidden';
 }
 
-//if ($name === 'created_at') {
-//    $value = '';
-//    $type  = 'date';
-//}
+if (
+    $name === 'created_at'
+    ||
+    $name === 'modified_at'
+    ||
+    $name === 'created_by'
+    ||
+    $name === 'modified_by'
+) {
+    $disabled = true;
+}
 ?>
 <div class="form-group mt-3">
     <label class="d-block">

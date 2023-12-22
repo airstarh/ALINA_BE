@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Model;
 
+use alina\Utils\Data;
+
 class pm_subtask extends _BaseAlinaModel
 {
     public $table        = 'pm_subtask';
@@ -118,6 +120,20 @@ class pm_subtask extends _BaseAlinaModel
         ];
     }
 
+    public function hookRightAfterSave($data)
+    {
+        if (!AlinaAccessIfAdmin() || AlinaAccessIfModerator()) {
+            return $this;
+        }
+        _baseAlinaEloquentTransaction::begin();
+        $this->getListOfParents();
+        $this->upsertPmWork();
+        _baseAlinaEloquentTransaction::commit();
+
+        return $this;
+    }
+
+
     #####
     public function getListOfParents()
     {
@@ -126,7 +142,6 @@ class pm_subtask extends _BaseAlinaModel
         $pm_project      = new pm_project;
         $pm_department   = new pm_department();
         $pm_organization = new pm_organization();
-        $pm_work         = new pm_work();
 
         $pm_task->getOneWithReferences([["$pm_task->alias.id", '=', $pm_subtask->attributes->pm_task_id]]);
         $pm_project->getOneWithReferences([["$pm_project->alias.id", '=', $pm_task->attributes->pm_project_id]]);
@@ -137,6 +152,52 @@ class pm_subtask extends _BaseAlinaModel
         $this->attributes->pm_project      = $pm_project->attributes;
         $this->attributes->pm_department   = $pm_department->attributes;
         $this->attributes->pm_organization = $pm_organization->attributes;
+
+        return $this;
+    }
+
+    public function upsertPmWork()
+    {
+        #####
+        #region CALCULATE WORK NAME
+        $name_human = implode(' | ', [
+            $this->attributes->pm_department->name_human,
+            $this->attributes->pm_project->name_human,
+            $this->attributes->pm_task->name_human,
+            $this->attributes->name_human,
+        ]);
+        #endregion CALCULATE WORK NAME
+        #####
+
+        #####
+        #refion MATH CALCULATE WORK PRICE
+        $pm_department_price_min     = $this->attributes->pm_department->price_min;
+        $pm_project_price_multiplier = $this->attributes->pm_project->price_multiplier;
+        $pm_subtask_time_estimated   = $this->attributes->time_estimated;
+        $price_this_project          = $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
+        #endrefion MATH CALCULATE WORK PRICE
+        #####
+
+        $data = [
+            'name_human'         => $name_human,
+            'price_this_project' => $price_this_project,
+            'pm_organization_id' => $this->attributes->pm_organization->id,
+            'pm_department_id'   => $this->attributes->pm_department->id,
+            'pm_project_id'      => $this->attributes->pm_project->id,
+            'pm_task_id'         => $this->attributes->pm_task->id,
+            'pm_subtask_id'      => $this->attributes->id,
+        ];
+
+        $mWork = new pm_work();
+        $mWork->upsertByUniqueFields($data, [
+            [
+                'pm_organization_id',
+                'pm_department_id',
+                'pm_project_id',
+                'pm_task_id',
+                'pm_subtask_id',
+            ],
+        ]);
 
         return $this;
     }
