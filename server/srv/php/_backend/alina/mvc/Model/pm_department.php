@@ -25,7 +25,7 @@ class pm_department extends _BaseAlinaModel
     {
         return [
             ##### field #####
-            'manager_id'              => [
+            'manager_id'         => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -55,7 +55,7 @@ class pm_department extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'pm_organization_id'      => [
+            'pm_organization_id' => [
                 'has'        => 'one',
                 'multiple'   => false,
                 ##############################
@@ -82,7 +82,7 @@ class pm_department extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            '_pm_department_children' => [
+            '_children'          => [
                 'has'        => 'many',
                 ##############################
                 # for Select With References
@@ -125,7 +125,7 @@ class pm_department extends _BaseAlinaModel
 
     public function bulkUpdate()
     {
-        foreach ($this->attributes->_pm_department_children as $child) {
+        foreach ($this->attributes->_children as $child) {
             $id = $child->_pm_subtask_id;
             $m  = new pm_subtask();
             $m->bulkUpdate($id);

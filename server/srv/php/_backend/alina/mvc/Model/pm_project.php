@@ -117,8 +117,52 @@ class pm_project extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
+            '_children'        => [
+                'has'        => 'many',
+                ##############################
+                # for Select With References
+                'joins'      => [
+                    ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', "{$this->alias}.{$this->pkName}"],
+                    ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
+                ],
+                'conditions' => [],
+                'addSelects' => [
+                    [
+                        'addSelect',
+                        [
+                            'pm_task.id AS _pm_task_id',
+                            'pm_task.name_human AS _pm_task_name_human',
+                            'pm_subtask.id AS _pm_subtask_id',
+                            'pm_subtask.name_human AS _pm_subtask_name_human',
+                            'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                            "{$this->alias}.{$this->pkName} AS main_id",
+                        ],
+                    ],
+                ],
+            ],
             ##### field #####
         ];
+    }
+
+    public function hookRightAfterSave($data)
+    {
+        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
+            return $this;
+        }
+
+        $this->bulkUpdate();
+
+        return $this;
+    }
+
+    public function bulkUpdate()
+    {
+        foreach ($this->attributes->_children as $child) {
+            $id = $child->_pm_subtask_id;
+            $m  = new pm_subtask();
+            $m->bulkUpdate($id);
+        }
+        return $this;
     }
     #####
 }
