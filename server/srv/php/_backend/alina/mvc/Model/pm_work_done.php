@@ -10,16 +10,17 @@ class pm_work_done extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'           => [],
-            'pm_work_id'   => [],
-            'assignee_id'  => [],
-            'amount'       => [],
-            'time_spent'   => [],
-            'price_result' => [],
-            'created_at'   => [],
-            'created_by'   => [],
-            'modified_at'  => [],
-            'modified_by'  => [],
+            'id'            => [],
+            'pm_work_id'    => [],
+            'assignee_id'   => [],
+            'amount'        => [],
+            'price_final'   => [],
+            'time_spent'    => [],
+            'flag_archived' => ['default' => 0,],
+            'created_at'    => [],
+            'created_by'    => [],
+            'modified_at'   => [],
+            'modified_by'   => [],
         ];
     }
 
@@ -49,10 +50,10 @@ class pm_work_done extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            'assignee.firstname AS _assignee_firstname',
-                            'assignee.lastname AS _assignee_lastname',
-                            'assignee.mail AS _assignee_mail',
-                            'assignee.emblem AS _assignee_emblem',
+                            'assignee.firstname AS assignee.firstname',
+                            'assignee.lastname AS assignee.lastname',
+                            'assignee.mail AS assignee.mail',
+                            'assignee.emblem AS assignee.emblem',
                         ],
                     ],
                 ],
@@ -66,8 +67,7 @@ class pm_work_done extends _BaseAlinaModel
                 'apply'      => [
                     'childTable'     => 'pm_work',
                     'childPk'        => 'id',
-                    'childHumanName' => ['id'],
-                    'masterChildPk'  => 'pm_work_id',
+                    'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
@@ -79,7 +79,7 @@ class pm_work_done extends _BaseAlinaModel
                     [
                         'addSelect',
                         [
-                            //'pm_work.name_human AS pm_work_name_human',
+                            'pm_work.name_human AS pm_work.name_human',
                         ],
                     ],
                 ],
