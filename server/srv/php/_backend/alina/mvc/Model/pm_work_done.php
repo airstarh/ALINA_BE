@@ -12,7 +12,9 @@ class pm_work_done extends _BaseAlinaModel
         return [
             'id'            => [],
             'pm_work_id'    => [],
-            'assignee_id'   => [],
+            'assignee_id'   => [
+                'default' => CurrentUser::id(),
+            ],
             'amount'        => [],
             'price_final'   => [],
             'time_spent'    => [],

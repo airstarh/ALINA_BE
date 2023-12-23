@@ -248,6 +248,11 @@ class _BaseAlinaModel
         return $res;
     }
 
+    public function getOneWithReferencesById($id)
+    {
+        return $this->getOneWithReferences([["$this->alias.$this->pkName", '=', $id]]);
+    }
+
     public function getOneWithReferences($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
