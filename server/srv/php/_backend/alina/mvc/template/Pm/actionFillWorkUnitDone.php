@@ -54,11 +54,23 @@ $listWorkDone = $data['listWorkDone'];
                 </div>
 
                 <div>
-                    <?php foreach ($listWorkDone as $k => $v): ?>
-                        <div><?= $v->id ?></div>
-                        <div><?= $v->assignee_id ?></div>
-                        <div><?= $v->amount ?></div>
-                    <?php endforeach; ?>
+                    <table class="alina-data-table">
+                        <thead >
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <?php foreach ($listWorkDone as $k => $v): ?>
+                            <tr>
+                                <td><?= $v->id ?></td>
+                                <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
+                                <td><?= $v->amount ?></td>
+                                <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
                 </div>
             <?php endif; ?>
             <!--region IF WORK ID
