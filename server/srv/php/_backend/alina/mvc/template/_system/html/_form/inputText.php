@@ -15,6 +15,8 @@ $value       = $data->value;
 $placeholder = @$data->placeholder ?: '';
 $_name       = substr(strip_tags($name), 0, 200);
 $_value      = substr(strip_tags(Data::stringify($value)), 0, 200);
+##################################################
+#region PROCESSING
 if ($name === 'password') {
     $value = '';
     $type  = 'password';
@@ -35,6 +37,17 @@ if (
 ) {
     $disabled = true;
 }
+
+if (
+    $name === 'created_at'
+    ||
+    $name === 'modified_at'
+) {
+    $value    = (!empty($value)) ? \alina\Utils\DateTime::toHumanDateTime($value) : null;
+}
+
+#endregion PROCESSING
+##################################################
 ?>
 <div class="form-group mt-3">
     <label class="d-block">

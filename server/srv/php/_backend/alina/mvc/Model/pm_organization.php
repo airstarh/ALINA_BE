@@ -12,11 +12,15 @@ class pm_organization extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'         => [],
-            'name_human' => [
+            'id'          => [],
+            'name_human'  => [
                 'default' => 'Организация',
             ],
-            'manager_id' => [],
+            'manager_id'  => [],
+            'created_at'  => [],
+            'created_by'  => [],
+            'modified_at' => [],
+            'modified_by' => [],
         ];
     }
 
@@ -236,11 +240,11 @@ class pm_organization extends _BaseAlinaModel
                     if (isset($data->{$refName}) && !empty($data->{$refName})) {
                         ####################
                         # Definitions
-                        $childTable     = $cfg['apply']['childTable'];
-                        $childPk        = $cfg['apply']['childPk'];
-                        $childGlueKey   = $cfg['apply']['childGlueKey'];
-                        $pkValue        = $this->attributes->{$this->pkName};
-                        $mChildTable    = modelNamesResolver::getModelObject($childTable);
+                        $childTable   = $cfg['apply']['childTable'];
+                        $childPk      = $cfg['apply']['childPk'];
+                        $childGlueKey = $cfg['apply']['childGlueKey'];
+                        $pkValue      = $this->attributes->{$this->pkName};
+                        $mChildTable  = modelNamesResolver::getModelObject($childTable);
                         ####################
                         # Preparation
                         $arrPostedChildIds = $data->{$refName} ?? [];

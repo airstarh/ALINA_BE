@@ -17,6 +17,9 @@ class pm_work_done extends _BaseAlinaModel
             'time_spent'   => [],
             'price_result' => [],
             'created_at'   => [],
+            'created_by'   => [],
+            'modified_at'  => [],
+            'modified_by'  => [],
         ];
     }
 

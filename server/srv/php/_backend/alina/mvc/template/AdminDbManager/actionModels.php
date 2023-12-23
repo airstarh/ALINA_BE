@@ -111,9 +111,15 @@ $colHeaders = array_keys((array)$models[0]);
                                 NOT EMPTY
                             </label>
                             <br>
-                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE" class="form-control <?= $fValueLk ? 'bg-warning' : '' ?>">
-                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE" class="form-control <?= $fValueNotLk ? 'bg-warning' : '' ?>">
-                            <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS" class="form-control <?= $fValueEq ? 'bg-warning' : '' ?>">
+                            <label>
+                                <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLk ?>" value="<?= $fValueLk ?>" placeholder="LIKE" class="form-control <?= $fValueLk ? 'bg-warning' : '' ?>">
+                            </label>
+                            <label>
+                                <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameNotLk ?>" value="<?= $fValueNotLk ?>" placeholder="NOT LIKE" class="form-control <?= $fValueNotLk ? 'bg-warning' : '' ?>">
+                            </label>
+                            <label>
+                                <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameEq ?>" value="<?= $fValueEq ?>" placeholder="EQUALS" class="form-control <?= $fValueEq ? 'bg-warning' : '' ?>">
+                            </label>
                             <br>
                             <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameGt ?>" value="<?= $fValueGt ?>" placeholder="&gt;" class="form-control <?= $fValueGt ? 'bg-warning' : '' ?>">
                             <input form="<?= $formIdSearch ?>" type="text" name="<?= $fNameLt ?>" value="<?= $fValueLt ?>" placeholder="&lt;" class="form-control <?= $fValueLt ? 'bg-warning' : '' ?>">
@@ -141,7 +147,7 @@ $colHeaders = array_keys((array)$models[0]);
                                     <a href="/admindbmanager/editrow/<?= $model->table ?>/<?= $v ?>"
                                        class="btn btn-sm btn-info"
                                        target="_blank"
-                                    >Edit</a>
+                                    ><?= ___("Edit") ?></a>
                                 </div>
                             <?php } ?>
                         <?php } ?>

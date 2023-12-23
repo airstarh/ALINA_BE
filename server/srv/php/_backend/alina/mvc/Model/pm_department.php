@@ -17,6 +17,10 @@ class pm_department extends _BaseAlinaModel
                 'default' => 1,
             ],
             'manager_id'         => [],
+            'created_at'         => [],
+            'created_by'         => [],
+            'modified_at'        => [],
+            'modified_by'        => [],
         ];
     }
 
