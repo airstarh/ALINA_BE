@@ -46,8 +46,7 @@ function AlinaGetNowInDbFormat()
 {
     if (defined('ALINA_TIME')) {
         return date(ALINA_DT_FORMAT_DB, ALINA_TIME);
-    }
-    else {
+    } else {
         return date(ALINA_DT_FORMAT_DB);
     }
 }
@@ -105,14 +104,13 @@ function AlinaAccessIfAdminOrModeratorOrOwner($id)
 }
 
 #####
-function AlinaReject($page = NULL, $code = 303, $message = 'ACCESS DENIED')
+function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
 {
     AlinaResponseSuccess(0);
     Message::setDanger($message);
     if ($page) {
         Sys::redirect($page, $code);
-    }
-    else {
+    } else {
         Request::obj()->METHOD = 'GET';
         Alina()->mvcGo('Root', 'AccessDenied', [$code]);
     }
@@ -128,18 +126,18 @@ function AlinaRejectIfNotLoggedIn($code = 303)
 function AlinaRejectIfNotAdmin()
 {
     if (!AlinaAccessIfAdmin()) {
-        AlinaReject(NULL, 403, 'DENIED');
+        AlinaReject(null, 403, 'DENIED');
     }
 }
 
 function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
     if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
-        AlinaReject(NULL, 403, 'DENIED');
+        AlinaReject(null, 403, 'DENIED');
     }
 }
 
-function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = FALSE)
+function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = false)
 {
     if (!Request::obj()->AJAX) {
         Sys::redirect($to, $code, $isToOrigin);
@@ -151,12 +149,12 @@ function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = FALSE)
 /**
  * https://stackoverflow.com/questions/3964793/php-case-insensitive-version-of-file-exists
  */
-function Alina_file_exists($fileName, $caseSensitive = FALSE)
+function Alina_file_exists($fileName, $caseSensitive = false)
 {
     if (file_exists($fileName)) {
         return $fileName;
     }
-    if ($caseSensitive) return FALSE;
+    if ($caseSensitive) return false;
     // Handle case insensitive requests
     $directoryName     = dirname($fileName);
     $fileArray         = glob($directoryName . '/*', GLOB_NOSORT);
@@ -167,7 +165,7 @@ function Alina_file_exists($fileName, $caseSensitive = FALSE)
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 ##################################################
@@ -217,5 +215,11 @@ function AlinaFePath($routeName)
     $blocks[] = $frontend[$routeName];
 
     return \alina\Utils\FS::buildPathFromBlocks($blocks);
+}
+
+##################################################
+function ___($str, $loc = 'ru_RU')
+{
+    return \alina\Services\AlinaTranslate::obj()->t($str, $loc);
 }
 ##################################################
