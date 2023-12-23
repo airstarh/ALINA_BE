@@ -27,13 +27,13 @@ if (count($models) <= 0) {
 $colHeaders = array_keys((array)$models[0]);
 ?>
 <div class="clear m-1">&nbsp;</div>
-<h1><?= $model->table ?> <sup>[ total: <?= $pagination->rowsTotal ?>]</sup></h1>
+<h1><?= ___($model->table) ?> <sup>[ <?= ___('total') ?>: <?= $pagination->rowsTotal ?>]</sup></h1>
 <div class="clear m-1">&nbsp;</div>
 
 <a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
    class="btn btn-primary"
    target="_blank"
->Create New</a>
+><?= ___("Create New") ?></a>
 
 <div class="clear mt-3">&nbsp;</div>
 <?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
@@ -62,7 +62,7 @@ $colHeaders = array_keys((array)$models[0]);
                     <?php if (!Str::startsWith($h, '_')): ?>
                         <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 1,]) ?>" class="btn <?= $clasAsc ?>">▲</a>
                     <?php endif; ?>
-                    <?= mb_strtoupper($h) ?>
+                    <?= mb_strtoupper(___($h)) ?>
                     <?php if (!Str::startsWith($h, '_')): ?>
                         <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 0,]) ?>" class="btn <?= $clasDesc ?>">▼</a>
                     <?php endif; ?>
@@ -77,9 +77,9 @@ $colHeaders = array_keys((array)$models[0]);
                         method="get"
                 >
                     <input type="hidden" name="form_id" value="<?= $formIdSearch ?>"/>
-                    <button type="submit" class="btn btn-sm btn-info m-1">Search</button>
+                    <button type="submit" class="btn btn-sm btn-info m-1"><?= ___("Search") ?></button>
                     <br>
-                    <a class="btn btn-sm btn-warning m-1" href="<?= RequestAlias::obj()->URL_PATH ?>">Reset</a>
+                    <a class="btn btn-sm btn-warning m-1" href="<?= RequestAlias::obj()->URL_PATH ?>"><?= ___("Reset") ?></a>
                 </form>
             </th>
             <?php foreach ($colHeaders as $h) {

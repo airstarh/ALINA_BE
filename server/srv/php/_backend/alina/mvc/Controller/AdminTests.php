@@ -13,6 +13,7 @@ use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
+use alina\Services\AlinaTranslate;
 use alina\Utils\Crypy;
 use alina\Utils\Data;
 use alina\Utils\FS;
@@ -28,13 +29,13 @@ class AdminTests
 
     public function actionFast()
     {
-        $vd = [];
-        ##################################################
-        $m = new pm_organization();
-        $m->getOneWithReferences([["$m->alias.id", '=', 1]]);
-        //$pm_subtask->getListOfParents();
-        ##################################################
-        $vd = $m->attributes;
+        $vd = [
+            "___('project')" => ___('project'),
+            "___('Alina')"   => ___('Alina'),
+            "___('Admin')"   => ___('Admin'),
+            "___('ADMIN')"   => ___('ADMIN'),
+            "___('admin')"   => ___('admin'),
+        ];
         echo (new html)->page($vd);
     }
 

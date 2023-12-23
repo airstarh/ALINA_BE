@@ -10,25 +10,25 @@ $sources = $data->sources;
 
 ?>
 <div class="clear m-1">&nbsp;</div>
-<h1><?= $table ?> <sup>[ID: <?= $model->{$pkName} ?>]</sup></h1>
+<h1><?= ___($table) ?> <sup>[ID: <?= $model->{$pkName} ?>]</sup></h1>
 <div class="clear m-1">&nbsp;</div>
 
 <a href="/admindbmanager/models/<?= $data->model->table ?>"
    class="btn btn-primary"
->List Models</a>
+><?= ___("List Models") ?></a>
 
 <a href="/admindbmanager/editrow/<?= $data->model->table ?>/new"
    class="btn btn-primary"
->Create New</a>
+><?= ___("Create New") ?></a>
 
 <?php if ($model->id): ?>
     <a href="/admindbmanager/delete/<?= $data->model->table ?>/<?= $model->id ?>"
        class="btn btn-danger"
-    >Delete</a>
+    ><?= ___("Delete") ?></a>
 
     <a href="/admindbmanager/copy/<?= $data->model->table ?>/<?= $model->id ?>"
        class="btn btn-success"
-    >Copy</a>
+    ><?= ___("Copy") ?></a>
 <?php endif ?>
 
 <div class="notranslate">

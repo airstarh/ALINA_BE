@@ -55,7 +55,11 @@ $sources = $data->sources;
             $type = (isset($sources[$f]) && array_key_exists('type', $sources[$f]))
                 ? $sources[$f]['type']
                 : 'text';
-            if (\alina\Utils\Str::startsWith($_f, '_')) {
+            if (
+                \alina\Utils\Str::startsWith($_f, '_')
+                ||
+                \alina\Utils\Str::ifContains($_f, '.')
+            ) {
                 $type = 'readonly';
             }
             ?>

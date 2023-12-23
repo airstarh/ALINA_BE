@@ -16,7 +16,7 @@ $headers  = array_keys((array)$firstRow);
         <tr>
             <th>#</th>
             <?php foreach ($headers as $h) { ?>
-                <th><?= $h ?></th>
+                <th><?= ___($h) ?></th>
             <?php } ?>
         </tr>
         </thead>
