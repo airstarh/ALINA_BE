@@ -10,9 +10,24 @@ $linkWorkList         = '';
 $linkWorkDoneList     = '';
 
 ?>
+
 <div class="clear">&nbsp;</div>
 <h1><?= ___("Project Manager") ?></h1>
 <div class="clear">&nbsp;</div>
+
+<hr>
+
+<div class="mt-5 mb-5">
+
+    <h2><?= ___("Common Things") ?></h2>
+
+    <a href="/pm/FillWorkUnitDone"
+       class="btn btn-primary"
+       target="_blank"
+    ><?= ___("Report Work Unit Done") ?></a>
+
+</div>
+
 
 <hr>
 
