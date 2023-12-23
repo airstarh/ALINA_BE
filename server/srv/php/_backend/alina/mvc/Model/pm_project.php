@@ -19,9 +19,12 @@ class pm_project extends _BaseAlinaModel
             ],
             'manager_id'       => [],
             'assignee_id'      => [],
-            'created_at'       => [],
             'completed_at'     => [],
             'status'           => [],
+            'created_at'       => [],
+            'created_by'       => [],
+            'modified_at'      => [],
+            'modified_by'      => [],
         ];
     }
 

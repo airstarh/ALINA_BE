@@ -12,12 +12,17 @@ class pm_work extends _BaseAlinaModel
         return [
             'id'                 => [],
             'name_human'         => [],
-            'price_this_project' => [],
+            'price_this_work'    => [],
             'pm_organization_id' => [],
             'pm_department_id'   => [],
             'pm_project_id'      => [],
             'pm_task_id'         => [],
             'pm_subtask_id'      => [],
+            'flag_archived'      => ['default' => 0,],
+            'created_at'         => [],
+            'created_by'         => [],
+            'modified_at'        => [],
+            'modified_by'        => [],
         ];
     }
 

@@ -26,6 +26,9 @@ class pm_subtask extends _BaseAlinaModel
             'completed_at' => [],
             'status'       => [],
             'created_at'   => [],
+            'created_by'   => [],
+            'modified_at'  => [],
+            'modified_by'  => [],
         ];
     }
 
@@ -192,38 +195,43 @@ class pm_subtask extends _BaseAlinaModel
         $pm_department_price_min     = $this->attributes->pm_department->price_min;
         $pm_project_price_multiplier = $this->attributes->pm_project->price_multiplier;
         $pm_subtask_time_estimated   = $this->attributes->time_estimated;
-        $price_this_project          = $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
+        $price_this_work             = $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
         #endrefion MATH CALCULATE WORK PRICE
         #####
 
-        $data = [
+        $dataWork = [
             'name_human'         => $name_human,
-            'price_this_project' => $price_this_project,
+            'price_this_work'    => $price_this_work,
             'pm_organization_id' => $this->attributes->pm_organization->id,
             'pm_department_id'   => $this->attributes->pm_department->id,
             'pm_project_id'      => $this->attributes->pm_project->id,
             'pm_task_id'         => $this->attributes->pm_task->id,
             'pm_subtask_id'      => $this->attributes->id,
+            'flag_archived'      => 0,
         ];
 
         $mWork = new pm_work();
-        $mWork->upsertByUniqueFields($data, [
+        $mWork->upsertByUniqueFields($dataWork, [
             [
                 'pm_organization_id',
                 'pm_department_id',
                 'pm_project_id',
                 'pm_task_id',
                 'pm_subtask_id',
+                'flag_archived',
             ],
         ]);
 
         Message::setSuccess(implode(' ', [
-            $price_this_project,
-            ' ||| ',
-            $this->attributes->id,
-            $name_human,
-
-
+            ___('Updated.'),
+            ___('SubTask ID:'),
+            $this->id,
+            $this->attributes->name_human,
+            ___('Work ID:'),
+            $mWork->id,
+            $mWork->attributes->name_human,
+            ___('New Work price:'),
+            $price_this_work,
         ]));
 
         return $this;
