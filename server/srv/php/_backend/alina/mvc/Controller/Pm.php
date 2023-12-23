@@ -139,7 +139,9 @@ class Pm
 
                                 $vd['listWorkDone'] = $mWorkDone->getAllWithReferences([
                                     ["$mWorkDone->alias.pm_work_id", '=', $work_id],
-                                ]);
+                                ],
+                                    [["$mWorkDone->alias.modified_at", 'DESC']]
+                                );
 
                             }
 
