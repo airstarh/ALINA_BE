@@ -6,6 +6,7 @@ class pm_department extends _BaseAlinaModel
 {
     public $table        = 'pm_department';
     public $addAuditInfo = true;
+    public $sortDefault  = [["name_human", 'ASC']];
 
     public function fields()
     {

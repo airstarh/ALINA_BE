@@ -143,11 +143,19 @@ $colHeaders = array_keys((array)$models[0]);
                         <?php } else { ?>
                             <div><?= $_v ?></div>
                             <?php if ($f === $model->pkName) { ?>
+                                <br>
                                 <div>
                                     <a href="/admindbmanager/editrow/<?= $model->table ?>/<?= $v ?>"
                                        class="btn btn-sm btn-info"
                                        target="_blank"
                                     ><?= ___("Edit") ?></a>
+                                </div>
+                                <br>
+                                <div>
+                                    <a href="/admindbmanager/delete/<?= $model->table ?>/<?= $v ?>"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                    ><?= ___("Delete") ?></a>
                                 </div>
                             <?php } ?>
                         <?php } ?>

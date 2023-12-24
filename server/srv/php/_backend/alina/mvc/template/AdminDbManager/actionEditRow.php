@@ -24,6 +24,7 @@ $sources = $data->sources;
 <?php if ($model->id): ?>
     <a href="/admindbmanager/delete/<?= $data->model->table ?>/<?= $model->id ?>"
        class="btn btn-danger"
+       onclick="return confirm('<?= ___("Are you sure?") ?>');"
     ><?= ___("Delete") ?></a>
 
     <a href="/admindbmanager/copy/<?= $data->model->table ?>/<?= $model->id ?>"

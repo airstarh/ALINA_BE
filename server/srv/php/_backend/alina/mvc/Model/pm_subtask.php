@@ -9,6 +9,7 @@ class pm_subtask extends _BaseAlinaModel
 {
     public $table        = 'pm_subtask';
     public $addAuditInfo = true;
+    public $sortDefault  = [["order_in_view", 'ASC'], ["pm_task_id", 'ASC'], ["id", 'ASC']];
 
     public function fields()
     {
@@ -16,19 +17,17 @@ class pm_subtask extends _BaseAlinaModel
             'id'             => [],
             'name_human'     => [],
             'time_estimated' => [],
-            'pm_task_id'     => [
-                'default' => 1,
-            ],
-
-            'price'        => [],
-            'manager_id'   => [],
-            'assignee_id'  => [],
-            'completed_at' => [],
-            'status'       => [],
-            'created_at'   => [],
-            'created_by'   => [],
-            'modified_at'  => [],
-            'modified_by'  => [],
+            'order_in_view'  => [],
+            'pm_task_id'     => ['default' => 1,],
+            'manager_id'     => [],
+            'assignee_id'    => [],
+            'price'          => [],
+            'completed_at'   => [],
+            'status'         => [],
+            'created_at'     => [],
+            'created_by'     => [],
+            'modified_at'    => [],
+            'modified_by'    => [],
         ];
     }
 
@@ -224,12 +223,8 @@ class pm_subtask extends _BaseAlinaModel
 
         Message::setSuccess(implode(' ', [
             ___('Updated.'),
-            ___('SubTask ID:'),
-            $this->id,
-            $this->attributes->name_human,
             ___('Work ID:'),
             $mWork->id,
-            $mWork->attributes->name_human,
             ___('New Work price:'),
             $price_this_work,
         ]));
