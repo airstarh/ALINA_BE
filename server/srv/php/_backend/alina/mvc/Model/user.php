@@ -270,10 +270,10 @@ class user extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
-        if (isset($dataArray['password'])) {
-            if (!Data::isValidMd5($dataArray['password'])) {
-                $dataArray['password'] = md5($dataArray['password']);
-            }
+        if (!empty($dataArray['password'])) {
+            $dataArray['password'] = static::encrypt($dataArray['password']);
+        } else {
+            unset($dataArray['password']);
         }
 
         return $this;
@@ -431,6 +431,16 @@ class user extends _BaseAlinaModel
         }
 
         return $vd;
+    }
+
+    static public function encrypt($v)
+    {
+        if (empty($v))
+            throw new \ErrorException(___('Attempt to encrypt empty value!'));
+        if (!Data::isValidMd5($v)) {
+            $v = md5($v);
+        }
+        return $v;
     }
     ##################################################
 }
