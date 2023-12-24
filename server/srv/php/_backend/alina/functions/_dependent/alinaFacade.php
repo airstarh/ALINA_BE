@@ -55,7 +55,7 @@ function AlinaResponseSuccess($success = 1)
 {
     static $flagAlreadySet = 0;
     if ($success != 1 && $flagAlreadySet === 0) {
-        Message::setDanger('Response is not success');
+        Message::setDanger(___('Response is not success'));
         $flagAlreadySet = 1;
     }
     GlobalRequestStorage::set('alina_response_success', $success);
@@ -126,14 +126,14 @@ function AlinaRejectIfNotLoggedIn($code = 303)
 function AlinaRejectIfNotAdmin()
 {
     if (!AlinaAccessIfAdmin()) {
-        AlinaReject(null, 403, 'DENIED');
+        AlinaReject(null, 403, ___('DENIED'));
     }
 }
 
 function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
     if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
-        AlinaReject(null, 403, 'DENIED');
+        AlinaReject(null, 403, ___('DENIED'));
     }
 }
 

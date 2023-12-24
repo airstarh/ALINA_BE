@@ -4,6 +4,7 @@ namespace alina;
 
 use alina\mvc\Model\error_log;
 use alina\Utils\Data;
+use alina\Utils\Request;
 use alina\Utils\Sys;
 use alina\Utils\Url;
 
@@ -44,7 +45,7 @@ class AppExceptionCatcher
      * @param bool $forceExit
      * @throws \Exception
      */
-    public function exception($objException, $forceExit = TRUE)
+    public function exception($objException, $forceExit = true)
     {
         AlinaResponseSuccess(0);
         ##################################################
@@ -88,7 +89,21 @@ class AppExceptionCatcher
             $url = Url::addGetFromObject($url, $R);
             Sys::redirect($url, 303);
         } elseif ($forceExit) {
-            Alina()->mvcGo('Root', 'Exception', $this);
+            if (Request::isPostPutDelete()) {
+                $_POST                     = [];
+                $_FILES                    = [];
+                $_SERVER['REQUEST_METHOD'] = 'GET';
+                Request::obj()->METHOD     = 'GET';
+                Request::obj()->POST       = [];
+                Request::obj()->FILES      = [];
+                try {
+                    Alina()->mvcGo(Alina()->router->controller, Alina()->router->action, Alina()->router->pathParameter);
+                } catch (\Exception $e) {
+                    Alina()->mvcGo('Root', 'Exception', $this);
+                }
+            } else {
+                Alina()->mvcGo('Root', 'Exception', $this);
+            }
         }
         ##################################################
     }
@@ -99,7 +114,7 @@ class AppExceptionCatcher
         error_log(json_encode($this->strMessage()), 0);
         #endregion PHP ERROR LOG
         $dbgCfg = AlinaCfg('debug');
-        if (in_array(TRUE, $dbgCfg)) {
+        if (in_array(true, $dbgCfg)) {
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {
                     $mEL = new error_log();
@@ -119,8 +134,8 @@ class AppExceptionCatcher
             }
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
                 Message::setDanger('¯\_(ツ)_/¯');
-                //Message::setDanger($this->strMessage());
-                MessageAdmin::setDanger($this->strMessage());
+                Message::setDanger($this->strMessage());
+                //MessageAdmin::setDanger($this->strMessage());
             }
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
                 $NL = PHP_EOL . '<br>' . PHP_EOL;
@@ -131,17 +146,17 @@ class AppExceptionCatcher
 
     protected function strMessage($NL = PHP_EOL)
     {
-        $arrMessage             = [];
-        $strMessage             = '';
-        $arrMessage['IP']       = Sys::getUserIp();
-        $arrMessage['URL_PATH'] = Url::cleanPath($_SERVER['REQUEST_URI']);
-        $arrMessage['Class']    = $this->expClassName;
-        $arrMessage['Severity'] = $this->getSeverityStr();
-        $arrMessage['Code']     = $this->eCode;
-        $arrMessage['Text']     = $this->eString;
-        $arrMessage['File']     = $this->eFile;
-        $arrMessage['Line']     = $this->eLine;
-        $arrMessage['Trace']    = $this->eTrace;
+        $arrMessage                  = [];
+        $strMessage                  = '';
+        $arrMessage['IP...........'] = Sys::getUserIp();
+        $arrMessage['URL_PATH.....'] = Url::cleanPath($_SERVER['REQUEST_URI']);
+        $arrMessage['CLASS........'] = $this->expClassName;
+        $arrMessage['SEVERITY.....'] = $this->getSeverityStr();
+        $arrMessage['CODE.........'] = $this->eCode;
+        $arrMessage['TEXT.........'] = $this->eString;
+        $arrMessage['FILE.........'] = $this->eFile;
+        $arrMessage['LINE.........'] = $this->eLine;
+        $arrMessage['TRACE........'] = $this->eTrace;
         foreach ($arrMessage as $k => $v) {
             if ($k === 'Trace') {
                 $strMessage .= "{$NL}{$k}:{$NL}{$v}{$NL}";
