@@ -88,16 +88,24 @@ function AlinaAccessIfModerator()
     return CurrentUser::obj()->hasRole('moderator');
 }
 
-function AlinaAccessIfOwner($id)
+function AlinaAccessIfOwner($owner_id)
 {
-    return CurrentUser::obj()->id() == $id;
+    return CurrentUser::obj()->id() == $owner_id;
 }
 
-function AlinaAccessIfAdminOrModeratorOrOwner($id)
+function AlinaAccessIfAdminOrModeratorOrOwner($owner_id)
 {
     return
-        AlinaAccessIfOwner($id)
+        AlinaAccessIfOwner($owner_id)
         ||
+        AlinaAccessIfAdmin()
+        ||
+        AlinaAccessIfModerator();
+}
+
+function AlinaAccessIfAdminOrModerator()
+{
+    return
         AlinaAccessIfAdmin()
         ||
         AlinaAccessIfModerator();
@@ -133,6 +141,13 @@ function AlinaRejectIfNotAdmin()
 function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
     if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
+        AlinaReject(null, 403, ___('DENIED'));
+    }
+}
+
+function AlinaRejectIfNotAdminOrModerator()
+{
+    if (!AlinaAccessIfAdminOrModerator()) {
         AlinaReject(null, 403, ___('DENIED'));
     }
 }

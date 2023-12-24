@@ -715,7 +715,7 @@ class _BaseAlinaModel
         if ($this->getModelByUniqueKeys($data)) {
             $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
             $table   = strtoupper($this->table);
-            $message = "{$table} with such {$fields} already exists";
+            $message = ___("{$table} with such {$fields} already exists");
             Message::setDanger($message);
             throw new AppExceptionValidation($message);
         }

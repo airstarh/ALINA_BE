@@ -2,7 +2,9 @@
 
 namespace alina\mvc\Controller;
 
+use alina\Message;
 use alina\mvc\Model\modelNamesResolver;
+use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
 use alina\traits\RequestProcessor;
 use alina\Utils\Data;
@@ -195,32 +197,40 @@ class AdminDbManager
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
             }
 
-            #####
+            ##################################################
             #reguin FIXES
             unset($p->form_id);
             if ($m->table === 'user') {
-                AlinaRejectIfNotAdmin();
-                if (!empty($p->password))
-                    $p->password = md5($p->password);
-                else
+                /**
+                 * All can save any info but password
+                 */
+                if (!empty($p->password)) {
+                    AlinaRejectIfNotAdmin();
+                } else {
                     unset($p->password);
+                }
             }
             #endreguin FIXES
-            #####
+            ##################################################
 
             $m->upsert($p);
             $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
             $newId = $m->id;
+            Message::setSuccess(___('Updated'));
         }
         ##################################################
         if ($flagReturn) {
             return $vd;
-        } else {
-            if ($flagModelIsNew && $newId) {
-                Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
-            }
-            echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         }
+
+        if ($flagModelIsNew && $newId) {
+            Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
+            return $this;
+        }
+
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+
+        return $this;
     }
 
     public function actionUpdate($table, $id, $data)
