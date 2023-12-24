@@ -270,6 +270,7 @@ class user extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
+        //ToDO: seems could be 1 line...
         if (!empty($dataArray['password'])) {
             $dataArray['password'] = static::encrypt($dataArray['password']);
         } else {
