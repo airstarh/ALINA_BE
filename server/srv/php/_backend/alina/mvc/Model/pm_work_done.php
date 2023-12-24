@@ -99,5 +99,20 @@ class pm_work_done extends _BaseAlinaModel
             ##### field ######
         ];
     }
+
+    public function hookRightBeforeSave(&$dataArray)
+    {
+        $mWork = new pm_work();
+        $mWork->getById($dataArray['pm_work_id']);
+        $coef                     = $mWork->attributes->price_this_work;
+        $dataArray['price_final'] = $dataArray['amount'] * $coef;
+
+        $mDepartment = new pm_department();
+        $mDepartment->getById($mWork->attributes->pm_department_id);
+        $price_min               = $mDepartment->attributes->price_min;
+        $dataArray['time_spent'] = $dataArray['price_final'] / $price_min;
+
+        return $this;
+    }
     #####
 }

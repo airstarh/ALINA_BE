@@ -69,15 +69,20 @@ $listWorkDone = $data['listWorkDone'];
                         <table class="alina-data-table">
                             <thead>
                             <tr>
-                                <th></th>
+                                <th><?= ___("Date") ?></th>
+                                <th><?= ___("Name") ?></th>
+                                <th><?= ___("amount") ?></th>
+                                <th><?= ___("price_final") ?></th>
+                                <th><?= ___("time_spent") ?></th>
                             </tr>
                             </thead>
                             <?php foreach ($listWorkDone as $k => $v): ?>
                                 <tr>
-                                    <td><?= $v->id ?></td>
+                                    <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
                                     <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
                                     <td><?= $v->amount ?></td>
-                                    <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
+                                    <td><?= $v->price_final ?></td>
+                                    <td><?= $v->time_spent ?></td>
                                     <td>
                                         <form action="" method="post">
                                             <input type="hidden" name="form_id" value="actionFillWorkUnitDone">

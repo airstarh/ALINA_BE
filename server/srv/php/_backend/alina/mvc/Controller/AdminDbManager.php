@@ -199,7 +199,11 @@ class AdminDbManager
             #reguin FIXES
             unset($p->form_id);
             if ($m->table === 'user') {
-                unset($p->password);
+                AlinaRejectIfNotAdmin();
+                if (!empty($p->password))
+                    $p->password = md5($p->password);
+                else
+                    unset($p->password);
             }
             #endreguin FIXES
             #####
