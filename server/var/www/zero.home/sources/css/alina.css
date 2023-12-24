@@ -331,6 +331,11 @@ a.no-decoration:active {
     color: #fff;
 }
 
+.alert-success {
+    background-color: darkgreen;
+    color: #fff;
+}
+
 .ck-content a {
     display: inline-block !important;
     word-wrap: break-word !important;
