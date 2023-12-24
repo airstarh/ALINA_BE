@@ -3,7 +3,7 @@ return [
     'appNamespace'        => 'alina',
     'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
     'fileUploadDir'       => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
-    'logVisitsToDb'       => TRUE,
+    'logVisitsToDb'       => true,
     'db'                  => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
     'mvc'                 => [
         'defaultController'       => 'Root',
@@ -21,16 +21,16 @@ return [
         ],
     ],
     // Routes, Aliases.
-    'forceSysPathToAlias' => TRUE,
+    'forceSysPathToAlias' => true,
     'vocAliasUrl'         => [
         'sitemap.xml'                 => 'sitemap',
         'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
         'Рест_Запрос'                 => 'alinaRestAccept/index',
     ],
     'debug'               => [
-        'toPage' => TRUE,
-        'toDb'   => TRUE,
-        'toFile' => FALSE,
+        'toPage' => true,
+        'toDb'   => true,
+        'toFile' => false,
     ],
     'watcher'             => [
         'maxPer1sec'          => 20,
