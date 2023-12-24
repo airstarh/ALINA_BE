@@ -14,6 +14,8 @@ use alina\Utils\Request;
 
 class Pm
 {
+    const URL_FILL_REPORT = '/pm/fill';
+
     public function __construct()
     {
 
@@ -34,7 +36,7 @@ class Pm
         return $this;
     }
 
-    public function actionFillWorkUnitDone(
+    public function actionFill(
         $organization_id = null,
         $department_id = null,
         $project_id = null,
@@ -50,7 +52,7 @@ class Pm
         $vd['breadcrumbs']   = [];
         $vd['listWorkDone']  = [];
         ##################################################
-        $href          = '/pm/FillWorkUnitDone';
+        $href          = static::URL_FILL_REPORT;
         $mOrganization = new pm_organization();
         $mDepartment   = new pm_department();
         $mProject      = new pm_project();
@@ -157,7 +159,8 @@ class Pm
                                 ],
                                     [["$mWorkDone->alias.modified_at", 'DESC']]
                                 )
-                                ->toArray();
+                                                                ->toArray()
+                                ;
 
                             }
 
@@ -186,7 +189,7 @@ class Pm
 
     public function url(...$args)
     {
-        $url = '/pm/FillWorkUnitDone';
+        $url = static::URL_FILL_REPORT;
         $res = $args;
         array_unshift($res, $url);
         $res = array_filter($res);

@@ -21,7 +21,7 @@ $linkWorkDoneList     = '';
 
     <h2><?= ___("Common Things") ?></h2>
 
-    <a href="/pm/FillWorkUnitDone"
+    <a href="<?= \alina\mvc\Controller\Pm::URL_FILL_REPORT ?>"
        class="btn btn-primary"
        target="_blank"
     ><?= ___("Report Work Unit Done") ?></a>
