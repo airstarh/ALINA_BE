@@ -127,12 +127,20 @@ class Pm
                                 ##################################################
                                 #region POST
                                 if (Request::obj()->isPostPutDelete()) {
-                                    $amount     = Request::obj()->POST->amount;
-                                    $pm_work_id = Request::obj()->POST->pm_work_id;
-                                    $mWorkDone->insert([
-                                        'amount'     => $amount,
-                                        'pm_work_id' => $pm_work_id,
-                                    ]);
+                                    switch (Request::obj()->POST->do) {
+                                        case 'insert_pm_work_done':
+                                            $amount     = Request::obj()->POST->amount;
+                                            $pm_work_id = Request::obj()->POST->pm_work_id;
+                                            $mWorkDone->insert([
+                                                'amount'     => $amount,
+                                                'pm_work_id' => $pm_work_id,
+                                            ]);
+                                            break;
+                                        case 'delete_pm_work_done':
+                                            $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
+                                            (new pm_work_done())->smartDeleteById($pm_work_done_id);
+                                            break;
+                                    }
                                 }
                                 #endregion POST
                                 ##################################################
