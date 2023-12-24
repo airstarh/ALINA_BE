@@ -255,6 +255,10 @@ a.no-decoration:active {
     margin: 0;
 }
 
+.alert {
+    font-family: monospace, monospace;
+}
+
 /*endregion Messages*/
 /* ################################################## */
 /*region ck-editor*/
@@ -319,6 +323,12 @@ a.no-decoration:active {
     overflow-y: auto;
     background-color: #000;
     color: #70ff70;
+    font-family: monospace, monospace;
+}
+
+.alert-danger {
+    background-color: darkred;
+    color: #fff;
 }
 
 .ck-content a {
