@@ -255,6 +255,7 @@ class AdminDbManager
         $mNew->insert($data);
         $newId = $mNew->id;
         Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
+        return $this;
     }
     ###
 }

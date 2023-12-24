@@ -46,6 +46,7 @@ class Pm
         $vd                  = [];
         $vd['func_get_args'] = func_get_args();
         $vd['list']          = [];
+        $vd['listOfTable']   = null;
         $vd['breadcrumbs']   = [];
         $vd['listWorkDone']  = [];
         ##################################################
@@ -59,7 +60,8 @@ class Pm
         $mWorkDone     = new pm_work_done();
         ##################################################
         if (empty($organization_id)) {
-            $vd['list'] = $mOrganization->getAllWithReferences()->toArray();
+            $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
+            $vd['listOfTable'] = $mOrganization->table;
         } else {
             $mOrganization->getOneWithReferencesById($organization_id);
             $href                = "$href/$mOrganization->id";
@@ -68,7 +70,8 @@ class Pm
                 'href' => $href,
             ];
             if (empty($department_id)) {
-                $vd['list'] = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
+                $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
+                $vd['listOfTable'] = $mDepartment->table;
             } else {
                 $mDepartment->getOneWithReferencesById($department_id);
                 $href                = "$href/$mDepartment->id";
@@ -78,7 +81,8 @@ class Pm
                 ];
 
                 if (empty($project_id)) {
-                    $vd['list'] = $mProject->getAllWithReferences([['pm_department_id', '=', $department_id]])->toArray();
+                    $vd['list']        = $mProject->getAllWithReferences([['pm_department_id', '=', $department_id]])->toArray();
+                    $vd['listOfTable'] = $mProject->table;
                 } else {
                     $mProject->getOneWithReferencesById($project_id);
                     $href                = "$href/$mProject->id";
@@ -88,7 +92,8 @@ class Pm
                     ];
 
                     if (empty($task_id)) {
-                        $vd['list'] = $mTask->getAllWithReferences([['pm_project_id', '=', $project_id]])->toArray();
+                        $vd['list']        = $mTask->getAllWithReferences([['pm_project_id', '=', $project_id]])->toArray();
+                        $vd['listOfTable'] = $mTask->table;
                     } else {
                         $mTask->getOneWithReferencesById($task_id);
                         $href                = "$href/$mTask->id";
@@ -98,7 +103,8 @@ class Pm
                         ];
 
                         if (empty($subtask_id)) {
-                            $vd['list'] = $mSubTask->getAllWithReferences([['pm_task_id', '=', $task_id]])->toArray();
+                            $vd['list']        = $mSubTask->getAllWithReferences([['pm_task_id', '=', $task_id]])->toArray();
+                            $vd['listOfTable'] = $mSubTask->table;
                         } else {
                             $mSubTask->getOneWithReferencesById($subtask_id);
                             $href                = "$href/$mSubTask->id";
@@ -108,7 +114,7 @@ class Pm
                             ];
 
                             if (empty($work_id)) {
-                                $vd['list'] = $mWork->getAllWithReferences([
+                                $vd['list']        = $mWork->getAllWithReferences([
                                     ['flag_archived', '=', 0],
                                     ["$mWork->alias.pm_organization_id", '=', $organization_id],
                                     ["$mWork->alias.pm_department_id", '=', $department_id],
@@ -116,6 +122,7 @@ class Pm
                                     ["$mWork->alias.pm_task_id", '=', $task_id],
                                     ["$mWork->alias.pm_subtask_id", '=', $subtask_id],
                                 ])->toArray();
+                                $vd['listOfTable'] = $mWork->table;
                             } else {
                                 $mWork->getOneWithReferencesById($work_id);
                                 $href                = "$href/$mWork->id";
