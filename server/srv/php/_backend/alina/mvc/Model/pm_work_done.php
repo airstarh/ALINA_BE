@@ -75,6 +75,11 @@ class pm_work_done extends _BaseAlinaModel
                 # for Select With References
                 'joins'      => [
                     ['leftJoin', 'pm_work AS pm_work', 'pm_work.id', '=', "{$this->alias}.pm_work_id"],
+                    ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', 'pm_work.pm_subtask_id'],
+                    ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', 'pm_work.pm_task_id'],
+                    ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', 'pm_work.pm_project_id'],
+                    ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', 'pm_work.pm_department_id'],
+                    ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', 'pm_work.pm_organization_id'],
                 ],
                 'conditions' => [],
                 'addSelects' => [
@@ -82,6 +87,11 @@ class pm_work_done extends _BaseAlinaModel
                         'addSelect',
                         [
                             'pm_work.name_human AS pm_work.name_human',
+                            'pm_subtask.name_human AS pm_subtask.name_human',
+                            'pm_task.name_human AS pm_task.name_human',
+                            'pm_project.name_human AS pm_project.name_human',
+                            'pm_department.name_human AS pm_department.name_human',
+                            'pm_organization.name_human AS pm_organization.name_human',
                         ],
                     ],
                 ],
