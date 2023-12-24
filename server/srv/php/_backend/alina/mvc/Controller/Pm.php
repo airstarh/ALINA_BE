@@ -156,7 +156,8 @@ class Pm
                                     ["$mWorkDone->alias.pm_work_id", '=', $work_id],
                                 ],
                                     [["$mWorkDone->alias.modified_at", 'DESC']]
-                                );
+                                )
+                                ->toArray();
 
                             }
 

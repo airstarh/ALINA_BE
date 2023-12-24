@@ -29,6 +29,16 @@ $listWorkDone = $data['listWorkDone'];
                     </div>
                 <?php endforeach; ?>
             </div>
+            <div>
+                <?php foreach ($list as $item): ?>
+                    <div class="m-3">
+                        <a href="<?= $url ?>/<?= $item->id ?>"
+                           class="btn btn-lg text-left bg-black text-white"
+                        ><?= $item->name_human ?></a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
 
             <!--########################################################################################################################-->
             <!--region IF WORK ID-->
@@ -54,47 +64,39 @@ $listWorkDone = $data['listWorkDone'];
                     </form>
                 </div>
 
-                <div class="bg-black">
-                    <table class="alina-data-table">
-                        <thead>
-                        <tr>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <?php foreach ($listWorkDone as $k => $v): ?>
+                <?php if (!empty($listWorkDone)): ?>
+                    <div class="bg-black">
+                        <table class="alina-data-table">
+                            <thead>
                             <tr>
-                                <td><?= $v->id ?></td>
-                                <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
-                                <td><?= $v->amount ?></td>
-                                <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
-                                <td>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
-                                        <input type="hidden" name="do" value="delete_pm_work_done">
-                                        <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
-                                        <button type="submit"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirm('<?= ___("Are you sure?") ?>');"
-                                        ><?= ___("Delete") ?></button>
-                                    </form>
-                                </td>
+                                <th></th>
                             </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
+                            </thead>
+                            <?php foreach ($listWorkDone as $k => $v): ?>
+                                <tr>
+                                    <td><?= $v->id ?></td>
+                                    <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
+                                    <td><?= $v->amount ?></td>
+                                    <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
+                                    <td>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
+                                            <input type="hidden" name="do" value="delete_pm_work_done">
+                                            <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                            ><?= ___("Delete") ?></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
             <!--region IF WORK ID
             <!--########################################################################################################################-->
-
-            <div>
-                <?php foreach ($list as $item): ?>
-                    <div class="m-3">
-                        <a href="<?= $url ?>/<?= $item->id ?>"
-                           class="btn btn-lg text-left bg-black text-white"
-                        ><?= $item->name_human ?></a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
 
 
             <!--endregion PAGE-->
