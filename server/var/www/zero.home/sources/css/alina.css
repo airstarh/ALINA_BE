@@ -47,10 +47,10 @@ body {
     color: var(--alina-main-txt) !important;
 }
 
-table.alina-data-table th
-,table.alina-data-table td
-{
+table.alina-data-table th, table.alina-data-table td {
     padding-left: 2ch;
+    padding-top: 3px;
+    padding-bottom: 2px;
     vertical-align: top;
 }
 
@@ -151,19 +151,16 @@ https://the-echoplex.net/flexyboxes/
     margin-bottom: 1px;
 }
 
-.form-control
-, .form-control:focus
-{
+.form-control, .form-control:focus {
     background-color: #000;
     color: #fff;
 }
 
- .form-control:disabled{
-     background-color: var(--alina-main-bg);
- }
+.form-control:disabled {
+    background-color: var(--alina-main-bg);
+}
 
-select.form-control option
-{
+select.form-control option {
     font-size: 1.5rem;
 }
 
@@ -179,6 +176,7 @@ select option:checked {
     background-color: #1b1e21;
     padding: 1px 5px;
 }
+
 /*endregion Form*/
 /*##################################################*/
 /*region UTILS*/

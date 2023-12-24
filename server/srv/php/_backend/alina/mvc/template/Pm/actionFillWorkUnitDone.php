@@ -35,8 +35,9 @@ $listWorkDone = $data['listWorkDone'];
             <?php if ($mWork->id): ?>
                 <div class="mt-5 mb-5">
                     <form action="" method="post">
+                        <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
+                        <input type="hidden" name="do" value="insert_pm_work_done">
                         <input type="hidden" name="pm_work_id" value="<?= $mWork->id ?>">
-                        <input type="hidden" name="form_id" value="<?= $mWork->id ?>">
 
                         <div class="text-center">
                             <label>
@@ -53,12 +54,10 @@ $listWorkDone = $data['listWorkDone'];
                     </form>
                 </div>
 
-                <div>
+                <div class="bg-black">
                     <table class="alina-data-table">
-                        <thead >
+                        <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
                             <th></th>
                         </tr>
                         </thead>
@@ -68,6 +67,17 @@ $listWorkDone = $data['listWorkDone'];
                                 <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
                                 <td><?= $v->amount ?></td>
                                 <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
+                                <td>
+                                    <form action="" method="post">
+                                        <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
+                                        <input type="hidden" name="do" value="delete_pm_work_done">
+                                        <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                        ><?= ___("Delete") ?></button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </table>
