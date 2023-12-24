@@ -33,7 +33,7 @@ class user extends _BaseAlinaModel
                     [
                         'f'       => 'strlen',
                         'errorIf' => [false, 0],
-                        'msg'     => 'Email is required!',
+                        'msg'     => ___('Email is required!'),
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
@@ -42,7 +42,7 @@ class user extends _BaseAlinaModel
                                 return filter_var($v, FILTER_VALIDATE_EMAIL);
                             },
                         'errorIf' => [false, 0],
-                        'msg'     => 'Invalid Email Address!',
+                        'msg'     => ___('Invalid Email Address!'),
                     ],
                 ],
             ],
@@ -57,7 +57,7 @@ class user extends _BaseAlinaModel
                         // 'f' - Could be a closure, string with function name or an array
                         'f'       => 'strlen',
                         'errorIf' => [false, 0],
-                        'msg'     => 'Password cannot be empty',
+                        'msg'     => ___('Password cannot be empty'),
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
@@ -65,7 +65,7 @@ class user extends _BaseAlinaModel
                             return Str::lessThan($v, 8);
                         },
                         'errorIf' => [true],
-                        'msg'     => 'Password length cannot be less than 8 symbols',
+                        'msg'     => ___('Password length cannot be less than 8 symbols'),
                     ],
                 ],
             ],
