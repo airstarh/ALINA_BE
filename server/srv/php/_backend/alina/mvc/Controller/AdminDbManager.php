@@ -16,6 +16,12 @@ class AdminDbManager
 {
     use RequestProcessor;
 
+    const URL_DB         = '/AdminDbManager/DbTablesColumnsInfo';
+    const URL_LIST       = '/AdminDbManager/Models';
+    const URL_ROW_EDIT   = '/AdminDbManager/EditRow';
+    const URL_ROW_COPY   = '/AdminDbManager/Copy';
+    const URL_ROW_DELETE = '/AdminDbManager/Delete';
+
     public function __construct()
     {
         //AlinaRejectIfNotAdmin();
