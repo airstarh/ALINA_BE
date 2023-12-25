@@ -88,10 +88,12 @@ $listWorkDone = $data['listWorkDone'];
                                             <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
                                             <input type="hidden" name="do" value="delete_pm_work_done">
                                             <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('<?= ___("Are you sure?") ?>');"
-                                            ><?= ___("Delete") ?></button>
+                                            <?php if (AlinaAccessIfAdminOrModeratorOrOwner($v->assignee_id)): ?>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                                ><?= ___("Delete") ?></button>
+                                            <?php endif; ?>
                                         </form>
                                     </td>
                                 </tr>
