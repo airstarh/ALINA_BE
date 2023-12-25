@@ -6,12 +6,14 @@ class pm_task extends _BaseAlinaModel
 {
     public $table        = 'pm_task';
     public $addAuditInfo = true;
+    public $sortDefault  = [["order_in_view", 'ASC'], ["id", 'ASC']];
 
     public function fields()
     {
         return [
             'id'            => [],
             'name_human'    => [],
+            'order_in_view' => ['default' => 0],
             'pm_project_id' => [],
             'manager_id'    => [],
             'assignee_id'   => [],

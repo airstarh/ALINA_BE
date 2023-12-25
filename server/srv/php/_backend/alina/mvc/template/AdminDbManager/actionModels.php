@@ -77,7 +77,10 @@ $colHeaders = array_keys((array)$models[0]);
                         method="get"
                 >
                     <input type="hidden" name="form_id" value="<?= $formIdSearch ?>"/>
-                    <button type="submit" class="btn btn-sm btn-info m-1"><?= ___("Search") ?></button>
+                    <button type="submit" class="btn btn-sm btn-secondary bg-black m-1"><?= ___("Search") ?></button>
+                    <br>
+                    <br>
+                    <br>
                     <br>
                     <a class="btn btn-sm btn-warning m-1" href="<?= RequestAlias::obj()->URL_PATH ?>"><?= ___("Reset") ?></a>
                 </form>

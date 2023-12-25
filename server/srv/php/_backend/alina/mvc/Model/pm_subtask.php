@@ -17,7 +17,7 @@ class pm_subtask extends _BaseAlinaModel
             'id'             => [],
             'name_human'     => [],
             'time_estimated' => [],
-            'order_in_view'  => [],
+            'order_in_view'  => ['default' => 0],
             'pm_task_id'     => ['default' => 1,],
             'manager_id'     => [],
             'assignee_id'    => [],
@@ -228,7 +228,6 @@ class pm_subtask extends _BaseAlinaModel
             ___('New Work price:'),
             $price_this_work,
         ]));
-
 
 
         return $this;
