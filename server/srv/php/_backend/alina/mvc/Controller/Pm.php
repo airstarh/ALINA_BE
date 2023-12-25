@@ -204,7 +204,7 @@ class Pm
         $vd['breadcrumbs']   = [];
         $vd['listWorkDone']  = [];
         ##################################################
-        $href          = static::URL_FILL_REPORT;
+        $href          = static::URL_EDIT;
         $mOrganization = new pm_organization();
         $mDepartment   = new pm_department();
         $mProject      = new pm_project();
@@ -213,6 +213,7 @@ class Pm
         $mWork         = new pm_work();
         $mWorkDone     = new pm_work_done();
         ##################################################
+
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
             $vd['listOfTable'] = $mOrganization->table;

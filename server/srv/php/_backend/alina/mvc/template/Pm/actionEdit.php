@@ -1,9 +1,11 @@
 <?php
 /**@var $data array */
 
+use alina\mvc\Controller\AdminDbManager;
 use alina\mvc\View\html;
 
 $list         = $data['list'];
+$listOfTable  = $data['listOfTable'];
 $url          = $data['url'];
 $breadcrumbs  = $data['breadcrumbs'];
 $mWork        = $data['mWork'];
@@ -29,15 +31,33 @@ $listWorkDone = $data['listWorkDone'];
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div>
-                <?php foreach ($list as $item): ?>
-                    <div class="m-3">
-                        <a href="<?= $url ?>/<?= $item->id ?>"
-                           class="btn btn-lg text-left bg-black text-white"
-                        ><?= $item->name_human ?></a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+
+            <!--########################################################################################################################-->
+            <!--region LIST -->
+            <?php if (!empty($list)): ?>
+                <div>
+                    <?php foreach ($list as $item): ?>
+                        <div class="m-3">
+                            <div class="row">
+                                <div class="col">
+                                    <a href="<?= $url ?>/<?= $item->id ?>"
+                                       class="btn btn-lg text-left bg-black text-white"
+                                    ><?= $item->name_human ?></a>
+
+                                    <a href="<?= AdminDbManager::URL_ROW_EDIT ?>/<?= $listOfTable ?>/<?= $item->id ?>"
+                                       class="btn btn-sm btn-primary"
+                                       target="_blank"
+                                    ><?= ___("Edit") ?></a>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <!--endregion LIST -->
+            <!--########################################################################################################################-->
 
 
             <!--########################################################################################################################-->
