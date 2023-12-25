@@ -24,7 +24,7 @@ class AdminDbManager
 
     public function __construct()
     {
-        //AlinaRejectIfNotAdmin();
+        AlinaRejectIfNotAdminOrModerator();
     }
 
     /**

@@ -14,7 +14,7 @@ use alina\Utils\Sys;
 
 <div class="alina-flex-vertical-container alina-vh-100">
     <div class="alina-flex-vertical-header">
-        <h1>Oh... Ah... Error happened <a title="Return to home page" href="/">¯\_(ツ)_/¯</a></h1>
+        <h1><?= ___("Oh... Ah... Error happened") ?> <a title="Return to home page" href="/">¯\_(ツ)_/¯</a></h1>
     </div>
     <div class="alina-flex-vertical-content">
         <div class="container">
