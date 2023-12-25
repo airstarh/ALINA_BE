@@ -7,6 +7,7 @@ use alina\traits\Singleton;
 class Request
 {
     use Singleton;
+
     public $DOMAIN;
     public $URL_PATH;
     public $METHOD;
@@ -79,7 +80,7 @@ class Request
         return $res;
     }
 
-    public function tryHeader($prop, &$val = NULL)
+    public function tryHeader($prop, &$val = null)
     {
         $val = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
 
@@ -89,7 +90,7 @@ class Request
 
     ##################################################
     #region Facade
-    static public function isPost(&$post = NULL)
+    static public function isPost(&$post = null)
     {
         $is = static::obj()->METHOD === 'POST';
         if ($is) {
@@ -99,7 +100,7 @@ class Request
         return $is;
     }
 
-    static public function isPut(&$post = NULL)
+    static public function isPut(&$post = null)
     {
         $is = static::obj()->METHOD === 'PUT';
         if ($is) {
@@ -119,7 +120,7 @@ class Request
         return $is;
     }
 
-    static public function isGet(&$get = NULL)
+    static public function isGet(&$get = null)
     {
         $is = static::obj()->METHOD === 'GET';
         if ($is) {
@@ -129,7 +130,7 @@ class Request
         return $is;
     }
 
-    static public function isPostPutDelete(&$post = NULL)
+    static public function isPostPutDelete(&$post = null)
     {
         $is = static::isPost($post);
         if ($is) return $is;
@@ -138,10 +139,31 @@ class Request
         $is = static::isDelete($post);
         if ($is) return $is;
 
-        return FALSE;
+        return false;
     }
 
-    static public function has($key, &$value = NULL)
+    /**
+     * ;)
+     * This is implemented to workaround COPY ON THE FLY process.
+     * When we copy a Model with UNIQUE fields.
+     * xD xD xD
+     */
+    static public function lieThatPost($data = [])
+    {
+        if ($data) {
+            $_POST              = (array)$data;
+            static::obj()->POST = (object)$data;
+        } else {
+            $_POST              = [];
+            static::obj()->POST = (object)[];
+        }
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        static::obj()->METHOD      = 'POST';
+
+        return static::obj()->POST;
+    }
+
+    static public function has($key, &$value = null)
     {
         $is = property_exists(static::obj()->R, $key);
         if ($is) {
