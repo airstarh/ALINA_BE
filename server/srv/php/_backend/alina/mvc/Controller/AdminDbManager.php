@@ -175,7 +175,7 @@ class AdminDbManager
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
     }
 
-    public function actionEditRow($table, $id, $flagReturn = false)
+    public function actionEditRow($table, $id)
     {
         $newId          = null;
         $flagModelIsNew = false;
@@ -186,6 +186,9 @@ class AdminDbManager
         } else {
             $flagModelIsNew = true;
             $m->buildDefaultData();
+            if (!empty(Request::obj()->GET)) {
+                $m->attributes = Data::mergeObjects($m->attributes, Request::obj()->GET);
+            }
         }
 
         $vd->model   = $m;
@@ -193,9 +196,14 @@ class AdminDbManager
         ##################################################
         $p = Sys::resolvePostDataAsObject();
         if (!empty((array)$p)) {
+
+            ##############################
+            #region CHECK OWNERSHIP
             if (property_exists($p, 'owner_id')) {
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
             }
+            #endregion CHECK OWNERSHIP
+            ##############################
 
             ##################################################
             #reguin FIXES
@@ -219,9 +227,6 @@ class AdminDbManager
             Message::setSuccess(___('Updated'));
         }
         ##################################################
-        if ($flagReturn) {
-            return $vd;
-        }
 
         if ($flagModelIsNew && $newId) {
             Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
@@ -265,11 +270,12 @@ class AdminDbManager
         $m->getById($id);
         $data = $m->attributes;
         unset($data->{$m->pkName});
-        $mNew = modelNamesResolver::getModelObject($table);
-        $mNew->insert($data);
-        $newId = $mNew->id;
-        Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
-        return $this;
+        //$mNew = modelNamesResolver::getModelObject($table);
+        //$mNew->insert($data);
+        //$newId = $mNew->id;
+        $url  = "//admindbmanager/editrow/$table/new";
+        $page = \alina\Utils\Url::addGetFromObject($url, $data);
+        Sys::redirect($page, 303);
     }
     ###
 }
