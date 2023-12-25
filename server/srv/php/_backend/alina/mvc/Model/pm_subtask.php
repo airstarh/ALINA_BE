@@ -159,11 +159,15 @@ class pm_subtask extends _BaseAlinaModel
         $pm_department   = new pm_department();
         $pm_organization = new pm_organization();
 
-        if (!empty($id)) $pm_subtask->getOneWithReferences([["$pm_subtask->alias.id", '=', $id]]);
-        $pm_task->getOneWithReferences([["$pm_task->alias.id", '=', $pm_subtask->attributes->pm_task_id]]);
-        $pm_project->getOneWithReferences([["$pm_project->alias.id", '=', $pm_task->attributes->pm_project_id]]);
-        $pm_department->getOneWithReferences([["$pm_department->alias.id", '=', $pm_project->attributes->pm_department_id]]);
-        $pm_organization->getOneWithReferences([["$pm_organization->alias.id", '=', $pm_department->attributes->pm_organization_id]]);
+        if (!empty($id)) {
+            $pm_subtask->getOneWithReferencesById($id);
+        } else {
+            $pm_subtask->getOneWithReferencesById($pm_subtask->id);
+        }
+        $pm_task->getOneWithReferencesById($pm_subtask->attributes->pm_task_id);
+        $pm_project->getOneWithReferencesById($pm_task->attributes->pm_project_id);
+        $pm_department->getOneWithReferencesById($pm_project->attributes->pm_department_id);
+        $pm_organization->getOneWithReferencesById($pm_department->attributes->pm_organization_id);
 
         $this->attributes->pm_task         = $pm_task->attributes;
         $this->attributes->pm_project      = $pm_project->attributes;
@@ -177,14 +181,20 @@ class pm_subtask extends _BaseAlinaModel
     {
         #####
         #region CALCULATE WORK NAME
-        $name_human = implode(' | ', [
-            $this->attributes->pm_department->name_human,
-            $this->attributes->pm_department->price_min,
-            $this->attributes->pm_project->name_human,
-            $this->attributes->pm_project->price_multiplier,
-            $this->attributes->pm_task->name_human,
-            $this->attributes->name_human,
-            $this->attributes->time_estimated,
+        $department           = $this->attributes->pm_department->name_human;
+        $departmentMultiplier = $this->attributes->pm_department->price_min;
+        $project              = $this->attributes->pm_project->name_human;
+        $projectMultiplier    = $this->attributes->pm_project->price_multiplier;
+        $task                 = $this->attributes->pm_task->name_human;
+        $subtask              = $this->attributes->name_human;
+        $subtaskMultiplier    = $this->attributes->time_estimated;
+
+        $name_human = implode(' ', [
+            "$departmentMultiplier, $projectMultiplier, $subtaskMultiplier",
+            $department,
+            $project,
+            $task,
+            $subtask,
         ]);
         #endregion CALCULATE WORK NAME
         #####

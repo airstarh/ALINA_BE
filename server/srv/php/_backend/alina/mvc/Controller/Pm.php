@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Controller;
 
+use alina\Message;
+use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\Model\pm_department;
 use alina\mvc\Model\pm_organization;
 use alina\mvc\Model\pm_project;
@@ -214,6 +216,25 @@ class Pm
         $mWorkDone     = new pm_work_done();
         ##################################################
 
+        ##################################################
+        #region POST 2
+        if (Request::obj()->isPostPutDelete()) {
+            $p = Request::obj()->POST;
+            switch ($p->do) {
+                case 'order_in_view':
+                    foreach ($p->order_in_view as $id => $order) {
+
+                        $m = modelNamesResolver::getModelObject($p->model);
+                        $m->updateById([
+                            'order_in_view' => $order,
+                        ], $id);
+                    }
+                    break;
+            }
+        }
+        #endregion POST 2
+        ##################################################
+
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
             $vd['listOfTable'] = $mOrganization->table;
@@ -289,6 +310,7 @@ class Pm
                                 ##################################################
                                 #region POST
                                 if (Request::obj()->isPostPutDelete()) {
+
                                     switch (Request::obj()->POST->do) {
                                         case 'insert_pm_work_done':
                                             $amount     = Request::obj()->POST->amount;
@@ -301,6 +323,10 @@ class Pm
                                         case 'delete_pm_work_done':
                                             $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
                                             (new pm_work_done())->smartDeleteById($pm_work_done_id);
+                                            break;
+                                        case 'order_in_view':
+                                            print_r($_POST);
+                                            Message::setSuccess('AAAAAAAAA');
                                             break;
                                     }
                                 }
@@ -324,6 +350,9 @@ class Pm
                 }
             }
         }
+        ##################################################
+
+
         ##################################################
 
         ##################################################

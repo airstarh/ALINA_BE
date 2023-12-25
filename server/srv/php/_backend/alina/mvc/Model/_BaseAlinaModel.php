@@ -346,6 +346,7 @@ class _BaseAlinaModel
         $data   = Data::toObject($data);
         $pkName = $this->pkName;
         if (isset($id) && !empty($id)) {
+            $this->setPkValue($id);
             $pkValue = $id;
         } else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
             $this->setPkValue($data->{$pkName});
