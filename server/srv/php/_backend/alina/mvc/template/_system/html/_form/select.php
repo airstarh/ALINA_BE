@@ -9,6 +9,8 @@ $name        = !empty($multiple) ? "{$data->name}[]" : $data->name;
 $value       = $data->value;
 $options     = $data->options;
 $placeholder = @$data->placeholder ?: '';
+$disabled    = @$data->disabled ?: '';
+$showLabel   = @$data->showLabel ?: false;
 #####
 $_options = [];
 foreach ($options as $i => $v) {
@@ -43,6 +45,7 @@ $_value_keys = array_keys($_value);
 ?>
 
 <div class="form-group mt-3">
+
     <label class="d-block">
         <?= htmlAlias::elBootstrapBadge([
             'title' => $name,
@@ -52,6 +55,7 @@ $_value_keys = array_keys($_value);
                 name="<?= $name ?>"
                 class="form-control"
             <?= $multiple ?>
+            <?= $disabled ?>
             <?php if (!empty($multiple)) { ?>
                 size="<?= count($_options) + 2 ?>"
             <?php } ?>
