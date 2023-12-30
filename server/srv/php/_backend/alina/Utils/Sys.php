@@ -282,9 +282,22 @@ class Sys
     static public function reportSpentTime($prepend = [], $append = [])
     {
         $main = [
+            number_format(static::getMicroTimeDifferenceFromNow(ALINA_MICROTIME), 10, '.', ' '),
             "SPENT",
             $_SERVER['SERVER_ADDR'],
-            static::getMicroTimeDifferenceFromNow(ALINA_MICROTIME),
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+        ];
+        $res  = array_merge($prepend, $main, $append);
+
+        return implode(' | ', $res);
+    }
+
+    static public function reportMemoryUsed($prepend = [], $append = [])
+    {
+        $main = [
+            number_format(memory_get_usage(), 10, '.', ' '),
+            "USED",
+            $_SERVER['SERVER_ADDR'],
             isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
         ];
         $res  = array_merge($prepend, $main, $append);
