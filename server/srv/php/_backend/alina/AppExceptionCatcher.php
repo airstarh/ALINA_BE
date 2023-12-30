@@ -30,7 +30,7 @@ class AppExceptionCatcher
         return new static;
     }
 
-    public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext)
+    public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext = null)
     {
         //AlinaResponseSuccess(0);
         if (!(error_reporting() & $strErrLevelExpSeverity)) {
