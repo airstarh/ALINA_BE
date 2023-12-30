@@ -237,4 +237,24 @@ function ___($str, $loc = 'ru_RU')
 {
     return \alina\Services\AlinaTranslate::obj()->t($str, $loc);
 }
+
+##################################################
+#region DEBUG
+function AlinaDebugJson($data)
+{
+    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+}
+
+function AlinaDebugTime($prepend = [], $append = [])
+{
+    $data = \alina\Utils\Sys::reportSpentTime($prepend, $append);
+    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+}
+
+function AlinaDebugMemory($prepend = [], $append = [])
+{
+    $data = \alina\Utils\Sys::reportMemoryUsed($prepend, $append);
+    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+}
+#endregion DEBUG
 ##################################################
