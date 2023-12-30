@@ -37,7 +37,73 @@ $listWorkDone = $data['listWorkDone'];
             <?php if (!empty($list)): ?>
                 <div>
 
+                    <!--########################################################################################################################-->
+                    <!--region FORM NEW-->
+                    <?php if (true): ?>
+                        <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-3 mb-3">
+                            <h3><?= ___($listOfTable) ?></h3>
+                            <input type="hidden" name="form_id" value="new_model">
+                            <input type="hidden" name="do" value="new_model">
+                            <input type="hidden" name="model" value="<?= $listOfTable ?>">
+                            <button type="submit" form="new_model" class="btn btn-sm btn-primary"><?= ___("Create New") ?></button>
+                            <!--#####-->
+                            <input type="hidden" name="pm_organization_id" value="<?= $data['pm_organization_id'] ?>">
+                            <input type="hidden" name="pm_department_id" value="<?= $data['pm_department_id'] ?>">
+                            <input type="hidden" name="pm_project_id" value="<?= $data['pm_project_id'] ?>">
+                            <input type="hidden" name="pm_task_id" value="<?= $data['pm_task_id'] ?>">
+                            <input type="hidden" name="pm_subtask_id" value="<?= $data['pm_subtask_id'] ?>">
+                            <!--#####-->
 
+                            <!--region ORDER IN VIEW-->
+                            <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
+                                <label>
+                                    <input type="text" name="order_in_view" placeholder="<?= ___('order_in_view') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+                            <!--endregion ORDER IN VIEW-->
+
+                            <label>
+                                <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
+                            </label>
+
+                            <?php if (in_array($listOfTable, ['pm_department'])): ?>
+                                <label>
+                                    <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+
+                            <?php if (in_array($listOfTable, ['pm_project'])): ?>
+                                <label>
+                                    <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+
+                            <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
+                                <label>
+                                    <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+
+                            <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
+                                <label>
+                                    <input type="text" name="manager_id" placeholder="<?= ___('manager_id') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+
+
+                            <?php if (in_array($listOfTable, ['pm_project', 'pm_task', 'pm_subtask'])): ?>
+                                <label>
+                                    <input type="text" name="assignee_id" placeholder="<?= ___('assignee_id') ?>" class="form-control">
+                                </label>
+                            <?php endif; ?>
+                            <!--#####-->
+                        </form>
+                    <?php endif; ?>
+                    <!--endregion FORM NEW-->
+                    <!--########################################################################################################################-->
+
+                    <!--########################################################################################################################-->
+                    <!--region FORM ORDER -->
                     <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
                         <form action="" id="order_in_view" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="form_id" value="order_in_view">
@@ -46,7 +112,8 @@ $listWorkDone = $data['listWorkDone'];
                             <button type="submit" form="order_in_view" class="btn btn-sm btn-primary"><?= ___("Save New Order") ?></button>
                         </form>
                     <?php endif; ?>
-
+                    <!--endregion FORM ORDER -->
+                    <!--########################################################################################################################-->
 
                     <?php foreach ($list as $item): ?>
                         <div class="mt-3 mb-3">
@@ -68,6 +135,16 @@ $listWorkDone = $data['listWorkDone'];
                                        class="btn btn-sm btn-primary"
                                        target="_blank"
                                     ><?= ___("Edit") ?></a>
+
+                                    <form action="" method="post" class="d-inline">
+                                        <input type="hidden" name="form_id" value="delete_model">
+                                        <input type="hidden" name="do" value="delete_model">
+                                        <input type="hidden" name="model" value="<?= $listOfTable ?>">
+                                        <input type="hidden" name="id" value="<?= $item->id ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                        ><?= ___("Delete") ?> <?= $item->id ?></button>
+                                    </form>
                                 </div>
                             </div>
 
