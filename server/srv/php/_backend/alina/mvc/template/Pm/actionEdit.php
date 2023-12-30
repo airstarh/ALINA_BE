@@ -2,6 +2,7 @@
 /**@var $data array */
 
 use alina\mvc\Controller\AdminDbManager;
+use alina\mvc\Controller\Pm;
 use alina\mvc\View\html;
 
 $list         = $data['list'];
@@ -19,7 +20,17 @@ $userList     = $data['userList'];
             <!--region PAGE-->
 
             <div class="clear">&nbsp;</div>
-            <h1><?= ___("Edit Structure") ?></h1>
+            <h1>
+                <?= ___("Edit Structure") ?>
+
+                <a href="?"
+                   class="btn btn-lg btn-warning"
+                ><?= ___('Reload page') ?></a>
+
+                <a href="<?= Pm::URL_EDIT ?>"
+                   class="btn btn-lg btn-success"
+                ><?= ___('Start from the scratch') ?></a>
+            </h1>
             <div class="clear">&nbsp;</div>
 
             <div>
@@ -34,100 +45,100 @@ $userList     = $data['userList'];
             </div>
 
             <!--########################################################################################################################-->
+            <!--region FORM NEW-->
+            <?php if (true): ?>
+                <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-5 mb-5">
+                    <h3><?= ___($listOfTable) ?></h3>
+                    <input type="hidden" name="form_id" value="new_model">
+                    <input type="hidden" name="do" value="new_model">
+                    <input type="hidden" name="model" value="<?= $listOfTable ?>">
+                    <button type="submit" form="new_model" class="btn btn-sm btn-primary"><?= ___("Create New") ?></button>
+                    <!--#####-->
+                    <input type="hidden" name="pm_organization_id" value="<?= $data['pm_organization_id'] ?>">
+                    <input type="hidden" name="pm_department_id" value="<?= $data['pm_department_id'] ?>">
+                    <input type="hidden" name="pm_project_id" value="<?= $data['pm_project_id'] ?>">
+                    <input type="hidden" name="pm_task_id" value="<?= $data['pm_task_id'] ?>">
+                    <input type="hidden" name="pm_subtask_id" value="<?= $data['pm_subtask_id'] ?>">
+                    <!--#####-->
+
+                    <div class="mt-2">
+                        <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
+                            <label>
+                                <input type="text" name="order_in_view" placeholder="<?= ___('order_in_view') ?>" class="form-control">
+                            </label>
+                        <?php endif; ?>
+
+                        <label>
+                            <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
+                        </label>
+
+                        <?php if (in_array($listOfTable, ['pm_department'])): ?>
+                            <label>
+                                <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
+                            </label>
+                        <?php endif; ?>
+
+                        <?php if (in_array($listOfTable, ['pm_project'])): ?>
+                            <label>
+                                <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
+                            </label>
+                        <?php endif; ?>
+
+                        <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
+                            <label>
+                                <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
+                            </label>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mt-2">
+                        <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
+                            <label>
+
+                                <select name="manager_id" class="form-control">
+                                    <option value=""><?= ___('manager_id') ?></option>
+                                    <?php foreach ($userList as $user): ?>
+                                        <option value="<?= $user->id ?>">
+                                            <?= implode(' ', [
+                                                $user->firstname,
+                                                $user->lastname,
+                                                $user->mail,
+                                            ]); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        <?php endif; ?>
+
+
+                        <?php if (in_array($listOfTable, ['pm_project', 'pm_task', 'pm_subtask'])): ?>
+                            <label>
+
+                                <select name="assignee_id" class="form-control">
+                                    <option value=""><?= ___('assignee_id') ?></option>
+                                    <?php foreach ($userList as $user): ?>
+                                        <option value="<?= $user->id ?>">
+                                            <?= implode(' ', [
+                                                $user->firstname,
+                                                $user->lastname,
+                                                $user->mail,
+                                            ]); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        <?php endif; ?>
+                    </div>
+                    <!--#####-->
+                </form>
+            <?php endif; ?>
+            <!--endregion FORM NEW-->
+            <!--########################################################################################################################-->
+
+            <!--########################################################################################################################-->
             <!--region LIST -->
             <?php if (!empty($list)): ?>
                 <div>
-
-                    <!--########################################################################################################################-->
-                    <!--region FORM NEW-->
-                    <?php if (true): ?>
-                        <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-5 mb-5">
-                            <h3><?= ___($listOfTable) ?></h3>
-                            <input type="hidden" name="form_id" value="new_model">
-                            <input type="hidden" name="do" value="new_model">
-                            <input type="hidden" name="model" value="<?= $listOfTable ?>">
-                            <button type="submit" form="new_model" class="btn btn-sm btn-primary"><?= ___("Create New") ?></button>
-                            <!--#####-->
-                            <input type="hidden" name="pm_organization_id" value="<?= $data['pm_organization_id'] ?>">
-                            <input type="hidden" name="pm_department_id" value="<?= $data['pm_department_id'] ?>">
-                            <input type="hidden" name="pm_project_id" value="<?= $data['pm_project_id'] ?>">
-                            <input type="hidden" name="pm_task_id" value="<?= $data['pm_task_id'] ?>">
-                            <input type="hidden" name="pm_subtask_id" value="<?= $data['pm_subtask_id'] ?>">
-                            <!--#####-->
-
-                            <div class="mt-2">
-                                <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
-                                    <label>
-                                        <input type="text" name="order_in_view" placeholder="<?= ___('order_in_view') ?>" class="form-control">
-                                    </label>
-                                <?php endif; ?>
-
-                                <label>
-                                    <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
-                                </label>
-
-                                <?php if (in_array($listOfTable, ['pm_department'])): ?>
-                                    <label>
-                                        <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
-                                    </label>
-                                <?php endif; ?>
-
-                                <?php if (in_array($listOfTable, ['pm_project'])): ?>
-                                    <label>
-                                        <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
-                                    </label>
-                                <?php endif; ?>
-
-                                <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
-                                    <label>
-                                        <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
-                                    </label>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="mt-2">
-                                <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
-                                    <label>
-
-                                        <select name="manager_id" class="form-control">
-                                            <option value=""><?= ___('manager_id') ?></option>
-                                            <?php foreach ($userList as $user): ?>
-                                                <option value="<?= $user->id ?>">
-                                                    <?= implode(' ', [
-                                                        $user->firstname,
-                                                        $user->lastname,
-                                                        $user->mail,
-                                                    ]); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </label>
-                                <?php endif; ?>
-
-
-                                <?php if (in_array($listOfTable, ['pm_project', 'pm_task', 'pm_subtask'])): ?>
-                                    <label>
-
-                                        <select name="assignee_id" class="form-control">
-                                            <option value=""><?= ___('assignee_id') ?></option>
-                                            <?php foreach ($userList as $user): ?>
-                                                <option value="<?= $user->id ?>">
-                                                    <?= implode(' ', [
-                                                        $user->firstname,
-                                                        $user->lastname,
-                                                        $user->mail,
-                                                    ]); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </label>
-                                <?php endif; ?>
-                            </div>
-                            <!--#####-->
-                        </form>
-                    <?php endif; ?>
-                    <!--endregion FORM NEW-->
-                    <!--########################################################################################################################-->
 
                     <!--########################################################################################################################-->
                     <!--region FORM ORDER -->
