@@ -11,6 +11,7 @@ use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\pm_task;
 use alina\mvc\Model\pm_work;
 use alina\mvc\Model\pm_work_done;
+use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Request;
 
@@ -352,26 +353,20 @@ class Pm
                                 #endregion POST
                                 ##################################################
 
-                                $vd['listWorkDone'] = $mWorkDone->getAllWithReferences([
-                                    ["$mWorkDone->alias.pm_work_id", '=', $work_id],
-                                ],
-                                    [["$mWorkDone->alias.modified_at", 'DESC']]
-                                )
-                                                                ->toArray()
+                                $vd['listWorkDone'] = $mWorkDone
+                                    ->getAllWithReferences([
+                                        ["$mWorkDone->alias.pm_work_id", '=', $work_id],
+                                    ],
+                                        [["$mWorkDone->alias.modified_at", 'DESC']]
+                                    )
+                                    ->toArray()
                                 ;
-
                             }
-
                         }
-
                     }
-
                 }
             }
         }
-        ##################################################
-
-
         ##################################################
 
         ##################################################
@@ -383,6 +378,7 @@ class Pm
         $vd['mWork']         = $mWork->attributes;
         $vd['mWorkDone']     = $mWorkDone->attributes;
         $vd['url']           = $this->url(...array_merge([static::URL_EDIT], func_get_args()));
+        $vd['userList']      = (new user())->getAll()->toArray();
         ##################################################
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;

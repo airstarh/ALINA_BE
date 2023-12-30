@@ -10,6 +10,7 @@ $url          = $data['url'];
 $breadcrumbs  = $data['breadcrumbs'];
 $mWork        = $data['mWork'];
 $listWorkDone = $data['listWorkDone'];
+$userList     = $data['userList'];
 ?>
 <div class="container">
     <div class="row">
@@ -40,7 +41,7 @@ $listWorkDone = $data['listWorkDone'];
                     <!--########################################################################################################################-->
                     <!--region FORM NEW-->
                     <?php if (true): ?>
-                        <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-3 mb-3">
+                        <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-5 mb-5">
                             <h3><?= ___($listOfTable) ?></h3>
                             <input type="hidden" name="form_id" value="new_model">
                             <input type="hidden" name="do" value="new_model">
@@ -54,48 +55,74 @@ $listWorkDone = $data['listWorkDone'];
                             <input type="hidden" name="pm_subtask_id" value="<?= $data['pm_subtask_id'] ?>">
                             <!--#####-->
 
-                            <!--region ORDER IN VIEW-->
-                            <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
+                            <div class="mt-2">
+                                <?php if (in_array($listOfTable, ['pm_task', 'pm_subtask'])): ?>
+                                    <label>
+                                        <input type="text" name="order_in_view" placeholder="<?= ___('order_in_view') ?>" class="form-control">
+                                    </label>
+                                <?php endif; ?>
+
                                 <label>
-                                    <input type="text" name="order_in_view" placeholder="<?= ___('order_in_view') ?>" class="form-control">
+                                    <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
                                 </label>
-                            <?php endif; ?>
-                            <!--endregion ORDER IN VIEW-->
 
-                            <label>
-                                <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
-                            </label>
+                                <?php if (in_array($listOfTable, ['pm_department'])): ?>
+                                    <label>
+                                        <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
+                                    </label>
+                                <?php endif; ?>
 
-                            <?php if (in_array($listOfTable, ['pm_department'])): ?>
-                                <label>
-                                    <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
-                                </label>
-                            <?php endif; ?>
+                                <?php if (in_array($listOfTable, ['pm_project'])): ?>
+                                    <label>
+                                        <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
+                                    </label>
+                                <?php endif; ?>
 
-                            <?php if (in_array($listOfTable, ['pm_project'])): ?>
-                                <label>
-                                    <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
-                                </label>
-                            <?php endif; ?>
+                                <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
+                                    <label>
+                                        <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
+                                    </label>
+                                <?php endif; ?>
+                            </div>
 
-                            <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
-                                <label>
-                                    <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
-                                </label>
-                            <?php endif; ?>
+                            <div class="mt-2">
+                                <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
+                                    <label>
 
-                            <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
-                                <label>
-                                    <input type="text" name="manager_id" placeholder="<?= ___('manager_id') ?>" class="form-control">
-                                </label>
-                            <?php endif; ?>
+                                        <select name="manager_id" class="form-control">
+                                            <option value=""><?= ___('manager_id') ?></option>
+                                            <?php foreach ($userList as $user): ?>
+                                                <option value="<?= $user->id ?>">
+                                                    <?= implode(' ', [
+                                                        $user->firstname,
+                                                        $user->lastname,
+                                                        $user->mail,
+                                                    ]); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </label>
+                                <?php endif; ?>
 
 
-                            <?php if (in_array($listOfTable, ['pm_project', 'pm_task', 'pm_subtask'])): ?>
-                                <label>
-                                    <input type="text" name="assignee_id" placeholder="<?= ___('assignee_id') ?>" class="form-control">
-                                </label>
-                            <?php endif; ?>
+                                <?php if (in_array($listOfTable, ['pm_project', 'pm_task', 'pm_subtask'])): ?>
+                                    <label>
+
+                                        <select name="assignee_id" class="form-control">
+                                            <option value=""><?= ___('assignee_id') ?></option>
+                                            <?php foreach ($userList as $user): ?>
+                                                <option value="<?= $user->id ?>">
+                                                    <?= implode(' ', [
+                                                        $user->firstname,
+                                                        $user->lastname,
+                                                        $user->mail,
+                                                    ]); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </label>
+                                <?php endif; ?>
+                            </div>
                             <!--#####-->
                         </form>
                     <?php endif; ?>
@@ -143,7 +170,7 @@ $listWorkDone = $data['listWorkDone'];
                                         <input type="hidden" name="id" value="<?= $item->id ?>">
                                         <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('<?= ___("Are you sure?") ?>');"
-                                        ><?= ___("Delete") ?> <?= $item->id ?></button>
+                                        ><?= ___("Delete") ?></button>
                                     </form>
                                 </div>
                             </div>
