@@ -48,7 +48,14 @@ class Pm
         $work_id = null
     )
     {
-        $vd                  = [];
+        $vd = [];
+        ##################################################
+        $vd['pm_organization_id'] = $organization_id;
+        $vd['pm_department_id']   = $department_id;
+        $vd['pm_project_id']      = $project_id;
+        $vd['pm_task_id']         = $task_id;
+        $vd['pm_subtask_id']      = $subtask_id;
+        ##################################################
         $vd['func_get_args'] = func_get_args();
         $vd['list']          = [];
         $vd['listOfTable']   = null;
@@ -199,7 +206,14 @@ class Pm
         $work_id = null
     )
     {
-        $vd                  = [];
+        $vd = [];
+        ##################################################
+        $vd['pm_organization_id'] = $organization_id;
+        $vd['pm_department_id']   = $department_id;
+        $vd['pm_project_id']      = $project_id;
+        $vd['pm_task_id']         = $task_id;
+        $vd['pm_subtask_id']      = $subtask_id;
+        ##################################################
         $vd['func_get_args'] = func_get_args();
         $vd['list']          = [];
         $vd['listOfTable']   = null;
@@ -229,6 +243,15 @@ class Pm
                             'order_in_view' => $order,
                         ], $id);
                     }
+                    break;
+                case 'new_model':
+                    $m = modelNamesResolver::getModelObject($p->model);
+                    $m->insert($p);
+                    break;
+                case 'delete_model':
+                    AlinaDebugJson($p);
+                    $m = modelNamesResolver::getModelObject($p->model);
+                    $m->smartDeleteById($p->id);
                     break;
             }
         }
@@ -323,10 +346,6 @@ class Pm
                                         case 'delete_pm_work_done':
                                             $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
                                             (new pm_work_done())->smartDeleteById($pm_work_done_id);
-                                            break;
-                                        case 'order_in_view':
-                                            print_r($_POST);
-                                            Message::setSuccess('AAAAAAAAA');
                                             break;
                                     }
                                 }
