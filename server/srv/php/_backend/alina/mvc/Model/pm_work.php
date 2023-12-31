@@ -183,28 +183,31 @@ class pm_work extends _BaseAlinaModel
     public function updateWorkDone($idWork)
     {
         $this->getById($idWork);
-        $m            = new pm_work_done();
-        $listWorkDone = $m
-            ->getAll([
-                ['pm_work_id', '=', $idWork],
-                ['flag_archived', '=', 0],
-            ])
-            ->toArray()
-        ;
-
-        if (empty($listWorkDone)) return $this;
-        $updated = [];
-        foreach ($listWorkDone as $item) {
-            /**
-             * Other staff happens in hookRightBeforeSave of pm_work_done
-             */
-            $updated[] = $item->id;
-            (new pm_work_done())->updateById($item);
+        if ($this->attributes->flag_archived == 0) {
+            $m            = new pm_work_done();
+            $listWorkDone = $m
+                ->getAll([
+                    ['pm_work_id', '=', $idWork],
+                    ['flag_archived', '=', 0],
+                ])
+                ->toArray()
+            ;
+            if (!empty($listWorkDone)) {
+                $updated = [];
+                foreach ($listWorkDone as $item) {
+                    /**
+                     * Other staff happens in hookRightBeforeSave of pm_work_done
+                     */
+                    $updated[] = $item->id;
+                    (new pm_work_done())->updateById($item);
+                }
+                Message::setSuccess(implode(' ', [
+                    ___('Updated Done Works:'),
+                    count($updated),
+                ]));
+            }
         }
-        Message::setSuccess(implode(' ', [
-            ___('Updated Done Work:'),
-            implode(', ', $updated),
-        ]));
+
         return $this;
     }
     #####

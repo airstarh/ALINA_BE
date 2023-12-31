@@ -24,7 +24,7 @@ $linkWorkDoneList     = '';
     <a href="<?= \alina\mvc\Controller\Pm::URL_FILL_REPORT ?>"
        class="btn btn-primary"
        target="_blank"
-    ><?= ___("Report Work Unit Done") ?></a>
+    ><?= ___("Report Time") ?></a>
 
 </div>
 
@@ -69,9 +69,12 @@ $linkWorkDoneList     = '';
        target="_blank"
     ><?= ___("Work Unit Done") ?></a>
 
-    <br>
     <div class="clear">&nbsp;</div>
-    <br>
+
+    <a href="/admindbmanager/models/user"
+       class="btn btn-primary"
+       target="_blank"
+    ><?= ___("Users") ?></a>
 
     <a href="<?= \alina\mvc\Controller\Pm::URL_EDIT ?>"
        class="btn btn-primary"
