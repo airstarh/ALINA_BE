@@ -238,6 +238,7 @@ $userList     = $data['userList'];
                                     <th><?= ___("amount") ?></th>
                                     <th><?= ___("price_final") ?></th>
                                     <th><?= ___("time_spent") ?></th>
+                                    <th></th>
                                 </tr>
                                 </thead>
                                 <?php foreach ($listWorkDone as $k => $v): ?>
