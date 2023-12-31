@@ -43,7 +43,7 @@ class DateTime extends \DateTime
 
     public function diffInMonths($date2)
     {
-        $diff   = $this->diff($date2, TRUE);
+        $diff   = $this->diff($date2, true);
         $months = 0;
         $months += $diff->y * 12;
         $months += $diff->m;
@@ -53,7 +53,7 @@ class DateTime extends \DateTime
 
     public function diffInDays($date2)
     {
-        $diff = $this->diff($date2, TRUE);
+        $diff = $this->diff($date2, true);
 
         return $diff->format('%a');
     }
@@ -90,7 +90,7 @@ class DateTime extends \DateTime
     public function isDiffWeek($date2)
     {
         $date2 = $this->leapYearAdj($date2);
-        $diff  = $this->diff($date2, TRUE);
+        $diff  = $this->diff($date2, true);
 
         return ((int)$diff->days) % 7 == 0;
     }
@@ -104,7 +104,7 @@ class DateTime extends \DateTime
     {
         $date2 = $this->leapYearAdj($date2);
         if (!$this->isSameDayOfMonth($date2)) {
-            return FALSE;
+            return false;
         }
 
         return $this->diffInMonths($date2) >= 0;
@@ -119,7 +119,7 @@ class DateTime extends \DateTime
     {
         $date2 = $this->leapYearAdj($date2);
         if (!$this->isSameDayOfMonth($date2)) {
-            return FALSE;
+            return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
 
@@ -135,7 +135,7 @@ class DateTime extends \DateTime
     {
         $date2 = $this->leapYearAdj($date2);
         if (!$this->isSameDayOfMonth($date2)) {
-            return FALSE;
+            return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
 
@@ -151,7 +151,7 @@ class DateTime extends \DateTime
     {
         $date2 = $this->leapYearAdj($date2);
         if (!$this->isSameDayOfMonth($date2)) {
-            return FALSE;
+            return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
 
@@ -186,6 +186,12 @@ class DateTime extends \DateTime
     static public function toHumanDateTime($v)
     {
         return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB);
+    }
+
+    static public function dateToUnixTime($date)
+    {
+        $unixTimeStamp = strtotime($date);
+        return $unixTimeStamp;
     }
     ##################################################
 }

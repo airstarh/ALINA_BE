@@ -18,6 +18,7 @@ class pm_work_done extends _BaseAlinaModel
             'amount'        => [],
             'price_final'   => [],
             'time_spent'    => [],
+            'for_date'      => [],
             'flag_archived' => ['default' => 0,],
             'created_at'    => [],
             'created_by'    => [],
