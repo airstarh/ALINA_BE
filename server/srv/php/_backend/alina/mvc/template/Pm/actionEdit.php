@@ -37,8 +37,9 @@ $userList     = $data['userList'];
 
                 <?php foreach ($breadcrumbs as $i => $item): ?>
                     <div style="margin-left: <?= $i * 2 ?>vw">
+                        <?= ___($item['table']) ?>:
                         <a href="<?= $item['href'] ?>"
-                           class="btn btn-sm btn-secondary m-2 d-block text-left"
+                           class="btn btn-sm btn-secondary m-2 text-left"
                         ><?= $item['txt'] ?></a>
                     </div>
                 <?php endforeach; ?>
@@ -46,7 +47,7 @@ $userList     = $data['userList'];
 
             <!--########################################################################################################################-->
             <!--region FORM NEW-->
-            <?php if (true): ?>
+            <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
                 <form action="" id="new_model" method="post" enctype="multipart/form-data" class="mt-5 mb-5">
                     <h3><?= ___($listOfTable) ?></h3>
                     <input type="hidden" name="form_id" value="new_model">

@@ -79,8 +79,9 @@ class Pm
             $mOrganization->getOneWithReferencesById($organization_id);
             $href                = "$href/$mOrganization->id";
             $vd['breadcrumbs'][] = [
-                'txt'  => $mOrganization->attributes->name_human,
-                'href' => $href,
+                'txt'   => $mOrganization->attributes->name_human,
+                'href'  => $href,
+                'table' => $mOrganization->table,
             ];
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
@@ -89,8 +90,9 @@ class Pm
                 $mDepartment->getOneWithReferencesById($department_id);
                 $href                = "$href/$mDepartment->id";
                 $vd['breadcrumbs'][] = [
-                    'txt'  => $mDepartment->attributes->name_human,
-                    'href' => $href,
+                    'txt'   => $mDepartment->attributes->name_human,
+                    'href'  => $href,
+                    'table' => $mDepartment->table,
                 ];
 
                 if (empty($project_id)) {
@@ -100,8 +102,9 @@ class Pm
                     $mProject->getOneWithReferencesById($project_id);
                     $href                = "$href/$mProject->id";
                     $vd['breadcrumbs'][] = [
-                        'txt'  => $mProject->attributes->name_human,
-                        'href' => $href,
+                        'txt'   => $mProject->attributes->name_human,
+                        'href'  => $href,
+                        'table' => $mProject->table,
                     ];
 
                     if (empty($task_id)) {
@@ -111,8 +114,9 @@ class Pm
                         $mTask->getOneWithReferencesById($task_id);
                         $href                = "$href/$mTask->id";
                         $vd['breadcrumbs'][] = [
-                            'txt'  => $mTask->attributes->name_human,
-                            'href' => $href,
+                            'txt'   => $mTask->attributes->name_human,
+                            'href'  => $href,
+                            'table' => $mTask->table,
                         ];
 
                         if (empty($subtask_id)) {
@@ -122,8 +126,9 @@ class Pm
                             $mSubTask->getOneWithReferencesById($subtask_id);
                             $href                = "$href/$mSubTask->id";
                             $vd['breadcrumbs'][] = [
-                                'txt'  => $mSubTask->attributes->name_human,
-                                'href' => $href,
+                                'txt'   => $mSubTask->attributes->name_human,
+                                'href'  => $href,
+                                'table' => $mSubTask->table,
                             ];
 
                             if (empty($work_id)) {
@@ -140,8 +145,9 @@ class Pm
                                 $mWork->getOneWithReferencesById($work_id);
                                 $href                = "$href/$mWork->id";
                                 $vd['breadcrumbs'][] = [
-                                    'txt'  => $mWork->attributes->name_human,
-                                    'href' => $href,
+                                    'txt'   => $mWork->attributes->name_human,
+                                    'href'  => $href,
+                                    'table' => $mWork->table,
                                 ];
 
                                 ##################################################
@@ -266,8 +272,9 @@ class Pm
             $mOrganization->getOneWithReferencesById($organization_id);
             $href                = "$href/$mOrganization->id";
             $vd['breadcrumbs'][] = [
-                'txt'  => $mOrganization->attributes->name_human,
-                'href' => $href,
+                'txt'   => $mOrganization->attributes->name_human,
+                'href'  => $href,
+                'table' => $mOrganization->table,
             ];
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
@@ -276,8 +283,9 @@ class Pm
                 $mDepartment->getOneWithReferencesById($department_id);
                 $href                = "$href/$mDepartment->id";
                 $vd['breadcrumbs'][] = [
-                    'txt'  => $mDepartment->attributes->name_human,
-                    'href' => $href,
+                    'txt'   => $mDepartment->attributes->name_human,
+                    'href'  => $href,
+                    'table' => $mDepartment->table,
                 ];
 
                 if (empty($project_id)) {
@@ -287,8 +295,9 @@ class Pm
                     $mProject->getOneWithReferencesById($project_id);
                     $href                = "$href/$mProject->id";
                     $vd['breadcrumbs'][] = [
-                        'txt'  => $mProject->attributes->name_human,
-                        'href' => $href,
+                        'txt'   => $mProject->attributes->name_human,
+                        'href'  => $href,
+                        'table' => $mProject->table,
                     ];
 
                     if (empty($task_id)) {
@@ -298,8 +307,9 @@ class Pm
                         $mTask->getOneWithReferencesById($task_id);
                         $href                = "$href/$mTask->id";
                         $vd['breadcrumbs'][] = [
-                            'txt'  => $mTask->attributes->name_human,
-                            'href' => $href,
+                            'txt'   => $mTask->attributes->name_human,
+                            'href'  => $href,
+                            'table' => $mTask->table,
                         ];
 
                         if (empty($subtask_id)) {
@@ -309,8 +319,9 @@ class Pm
                             $mSubTask->getOneWithReferencesById($subtask_id);
                             $href                = "$href/$mSubTask->id";
                             $vd['breadcrumbs'][] = [
-                                'txt'  => $mSubTask->attributes->name_human,
-                                'href' => $href,
+                                'txt'   => $mSubTask->attributes->name_human,
+                                'href'  => $href,
+                                'table' => $mSubTask->table,
                             ];
 
                             if (empty($work_id)) {
@@ -327,8 +338,9 @@ class Pm
                                 $mWork->getOneWithReferencesById($work_id);
                                 $href                = "$href/$mWork->id";
                                 $vd['breadcrumbs'][] = [
-                                    'txt'  => $mWork->attributes->name_human,
-                                    'href' => $href,
+                                    'txt'   => $mWork->attributes->name_human,
+                                    'href'  => $href,
+                                    'table' => $mWork->table,
                                 ];
 
                                 ##################################################
