@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Model;
 
+use alina\Message;
+
 class pm_work extends _BaseAlinaModel
 {
     public $table        = 'pm_work';
@@ -171,6 +173,33 @@ class pm_work extends _BaseAlinaModel
             ],
             ##### field ######
         ];
+    }
+
+    public function hookRightAfterSave()
+    {
+        $this->updateWorkDone($this->id);
+    }
+
+    public function updateWorkDone($idWork)
+    {
+        $this->getById($idWork);
+        $m            = new pm_work_done();
+        $listWorkDone = $m
+            ->getAll([
+                ['pm_work_id', '=', $idWork],
+                ['flag_archived', '=', 0],
+            ])
+            ->toArray()
+        ;
+        foreach ($listWorkDone as $item) {
+            /**
+             * Other staff happens in hookRightBeforeSave of pm_work_done
+             */
+            (new pm_work_done())->updateById($item);
+            Message::setSuccess($item->id);
+        }
+
+        return $this;
     }
     #####
 }

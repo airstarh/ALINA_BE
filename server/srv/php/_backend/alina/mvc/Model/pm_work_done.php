@@ -110,8 +110,13 @@ class pm_work_done extends _BaseAlinaModel
 
         $mDepartment = new pm_department();
         $mDepartment->getById($mWork->attributes->pm_department_id);
-        $price_min               = $mDepartment->attributes->price_min;
-        $dataArray['time_spent'] = $dataArray['price_final'] / $price_min;
+        $price_min = $mDepartment->attributes->price_min;
+
+        $mProject = new pm_project();
+        $mProject->getById($mWork->attributes->pm_project_id);
+        $price_multiplier = $mProject->attributes->price_multiplier;
+
+        $dataArray['time_spent'] = $dataArray['price_final'] / $price_min / $price_multiplier;
 
         return $this;
     }
