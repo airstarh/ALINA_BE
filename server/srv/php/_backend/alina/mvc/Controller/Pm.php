@@ -13,6 +13,7 @@ use alina\mvc\Model\pm_work;
 use alina\mvc\Model\pm_work_done;
 use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
+use alina\Utils\DateTime;
 use alina\Utils\Request;
 
 class Pm
@@ -157,9 +158,14 @@ class Pm
                                         case 'insert_pm_work_done':
                                             $amount     = Request::obj()->POST->amount;
                                             $pm_work_id = Request::obj()->POST->pm_work_id;
+                                            $for_date   = ALINA_TIME;
+                                            if (Request::obj()->POST->for_date) {
+                                                $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
+                                            }
                                             $mWorkDone->insert([
                                                 'amount'     => $amount,
                                                 'pm_work_id' => $pm_work_id,
+                                                'for_date'   => $for_date,
                                             ]);
                                             break;
                                         case 'delete_pm_work_done':
@@ -171,12 +177,16 @@ class Pm
                                 #endregion POST
                                 ##################################################
 
-                                $vd['listWorkDone'] = $mWorkDone->getAllWithReferences([
-                                    ["$mWorkDone->alias.pm_work_id", '=', $work_id],
-                                ],
-                                    [["$mWorkDone->alias.modified_at", 'DESC']]
-                                )
-                                                                ->toArray()
+                                $vd['listWorkDone'] = $mWorkDone
+                                    ->getAllWithReferences([
+                                        ["$mWorkDone->alias.pm_work_id", '=', $work_id],
+                                    ],
+                                        [
+                                            ["$mWorkDone->alias.for_date", 'DESC'],
+                                            ["$mWorkDone->alias.modified_at", 'DESC'],
+                                        ]
+                                    )
+                                    ->toArray()
                                 ;
 
                             }
@@ -256,7 +266,6 @@ class Pm
                     $m->insert($p);
                     break;
                 case 'delete_model':
-                    AlinaDebugJson($p);
                     $m = modelNamesResolver::getModelObject($p->model);
                     $m->smartDeleteById($p->id);
                     break;
@@ -351,9 +360,14 @@ class Pm
                                         case 'insert_pm_work_done':
                                             $amount     = Request::obj()->POST->amount;
                                             $pm_work_id = Request::obj()->POST->pm_work_id;
+                                            $for_date   = ALINA_TIME;
+                                            if (Request::obj()->POST->for_date) {
+                                                $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
+                                            }
                                             $mWorkDone->insert([
                                                 'amount'     => $amount,
                                                 'pm_work_id' => $pm_work_id,
+                                                'for_date'   => $for_date,
                                             ]);
                                             break;
                                         case 'delete_pm_work_done':

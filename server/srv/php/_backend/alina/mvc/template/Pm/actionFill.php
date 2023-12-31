@@ -20,11 +20,11 @@ $listWorkDone = $data['listWorkDone'];
             <div class="clear">&nbsp;</div>
 
             <div>
-
                 <?php foreach ($breadcrumbs as $i => $item): ?>
                     <div style="margin-left: <?= $i * 2 ?>vw">
+                        <?= ___($item['table']) ?>:
                         <a href="<?= $item['href'] ?>"
-                           class="btn btn-sm btn-secondary m-2 d-block text-left"
+                           class="btn btn-sm btn-secondary m-2 text-left"
                         ><?= $item['txt'] ?></a>
                     </div>
                 <?php endforeach; ?>
@@ -40,17 +40,18 @@ $listWorkDone = $data['listWorkDone'];
             </div>
 
 
-            <!--########################################################################################################################-->
-            <!--region IF WORK ID-->
-            <?php if ($mWork->id): ?>
-                <div class="mt-5 mb-5">
-                    <form action="" method="post">
-                        <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
-                        <input type="hidden" name="do" value="insert_pm_work_done">
-                        <input type="hidden" name="pm_work_id" value="<?= $mWork->id ?>">
+            <d0v>
+                <!--########################################################################################################################-->
+                <!--region IF WORK ID-->
+                <?php if ($mWork->id): ?>
+                    <div class="mt-5 mb-5">
+                        <form action="" method="post">
+                            <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
+                            <input type="hidden" name="do" value="insert_pm_work_done">
+                            <input type="hidden" name="pm_work_id" value="<?= $mWork->id ?>">
 
-                        <div class="text-center">
-                            <label>
+                            <div class="text-center">
+                                <label>
                                 <span><?= ___("totally:") ?></span
                                 ><input type="number"
                                         step="any"
@@ -58,53 +59,61 @@ $listWorkDone = $data['listWorkDone'];
                                         required
                                         class="text-center p-3"
                                         style="++font-size:30pt"
-                                ><span><?= ___("doodahs") ?></span>
-                            </label></div>
-                        <?= html::elFormStandardButtons([]) ?>
-                    </form>
-                </div>
+                                    ><span><?= ___("doodahs") ?></span>
+                                </label>
 
-                <?php if (!empty($listWorkDone)): ?>
-                    <div class="bg-black">
-                        <table class="alina-data-table">
-                            <thead>
-                            <tr>
-                                <th><?= ___("Date") ?></th>
-                                <th><?= ___("Name") ?></th>
-                                <th><?= ___("amount") ?></th>
-                                <th><?= ___("price_final") ?></th>
-                                <th><?= ___("time_spent") ?></th>
-                            </tr>
-                            </thead>
-                            <?php foreach ($listWorkDone as $k => $v): ?>
-                                <tr>
-                                    <td><?= \alina\Utils\DateTime::toHumanDateTime($v->modified_at) ?></td>
-                                    <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
-                                    <td><?= $v->amount ?></td>
-                                    <td><?= $v->price_final ?></td>
-                                    <td><?= $v->time_spent ?></td>
-                                    <td>
-                                        <form action="" method="post">
-                                            <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
-                                            <input type="hidden" name="do" value="delete_pm_work_done">
-                                            <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
-                                            <?php if (AlinaAccessIfAdminOrModeratorOrOwner($v->assignee_id)): ?>
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('<?= ___("Are you sure?") ?>');"
-                                                ><?= ___("Delete") ?></button>
-                                            <?php endif; ?>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </table>
+                                <div>
+                                    <label>
+                                        <span class="d-block"><?= ___('for_date') ?></span>
+                                        <input type="date" name="for_date" required>
+                                    </label>
+                                </div>
+                            </div>
+                            <?= html::elFormStandardButtons([]) ?>
+                        </form>
                     </div>
-                <?php endif; ?>
-            <?php endif; ?>
-            <!--region IF WORK ID
-            <!--########################################################################################################################-->
 
+                    <?php if (!empty($listWorkDone)): ?>
+                        <div class="bg-black">
+                            <table class="alina-data-table">
+                                <thead>
+                                <tr>
+                                    <th><?= ___("for_date") ?></th>
+                                    <th><?= ___("Name") ?></th>
+                                    <th><?= ___("amount") ?></th>
+                                    <th><?= ___("price_final") ?></th>
+                                    <th><?= ___("time_spent") ?></th>
+                                </tr>
+                                </thead>
+                                <?php foreach ($listWorkDone as $k => $v): ?>
+                                    <tr>
+                                        <td><?= \alina\Utils\DateTime::toHumanDate($v->for_date) ?></td>
+                                        <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
+                                        <td><?= $v->amount ?></td>
+                                        <td><?= $v->price_final ?></td>
+                                        <td><?= $v->time_spent ?></td>
+                                        <td>
+                                            <?php if (AlinaAccessIfAdminOrModeratorOrOwner($v->assignee_id)): ?>
+                                                <form action="" method="post">
+                                                    <input type="hidden" name="form_id" value="actionFillWorkUnitDone">
+                                                    <input type="hidden" name="do" value="delete_pm_work_done">
+                                                    <input type="hidden" name="pm_work_done_id" value="<?= $v->id ?>">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                                    ><?= ___("Delete") ?></button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <!--region IF WORK ID
+                <!--########################################################################################################################-->
+            </d0v>
 
             <!--endregion PAGE-->
             <!--##################################################-->
