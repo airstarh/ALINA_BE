@@ -200,12 +200,12 @@ class pm_subtask extends _BaseAlinaModel
         #####
 
         #####
-        #refion MATH CALCULATE WORK PRICE
+        #region MATH CALCULATE WORK PRICE
         $pm_department_price_min     = $this->attributes->pm_department->price_min;
         $pm_project_price_multiplier = $this->attributes->pm_project->price_multiplier;
         $pm_subtask_time_estimated   = $this->attributes->time_estimated;
         $price_this_work             = $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
-        #endrefion MATH CALCULATE WORK PRICE
+        #endregion MATH CALCULATE WORK PRICE
         #####
 
         $dataWork = [
