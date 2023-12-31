@@ -139,11 +139,11 @@ class pm_subtask extends _BaseAlinaModel
 
 
     #####
-    public function bulkUpdate($id = null)
+    public function bulkUpdate($idSubtask = null)
     {
         _baseAlinaEloquentTransaction::begin();
         $this
-            ->getListOfParents($id)
+            ->getListOfParents($idSubtask)
             ->upsertPmWork()
         ;
         _baseAlinaEloquentTransaction::commit();
@@ -151,7 +151,7 @@ class pm_subtask extends _BaseAlinaModel
         return $this;
     }
 
-    public function getListOfParents($id = null)
+    public function getListOfParents($idSubTask = null)
     {
         $pm_subtask      = $this;
         $pm_task         = new pm_task();
@@ -159,15 +159,15 @@ class pm_subtask extends _BaseAlinaModel
         $pm_department   = new pm_department();
         $pm_organization = new pm_organization();
 
-        if (!empty($id)) {
-            $pm_subtask->getOneWithReferencesById($id);
+        if (!empty($idSubTask)) {
+            $pm_subtask->getById($idSubTask);
         } else {
-            $pm_subtask->getOneWithReferencesById($pm_subtask->id);
+            $pm_subtask->getById($pm_subtask->id);
         }
-        $pm_task->getOneWithReferencesById($pm_subtask->attributes->pm_task_id);
-        $pm_project->getOneWithReferencesById($pm_task->attributes->pm_project_id);
-        $pm_department->getOneWithReferencesById($pm_project->attributes->pm_department_id);
-        $pm_organization->getOneWithReferencesById($pm_department->attributes->pm_organization_id);
+        $pm_task->getById($pm_subtask->attributes->pm_task_id);
+        $pm_project->getById($pm_task->attributes->pm_project_id);
+        $pm_department->getById($pm_project->attributes->pm_department_id);
+        $pm_organization->getById($pm_department->attributes->pm_organization_id);
 
         $this->attributes->pm_task         = $pm_task->attributes;
         $this->attributes->pm_project      = $pm_project->attributes;

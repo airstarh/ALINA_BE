@@ -191,14 +191,20 @@ class pm_work extends _BaseAlinaModel
             ])
             ->toArray()
         ;
+
+        if (empty($listWorkDone)) return $this;
+        $updated = [];
         foreach ($listWorkDone as $item) {
             /**
              * Other staff happens in hookRightBeforeSave of pm_work_done
              */
+            $updated[] = $item->id;
             (new pm_work_done())->updateById($item);
-            Message::setSuccess($item->id);
         }
-
+        Message::setSuccess(implode(' ', [
+            ___('Updated Done Work:'),
+            implode(', ', $updated),
+        ]));
         return $this;
     }
     #####
