@@ -391,7 +391,10 @@ class Pm
                                         ["$mWorkDone->alias.pm_work_id", '=', $work_id],
                                         ["$mWorkDone->alias.flag_archived", '=', 0],
                                     ],
-                                        [["$mWorkDone->alias.modified_at", 'DESC']]
+                                        [
+                                            ["$mWorkDone->alias.modified_at", 'DESC'],
+                                            ["$mWorkDone->alias.$mWorkDone->pkName", 'DESC'],
+                                        ]
                                     )
                                     ->toArray()
                                 ;
