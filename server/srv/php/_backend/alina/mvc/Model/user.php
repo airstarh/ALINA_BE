@@ -14,6 +14,11 @@ use Illuminate\Database\Query\Builder as BuilderAlias;
 class user extends _BaseAlinaModel
 {
     public $table = 'user';
+    public $sortDefault
+                  = [
+            ["lastname", 'ASC'],
+            ["firstname", 'ASC'],
+        ];
 
     public function fields()
     {
