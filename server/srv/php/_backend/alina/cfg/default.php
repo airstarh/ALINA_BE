@@ -30,7 +30,7 @@ return [
     'debug'               => [
         'toPage' => true,
         'toDb'   => true,
-        'toFile' => false,
+        'toFile' => true,
     ],
     'watcher'             => [
         'maxPer1sec'          => 20,
