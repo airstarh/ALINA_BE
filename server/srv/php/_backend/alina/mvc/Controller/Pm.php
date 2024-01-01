@@ -62,17 +62,22 @@ class Pm
         $vd['func_get_args'] = func_get_args();
         $vd['list']          = [];
         $vd['listOfTable']   = null;
-        $vd['breadcrumbs']   = [];
         $vd['listWorkDone']  = [];
+        $vd['breadcrumbs']   = [];
         ##################################################
-        $href          = static::URL_FILL_REPORT;
-        $mOrganization = new pm_organization();
-        $mDepartment   = new pm_department();
-        $mProject      = new pm_project();
-        $mTask         = new pm_task();
-        $mSubTask      = new pm_subtask();
-        $mWork         = new pm_work();
-        $mWorkDone     = new pm_work_done();
+        $href                = static::URL_FILL_REPORT;
+        $vd['breadcrumbs'][] = [
+            'href'  => $href,
+            'txt'   => ___('Home'),
+            'table' => '',
+        ];
+        $mOrganization       = new pm_organization();
+        $mDepartment         = new pm_department();
+        $mProject            = new pm_project();
+        $mTask               = new pm_task();
+        $mSubTask            = new pm_subtask();
+        $mWork               = new pm_work();
+        $mWorkDone           = new pm_work_done();
         ##################################################
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
@@ -238,7 +243,13 @@ class Pm
         $vd['breadcrumbs']   = [];
         $vd['listWorkDone']  = [];
         ##################################################
-        $href          = static::URL_EDIT;
+        $href                = static::URL_EDIT;
+        $vd['breadcrumbs'][] = [
+            'href'  => $href,
+            'txt'   => ___('Home'),
+            'table' => '',
+        ];
+
         $mOrganization = new pm_organization();
         $mDepartment   = new pm_department();
         $mProject      = new pm_project();
@@ -269,6 +280,28 @@ class Pm
                 case 'delete_model':
                     $m = modelNamesResolver::getModelObject($p->model);
                     $m->smartDeleteById($p->id);
+                    break;
+                case 'insert_pm_work_done':
+                    $amount     = Request::obj()->POST->amount;
+                    $pm_work_id = Request::obj()->POST->pm_work_id;
+                    $for_date   = ALINA_TIME;
+                    if (Request::obj()->POST->for_date) {
+                        $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
+                    }
+                    $assignee_id = CurrentUser::id();
+                    if (Request::obj()->POST->assignee_id) {
+                        $assignee_id = Request::obj()->POST->assignee_id;
+                    }
+                    $mWorkDone->insert([
+                        'amount'      => $amount,
+                        'pm_work_id'  => $pm_work_id,
+                        'for_date'    => $for_date,
+                        'assignee_id' => $assignee_id,
+                    ]);
+                    break;
+                case 'delete_pm_work_done':
+                    $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
+                    (new pm_work_done())->smartDeleteById($pm_work_done_id);
                     break;
             }
         }
@@ -353,41 +386,10 @@ class Pm
                                     'table' => $mWork->table,
                                 ];
 
-                                ##################################################
-                                #region POST
-                                if (Request::obj()->isPostPutDelete()) {
-
-                                    switch (Request::obj()->POST->do) {
-                                        case 'insert_pm_work_done':
-                                            $amount     = Request::obj()->POST->amount;
-                                            $pm_work_id = Request::obj()->POST->pm_work_id;
-                                            $for_date   = ALINA_TIME;
-                                            if (Request::obj()->POST->for_date) {
-                                                $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
-                                            }
-                                            $assignee_id = CurrentUser::id();
-                                            if (Request::obj()->POST->assignee_id) {
-                                                $assignee_id = Request::obj()->POST->assignee_id;
-                                            }
-                                            $mWorkDone->insert([
-                                                'amount'      => $amount,
-                                                'pm_work_id'  => $pm_work_id,
-                                                'for_date'    => $for_date,
-                                                'assignee_id' => $assignee_id,
-                                            ]);
-                                            break;
-                                        case 'delete_pm_work_done':
-                                            $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
-                                            (new pm_work_done())->smartDeleteById($pm_work_done_id);
-                                            break;
-                                    }
-                                }
-                                #endregion POST
-                                ##################################################
-
                                 $vd['listWorkDone'] = $mWorkDone
                                     ->getAllWithReferences([
                                         ["$mWorkDone->alias.pm_work_id", '=', $work_id],
+                                        ["$mWorkDone->alias.flag_archived", '=', 0],
                                     ],
                                         [["$mWorkDone->alias.modified_at", 'DESC']]
                                     )
