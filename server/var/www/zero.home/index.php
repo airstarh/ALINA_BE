@@ -7,9 +7,9 @@ define('ALINA_MIN_TIME_DIFF_SEC', 30);
 define('ALINA_AUTH_EXPIRES', ALINA_TIME + ALINA_MAX_TIME_DIFF_SEC);
 ##################################################
 # Make sure we see all available errors
-// ini_set('display_errors', '1');
-// ini_set('display_startup_errors', '1');
-// error_reporting(E_ALL);
+ ini_set('display_errors', 1);
+ ini_set('display_startup_errors', 1);
+ error_reporting(E_ALL);
 ##################################################
 #region SHUTDOWN
 register_shutdown_function(function () {

@@ -110,8 +110,11 @@ class AppExceptionCatcher
 
     protected function processError()
     {
+        $eMsg = $this->strMessage();
         #region PHP ERROR LOG
-        error_log(json_encode($this->strMessage()), 0);
+        error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
+        error_log($eMsg, 0);
+        error_log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 0);
         #endregion PHP ERROR LOG
         $dbgCfg = AlinaCfg('debug');
         if (in_array(true, $dbgCfg)) {
@@ -134,8 +137,8 @@ class AppExceptionCatcher
             }
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
                 Message::setDanger('¯\_(ツ)_/¯');
-                Message::setDanger($this->strMessage());
-                //MessageAdmin::setDanger($this->strMessage());
+                Message::setDanger($eMsg);
+                //MessageAdmin::setDanger(eMsg);
             }
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
                 $NL = PHP_EOL . '<br>' . PHP_EOL;
@@ -153,15 +156,16 @@ class AppExceptionCatcher
         $arrMessage['CLASS........'] = $this->expClassName;
         $arrMessage['SEVERITY.....'] = $this->getSeverityStr();
         $arrMessage['CODE.........'] = $this->eCode;
-        $arrMessage['TEXT.........'] = $this->eString;
         $arrMessage['FILE.........'] = $this->eFile;
         $arrMessage['LINE.........'] = $this->eLine;
+        $arrMessage['TEXT.........'] = $this->eString;
         $arrMessage['TRACE........'] = $this->eTrace;
+
         foreach ($arrMessage as $k => $v) {
-            if ($k === 'Trace') {
-                $strMessage .= "{$NL}{$k}:{$NL}{$v}{$NL}";
+            if (in_array($k, ['TRACE........', 'TEXT.........'])) {
+                $strMessage .= "{$NL}{$k}:{$NL}{$v}{$NL}{$NL}";
             } else {
-                $strMessage .= "{$k}: {$v}{$NL}";
+                $strMessage .= "{$k}{$v}{$NL}";
             }
         }
 

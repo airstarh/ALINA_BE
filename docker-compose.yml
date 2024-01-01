@@ -36,7 +36,7 @@ services:
     volumes:
       # php.ini
       - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini
-      - ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+      ###- ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
       # /var/www
       - ./server/var/www:/var/www
       # ALINA framework
