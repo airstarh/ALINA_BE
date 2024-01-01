@@ -19,16 +19,8 @@ $listWorkDone = $data['listWorkDone'];
             <h1><?= ___("Fill Work Unit Done") ?></h1>
             <div class="clear">&nbsp;</div>
 
-            <div>
-                <?php foreach ($breadcrumbs as $i => $item): ?>
-                    <div style="margin-left: <?= $i * 2 ?>vw">
-                        <?= ___($item['table']) ?>:
-                        <a href="<?= $item['href'] ?>"
-                           class="btn btn-sm btn-secondary m-2 text-left"
-                        ><?= $item['txt'] ?></a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <?= (new html)->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
+
             <div>
                 <?php foreach ($list as $item): ?>
                     <div class="m-3">

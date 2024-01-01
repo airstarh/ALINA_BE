@@ -3,6 +3,7 @@
 namespace alina\mvc\Controller;
 
 use alina\Message;
+use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\Model\pm_department;
 use alina\mvc\Model\pm_organization;
@@ -364,10 +365,15 @@ class Pm
                                             if (Request::obj()->POST->for_date) {
                                                 $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
                                             }
+                                            $assignee_id = CurrentUser::id();
+                                            if (Request::obj()->POST->assignee_id) {
+                                                $assignee_id = Request::obj()->POST->assignee_id;
+                                            }
                                             $mWorkDone->insert([
-                                                'amount'     => $amount,
-                                                'pm_work_id' => $pm_work_id,
-                                                'for_date'   => $for_date,
+                                                'amount'      => $amount,
+                                                'pm_work_id'  => $pm_work_id,
+                                                'for_date'    => $for_date,
+                                                'assignee_id' => $assignee_id,
                                             ]);
                                             break;
                                         case 'delete_pm_work_done':

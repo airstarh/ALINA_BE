@@ -33,16 +33,7 @@ $userList     = $data['userList'];
             </h1>
             <div class="clear">&nbsp;</div>
 
-            <div>
-                <?php foreach ($breadcrumbs as $i => $item): ?>
-                    <div style="margin-left: <?= $i * 2 ?>vw">
-                        <?= ___($item['table']) ?>:
-                        <a href="<?= $item['href'] ?>"
-                           class="btn btn-sm btn-secondary m-2 text-left"
-                        ><?= $item['txt'] ?></a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <?= (new html)->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
 
             <!--########################################################################################################################-->
             <!--region FORM NEW-->
@@ -94,7 +85,6 @@ $userList     = $data['userList'];
                     <div class="mt-2">
                         <?php if (in_array($listOfTable, ['pm_organization', 'pm_department', 'pm_project', 'pm_task', 'pm_subtask'])): ?>
                             <label>
-
                                 <select name="manager_id" class="form-control">
                                     <option value=""><?= ___('manager_id') ?></option>
                                     <?php foreach ($userList as $user): ?>
@@ -197,7 +187,7 @@ $userList     = $data['userList'];
 
             <div>
                 <!--########################################################################################################################-->
-                <!--region IF WORK ID-->
+                <!--region FORM FILL WORK DONE -->
                 <?php if ($mWork->id): ?>
                     <div class="mt-5 mb-5">
                         <form action="" method="post">
@@ -206,7 +196,26 @@ $userList     = $data['userList'];
                             <input type="hidden" name="pm_work_id" value="<?= $mWork->id ?>">
 
                             <div class="text-center">
-                                <label>
+
+                                <div class="m-3">
+                                    <label>
+                                        <select name="assignee_id" class="form-control">
+                                            <option value=""><?= ___('assignee_id') ?></option>
+                                            <?php foreach ($userList as $user): ?>
+                                                <option value="<?= $user->id ?>">
+                                                    <?= implode(' ', [
+                                                        $user->lastname,
+                                                        $user->firstname,
+                                                        $user->mail,
+                                                    ]); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label>
                                 <span><?= ___("totally:") ?></span
                                 ><input type="number"
                                         step="any"
@@ -214,8 +223,9 @@ $userList     = $data['userList'];
                                         required
                                         class="text-center p-3"
                                         style="++font-size:30pt"
-                                    ><span><?= ___("doodahs") ?></span>
-                                </label>
+                                        ><span><?= ___("doodahs") ?></span>
+                                    </label>
+                                </div>
 
                                 <div>
                                     <label>
@@ -267,7 +277,7 @@ $userList     = $data['userList'];
                         </div>
                     <?php endif; ?>
                 <?php endif; ?>
-                <!--region IF WORK ID
+                <!--endregion FORM FILL WORK DONE -->
                 <!--########################################################################################################################-->
             </div>
 
