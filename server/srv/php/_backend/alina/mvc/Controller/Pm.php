@@ -21,6 +21,7 @@ class Pm
 {
     const URL_FILL_REPORT = '/pm/fill';
     const URL_EDIT        = '/pm/edit';
+    const URL_REPORT      = '/pm/report';
 
     public function __construct()
     {
@@ -426,6 +427,33 @@ class Pm
     {
         $res = array_filter($args);
         return implode('/', $res);
+    }
+
+    public function actionReport()
+    {
+        $vd  = [];
+        $GET = Request::obj()->GET;
+        ##################################################
+        $date_start = $GET->date_start;
+        $date_end   = $GET->date_end;
+
+        $dateToUtDayStart = DateTime::dateToUtDayStart($date_start);
+        $dateToUtDayEnd   = DateTime::dateToUtDayEnd($date_end);
+
+        $s = DateTime::toHumanDateTime($dateToUtDayStart);
+        $e = DateTime::toHumanDateTime($dateToUtDayEnd);
+
+
+        ##################################################
+        $vd['date_start']       = $date_start;
+        $vd['date_end']         = $date_end;
+        $vd['dateToUtDayStart'] = $dateToUtDayStart;
+        $vd['dateToUtDayEnd']   = $dateToUtDayEnd;
+        $vd['s']                = $s;
+        $vd['e']                = $e;
+        ##################################################
+        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        return $this;
     }
 
     ###
