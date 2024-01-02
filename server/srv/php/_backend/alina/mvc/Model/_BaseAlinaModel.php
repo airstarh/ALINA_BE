@@ -946,6 +946,11 @@ class _BaseAlinaModel
         return $this->q;
     }
 
+    public function x($sql)
+    {
+        return Dal::connection()->getPdo()->query($sql);
+    }
+
     /**
      * Initial list of fields. @see fieldStructureExample
      */

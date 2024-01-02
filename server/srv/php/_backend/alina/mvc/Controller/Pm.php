@@ -2,7 +2,9 @@
 
 namespace alina\mvc\Controller;
 
+use alina\AppExceptionValidation;
 use alina\Message;
+use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\Model\pm_department;
@@ -13,6 +15,7 @@ use alina\mvc\Model\pm_task;
 use alina\mvc\Model\pm_work;
 use alina\mvc\Model\pm_work_done;
 use alina\mvc\Model\user;
+use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\DateTime;
 use alina\Utils\Request;
@@ -434,23 +437,54 @@ class Pm
         $vd  = [];
         $GET = Request::obj()->GET;
         ##################################################
-        $date_start = $GET->date_start;
-        $date_end   = $GET->date_end;
 
-        $dateToUtDayStart = DateTime::dateToUtDayStart($date_start);
-        $dateToUtDayEnd   = DateTime::dateToUtDayEnd($date_end);
+        if (!empty(Request::obj()->GET->date_start)) {
+            ##################################################
+            $date_start = $GET->date_start;
+            $date_end   = $GET->date_end;
 
-        $s = DateTime::toHumanDateTime($dateToUtDayStart);
-        $e = DateTime::toHumanDateTime($dateToUtDayEnd);
+            $dateToUtDayStart = DateTime::dateToUtDayStart($date_start);
+            $dateToUtDayEnd   = DateTime::dateToUtDayEnd($date_end);
 
+            $s = DateTime::toHumanDateTime($dateToUtDayStart);
+            $e = DateTime::toHumanDateTime($dateToUtDayEnd);
+            ##################################################
+            $vd['date_start']       = $date_start;
+            $vd['date_end']         = $date_end;
+            $vd['dateToUtDayStart'] = $dateToUtDayStart;
+            $vd['dateToUtDayEnd']   = $dateToUtDayEnd;
+            $vd['s']                = $s;
+            $vd['e']                = $e;
+            ##################################################
+            $sql       = (new html)->piece('/Pm/sql/report_001.php', $vd);
+            $vd['sql'] = $sql;
+            ##################################################
+            $m         = new _BaseAlinaModel();
+            $res       = $m->x($sql)->fetchAll(\PDO::FETCH_OBJ);
+            $vd['res'] = $res;
+            ##################################################
+        }
 
         ##################################################
-        $vd['date_start']       = $date_start;
-        $vd['date_end']         = $date_end;
-        $vd['dateToUtDayStart'] = $dateToUtDayStart;
-        $vd['dateToUtDayEnd']   = $dateToUtDayEnd;
-        $vd['s']                = $s;
-        $vd['e']                = $e;
+        $idxControl = [];
+        $byUsers    = [];
+        $byProjects = [];
+        foreach ($res as $idx => $row) {
+            if (in_array($row->wd_id, $idxControl)) {
+                throw new AppExceptionValidation(___('WD_ID`s are repeated!!!'));
+            }
+            $idxControl[] = $row->wd_id;
+            #####
+            if (empty($byUsers[$row->wd_assignee_id])) $byUsers[$row->wd_assignee_id] = [];
+            if (empty($byUsers[$row->wd_assignee_id]['full_name'])) $byUsers[$row->wd_assignee_id]['full_name'] = implode(' ', [$row->u_firstname, $row->u_lastname, $row->wd_assignee_id]);
+            if (empty($byUsers[$row->wd_assignee_id]['price_total'])) $byUsers[$row->wd_assignee_id]['price_total'] = 0;
+            if (empty($byUsers[$row->wd_assignee_id]['time_total'])) $byUsers[$row->wd_assignee_id]['time_total'] = 0;
+
+            $byUsers[$row->wd_assignee_id]['price_total'] += $row->wd_price_final;
+            $byUsers[$row->wd_assignee_id]['time_total']  += $row->wd_time_spent;
+            #####
+        }
+        $vd['byUsers'] = $byUsers;
         ##################################################
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;

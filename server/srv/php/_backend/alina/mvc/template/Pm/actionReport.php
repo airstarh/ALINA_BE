@@ -5,9 +5,10 @@ use alina\mvc\Controller\AdminDbManager;
 use alina\mvc\Controller\Pm;
 use alina\mvc\View\html;
 
+$vd = $data;
 $GET = \alina\Utils\Request::obj()->GET;
 ?>
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col">
             <!--##################################################-->
@@ -17,6 +18,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <h1>
                 <?= ___("Report") ?>
             </h1>
+
             <div class="clear">&nbsp;</div>
 
             <!--##################################################-->
@@ -40,15 +42,25 @@ $GET = \alina\Utils\Request::obj()->GET;
             </form>
             <!--endregion DATE PICKER-->
             <!--##################################################-->
-
+            <div class="clear">&nbsp;</div>
+            <?= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
+            <div class="clear">&nbsp;</div>
             <!--##################################################-->
+            <div class="clear">&nbsp;</div>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['byUsers']) ?>
+            <div class="clear">&nbsp;</div>
+            <!--##################################################-->
+            <div class="clear">&nbsp;</div>
             <div class="ck-content">
 <pre>
-    <?php
-    print_r($data);
-    ?>
+<?php
+print_r($data);
+?>
 </pre>
             </div>
+            <div class="clear">&nbsp;</div>
+            <!--##################################################-->
+
             <!--##################################################-->
 
             <!--endregion PAGE-->
