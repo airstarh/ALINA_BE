@@ -7,7 +7,7 @@ if (is_object($data)) $data = [$data];
 if (empty($data)) return;
 $counter = 1;
 
-$firstRow = $data[0];
+$firstRow = reset($data);
 $headers  = array_keys((array)$firstRow);
 ?>
 <div class="text-nowrap bg-black p-1 m-1">
