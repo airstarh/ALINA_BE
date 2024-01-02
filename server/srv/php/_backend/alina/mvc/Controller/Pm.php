@@ -466,25 +466,82 @@ class Pm
         }
 
         ##################################################
-        $idxControl = [];
-        $byUsers    = [];
-        $byProjects = [];
-        foreach ($res as $idx => $row) {
-            if (in_array($row->wd_id, $idxControl)) {
-                throw new AppExceptionValidation(___('WD_ID`s are repeated!!!'));
+        $idxControl    = [];
+        $byUsers       = [];
+        $byUsersTotals = [];
+        $ud            = [];
+        foreach ($res as $idx => $r) {
+            if (in_array($r->wd_id, $idxControl)) {
+                Message::setDanger(___('WD_ID`s are repeated!!!') . ' ' . $r->wd_id);
             }
-            $idxControl[] = $row->wd_id;
+            $idxControl[] = $r->wd_id;
             #####
-            if (empty($byUsers[$row->wd_assignee_id])) $byUsers[$row->wd_assignee_id] = [];
-            if (empty($byUsers[$row->wd_assignee_id]['full_name'])) $byUsers[$row->wd_assignee_id]['full_name'] = implode(' ', [$row->u_firstname, $row->u_lastname, $row->wd_assignee_id]);
-            if (empty($byUsers[$row->wd_assignee_id]['price_total'])) $byUsers[$row->wd_assignee_id]['price_total'] = 0;
-            if (empty($byUsers[$row->wd_assignee_id]['time_total'])) $byUsers[$row->wd_assignee_id]['time_total'] = 0;
+            if (empty($byUsers[$r->wd_assignee_id])) $byUsers[$r->wd_assignee_id] = [];
+            if (empty($byUsers[$r->wd_assignee_id]['full_name'])) $byUsers[$r->wd_assignee_id]['full_name'] = implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $r->wd_assignee_id]);
+            if (empty($byUsers[$r->wd_assignee_id]['price_total'])) $byUsers[$r->wd_assignee_id]['price_total'] = 0;
+            if (empty($byUsers[$r->wd_assignee_id]['time_total'])) $byUsers[$r->wd_assignee_id]['time_total'] = 0;
 
-            $byUsers[$row->wd_assignee_id]['price_total'] += $row->wd_price_final;
-            $byUsers[$row->wd_assignee_id]['time_total']  += $row->wd_time_spent;
+            $byUsers[$r->wd_assignee_id]['price_total'] += $r->wd_price_final;
+            $byUsers[$r->wd_assignee_id]['time_total']  += $r->wd_time_spent;
             #####
+            if (empty($byUsersTotals['xxx'])) $byUsersTotals['xxx'] = [];
+            if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = 'Totals';
+            if (empty($byUsersTotals['xxx']['price_total'])) $byUsersTotals['xxx']['price_total'] = 0;
+            if (empty($byUsersTotals['xxx']['time_total'])) $byUsersTotals['xxx']['time_total'] = 0;
+
+            $byUsersTotals['xxx']['price_total'] += $r->wd_price_final;
+            $byUsersTotals['xxx']['time_total']  += $r->wd_time_spent;
+            #####
+            #####
+
+            ##############################
+            $ud = $ud ?? [];
+            ###
+            $assaId = $r->wd_assignee_id;
+            $oid    = $r->o_id;
+            $did    = $r->d_id;
+            $pid    = $r->p_id;
+            $tid    = $r->t_id;
+            $stid   = $r->st_id;
+            $wid    = $r->w_id;
+            $wdid   = $r->wd_id;
+            $afn    = implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $assaId]);
+            $onh    = $r->o_nh;
+            $dnh    = $r->d_nh;
+            $pnh    = $r->p_nh;
+            $tnh    = $r->t_nh;
+            $stnh   = $r->st_nh;
+            $wnh    = $r->w_nh;
+            ###
+            $ud[$assaId]              = $ud[$assaId] ?? [];
+            $ud[$assaId]['full_name'] = $ud[$assaId]['full_name'] ?? implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $assaId]);
+
+            $ud[$assaId][$oid]         = $ud[$assaId][$oid] ?? [];
+            $ud[$assaId][$oid]['o_nh'] = $ud[$assaId][$oid]['o_nh'] ?? $r->o_nh;
+
+            $ud[$assaId][$oid][$did]         = $ud[$assaId][$oid][$did] ?? [];
+            $ud[$assaId][$oid][$did]['d_nh'] = $ud[$assaId][$oid][$did]['d_nh'] ?? $r->d_nh;
+
+            $ud[$assaId][$oid][$did][$pid]         = $ud[$assaId][$oid][$did][$pid] ?? [];
+            $ud[$assaId][$oid][$did][$pid]['p_nh'] = $ud[$assaId][$oid][$did][$pid]['p_nh'] ?? $r->p_nh;
+
+            $ud[$assaId][$oid][$did][$pid][$tid]         = $ud[$assaId][$oid][$did][$pid][$tid] ?? [];
+            $ud[$assaId][$oid][$did][$pid][$tid]['t_nh'] = $ud[$assaId][$oid][$did][$pid][$tid]['t_nh'] ?? $r->t_nh;
+
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid]          = $ud[$assaId][$oid][$did][$pid][$tid][$stid] ?? [];
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid]['st_nh'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid]['st_nh'] ?? $r->st_nh;
+
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]         = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid] ?? [];
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]['w_nh'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]['w_nh'] ?? $r->w_nh;
+
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]                = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid] ?? [];
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['price_final'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['price_final'] ?? $r->wd_price_final;
+            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['time_spent']  = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['time_spent'] ?? $r->wd_time_spent;
+            ##############################
         }
+        $byUsers[]     = $byUsersTotals['xxx'];
         $vd['byUsers'] = $byUsers;
+        $vd['ud']      = $ud;
         ##################################################
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;

@@ -11,7 +11,7 @@ $firstRow = reset($data);
 $headers  = array_keys((array)$firstRow);
 ?>
 <div class="text-nowrap bg-black p-1 m-1">
-    <table class="bg-black alina-data-table">
+    <table class="bg-black alina-data-table table-002">
         <thead>
         <tr>
             <th>#</th>
@@ -21,21 +21,46 @@ $headers  = array_keys((array)$firstRow);
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($data as $row) { ?>
+
+
+        <?php foreach ($data as $k => $row) { ?>
             <tr>
                 <td><?= $counter++ ?></td>
-                <?php foreach ($row as $colName => $colValue) { ?>
+                <?php
+                AlinaDebugJson($k);
+                AlinaDebugJson($row);
+                ?>
+
+                <?php if (!Data::isIterable($row)): ?>
                     <td>
-                        <?php if (Data::isIterable($colValue)) { ?>
-                            <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
-                        <?php } else { ?>
-                            <?= $colValue ?>
-                        <?php } ?>
+                        <span><?= $k ?></span>
+                        <span><?= $row ?></span>
                     </td>
-                <?php } ?>
+                <?php else: ?>
+
+
+                    <?php foreach ($row as $colName => $colValue) { ?>
+                        <td>
+                            <?php if (Data::isIterable($colValue)) { ?>
+                                <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
+                            <?php } else { ?>
+                                <?= $colValue ?>
+                            <?php } ?>
+                        </td>
+                    <?php } ?>
+
+                <?php endif; ?>
+
             </tr>
         <?php } ?>
 
         </tbody>
     </table>
 </div>
+
+<style>
+    table.table-002 th,
+    table.table-002 td {
+        border: #eee solid 1px;
+    }
+</style>

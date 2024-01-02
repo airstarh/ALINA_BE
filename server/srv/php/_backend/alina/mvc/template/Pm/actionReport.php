@@ -5,7 +5,7 @@ use alina\mvc\Controller\AdminDbManager;
 use alina\mvc\Controller\Pm;
 use alina\mvc\View\html;
 
-$vd = $data;
+$vd  = $data;
 $GET = \alina\Utils\Request::obj()->GET;
 ?>
 <div class="container-fluid">
@@ -51,10 +51,14 @@ $GET = \alina\Utils\Request::obj()->GET;
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
             <div class="clear">&nbsp;</div>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['ud']) ?>
+            <div class="clear">&nbsp;</div>
+            <!--##################################################-->
+            <div class="clear">&nbsp;</div>
             <div class="ck-content">
 <pre>
 <?php
-print_r($data);
+print_r($vd['ud']);
 ?>
 </pre>
             </div>
