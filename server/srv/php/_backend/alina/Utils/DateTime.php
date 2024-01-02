@@ -193,5 +193,67 @@ class DateTime extends \DateTime
         $unixTimeStamp = strtotime($date);
         return $unixTimeStamp;
     }
+
+    static public function utToDateTimeStartOfDay(int $ut)
+    {
+        $m = new static();
+        $m->setTimestamp($ut);
+        $m->setTime(0, 0);
+        $res = $m->format(ALINA_DT_FORMAT_DB);
+        return $res;
+    }
+
+    static public function utToDateTimeEndOfDay(int $ut)
+    {
+        $m = new static();
+        $m->setTimestamp($ut);
+        $m->setTime(23, 59);
+        $res = $m->format(ALINA_DT_FORMAT_DB);
+        return $res;
+    }
+
+    static public function utToUtDayStart(int $ut)
+    {
+        $d   = static::utToDateTimeStartOfDay($ut);
+        $res = static::dateToUnixTime($d);
+        return $res;
+    }
+
+    static public function utToUtDayEnd(int $ut)
+    {
+        $d   = static::utToDateTimeEndOfDay($ut);
+        $res = static::dateToUnixTime($d);
+        return $res;
+    }
+
+    static public function dateToHumanDayStart(string $date)
+    {
+        $m = new static($date);
+        $m->setTime(0, 0, 0);
+        $res = $m->format(ALINA_DT_FORMAT_DB);
+        return $res;
+    }
+
+    static public function dateToHumanDayEnd(string $date)
+    {
+        $m = new static($date);
+        $m->setTime(23, 59, 59);
+        $res = $m->format(ALINA_DT_FORMAT_DB);
+        return $res;
+    }
+
+    static public function dateToUtDayStart(string $date)
+    {
+        $d  = static::dateToHumanDayStart($date);
+        $ut = static::dateToUnixTime($d);
+        return $ut;
+    }
+
+    static public function dateToUtDayEnd(string $date)
+    {
+        $d  = static::dateToHumanDayEnd($date);
+        $ut = static::dateToUnixTime($d);
+        return $ut;
+    }
     ##################################################
 }

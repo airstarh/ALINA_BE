@@ -80,6 +80,11 @@ $linkWorkDoneList     = '';
        class="btn btn-primary"
        target="_blank"
     ><?= ___("Edit Structure") ?></a>
+
+    <a href="<?= \alina\mvc\Controller\Pm::URL_REPORT ?>"
+       class="btn btn-primary"
+       target="_blank"
+    ><?= ___("Report") ?></a>
 </div>
 <hr>
 
