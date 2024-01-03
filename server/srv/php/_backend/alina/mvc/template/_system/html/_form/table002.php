@@ -3,11 +3,12 @@
 use alina\mvc\View\html;
 use alina\Utils\Data;
 
-if (is_object($data)) $data = [$data];
 if (empty($data)) {
-    \alina\Message::setDanger(___('Some Data is empty.'));
-    $data = [];
+    return;
 }
+
+if (is_object($data)) $data = [$data];
+
 $counter = 1;
 
 $firstRow = current($data);
@@ -38,6 +39,7 @@ $headers  = array_keys((array)$firstRow);
                         <?= $counter++ ?>
                     <?php endif; ?>
                 </td>
+
                 <?php
                 AlinaDebugJson($k);
                 AlinaDebugJson($row);
@@ -45,13 +47,14 @@ $headers  = array_keys((array)$firstRow);
 
                 <?php if (!Data::isIterable($row)): ?>
                     <td>
-                        <span><?= $k ?></span>
-                        <span><?= $row ?></span>
+                        <div><?= $k ?></div>
+                        <div><?= $row ?></div>
                     </td>
                 <?php else: ?>
 
 
                     <?php foreach ($row as $colName => $colValue) { ?>
+
                         <td>
                             <?php if (Data::isIterable($colValue)) { ?>
                                 <div><?= $colName ?></div>
@@ -70,10 +73,3 @@ $headers  = array_keys((array)$firstRow);
         </tbody>
     </table>
 </div>
-
-<style>
-    table.table-002 th,
-    table.table-002 td {
-        border: #eee solid 1px;
-    }
-</style>
