@@ -53,6 +53,8 @@ table.alina-data-table th, table.alina-data-table td {
     padding-bottom: 2px;
     padding-left: 2ch;
     vertical-align: top;
+
+    border: #888 solid 1px;
 }
 
 /*endregion FUNDAMENTAL */
