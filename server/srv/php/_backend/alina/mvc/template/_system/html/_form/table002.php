@@ -4,13 +4,16 @@ use alina\mvc\View\html;
 use alina\Utils\Data;
 
 if (is_object($data)) $data = [$data];
-if (empty($data)) return;
+if (empty($data)) {
+    \alina\Message::setDanger(___('Some Data is empty.'));
+    $data = [];
+}
 $counter = 1;
 
-$firstRow = reset($data);
+$firstRow = current($data);
 $headers  = array_keys((array)$firstRow);
 ?>
-<div class="text-nowrap bg-black p-1 m-1">
+<div class="text-nowrap m-1">
     <table class="bg-black alina-data-table table-002">
         <thead>
         <tr>
@@ -26,11 +29,13 @@ $headers  = array_keys((array)$firstRow);
         <?php foreach ($data as $k => $row) { ?>
             <tr>
                 <td>
-                    <?= $counter++ ?>
+
                     <?php if (!is_numeric($k)): ?>
                         <div>
                             <?= $k ?>
                         </div>
+                    <?php else: ?>
+                        <?= $counter++ ?>
                     <?php endif; ?>
                 </td>
                 <?php
@@ -49,7 +54,7 @@ $headers  = array_keys((array)$firstRow);
                     <?php foreach ($row as $colName => $colValue) { ?>
                         <td>
                             <?php if (Data::isIterable($colValue)) { ?>
-
+                                <div><?= $colName ?></div>
                                 <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
                             <?php } else { ?>
                                 <?= $colValue ?>
