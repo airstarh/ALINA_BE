@@ -495,7 +495,6 @@ class Pm
             #####
 
             ##############################
-            $ud = $ud ?? [];
             ###
             $assaId = $r->wd_assignee_id;
             $oid    = $r->o_id;
