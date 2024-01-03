@@ -25,7 +25,14 @@ $headers  = array_keys((array)$firstRow);
 
         <?php foreach ($data as $k => $row) { ?>
             <tr>
-                <td><?= $counter++ ?></td>
+                <td>
+                    <?= $counter++ ?>
+                    <?php if (!is_numeric($k)): ?>
+                        <div>
+                            <?= $k ?>
+                        </div>
+                    <?php endif; ?>
+                </td>
                 <?php
                 AlinaDebugJson($k);
                 AlinaDebugJson($row);
@@ -42,6 +49,7 @@ $headers  = array_keys((array)$firstRow);
                     <?php foreach ($row as $colName => $colValue) { ?>
                         <td>
                             <?php if (Data::isIterable($colValue)) { ?>
+
                                 <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
                             <?php } else { ?>
                                 <?= $colValue ?>
