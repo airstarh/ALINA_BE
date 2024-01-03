@@ -512,31 +512,21 @@ class Pm
             $tnh    = $r->t_nh;
             $stnh   = $r->st_nh;
             $wnh    = $r->w_nh;
+            $pf     = $r->wd_price_final;
+            $ts     = $r->wd_time_spent;
             ###
-            $ud[$assaId]              = $ud[$assaId] ?? [];
-            $ud[$assaId]['full_name'] = $ud[$assaId]['full_name'] ?? implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $assaId]);
-
-            $ud[$assaId][$oid]         = $ud[$assaId][$oid] ?? [];
-            $ud[$assaId][$oid]['o_nh'] = $ud[$assaId][$oid]['o_nh'] ?? $r->o_nh;
-
-            $ud[$assaId][$oid][$did]         = $ud[$assaId][$oid][$did] ?? [];
-            $ud[$assaId][$oid][$did]['d_nh'] = $ud[$assaId][$oid][$did]['d_nh'] ?? $r->d_nh;
-
-            $ud[$assaId][$oid][$did][$pid]         = $ud[$assaId][$oid][$did][$pid] ?? [];
-            $ud[$assaId][$oid][$did][$pid]['p_nh'] = $ud[$assaId][$oid][$did][$pid]['p_nh'] ?? $r->p_nh;
-
-            $ud[$assaId][$oid][$did][$pid][$tid]         = $ud[$assaId][$oid][$did][$pid][$tid] ?? [];
-            $ud[$assaId][$oid][$did][$pid][$tid]['t_nh'] = $ud[$assaId][$oid][$did][$pid][$tid]['t_nh'] ?? $r->t_nh;
-
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid]          = $ud[$assaId][$oid][$did][$pid][$tid][$stid] ?? [];
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid]['st_nh'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid]['st_nh'] ?? $r->st_nh;
-
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]         = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid] ?? [];
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]['w_nh'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid]['w_nh'] ?? $r->w_nh;
-
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]                = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid] ?? [];
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['price_final'] = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['price_final'] ?? $r->wd_price_final;
-            $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['time_spent']  = $ud[$assaId][$oid][$did][$pid][$tid][$stid][$wid][$wdid]['time_spent'] ?? $r->wd_time_spent;
+            $ud[$assaId]                                                   = $ud[$assaId] ?? [];
+            $ud[$assaId][$afn]                                             = $ud[$assaId][$afn] ?? [];
+            $ud[$assaId][$afn][$onh]                                       = $ud[$assaId][$afn][$onh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh]                                 = $ud[$assaId][$afn][$onh][$dnh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh][$pnh]                           = $ud[$assaId][$afn][$onh][$dnh][$pnh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh]                     = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh]              = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh]        = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh] ?? [];
+            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh][$wdid] = [
+                'price_final' => $pf,
+                'time_spent'  => $ts,
+            ];
             ##############################
         }
         $byUsers[]     = $byUsersTotals['xxx'];
