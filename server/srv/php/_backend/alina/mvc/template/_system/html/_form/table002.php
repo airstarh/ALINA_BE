@@ -57,7 +57,7 @@ $headers  = array_keys((array)$firstRow);
 
                         <td>
                             <?php if (Data::isIterable($colValue)) { ?>
-                                <div><?= $colName ?></div>
+
                                 <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
                             <?php } else { ?>
                                 <?= $colValue ?>

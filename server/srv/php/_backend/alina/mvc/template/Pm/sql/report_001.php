@@ -8,6 +8,7 @@ SELECT
 wd.id as wd_id,
 assa.firstname as assa_firstname,
 assa.lastname as assa_lastname,
+wd.amount as wd_amount,
 wd.price_final as wd_price_final,
 wd.time_spent as wd_time_spent,
 assa.mail as assa_mail,
