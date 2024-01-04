@@ -475,27 +475,7 @@ class Pm
                 Message::setDanger(___('WD_ID`s are repeated!!!') . ' ' . $r->wd_id);
             }
             $idxControl[] = $r->wd_id;
-            #####
-            if (empty($byUsers[$r->wd_assignee_id])) $byUsers[$r->wd_assignee_id] = [];
-            if (empty($byUsers[$r->wd_assignee_id]['full_name'])) $byUsers[$r->wd_assignee_id]['full_name'] = implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $r->wd_assignee_id]);
-            if (empty($byUsers[$r->wd_assignee_id]['price_total'])) $byUsers[$r->wd_assignee_id]['price_total'] = 0;
-            if (empty($byUsers[$r->wd_assignee_id]['time_total'])) $byUsers[$r->wd_assignee_id]['time_total'] = 0;
-
-            $byUsers[$r->wd_assignee_id]['price_total'] += $r->wd_price_final;
-            $byUsers[$r->wd_assignee_id]['time_total']  += $r->wd_time_spent;
-            #####
-            if (empty($byUsersTotals['xxx'])) $byUsersTotals['xxx'] = [];
-            if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = 'Totals';
-            if (empty($byUsersTotals['xxx']['price_total'])) $byUsersTotals['xxx']['price_total'] = 0;
-            if (empty($byUsersTotals['xxx']['time_total'])) $byUsersTotals['xxx']['time_total'] = 0;
-
-            $byUsersTotals['xxx']['price_total'] += $r->wd_price_final;
-            $byUsersTotals['xxx']['time_total']  += $r->wd_time_spent;
-            #####
-            #####
-
             ##############################
-            ###
             $assaId = $r->wd_assignee_id;
             $oid    = $r->o_id;
             $did    = $r->d_id;
@@ -511,18 +491,37 @@ class Pm
             $tnh    = $r->t_nh;
             $stnh   = $r->st_nh;
             $wnh    = $r->w_nh;
+            $amnt   = $r->wd_amount;
             $pf     = $r->wd_price_final;
             $ts     = $r->wd_time_spent;
-            ###
-            $ud[$assaId]                                                   = $ud[$assaId] ?? [];
-            $ud[$assaId][$afn]                                             = $ud[$assaId][$afn] ?? [];
-            $ud[$assaId][$afn][$onh]                                       = $ud[$assaId][$afn][$onh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh]                                 = $ud[$assaId][$afn][$onh][$dnh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh][$pnh]                           = $ud[$assaId][$afn][$onh][$dnh][$pnh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh]                     = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh]              = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh]        = $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh] ?? [];
-            $ud[$assaId][$afn][$onh][$dnh][$pnh][$tnh][$stnh][$wnh][$wdid] = [
+            ##############################
+            if (empty($byUsers[$assaId])) $byUsers[$assaId] = [];
+            if (empty($byUsers[$assaId]['full_name'])) $byUsers[$assaId]['full_name'] = $afn;
+            if (empty($byUsers[$assaId]['amount'])) $byUsers[$assaId]['amount'] = 0;
+            if (empty($byUsers[$assaId]['price_total'])) $byUsers[$assaId]['price_total'] = 0;
+            if (empty($byUsers[$assaId]['time_total'])) $byUsers[$assaId]['time_total'] = 0;
+
+            $byUsers[$assaId]['amount']      += $amnt;
+            $byUsers[$assaId]['price_total'] += $pf;
+            $byUsers[$assaId]['time_total']  += $ts;
+            #####
+            if (empty($byUsersTotals['xxx'])) $byUsersTotals['xxx'] = [];
+            if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = 'Totals';
+            if (empty($byUsersTotals['xxx']['amount'])) $byUsersTotals['xxx']['amount'] = 0;
+            if (empty($byUsersTotals['xxx']['price_total'])) $byUsersTotals['xxx']['price_total'] = 0;
+            if (empty($byUsersTotals['xxx']['time_total'])) $byUsersTotals['xxx']['time_total'] = 0;
+
+            $byUsersTotals['xxx']['amount']      += +$amnt;
+            $byUsersTotals['xxx']['price_total'] += $pf;
+            $byUsersTotals['xxx']['time_total']  += $ts;
+            #####
+            #####
+
+            ##############################
+
+
+            $ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh] = [
+                'amount'      => $amnt,
                 'price_final' => $pf,
                 'time_spent'  => $ts,
             ];
