@@ -476,24 +476,25 @@ class Pm
             }
             $idxControl[] = $r->wd_id;
             ##############################
-            $assaId = $r->wd_assignee_id;
-            $oid    = $r->o_id;
-            $did    = $r->d_id;
-            $pid    = $r->p_id;
-            $tid    = $r->t_id;
-            $stid   = $r->st_id;
-            $wid    = $r->w_id;
-            $wdid   = $r->wd_id;
-            $afn    = implode(' ', [$r->assa_firstname, $r->assa_lastname, $r->assa_mail, $assaId]);
-            $onh    = $r->o_nh;
-            $dnh    = $r->d_nh;
-            $pnh    = $r->p_nh;
-            $tnh    = $r->t_nh;
-            $stnh   = $r->st_nh;
-            $wnh    = $r->w_nh;
-            $amnt   = $r->wd_amount;
-            $pf     = $r->wd_price_final;
-            $ts     = $r->wd_time_spent;
+            $assaId  = $r->wd_assignee_id;
+            $oid     = $r->o_id;
+            $did     = $r->d_id;
+            $pid     = $r->p_id;
+            $tid     = $r->t_id;
+            $stid    = $r->st_id;
+            $wid     = $r->w_id;
+            $wdid    = $r->wd_id;
+            $afn     = implode(' ', [$r->assa_firstname, $r->assa_lastname, "[$assaId]"]);
+            $onh     = $r->o_nh;
+            $dnh     = $r->d_nh;
+            $pnh     = $r->p_nh;
+            $tnh     = $r->t_nh;
+            $stnh    = $r->st_nh;
+            $wnh     = $r->w_nh;
+            $forDate = DateTime::toHumanDate($r->wd_for_date);
+            $amnt    = $r->wd_amount;
+            $pf      = $r->wd_price_final;
+            $ts      = $r->wd_time_spent;
             ##############################
             if (empty($byUsers[$assaId])) $byUsers[$assaId] = [];
             if (empty($byUsers[$assaId]['full_name'])) $byUsers[$assaId]['full_name'] = $afn;
@@ -520,11 +521,27 @@ class Pm
             ##############################
 
 
-            $ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh] = [
-                'amount'      => $amnt,
-                'price_final' => $pf,
-                'time_spent'  => $ts,
+            //$ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh][$wdid] = [
+            //    'for_date'    => $forDate,
+            //    'amount'      => $amnt,
+            //    'price_final' => $pf,
+            //    'time_spent'  => $ts,
+            //];
+
+            $ud[$assaId][$wdid] = [
+                $afn           => '',
+                'organization' => $onh,
+                'department'   => $dnh,
+                'project'      => $pnh,
+                'task'         => $tnh,
+                'subtask'      => $stnh,
+                'for_date'     => $forDate,
+                'amount'       => $amnt,
+                'price_final'  => $pf,
+                'time_spent'   => $ts,
             ];
+
+
             ##############################
         }
         $byUsers[]     = $byUsersTotals['xxx'];
