@@ -3,7 +3,8 @@
 use alina\Utils\Sys;
 
 ?>
-<?php if (AlinaAccessIfAdmin()) { ?>
+<?php //if (AlinaAccessIfAdmin()) { ?>
+<?php if (false) { ?>
     <div class="ck-content">
         <?php
         $h1 = 'Alina Details';
