@@ -60,6 +60,6 @@ d.name_human ASC,
 p.name_human ASC,
 t.name_human ASC,
 st.name_human ASC,
-wd.for_date DESC,
 assa.lastname ASC,
-assa.firstname ASC
+assa.firstname ASC,
+wd.for_date DESC

@@ -46,14 +46,18 @@ $GET = \alina\Utils\Request::obj()->GET;
             <?= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
-            <div class="clear">&nbsp;</div>
+            <h2><?= ___('Totals') ?></h2>
+            <!--##################################################-->
             <?= (new html)->piece('_system/html/_form/table002.php', $vd['byUsers']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
             <div class="clear">&nbsp;</div>
-
+            <!--##################################################-->
+            <h2><?= ___('Each User Detalization') ?></h2>
+            <!--##################################################-->
             <?php foreach ($vd['ud'] as $uid => $user): ?>
                 <?= (new html)->piece('_system/html/_form/table002.php', $user) ?>
+                <div class="clear">&nbsp;</div>
             <?php endforeach; ?>
 
             <div class="clear">&nbsp;</div>
