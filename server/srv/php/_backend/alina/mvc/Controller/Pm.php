@@ -470,6 +470,12 @@ class Pm
         $byUsers       = [];
         $byUsersTotals = [];
         $ud            = [];
+        $od            = [];
+        $odTotals      = [];
+        $dd            = [];
+        $ddTotals      = [];
+        $pd            = [];
+        $pdTotals      = [];
         foreach ($res as $idx => $r) {
             if (in_array($r->wd_id, $idxControl)) {
                 Message::setDanger(___('WD_ID`s are repeated!!!') . ' ' . $r->wd_id);
@@ -500,25 +506,74 @@ class Pm
 
             if (empty($byUsers[$assaId])) $byUsers[$assaId] = [];
             if (empty($byUsers[$assaId]['full_name'])) $byUsers[$assaId]['full_name'] = $afn;
-            if (empty($byUsers[$assaId]['amount'])) $byUsers[$assaId]['amount'] = 0;
             if (empty($byUsers[$assaId]['price_total'])) $byUsers[$assaId]['price_total'] = 0;
             if (empty($byUsers[$assaId]['time_total'])) $byUsers[$assaId]['time_total'] = 0;
 
-            $byUsers[$assaId]['amount']      += $amnt;
             $byUsers[$assaId]['price_total'] += $pf;
             $byUsers[$assaId]['time_total']  += $ts;
             #####
             if (empty($byUsersTotals['xxx'])) $byUsersTotals['xxx'] = [];
-            if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = 'Totals';
-            if (empty($byUsersTotals['xxx']['amount'])) $byUsersTotals['xxx']['amount'] = 0;
+            if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = ___('sum');
             if (empty($byUsersTotals['xxx']['price_total'])) $byUsersTotals['xxx']['price_total'] = 0;
             if (empty($byUsersTotals['xxx']['time_total'])) $byUsersTotals['xxx']['time_total'] = 0;
 
-            $byUsersTotals['xxx']['amount']      += +$amnt;
             $byUsersTotals['xxx']['price_total'] += $pf;
             $byUsersTotals['xxx']['time_total']  += $ts;
+
+            ####################################################################################################
+
+            if (empty($od[$oid])) $od[$oid] = [];
+            if (empty($od[$oid]['full_name'])) $od[$oid]['full_name'] = $onh;
+            if (empty($od[$oid]['price_total'])) $od[$oid]['price_total'] = 0;
+            if (empty($od[$oid]['time_total'])) $od[$oid]['time_total'] = 0;
+
+            $od[$oid]['price_total'] += $pf;
+            $od[$oid]['time_total']  += $ts;
             #####
+            if (empty($odTotals['xxx'])) $odTotals['xxx'] = [];
+            if (empty($odTotals['xxx']['full_name'])) $odTotals['xxx']['full_name'] = ___('sum');
+            if (empty($odTotals['xxx']['price_total'])) $odTotals['xxx']['price_total'] = 0;
+            if (empty($odTotals['xxx']['time_total'])) $odTotals['xxx']['time_total'] = 0;
+
+            $odTotals['xxx']['price_total'] += $pf;
+            $odTotals['xxx']['time_total']  += $ts;
+
+            ####################################################################################################
+
+            if (empty($dd[$did])) $dd[$did] = [];
+            if (empty($dd[$did]['full_name'])) $dd[$did]['full_name'] = implode(' ', [$dnh, $onh]);
+            if (empty($dd[$did]['price_total'])) $dd[$did]['price_total'] = 0;
+            if (empty($dd[$did]['time_total'])) $dd[$did]['time_total'] = 0;
+
+            $dd[$did]['price_total'] += $pf;
+            $dd[$did]['time_total']  += $ts;
             #####
+            if (empty($ddTotals['xxx'])) $ddTotals['xxx'] = [];
+            if (empty($ddTotals['xxx']['full_name'])) $ddTotals['xxx']['full_name'] = ___('sum');
+            if (empty($ddTotals['xxx']['price_total'])) $ddTotals['xxx']['price_total'] = 0;
+            if (empty($ddTotals['xxx']['time_total'])) $ddTotals['xxx']['time_total'] = 0;
+
+            $ddTotals['xxx']['price_total'] += $pf;
+            $ddTotals['xxx']['time_total']  += $ts;
+
+            ####################################################################################################
+
+
+            if (empty($pd[$pid])) $pd[$pid] = [];
+            if (empty($pd[$pid]['full_name'])) $pd[$pid]['full_name'] = implode(' ', [$pnh, $dnh, $onh]);
+            if (empty($pd[$pid]['price_total'])) $pd[$pid]['price_total'] = 0;
+            if (empty($pd[$pid]['time_total'])) $pd[$pid]['time_total'] = 0;
+
+            $pd[$pid]['price_total'] += $pf;
+            $pd[$pid]['time_total']  += $ts;
+            #####
+            if (empty($pdTotals['xxx'])) $pdTotals['xxx'] = [];
+            if (empty($pdTotals['xxx']['full_name'])) $pdTotals['xxx']['full_name'] = ___('sum');
+            if (empty($pdTotals['xxx']['price_total'])) $pdTotals['xxx']['price_total'] = 0;
+            if (empty($pdTotals['xxx']['time_total'])) $pdTotals['xxx']['time_total'] = 0;
+
+            $pdTotals['xxx']['price_total'] += $pf;
+            $pdTotals['xxx']['time_total']  += $ts;
 
             ####################################################################################################
 
@@ -565,11 +620,24 @@ class Pm
             ];
 
 
-            ##############################
+            ####################################################################################################
+
+
+            ####################################################################################################
         }
         $byUsers[]     = $byUsersTotals['xxx'];
         $vd['byUsers'] = $byUsers;
-        $vd['ud']      = $ud;
+        #
+        $od[]     = $odTotals['xxx'];
+        $vd['od'] = $od;
+        #
+        $dd[]     = $ddTotals['xxx'];
+        $vd['dd'] = $dd;
+        #
+        $pd[]     = $pdTotals['xxx'];
+        $vd['pd'] = $pd;
+        #
+        $vd['ud'] = $ud;
         ##################################################
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;
