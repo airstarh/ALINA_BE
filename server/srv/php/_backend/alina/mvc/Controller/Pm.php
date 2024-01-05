@@ -529,7 +529,7 @@ class Pm
             //];
 
             $ud[$assaId][$wdid] = [
-                $afn           => '',
+                'full_name'    => $afn,
                 'organization' => $onh,
                 'department'   => $dnh,
                 'project'      => $pnh,
@@ -539,6 +539,27 @@ class Pm
                 'amount'       => $amnt,
                 'price_final'  => $pf,
                 'time_spent'   => $ts,
+            ];
+
+            if (empty($ud[$assaId]['sum']['amount'])) $ud[$assaId]['sum']['amount'] = 0;
+            if (empty($ud[$assaId]['sum']['price_final'])) $ud[$assaId]['sum']['price_final'] = 0;
+            if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
+
+            $sumAmnt = $ud[$assaId]['sum']['amount'] + $ud[$assaId][$wdid]['amount'];
+            $sumPf   = $ud[$assaId]['sum']['price_final'] + $ud[$assaId][$wdid]['price_final'];
+            $sumTs   = $ud[$assaId]['sum']['time_spent'] + $ud[$assaId][$wdid]['time_spent'];
+
+            $ud[$assaId]['sum'] = [
+                'full_name'    => '',
+                'organization' => '',
+                'department'   => '',
+                'project'      => '',
+                'task'         => '',
+                'subtask'      => '',
+                'for_date'     => '',
+                'amount'       => $sumAmnt,
+                'price_final'  => $sumPf,
+                'time_spent'   => $sumTs,
             ];
 
 
