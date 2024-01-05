@@ -25,12 +25,11 @@ $GET = \alina\Utils\Request::obj()->GET;
             <!--region DATE PICKER-->
             <form action="" method="get">
                 <div class="row">
-                    <div class="col">
+                    <div class="col text-center">
                         <label>
                             <input type="date" name="date_start" value="<?= $GET->date_start ?? null ?>"/>
                         </label>
-                    </div>
-                    <div class="col">
+                        &nbsp;&nbsp;&nbsp;
                         <label>
                             <input type="date" name="date_end" value="<?= $GET->date_end ?? null ?>"/>
                         </label>
@@ -42,27 +41,54 @@ $GET = \alina\Utils\Request::obj()->GET;
             </form>
             <!--endregion DATE PICKER-->
             <!--##################################################-->
+
+
             <div class="clear">&nbsp;</div>
             <?= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
             <div class="clear">&nbsp;</div>
+
+
             <!--##################################################-->
-            <h2><?= ___('Totals') ?></h2>
-            <!--##################################################-->
+            <h2><?= ___('Totals by Users') ?></h2>
             <?= (new html)->piece('_system/html/_form/table002.php', $vd['byUsers']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
+
+
+            <!--##################################################-->
+            <h2><?= ___('Totals by Organization') ?></h2>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['od']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
-            <h2><?= ___('Each User Detalization') ?></h2>
+
+
             <!--##################################################-->
+            <h2><?= ___('Totals by Department') ?></h2>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['dd']) ?>
+            <div class="clear">&nbsp;</div>
+            <!--##################################################-->
+
+
+            <!--##################################################-->
+            <h2><?= ___('Totals by Project') ?></h2>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['pd']) ?>
+            <div class="clear">&nbsp;</div>
+            <!--##################################################-->
+
+
+
+
+            <!--##################################################-->
+            <h2><?= ___('Each User Detalization') ?></h2>
             <?php foreach ($vd['ud'] as $uid => $user): ?>
                 <?= (new html)->piece('_system/html/_form/table002.php', $user) ?>
                 <div class="clear">&nbsp;</div>
             <?php endforeach; ?>
-
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
-            <div class="clear">&nbsp;</div>
+
+
+            <!--##################################################-->
             <div class="ck-content">
 <pre>
 <?php
@@ -70,7 +96,6 @@ print_r($vd['ud']);
 ?>
 </pre>
             </div>
-            <div class="clear">&nbsp;</div>
             <!--##################################################-->
 
             <!--##################################################-->
