@@ -39,12 +39,21 @@ $GET = \alina\Utils\Request::obj()->GET;
                     <?= html::elFormStandardButtons([]) ?>
                 </div>
             </form>
+            <form action="" method="post">
+                <input type="hidden" name="form_id" value="freeze_period">
+                <input type="hidden" name="do" value="freeze_period">
+                <input type="hidden" name="date_start" value="<?= $GET->date_start ?? null ?>">
+                <input type="hidden" name="date_end" value="<?= $GET->date_end ?? null ?>">
+                <button type="submit"
+                        class="brn brn-success"
+                ><?= ___('Freeze this period') ?></button>
+            </form>
             <!--endregion DATE PICKER-->
             <!--##################################################-->
 
 
             <div class="clear">&nbsp;</div>
-            <?= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
+            <? ###= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
             <div class="clear">&nbsp;</div>
 
 
@@ -76,8 +85,6 @@ $GET = \alina\Utils\Request::obj()->GET;
             <!--##################################################-->
 
 
-
-
             <!--##################################################-->
             <h2><?= ___('Each User Detalization') ?></h2>
             <?php foreach ($vd['ud'] as $uid => $user): ?>
@@ -92,7 +99,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <div class="ck-content">
 <pre>
 <?php
-print_r($vd['ud']);
+### print_r($vd['ud']);
 ?>
 </pre>
             </div>
