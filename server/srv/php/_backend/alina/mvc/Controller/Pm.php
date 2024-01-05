@@ -495,7 +495,9 @@ class Pm
             $amnt    = $r->wd_amount;
             $pf      = $r->wd_price_final;
             $ts      = $r->wd_time_spent;
-            ##############################
+
+            ##################################################
+
             if (empty($byUsers[$assaId])) $byUsers[$assaId] = [];
             if (empty($byUsers[$assaId]['full_name'])) $byUsers[$assaId]['full_name'] = $afn;
             if (empty($byUsers[$assaId]['amount'])) $byUsers[$assaId]['amount'] = 0;
@@ -518,7 +520,7 @@ class Pm
             #####
             #####
 
-            ##############################
+            ##################################################
 
 
             //$ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh][$wdid] = [
@@ -527,6 +529,10 @@ class Pm
             //    'price_final' => $pf,
             //    'time_spent'  => $ts,
             //];
+
+            if (empty($ud[$assaId]['sum']['amount'])) $ud[$assaId]['sum']['amount'] = 0;
+            if (empty($ud[$assaId]['sum']['price_final'])) $ud[$assaId]['sum']['price_final'] = 0;
+            if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
 
             $ud[$assaId][$wdid] = [
                 'full_name'    => $afn,
@@ -540,10 +546,6 @@ class Pm
                 'price_final'  => $pf,
                 'time_spent'   => $ts,
             ];
-
-            if (empty($ud[$assaId]['sum']['amount'])) $ud[$assaId]['sum']['amount'] = 0;
-            if (empty($ud[$assaId]['sum']['price_final'])) $ud[$assaId]['sum']['price_final'] = 0;
-            if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
 
             $sumAmnt = $ud[$assaId]['sum']['amount'] + $ud[$assaId][$wdid]['amount'];
             $sumPf   = $ud[$assaId]['sum']['price_final'] + $ud[$assaId][$wdid]['price_final'];
