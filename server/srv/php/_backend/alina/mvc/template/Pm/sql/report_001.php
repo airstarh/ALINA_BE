@@ -8,6 +8,7 @@ SELECT
 wd.id as wd_id,
 assa.firstname as assa_firstname,
 assa.lastname as assa_lastname,
+wd.for_date as wd_for_date,
 wd.amount as wd_amount,
 wd.price_final as wd_price_final,
 wd.time_spent as wd_time_spent,
@@ -41,11 +42,11 @@ FROM pm_work_done AS wd
 
 LEFT JOIN user AS assa ON assa.id = wd.assignee_id
 LEFT JOIN pm_work AS w ON w.id = wd.pm_work_id
-    LEFT JOIN pm_subtask AS st ON st.id = w.pm_subtask_id
-    LEFT JOIN pm_task AS t ON t.id = w.pm_task_id
-    LEFT JOIN pm_project AS p ON p.id = w.pm_project_id
-    LEFT JOIN pm_department AS d ON d.id = w.pm_department_id
-    LEFT JOIN pm_organization AS o ON o.id = w.pm_organization_id
+LEFT JOIN pm_subtask AS st ON st.id = w.pm_subtask_id
+LEFT JOIN pm_task AS t ON t.id = w.pm_task_id
+LEFT JOIN pm_project AS p ON p.id = w.pm_project_id
+LEFT JOIN pm_department AS d ON d.id = w.pm_department_id
+LEFT JOIN pm_organization AS o ON o.id = w.pm_organization_id
 
 WHERE
 wd.for_date >= <?= $dateToUtDayStart ?>
