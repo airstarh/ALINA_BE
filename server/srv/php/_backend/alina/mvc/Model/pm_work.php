@@ -172,10 +172,10 @@ class pm_work extends _BaseAlinaModel
 
     public function hookRightAfterSave()
     {
-        $this->updateWorkDone($this->id);
+        $this->pmWorkDoneBulkUpdate($this->id);
     }
 
-    public function updateWorkDone($idWork)
+    public function pmWorkDoneBulkUpdate($idWork)
     {
         $this->getById($idWork);
         if ($this->attributes->flag_archived == 0) {
@@ -202,6 +202,35 @@ class pm_work extends _BaseAlinaModel
                 ]));
             }
         }
+
+        return $this;
+    }
+
+    public function getParents($idWork = null)
+    {
+        $mWork         = $this;
+        $mSubtask      = new pm_subtask();
+        $mTask         = new pm_task();
+        $mProject      = new pm_project;
+        $mDepartment   = new pm_department();
+        $mOrganization = new pm_organization();
+
+        if (!empty($idWork)) {
+            $mWork->getById($idWork);
+        } else {
+            $mWork->getById($mWork->id);
+        }
+        $mSubtask->getById($mWork->attributes->pm_subtask_id);
+        $mTask->getById($mWork->attributes->pm_task_id);
+        $mProject->getById($mWork->attributes->pm_project_id);
+        $mDepartment->getById($mWork->attributes->pm_department_id);
+        $mOrganization->getById($mWork->attributes->pm_organization_id);
+
+        $this->attributes->pm_sub_task     = $mSubtask->attributes;
+        $this->attributes->pm_task         = $mTask->attributes;
+        $this->attributes->pm_project      = $mProject->attributes;
+        $this->attributes->pm_department   = $mDepartment->attributes;
+        $this->attributes->pm_organization = $mOrganization->attributes;
 
         return $this;
     }

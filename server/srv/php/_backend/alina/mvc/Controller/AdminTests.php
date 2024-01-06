@@ -45,7 +45,7 @@ class AdminTests
         ##################################################
         $pm_subtask = new pm_subtask();
         $pm_subtask->getOneWithReferences([["$pm_subtask->alias.id", '=', 1]]);
-        $pm_subtask->getListOfParents();
+        $pm_subtask->getParents();
         ##################################################
         $vd = $pm_subtask->attributes;
         echo (new html)->page($vd);

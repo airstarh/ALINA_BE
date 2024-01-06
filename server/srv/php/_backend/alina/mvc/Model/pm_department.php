@@ -132,7 +132,7 @@ class pm_department extends _BaseAlinaModel
         foreach ($this->attributes->_children as $child) {
             $id = $child->_pm_subtask_id;
             $m  = new pm_subtask();
-            $m->bulkUpdate($id);
+            $m->pmWorkBulkUpdate($id);
         }
         return $this;
     }
