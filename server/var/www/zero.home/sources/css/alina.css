@@ -57,6 +57,11 @@ table.alina-data-table th, table.alina-data-table td {
     border: #888 solid 1px;
 }
 
+.alina-pm-breadcrumbs,
+.alina-pm-breadcrumbs .btn-sm {
+    font-size: 0.7rem;
+}
+
 /*endregion FUNDAMENTAL */
 /*##################################################*/
 /*region MAIN LAYOUT*/

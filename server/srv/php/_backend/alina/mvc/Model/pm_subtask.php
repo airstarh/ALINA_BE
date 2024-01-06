@@ -181,20 +181,24 @@ class pm_subtask extends _BaseAlinaModel
     {
         #####
         #region CALCULATE WORK NAME
-        $department           = $this->attributes->pm_department->name_human;
-        $departmentMultiplier = $this->attributes->pm_department->price_min;
-        $project              = $this->attributes->pm_project->name_human;
-        $projectMultiplier    = $this->attributes->pm_project->price_multiplier;
-        $task                 = $this->attributes->pm_task->name_human;
-        $subtask              = $this->attributes->name_human;
-        $subtaskMultiplier    = $this->attributes->time_estimated;
+        $onh                      = $this->attributes->pm_organization->name_human;
+        $dnh                      = $this->attributes->pm_department->name_human;
+        $department_price_min     = $this->attributes->pm_department->price_min;
+        $pnh                      = $this->attributes->pm_project->name_human;
+        $project_price_multiplier = $this->attributes->pm_project->price_multiplier;
+        $tnh                      = $this->attributes->pm_task->name_human;
+        $stnh                     = $this->attributes->name_human;
+        $subtask_time_estimated   = $this->attributes->time_estimated;
 
-        $name_human = implode(' ', [
-            "$departmentMultiplier, $projectMultiplier, $subtaskMultiplier",
-            $department,
-            $project,
-            $task,
-            $subtask,
+        $name_human = json_encode([
+            'onh'                      => $onh,
+            'dnh'                      => $dnh,
+            'pnh'                      => $pnh,
+            'tnh'                      => $tnh,
+            'stnh'                     => $stnh,
+            'department_price_min'     => $department_price_min,
+            'project_price_multiplier' => $project_price_multiplier,
+            'subtask_time_estimated'   => $subtask_time_estimated,
         ]);
         #endregion CALCULATE WORK NAME
         #####
