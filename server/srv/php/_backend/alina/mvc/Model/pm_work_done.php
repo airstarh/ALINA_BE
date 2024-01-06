@@ -119,5 +119,12 @@ class pm_work_done extends _BaseAlinaModel
 
         return $this;
     }
+
+    public function doArchive($id)
+    {
+        $this->getById($id);
+        $mWork = new pm_work();
+        $mWork->getById($this->attributes->pm_work_id);
+    }
     #####
 }

@@ -129,18 +129,18 @@ class pm_subtask extends _BaseAlinaModel
             return $this;
         }
 
-        $this->bulkUpdate();
+        $this->pmWorkBulkUpdate();
 
         return $this;
     }
 
 
     #####
-    public function bulkUpdate($idSubtask = null)
+    public function pmWorkBulkUpdate($idSubtask = null)
     {
         _baseAlinaEloquentTransaction::begin();
         $this
-            ->getListOfParents($idSubtask)
+            ->getParents($idSubtask)
             ->upsertPmWork()
         ;
         _baseAlinaEloquentTransaction::commit();
@@ -148,28 +148,28 @@ class pm_subtask extends _BaseAlinaModel
         return $this;
     }
 
-    public function getListOfParents($idSubTask = null)
+    public function getParents($idSubTask = null)
     {
-        $pm_subtask      = $this;
-        $pm_task         = new pm_task();
-        $pm_project      = new pm_project;
-        $pm_department   = new pm_department();
-        $pm_organization = new pm_organization();
+        $mSubtask      = $this;
+        $mTask         = new pm_task();
+        $mProject      = new pm_project;
+        $mDepartment   = new pm_department();
+        $mOrganization = new pm_organization();
 
         if (!empty($idSubTask)) {
-            $pm_subtask->getById($idSubTask);
+            $mSubtask->getById($idSubTask);
         } else {
-            $pm_subtask->getById($pm_subtask->id);
+            $mSubtask->getById($mSubtask->id);
         }
-        $pm_task->getById($pm_subtask->attributes->pm_task_id);
-        $pm_project->getById($pm_task->attributes->pm_project_id);
-        $pm_department->getById($pm_project->attributes->pm_department_id);
-        $pm_organization->getById($pm_department->attributes->pm_organization_id);
+        $mTask->getById($mSubtask->attributes->pm_task_id);
+        $mProject->getById($mTask->attributes->pm_project_id);
+        $mDepartment->getById($mProject->attributes->pm_department_id);
+        $mOrganization->getById($mDepartment->attributes->pm_organization_id);
 
-        $this->attributes->pm_task         = $pm_task->attributes;
-        $this->attributes->pm_project      = $pm_project->attributes;
-        $this->attributes->pm_department   = $pm_department->attributes;
-        $this->attributes->pm_organization = $pm_organization->attributes;
+        $this->attributes->pm_task         = $mTask->attributes;
+        $this->attributes->pm_project      = $mProject->attributes;
+        $this->attributes->pm_department   = $mDepartment->attributes;
+        $this->attributes->pm_organization = $mOrganization->attributes;
 
         return $this;
     }
