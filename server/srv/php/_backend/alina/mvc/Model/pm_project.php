@@ -42,7 +42,6 @@ class pm_project extends _BaseAlinaModel
                     'childTable'     => 'pm_department',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
-                    'masterChildPk'  => 'pm_department_id',
                 ],
                 ##############################
                 # for Select With References
@@ -69,7 +68,6 @@ class pm_project extends _BaseAlinaModel
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
-                    'masterChildPk'  => 'manager_id',
                 ],
                 ##############################
                 # for Select With References
@@ -99,7 +97,6 @@ class pm_project extends _BaseAlinaModel
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
-                    'masterChildPk'  => 'manager_id',
                 ],
                 ##############################
                 # for Select With References

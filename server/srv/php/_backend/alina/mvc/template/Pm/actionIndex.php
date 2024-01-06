@@ -34,6 +34,18 @@ $linkWorkDoneList     = '';
 <div class="mt-5 mb-5">
     <h2><?= ___("Administrative Tools") ?></h2>
 
+    <a href="<?= \alina\mvc\Controller\Pm::URL_EDIT ?>"
+       class="btn btn-primary"
+       target="_blank"
+    ><?= ___("Edit Structure") ?></a>
+
+    <a href="<?= \alina\mvc\Controller\Pm::URL_REPORT ?>"
+       class="btn btn-primary"
+       target="_blank"
+    ><?= ___("Report") ?></a>
+
+    <div class="clear">&nbsp;</div>
+
     <a href="/admindbmanager/models/pm_organization"
        class="btn btn-primary"
        target="_blank"
@@ -76,15 +88,9 @@ $linkWorkDoneList     = '';
        target="_blank"
     ><?= ___("Users") ?></a>
 
-    <a href="<?= \alina\mvc\Controller\Pm::URL_EDIT ?>"
-       class="btn btn-primary"
-       target="_blank"
-    ><?= ___("Edit Structure") ?></a>
 
-    <a href="<?= \alina\mvc\Controller\Pm::URL_REPORT ?>"
-       class="btn btn-primary"
-       target="_blank"
-    ><?= ___("Report") ?></a>
+
+
 </div>
 <hr>
 

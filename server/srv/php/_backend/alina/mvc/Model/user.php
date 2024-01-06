@@ -217,7 +217,6 @@ class user extends _BaseAlinaModel
                     'childTable'     => 'timezone',
                     'childPk'        => 'id',
                     'childHumanName' => ['name'],
-                    'masterChildPk'  => 'timezone',
                 ],
                 ##############################
                 # for Select With References

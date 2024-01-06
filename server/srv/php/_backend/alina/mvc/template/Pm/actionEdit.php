@@ -60,24 +60,24 @@ $userList     = $data['userList'];
                         <?php endif; ?>
 
                         <label>
-                            <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" required class="form-control">
+                            <input type="text" name="name_human" placeholder="<?= ___('name_human') ?>" class="form-control required" required>
                         </label>
 
                         <?php if (in_array($listOfTable, ['pm_department'])): ?>
                             <label>
-                                <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control">
+                                <input type="text" name="price_min" placeholder="<?= ___('price_min') ?>" class="form-control" required>
                             </label>
                         <?php endif; ?>
 
                         <?php if (in_array($listOfTable, ['pm_project'])): ?>
                             <label>
-                                <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control">
+                                <input type="text" name="price_multiplier" placeholder="<?= ___('price_multiplier') ?>" class="form-control" required>
                             </label>
                         <?php endif; ?>
 
                         <?php if (in_array($listOfTable, ['pm_subtask'])): ?>
                             <label>
-                                <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control">
+                                <input type="text" name="time_estimated" placeholder="<?= ___('time_estimated') ?>" class="form-control" required>
                             </label>
                         <?php endif; ?>
                     </div>
