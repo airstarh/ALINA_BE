@@ -38,7 +38,6 @@ class pm_organization extends _BaseAlinaModel
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
-                    'masterChildPk'  => 'manager_id',
                 ],
                 ##############################
                 # for Select With References

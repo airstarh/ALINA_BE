@@ -4,9 +4,9 @@ namespace alina\mvc\Model;
 
 use alina\Message;
 
-class pm_work extends _BaseAlinaModel
+class pm_work_story extends _BaseAlinaModel
 {
-    public $table        = 'pm_work';
+    public $table        = 'pm_work_story';
     public $addAuditInfo = true;
 
     public function fields()
@@ -14,17 +14,26 @@ class pm_work extends _BaseAlinaModel
         return [
             'id'                 => [],
             'name_human'         => [],
-            'price_this_work'    => [],
+            'wd_assignee_id'     => [],
             'pm_organization_id' => [],
             'pm_department_id'   => [],
             'pm_project_id'      => [],
             'pm_task_id'         => [],
             'pm_subtask_id'      => [],
-            'flag_archived'      => ['default' => 0,],
+            'pm_work_id'         => [],
+            'pm_work_done_id'    => [],
             'created_at'         => [],
             'created_by'         => [],
             'modified_at'        => [],
             'modified_by'        => [],
+            'd_price_min'        => [],
+            'p_price_multiplier' => [],
+            'st_time_estimated'  => [],
+            'w_price_this_work'  => [],
+            'wd_for_date'        => [],
+            'wd_amount'          => [],
+            'wd_price_final'     => [],
+            'wd_time_spent'      => [],
         ];
     }
 

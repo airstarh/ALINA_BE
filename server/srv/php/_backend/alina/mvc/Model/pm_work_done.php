@@ -41,7 +41,6 @@ class pm_work_done extends _BaseAlinaModel
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
-                    'masterChildPk'  => 'manager_id',
                 ],
                 ##############################
                 # for Select With References

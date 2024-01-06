@@ -168,6 +168,10 @@ https://the-echoplex.net/flexyboxes/
     background-color: var(--alina-main-bg);
 }
 
+.form-control:required {
+    border: orange solid 1px;
+}
+
 select.form-control option {
     font-size: 1.5rem;
 }
