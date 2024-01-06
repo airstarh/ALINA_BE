@@ -19,11 +19,11 @@ class pm_subtask extends _BaseAlinaModel
             'time_estimated' => [],
             'order_in_view'  => ['default' => 0],
             'pm_task_id'     => ['default' => 1,],
-            'manager_id'     => [],
-            'assignee_id'    => [],
-            'price'          => [],
-            'completed_at'   => [],
-            'status'         => [],
+            //'manager_id'     => [],
+            //'assignee_id'    => [],
+            //'price'          => [],
+            //'completed_at'   => [],
+            //'status'         => [],
             'created_at'     => [],
             'created_by'     => [],
             'modified_at'    => [],
@@ -209,7 +209,7 @@ class pm_subtask extends _BaseAlinaModel
             ___('Work ID:'),
             $mWork->id,
             ___('New Work price:'),
-            $mWork->attributes->price_this_work, 
+            $mWork->attributes->price_this_work,
         ]));
 
 
