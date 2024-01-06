@@ -38,6 +38,14 @@ class pm_work_story extends _BaseAlinaModel
     }
 
     #####
+    public function uniqueKeys()
+    {
+        return [
+            ['wd_assignee_id', 'pm_organization_id', 'pm_department_id', 'pm_project_id', 'pm_task_id', 'pm_subtask_id', 'pm_work_id', 'pm_work_done_id'],
+        ];
+    }
+
+    #####
     public function referencesTo()
     {
         return [

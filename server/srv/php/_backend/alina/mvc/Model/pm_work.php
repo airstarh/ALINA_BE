@@ -13,8 +13,8 @@ class pm_work extends _BaseAlinaModel
     {
         return [
             'id'                 => [],
-            'name_human'         => [],
-            'price_this_work'    => [],
+            'name_human'         => [], /*calculation*/
+            'price_this_work'    => [], /*calculation*/
             'pm_organization_id' => [],
             'pm_department_id'   => [],
             'pm_project_id'      => [],
@@ -170,14 +170,58 @@ class pm_work extends _BaseAlinaModel
         ];
     }
 
+    #####
+    public function hookRightBeforeSave(&$dataArray)
+    {
+        $mO  = new pm_organization();
+        $mD  = new pm_department();
+        $mP  = new pm_project();
+        $mT  = new pm_task();
+        $mSt = new pm_subtask();
+
+        $mO->getById($dataArray['pm_organization_id']);
+        $mD->getById($dataArray['pm_department_id']);
+        $mP->getById($dataArray['pm_project_id']);
+        $mT->getById($dataArray['pm_task_id']);
+        $mSt->getById($dataArray['pm_subtask_id']);
+
+        #####
+        # NAME HUMAN
+        $onh  = $mO->attributes->name_human;
+        $dnh  = $mD->attributes->name_human;
+        $pnh  = $mP->attributes->name_human;
+        $tnh  = $mT->attributes->name_human;
+        $stnh = $mSt->attributes->name_human;
+
+        $department_price_min     = $mD->attributes->price_min;
+        $project_price_multiplier = $mP->attributes->price_multiplier;
+        $subtask_time_estimated   = $mSt->attributes->time_estimated;
+
+        $dataArray['name_human'] = $this->calcNameHuman($onh, $dnh, $pnh, $tnh, $stnh, $department_price_min, $project_price_multiplier, $subtask_time_estimated);
+
+        #####
+        # PRICE THIS WORK
+        $pm_department_price_min      = $department_price_min;
+        $pm_project_price_multiplier  = $project_price_multiplier;
+        $pm_subtask_time_estimated    = $subtask_time_estimated;
+        $dataArray['price_this_work'] = $this->calcPriceThisWork($pm_department_price_min, $pm_project_price_multiplier, $pm_subtask_time_estimated);
+
+        return $this;
+    }
+
     public function hookRightAfterSave()
     {
         $this->pmWorkDoneBulkUpdate($this->id);
     }
 
-    public function pmWorkDoneBulkUpdate($idWork)
+    public function pmWorkDoneBulkUpdate($idWork = null)
     {
-        $this->getById($idWork);
+        if (!empty($idWork)) {
+            $this->getById($idWork);
+        } else {
+            $this->getById($this->id);
+        }
+
         if ($this->attributes->flag_archived == 0) {
             $m            = new pm_work_done();
             $listWorkDone = $m
@@ -188,17 +232,17 @@ class pm_work extends _BaseAlinaModel
                 ->toArray()
             ;
             if (!empty($listWorkDone)) {
-                $updated = [];
+                $counterUpdated = [];
                 foreach ($listWorkDone as $item) {
                     /**
                      * Other staff happens in hookRightBeforeSave of pm_work_done
                      */
-                    $updated[] = $item->id;
+                    $counterUpdated[] = $item->id;
                     (new pm_work_done())->updateById($item);
                 }
                 Message::setSuccess(implode(' ', [
                     ___('Updated Done Works:'),
-                    count($updated),
+                    count($counterUpdated),
                 ]));
             }
         }
@@ -233,6 +277,38 @@ class pm_work extends _BaseAlinaModel
         $this->attributes->pm_organization = $mOrganization->attributes;
 
         return $this;
+    }
+
+    public function calcPriceThisWork(
+        $pm_department_price_min,
+        $pm_project_price_multiplier,
+        $pm_subtask_time_estimated
+    )
+    {
+        return $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
+    }
+
+    public function calcNameHuman(
+        $onh,
+        $dnh,
+        $pnh,
+        $tnh,
+        $stnh,
+        $department_price_min,
+        $project_price_multiplier,
+        $subtask_time_estimated
+    )
+    {
+        return json_encode([
+            'onh'                      => $onh,
+            'dnh'                      => $dnh,
+            'pnh'                      => $pnh,
+            'tnh'                      => $tnh,
+            'stnh'                     => $stnh,
+            'department_price_min'     => $department_price_min,
+            'project_price_multiplier' => $project_price_multiplier,
+            'subtask_time_estimated'   => $subtask_time_estimated,
+        ]);
     }
     #####
 }
