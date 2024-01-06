@@ -102,21 +102,24 @@ class pm_work_done extends _BaseAlinaModel
 
     public function hookRightBeforeSave(&$dataArray)
     {
-        $mWork = new pm_work();
-        $mWork->getById($dataArray['pm_work_id']);
-        $coef                     = $mWork->attributes->price_this_work;
-        $dataArray['price_final'] = $dataArray['amount'] * $coef;
+        if ($dataArray['flag_archived'] == 0) {
 
-        $mDepartment = new pm_department();
-        $mDepartment->getById($mWork->attributes->pm_department_id);
-        $price_min = $mDepartment->attributes->price_min;
+            $mWork = new pm_work();
+            $mWork->getById($dataArray['pm_work_id']);
+            $w_price_this_work = $mWork->attributes->price_this_work;
 
-        $mProject = new pm_project();
-        $mProject->getById($mWork->attributes->pm_project_id);
-        $price_multiplier = $mProject->attributes->price_multiplier;
+            $dataArray['price_final'] = $dataArray['amount'] * $w_price_this_work;
 
-        $dataArray['time_spent'] = $dataArray['price_final'] / $price_min / $price_multiplier;
+            $mDepartment = new pm_department();
+            $mDepartment->getById($mWork->attributes->pm_department_id);
+            $price_min = $mDepartment->attributes->price_min;
 
+            $mProject = new pm_project();
+            $mProject->getById($mWork->attributes->pm_project_id);
+            $price_multiplier = $mProject->attributes->price_multiplier;
+
+            $dataArray['time_spent'] = $dataArray['price_final'] / $price_min / $price_multiplier;
+        }
         return $this;
     }
 
