@@ -14,7 +14,7 @@ $counter = 1;
 $firstRow = current($data);
 $headers  = array_keys((array)$firstRow);
 ?>
-<div class="text-nowrap m-1">
+<div class="m-1">
     <table class="bg-black alina-data-table table-002">
         <thead>
         <tr>

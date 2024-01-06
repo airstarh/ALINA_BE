@@ -1,33 +1,30 @@
 <?php
 /** @var array $data */
+
+use alina\mvc\View\html;
+
 $breadcrumbs = $data;
 ?>
 
-<div class="breadcrumbs">
+<div class="alina-pm-breadcrumbs">
     <?php foreach ($breadcrumbs as $i => $item): ?>
 
-        <div class="bc-item" style="margin-left: <?= $i * 1.2 ?>vw">
+        <div class="bc-item"
+            <?php if ($item['table'] !== 'pm_work'): ?>
+                style="margin-left: <?= $i * 1.2 ?>vw"
+            <?php endif; ?>
+        >
             <a href="<?= $item['href'] ?>"
                class="btn btn-sm btn-secondary m-1 text-left"
-            ><?= $item['txt'] ?></a>
+            >
+                <?php if ($item['table'] === 'pm_work'): ?>
+                    <?= (new html())->piece('_system/html/_form/table002.php', json_decode($item['txt'])) ?>
+                <?php else: ?>
+                    <?= $item['txt'] ?>
+                <?php endif; ?>
+            </a>
 
             <?= ___($item['table']) ?>
         </div>
     <?php endforeach; ?>
 </div>
-
-<style>
-    .breadcrumbs {
-
-    }
-
-    .breadcrumbs .bc-item{
-        /*float:left;*/
-        /*font-size: 0.5em;*/
-    }
-
-    .breadcrumbs,
-    .breadcrumbs .btn-sm {
-        font-size: 0.7rem;
-    }
-</style>

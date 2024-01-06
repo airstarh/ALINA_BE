@@ -157,7 +157,13 @@ $userList     = $data['userList'];
                                 <div class="col">
                                     <a href="<?= $url ?>/<?= $item->id ?>"
                                        class="btn btn-lg text-left bg-black text-white"
-                                    ><?= $item->name_human ?></a>
+                                    >
+                                        <?php if ($listOfTable === 'pm_work'): ?>
+                                            <?= (new html())->piece('_system/html/_form/table002.php', json_decode($item->name_human)) ?>
+                                        <?php else: ?>
+                                            <?= $item->name_human ?>
+                                        <?php endif; ?>
+                                    </a>
 
                                     <a href="<?= AdminDbManager::URL_ROW_EDIT ?>/<?= $listOfTable ?>/<?= $item->id ?>"
                                        class="btn btn-sm btn-primary"

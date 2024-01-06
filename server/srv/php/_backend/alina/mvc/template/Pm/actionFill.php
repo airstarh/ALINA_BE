@@ -4,6 +4,7 @@
 use alina\mvc\View\html;
 
 $list         = $data['list'];
+$listOfTable  = $data['listOfTable'];
 $url          = $data['url'];
 $breadcrumbs  = $data['breadcrumbs'];
 $mWork        = $data['mWork'];
@@ -26,7 +27,13 @@ $listWorkDone = $data['listWorkDone'];
                     <div class="m-3">
                         <a href="<?= $url ?>/<?= $item->id ?>"
                            class="btn btn-lg text-left bg-black text-white"
-                        ><?= $item->name_human ?></a>
+                        >
+                            <?php if ($listOfTable === 'pm_work'): ?>
+                                <?= (new html())->piece('_system/html/_form/table002.php', json_decode($item->name_human)) ?>
+                            <?php else: ?>
+                                <?= $item->name_human ?>
+                            <?php endif; ?>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </div>
