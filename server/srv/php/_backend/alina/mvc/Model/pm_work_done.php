@@ -16,8 +16,8 @@ class pm_work_done extends _BaseAlinaModel
                 'default' => CurrentUser::id(),
             ],
             'amount'        => [],
-            'price_final'   => [],
-            'time_spent'    => [],
+            'price_final'   => [], /*calculation*/
+            'time_spent'    => [], /*calculation*/
             'for_date'      => [],
             'flag_archived' => ['default' => 0,],
             'created_at'    => [],
@@ -120,11 +120,39 @@ class pm_work_done extends _BaseAlinaModel
         return $this;
     }
 
-    public function doArchive($id)
+    public function doArchive($idWorkDone = null)
     {
-        $this->getById($id);
+        if (!empty($idWorkDone)) {
+            $this->getById($idWorkDone);
+        } else {
+            $this->getById($this->id);
+        }
+
         $mWork = new pm_work();
         $mWork->getById($this->attributes->pm_work_id);
+        $mWork->getParents();
+
+        $mWorkStory    = new pm_work_story();
+        $dataWorkStory = [
+            'name_human'         => $name_human,
+            'wd_assignee_id'     => $wd_assignee_id,
+            'pm_organization_id' => $pm_organization_id,
+            'pm_department_id'   => $pm_department_id,
+            'pm_project_id'      => $pm_project_id,
+            'pm_task_id'         => $pm_task_id,
+            'pm_subtask_id'      => $pm_subtask_id,
+            'pm_work_id'         => $pm_work_id,
+            'pm_work_done_id'    => $pm_work_done_id,
+
+            'd_price_min'        => $d_price_min,
+            'p_price_multiplier' => $p_price_multiplier,
+            'st_time_estimated'  => $st_time_estimated,
+            'w_price_this_work'  => $w_price_this_work, /*calculation*/
+            'wd_for_date'        => $wd_for_date,
+            'wd_amount'          => $wd_amount,
+            'wd_price_final'     => $wd_price_final, /*calculation*/
+            'wd_time_spent'      => $wd_time_spent, /*calculation*/
+        ];
     }
     #####
 }

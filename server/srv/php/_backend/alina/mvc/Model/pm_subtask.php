@@ -125,9 +125,9 @@ class pm_subtask extends _BaseAlinaModel
 
     public function hookRightAfterSave($data)
     {
-        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
-            return $this;
-        }
+        //if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
+        //    return $this;
+        //}
 
         $this->pmWorkBulkUpdate();
 
@@ -176,38 +176,10 @@ class pm_subtask extends _BaseAlinaModel
 
     public function upsertPmWork()
     {
-        #####
-        #region CALCULATE WORK NAME
-        $onh                      = $this->attributes->pm_organization->name_human;
-        $dnh                      = $this->attributes->pm_department->name_human;
-        $department_price_min     = $this->attributes->pm_department->price_min;
-        $pnh                      = $this->attributes->pm_project->name_human;
-        $project_price_multiplier = $this->attributes->pm_project->price_multiplier;
-        $tnh                      = $this->attributes->pm_task->name_human;
-        $stnh                     = $this->attributes->name_human;
-        $subtask_time_estimated   = $this->attributes->time_estimated;
 
-        $name_human = json_encode([
-            'onh'                      => $onh,
-            'dnh'                      => $dnh,
-            'pnh'                      => $pnh,
-            'tnh'                      => $tnh,
-            'stnh'                     => $stnh,
-            'department_price_min'     => $department_price_min,
-            'project_price_multiplier' => $project_price_multiplier,
-            'subtask_time_estimated'   => $subtask_time_estimated,
-        ]);
-        #endregion CALCULATE WORK NAME
-        #####
-
-        #####
-        #region MATH CALCULATE WORK PRICE
-        $pm_department_price_min     = $this->attributes->pm_department->price_min;
-        $pm_project_price_multiplier = $this->attributes->pm_project->price_multiplier;
-        $pm_subtask_time_estimated   = $this->attributes->time_estimated;
-        $price_this_work             = $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
-        #endregion MATH CALCULATE WORK PRICE
-        #####
+        $mWork           = new pm_work();
+        $name_human      = null;
+        $price_this_work = null;
 
         $dataWork = [
             'name_human'         => $name_human,
@@ -220,7 +192,7 @@ class pm_subtask extends _BaseAlinaModel
             'flag_archived'      => 0,
         ];
 
-        $mWork = new pm_work();
+
         $mWork->upsertByUniqueFields($dataWork, [
             [
                 'pm_organization_id',
@@ -237,7 +209,7 @@ class pm_subtask extends _BaseAlinaModel
             ___('Work ID:'),
             $mWork->id,
             ___('New Work price:'),
-            $price_this_work,
+            $mWork->attributes->price_this_work, 
         ]));
 
 
