@@ -176,14 +176,8 @@ class pm_subtask extends _BaseAlinaModel
 
     public function upsertPmWork()
     {
-
         $mWork           = new pm_work();
-        $name_human      = null;
-        $price_this_work = null;
-
         $dataWork = [
-            'name_human'         => $name_human,
-            'price_this_work'    => $price_this_work,
             'pm_organization_id' => $this->attributes->pm_organization->id,
             'pm_department_id'   => $this->attributes->pm_department->id,
             'pm_project_id'      => $this->attributes->pm_project->id,

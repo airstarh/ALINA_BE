@@ -138,14 +138,14 @@ class pm_work_done extends _BaseAlinaModel
         $mWorkStory    = new pm_work_story();
         $dataWorkStory = [
             'name_human'         => $name_human,
-            'wd_assignee_id'     => $wd_assignee_id,
-            'pm_organization_id' => $pm_organization_id,
-            'pm_department_id'   => $pm_department_id,
-            'pm_project_id'      => $pm_project_id,
-            'pm_task_id'         => $pm_task_id,
-            'pm_subtask_id'      => $pm_subtask_id,
-            'pm_work_id'         => $pm_work_id,
-            'pm_work_done_id'    => $pm_work_done_id,
+            'wd_assignee_id'     => $this->attributes->assignee_id,
+            'pm_organization_id' => $mWork->attributes->pm_organization->id,
+            'pm_department_id'   => $mWork->attributes->pm_department->id,
+            'pm_project_id'      => $mWork->attributes->pm_project->id,
+            'pm_task_id'         => $mWork->attributes->pm_task->id,
+            'pm_subtask_id'      => $mWork->attributes->pm_subtask->id,
+            'pm_work_id'         => $mWork->attributes->id,
+            'pm_work_done_id'    => $this->attributes->id,
 
             'd_price_min'        => $d_price_min,
             'p_price_multiplier' => $p_price_multiplier,

@@ -146,22 +146,26 @@ class pm_project extends _BaseAlinaModel
 
     public function hookRightAfterSave($data)
     {
-        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
-            return $this;
-        }
+        //if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
+        //    return $this;
+        //}
 
-        $this->bulkUpdate();
+        $this->mWorkBulkUpdate();
 
         return $this;
     }
 
-    public function bulkUpdate()
+    public function mWorkBulkUpdate()
     {
-        if (empty($this->attributes->_children)) return $this;
-        foreach ($this->attributes->_children as $child) {
-            $id = $child->_pm_subtask_id;
-            $m  = new pm_subtask();
-            $m->pmWorkBulkUpdate($id);
+        $mWork    = new pm_work();
+        $listWork = $mWork->getAll([
+            ['pm_project_id', '=', $this->id],
+            ['flag_archived', '=', 0],
+        ])->toArray();
+        foreach ($listWork as $item) {
+            unset($item->name_human);
+            unset($item->price_this_work);
+            (new pm_work())->updateById($item);
         }
         return $this;
     }
