@@ -207,8 +207,8 @@ class pm_work_story extends _BaseAlinaModel
         $mW->getParents();
         $mAssa->getById($mWd->attributes->assignee_id);
         $models = [
-            'mWd'   => $mWd,
             'mW'    => $mW,
+            'mWd'   => $mWd,
             'mAssa' => $mAssa,
         ];
         return $models;
@@ -234,14 +234,16 @@ class pm_work_story extends _BaseAlinaModel
         ];
 
         $this->upsertByUniqueFields($dataWorkStory, [
-            'wd_assignee_id',
-            'pm_organization_id',
-            'pm_department_id',
-            'pm_project_id',
-            'pm_task_id',
-            'pm_subtask_id',
-            'pm_work_id',
-            'pm_work_done_id',
+            [
+                'wd_assignee_id',
+                'pm_organization_id',
+                'pm_department_id',
+                'pm_project_id',
+                'pm_task_id',
+                'pm_subtask_id',
+                'pm_work_id',
+                'pm_work_done_id',
+            ],
         ]);
         return $this;
     }
@@ -296,6 +298,14 @@ class pm_work_story extends _BaseAlinaModel
             ],
             $dataArray);
         return json_encode($d);
+    }
+
+    public function hookRightAfterSave($data)
+    {
+        Message::setInfo(implode(' ', [
+            'Archived Work Done:',
+            $data->id,
+        ]));
     }
     #####
 }
