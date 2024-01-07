@@ -122,7 +122,22 @@ class pm_work_done extends _BaseAlinaModel
             $wd_time_spent           = $this->calcTimeSpent($wd_price_final, $d_price_min, $p_price_multiplier);
             $dataArray['time_spent'] = $wd_time_spent;
         }
+
         return $this;
+    }
+
+    public function hookRightAfterSave($data)
+    {
+        if ($data->flag_archived == 1) {
+
+            _baseAlinaEloquentTransaction::begin();
+
+            $mWorkStory = new pm_work_story();
+            $mWorkStory->doArchiveWorkDone($data->id);
+
+            _baseAlinaEloquentTransaction::commit();
+
+        }
     }
 
     public function calcPriceFinal($amount, $w_price_this_work)
@@ -137,8 +152,6 @@ class pm_work_done extends _BaseAlinaModel
 
     public function doArchive($idWorkDone = null)
     {
-        _baseAlinaEloquentTransaction::begin();
-
         if (!empty($idWorkDone)) {
             $this->getById($idWorkDone);
         } else {
@@ -149,10 +162,6 @@ class pm_work_done extends _BaseAlinaModel
         $item->flag_arhived = 1;
         $this->updateById($item);
 
-        $mWorkStory = new pm_work_story();
-        $mWorkStory->doArchiveWorkDone($idWorkDone);
-
-        _baseAlinaEloquentTransaction::commit();
         return $this;
     }
     #####

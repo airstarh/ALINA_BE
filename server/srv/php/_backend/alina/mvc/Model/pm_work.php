@@ -275,7 +275,7 @@ class pm_work extends _BaseAlinaModel
         $mDepartment->getById($mWork->attributes->pm_department_id);
         $mOrganization->getById($mWork->attributes->pm_organization_id);
 
-        $this->attributes->pm_sub_task     = $mSubtask->attributes;
+        $this->attributes->pm_subtask      = $mSubtask->attributes;
         $this->attributes->pm_task         = $mTask->attributes;
         $this->attributes->pm_project      = $mProject->attributes;
         $this->attributes->pm_department   = $mDepartment->attributes;
