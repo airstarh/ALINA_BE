@@ -241,8 +241,11 @@ class pm_work extends _BaseAlinaModel
                     (new pm_work_done())->updateById($item);
                 }
                 Message::setSuccess(implode(' ', [
-                    ___('Updated Work with ID:'),
+                    ___('Updated'),
+                    ___('Work ID:'),
                     $this->id,
+                    ___('New Work price:'),
+                    $this->attributes->price_this_work,
                     ___('Updated Done Works:'),
                     count($counterUpdated),
                 ]));

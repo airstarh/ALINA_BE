@@ -198,15 +198,6 @@ class pm_subtask extends _BaseAlinaModel
             ],
         ]);
 
-        Message::setSuccess(implode(' ', [
-            ___('Updated.'),
-            ___('Work ID:'),
-            $mWork->id,
-            ___('New Work price:'),
-            $mWork->attributes->price_this_work,
-        ]));
-
-
         return $this;
     }
 }
