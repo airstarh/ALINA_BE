@@ -138,6 +138,13 @@ class pm_work_done extends _BaseAlinaModel
             _baseAlinaEloquentTransaction::commit();
 
         }
+
+        if ($data->flag_archived == 0) {
+            (new pm_work_story())->delete([
+                    ['pm_work_done_id', '=', $data->id],
+                ]
+            );
+        }
     }
 
     public function calcPriceFinal($amount, $w_price_this_work)
