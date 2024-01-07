@@ -108,54 +108,52 @@ class pm_work_done extends _BaseAlinaModel
             $mWork->getById($dataArray['pm_work_id']);
             $w_price_this_work = $mWork->attributes->price_this_work;
 
-            $dataArray['price_final'] = $dataArray['amount'] * $w_price_this_work;
+            $wd_price_final           = $this->calcPriceFinal($dataArray['amount'], $w_price_this_work);
+            $dataArray['price_final'] = $wd_price_final;
 
             $mDepartment = new pm_department();
             $mDepartment->getById($mWork->attributes->pm_department_id);
-            $price_min = $mDepartment->attributes->price_min;
+            $d_price_min = $mDepartment->attributes->price_min;
 
             $mProject = new pm_project();
             $mProject->getById($mWork->attributes->pm_project_id);
-            $price_multiplier = $mProject->attributes->price_multiplier;
+            $p_price_multiplier = $mProject->attributes->price_multiplier;
 
-            $dataArray['time_spent'] = $dataArray['price_final'] / $price_min / $price_multiplier;
+            $wd_time_spent           = $this->calcTimeSpent($wd_price_final, $d_price_min, $p_price_multiplier);
+            $dataArray['time_spent'] = $wd_time_spent;
         }
         return $this;
     }
 
+    public function calcPriceFinal($amount, $w_price_this_work)
+    {
+        return $amount * $w_price_this_work;
+    }
+
+    public function calcTimeSpent($wd_price_final, $d_price_min, $p_price_multiplier)
+    {
+        return $wd_price_final / $p_price_multiplier / $d_price_min;
+    }
+
     public function doArchive($idWorkDone = null)
     {
+        _baseAlinaEloquentTransaction::begin();
+
         if (!empty($idWorkDone)) {
             $this->getById($idWorkDone);
         } else {
             $this->getById($this->id);
         }
 
-        $mWork = new pm_work();
-        $mWork->getById($this->attributes->pm_work_id);
-        $mWork->getParents();
+        $item               = $this->attributes;
+        $item->flag_arhived = 1;
+        $this->updateById($item);
 
-        $mWorkStory    = new pm_work_story();
-        $dataWorkStory = [
-            'name_human'         => $name_human,
-            'wd_assignee_id'     => $this->attributes->assignee_id,
-            'pm_organization_id' => $mWork->attributes->pm_organization->id,
-            'pm_department_id'   => $mWork->attributes->pm_department->id,
-            'pm_project_id'      => $mWork->attributes->pm_project->id,
-            'pm_task_id'         => $mWork->attributes->pm_task->id,
-            'pm_subtask_id'      => $mWork->attributes->pm_subtask->id,
-            'pm_work_id'         => $mWork->attributes->id,
-            'pm_work_done_id'    => $this->attributes->id,
+        $mWorkStory = new pm_work_story();
+        $mWorkStory->doArchiveWorkDone($idWorkDone);
 
-            'd_price_min'        => $d_price_min,
-            'p_price_multiplier' => $p_price_multiplier,
-            'st_time_estimated'  => $st_time_estimated,
-            'w_price_this_work'  => $w_price_this_work, /*calculation*/
-            'wd_for_date'        => $wd_for_date,
-            'wd_amount'          => $wd_amount,
-            'wd_price_final'     => $wd_price_final, /*calculation*/
-            'wd_time_spent'      => $wd_time_spent, /*calculation*/
-        ];
+        _baseAlinaEloquentTransaction::commit();
+        return $this;
     }
     #####
 }
