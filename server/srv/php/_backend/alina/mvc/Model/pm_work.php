@@ -223,8 +223,8 @@ class pm_work extends _BaseAlinaModel
         }
 
         if ($this->attributes->flag_archived == 0) {
-            $m            = new pm_work_done();
-            $listWorkDone = $m
+            $mWd          = new pm_work_done();
+            $listWorkDone = $mWd
                 ->getAll([
                     ['pm_work_id', '=', $idWork],
                     ['flag_archived', '=', 0],
@@ -241,6 +241,8 @@ class pm_work extends _BaseAlinaModel
                     (new pm_work_done())->updateById($item);
                 }
                 Message::setSuccess(implode(' ', [
+                    ___('Updated Work with ID:'),
+                    $this->id,
                     ___('Updated Done Works:'),
                     count($counterUpdated),
                 ]));
