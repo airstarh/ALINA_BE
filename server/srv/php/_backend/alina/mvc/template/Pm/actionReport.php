@@ -89,7 +89,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <!--##################################################-->
             <h2><?= ___('Each User Detalization') ?></h2>
             <?php foreach ($vd['ud'] as $uid => $user): ?>
-                <?= (new html)->piece('_system/html/_form/table002.php', $user) ?>
+                <?= (new html)->piece('Pm/_pmTablePerUser.php', $user) ?>
                 <div class="clear">&nbsp;</div>
             <?php endforeach; ?>
             <div class="clear">&nbsp;</div>
