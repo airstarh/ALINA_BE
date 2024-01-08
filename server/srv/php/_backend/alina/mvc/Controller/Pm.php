@@ -17,6 +17,7 @@ use alina\mvc\Model\pm_work_done;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
+use alina\Utils\Data;
 use alina\Utils\DateTime;
 use alina\Utils\Request;
 
@@ -582,12 +583,14 @@ class Pm
                 ####################################################################################################
 
 
-                //$ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh][$wdid] = [
-                //    'for_date'    => $forDate,
-                //    'amount'      => $amnt,
-                //    'price_final' => $pf,
-                //    'time_spent'  => $ts,
-                //];
+                $zzz[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh][$wdid] = [
+                    'for_date'    => $forDate,
+                    'amount'      => $amnt,
+                    'price_final' => $pf,
+                    'time_spent'  => $ts,
+                ];
+
+                ####################################################################################################
 
                 if (empty($ud[$assaId]['sum']['amount'])) $ud[$assaId]['sum']['amount'] = 0;
                 if (empty($ud[$assaId]['sum']['price_final'])) $ud[$assaId]['sum']['price_final'] = 0;
@@ -643,6 +646,7 @@ class Pm
         $vd['dd']      = $dd;
         $vd['pd']      = $pd;
         $vd['ud']      = $ud;
+        $vd['zzz']      = Data::toObject([]);
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;
     }

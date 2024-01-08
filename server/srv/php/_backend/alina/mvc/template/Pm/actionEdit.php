@@ -26,10 +26,6 @@ $userList     = $data['userList'];
                 <a href="?"
                    class="btn btn-lg btn-warning"
                 ><?= ___('Reload page') ?></a>
-
-                <a href="<?= Pm::URL_EDIT ?>"
-                   class="btn btn-lg btn-success"
-                ><?= ___('Start from the scratch') ?></a>
             </h1>
             <div class="clear">&nbsp;</div>
 
@@ -245,12 +241,12 @@ $userList     = $data['userList'];
                     </div>
 
                     <?php if (!empty($listWorkDone)): ?>
-                        <div class="bg-black">
-                            <table class="alina-data-table">
+                        <div>
+                            <table class="bg-black alina-data-table">
                                 <thead>
                                 <tr>
                                     <th><?= ___("for_date") ?></th>
-                                    <th><?= ___("Name") ?></th>
+                                    <th><?= ___("full_name") ?></th>
                                     <th><?= ___("amount") ?></th>
                                     <th><?= ___("price_final") ?></th>
                                     <th><?= ___("time_spent") ?></th>

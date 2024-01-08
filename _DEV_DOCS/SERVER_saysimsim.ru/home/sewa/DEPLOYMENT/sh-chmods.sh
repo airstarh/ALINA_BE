@@ -20,6 +20,7 @@
  chmod -R 770 /var/www/saysimsim.ru/uploads
  chmod -R 770 /var/www/m45a/uploads
  chmod -R 770 /var/www/vov/uploads
+ chmod -R 770 /var/www/zero.home/uploads
 #endregion UPLOADS
 ##################################################
 #region HOME SEWA DEPLOYMENT

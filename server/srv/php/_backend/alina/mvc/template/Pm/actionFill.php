@@ -73,8 +73,8 @@ $listWorkDone = $data['listWorkDone'];
                     </div>
 
                     <?php if (!empty($listWorkDone)): ?>
-                        <div class="bg-black">
-                            <table class="alina-data-table">
+                        <div>
+                            <table class="bg-black alina-data-table">
                                 <thead>
                                 <tr>
                                     <th><?= ___("for_date") ?></th>
