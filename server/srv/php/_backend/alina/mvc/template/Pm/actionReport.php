@@ -54,6 +54,7 @@ $GET = \alina\Utils\Request::obj()->GET;
 
             <div class="clear">&nbsp;</div>
             <? ###= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
+            <?= (new html)->piece('_system/html/_form/table002.php', $vd['zzz']) ?>
             <div class="clear">&nbsp;</div>
 
 
@@ -99,7 +100,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <div class="ck-content">
 <pre>
 <?php
-### print_r($vd['ud']);
+print_r($vd['zzz']);
 ?>
 </pre>
             </div>

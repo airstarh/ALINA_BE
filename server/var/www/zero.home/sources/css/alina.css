@@ -49,7 +49,7 @@ body {
 
 table.alina-data-table th, table.alina-data-table td {
     padding-top: 3px;
-    padding-right: 2px;
+    padding-right: 2ch;
     padding-bottom: 2px;
     padding-left: 2ch;
     vertical-align: top;
