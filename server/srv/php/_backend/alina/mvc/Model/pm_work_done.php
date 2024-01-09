@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Model;
 
+use alina\Message;
+
 class pm_work_done extends _BaseAlinaModel
 {
     public $table        = 'pm_work_done';
@@ -165,11 +167,28 @@ class pm_work_done extends _BaseAlinaModel
             $this->getById($this->id);
         }
 
-        $item               = $this->attributes;
-        $item->flag_arhived = 1;
+        $item                = $this->attributes;
+        $item->flag_archived = 1;
+        $this->updateById($item);
+
+
+        return $this;
+    }
+
+    public function doUnArchive($idWorkDone = null)
+    {
+        if (!empty($idWorkDone)) {
+            $this->getById($idWorkDone);
+        } else {
+            $this->getById($this->id);
+        }
+
+        $item                = $this->attributes;
+        $item->flag_archived = 0;
         $this->updateById($item);
 
         return $this;
     }
+
     #####
 }

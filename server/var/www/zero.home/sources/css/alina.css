@@ -53,6 +53,14 @@ table.alina-data-table tfoot {
     background-color: #010a3a;
 }
 
+table.alina-data-table tbody tr:hover {
+    background-color: #444;
+}
+
+table.alina-data-table tbody tr.archived {
+    background-color: #8F2DA8;
+}
+
 table.alina-data-table th, table.alina-data-table td {
     padding-top: 3px;
     padding-right: 1ch;
