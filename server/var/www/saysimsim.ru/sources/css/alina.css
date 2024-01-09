@@ -28,7 +28,7 @@ body {
     box-sizing: border-box;
     position: relative;
     min-height: 100vh;
-    width: 99vw;
+    width: 99.999999vw;
     margin: 0 auto;
     padding: 0;
     font-family: "ALINA", Arial, sans-serif;
@@ -46,12 +46,31 @@ body {
 .alina-main-txt, .alina-main-txt table {
     color: var(--alina-main-txt) !important;
 }
-
+table.alina-data-table thead,
+table.alina-data-table tfoot
+{
+    background-color: #00116e;
+}
 table.alina-data-table th, table.alina-data-table td {
-    padding-left: 2ch;
     padding-top: 3px;
+    padding-right: 1ch;
     padding-bottom: 2px;
+    padding-left: 2ch;
     vertical-align: top;
+
+    border: #888 solid 1px;
+}
+
+table.alina-table-stick-header th {
+    position: sticky;
+    top: 0;
+    background-color: #00116e;
+    color:#fff;
+}
+
+.alina-pm-breadcrumbs,
+.alina-pm-breadcrumbs .btn-sm {
+    font-size: 0.7rem;
 }
 
 /*endregion FUNDAMENTAL */
@@ -158,6 +177,10 @@ https://the-echoplex.net/flexyboxes/
 
 .form-control:disabled {
     background-color: var(--alina-main-bg);
+}
+
+.form-control:required {
+    border: orange solid 1px;
 }
 
 select.form-control option {
@@ -328,6 +351,11 @@ a.no-decoration:active {
 
 .alert-danger {
     background-color: darkred;
+    color: #fff;
+}
+
+.alert-success {
+    background-color: darkgreen;
     color: #fff;
 }
 
