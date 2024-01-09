@@ -506,6 +506,7 @@ class Pm
                 $amnt    = $r->wd_amount;
                 $pf      = $r->wd_price_final;
                 $ts      = $r->wd_time_spent;
+                $fa      = $r->wd_flag_archived;
 
                 ####################################################################################################
 
@@ -597,16 +598,17 @@ class Pm
                 if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
 
                 $ud[$assaId][$wdid] = [
-                    'full_name'    => $afn,
-                    'organization' => $onh,
-                    'department'   => $dnh,
-                    'project'      => $pnh,
-                    'task'         => $tnh,
-                    'subtask'      => $stnh,
-                    'for_date'     => $forDate,
-                    'amount'       => $amnt,
-                    'price_final'  => $pf,
-                    'time_spent'   => $ts,
+                    'full_name'        => $afn,
+                    'organization'     => $onh,
+                    'department'       => $dnh,
+                    'project'          => $pnh,
+                    'task'             => $tnh,
+                    'subtask'          => $stnh,
+                    'for_date'         => $forDate,
+                    'amount'           => $amnt,
+                    'price_final'      => $pf,
+                    'time_spent'       => $ts,
+                    'wd_flag_archived' => $fa,
                 ];
 
                 $sumAmnt = $ud[$assaId]['sum']['amount'] + $ud[$assaId][$wdid]['amount'];
@@ -614,16 +616,17 @@ class Pm
                 $sumTs   = $ud[$assaId]['sum']['time_spent'] + $ud[$assaId][$wdid]['time_spent'];
 
                 $ud[$assaId]['sum'] = [
-                    'full_name'    => '',
-                    'organization' => '',
-                    'department'   => '',
-                    'project'      => '',
-                    'task'         => '',
-                    'subtask'      => '',
-                    'for_date'     => '',
-                    'amount'       => $sumAmnt,
-                    'price_final'  => $sumPf,
-                    'time_spent'   => $sumTs,
+                    'full_name'        => '',
+                    'organization'     => '',
+                    'department'       => '',
+                    'project'          => '',
+                    'task'             => '',
+                    'subtask'          => '',
+                    'for_date'         => '',
+                    'amount'           => $sumAmnt,
+                    'price_final'      => $sumPf,
+                    'time_spent'       => $sumTs,
+                    'wd_flag_archived' => '',
                 ];
 
 
