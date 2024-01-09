@@ -443,6 +443,11 @@ class Pm
                     $wd_id = $p->wd_id;
                     (new pm_work_done())->doArchive($wd_id);
                     break;
+                case 'doUnArchive':
+                    $wd_id = $p->wd_id;
+                    (new pm_work_done())->doUnArchive($wd_id);
+                    break;
+
                 default:
 
                     break;

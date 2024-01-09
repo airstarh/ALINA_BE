@@ -139,14 +139,31 @@ AlinaDebugJson($data);
                                     <?= $classArchived[$idxRow] ?>
                                 <?php elseif ($colName === 'wd_id'): ?>
                                     <div>
-                                        <form action="" method="post">
-                                            <input type="hidden" name="form_id" value="doArchive">
-                                            <input type="hidden" name="do" value="doArchive">
-                                            <input type="hidden" name="wd_id" value="<?= $row['wd_id'] ?>">
-                                            <button class="btn btn-sm btn-warning"
-                                                    type="submit"><?= ___('Archive') ?></button>
-                                        </form>
+                                        <?php if ($row['wd_flag_archived'] === 0): ?>
+                                            <form action="" method="post">
+                                                <input type="hidden" name="form_id" value="doArchive">
+                                                <input type="hidden" name="do" value="doArchive">
+                                                <input type="hidden" name="wd_id" value="<?= $row['wd_id'] ?>">
+                                                <button class="btn btn-sm btn-warning"
+                                                        type="submit"><?= ___('Archive') ?></button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
+
+                                    <div>
+                                        <?php if ($row['wd_flag_archived'] === 1): ?>
+                                            <form action="" method="post">
+                                                <input type="hidden" name="form_id" value="doUnArchive">
+                                                <input type="hidden" name="do" value="doUnArchive">
+                                                <input type="hidden" name="wd_id" value="<?= $row['wd_id'] ?>">
+                                                <button class="btn btn-sm btn-success"
+                                                        type="submit"><?= ___('UnArchive') ?></button>
+                                            </form>
+                                        <?php endif; ?>
+
+
+                                    </div>
+
                                 <?php else: ?>
                                     <?= $colValue ?>
                                 <?php endif; ?>
