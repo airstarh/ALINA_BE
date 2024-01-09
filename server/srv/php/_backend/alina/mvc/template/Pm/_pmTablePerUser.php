@@ -32,20 +32,35 @@ $prevRow = [];
 
 
         <tfoot>
-        <th>#</th>
-        <?php foreach ($headers as $h) { ?>
-            <th><?= ___($h) ?></th>
-        <?php } ?>
+        <?php foreach ($data as $iRow => $vRow): ?>
+            <?php if (!is_numeric($iRow)): ?>
+                <tr>
+                    <th><?= ___($iRow) ?></th>
+                    <?php foreach ($vRow as $iF => $vF): ?>
+
+                        <th><?= $vF ?></th>
+
+                    <?php endforeach; ?>
+                </tr>
+            <?php endif; ?>
+        <?php endforeach; ?>
+        <tr>
+            <th>#</th>
+            <?php foreach ($headers as $h) { ?>
+                <th><?= ___($h) ?></th>
+            <?php } ?>
+        </tr>
         </tfoot>
 
 
         <tbody>
-        <?php foreach ($data as $k => $row) { ?>
+        <?php foreach ($data as $idxRow => $row) { ?>
+            <?php if (!is_numeric($idxRow)) continue; ?>
             <tr>
                 <td>
-                    <?php if (!is_numeric($k)): ?>
+                    <?php if (!is_numeric($idxRow)): ?>
                         <div>
-                            <?= ___($k) ?>
+                            <?= ___($idxRow) ?>
                         </div>
                     <?php else: ?>
                         <?= $counter++ ?>
@@ -59,7 +74,7 @@ $prevRow = [];
 
                 <?php if (!Data::isIterable($row)): ?>
                     <td>
-                        <div><?= $k ?></div>
+                        <div><?= $idxRow ?></div>
                         <div><?= $row ?></div>
                     </td>
                 <?php else: ?>
@@ -81,7 +96,7 @@ $prevRow = [];
                                     && !is_numeric($prevRow[$colName])
                                     && $prevRow[$colName] == $colValue
                                 ): ?>
-                                 ^
+                                    ^
                                 <?php else: ?>
                                     <?= $colValue ?>
                                 <?php endif; ?>
