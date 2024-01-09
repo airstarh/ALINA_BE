@@ -39,33 +39,35 @@ body {
     min-height: 100vh;
 }
 
-.alina-main-bg {
-    background-color: var(--alina-main-bg) !important;
-}
+.alina-main-bg {background-color: var(--alina-main-bg) !important;}
 
-.alina-main-txt, .alina-main-txt table {
-    color: var(--alina-main-txt) !important;
-}
-table.alina-data-table thead,
-table.alina-data-table tfoot
+.alina-main-txt, .alina-main-txt table {color: var(--alina-main-txt) !important;}
+
+.w-pct-100 {min-width: 100%;}
+
+table.alina-data-table thead
 {
     background-color: #00116e;
 }
+table.alina-data-table tfoot {
+    background-color: #010a3a;
+}
+
 table.alina-data-table th, table.alina-data-table td {
     padding-top: 3px;
     padding-right: 1ch;
     padding-bottom: 2px;
-    padding-left: 2ch;
+    padding-left: 1ch;
     vertical-align: top;
 
-    border: #888 solid 1px;
+    border: #555 solid 1px;
 }
 
-table.alina-table-stick-header th {
+table.alina-table-stick-header thead th {
     position: sticky;
     top: 0;
     background-color: #00116e;
-    color:#fff;
+    color: #fff;
 }
 
 .alina-pm-breadcrumbs,
