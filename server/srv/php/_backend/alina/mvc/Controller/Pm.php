@@ -435,6 +435,20 @@ class Pm
 
     public function actionReport()
     {
+        ##################################################
+        if (Request::isPostPutDelete()) {
+            $p = Request::obj()->POST;
+            switch ($p->do) {
+                case 'doArchive':
+                    $wd_id = $p->wd_id;
+                    (new pm_work_done())->doArchive($wd_id);
+                    break;
+                default:
+
+                    break;
+            }
+        }
+        ##################################################
         $res = [];
         $vd  = [];
         $GET = Request::obj()->GET;
@@ -495,7 +509,7 @@ class Pm
                 $stid    = $r->st_id;
                 $wid     = $r->w_id;
                 $wdid    = $r->wd_id;
-                $afn     = implode(' ', [$r->assa_firstname, $r->assa_lastname, "[$assaId]"]);
+                $afn     = implode(' ', [$r->assa_firstname, $r->assa_lastname]);
                 $onh     = $r->o_nh;
                 $dnh     = $r->d_nh;
                 $pnh     = $r->p_nh;
@@ -598,6 +612,8 @@ class Pm
                 if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
 
                 $ud[$assaId][$wdid] = [
+                    'wd_id'            => $wdid,
+                    'wd_assignee_id'   => $assaId,
                     'full_name'        => $afn,
                     'organization'     => $onh,
                     'department'       => $dnh,
@@ -616,6 +632,8 @@ class Pm
                 $sumTs   = $ud[$assaId]['sum']['time_spent'] + $ud[$assaId][$wdid]['time_spent'];
 
                 $ud[$assaId]['sum'] = [
+                    'wd_id'            => '',
+                    'wd_assignee_id'   => '',
                     'full_name'        => '',
                     'organization'     => '',
                     'department'       => '',
