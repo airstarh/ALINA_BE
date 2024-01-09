@@ -36,7 +36,7 @@ foreach ($data as $iR => &$r) {
 }
 ?>
 <?php
-AlinaDebugJson($data);
+###AlinaDebugJson($data);
 ?>
 <div class="mt-2 mb-5">
     <table class="bg-black alina-data-table alina-table-stick-header w-pct-100">
