@@ -6,6 +6,7 @@ $dateToUtDayEnd   = $vd['dateToUtDayEnd'];
 ?>
 SELECT
 wd.id as wd_id,
+wd.flag_archived as wd_flag_archived,
 assa.firstname as assa_firstname,
 assa.lastname as assa_lastname,
 wd.for_date as wd_for_date,
