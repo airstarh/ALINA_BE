@@ -61,6 +61,18 @@ AlinaDebugJson($data);
                                             type="submit"><?= ___('Archive All') ?></button>
                                 </form>
                             </div>
+
+                            <div>
+                                <form action="" method="post">
+                                    <input type="hidden" name="form_id" value="doUnArchiveAll">
+                                    <input type="hidden" name="do" value="doUnArchiveAll">
+                                    <input type="hidden" name="date_start" value="<?= $GET->date_start ?>">
+                                    <input type="hidden" name="date_end" value="<?= $GET->date_end ?>">
+                                    <input type="hidden" name="wd_assignee_id" value="<?= $wd_assignee_id ?>">
+                                    <button class="btn btn-sm btn-success m-1"
+                                            type="submit"><?= ___('UnArchive All') ?></button>
+                                </form>
+                            </div>
                             <?php break; ?>
                         <?php default: ?>
                             <?= ___($h) ?>
