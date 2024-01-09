@@ -39,23 +39,23 @@ $GET = \alina\Utils\Request::obj()->GET;
                     <?= html::elFormStandardButtons([]) ?>
                 </div>
             </form>
-            <form action="" method="post">
+            <!--<form action="" method="post">
                 <input type="hidden" name="form_id" value="freeze_period">
                 <input type="hidden" name="do" value="freeze_period">
-                <input type="hidden" name="date_start" value="<?= $GET->date_start ?? null ?>">
-                <input type="hidden" name="date_end" value="<?= $GET->date_end ?? null ?>">
+                <input type="hidden" name="date_start" value="<?php /*= $GET->date_start ?? null */?>">
+                <input type="hidden" name="date_end" value="<?php /*= $GET->date_end ?? null */?>">
                 <button type="submit"
                         class="brn brn-success"
-                ><?= ___('Freeze this period') ?></button>
-            </form>
+                ><?php /*= ___('Freeze this period') */?></button>
+            </form>-->
             <!--endregion DATE PICKER-->
             <!--##################################################-->
 
 
-            <div class="clear">&nbsp;</div>
-            <? ###= (new html)->piece('_system/html/_form/table002.php', $data['res']) ?>
-            <?= (new html)->piece('_system/html/_form/table002.php', $vd['zzz']) ?>
-            <div class="clear">&nbsp;</div>
+            <!--<div class="clear">&nbsp;</div>
+            <?/* ###= (new html)->piece('_system/html/_form/table002.php', $data['res']) */?>
+            <?php /*= (new html)->piece('_system/html/_form/table002.php', $vd['zzz']) */?>
+            <div class="clear">&nbsp;</div>-->
 
 
             <!--##################################################-->
@@ -97,13 +97,13 @@ $GET = \alina\Utils\Request::obj()->GET;
 
 
             <!--##################################################-->
-            <div class="ck-content">
+            <!--<div class="ck-content">
 <pre>
 <?php
-print_r($vd['res']);
-?>
+/*print_r($vd['res']);
+*/?>
 </pre>
-            </div>
+            </div>-->
             <!--##################################################-->
 
             <!--##################################################-->
