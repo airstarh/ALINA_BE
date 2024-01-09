@@ -100,7 +100,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <div class="ck-content">
 <pre>
 <?php
-print_r($vd['zzz']);
+print_r($vd['res']);
 ?>
 </pre>
             </div>

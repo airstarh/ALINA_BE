@@ -646,7 +646,8 @@ class Pm
         $vd['dd']      = $dd;
         $vd['pd']      = $pd;
         $vd['ud']      = $ud;
-        $vd['zzz']      = Data::toObject([]);
+        $vd['res']     = $res;
+        $vd['zzz']     = Data::toObject([]);
         echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
         return $this;
     }

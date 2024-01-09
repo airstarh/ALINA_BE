@@ -13,9 +13,11 @@ $counter = 1;
 
 $firstRow = current($data);
 $headers  = array_keys((array)$firstRow);
+
+$prevRow = [];
 ?>
 <div class="m-1">
-    <table class="bg-black alina-data-table table-002">
+    <table class="bg-black alina-data-table alina-table-stick-header">
 
 
         <thead>
@@ -69,13 +71,24 @@ $headers  = array_keys((array)$firstRow);
                                 <div><?= $colName ?></div>
                                 <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
                             <?php } else { ?>
-                                <?= $colValue ?>
+
+                                <?php if (isset($prevRow[$colName]) && $prevRow[$colName] == $colValue): ?>
+
+                                <?php else: ?>
+                                    <?= $colValue ?>
+                                <?php endif; ?>
+
                             <?php } ?>
                         </td>
-                        
+
+
                     <?php } ?>
                 <?php endif; ?>
             </tr>
+
+            <?php
+            $prevRow = (array)$row;
+            ?>
         <?php } ?>
 
         </tbody>

@@ -58,10 +58,10 @@ ORDER BY
 o.name_human ASC,
 d.name_human ASC,
 p.name_human ASC,
-t.name_human ASC,
 t.order_in_view ASC,
-st.name_human ASC,
+t.name_human ASC,
 st.order_in_view ASC,
+st.name_human ASC,
 assa.lastname ASC,
 assa.firstname ASC,
 wd.for_date DESC
