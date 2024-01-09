@@ -448,6 +448,47 @@ class Pm
                     (new pm_work_done())->doUnArchive($wd_id);
                     break;
 
+                case 'doArchiveAll':
+                    $wd_assignee_id = $p->wd_assignee_id;
+                    $date_start     = $p->date_start;
+                    $date_start     = DateTime::dateToUtDayStart($date_start);
+                    $date_end       = $p->date_end;
+                    $date_end       = DateTime::dateToUtDayEnd($date_end);
+                    $listWd
+                                    = (new pm_work_done())
+                        ->getAll([
+                                ['assignee_id', '=', $wd_assignee_id],
+                                ['for_date', '>=', $date_start],
+                                ['for_date', '<=', $date_end],
+                            ]
+                        )
+                        ->toArray()
+                    ;
+                    foreach ($listWd as $item) {
+                        (new pm_work_done())->doArchive($item->id);
+                    }
+                    break;
+                case 'doUnArchiveAll':
+                    $wd_assignee_id = $p->wd_assignee_id;
+                    $date_start     = $p->date_start;
+                    $date_start     = DateTime::dateToUtDayStart($date_start);
+                    $date_end       = $p->date_end;
+                    $date_end       = DateTime::dateToUtDayEnd($date_end);
+                    $listWd
+                                    = (new pm_work_done())
+                        ->getAll([
+                                ['assignee_id', '=', $wd_assignee_id],
+                                ['for_date', '>=', $date_start],
+                                ['for_date', '<=', $date_end],
+                            ]
+                        )
+                        ->toArray()
+                    ;
+                    foreach ($listWd as $item) {
+                        (new pm_work_done())->doUnArchive($item->id);
+                    }
+                    break;
+
                 default:
 
                     break;
