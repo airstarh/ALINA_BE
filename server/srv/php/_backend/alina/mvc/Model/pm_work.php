@@ -6,6 +6,8 @@ use alina\Message;
 
 class pm_work extends _BaseAlinaModel
 {
+    use pm_trait;
+
     public $table        = 'pm_work';
     public $addAuditInfo = true;
 
@@ -13,8 +15,12 @@ class pm_work extends _BaseAlinaModel
     {
         return [
             'id'                 => [],
-            'name_human'         => [], /*calculation*/
-            'price_this_work'    => [], /*calculation*/
+            'name_human'         => [
+                'type' => 'readonly',
+            ], /*calculation*/
+            'price_this_work'    => [
+                'type' => 'readonly',
+            ], /*calculation*/
             'pm_organization_id' => [],
             'pm_department_id'   => [],
             'pm_project_id'      => [],
@@ -31,143 +37,182 @@ class pm_work extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return [
-            ##### field ######
-            'pm_organization_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_organization',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+        return array_merge([],
+            [
+                ##### field ######
+                'pm_organization_id'        => [
+                    'disabled'   => true,
+                    'has'        => 'one',
+                    'multiple'   => false,
+                    ##############################
+                    # for Apply dependencies
+                    'apply'      => [
+                        'childTable'     => 'pm_organization',
+                        'childPk'        => 'id',
+                        'childHumanName' => ['name_human'],
+                    ],
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'pm_organization.name_human AS pm_organization.name_human',
+                            'addSelect',
+                            [
+                                'pm_organization.name_human AS pm_organization.name_human',
+                            ],
                         ],
                     ],
                 ],
-            ],
-            ##### field ######
-            'pm_department_id'   => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_department',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', "{$this->alias}.pm_department_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+                ##### field ######
+                'pm_department_id'          => [
+                    'disabled'   => true,
+                    'has'        => 'one',
+                    'multiple'   => false,
+                    ##############################
+                    # for Apply dependencies
+                    'apply'      => [
+                        'childTable'     => 'pm_department',
+                        'childPk'        => 'id',
+                        'childHumanName' => ['name_human'],
+                    ],
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', "{$this->alias}.pm_department_id"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'pm_department.name_human AS pm_department.name_human',
-                            'pm_department.price_min AS pm_department.price_min',
+                            'addSelect',
+                            [
+                                'pm_department.name_human AS pm_department.name_human',
+                                'pm_department.price_min AS pm_department.price_min',
+                            ],
                         ],
                     ],
                 ],
-            ],
-            ##### field ######
-            'pm_project_id'      => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_project',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+                ##### field ######
+                'pm_project_id'             => [
+                    'disabled'   => true,
+                    'has'        => 'one',
+                    'multiple'   => false,
+                    ##############################
+                    # for Apply dependencies
+                    'apply'      => [
+                        'childTable'     => 'pm_project',
+                        'childPk'        => 'id',
+                        'childHumanName' => ['name_human'],
+                    ],
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'pm_project.name_human AS pm_project.name_human',
-                            'pm_project.price_multiplier AS pm_project.price_multiplier',
+                            'addSelect',
+                            [
+                                'pm_project.name_human AS pm_project.name_human',
+                                'pm_project.price_multiplier AS pm_project.price_multiplier',
+                            ],
                         ],
                     ],
                 ],
-            ],
-            ##### field ######
-            'pm_task_id'         => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_task',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+                ##### field ######
+                'pm_task_id'                => [
+                    'disabled'   => true,
+                    'has'        => 'one',
+                    'multiple'   => false,
+                    ##############################
+                    # for Apply dependencies
+                    'apply'      => [
+                        'childTable'     => 'pm_task',
+                        'childPk'        => 'id',
+                        'childHumanName' => ['name_human'],
+                    ],
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'pm_task.name_human AS pm_task.name_human',
+                            'addSelect',
+                            [
+                                'pm_task.name_human AS pm_task.name_human',
+                            ],
                         ],
                     ],
                 ],
-            ],
-            ##### field ######
-            'pm_subtask_id'      => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_subtask',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', "{$this->alias}.pm_subtask_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+                ##### field ######
+                'pm_subtask_id'             => [
+                    'disabled'   => true,
+                    'has'        => 'one',
+                    'multiple'   => false,
+                    ##############################
+                    # for Apply dependencies
+                    'apply'      => [
+                        'childTable'     => 'pm_subtask',
+                        'childPk'        => 'id',
+                        'childHumanName' => ['name_human'],
+                    ],
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', "{$this->alias}.pm_subtask_id"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'pm_subtask.name_human AS pm_subtask.name_human',
-                            'pm_subtask.time_estimated AS pm_subtask.time_estimated',
-                            'pm_subtask.price AS pm_subtask.price',
+                            'addSelect',
+                            [
+                                'pm_subtask.name_human AS pm_subtask.name_human',
+                                'pm_subtask.time_estimated AS pm_subtask.time_estimated',
+                                'pm_subtask.price AS pm_subtask.price',
+                            ],
                         ],
                     ],
                 ],
+                ##### field ######
+                '_pm_work_done_notarchived' => [
+                    ///'disabled'   => true,
+                    'has'        => 'many',
+                    'multiple'   => true,
+                    'type'       => 'readonly',
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['leftJoin', 'pm_work_done AS child', 'child.pm_work_id', '=', "$this->alias.$this->pkName"],
+                    ],
+                    'conditions' => [
+                        ['where', 'child.flag_archived', '=', 0],
+                    ],
+                    'addSelects' => [
+                        [
+                            'addSelect',
+                            [
+                                "$this->alias.$this->pkName AS main_id",
+                                'child.id AS child_id',
+                                'child.assignee_id AS pm_work_done.assignee_id',
+                                'child.amount AS pm_work_done.amount',
+                                'child.for_date AS pm_work_done.for_date',
+                                'child.price_final AS pm_work_done.price_final',
+                                'child.time_spent AS pm_work_done.time_spent',
+                                'child.time_spent AS pm_work_done.time_spent',
+                            ],
+                        ],
+                    ],
+                ],
+                ##### field ######
             ],
-            ##### field ######
-        ];
+            $this->created_by(),
+            $this->modified_by()
+        );
     }
 
     #####
@@ -218,7 +263,8 @@ class pm_work extends _BaseAlinaModel
     {
         if (!empty($idWork)) {
             $this->getById($idWork);
-        } else {
+        }
+        else {
             $this->getById($this->id);
         }
 
@@ -266,7 +312,8 @@ class pm_work extends _BaseAlinaModel
 
         if (!empty($idWork)) {
             $mWork->getById($idWork);
-        } else {
+        }
+        else {
             $mWork->getById($mWork->id);
         }
         $mSubtask->getById($mWork->attributes->pm_subtask_id);

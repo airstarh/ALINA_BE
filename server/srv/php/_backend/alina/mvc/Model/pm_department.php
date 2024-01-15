@@ -4,6 +4,9 @@ namespace alina\mvc\Model;
 
 class pm_department extends _BaseAlinaModel
 {
+
+    use pm_trait;
+
     public $table        = 'pm_department';
     public $addAuditInfo = true;
     public $sortDefault  = [["name_human", 'ASC']];
@@ -12,7 +15,9 @@ class pm_department extends _BaseAlinaModel
     {
         return [
             'id'                 => [],
-            'name_human'         => [],
+            'name_human'         => [
+                'required' => true,
+            ],
             'pm_organization_id' => [],
             'price_min'          => [
                 'default' => 1,
@@ -28,91 +33,42 @@ class pm_department extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return [
-            ##### field #####
-            'manager_id'         => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+        return array_merge([],
+            $this->manager_id(),
+            $this->pm_organization_id(),
+            [
+                ##### field #####
+                '_children' => [
+                    'has'        => 'many',
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', "{$this->alias}.{$this->pkName}"],
+                        ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
+                        ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'manager.firstname AS manager.firstname',
-                            'manager.lastname AS manager.lastname',
-                            'manager.mail AS manager.mail',
-                            'manager.emblem AS manager.emblem',
+                            'addSelect',
+                            [
+                                'pm_project.id AS _pm_project_id',
+                                'pm_project.name_human AS _pm_project_name_human',
+                                'pm_task.id AS _pm_task_id',
+                                'pm_task.name_human AS _pm_task_name_human',
+                                'pm_subtask.id AS _pm_subtask_id',
+                                'pm_subtask.name_human AS _pm_subtask_name_human',
+                                'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                                "{$this->alias}.{$this->pkName} AS main_id",
+                            ],
                         ],
                     ],
                 ],
+                ##### field #####
             ],
-            ##### field #####
-            'pm_organization_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_organization',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_organization.name_human AS pm_organization.name_human',
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            '_children'          => [
-                'has'        => 'many',
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', "{$this->alias}.{$this->pkName}"],
-                    ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
-                    ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_project.id AS _pm_project_id',
-                            'pm_project.name_human AS _pm_project_name_human',
-                            'pm_task.id AS _pm_task_id',
-                            'pm_task.name_human AS _pm_task_name_human',
-                            'pm_subtask.id AS _pm_subtask_id',
-                            'pm_subtask.name_human AS _pm_subtask_name_human',
-                            'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-        ];
+            $this->created_by(),
+            $this->modified_by(),
+        );
     }
 
     public function hookRightAfterSave($data)

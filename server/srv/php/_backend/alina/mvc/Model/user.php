@@ -27,6 +27,7 @@ class user extends _BaseAlinaModel
         $fCustom = [
             'id'             => [],
             'mail'           => [
+                'required'   => true,
                 'filters'    => [
                     // Could be a closure, string with function name or an array
                     'trim',
@@ -115,6 +116,7 @@ class user extends _BaseAlinaModel
                 'default' => Sys::getUserLanguage(),
             ],
             'about_myself'   => [
+                'type'    => 'textarea',
                 'default' => '',
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStrHtml'],
@@ -225,7 +227,7 @@ class user extends _BaseAlinaModel
                 ],
                 'conditions' => [],
                 'addSelects' => [
-                    ['addSelect', ['timezone.name AS timezone_name']],
+                    ['addSelect', ['timezone.name AS timezone.name']],
                 ],
             ],
             ##### field #####
@@ -263,12 +265,6 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'about_myself'     => [
-                ##############################
-                # for Edit Form
-                'type' => 'textarea',
-            ],
-            ##### field #####
         ];
     }
 
@@ -277,7 +273,8 @@ class user extends _BaseAlinaModel
         //ToDO: seems could be 1 line...
         if (!empty($dataArray['password'])) {
             $dataArray['password'] = static::encrypt($dataArray['password']);
-        } else {
+        }
+        else {
             unset($dataArray['password']);
         }
 
@@ -314,9 +311,11 @@ class user extends _BaseAlinaModel
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
-                            } elseif (is_array($v)) {
+                            }
+                            elseif (is_array($v)) {
                                 $id = $v['id'];
-                            } else {
+                            }
+                            else {
                                 $id = $v;
                             }
                             $ids[] = $id;

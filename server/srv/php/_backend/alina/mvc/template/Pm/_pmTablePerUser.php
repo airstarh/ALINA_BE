@@ -148,7 +148,7 @@ foreach ($data as $iR => &$r) {
                                 ): ?>
 
                                 <?php elseif ($colName === 'wd_flag_archived'): ?>
-                                    <?= $classArchived[$idxRow] ?>
+                                    <?= ___($classArchived[$idxRow]) ?>
                                 <?php elseif ($colName === 'wd_id'): ?>
                                     <div>
                                         <?php if ($row['wd_flag_archived'] === 0): ?>

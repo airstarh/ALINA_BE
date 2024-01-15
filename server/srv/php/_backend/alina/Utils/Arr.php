@@ -20,8 +20,9 @@ class Arr
         foreach ($path as $section) {
             if (array_key_exists($section, $temp)) {
                 $temp = &$temp[$section];
-            } else {
-                return NULL;
+            }
+            else {
+                return null;
             }
         }
 
@@ -54,7 +55,7 @@ class Arr
         }
         $temp = $value;
 
-        return TRUE;
+        return true;
     }
 
     static public function setArrayValueByStringPath($path, $value, array &$array, $delimiter = '/')
@@ -70,24 +71,26 @@ class Arr
     {
         if (is_array($path)) {
             return static::checkArrayPathByArray($path, $array);
-        } else {
+        }
+        else {
             return static::checkArrayPathByString($path, $array, $delimiter);
         }
     }
 
-    static public function checkArrayPathByArray(array $path, array $array, &$value = NULL)
+    static public function checkArrayPathByArray(array $path, array $array, &$value = null)
     {
         $temp = &$array;
         foreach ($path as $p) {
             if (array_key_exists($p, $temp)) {
                 $temp = &$temp[$p];
-            } else {
-                return FALSE;
+            }
+            else {
+                return false;
             }
         }
         $value = $temp;
 
-        return TRUE;
+        return true;
     }
 
     static public function checkArrayPathByString($path, array $array, $delimiter = '/')
@@ -110,13 +113,13 @@ class Arr
 
     static public function unsetArrayPathByArrayPath(array $path, array &$array)
     {
-        $previousElement = NULL;
+        $previousElement = null;
         $temp            = &$array;
         foreach ($path as &$p) {
             $previousElement = &$temp;
             $temp            = &$temp[$p];
         }
-        if ($previousElement !== NULL && isset($p)) {
+        if ($previousElement !== null && isset($p)) {
             unset($previousElement[$p]);
         }
 
@@ -135,7 +138,7 @@ class Arr
     static public function firstArrayKey($array)
     {
         reset($array);
-        list($key, $value) = each($array);
+        [$key, $value] = each($array);
 
         return $key;
     }
@@ -143,7 +146,7 @@ class Arr
     static public function firstArrayValue($array)
     {
         reset($array);
-        list($key, $value) = each($array);
+        [$key, $value] = each($array);
 
         return $value;
     }
@@ -163,15 +166,17 @@ class Arr
     static public function arrayMergeRecursive(array $array1, array $array2)
     {
         $merged = $array1;
-        foreach ($array2 as $key => & $value) {
+        foreach ($array2 as $key => &$value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && !is_numeric($key)) {
                 $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);
-            } else {
+            }
+            else {
                 if (is_numeric($key)) {
                     if (!in_array($value, $merged)) {
                         $merged[] = $value;
                     }
-                } else {
+                }
+                else {
                     $merged[$key] = $value;
                 }
             }

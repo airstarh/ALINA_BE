@@ -7,6 +7,8 @@ use alina\Utils\Data;
 
 class pm_subtask extends _BaseAlinaModel
 {
+    use pm_trait;
+
     public $table        = 'pm_subtask';
     public $addAuditInfo = true;
     public $sortDefault  = [["order_in_view", 'ASC'], ["pm_task_id", 'ASC'], ["id", 'ASC']];
@@ -15,7 +17,9 @@ class pm_subtask extends _BaseAlinaModel
     {
         return [
             'id'             => [],
-            'name_human'     => [],
+            'name_human'     => [
+                'required' => true,
+            ],
             'time_estimated' => [],
             'order_in_view'  => ['default' => 0],
             'pm_task_id'     => ['default' => 1,],
@@ -34,93 +38,16 @@ class pm_subtask extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return [
-            ##### field ######
-            'manager_id'  => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'manager.firstname AS manager.firstname',
-                            'manager.lastname AS manager.lastname',
-                            'manager.mail AS manager.mail',
-                            'manager.emblem AS manager.emblem',
-                        ],
-                    ],
-                ],
+        return array_merge([],
+            $this->manager_id(),
+            $this->assignee_id(),
+            $this->pm_task_id(),
+            [
+                ##### field ######
             ],
-            ##### field ######
-            'assignee_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS assignee', 'assignee.id', '=', "{$this->alias}.assignee_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'assignee.firstname AS assignee.firstname',
-                            'assignee.lastname AS assignee.lastname',
-                            'assignee.mail AS assignee.mail',
-                            'assignee.emblem AS assignee.emblem',
-                        ],
-                    ],
-                ],
-            ],
-            ##### field ######
-            'pm_task_id'  => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_task',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_task.name_human AS pm_task.name_human',
-                        ],
-                    ],
-                ],
-            ],
-            ##### field ######
-        ];
+            $this->created_by(),
+            $this->modified_by()
+        );
     }
 
     public function hookRightAfterSave($data)
@@ -158,7 +85,8 @@ class pm_subtask extends _BaseAlinaModel
 
         if (!empty($idSubTask)) {
             $mSubtask->getById($idSubTask);
-        } else {
+        }
+        else {
             $mSubtask->getById($mSubtask->id);
         }
         $mTask->getById($mSubtask->attributes->pm_task_id);
@@ -176,7 +104,7 @@ class pm_subtask extends _BaseAlinaModel
 
     public function upsertPmWork()
     {
-        $mWork           = new pm_work();
+        $mWork    = new pm_work();
         $dataWork = [
             'pm_organization_id' => $this->attributes->pm_organization->id,
             'pm_department_id'   => $this->attributes->pm_department->id,

@@ -4,6 +4,8 @@ namespace alina\mvc\Model;
 
 class pm_task extends _BaseAlinaModel
 {
+    use pm_trait;
+
     public $table        = 'pm_task';
     public $addAuditInfo = true;
     public $sortDefault  = [["order_in_view", 'ASC'], ["id", 'ASC']];
@@ -12,7 +14,9 @@ class pm_task extends _BaseAlinaModel
     {
         return [
             'id'            => [],
-            'name_human'    => [],
+            'name_human'    => [
+                'required' => true,
+            ],
             'order_in_view' => ['default' => 0],
             'pm_project_id' => [],
             'manager_id'    => [],
@@ -30,115 +34,37 @@ class pm_task extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return [
-            ##### field #####
-            'manager_id'    => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
+
+        return array_merge([],
+            $this->manager_id(),
+            $this->assignee_id(),
+            $this->pm_project_id(),
+            [
+                '_children' => [
+                    'has'        => 'many',
+                    ##############################
+                    # for Select With References
+                    'joins'      => [
+                        ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', "{$this->alias}.{$this->pkName}"],
+                    ],
+                    'conditions' => [],
+                    'addSelects' => [
                         [
-                            'manager.firstname AS manager.firstname',
-                            'manager.lastname AS manager.lastname',
-                            'manager.mail AS manager.mail',
-                            'manager.emblem AS manager.emblem',
+                            'addSelect',
+                            [
+                                'pm_subtask.id AS _pm_subtask_id',
+                                'pm_subtask.name_human AS _pm_subtask_name_human',
+                                'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                                "{$this->alias}.{$this->pkName} AS main_id",
+                            ],
                         ],
                     ],
                 ],
+                ##### field #####
             ],
-            ##### field #####
-            'assignee_id'   => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS assignee', 'assignee.id', '=', "{$this->alias}.assignee_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'assignee.firstname AS assignee.firstname',
-                            'assignee.lastname AS assignee.lastname',
-                            'assignee.mail AS assignee.mail',
-                            'assignee.emblem AS assignee.emblem',
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            'pm_project_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_project',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_project.name_human AS pm_project.name_human',
-                            'pm_project.price_multiplier AS pm_project.price_multiplier',
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            '_children'     => [
-                'has'        => 'many',
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', "{$this->alias}.{$this->pkName}"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_subtask.id AS _pm_subtask_id',
-                            'pm_subtask.name_human AS _pm_subtask_name_human',
-                            'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-        ];
+            $this->created_by(),
+            $this->modified_by(),
+        );
     }
 
     public function hookRightAfterSave($data)

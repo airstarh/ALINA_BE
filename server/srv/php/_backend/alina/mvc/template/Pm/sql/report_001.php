@@ -15,11 +15,6 @@ wd.price_final as wd_price_final,
 wd.time_spent as wd_time_spent,
 assa.mail as assa_mail,
 
-o.name_human as o_name_human,
-d.name_human as d_name_human,
-p.name_human as p_name_human,
-t.name_human as t_name_human,
-st.name_human as st_name_human,
 
 w.pm_organization_id as o_id,
 w.pm_department_id as d_id,
