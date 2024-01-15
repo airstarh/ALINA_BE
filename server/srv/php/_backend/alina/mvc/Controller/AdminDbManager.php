@@ -193,7 +193,9 @@ class AdminDbManager
             $flagModelIsNew = true;
             $m->buildDefaultData();
             if (!empty(Request::obj()->GET)) {
-                $m->attributes = Data::mergeObjects($m->attributes, Request::obj()->GET);
+                $get = Request::obj()->GET;
+                unset($get->alinapath);
+                $m->attributes = Data::mergeObjects($m->attributes, $get);
             }
         }
 

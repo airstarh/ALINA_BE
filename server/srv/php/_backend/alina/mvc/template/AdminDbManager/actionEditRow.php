@@ -33,10 +33,16 @@ $sources = $data->sources;
 <?php endif ?>
 
 <div class="notranslate">
-    <?= htmlAlias::elForm((object)[
-        'action'  => '',
-        'enctype' => 'multipart/form-data',
-        'model'   => $model,
-        'sources' => $sources,
-    ]) ?>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <?= htmlAlias::elForm((object)[
+                    'action'  => '',
+                    'enctype' => 'multipart/form-data',
+                    'model'   => $model,
+                    'sources' => $sources,
+                ]) ?>
+            </div>
+        </div>
+    </div>
 </div>

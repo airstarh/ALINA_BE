@@ -4,12 +4,13 @@
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 
-$multiple    = @$data->multiple ? 'multiple' : '';
+$multiple    = (bool)(@$data->multiple);
+$disabled    = (bool)(@$data->disabled);
+$required    = (bool)(@$data->required);
 $name        = !empty($multiple) ? "{$data->name}[]" : $data->name;
 $value       = $data->value;
 $options     = $data->options;
 $placeholder = @$data->placeholder ?: '';
-$disabled    = @$data->disabled ?: '';
 $showLabel   = @$data->showLabel ?: false;
 #####
 $_options = [];
@@ -54,13 +55,16 @@ $_value_keys = array_keys($_value);
         <select
                 name="<?= $name ?>"
                 class="form-control"
-            <?= $multiple ?>
-            <?= $disabled ?>
-            <?php if (!empty($multiple)) { ?>
+            <?= $multiple ? 'multiple' : '' ?>
+            <?= $disabled ? 'disabled' : '' ?>
+            <?= $required ? 'required' : '' ?>
+            <?php if ($multiple) { ?>
                 size="<?= count($_options) + 2 ?>"
             <?php } ?>
         >
-            <option value=""><?= $placeholder ?></option>
+            <option value=""
+                <?= $multiple ? 'disabled' : '' ?>
+            ><?= $placeholder ?></option>
             <?php foreach ($_options as $i => $v) { ?>
                 <option value="" style="font-size:10px;" disabled>&nbsp;</option>
                 <option

@@ -4,6 +4,7 @@ namespace alina\mvc\Model;
 
 use alina\GlobalRequestStorage;
 use alina\Message;
+use alina\Utils\Arr;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Str;
@@ -224,7 +225,8 @@ class _BaseAlinaModel
         if ($this->state_EXCLUDE_COUNT_REQUEST) {
             $this->state_ROWS_TOTAL            = 1;
             $this->state_EXCLUDE_COUNT_REQUEST = false;
-        } else {
+        }
+        else {
             $this->state_ROWS_TOTAL = $q->count();
         }
         //ORDER
@@ -278,7 +280,8 @@ class _BaseAlinaModel
         if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
             $this->setPkValue($data->{$this->pkName});
             $this->updateById($data);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
@@ -293,7 +296,8 @@ class _BaseAlinaModel
         if ($aRecord) {
             $conditions = $this->matchedConditions;
             $this->update($data, $conditions);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
@@ -348,10 +352,12 @@ class _BaseAlinaModel
         if (isset($id) && !empty($id)) {
             $this->setPkValue($id);
             $pkValue = $id;
-        } else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+        }
+        else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
             $this->setPkValue($data->{$pkName});
             $pkValue = $data->{$pkName};
-        } else if (isset($this->id) && !empty($this->id)) {
+        }
+        else if (isset($this->id) && !empty($this->id)) {
             $this->setPkValue($this->id);
             $pkValue = $this->id;
         }
@@ -453,7 +459,8 @@ class _BaseAlinaModel
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
             return true;
-        } else {
+        }
+        else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
@@ -502,7 +509,8 @@ class _BaseAlinaModel
         #####
         if (isset($backendSortArray) && !empty($backendSortArray)) {
             $sortArray = $backendSortArray;
-        } else {
+        }
+        else {
             if ($this->state_APPLY_GET_PARAMS) {
                 $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
             }
@@ -672,7 +680,8 @@ class _BaseAlinaModel
                 if (!empty($cfg['filters'])) {
                     $filters[$fieldName] = $cfg['filters'];
                 }
-            } else {
+            }
+            else {
                 if ($this->mode === self::MODE_INSERT && isset($cfg['default'])) {
                     $data->{$fieldName} = $cfg['default'];
                 }
@@ -741,7 +750,8 @@ class _BaseAlinaModel
             if (property_exists($data, $name)) {
                 if ($this->isFieldIdentity($name)) {
                     $this->dataArrayIdentity[$name] = $data->{$name};
-                } else {
+                }
+                else {
                     $dataArray[$name] = $data->{$name};
                 }
             }
@@ -791,7 +801,8 @@ class _BaseAlinaModel
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
-            } else {
+            }
+            else {
                 $defaultRawObj->{$f} = null;
             }
         }
@@ -803,6 +814,10 @@ class _BaseAlinaModel
     protected function prepareDbData($data)
     {
         $data = Data::toObject($data);
+        unset($data->created_by);
+        unset($data->modified_by);
+        unset($data->created_at);
+        unset($data->modified_at);
         $this->applyFilters($data);
         $this->validate($data);
 
@@ -930,12 +945,14 @@ class _BaseAlinaModel
         }
         if ($alias == -1) {
             $this->alias = null;
-        } else {
+        }
+        else {
             $this->alias = $alias ? $alias : $this->alias;
         }
         if ($this->mode === self::MODE_INSERT || $this->mode === self::MODE_DELETE || $alias == -1) {
             $this->q = Dal::table("{$this->table}");
-        } else {
+        }
+        else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
         #####
@@ -1055,7 +1072,8 @@ class _BaseAlinaModel
             if ($this->tableHasField($f)) {
                 if (is_array($v)) {
                     $q->whereIn("{$t}.{$f}", $v);
-                } else {
+                }
+                else {
                     $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
                 }
             }
@@ -1158,35 +1176,39 @@ class _BaseAlinaModel
     ##################################################
     public function getReferencesSources()
     {
-        $sources = [];
+        $rel = [];
         if (method_exists($this, 'referencesTo')) {
             $referencesSources = $this->referencesTo();
-            foreach ($referencesSources as $rName => $sourceConfig) {
-                $sources[$rName] = [];
-                if (isset($sourceConfig['apply'])) {
-                    $childTable   = $sourceConfig['apply']['childTable'];
-                    $childPk      = $sourceConfig['apply']['childPk'];
-                    $arrHumanName = $sourceConfig['apply']['childHumanName'];
-                    $conditions   = $sourceConfig['conditions'] ?? [];
+            foreach ($referencesSources as $relName => $relCfg) {
+                $rel[$relName] = [];
+                if (isset($relCfg['apply'])) {
+                    $childTable   = $relCfg['apply']['childTable'];
+                    $childPk      = $relCfg['apply']['childPk'];
+                    $arrHumanName = $relCfg['apply']['childHumanName'];
+                    $conditions   = $relCfg['conditions'] ?? [];
                     #####
                     $m = modelNamesResolver::getModelObject($childTable);
                     $q = $m->q();
                     $q->addSelect($childPk);
                     $q->addSelect($arrHumanName);
+                    foreach ($arrHumanName as $hn) {
+                        $q->orderBy($hn, 'ASC');
+                    }
                     $q->orderBy($childPk, 'ASC');
                     // ToDo: $this->applyQueryOperations($q, $conditions);
-                    $dataSource
-                                             = $q->get()
-                                                 ->keyBy($childPk)
-                                                 ->toArray()
+                    $dataSource            = $q->get()
+                                               ->keyBy($childPk)
+                                               ->toArray()
                     ;
-                    $sources[$rName]['list'] = $dataSource;
+                    $rel[$relName]['list'] = $dataSource;
                 }
-                $sources[$rName] = array_merge($sources[$rName], $sourceConfig);
+                $rel[$relName] = array_merge($rel[$relName], $relCfg);
             }
         }
 
-        return $sources;
+        $rel = Arr::arrayMergeRecursive( $rel, $this->fields());
+
+        return $rel;
     }
 
     ##################################################

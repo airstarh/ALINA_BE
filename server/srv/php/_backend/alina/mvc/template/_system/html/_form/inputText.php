@@ -8,7 +8,8 @@ use alina\Utils\Str;
 // echo '<pre>';
 // var_export($data, 0);
 // echo '</pre>';
-$disabled    = false;
+$disabled    = (bool)(@$data->disabled);
+$required    = (bool)(@$data->required);
 $type        = $data->type;
 $name        = $data->name;
 $value       = $data->value;
@@ -22,30 +23,6 @@ if ($name === 'password') {
     $type  = 'password';
 }
 
-if ($name === 'id') {
-    $type = 'hidden';
-}
-
-if (
-    $name === 'created_at'
-    ||
-    $name === 'modified_at'
-    ||
-    $name === 'created_by'
-    ||
-    $name === 'modified_by'
-) {
-    $disabled = true;
-}
-
-if (
-    $name === 'created_at'
-    ||
-    $name === 'modified_at'
-) {
-    $value    = (!empty($value)) ? \alina\Utils\DateTime::toHumanDateTime($value) : null;
-}
-
 #endregion PROCESSING
 ##################################################
 ?>
@@ -55,15 +32,22 @@ if (
             'title' => $_name,
             'badge' => $_value,
         ]) ?>
+
+
+
         <?php if ($type === 'textarea') { ?>
             <textarea
-                    <?= $disabled ? 'disabled' : '' ?>
+                <?= $required ? 'required' : '' ?>
+                <?= $disabled ? 'disabled' : '' ?>
                     name="<?= $name ?>"
                     class="form-control"
                     rows="5"
             ><?= $value ?></textarea>
+
+
         <?php } else { ?>
             <input
+                <?= $required ? 'required' : '' ?>
                 <?= $disabled ? 'disabled' : '' ?>
                     type="<?= $type ?>"
                     name="<?= $name ?>"

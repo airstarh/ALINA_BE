@@ -35,6 +35,15 @@ $GET = \alina\Utils\Request::obj()->GET;
                         </label>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>
+
+                        </label>
+                    </div>
+                </div>
+
                 <div>
                     <?= html::elFormStandardButtons([]) ?>
                 </div>
@@ -53,7 +62,7 @@ $GET = \alina\Utils\Request::obj()->GET;
 
 
             <!--<div class="clear">&nbsp;</div>
-            <?/* ###= (new html)->piece('_system/html/_form/table002.php', $data['res']) */?>
+            <?php /*= (new html)->piece('_system/html/_form/table002.php', $data['res']) */?>
             <?php /*= (new html)->piece('_system/html/_form/table002.php', $vd['zzz']) */?>
             <div class="clear">&nbsp;</div>-->
 

@@ -6,6 +6,8 @@ use alina\Utils\Data;
 
 class pm_organization extends _BaseAlinaModel
 {
+    use pm_trait;
+
     public $table        = 'pm_organization';
     public $addAuditInfo = true;
 
@@ -14,7 +16,8 @@ class pm_organization extends _BaseAlinaModel
         return [
             'id'          => [],
             'name_human'  => [
-                'default' => 'Организация',
+                'required' => true,
+                'default'  => 'Организация',
             ],
             'manager_id'  => [],
             'created_at'  => [],
@@ -27,144 +30,25 @@ class pm_organization extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return [
-            ##### field #####
-            'manager_id'     => [
-                'has'        => 'one',
-                'multiple'   => false,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'user',
-                    'childPk'        => 'id',
-                    'childHumanName' => ['firstname', 'lastname', 'mail'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'manager.firstname AS manager.firstname',
-                            'manager.lastname AS manager.lastname',
-                            'manager.mail AS manager.mail',
-                            'manager.emblem AS manager.emblem',
-                        ],
-                    ],
-                ],
+        return array_merge([],
+            $this->manager_id(),
+            $this->_pm_department(),
+            $this->_pm_project(),
+            $this->_pm_task(),
+            $this->_pm_subtask(),
+            [
+
             ],
-            ##### field #####
-            '_pm_department' => [
-                'has'        => 'many',
-                'multiple'   => true,
-                ##############################
-                # for Apply dependencies
-                'apply'      => [
-                    'childTable'     => 'pm_department',
-                    'childPk'        => 'id',
-                    'childGlueKey'   => 'pm_organization_id',
-                    'childHumanName' => ['name_human'],
-                ],
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_department AS child', 'child.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'child.*',
-                            'child.id AS child_id',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            '_pm_project'    => [
-                'has'        => 'many',
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
-                    ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_project.id AS _pm_project_id',
-                            'pm_project.name_human AS _pm_project_name_human',
-                            'pm_project.price_multiplier AS _pm_project_price_multiplier',
-                            'pm_project.pm_department_id AS _pm_project_pm_department_id',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            '_pm_task'       => [
-                'has'        => 'many',
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
-                    ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
-                    ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_task.id AS _pm_task_id',
-                            'pm_task.name_human AS _pm_task_name_human',
-                            'pm_task.pm_project_id AS _pm_task_pm_project_id',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-            '_pm_subtask'    => [
-                'has'        => 'many',
-                ##############################
-                # for Select With References
-                'joins'      => [
-                    ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
-                    ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
-                    ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
-                    ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
-                ],
-                'conditions' => [],
-                'addSelects' => [
-                    [
-                        'addSelect',
-                        [
-                            'pm_subtask.id AS _pm_subtask_id',
-                            'pm_subtask.name_human AS _pm_subtask_name_human',
-                            'pm_subtask.pm_task_id AS _pm_subtask_pm_task_id',
-                            "{$this->alias}.{$this->pkName} AS main_id",
-                        ],
-                    ],
-                ],
-            ],
-            ##### field #####
-        ];
+            $this->created_by(),
+            $this->modified_by(),
+        );
     }
 
 
     public function hookRightAfterSave($data)
     {
         //ToDo: Security
-        if (!AlinaAccessIfAdmin() || AlinaAccessIfModerator()) {
+        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
             return $this;
         }
         _baseAlinaEloquentTransaction::begin();
@@ -194,9 +78,11 @@ class pm_organization extends _BaseAlinaModel
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
-                            } elseif (is_array($v)) {
+                            }
+                            elseif (is_array($v)) {
                                 $id = $v['id'];
-                            } else {
+                            }
+                            else {
                                 $id = $v;
                             }
                             $ids[] = $id;
@@ -251,9 +137,11 @@ class pm_organization extends _BaseAlinaModel
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
-                            } elseif (is_array($v)) {
+                            }
+                            elseif (is_array($v)) {
                                 $id = $v['id'];
-                            } else {
+                            }
+                            else {
                                 $id = $v;
                             }
                             $ids[] = $id;
