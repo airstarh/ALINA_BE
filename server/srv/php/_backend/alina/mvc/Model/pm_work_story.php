@@ -189,15 +189,14 @@ class pm_work_story extends _BaseAlinaModel
 
     public function boundModelsByWorkDoneId($idWorkDone)
     {
-        static $models = [];
         if (
-            (isset($models['mW']))
+            (isset($this->monkeyVar['mW']))
             &&
-            (isset($models['mWd']))
+            (isset($this->monkeyVar['mWd']))
             &&
-            (isset($models['mAssa']))
+            (isset($this->monkeyVar['mAssa']))
         ) {
-            return $models;
+            return $this->monkeyVar;
         }
         $mWd   = new pm_work_done();
         $mW    = new pm_work();
@@ -206,12 +205,12 @@ class pm_work_story extends _BaseAlinaModel
         $mW->getById($mWd->attributes->pm_work_id);
         $mW->getParents();
         $mAssa->getById($mWd->attributes->assignee_id);
-        $models = [
+        $this->monkeyVar = [
             'mW'    => $mW,
             'mWd'   => $mWd,
             'mAssa' => $mAssa,
         ];
-        return $models;
+        return $this->monkeyVar;
     }
 
 
@@ -278,6 +277,7 @@ class pm_work_story extends _BaseAlinaModel
         $dataArray               = array_merge($dataArray, $d);
         $name_human              = $this->calcNameHuman($dataArray);
         $dataArray['name_human'] = $name_human;
+
         return $this;
     }
 
