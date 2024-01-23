@@ -14,6 +14,7 @@ use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\pm_task;
 use alina\mvc\Model\pm_work;
 use alina\mvc\Model\pm_work_done;
+use alina\mvc\Model\pm_work_story;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
@@ -87,7 +88,8 @@ class Pm
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
             $vd['listOfTable'] = $mOrganization->table;
-        } else {
+        }
+        else {
             $mOrganization->getOneWithReferencesById($organization_id);
             $href                = "$href/$mOrganization->id";
             $vd['breadcrumbs'][] = [
@@ -98,7 +100,8 @@ class Pm
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
                 $vd['listOfTable'] = $mDepartment->table;
-            } else {
+            }
+            else {
                 $mDepartment->getOneWithReferencesById($department_id);
                 $href                = "$href/$mDepartment->id";
                 $vd['breadcrumbs'][] = [
@@ -110,7 +113,8 @@ class Pm
                 if (empty($project_id)) {
                     $vd['list']        = $mProject->getAllWithReferences([['pm_department_id', '=', $department_id]])->toArray();
                     $vd['listOfTable'] = $mProject->table;
-                } else {
+                }
+                else {
                     $mProject->getOneWithReferencesById($project_id);
                     $href                = "$href/$mProject->id";
                     $vd['breadcrumbs'][] = [
@@ -122,7 +126,8 @@ class Pm
                     if (empty($task_id)) {
                         $vd['list']        = $mTask->getAllWithReferences([['pm_project_id', '=', $project_id]])->toArray();
                         $vd['listOfTable'] = $mTask->table;
-                    } else {
+                    }
+                    else {
                         $mTask->getOneWithReferencesById($task_id);
                         $href                = "$href/$mTask->id";
                         $vd['breadcrumbs'][] = [
@@ -134,7 +139,8 @@ class Pm
                         if (empty($subtask_id)) {
                             $vd['list']        = $mSubTask->getAllWithReferences([['pm_task_id', '=', $task_id]])->toArray();
                             $vd['listOfTable'] = $mSubTask->table;
-                        } else {
+                        }
+                        else {
                             $mSubTask->getOneWithReferencesById($subtask_id);
                             $href                = "$href/$mSubTask->id";
                             $vd['breadcrumbs'][] = [
@@ -153,7 +159,8 @@ class Pm
                                     ["$mWork->alias.pm_subtask_id", '=', $subtask_id],
                                 ])->toArray();
                                 $vd['listOfTable'] = $mWork->table;
-                            } else {
+                            }
+                            else {
                                 $mWork->getOneWithReferencesById($work_id);
                                 $href                = "$href/$mWork->id";
                                 $vd['breadcrumbs'][] = [
@@ -316,7 +323,8 @@ class Pm
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
             $vd['listOfTable'] = $mOrganization->table;
-        } else {
+        }
+        else {
             $mOrganization->getOneWithReferencesById($organization_id);
             $href                = "$href/$mOrganization->id";
             $vd['breadcrumbs'][] = [
@@ -327,7 +335,8 @@ class Pm
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
                 $vd['listOfTable'] = $mDepartment->table;
-            } else {
+            }
+            else {
                 $mDepartment->getOneWithReferencesById($department_id);
                 $href                = "$href/$mDepartment->id";
                 $vd['breadcrumbs'][] = [
@@ -339,7 +348,8 @@ class Pm
                 if (empty($project_id)) {
                     $vd['list']        = $mProject->getAllWithReferences([['pm_department_id', '=', $department_id]])->toArray();
                     $vd['listOfTable'] = $mProject->table;
-                } else {
+                }
+                else {
                     $mProject->getOneWithReferencesById($project_id);
                     $href                = "$href/$mProject->id";
                     $vd['breadcrumbs'][] = [
@@ -351,7 +361,8 @@ class Pm
                     if (empty($task_id)) {
                         $vd['list']        = $mTask->getAllWithReferences([['pm_project_id', '=', $project_id]])->toArray();
                         $vd['listOfTable'] = $mTask->table;
-                    } else {
+                    }
+                    else {
                         $mTask->getOneWithReferencesById($task_id);
                         $href                = "$href/$mTask->id";
                         $vd['breadcrumbs'][] = [
@@ -363,7 +374,8 @@ class Pm
                         if (empty($subtask_id)) {
                             $vd['list']        = $mSubTask->getAllWithReferences([['pm_task_id', '=', $task_id]])->toArray();
                             $vd['listOfTable'] = $mSubTask->table;
-                        } else {
+                        }
+                        else {
                             $mSubTask->getOneWithReferencesById($subtask_id);
                             $href                = "$href/$mSubTask->id";
                             $vd['breadcrumbs'][] = [
@@ -382,7 +394,8 @@ class Pm
                                     ["$mWork->alias.pm_subtask_id", '=', $subtask_id],
                                 ])->toArray();
                                 $vd['listOfTable'] = $mWork->table;
-                            } else {
+                            }
+                            else {
                                 $mWork->getOneWithReferencesById($work_id);
                                 $href                = "$href/$mWork->id";
                                 $vd['breadcrumbs'][] = [
@@ -454,8 +467,8 @@ class Pm
                     $date_start     = DateTime::dateToUtDayStart($date_start);
                     $date_end       = $p->date_end;
                     $date_end       = DateTime::dateToUtDayEnd($date_end);
-                    $listWd
-                                    = (new pm_work_done())
+
+                    $listWd = (new pm_work_done())
                         ->getAll([
                                 ['assignee_id', '=', $wd_assignee_id],
                                 ['for_date', '>=', $date_start],
@@ -488,7 +501,11 @@ class Pm
                         (new pm_work_done())->doUnArchive($item->id);
                     }
                     break;
-
+                case 'doDeleteWdId':
+                    $wd_id = $p->wd_id;
+                    (new pm_work_story())->delete([['pm_work_done_id','=',$wd_id]]);
+                    (new pm_work_done())->deleteById($wd_id);
+                    break;
                 default:
 
                     break;

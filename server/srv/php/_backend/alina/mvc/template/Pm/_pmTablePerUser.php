@@ -149,8 +149,10 @@ foreach ($data as $iR => &$r) {
 
                                 <?php elseif ($colName === 'wd_flag_archived'): ?>
                                     <?= ___($classArchived[$idxRow]) ?>
+
+
                                 <?php elseif ($colName === 'wd_id'): ?>
-                                    <div>
+                                    <div class="m-1">
                                         <?php if ($row['wd_flag_archived'] === 0): ?>
                                             <form action="" method="post">
                                                 <input type="hidden" name="form_id" value="doArchive">
@@ -162,7 +164,7 @@ foreach ($data as $iR => &$r) {
                                         <?php endif; ?>
                                     </div>
 
-                                    <div>
+                                    <div class="m-1">
                                         <?php if ($row['wd_flag_archived'] === 1): ?>
                                             <form action="" method="post">
                                                 <input type="hidden" name="form_id" value="doUnArchive">
@@ -172,9 +174,19 @@ foreach ($data as $iR => &$r) {
                                                         type="submit"><?= ___('UnArchive') ?></button>
                                             </form>
                                         <?php endif; ?>
-
-
                                     </div>
+
+                                    <div class="m-1">
+                                        <form action="" method="post">
+                                            <input type="hidden" name="form_id" value="doDeleteWdId">
+                                            <input type="hidden" name="do" value="doDeleteWdId">
+                                            <input type="hidden" name="wd_id" value="<?= $row['wd_id'] ?>">
+                                            <button class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('<?= ___("Are you sure?") ?>');"
+                                                    type="submit"><?= ___('Delete') ?></button>
+                                        </form>
+                                    </div>
+
 
                                 <?php else: ?>
                                     <?= $colValue ?>

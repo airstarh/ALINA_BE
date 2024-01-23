@@ -1206,7 +1206,7 @@ class _BaseAlinaModel
             }
         }
 
-        $rel = Arr::arrayMergeRecursive( $rel, $this->fields());
+        $rel = Arr::arrayMergeRecursive($rel, $this->fields());
 
         return $rel;
     }
