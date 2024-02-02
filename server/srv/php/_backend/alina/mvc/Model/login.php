@@ -32,7 +32,7 @@ class login extends _BaseAlinaModel
     {
         return [
             ['user_id', 'browser_enc'],
-            ['user_id', 'token'],
+            //['user_id', 'token'],
         ];
     }
 }
