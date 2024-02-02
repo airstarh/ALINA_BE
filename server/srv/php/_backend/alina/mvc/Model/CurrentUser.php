@@ -59,13 +59,11 @@ class CurrentUser
     public function LogInByPass($mail, $password)
     {
         if ($this->discoverLogin()) {
-            $this->msg[] = 'You are already Logged-in';
+            $this->msg[] = ___('You are already Logged-in');
             return false;
         }
 
-        if (!Data::isValidMd5($password)) {
-            $password = md5($password);
-        }
+        $password = static::$USER::encrypt($password);
 
         $conditions = [
             'mail'     => $mail,
@@ -302,7 +300,7 @@ class CurrentUser
     {
         $res = static::$USER->attributes->mail;
         if (empty($res)) {
-            $res = 'Not Logged-in';
+            $res = ___('Not Logged-in');
         }
 
         return $res;
@@ -372,10 +370,11 @@ class CurrentUser
 
     protected function buildToken()
     {
+        //return $this->LOGIN->attributes->token;
         if (
-            Request::obj()->AJAX
-            &&
-            !empty($this->LOGIN->attributes->token)
+            //Request::obj()->AJAX
+            //&&
+        !empty($this->LOGIN->attributes->token)
         ) {
             return $this->LOGIN->attributes->token;
         }
@@ -387,7 +386,8 @@ class CurrentUser
             $ua->password,
             ALINA_TIME,
         ];
-        $token       = md5(implode('', $tokenSource));
+
+        $token = md5(implode('', $tokenSource));
 
         return $token;
     }
