@@ -57,6 +57,7 @@ class Pm
         $work_id = null
     )
     {
+        AlinaRejectIfNotLoggedIn();
         $vd = [];
         ##################################################
         $vd['pm_organization_id'] = $organization_id;
@@ -241,6 +242,7 @@ class Pm
         $work_id = null
     )
     {
+        AlinaRejectIfNotAdminOrModerator();
         $vd = [];
         ##################################################
         $vd['pm_organization_id'] = $organization_id;
@@ -448,6 +450,7 @@ class Pm
 
     public function actionReport()
     {
+        AlinaRejectIfNotAdminOrModerator();
         ##################################################
         if (Request::isPostPutDelete()) {
             $p = Request::obj()->POST;
