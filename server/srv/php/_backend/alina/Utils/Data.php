@@ -68,12 +68,18 @@ class Data
     //@link https://stackoverflow.com/a/6041773/3142281
     static public function isStringValidJson($string, &$strJsonDecoded = null)
     {
-        if (is_numeric($string)) {
+        try {
+            $strJsonDecoded = json_decode((string)$string, false, 512);
+            return (json_last_error() === JSON_ERROR_NONE);
+        }
+            // Executed only in PHP 7, will not match in PHP 5
+        catch (\Throwable  $exception) {
             return false;
         }
-        $strJsonDecoded = json_decode($string, false, 512);
-
-        return (json_last_error() === JSON_ERROR_NONE);
+            // Executed only in PHP 5, will not be reached in PHP 7
+        catch (\Exception $exception) {
+            return false;
+        }
     }
 
     ##################################################

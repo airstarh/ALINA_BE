@@ -188,8 +188,9 @@ class AdminDbManager
         $vd             = (object)[];
         $m              = modelNamesResolver::getModelObject($table);
         if ($id && $id != 'new') {
-            $m->getOneWithReferences([["{$m->alias}.{$m->pkName}", '=', $id]]);
-        } else {
+            $m->getOneWithReferences([["$m->alias.$m->pkName", '=', $id]]);
+        }
+        else {
             $flagModelIsNew = true;
             $m->buildDefaultData();
             if (!empty(Request::obj()->GET)) {
@@ -202,6 +203,7 @@ class AdminDbManager
         $vd->model   = $m;
         $vd->sources = $m->getReferencesSources();
         ##################################################
+        #region POST
         $p = Sys::resolvePostDataAsObject();
         if (!empty((array)$p)) {
 
@@ -222,7 +224,8 @@ class AdminDbManager
                  */
                 if (!empty($p->password)) {
                     AlinaRejectIfNotAdmin();
-                } else {
+                }
+                else {
                     unset($p->password);
                 }
             }
@@ -230,10 +233,12 @@ class AdminDbManager
             ##################################################
 
             $m->upsert($p);
-            $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
+            $m->getOneWithReferences([["$m->alias.$m->pkName", '=', $id]]);
+
             $newId = $m->id;
             Message::setSuccess(___('Updated'));
         }
+        #endregion POST
         ##################################################
 
         if ($flagModelIsNew && $newId) {

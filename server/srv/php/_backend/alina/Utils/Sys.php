@@ -29,7 +29,7 @@ class Sys
 
     static public function fDebug($data, $flags = FILE_APPEND, $fPath = null, string $transform = null): void
     {
-        static $flagStarted = false;
+        static $flagStarted = [];
 
         $fPath = static::fPath($fPath);
 
@@ -42,22 +42,22 @@ class Sys
                 //ToDO:
                 //$output = static::dataToFlat($data);
                 break;
+            case 'html':
             default:
                 $output = $data;
                 ##################################################
                 #region TEMPLATE
                 ob_start();
-                ob_implicit_flush(FALSE);
+                ob_implicit_flush(false);
                 echo PHP_EOL;
-                echo '<h1>START_OF_DATA</h1>';
+                echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
                 echo PHP_EOL;
                 echo '<pre>';
                 echo PHP_EOL;
-                print_r($output);
-                echo PHP_EOL;
+                echo var_export($output, 1);
                 echo '</pre>';
                 echo PHP_EOL;
-                echo '<h2>END_OF_DATA</h2>';
+                echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
                 echo PHP_EOL;
                 #endregion TEMPLATE
                 ##################################################
@@ -65,9 +65,9 @@ class Sys
                 break;
         }
 
-        if (!$flagStarted) {
+        if (empty($flagStarted[$fPath])) {
             file_put_contents($fPath, PHP_EOL, 0);
-            $flagStarted = true;
+            $flagStarted[$fPath] = true;
         }
         file_put_contents($fPath, $output, $flags);
         file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
@@ -76,7 +76,7 @@ class Sys
     static public function buffer($callback, ...$params)
     {
         ob_start();
-        ob_implicit_flush(FALSE);
+        ob_implicit_flush(false);
         call_user_func($callback, $params);
         $output = ob_get_clean();
 
@@ -86,7 +86,7 @@ class Sys
     static public function returnPrintR($data)
     {
         ob_start();
-        ob_implicit_flush(FALSE);
+        ob_implicit_flush(false);
         echo '<hr><pre>';
         echo PHP_EOL;
         print_r($data);
@@ -120,10 +120,10 @@ class Sys
     static public function isAjax()
     {
         if (isset($_GET['isAjax']) && !empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
-            return TRUE;
+            return true;
         }
         if (isset($_POST['isAjax']) && !empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
-            return TRUE;
+            return true;
         }
         // Cross Domain AJAX request.
         if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
@@ -131,7 +131,7 @@ class Sys
             if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
                 $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
                 if ($o !== $h) {
-                    return TRUE;
+                    return true;
                 }
             }
             // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
@@ -146,22 +146,22 @@ class Sys
             //     return TRUE;
             // }
             if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi') {
-                return TRUE;
+                return true;
             }
         }
         if (isset($_SERVER['HTTP_REQUESTED_WITH']) && !empty($_SERVER['HTTP_REQUESTED_WITH'])) {
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     ##################################################
     static public function setCrossDomainHeaders()
     {
-        static $state_ALREADY_SET = FALSE;
+        static $state_ALREADY_SET = false;
         if ($state_ALREADY_SET) {
-            return TRUE;
+            return true;
         }
         //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
         //ToDo: PROD! Security!
@@ -227,17 +227,17 @@ class Sys
                     break;
             }
         }
-        $state_ALREADY_SET = TRUE;
+        $state_ALREADY_SET = true;
 
-        return TRUE;
+        return true;
     }
 
-    static public function redirect($page, $code = 307, $isToOrigin = FALSE)
+    static public function redirect($page, $code = 307, $isToOrigin = false)
     {
         if (\alina\Utils\Str::startsWith($page, 'http://')
             || \alina\Utils\Str::startsWith($page, 'https://')
         ) {
-            header("Location: $page", TRUE, $code);
+            header("Location: $page", true, $code);
             die();
         }
         ##########
@@ -251,7 +251,8 @@ class Sys
                 trim($url, '/'),
                 ltrim($page, '/'),
             ]);
-        } else {
+        }
+        else {
             $page = \alina\Utils\Html::ref($page);
         }
         #####
@@ -270,13 +271,13 @@ class Sys
             $page = \alina\Utils\Url::addGetFromObject($page, $get);
         }
         #####
-        header("Location: $page", TRUE, $code);
+        header("Location: $page", true, $code);
     }
 
     ##################################################
     static public function getMicroTimeDifferenceFromNow($microtime)
     {
-        return microtime(TRUE) - $microtime;
+        return microtime(true) - $microtime;
     }
 
     static public function reportSpentTime($prepend = [], $append = [])
@@ -312,7 +313,7 @@ class Sys
      * Retrieve Cookies, which are set before page update.
      * @link http://stackoverflow.com/a/34465594/3142281
      */
-    static public function getcookie($name = NULL)
+    static public function getcookie($name = null)
     {
         $cookies = [];
         $headers = headers_list();
@@ -332,11 +333,11 @@ class Sys
     }
 
     ##################################################
-    static public function template($fileFullPath, $data = NULL)
+    static public function template($fileFullPath, $data = null)
     {
         $fileFullPath = realpath($fileFullPath);
-        ob_start(NULL, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
-        ob_implicit_flush(FALSE);
+        ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
+        ob_implicit_flush(false);
         require($fileFullPath);
         $output = ob_get_clean();
 

@@ -1,0 +1,13 @@
+{
+  "employee": {
+    "name": "Jogn",
+    "salary": 56000,
+    "married": true
+  },
+  "array": [
+    null,
+    1,
+    2,
+    3
+  ]
+}
