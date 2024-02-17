@@ -40,11 +40,6 @@ $headers  = array_keys((array)$firstRow);
                     <?php endif; ?>
                 </td>
 
-                <?php
-                //AlinaDebugJson($k);
-                //AlinaDebugJson($row);
-                ?>
-
                 <?php if (!Data::isIterable($row)): ?>
                     <td>
                         <div><?= $k ?></div>

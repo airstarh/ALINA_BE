@@ -46,7 +46,8 @@ function AlinaGetNowInDbFormat()
 {
     if (defined('ALINA_TIME')) {
         return date(ALINA_DT_FORMAT_DB, ALINA_TIME);
-    } else {
+    }
+    else {
         return date(ALINA_DT_FORMAT_DB);
     }
 }
@@ -118,7 +119,8 @@ function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
     Message::setDanger($message);
     if ($page) {
         Sys::redirect($page, $code);
-    } else {
+    }
+    else {
         Request::obj()->METHOD = 'GET';
         Alina()->mvcGo('Root', 'AccessDenied', [$code]);
     }
@@ -240,6 +242,12 @@ function ___($str, $loc = 'ru_RU')
 
 ##################################################
 #region DEBUG
+function AlinaDebug($data)
+{
+    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'html');
+    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+}
+
 function AlinaDebugJson($data)
 {
     \alina\Utils\Sys::fDebug('>>>>>>>>>>', FILE_APPEND, null, 'json');
