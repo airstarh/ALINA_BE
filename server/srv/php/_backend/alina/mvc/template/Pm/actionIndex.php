@@ -31,6 +31,7 @@ $linkWorkDoneList     = '';
 
     <hr>
 
+    <?php if (AlinaAccessIfAdminOrModerator()): ?>
     <div class="mt-5 mb-5">
         <h2><?= ___("Administrative Tools") ?></h2>
 
@@ -90,8 +91,8 @@ $linkWorkDoneList     = '';
 
 
     </div>
-    <hr>
-
+        <hr>
+    <?php endif; ?>
 </div>
 <style>
     .alina-page-pm a {
