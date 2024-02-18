@@ -30,7 +30,8 @@ class Data
         if (static::isIterable($v)) {
             // ToDo: Make less heavy
             $array = json_decode(json_encode($v), true);
-        } else {
+        }
+        else {
             $array = [$v];
         }
 
@@ -71,15 +72,28 @@ class Data
         try {
             $strJsonDecoded = json_decode((string)$string, false, 512);
             return (json_last_error() === JSON_ERROR_NONE);
-        }
-            // Executed only in PHP 7, will not match in PHP 5
+        } // Executed only in PHP 7, will not match in PHP 5
         catch (\Throwable  $exception) {
             return false;
-        }
-            // Executed only in PHP 5, will not be reached in PHP 7
+        } // Executed only in PHP 5, will not be reached in PHP 7
         catch (\Exception $exception) {
             return false;
         }
+    }
+
+    static public function isJsonEncodedObject($v)
+    {
+        if (is_numeric($v)) return false;
+        if (is_string($v)) {
+            if (
+                Str::ifContains('{', $v)
+                ||
+                Str::ifContains('[', $v)
+            ) {
+                return static::isStringValidJson($v);
+            }
+        }
+        return false;
     }
 
     ##################################################
@@ -112,14 +126,16 @@ class Data
                     $res    = static::jsonSearchReplace($v, $strFrom, $strTo);
                     $v      = $res->strRes;
                     $tCount += $res->tCount;
-                } /**
+                }
+                /**
                  * If Serialized string
                  */
                 elseif (false !== static::megaUnserialize($v, $itr2)) {
                     Message::setInfo('JFYI: Serialized data is inside JSON');
                     $vMid = static::itrSearchReplace($itr2, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     $v    = serialize($vMid);
-                } /**
+                }
+                /**
                  * If a string
                  */
                 else {
@@ -136,7 +152,8 @@ class Data
             $itrChangedCasted = static::cast($itrChanged, $itrType);
             if ((string)$itrChanged == (string)$itrChangedCasted) {
                 $itr = $itrChangedCasted;
-            } else {
+            }
+            else {
                 $itr = $itrChanged;
             }
             $tCount += $iCount;
@@ -320,7 +337,8 @@ class Data
             foreach ($d as &$v) {
                 $v = static::utf8ize($v);
             }
-        } else {
+        }
+        else {
             $enc   = mb_detect_encoding($d);
             $value = iconv($enc, 'UTF-8', $d);
 
@@ -486,7 +504,8 @@ class Data
         }
         if (static::isStringValidJson($s, $res)) {
             return json_encode($res, $flags);
-        } else {
+        }
+        else {
             return $s;
         }
     }
@@ -651,10 +670,12 @@ class Data
                 foreach ($filters[$fName] as $filter) {
                     if (is_string($filter) && function_exists($filter)) {
                         $data->{$fName} = $filter($data->{$fName});
-                    } else {
+                    }
+                    else {
                         if ($filter instanceof \Closure) {
                             $data->{$fName} = call_user_func($filter, $data->{$fName});;
-                        } else {
+                        }
+                        else {
                             if (is_array($filter)) {
                                 $argsAmount = count($filter);
                                 switch ($argsAmount) {
@@ -752,10 +773,12 @@ class Data
                     #####
                     if (is_array($validator) && array_key_exists('f', $validator)) {
                         $CHECKER = $validator['f'];
-                    } else if (is_string($validator) || is_bool($validator)) {
+                    }
+                    else if (is_string($validator) || is_bool($validator)) {
                         $CHECKER   = $validator;
                         $validator = [$validator];
-                    } else {
+                    }
+                    else {
                         Message::setDanger("Undefined validator for {$fName}");
                         continue;
                     };
@@ -769,11 +792,14 @@ class Data
                     #####
                     if (is_bool($CHECKER)) {
                         $VALIDATION_RESULT = $CHECKER;
-                    } else if (is_string($CHECKER) && function_exists($CHECKER)) {
+                    }
+                    else if (is_string($CHECKER) && function_exists($CHECKER)) {
                         $VALIDATION_RESULT = $CHECKER($fValue);
-                    } else if ($CHECKER instanceof \Closure) {
+                    }
+                    else if ($CHECKER instanceof \Closure) {
                         $VALIDATION_RESULT = call_user_func($CHECKER, $fValue);;
-                    } else if (is_array($CHECKER)) {
+                    }
+                    else if (is_array($CHECKER)) {
                         $countArgs = count($CHECKER);
                         switch ($countArgs) {
                             case 2:
@@ -833,7 +859,8 @@ class Data
         #region Pages Total
         if ($pg->rows <= 0) {
             $pg->pages = 1;
-        } else {
+        }
+        else {
             $pg->pages = ceil($pg->rows / $pg->limit);
         }
         if ($pg->page > $pg->pages || $pg->page === 'last') {
@@ -846,7 +873,8 @@ class Data
             ||
             !isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
             $pg->offset = 0;
-        } else {
+        }
+        else {
             $pg->offset = $pg->limit * ($pg->page - 1);
         }
         ##############################

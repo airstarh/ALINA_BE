@@ -1128,6 +1128,11 @@ class _BaseAlinaModel
         return false;
     }
 
+    public function qAliasPk()
+    {
+        return "$this->alias.$this->pkName";
+    }
+
     protected function setPkValue($id, \stdClass $data = null)
     {
         $this->{$this->pkName}             = $id;
