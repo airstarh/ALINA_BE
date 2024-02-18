@@ -119,7 +119,7 @@ $sources    = $data->sources;
                     ]) ?>
                 </div>
 
-                <?php if (Data::isStringValidJson($v)): ?>
+                <?php if (Data::isJsonEncodedObject($v)): ?>
                     <div>
                         <?= (new htmlAlias())->piece('_system/html/_form/table002.php', json_decode($v)) ?>
                     </div>

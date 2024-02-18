@@ -45,7 +45,7 @@ class pm_task extends _BaseAlinaModel
                     ##############################
                     # for Select With References
                     'joins'      => [
-                        ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', "{$this->alias}.{$this->pkName}"],
+                        ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', $this->qAliasPk()],
                     ],
                     'conditions' => [],
                     'addSelects' => [
@@ -55,9 +55,14 @@ class pm_task extends _BaseAlinaModel
                                 'pm_subtask.id AS _pm_subtask_id',
                                 'pm_subtask.name_human AS _pm_subtask_name_human',
                                 'pm_subtask.time_estimated AS _pm_subtask_time_estimated',
+                                'pm_subtask.order_in_view AS _pm_subtask_order_in_view',
                                 "{$this->alias}.{$this->pkName} AS main_id",
                             ],
                         ],
+                    ],
+                    'orders'     => [
+                        ['orderBy', 'pm_subtask.order_in_view', 'ASC'],
+                        ['orderBy', 'pm_subtask.id', 'ASC'],
                     ],
                 ],
                 ##### field #####
