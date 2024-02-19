@@ -1,13 +1,14 @@
 {
-  "employee": {
-    "name": "Jogn",
-    "salary": 56000,
-    "married": true
-  },
-  "array": [
-    null,
-    1,
-    2,
-    3
-  ]
+  "string": "John Doe",
+  "number": 1234567890,
+  "string_number": "1234567890",
+  "bool_true": true,
+  "bool_false": false,
+  "string_true": "true",
+  "string_false": "false",
+  "null": null,
+  "string_null": "null",
+  "num_zero": 0,
+  "string_zero": "0",
+  "string_empty": ""
 }
