@@ -57,7 +57,7 @@ trait pm_trait
                 ##############################
                 # for Select With References
                 'joins'      => [
-                    ['leftJoin', 'user AS modifier', 'modifier.id', '=', "$this->alias.created_by"],
+                    ['leftJoin', 'user AS modifier', 'modifier.id', '=', "$this->alias.modified_by"],
                 ],
                 'conditions' => [],
                 'addSelects' => [
@@ -248,7 +248,7 @@ trait pm_trait
                 ##############################
                 # for Select With References
                 'joins'      => [
-                    ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
+                    ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', $this->qAliasPk()],
                     ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
                     ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
                     ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
@@ -258,12 +258,22 @@ trait pm_trait
                     [
                         'addSelect',
                         [
-                            'pm_subtask.id AS _pm_subtask_id',
+                            'pm_project.id AS _pm_project_id',
+                            'pm_project.name_human AS _pm_project_name_human',
+                            ###'pm_task.id AS _pm_task_id',
+                            'pm_task.name_human AS _pm_task_name_human',
+                            ###'pm_subtask.id AS _pm_subtask_id',
                             'pm_subtask.name_human AS _pm_subtask_name_human',
-                            'pm_subtask.pm_task_id AS _pm_subtask_pm_task_id',
-                            "{$this->alias}.{$this->pkName} AS main_id",
+                            "{$this->qAliasPk()} AS main_id",
                         ],
                     ],
+                ],
+                'orders'     => [
+                    ['orderBy', 'pm_project.name_human', 'ASC'],
+                    ['orderBy', 'pm_task.order_in_view', 'ASC'],
+                    ['orderBy', 'pm_subtask.order_in_view', 'ASC'],
+                    ['orderBy', 'pm_task.id', 'ASC'],
+                    ['orderBy', 'pm_subtask.id', 'ASC'],
                 ],
             ],
         ];

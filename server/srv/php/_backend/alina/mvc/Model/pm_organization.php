@@ -36,9 +36,6 @@ class pm_organization extends _BaseAlinaModel
             $this->_pm_project(),
             $this->_pm_task(),
             $this->_pm_subtask(),
-            [
-
-            ],
             $this->created_by(),
             $this->modified_by(),
         );
