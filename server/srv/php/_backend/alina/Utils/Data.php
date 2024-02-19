@@ -146,7 +146,8 @@ class Data
                         ++$tCount;
                     }
                     else {
-                        $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                        if (is_string($v))
+                            $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
                     }
                 }
             }
