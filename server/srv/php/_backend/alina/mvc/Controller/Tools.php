@@ -52,7 +52,7 @@ class Tools
      */
     public function actionJsonSearchReplaceBeautify()
     {
-        $str       = file_get_contents(ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
+        $str       = @file_get_contents(ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
         $strSource = Data::hlpGetBeautifulJsonString($str);
         ##################################################
         $vd   = (object)[
