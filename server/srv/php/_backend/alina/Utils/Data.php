@@ -139,16 +139,19 @@ class Data
                  * If a string
                  */
                 else {
+
                     if (
-                        $strFrom === $v
+                        $v === $strFrom
                     ) {
                         $v = $strTo;
                         ++$tCount;
                     }
                     else {
-                        if (is_string($v))
+                        if (is_string($v) && is_string($strFrom)) {
                             $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                        }
                     }
+
                 }
             }
         } /*
