@@ -113,7 +113,7 @@ use alina\Utils\Data as DataAlias;
                         'badge' => mb_strlen($data->strSource),
                     ]) ?>
                 </div>
-                <div>
+                <div class="ck-content">
                     <?php
                     echo '<pre>';
                     echo htmlentities(var_export($data->mxdJsonDecoded, 1));
@@ -128,7 +128,7 @@ use alina\Utils\Data as DataAlias;
                         'badge' => mb_strlen($data->strRes),
                     ]) ?>
                 </div>
-                <div>
+                <div class="ck-content">
                     <?php
                     echo '<pre>';
                     echo htmlentities(var_export($data->mxdResJsonDecoded, 1));
