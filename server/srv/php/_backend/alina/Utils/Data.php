@@ -67,10 +67,10 @@ class Data
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281
-    static public function isStringValidJson($string, &$strJsonDecoded = null)
+    static public function isStringValidJson($string, &$ohjJsonDecoded = null)
     {
         try {
-            $strJsonDecoded = json_decode((string)$string, false, 512);
+            $ohjJsonDecoded = json_decode((string)$string, false, 512);
             return (json_last_error() === JSON_ERROR_NONE);
         } // Executed only in PHP 7, will not match in PHP 5
         catch (\Throwable  $exception) {
@@ -81,16 +81,16 @@ class Data
         }
     }
 
-    static public function isJsonEncodedObject($v)
+    static public function isJsonEncodedObject($v, &$ohjJsonDecoded = null)
     {
         if (is_numeric($v)) return false;
         if (is_string($v)) {
             if (
-                Str::ifContains('{', $v)
+                Str::ifContains($v, '{')
                 ||
-                Str::ifContains('[', $v)
+                Str::ifContains($v, '[')
             ) {
-                return static::isStringValidJson($v);
+                return static::isStringValidJson($v, $ohjJsonDecoded);
             }
         }
         return false;
@@ -121,7 +121,7 @@ class Data
                 } /*
                  * If JSON string
                  * */
-                elseif (is_string($v) && static::isStringValidJson($v)) {
+                elseif (static::isJsonEncodedObject($v)) {
                     Message::setInfo('JFYI: JSON string is inside JSON ');
                     $res    = static::jsonSearchReplace($v, $strFrom, $strTo);
                     $v      = $res->strRes;
@@ -139,7 +139,15 @@ class Data
                  * If a string
                  */
                 else {
-                    $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                    if (
+                        $strFrom === $v
+                    ) {
+                        $v = $strTo;
+                        ++$tCount;
+                    }
+                    else {
+                        $v = static::itrSearchReplace($v, $strFrom, $strTo, $tCount, $flagRenameKeysAlso);
+                    }
                 }
             }
         } /*
@@ -214,15 +222,30 @@ class Data
             if ($itr === '') {
                 return null;
             }
-            if ($itr == 'null' || $itr == 'NULL') {
+            if ($itr === 'ALINA_EMPTY_STRING') {
+                return '';
+            }
+            if ($itr === 'null' || $itr === 'NULL') {
                 return null;
+            }
+            if ($itr === 'true' || $itr === 'TRUE') {
+                return true;
+            }
+            if ($itr === 'false' || $itr === 'FALSE') {
+                return false;
+            }
+            if (
+                Str::startsWith($itr, '"')
+                &&
+                Str::endsWith($itr, '"')
+            ) {
+                return trim($itr, '"');
             }
             try {
                 if (is_numeric($itr) && 1 * $itr == $itr) {
                     return 1 * $itr;
                 }
             } catch (\Exception $e) {
-                //AlinaResponseSuccess(1);
                 return $itr;
             }
         }
@@ -502,7 +525,7 @@ class Data
         if (is_array($s) || is_object($s)) {
             return json_encode($s, $flags);
         }
-        if (static::isStringValidJson($s, $res)) {
+        if (static::isJsonEncodedObject($s, $res)) {
             return json_encode($res, $flags);
         }
         else {
@@ -569,13 +592,13 @@ class Data
             'isResStrJsonValid'    => true,
         ];
         #endregion Defaults
-        $d->isSourceStrJsonValid = Data::isStringValidJson($d->strSource, $d->mxdJsonDecoded);
+        $d->isSourceStrJsonValid = Data::isJsonEncodedObject($d->strSource, $d->mxdJsonDecoded);
         #####
         if ($d->isSourceStrJsonValid) {
-            Data::isStringValidJson($d->strSource, $d->mxdResJsonDecoded);
+            Data::isJsonEncodedObject($d->strSource, $d->mxdResJsonDecoded);
             $d->mxdResJsonDecoded = Data::itrSearchReplace($d->mxdResJsonDecoded, $strFrom, $strTo, $d->tCount);
             $d->strRes            = json_encode($d->mxdResJsonDecoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            $d->isResStrJsonValid = Data::isStringValidJson($d->strRes);
+            $d->isResStrJsonValid = Data::isJsonEncodedObject($d->strRes);
         }
         #####
         if (!$d->isSourceStrJsonValid) {
