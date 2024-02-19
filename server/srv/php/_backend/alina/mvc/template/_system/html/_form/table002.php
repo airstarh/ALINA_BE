@@ -18,9 +18,9 @@ $headers  = array_keys((array)$firstRow);
     <table class="bg-black alina-data-table table-002">
         <thead>
         <tr>
-            <th>#</th>
+            <th class="bg-primary sticky-top border-bottom text-dark">#</th>
             <?php foreach ($headers as $h) { ?>
-                <th><?= ___($h) ?></th>
+                <th class="bg-primary sticky-top border-bottom text-dark"><?= ___($h) ?></th>
             <?php } ?>
         </tr>
         </thead>
