@@ -449,7 +449,9 @@ a.no-decoration:active
     color: rgba(var(--corporate-txt));
     background-color: var(--corporate-bg-a);
     background-size: 100%;
-    padding: .3rem;
+    padding: 1px 5px;
+    font-size: 0.8rem;
+    vertical-align: middle;
     margin: 0;
     border-radius: 10px;
 }
