@@ -2,14 +2,8 @@
 
 namespace alina\Utils;
 
-class Crypy
+class Crypto
 {
-    ##################################################
-    public function __construct()
-    {
-    }
-    ##################################################
-    #region Reversible
     protected function getKey()
     {
         $k              = [
@@ -53,6 +47,4 @@ class Crypy
 
         return false;
     }
-    #endregion Reversible
-    ##################################################
 }

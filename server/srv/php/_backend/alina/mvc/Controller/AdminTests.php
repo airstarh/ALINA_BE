@@ -14,7 +14,7 @@ use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
 use alina\Services\AlinaTranslate;
-use alina\Utils\Crypy;
+use alina\Utils\Crypto;
 use alina\Utils\Data;
 use alina\Utils\FS;
 use alina\Utils\Request;
@@ -200,8 +200,8 @@ class AdminTests
     {
         $vd         = [];
         $vd['str']  = 'mail';
-        $vd['encr'] = (new Crypy())->revencr($vd['str']);
-        $vd['decr'] = (new Crypy())->revdecr($vd['encr']);
+        $vd['encr'] = (new Crypto())->encrypt($vd['str']);
+        $vd['decr'] = (new Crypto())->decrypt($vd['encr']);
         echo (new html)->page($vd);
     }
 
