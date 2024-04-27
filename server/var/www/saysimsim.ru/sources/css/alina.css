@@ -290,7 +290,7 @@ select option:checked
 
 .alina-tale-header
 {
-    font-size: clamp(20px, 4vw, 40px);
+    font-size: clamp(20px, 7vw, 40px);
     display: block;
     font-weight: bold;
     background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
