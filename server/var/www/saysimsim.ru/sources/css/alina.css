@@ -290,7 +290,7 @@ select option:checked
 
 .alina-tale-header
 {
-    font-size: 4vw;
+    font-size: clamp(20px, 4vw, 40px);
     display: block;
     font-weight: bold;
     background: var(--corporate-bg) linear-gradient(var(--corporate-gradient));
@@ -341,26 +341,24 @@ a.no-decoration:active
 }
 
 
-.alert-danger
-, .alert-danger pre
+.alert-danger, .alert-danger pre
 {
     background-color: darkred;
     color: #fff;
 }
 
-.alert-success
-, .alert-success pre
+.alert-success, .alert-success pre
 {
     background-color: darkgreen;
     color: #fff;
 }
 
-.alert-info
-, .alert-info pre
+.alert-info, .alert-info pre
 {
     background-color: darkblue;
     color: #fff;
 }
+
 /*endregion Messages*/
 /* ################################################## */
 /*region ck-editor*/
