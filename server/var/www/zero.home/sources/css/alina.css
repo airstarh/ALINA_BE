@@ -19,6 +19,7 @@ html, body
 *::before,
 *::after
 {
+    color-scheme: light dark;
     margin: 0;
     padding: 0;
     -moz-box-sizing: border-box;
@@ -39,68 +40,11 @@ body
     /*outline: 1px solid yellow;*/
 }
 
-.alina-vh-100
-{
-    min-height: 100vh;
-}
-
-.alina-main-bg
-{background-color: var(--alina-main-bg) !important;}
-
-.alina-main-txt, .alina-main-txt table
-{color: var(--alina-main-txt) !important;}
-
-.w-pct-100
-{min-width: 100%;}
-
-table.alina-data-table thead
-{
-    background-color: #00116e;
-}
-
-table.alina-data-table tfoot
-{
-    background-color: #010a3a;
-}
-
-table.alina-data-table tbody tr:hover
-{
-    background-color: #444;
-}
-
-table.alina-data-table tbody tr.archived
-{
-    background-color: #8F2DA8;
-}
-
-table.alina-data-table th, table.alina-data-table td
-{
-    padding-top: 3px;
-    padding-right: 1ch;
-    padding-bottom: 2px;
-    padding-left: 1ch;
-    vertical-align: top;
-
-    border: #555 solid 1px;
-}
-
-table.alina-table-stick-header thead th
-{
-    position: sticky;
-    top: 0;
-    background-color: #00116e;
-    color: #fff;
-}
-
-.alina-pm-breadcrumbs,
-.alina-pm-breadcrumbs .btn-sm
-{
-    font-size: 0.7rem;
-}
-
 /*endregion FUNDAMENTAL */
 /*##################################################*/
+/*##################################################*/
 /*region MAIN LAYOUT*/
+
 /**
 Online tool:
 https://the-echoplex.net/flexyboxes/
@@ -188,6 +132,54 @@ https://the-echoplex.net/flexyboxes/
 /*endregion Keen required*/
 /*endregion REQUIRED BY INCLUDED FRAMEWORKS*/
 /* ################################################## */
+/*region Tables */
+table.alina-data-table thead
+{
+    background-color: #00116e;
+}
+
+table.alina-data-table tfoot
+{
+    background-color: #010a3a;
+}
+
+table.alina-data-table tbody tr:hover
+{
+    background-color: #444;
+}
+
+table.alina-data-table tbody tr.archived
+{
+    background-color: #8F2DA8;
+}
+
+table.alina-data-table th, table.alina-data-table td
+{
+    padding-top: 3px;
+    padding-right: 1ch;
+    padding-bottom: 2px;
+    padding-left: 1ch;
+    vertical-align: top;
+
+    border: #555 solid 1px;
+}
+
+table.alina-table-stick-header thead th
+{
+    position: sticky;
+    top: 0;
+    background-color: #00116e;
+    color: #fff;
+}
+
+.alina-pm-breadcrumbs,
+.alina-pm-breadcrumbs .btn-sm
+{
+    font-size: 0.7rem;
+}
+
+/*endregion Tables */
+/* ################################################## */
 /*region Form*/
 .alina-form
 {
@@ -247,21 +239,36 @@ select option:checked
 
 /*endregion Form*/
 /*##################################################*/
-/*region UTILS*/
-.cursor-pointer
-{
-    cursor: pointer;
+/* region FIGURE */
+figure.alina-figure-content {
+    & figurecaption {
+        font-size: 0.7rem;
+    }
 }
+/* endregion FIGURE */
+/*##################################################*/
+/*region UTILS*/
+
+.alina-vh-100
+{min-height: 100vh;}
+
+.alina-main-bg
+{background-color: var(--alina-main-bg) !important;}
+
+.alina-main-txt, .alina-main-txt table
+{color: var(--alina-main-txt) !important;}
+
+.w-pct-100
+{min-width: 100%;}
+
+.cursor-pointer
+{cursor: pointer;}
 
 .vh-almost-100
-{
-    min-height: 90vh;
-}
+{min-height: 90vh;}
 
 .bg-black
-{
-    background-color: black;
-}
+{background-color: black;}
 
 .fixed-height-100px
 {
@@ -310,9 +317,7 @@ select option:checked
 }
 
 iframe
-{
-    background-color: #ebebeb;
-}
+{background-color: #ebebeb;}
 
 a.no-decoration,
 a.no-decoration:hover,
@@ -341,27 +346,24 @@ a.no-decoration:active
     font-family: monospace, monospace;
 }
 
-
-.alert-danger
-, .alert-danger pre
+.alert-danger, .alert-danger pre
 {
     background-color: darkred;
     color: #fff;
 }
 
-.alert-success
-, .alert-success pre
+.alert-success, .alert-success pre
 {
     background-color: darkgreen;
     color: #fff;
 }
 
-.alert-info
-, .alert-info pre
+.alert-info, .alert-info pre
 {
     background-color: darkblue;
     color: #fff;
 }
+
 /*endregion Messages*/
 /* ################################################## */
 /*region ck-editor*/
