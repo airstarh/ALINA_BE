@@ -240,9 +240,16 @@ select option:checked
 /*endregion Form*/
 /*##################################################*/
 /* region FIGURE */
+figure,
 figure.alina-figure-content {
+    & video,
+    & audio {
+        display: block;
+    }
     & figurecaption {
+        display: block;
         font-size: 0.7rem;
+        text-align: right;
     }
 }
 /* endregion FIGURE */
