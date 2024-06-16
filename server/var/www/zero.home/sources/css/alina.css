@@ -493,22 +493,37 @@ body {border: gray solid 10px;}
     outline: 1px solid red;
 }*/
 
-.db-1
+.db-0
 {
     outline: red solid 5px
 }
 
+.db-1
+{
+    outline: orange solid 5px
+}
+
 .db-2
 {
-    outline: green solid 5px
+    outline: yellow solid 5px
 }
 
 .db-3
 {
-    outline: blue solid 5px
+    outline: green solid 5px
 }
 
 .db-4
+{
+    outline: blue solid 5px
+}
+
+.db-5
+{
+    outline: darkblue solid 5px
+}
+
+.db-6
 {
     outline: purple solid 5px
 }
