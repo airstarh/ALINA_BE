@@ -64,8 +64,8 @@ return [
             'https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css',
             // Ckeditor
             //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
-            'https://saysimsim.ru/sources/css/ckeditor.css',
-            'https://saysimsim.ru/sources/css/ckeditor-theme.css',
+            'https://zero.home/sources/css/ckeditor.css',
+            'https://zero.home/sources/css/ckeditor-theme.css',
             // Alina
             '/sources/css/alina-vars.css',
             '/sources/css/alina.css',
