@@ -59,25 +59,28 @@ return [
     'html'                => [
         'css'  => [
             // Jquery; Jquery UI
-            'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css',
+            '/sources/collection/bootstrap/jquery-ui.css',
+
             //Bootstrap Framework.
-            'https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css',
+            '/sources/collection/bootstrap/bootstrap.css',
+
             // Ckeditor
             //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
-            'https://zero.home/sources/css/ckeditor.css',
-            'https://zero.home/sources/css/ckeditor-theme.css',
+            '/sources/collection/ckeditor/index.css',
+
             // Alina
-            '/sources/css/alina-vars.css',
-            '/sources/css/alina.css',
-            '/sources/css/alina-app-specific.css',
+            '/sources/collection/alina/index.css',
+
         ],
         'js'   => [
             // Jquery; Jquery UI
-            'https://code.jquery.com/jquery-3.4.1.js',
-            'https://code.jquery.com/ui/1.12.1/jquery-ui.js',
+            '/sources/collection/bootstrap/jquery.js',
+            '/sources/collection/bootstrap/jquery-ui.js',
+
             //Bootstrap JS
-            'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
-            'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
+            '/sources/collection/bootstrap/popper.js',
+            '/sources/collection/bootstrap/bootstrap.js',
+
             // Alina.
             '/sources/js/alina-js-collector.php',
         ],
