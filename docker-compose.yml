@@ -18,8 +18,6 @@ services:
       - ./server/var/log/nginx:/var/log/nginx
       - ./server/srv/sewa:/srv/sewa
       - ./server/var/www:/var/www
-      # zero.home
-      - C:/_A001/REPOS/OWN/ALINA_FE/dist:/var/www/zero.home/apps/vue
   php:
     restart: unless-stopped
     env_file: .env
@@ -41,8 +39,6 @@ services:
       - ./server/var/www:/var/www
       # ALINA framework
       - ./server/srv/php/_backend:/srv/php/_backend
-      # zero.home
-      - C:/_A001/REPOS/OWN/ALINA_FE/dist:/var/www/zero.home/apps/vue
     working_dir: /srv/php/_backend/alina
   mysql:
     restart: unless-stopped
