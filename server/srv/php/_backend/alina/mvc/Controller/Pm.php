@@ -719,13 +719,13 @@ class Pm
 
                 ####################################################################################################
             }
-            $byUsers[] = $byUsersTotals['xxx'];
+            $byUsers[] = $byUsersTotals['xxx'] ?? [];
             #
-            $od[] = $odTotals['xxx'];
+            $od[] = $odTotals['xxx'] ?? [];
             #
-            $dd[] = $ddTotals['xxx'];
+            $dd[] = $ddTotals['xxx'] ?? [];
             #
-            $pd[] = $pdTotals['xxx'];
+            $pd[] = $pdTotals['xxx'] ?? [];
             ##################################################
         }
         $vd['byUsers'] = $byUsers;

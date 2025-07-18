@@ -2,6 +2,8 @@ logs/
 database/
 server/var/log/
 .idea/
+.vscode/
+ALINA_BE.code-workspace
 server/srv/php/_backend/alina/vendor/
 server/var/www/zero.home/uploads/
 server/var/www/_frontend/uploads/

@@ -7,6 +7,7 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
 use alina\Utils\Data as DataAlias;
+use TypeError;
 
 class Sys
 {
@@ -29,48 +30,56 @@ class Sys
 
     static public function fDebug($data, $flags = FILE_APPEND, $fPath = null, string $transform = null): void
     {
-        static $flagStarted = [];
+        try {
 
-        $fPath = static::fPath($fPath);
+            static $flagStarted = [];
 
-        switch ($transform) {
-            case 'json':
-                $output = DataAlias::hlpGetBeautifulJsonString($data);
-                $fPath  = $fPath . '.yaml';
-                break;
-            case 'flat':
-                //ToDO:
-                //$output = static::dataToFlat($data);
-                break;
-            case 'html':
-            default:
-                $output = $data;
-                ##################################################
-                #region TEMPLATE
-                ob_start();
-                ob_implicit_flush(false);
-                echo PHP_EOL;
-                echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
-                echo PHP_EOL;
-                echo '<pre>';
-                echo PHP_EOL;
-                echo var_export($output, 1);
-                echo '</pre>';
-                echo PHP_EOL;
-                echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
-                echo PHP_EOL;
-                #endregion TEMPLATE
-                ##################################################
-                $output = ob_get_clean();
-                break;
+            $fPath = static::fPath($fPath);
+
+            switch ($transform) {
+                case 'json':
+                    $output = DataAlias::hlpGetBeautifulJsonString($data);
+                    $fPath = $fPath . '.yaml';
+                    break;
+                case 'flat':
+                    //ToDO:
+                    //$output = static::dataToFlat($data);
+                    break;
+                case 'html':
+                default:
+                    $output = $data;
+                    ##################################################
+                    #region TEMPLATE
+                    ob_start();
+                    ob_implicit_flush(false);
+                    echo PHP_EOL;
+                    echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
+                    echo PHP_EOL;
+                    echo '<pre>';
+                    echo PHP_EOL;
+                    echo var_export($output, 1);
+                    echo '</pre>';
+                    echo PHP_EOL;
+                    echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
+                    echo PHP_EOL;
+                    #endregion TEMPLATE
+                    ##################################################
+                    $output = ob_get_clean();
+                    break;
+            }
+
+            if (empty($flagStarted[$fPath])) {
+                file_put_contents($fPath, PHP_EOL, 0);
+                $flagStarted[$fPath] = true;
+            }
+            file_put_contents($fPath, $output, $flags);
+            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            error_log($e->getLine());
+            error_log($e->getTraceAsString());
         }
-
-        if (empty($flagStarted[$fPath])) {
-            file_put_contents($fPath, PHP_EOL, 0);
-            $flagStarted[$fPath] = true;
-        }
-        file_put_contents($fPath, $output, $flags);
-        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
     }
 
     static public function buffer($callback, ...$params)
