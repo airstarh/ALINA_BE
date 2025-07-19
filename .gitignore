@@ -3,6 +3,7 @@ database/
 server/var/log/
 .idea/
 .vscode/
+nbproject/
 ALINA_BE.code-workspace
 server/srv/php/_backend/alina/vendor/
 server/var/www/zero.home/uploads/
