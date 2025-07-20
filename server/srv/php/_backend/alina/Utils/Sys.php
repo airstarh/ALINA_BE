@@ -7,11 +7,11 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
 use alina\Utils\Data as DataAlias;
-use TypeError;
 
 class Sys
 {
     ##################################################
+
     private static string $fPath;
 
     static protected function fPath(string $fPath = null)
@@ -27,7 +27,6 @@ class Sys
         return static::$fPath;
     }
 
-
     static public function fDebug($data, $flags = FILE_APPEND, $fPath = null, string $transform = null): void
     {
         try {
@@ -39,7 +38,7 @@ class Sys
             switch ($transform) {
                 case 'json':
                     $output = DataAlias::hlpGetBeautifulJsonString($data);
-                    $fPath = $fPath . '.yaml';
+                    $fPath  = $fPath . '.yaml';
                     break;
                 case 'flat':
                     //ToDO:
@@ -74,8 +73,8 @@ class Sys
             }
             file_put_contents($fPath, $output, $flags);
             file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
-
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             error_log($e->getMessage());
             error_log($e->getLine());
             error_log($e->getTraceAsString());
@@ -107,6 +106,7 @@ class Sys
     }
 
     ##################################################
+
     static public function resolvePostDataAsObject()
     {
         $post = $_POST;
@@ -166,6 +166,7 @@ class Sys
     }
 
     ##################################################
+
     static public function setCrossDomainHeaders()
     {
         static $state_ALREADY_SET = false;
@@ -252,8 +253,8 @@ class Sys
         ##########
         $get = (object)[];
         if ($isToOrigin
-            &&
-            isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])
+            && isset($_SERVER['HTTP_REFERER'])
+            && !empty($_SERVER['HTTP_REFERER'])
         ) {
             $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
@@ -284,6 +285,7 @@ class Sys
     }
 
     ##################################################
+
     static public function getMicroTimeDifferenceFromNow($microtime)
     {
         return microtime(true) - $microtime;
@@ -342,6 +344,7 @@ class Sys
     }
 
     ##################################################
+
     static public function template($fileFullPath, $data = null)
     {
         $fileFullPath = realpath($fileFullPath);
@@ -356,6 +359,7 @@ class Sys
     ##################################################
     ##################################################
     ##################################################
+
     static public function getReqMethod()
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
