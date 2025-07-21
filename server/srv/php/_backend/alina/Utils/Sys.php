@@ -331,7 +331,7 @@ class Sys
         // see http://tools.ietf.org/html/rfc6265#section-4.1.1
         foreach ($headers as $header) {
             if (strpos($header, 'Set-Cookie: ') === 0) {
-                $value = str_replace('&', urlencode('&'), substr($header, 12));
+                $value   = str_replace('&', urlencode('&'), substr($header, 12));
                 parse_str(current(explode(';', $value, 1)), $pair);
                 $cookies = array_merge_recursive($cookies, $pair);
             }
@@ -351,7 +351,7 @@ class Sys
         ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
         ob_implicit_flush(false);
         require($fileFullPath);
-        $output = ob_get_clean();
+        $output       = ob_get_clean();
 
         return $output;
     }
