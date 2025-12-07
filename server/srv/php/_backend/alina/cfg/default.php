@@ -66,7 +66,7 @@ return [
 
             // Ckeditor
             //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
-            '/sources/collection/ckeditor/index.css',
+            '/sources/spizili/ck/index.css',
 
             // Alina
             '/sources/collection/alina/index.css',

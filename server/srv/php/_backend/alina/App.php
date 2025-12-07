@@ -2,10 +2,18 @@
 
 namespace alina;
 
-use alina\mvc\Model\CurrentUser;
-use alina\mvc\Model\router_alias;
+use alina\Router;
+use alina\Message;
+use alina\Watcher;
+use alina\Utils\FS;
+use alina\Utils\Arr;
 use alina\Utils\Sys;
 use alina\Utils\Url;
+use alina\MessageAdmin;
+use alina\Utils\Resolver;
+use alina\AppExceptionCatcher;
+use alina\mvc\Model\CurrentUser;
+use alina\mvc\Model\router_alias;
 
 class App
 {
@@ -132,7 +140,7 @@ class App
         $_this = static::get();
         $cfg   = $_this->config;
 
-        return \alina\Utils\Arr::getArrayValue($path, $cfg);
+        return Arr::getArrayValue($path, $cfg);
     }
 
     static public function getConfigDefault($path)
@@ -149,7 +157,7 @@ class App
      * Resolve Method Name in proper Case-Sensitive name.
      * @param object|string $classNameOrObject
      * @param string $methodName
-     * @return bool
+     * @return bool | string
      */
     public function resolveMethodName($classNameOrObject, $methodName)
     {

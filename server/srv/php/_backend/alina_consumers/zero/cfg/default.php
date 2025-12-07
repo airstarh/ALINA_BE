@@ -4,7 +4,7 @@ return [
     'title'         => 'ZERO',
     'description'   => 'OREZ',
     'logVisitsToDb' => true,
-    'db'            => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
+    'db'            => require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.php',
     'mvc'           => [
         'defaultController'      => 'Main',
         'defaultAction'          => 'index',

@@ -1,28 +1,30 @@
 <?php
-
 namespace alina\mvc\Controller;
 
-use alina\Message;
 use alina\mvc\View\html;
-use alina\Utils\Request;
 
 class Root
 {
+
+    /**
+     * Summary of actionIndex
+     * @return void
+     */
     public function actionIndex()
     {
-        require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
+        require_once ALINA_WEB_PATH . '/apps/vue/index.html';
     }
 
     public function actionFrontend()
     {
-        require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
+        require_once ALINA_WEB_PATH . '/apps/vue/index.html';
     }
 
     public function actionIndex2()
     {
-        $vd = (object)[
+        $vd = (object) [
+            '/main/CheckAutoload/qq/aa?Par1=ASD&Par2=HelloWorld' => 'Check Custom Zero Class',
             '/main/CheckAutoload'                                => 'CLEAN Check Custom Zero Class ',
-            '/main/CheckAutoload/qq/aa?Par1=ASD&Par2=привет мир' => 'Check Custom Zero Class ',
             '/AdminTests/Redirect1'                              => 'Redirect',
             '/AdminTests/somedata'                               => 'Some Data',
             '/AdminTests/ConversionToObject'                     => 'Conversion to Object',
@@ -53,28 +55,28 @@ class Root
             '/AdminTests/Serialization'                          => 'Tst Serialization',
             '/AdminTests/JsonEncode'                             => 'Tst Json Encode',
         ];
-        echo (new html)->page($vd);
+        echo(new html)->page($vd);
     }
 
     public function actionIndex3()
     {
         $vd = \alina\Utils\FS::dirToClassActionIndex(ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller');
-        echo (new html)->page($vd);
+        echo(new html)->page($vd);
     }
 
     public function action404()
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo (new html)->page();
+        echo(new html)->page();
         exit;
     }
 
-    public function actionException($vd = NULL)
+    public function actionException($vd = null)
     {
         AlinaResponseSuccess(0);
         http_response_code(500);
-        echo (new html)->page($vd, html::$htmLayoutErrorCatcher);
+        echo(new html)->page($vd, html::$htmLayoutErrorCatcher);
         exit;
     }
 
@@ -82,7 +84,7 @@ class Root
     {
         AlinaResponseSuccess(0);
         http_response_code($code);
-        echo (new html)->page(NULL, html::$htmLayoutErrorCatcher);
+        echo(new html)->page(null, html::$htmLayoutErrorCatcher);
         exit;
     }
 }
