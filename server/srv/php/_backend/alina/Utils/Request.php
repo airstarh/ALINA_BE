@@ -29,9 +29,9 @@ class Request
     {
         //ToDo: Security
         //ToDo: process fields
-        $this->DOMAIN       = (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) ? $_SERVER['HTTP_HOST'] : '';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI']);
-        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING']);
+        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HOST';
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_URI');
+        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI_QUERY_STRING');
         $this->METHOD       = Sys::getReqMethod();
         $this->AJAX         = Sys::isAjax();
         $this->HEADERS      = Data::toObject(getallheaders());

@@ -41,3 +41,5 @@ class AppBoot
         return $alina;
     }
 }
+
+$AppBoot = (new AppBoot())->initiate();

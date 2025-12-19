@@ -173,13 +173,16 @@ class Sys
 //     return TRUE;
 
 // }
-            if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi') {
+            if (
+                isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+                && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi'
+            ) {
                 return true;
             }
 
         }
 
-        if (isset($_SERVER['HTTP_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_REQUESTED_WITH'])) {
+        if (isset($_SERVER['HTTP_REQUESTED_WITH']) && !empty($_SERVER['HTTP_REQUESTED_WITH'])) {
             return true;
         }
 
@@ -250,9 +253,7 @@ class Sys
 #region Fix for Chrome Back button
 
 #####
-        if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
-
-//if (TRUE) {
+        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
                     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -260,7 +261,7 @@ class Sys
                     header("Access-Control-Allow-Credentials: true");
                     header('Access-Control-Max-Age: 666');
 
-#####
+                    #####
                     ##################################################
                     $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
@@ -293,11 +294,12 @@ class Sys
         ##########
         $get = (object) [];
 
-        if ($isToOrigin
+        if (
+            $isToOrigin
             && isset($_SERVER['HTTP_REFERER'])
-            && ! empty($_SERVER['HTTP_REFERER'])
+            && !empty($_SERVER['HTTP_REFERER'])
         ) {
-            $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
+            $url = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
                 trim($url, '/'),
                 ltrim($page, '/'),
@@ -346,7 +348,7 @@ class Sys
             number_format(static::getMicroTimeDifferenceFromNow(ALINA_MICROTIME), 10, '.', ' '),
             "SPENT",
             $_SERVER['SERVER_ADDR'],
-            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI_REQUEST_URI',
         ];
         $res = array_merge($prepend, $main, $append);
 
@@ -359,7 +361,7 @@ class Sys
             number_format(memory_get_usage(), 10, '.', ' '),
             "USED",
             $_SERVER['SERVER_ADDR'],
-            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'UNKNOWN REQUEST_URI',
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI_REQUEST_URI',
         ];
         $res = array_merge($prepend, $main, $append);
 
@@ -415,12 +417,12 @@ class Sys
 
     public static function getReqMethod()
     {
-        return strtoupper($_SERVER['REQUEST_METHOD']);
+        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI_REQUEST_METHOD');
     }
 
     public static function getUserBrowser()
     {
-        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : 'CLI_HTTP_USER_AGENT';
 
         return $browser;
     }
@@ -436,7 +438,7 @@ class Sys
             return $_SERVER['HTTP_CLIENT_IP'];
         }
 
-        return $_SERVER['REMOTE_ADDR'];
+        return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
     }
 
     public static function getUserLanguage()
