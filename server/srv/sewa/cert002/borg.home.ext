@@ -1,0 +1,12 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = borg.home
+DNS.2 = a.borg.home
+DNS.3 = x.borg.home
+DNS.4 = zero.home
+IP.1 = 127.0.0.1
+IP.2 = 192.168.1.110
