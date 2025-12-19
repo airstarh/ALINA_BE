@@ -49,15 +49,17 @@ services:
       - "3306:3306"
     volumes:
       - ./database/mysql:/var/lib/mysql
-  phpmyadmin:
-    restart: unless-stopped
-    env_file: .env
-    image: phpmyadmin/phpmyadmin
-    container_name: alina_pma
-    links:
-      - mysql
-    ports:
-      - "8080:80"
+  
+  # phpmyadmin:
+  #   restart: unless-stopped
+  #   env_file: .env
+  #   image: phpmyadmin/phpmyadmin
+  #   container_name: alina_pma
+  #   links:
+  #     - mysql
+  #   ports:
+  #     - "8080:80"
+
 #  mongo:
 #    restart: unless-stopped
 #    env_file: .env

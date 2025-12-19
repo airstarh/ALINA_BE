@@ -75,7 +75,7 @@ class AdminTests
         CurrentUser::obj();
         Message::setInfo('Just an Info message');
         throw new \ErrorException('Error is thrown in the controller!!!');
-        echo (new html)->page($vd);
+        // echo (new html)->page($vd);
     }
     ##############################################
 
@@ -149,7 +149,7 @@ class AdminTests
     public function actionTestCase()
     {
         $content = func_get_args();
-        echo (new \alina\mvc\View\html)->page($content);
+        echo (new html)->page($content);
     }
 
     ##############################################
