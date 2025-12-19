@@ -25,7 +25,7 @@ class egCookie
         print_r($_COOKIE);
         echo '</pre>';
         echo '<pre>';
-        print_r($_SERVER['HTTP_COOKIE']);
+        print_r($_SERVER['HTTP_COOKIE'] ?? 'CLI_HTTP_COOKIE');
         echo '</pre>';
     }
 }

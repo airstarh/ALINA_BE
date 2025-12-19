@@ -29,8 +29,8 @@ class Request
     {
         //ToDo: Security
         //ToDo: process fields
-        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HOST';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_URI');
+        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI_QUERY_STRING');
         $this->METHOD       = Sys::getReqMethod();
         $this->AJAX         = Sys::isAjax();
@@ -40,10 +40,10 @@ class Request
         $this->IP           = Sys::getUserIp();
         $this->BROWSER      = Sys::getUserBrowser();
         $this->LANGUAGE     = Sys::getUserLanguage();
-        $this->COOKIE       = Data::toObject($_COOKIE);
-        $this->FILES        = Data::toObject($_FILES);
-        $this->SERVER       = Data::toObject($_SERVER);
-        $this->R            = Data::toObject($_REQUEST);
+        $this->COOKIE       = Data::toObject($_COOKIE ?? []);
+        $this->FILES        = Data::toObject($_FILES ?? []);
+        $this->SERVER       = Data::toObject($_SERVER ?? []);
+        $this->R            = Data::toObject($_REQUEST ?? []);
         #####
         $this->processBrowserData();
         /**

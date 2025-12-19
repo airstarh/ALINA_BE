@@ -226,7 +226,7 @@ class FS
     {
         $log  = [];
         $scan = realpath($scan) . DIRECTORY_SEPARATOR . '*';
-        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT'];
+        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT']; //TODO: Adapt for CLI!!
         $pathToRemove = realpath($pathToRemove);
         $list         = glob($scan);
         foreach ($list as $index => $item) {
