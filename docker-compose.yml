@@ -38,8 +38,8 @@ services:
       # /var/www
       - ./server/var/www:/var/www
       # ALINA framework
-      - ./server/srv/php/_backend:/srv/php/_backend
-    working_dir: /srv/php/_backend/alina
+      - ./server/srv:/srv
+    working_dir: /srv/alina
   mysql:
     restart: unless-stopped
     env_file: .env
