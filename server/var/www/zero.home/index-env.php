@@ -4,28 +4,8 @@
 const ALINA_WEB_PATH = __DIR__;
 const ALINA_ENV      = 'zero.home';
 const ALINA_MODE     = 'DEV';
-switch (ALINA_ENV) {
-    case 'zero.home':
-        define("ALINA_BACKEND", '/srv/php/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
-        break;
-    case 'vov':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/vov');
-        break;
-    case 'm45a':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/m45a');
-        break;
-    case 'sss':
-        define("ALINA_BACKEND", '/srv/alina/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/sss');
-        break;
-    case 'osspb':
-        define("ALINA_BACKEND", '/srv/php/_backend');
-        define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/osspb');
-        break;
-}
+define("ALINA_BACKEND", '/srv');
+define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero');
 #endregion HOST SPECIFIC
 ##################################################
 #region AUTOMATIC

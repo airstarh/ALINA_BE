@@ -3,7 +3,7 @@
 #region HOST SPECIFIC
 const ALINA_WEB_PATH    = __DIR__;
 const ALINA_MODE        = 'DEV';
-const ALINA_BACKEND     = '/srv/php/_backend';
+const ALINA_BACKEND     = '/srv';
 const ALINA_PATH_TO_APP = ALINA_BACKEND . '/alina_consumers/m45a';
 #endregion HOST SPECIFIC
 ##################################################
