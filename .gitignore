@@ -5,7 +5,7 @@ server/var/log/
 .vscode/
 nbproject/
 ALINA_BE.code-workspace
-server/srv/php/_backend/alina/vendor/
+**/vendor/
 server/var/www/zero.home/uploads/
 server/var/www/_frontend/uploads/
 server/var/www/_frontend_sss/uploads/
