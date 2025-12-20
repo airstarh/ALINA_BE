@@ -24,7 +24,7 @@ class AppBoot
         define('ALINA_WEB_PATH', realpath($_SERVER['DOCUMENT_ROOT']));
         define('ALINA_MODE', 'DEV');
         #####
-        define("ALINA_BACKEND", '/srv/php/_backend');
+        define("ALINA_BACKEND", '/srv');
         define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina');
         #endregion HOST SPECIFIC
         ##################################################

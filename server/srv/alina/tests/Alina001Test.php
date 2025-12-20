@@ -6,7 +6,7 @@
  * phpunit unitTests/testFunctions.php
  * 
  * vendor/bin/phpunit --version
- * vendor/bin/phpunit ./tests/Alina001Test
+ * vendor/bin/phpunit ./tests/Alina001Test.php
  */
 
 // require_once __DIR__ . '/../app.php';
