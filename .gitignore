@@ -3,6 +3,7 @@ database/
 server/var/log/
 .idea/
 .vscode/
+**/DEBUG.*
 nbproject/
 ALINA_BE.code-workspace
 **/vendor/
@@ -25,4 +26,3 @@ server/var/www/zero.home/apps/vue/
 server/var/www/zero.home/apps/vue3/
 server/var/www/a.borg.home/BorgToolKit/
 _DEV_DOCS/
-server/srv/php/_backend/alina/DEBUG.html
