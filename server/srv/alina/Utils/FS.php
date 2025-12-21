@@ -333,31 +333,31 @@ class FS
         return $log;
     }
 
-    function recursiveCopy($source, $destination, $force = false)
+    static function copySmart($from, $to, $force = false)
     {
         // Validate source path
-        if (!file_exists($source)) {
-            throw new \ErrorException("Source path does not exist: $source");
+        if (!file_exists($from)) {
+            throw new \ErrorException("Source path does not exist: $from");
         }
 
-        if (!is_readable($source)) {
-            throw new \ErrorException("Source path is not readable: $source");
+        if (!is_readable($from)) {
+            throw new \ErrorException("Source path is not readable: $from");
         }
 
         // Create destination directory if it doesn't exist
-        if (!file_exists($destination)) {
-            if (!mkdir($destination, 0755, true)) {
-                throw new \ErrorException("Failed to create destination directory: $destination");
+        if (!file_exists($to)) {
+            if (!mkdir($to, 0755, true)) {
+                throw new \ErrorException("Failed to create destination directory: $to");
             }
         }
 
         // Check if destination is writable
-        if (!is_writable($destination)) {
-            throw new \ErrorException("Destination path is not writable: $destination");
+        if (!is_writable($to)) {
+            throw new \ErrorException("Destination path is not writable: $to");
         }
 
         // Scan source directory
-        $items = scandir($source);
+        $items = scandir($from);
 
         foreach ($items as $item) {
             // Skip current and parent directory references
@@ -365,12 +365,12 @@ class FS
                 continue;
             }
 
-            $sourcePath = $source . DIRECTORY_SEPARATOR . $item;
-            $destPath = $destination . DIRECTORY_SEPARATOR . $item;
+            $sourcePath = $from . DIRECTORY_SEPARATOR . $item;
+            $destPath = $to . DIRECTORY_SEPARATOR . $item;
 
             if (is_dir($sourcePath)) {
                 // Recursively copy directories
-                static::recursiveCopy($sourcePath, $destPath, $force);
+                static::copySmart($sourcePath, $destPath, $force);
             } else {
                 // Handle files - check modification dates
                 if (file_exists($destPath)) {
