@@ -2,13 +2,17 @@
 
 namespace alina;
 
+use function PHPUnit\Framework\returnArgument;
+
 /**
  * This File exists mostly for Unit Test needs.
  *This file DOES NOT participate in Application usage!!!
  */
 class AppBoot
 {
-    static public function initiate()
+    private static $Alina;
+
+    public function __construct()
     {
         ##################################################
         #region COMMON FOR ALL
@@ -36,10 +40,17 @@ class AppBoot
         ##################################################
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'App.php';
         $config = require(ALINA_PATH_TO_APP_CONFIG);
-        $alina  = \alina\app::set($config);
+        static::$Alina = \alina\app::set($config);
+    }
 
-        return $alina;
+    public function app()
+    {
+
+        if (!static::$Alina) {
+            new static();
+        }
+        return static::$Alina;
     }
 }
 
-$AppBoot = (new AppBoot())->initiate();
+(new AppBoot())->app();
