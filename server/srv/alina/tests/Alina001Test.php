@@ -9,9 +9,7 @@
  * vendor/bin/phpunit ./tests/Alina001Test.php
  */
 
-// require_once __DIR__ . '/../app.php';
 require_once __DIR__ . '/../AppBoot.php';
-//require_once  __DIR__.'/../vendor/autoload.php';
 
 use alina\mvc\Model\user;
 use PHPUnit\Framework\TestCase;
