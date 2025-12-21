@@ -13,10 +13,10 @@ class FS
      */
     static public function mkChainedDirIfNotExists($fullPath)
     {
-        $fullPath  = static::normalizePath($fullPath);
+        $fullPath = static::normalizePath($fullPath);
         $pathParts = explode(DIRECTORY_SEPARATOR, $fullPath);
         //Sys::fDebug($pathParts);
-        $chain              = [];
+        $chain = [];
         $state_NIX_ABS_PATH = FALSE;
         foreach ($pathParts as $i => $dir) {
             if ($i === 0 && empty($dir)) {
@@ -25,7 +25,7 @@ class FS
             if (empty($dir)) {
                 continue;
             }
-            $chain[]   = $dir;
+            $chain[] = $dir;
             $chainPath = implode(DIRECTORY_SEPARATOR, $chain);
             if ($state_NIX_ABS_PATH) {
                 $chainPath = DIRECTORY_SEPARATOR . $chainPath;
@@ -64,8 +64,7 @@ class FS
             $curPath = $path . DIRECTORY_SEPARATOR . $file;
             if (is_dir($curPath)) {
                 static::rmDirCompletely($curPath);
-            }
-            else {
+            } else {
                 unlink($curPath);
             }
         }
@@ -79,9 +78,9 @@ class FS
      */
     static public function unifyFileName($dir, $fileName)
     {
-        $dir            = static::normalizePath($dir);
+        $dir = static::normalizePath($dir);
         $uniqueFileName = $fileName;
-        $repeat         = TRUE;
+        $repeat = TRUE;
         do {
             $dirFile = $dir . DIRECTORY_SEPARATOR . $uniqueFileName;
             if (file_exists($dirFile)) {
@@ -91,15 +90,14 @@ class FS
                 $suffix .= '-';
                 $suffix .= str_replace(['.', ','], '', $usec);
                 // Build new file name
-                $fileParts      = pathinfo($fileName);
-                $newFileName    = '';
-                $newFileName    .= $fileParts['filename'];
-                $newFileName    .= '-';
-                $newFileName    .= $suffix;
-                $newFileName    .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
+                $fileParts = pathinfo($fileName);
+                $newFileName = '';
+                $newFileName .= $fileParts['filename'];
+                $newFileName .= '-';
+                $newFileName .= $suffix;
+                $newFileName .= (isset($fileParts['extension'])) ? '.' . $fileParts['extension'] : '';
                 $uniqueFileName = $newFileName;
-            }
-            else {
+            } else {
                 $repeat = FALSE;
             }
         } while ($repeat);
@@ -123,7 +121,7 @@ class FS
         $path = static::normalizePath($path);
         if (!file_exists($path)) {
             $pathInfo = pathinfo($path);
-            $dir      = $pathInfo['dirname'];
+            $dir = $pathInfo['dirname'];
             static::mkChainedDirIfNotExists($dir);
             if (FALSE === file_put_contents($path, NULL)) {
                 throw new \Exception("Unable to create file {$pathInfo}");
@@ -138,13 +136,12 @@ class FS
      */
     static public function buildPathFromBlocks()
     {
-        $args   = func_get_args();
+        $args = func_get_args();
         $blocks = [];
         foreach ($args as $block) {
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
-            }
-            else {
+            } else {
                 $blocks[] = $block;
             }
         }
@@ -154,8 +151,7 @@ class FS
             #####
             if ($i === 0) {
                 $b = rtrim($b, DIRECTORY_SEPARATOR);
-            }
-            else {
+            } else {
                 $b = trim($b, DIRECTORY_SEPARATOR);
             }
             #####
@@ -176,9 +172,9 @@ class FS
         }
         $pathInfo = pathinfo($realPath);
         $fileSize = filesize($realPath);
-        $ext      = $pathInfo['extension'];
+        $ext = $pathInfo['extension'];
         $baseName = $pathInfo['basename'];
-        $mimeObj  = new \Mimey\MimeTypes;
+        $mimeObj = new \Mimey\MimeTypes;
         $mimeType = $mimeObj->getMimeType($ext);
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mimeType);
@@ -224,15 +220,16 @@ class FS
 
     static public function dirToRelativeUrlList($scan, $pathToRemove = NULL)
     {
-        $log  = [];
+        $log = [];
         $scan = realpath($scan) . DIRECTORY_SEPARATOR . '*';
-        if (empty($pathToRemove)) $pathToRemove = $_SERVER['DOCUMENT_ROOT']; //TODO: Adapt for CLI!!
+        if (empty($pathToRemove))
+            $pathToRemove = $_SERVER['DOCUMENT_ROOT']; //TODO: Adapt for CLI!!
         $pathToRemove = realpath($pathToRemove);
-        $list         = glob($scan);
+        $list = glob($scan);
         foreach ($list as $index => $item) {
-            $source      = $item;
-            $link        = $item;
-            $header      = $item;
+            $source = $item;
+            $link = $item;
+            $header = $item;
             $description = '';
             if (is_file($item)) {
                 #####
@@ -243,7 +240,7 @@ class FS
                 $source = $item;
                 $source = str_replace('\\', '/', $source);
                 #####
-                $header      = basename($link);
+                $header = basename($link);
                 $description = '';
                 #####
                 $content = file_get_contents($item);
@@ -254,9 +251,9 @@ class FS
                     $description = $match[1];
                 }
                 $log[$index] = [
-                    'source'      => $source,
-                    'link'        => $link,
-                    'header'      => $header,
+                    'source' => $source,
+                    'link' => $link,
+                    'header' => $header,
                     'description' => $description,
                 ];
             }
@@ -268,21 +265,21 @@ class FS
 
     static public function dirToClassActionIndex($scan)
     {
-        $log  = [];
+        $log = [];
         $scan = str_replace('\\', '/', $scan);
         $scan = $scan . '/' . '*';
         $list = glob($scan);
         foreach ($list as $index => $item) {
             #####
             # Defaults:
-            $source      = $item;
-            $header      = $item;
+            $source = $item;
+            $header = $item;
             $description = '';
-            $ns          = '';
-            $class       = '';
-            $ns_class    = '';
-            $methodList  = [];
-            $url         = [];
+            $ns = '';
+            $class = '';
+            $ns_class = '';
+            $methodList = [];
+            $url = [];
             #####
             if (is_file($item)) {
                 #####
@@ -290,7 +287,7 @@ class FS
                 $source = $item;
                 $source = str_replace('\\', '/', $source);
                 #####
-                $header      = basename($item);
+                $header = basename($item);
                 $description = '';
                 #####
                 $content = file_get_contents($item);
@@ -308,31 +305,94 @@ class FS
                 }
                 #####
                 if ($class) {
-                    $ns_class   = \alina\Utils\Resolver::buildClassNameFromBlocks($ns, $class);
+                    $ns_class = \alina\Utils\Resolver::buildClassNameFromBlocks($ns, $class);
                     $methodList = get_class_methods($ns_class);
                     foreach ($methodList as $i => $m) {
                         if (str_starts_with($m, 'action')) {
-                            $path  = ltrim($m, 'action');
+                            $path = ltrim($m, 'action');
                             $url[] = "/$class/$path";
                         }
                     }
                 }
                 #####
                 $log[$index] = [
-                    'scan'        => $scan,
-                    'source'      => $source,
-                    'header'      => $header,
+                    'scan' => $scan,
+                    'source' => $source,
+                    'header' => $header,
                     'description' => $description,
-                    'ns'          => $ns,
-                    'class'       => $class,
-                    'ns_class'    => $ns_class,
-                    'methodList'  => $methodList,
-                    'url'         => $url,
+                    'ns' => $ns,
+                    'class' => $class,
+                    'ns_class' => $ns_class,
+                    'methodList' => $methodList,
+                    'url' => $url,
                 ];
             }
             #####
         }
 
         return $log;
+    }
+
+    function recursiveCopy($source, $destination, $force = false)
+    {
+        // Validate source path
+        if (!file_exists($source)) {
+            throw new \ErrorException("Source path does not exist: $source");
+        }
+
+        if (!is_readable($source)) {
+            throw new \ErrorException("Source path is not readable: $source");
+        }
+
+        // Create destination directory if it doesn't exist
+        if (!file_exists($destination)) {
+            if (!mkdir($destination, 0755, true)) {
+                throw new \ErrorException("Failed to create destination directory: $destination");
+            }
+        }
+
+        // Check if destination is writable
+        if (!is_writable($destination)) {
+            throw new \ErrorException("Destination path is not writable: $destination");
+        }
+
+        // Scan source directory
+        $items = scandir($source);
+
+        foreach ($items as $item) {
+            // Skip current and parent directory references
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $sourcePath = $source . DIRECTORY_SEPARATOR . $item;
+            $destPath = $destination . DIRECTORY_SEPARATOR . $item;
+
+            if (is_dir($sourcePath)) {
+                // Recursively copy directories
+                static::recursiveCopy($sourcePath, $destPath, $force);
+            } else {
+                // Handle files - check modification dates
+                if (file_exists($destPath)) {
+                    $sourceMtime = filemtime($sourcePath);
+                    $destMtime = filemtime($destPath);
+
+                    // Copy only if source file is older (earlier modification time)
+                    if (
+                        $force
+                        || $sourceMtime > $destMtime
+                    ) {
+                        if (!copy($sourcePath, $destPath)) {
+                            throw new \ErrorException("Failed to copy file: $sourcePath to $destPath");
+                        }
+                    }
+                } else {
+                    // Destination file doesn't exist - copy it
+                    if (!copy($sourcePath, $destPath)) {
+                        throw new \ErrorException("Failed to copy file: $sourcePath to $destPath");
+                    }
+                }
+            }
+        }
     }
 }

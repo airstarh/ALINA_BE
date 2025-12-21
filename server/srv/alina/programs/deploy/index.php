@@ -1,4 +1,7 @@
 <?php
 require_once __DIR__ . '/../../AppBoot.php';
 
-echo 123;
+$projectList = [
+    # 'from' => 'to',
+    '/srv/alina_consumers/zero.home' => '/var/www/zero.home',
+];

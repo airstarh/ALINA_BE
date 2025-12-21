@@ -1,0 +1,17 @@
+{
+  "name": "Миронова 45А",
+  "short_name": "Миронова 45А",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+	  "sizes": "any",
+      "type": "image/svg-xml",
+	  "purpose": "any"
+    }
+  ],
+  "scope": "/",
+  "start_url": "/",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}
