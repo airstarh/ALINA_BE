@@ -1,12 +1,3 @@
-/*##################################################*/
-/*region FONT*/
-@font-face {
-    font-family: "ALINA";
-    src: url("/sources/fonts/XXX.ttf") format('truetype');
-}
-
-/*endregion FONT*/
-/*##################################################*/
 :root {
     --alina-main-bg: #343a40;
     --alina-main-txt: #fff;

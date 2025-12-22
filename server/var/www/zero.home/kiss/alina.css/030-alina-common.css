@@ -1,4 +1,12 @@
 /*##################################################*/
+/*region FONT*/
+@font-face {
+    font-family: "ALINA";
+    src: url("/kiss/alina.font/XXX.ttf") format('truetype');
+}
+
+/*endregion FONT*/
+/*##################################################*/
 /*region SCROLLER*/
 html::-webkit-scrollbar,
 body::-webkit-scrollbar
