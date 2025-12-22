@@ -59,30 +59,31 @@ return [
     'html'                => [
         'css'  => [
             // Jquery; Jquery UI
-            '/sources/collection/bootstrap/jquery-ui.css',
+            '/kiss/their.bootstrap/jquery-ui.css',
 
             //Bootstrap Framework.
-            '/sources/collection/bootstrap/bootstrap.css',
+            '/kiss/their.bootstrap/bootstrap.css',
 
             // Ckeditor
             //@see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html#sharing-content-styles-between-frontend-and-backend
-            '/sources/spizdili/ck/index.css',
+            '/kiss/their.ck/index.css',
 
             // Alina
-            '/sources/collection/alina/index.css',
+            '/kiss/alina.css/index.css',
+            '/kiss/alina.css.specific/index.css',
 
         ],
         'js'   => [
             // Jquery; Jquery UI
-            '/sources/collection/bootstrap/jquery.js',
-            '/sources/collection/bootstrap/jquery-ui.js',
+            '/kiss/their.bootstrap/bootstrap/jquery.js',
+            '/kiss/their.bootstrap/bootstrap/jquery-ui.js',
 
             //Bootstrap JS
-            '/sources/collection/bootstrap/popper.js',
-            '/sources/collection/bootstrap/bootstrap.js',
+            '/kiss/their.bootstrap/popper.js',
+            '/kiss/their.bootstrap/bootstrap.js',
 
             // Alina.
-            '/sources/js/alina-js-collector.php',
+            '/kiss/alina.js/alina-js-collector.php',
         ],
         'meta' => [],
     ],
