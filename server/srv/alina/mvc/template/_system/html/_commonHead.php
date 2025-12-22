@@ -3,8 +3,8 @@ use alina\mvc\View\html;
 
 /** @var html $data */
 
-if (file_exists(ALINA_WEB_PATH . '/sources/searchengiines/000.php')) {
-    include_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
+if (file_exists(ALINA_WEB_PATH . '/kiss/searchengiines/000.php')) {
+    include_once ALINA_WEB_PATH . '/kiss/searchengiines/000.php';
 }
 ?>
 <meta name="mobile-web-app-capable" content="yes">
