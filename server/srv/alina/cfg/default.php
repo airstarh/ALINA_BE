@@ -75,8 +75,8 @@ return [
         ],
         'js'   => [
             // Jquery; Jquery UI
-            '/kiss/their.bootstrap/bootstrap/jquery.js',
-            '/kiss/their.bootstrap/bootstrap/jquery-ui.js',
+            '/kiss/their.bootstrap/jquery.js',
+            '/kiss/their.bootstrap/jquery-ui.js',
 
             //Bootstrap JS
             '/kiss/their.bootstrap/popper.js',
