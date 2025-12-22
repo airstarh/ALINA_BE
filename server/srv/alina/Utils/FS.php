@@ -395,4 +395,64 @@ class FS
             }
         }
     }
+
+    static public function cleanupDirectory(string $path, bool $deleteRoot = false, array $neverDelete = ['uploads']): bool
+    {
+        $path = rtrim($path, '/\\');
+        if (!file_exists($path)) {
+            trigger_error("Path does not exist: $path", E_USER_WARNING);
+            return false;
+        }
+
+        if (!is_dir($path)) {
+            trigger_error("Path is not a directory: $path", E_USER_WARNING);
+            return false;
+        }
+
+        $dir = opendir($path);
+        if (!$dir) {
+            trigger_error("Cannot open directory: $path", E_USER_WARNING);
+            return false;
+        }
+
+        try {
+            while (($item = readdir($dir)) !== false) {
+                if (
+                    $item === '.'
+                    || $item === '..'
+                    || in_array($item, $neverDelete)
+                ) {
+                    continue;
+                }
+
+                $itemPath = $path . DIRECTORY_SEPARATOR . $item;
+
+                if (is_dir($itemPath)) {
+                    if (!static::cleanupDirectory($itemPath, true, $neverDelete)) {
+                        closedir($dir);
+                        return false;
+                    }
+                } else {
+                    if (!unlink($itemPath)) {
+                        trigger_error("Failed to delete file: $itemPath", E_USER_WARNING);
+                        closedir($dir);
+                        return false;
+                    }
+                }
+            }
+
+            closedir($dir);
+
+            if ($deleteRoot) {
+                return rmdir($path);
+            }
+
+            return true;
+
+        } catch (\Throwable $e) {
+            trigger_error("Error during directory cleanup: " . $e->getMessage(), E_USER_WARNING);
+            closedir($dir);
+            return false;
+        }
+    }
 }
