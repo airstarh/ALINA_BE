@@ -1,7 +1,7 @@
 <?php
-/** @var $data html */
-
 use alina\mvc\View\html;
+
+/** @var html $data */
 
 if (file_exists(ALINA_WEB_PATH . '/sources/searchengiines/000.php')) {
     include_once ALINA_WEB_PATH . '/sources/searchengiines/000.php';
