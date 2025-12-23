@@ -2,7 +2,6 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
-const ALINA_ENV      = 'zero.home';
 const ALINA_MODE     = 'DEV';
 define("ALINA_BACKEND", '/srv');
 define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/zero.home');
