@@ -1,2 +1,2 @@
 404
-Sorry...
+Sorry. Document does not exist.
