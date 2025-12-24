@@ -12,6 +12,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./server/etc/nginx/fastcgi.conf:/etc/nginx/fastcgi.conf
       - ./server/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./server/etc/nginx/conf.d:/etc/nginx/conf.d
       - ./server/var/log/nginx:/var/log/nginx

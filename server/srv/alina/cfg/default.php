@@ -1,7 +1,7 @@
 <?php
 return [
     'appNamespace'        => 'alina',
-    'title'               => 'Alina: another PHP framework. Powered by OrcTechService.',
+    'title'               => 'Alina: another PHP framework. Powered by BorgTechService.',
     'fileUploadDir'       => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
     'logVisitsToDb'       => true,
     'db'                  => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
