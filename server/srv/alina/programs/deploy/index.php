@@ -32,6 +32,12 @@ $projectList = [
         '/srv/alina_consumers/zero.home/.WwwDiff',
         '/srv/alina_consumers/m45a/.WwwDiff',
     ],
+
+    // stage
+    '/var/www/stage' => [
+        '/srv/alina_consumers/zero.home/.WwwDiff',
+        '/srv/alina_consumers/stage/.WwwDiff',
+    ],
 ];
 
 foreach ($projectList as $to => $wwwDiff) {
