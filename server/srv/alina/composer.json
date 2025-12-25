@@ -1,4 +1,9 @@
 {
+    "scripts": {
+        "deploy": [
+            "php ./programs/deploy/index.php"
+        ]
+    },
     "require": {
         "illuminate/database": "^8",
         "illuminate/events": "^8",
