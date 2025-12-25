@@ -7,6 +7,7 @@ server/var/log/
 nbproject/
 ALINA_BE.code-workspace
 **/vendor/
+**/apps/vue/
 server/var/www/zero.home/uploads/
 server/var/www/_frontend/uploads/
 server/var/www/_frontend_sss/uploads/
