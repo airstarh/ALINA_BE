@@ -38,18 +38,18 @@ class Sys
             switch ($transform) {
                 case 'json':
                     $output = DataAlias::hlpGetBeautifulJsonString($data);
-                    $fPath  = $fPath . '.yaml';
+                    $fPath = $fPath . '.yaml';
                     break;
                 case 'flat':
 
-//ToDO:
+                    //ToDO:
                     //$output = static::dataToFlat($data);
                     break;
                 case 'html':
                 default:
                     $output = $data;
 
-##################################################
+                    ##################################################
                     #region TEMPLATE
                     ob_start();
                     ob_implicit_flush(false);
@@ -64,7 +64,7 @@ class Sys
                     echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
                     echo PHP_EOL;
 
-#endregion TEMPLATE
+                    #endregion TEMPLATE
                     ##################################################
                     $output = ob_get_clean();
                     break;
@@ -135,18 +135,18 @@ class Sys
     public static function isAjax()
     {
 
-        if (isset($_GET['isAjax']) && ! empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
+        if (isset($_GET['isAjax']) && !empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
             return true;
         }
 
-        if (isset($_POST['isAjax']) && ! empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
+        if (isset($_POST['isAjax']) && !empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
             return true;
         }
 
-// Cross Domain AJAX request.
-        if (isset($_SERVER['HTTP_HOST']) && ! empty($_SERVER['HTTP_HOST'])) {
+        // Cross Domain AJAX request.
+        if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
             $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
-            if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
                 $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
                 if ($o !== $h) {
                     return true;
@@ -154,25 +154,25 @@ class Sys
 
             }
 
-// if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 
-//     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
+            //     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
 
-//     if ($r !== $h) {
+            //     if ($r !== $h) {
 
-//         return TRUE;
+            //         return TRUE;
 
-//     }
+            //     }
             // }
         }
 
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
 
-// if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
+            // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
 
-//     return TRUE;
+            //     return TRUE;
 
-// }
+            // }
             if (
                 isset($_SERVER['HTTP_X_REQUESTED_WITH'])
                 && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi'
@@ -199,60 +199,60 @@ class Sys
             return true;
         }
 
-//@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+        //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
 
-//ToDo: PROD! Security!
+        //ToDo: PROD! Security!
         #####
         $allowedHeaders = [
-            'Accept-Encoding'                => '',
-            'Accept-Language'                => '',
+            'Accept-Encoding' => '',
+            'Accept-Language' => '',
             'Access-Control-Request-Headers' => '',
-            'Access-Control-Request-Method'  => '',
-            'Connection'                     => '',
-            'Host'                           => '',
-            'Origin'                         => '',
-            'Referer'                        => '',
-            'User-Agent'                     => '',
-            'Cache-Control'                  => '',
-            'Access-Control-Allow-Origin'    => '',
+            'Access-Control-Request-Method' => '',
+            'Connection' => '',
+            'Host' => '',
+            'Origin' => '',
+            'Referer' => '',
+            'User-Agent' => '',
+            'Cache-Control' => '',
+            'Access-Control-Allow-Origin' => '',
             #####
-            'Accept'                         => '',
-            'X-Requested-With'               => '',
-            'Content-Type'                   => '',
-            'Vary'                           => '',
+            'Accept' => '',
+            'X-Requested-With' => '',
+            'Content-Type' => '',
+            'Vary' => '',
             #####
-            'fgp'                            => '',
-            'Alina-Server-Header'            => '',
-            CurrentUser::KEY_USER_ID         => '',
-            CurrentUser::KEY_USER_TOKEN      => '',
+            'fgp' => '',
+            'Alina-Server-Header' => '',
+            CurrentUser::KEY_USER_ID => '',
+            CurrentUser::KEY_USER_TOKEN => '',
         ];
         $allowedHeaders = array_keys($allowedHeaders);
         $allowedHeaders = implode(', ', $allowedHeaders);
         header("Access-Control-Allow-Headers: {$allowedHeaders}");
         header("Access-Control-Expose-Headers: {$allowedHeaders}");
 
-#####
+        #####
         #region Custom headers for tests
         header('Alina-Server-Header: Hello, from Alina');
 
-#endregion Custom headers for tests
+        #endregion Custom headers for tests
 
-#####
+        #####
 
-#region Fix for Chrome Back button
+        #region Fix for Chrome Back button
         //header('Vary: X-Requested-With');
         header('Vary:Content-Type');
 
-//header('Vary: Accept, X-Requested-With');
+        //header('Vary: Accept, X-Requested-With');
         //header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
         header('Cache-Control: private, max-age=0, s-max-age=0, no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
 
-//header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+        //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
-#region Fix for Chrome Back button
+        #region Fix for Chrome Back button
 
-#####
+        #####
         if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
@@ -284,7 +284,8 @@ class Sys
     public static function redirect($page, $code = 307, $isToOrigin = false)
     {
 
-        if (\alina\Utils\Str::startsWith($page, 'http://')
+        if (
+            \alina\Utils\Str::startsWith($page, 'http://')
             || \alina\Utils\Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
@@ -313,7 +314,7 @@ class Sys
 
         if (count($messages) > 0) {
             $get->{Message::$MESSAGE_GET_KEY}
-            = json_encode($messages, JSON_UNESCAPED_UNICODE);
+                = json_encode($messages, JSON_UNESCAPED_UNICODE);
         }
 
         if (AlinaAccessIfAdmin()) {
@@ -321,13 +322,13 @@ class Sys
 
             if (count($messages_admin) > 0) {
                 $get->{MessageAdmin::$MESSAGE_GET_KEY}
-                = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
+                    = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
             }
 
         }
 
-#####
-        if (! empty($get)) {
+        #####
+        if (!empty($get)) {
             $page = \alina\Utils\Url::addGetFromObject($page, $get);
         }
 
@@ -368,7 +369,7 @@ class Sys
         return implode(' | ', $res);
     }
 
-##################################################
+    ##################################################
 
     /**
      * !!! Requires rework!!!
@@ -380,7 +381,7 @@ class Sys
         $cookies = [];
         $headers = headers_list();
 
-// see http://tools.ietf.org/html/rfc6265#section-4.1.1
+        // see http://tools.ietf.org/html/rfc6265#section-4.1.1
         foreach ($headers as $header) {
             if (strpos($header, 'Set-Cookie: ') === 0) {
                 $value = str_replace('&', urlencode('&'), substr($header, 12));
@@ -410,9 +411,9 @@ class Sys
         return $output;
     }
 
-##################################################
+    ##################################################
 
-##################################################
+    ##################################################
     ##################################################
 
     public static function getReqMethod()
@@ -430,11 +431,11 @@ class Sys
     public static function getUserIp()
     {
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && ! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
-        if (isset($_SERVER['HTTP_CLIENT_IP']) && ! empty($_SERVER['HTTP_CLIENT_IP'])) {
+        if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
         }
 
@@ -452,7 +453,7 @@ class Sys
         return $lang;
     }
 
-##################################################
+    ##################################################
 
     /**
      * @return array
@@ -461,19 +462,19 @@ class Sys
     {
         return [
             'REQUEST' => Request::obj()->TOTAL_DEBUG_DATA(),
-            'ROUTER'  => Alina()->router,
-            'META'    => GlobalRequestStorage::getAll(),
+            'ROUTER' => Alina()->router,
+            'META' => GlobalRequestStorage::getAll(),
         ];
     }
 
-##################################################
+    ##################################################
 
-##################################################
+    ##################################################
 
-##################################################
+    ##################################################
 
-##################################################
+    ##################################################
 
-##################################################
+    ##################################################
     ##################################################
 }
