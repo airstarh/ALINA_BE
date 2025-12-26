@@ -10,6 +10,31 @@ use alina\Utils\Data as DataAlias;
 class Sys
 {
     ##################################################
+    private static array $flagStarted = [];
+    private static array $counterCalls = [];
+    public static int $countSome1 = 0;
+    public static int $countSome2 = 0;
+    public static int $countSome3 = 0;
+
+    static protected function initLogFilePath(?string $fPath = null, $transform = null)
+    {
+        $fPath = $fPath ?? ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
+
+        switch ($transform) {
+            case 'php':
+                $fPath = $fPath . '.php';
+                break;
+
+            case 'json':
+                $fPath = $fPath . '.yaml';
+                break;
+            default:
+                break;
+        }
+
+        return $fPath;
+    }
+    ##################################################
 
     private static string $fPath;
 
@@ -27,62 +52,158 @@ class Sys
         return static::$fPath;
     }
 
-    public static function fDebug($data, $flags = FILE_APPEND, $fPath = null, ?string $transform = null): void
+    static public function fDebug($data, $isLog = false, $fPath = null, ?string $transform = null): void
     {
-        try {
+        $fPath = static::initLogFilePath($fPath, $transform);
+        $prefix = [];
 
-            static $flagStarted = [];
+        ###############################
+        # region FLAGS, COUNTERs, etc.
+        static::$flagStarted[$fPath] = static::$flagStarted[$fPath] ?? false;
+        static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath])
+            ? ++static::$counterCalls[$fPath]
+            : 1;
+        # endregion FLAGS, COUNTERs, etc.
+        ###############################
+        # region CLARIFY TEMPLATE
 
-            $fPath = static::fPath($fPath);
+        switch ($transform) {
+            case 'php':
+                $output = $data;
 
-            switch ($transform) {
-                case 'json':
-                    $output = DataAlias::hlpGetBeautifulJsonString($data);
-                    $fPath = $fPath . '.yaml';
-                    break;
-                case 'flat':
+                ##################################################
+                #region TEMPLATE
 
-                    //ToDO:
-                    //$output = static::dataToFlat($data);
-                    break;
-                case 'html':
-                default:
-                    $output = $data;
+                ob_start();
+                ob_implicit_flush(FALSE);
+                echo PHP_EOL;
+                echo '<?php';
+                echo PHP_EOL;
+                echo sprintf('$XXX_%s = ', static::$counterCalls[$fPath]);
+                echo PHP_EOL;
 
-                    ##################################################
-                    #region TEMPLATE
-                    ob_start();
-                    ob_implicit_flush(false);
-                    echo PHP_EOL;
-                    echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
-                    echo PHP_EOL;
-                    echo '<pre>';
-                    echo PHP_EOL;
-                    echo var_export($output, 1);
-                    echo '</pre>';
-                    echo PHP_EOL;
-                    echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
-                    echo PHP_EOL;
+                static::dump($output);
 
-                    #endregion TEMPLATE
-                    ##################################################
-                    $output = ob_get_clean();
-                    break;
-            }
+                echo PHP_EOL;
+                echo ';';
+                echo PHP_EOL;
+                echo '?>';
+                echo PHP_EOL;
 
-            if (empty($flagStarted[$fPath])) {
-                file_put_contents($fPath, PHP_EOL, 0);
-                $flagStarted[$fPath] = true;
-            }
+                #endregion TEMPLATE
+                ##################################################
 
-            file_put_contents($fPath, $output, $flags);
-            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            error_log($e->getLine());
-            error_log($e->getTraceAsString());
+                $output = ob_get_clean();
+
+                break;
+
+            case 'json':
+                $output = Data::hlpGetBeautifulJsonString($data);
+                break;
+            case 'flat':
+                //ToDO:
+                //$output = static::dataToFlat($data);
+                break;
+            default:
+                $output = $data;
+                ##################################################
+                #region TEMPLATE
+                ob_start();
+                ob_implicit_flush(FALSE);
+                echo PHP_EOL;
+                echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
+                echo PHP_EOL;
+                echo '<pre>';
+                echo PHP_EOL;
+                static::dump($output);
+                echo PHP_EOL;
+                echo '</pre>';
+                echo PHP_EOL;
+                echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
+                echo PHP_EOL;
+                #endregion TEMPLATE
+                ##################################################
+
+                $output = ob_get_clean();
+
+                break;
         }
 
+        # endregion CLARIFY TEMPLATE
+        ###############################
+        # region PREFIX
+
+        if (static::$flagStarted[$fPath] === false) {
+            static::$flagStarted[$fPath] = true;
+
+            // WIPE LOG FILE
+            if ($isLog === false) {
+                file_put_contents($fPath, PHP_EOL, 0);
+            }
+
+            if ($isLog) {
+
+                $method = static::getReqMethod();
+                $ip = static::getUserIp();
+                $from = $_SERVER['HTTP_REFERER'] ?? $ip;
+                $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
+
+                $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? getcwd();
+                $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? '~URI';
+
+                $prefix = [
+                    'LOG STARTED ##########################################################################################',
+                    $method,
+                    "FROM: $from",
+                    "AGENT: $agent",
+                    ' ',
+                    'SERVER_NAME:' . $SERVER_NAME,
+                    'REQUEST_URI:' . $REQUEST_URI,
+                    ' ',
+                    '$_GET:',
+                    json_encode($_GET),
+                    ' ',
+                    '$_POST:',
+                    json_encode($_POST),
+                ];
+            }
+        }
+
+        if ($isLog) {
+
+            $date = static::getNow();
+            $memory = static::getMemoryUsed() . ' bytes';
+
+            $prefix = array_merge($prefix, [
+                "MEM: $memory",
+                "AT $date",
+            ]);
+
+            $prefix = implode(PHP_EOL . '#> ', $prefix);
+
+            file_put_contents($fPath, PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, $prefix, FILE_APPEND);
+        }
+        # endregion PREFIX
+        ###############################
+        # region LOG
+
+        file_put_contents($fPath, $output, FILE_APPEND);
+        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+        # endregion LOG
+        ###############################
+        # region BactTrace
+        $trace = static::getCallStack();
+        $trace = var_export($trace, 1);
+
+        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+        file_put_contents($fPath, $trace, FILE_APPEND);
+        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+        # endregion BactTrace
+        ###############################
     }
 
     public static function buffer($callback, ...$params)
@@ -334,6 +455,7 @@ class Sys
 
         #####
         header("Location: $page", true, $code);
+        die();
     }
 
     ##################################################
@@ -469,6 +591,61 @@ class Sys
 
     ##################################################
 
+    static public function dump($data, $depth = 5)
+    {
+        try {
+            var_export($data, 0);
+        } catch (\Throwable $e) {
+            static::print_limited_r($data, $depth);
+        }
+    }
+
+    static public function getNow()
+    {
+        return date('Y-m-d H:i:s');
+    }
+
+    static public function getMemoryUsed()
+    {
+        return number_format(memory_get_usage(), 0, '.', ' ');
+    }
+
+    static public function getCallStack(?array $backtrace = null): array
+    {
+        if ($backtrace === null) {
+            $backtrace = debug_backtrace();
+        }
+
+        $stack = [];
+        foreach ($backtrace as $trace) {
+            $functionName = '';
+            $functionName .= $trace['class'] ?? '';
+            $functionName .= $trace['type'] ?? '';
+            $functionName .= $trace['function'] ?? '';
+
+            $stack[] = $functionName;
+        }
+        // $stack['$_GET'] = $_GET;
+        // $stack['$_POST'] = $_POST;
+        return $stack;
+    }
+
+    static public function print_limited_r($object, $depth = 5)
+    {
+        if ($depth == 0) {
+            return ''; // Stop the recursion
+        }
+
+        $output = print_r($object, true);
+
+        if (is_array($object) || is_object($object)) {
+            foreach ($object as $key => $value) {
+                $output .= static::print_limited_r($value, $depth - 1) . PHP_EOL . '<===>' . PHP_EOL;
+            }
+        }
+
+        return $output;
+    }
     ##################################################
 
     ##################################################

@@ -29,21 +29,21 @@ class Request
     {
         //ToDo: Security
         //ToDo: process fields
-        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
+        $this->DOMAIN = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
+        $this->URL_PATH = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI_QUERY_STRING');
-        $this->METHOD       = Sys::getReqMethod();
-        $this->AJAX         = Sys::isAjax();
-        $this->HEADERS      = Data::toObject(getallheaders());
-        $this->GET          = Sys::resolveGetDataAsObject();
-        $this->POST         = Sys::resolvePostDataAsObject();
-        $this->IP           = Sys::getUserIp();
-        $this->BROWSER      = Sys::getUserBrowser();
-        $this->LANGUAGE     = Sys::getUserLanguage();
-        $this->COOKIE       = Data::toObject($_COOKIE ?? []);
-        $this->FILES        = Data::toObject($_FILES ?? []);
-        $this->SERVER       = Data::toObject($_SERVER ?? []);
-        $this->R            = Data::toObject($_REQUEST ?? []);
+        $this->METHOD = Sys::getReqMethod();
+        $this->AJAX = Sys::isAjax();
+        $this->HEADERS = Data::toObject(getallheaders());
+        $this->GET = Sys::resolveGetDataAsObject();
+        $this->POST = Sys::resolvePostDataAsObject();
+        $this->IP = Sys::getUserIp();
+        $this->BROWSER = Sys::getUserBrowser();
+        $this->LANGUAGE = Sys::getUserLanguage();
+        $this->COOKIE = Data::toObject($_COOKIE ?? []);
+        $this->FILES = Data::toObject($_FILES ?? []);
+        $this->SERVER = Data::toObject($_SERVER ?? []);
+        $this->R = Data::toObject($_REQUEST ?? []);
         #####
         $this->processBrowserData();
         /**
@@ -61,20 +61,20 @@ class Request
     public function TOTAL_DEBUG_DATA()
     {
         $res = [
-            'DOMAIN'       => $this->DOMAIN,
-            'URL_PATH'     => $this->URL_PATH,
+            'DOMAIN' => $this->DOMAIN,
+            'URL_PATH' => $this->URL_PATH,
             'QUERY_STRING' => $this->QUERY_STRING,
-            'METHOD'       => $this->METHOD,
-            'AJAX'         => $this->AJAX,
-            'IP'           => $this->IP,
-            'BROWSER'      => $this->BROWSER,
-            'LANGUAGE'     => $this->LANGUAGE,
-            'HEADERS'      => $this->HEADERS,
-            'COOKIE'       => $this->COOKIE,
-            'GET'          => $this->GET,
-            'POST'         => $this->POST,
-            'FILES'        => $this->FILES,
-            'SERVER'       => $this->SERVER,
+            'METHOD' => $this->METHOD,
+            'AJAX' => $this->AJAX,
+            'IP' => $this->IP,
+            'BROWSER' => $this->BROWSER,
+            'LANGUAGE' => $this->LANGUAGE,
+            'HEADERS' => $this->HEADERS,
+            'COOKIE' => $this->COOKIE,
+            'GET' => $this->GET,
+            'POST' => $this->POST,
+            'FILES' => $this->FILES,
+            'SERVER' => $this->SERVER,
         ];
 
         return $res;
@@ -133,11 +133,14 @@ class Request
     static public function isPostPutDelete(&$post = null)
     {
         $is = static::isPost($post);
-        if ($is) return $is;
+        if ($is)
+            return $is;
         $is = static::isPut($post);
-        if ($is) return $is;
+        if ($is)
+            return $is;
         $is = static::isDelete($post);
-        if ($is) return $is;
+        if ($is)
+            return $is;
 
         return false;
     }
@@ -151,14 +154,14 @@ class Request
     static public function lieThatPost($data = [])
     {
         if ($data) {
-            $_POST              = (array)$data;
-            static::obj()->POST = (object)$data;
+            $_POST = (array) $data;
+            static::obj()->POST = (object) $data;
         } else {
-            $_POST              = [];
-            static::obj()->POST = (object)[];
+            $_POST = [];
+            static::obj()->POST = (object) [];
         }
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        static::obj()->METHOD      = 'POST';
+        static::obj()->METHOD = 'POST';
 
         return static::obj()->POST;
     }
@@ -171,6 +174,11 @@ class Request
         }
 
         return $is;
+    }
+
+    public function server(string $key): string
+    {
+        return $this->SERVER->{$key} ?? "CLI_{$key}";
     }
     #endregion Facade
     ##################################################

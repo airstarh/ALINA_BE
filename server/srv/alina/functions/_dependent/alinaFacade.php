@@ -248,8 +248,7 @@ function ___($str, $loc = 'ru_RU')
 #region DEBUG
 function AlinaDebug($data)
 {
-    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'html');
-    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+    Sys::fDebug($data, true, null, 'php');
 }
 
 function AlinaDebugJson($data)

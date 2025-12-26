@@ -2,8 +2,6 @@
 
 namespace alina;
 
-use function PHPUnit\Framework\returnArgument;
-
 /**
  * This File exists mostly for Unit Test needs.
  *This file DOES NOT participate in Application usage!!!
