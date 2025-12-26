@@ -27,7 +27,10 @@ class Html
     static public function ref($url)
     {
         //ToDO: Doubtful: http is enough... Unless a web-site is like httpdocs.com...
-        if (\alina\Utils\Str::startsWith($url, 'http://') || \alina\Utils\Str::startsWith($url, 'https://')) {
+        if (
+            \alina\Utils\Str::startsWith($url, 'http://')
+            || \alina\Utils\Str::startsWith($url, 'https://')
+        ) {
             return $url;
         }
         $url = ltrim($url, '/');
@@ -37,10 +40,10 @@ class Html
 
     static public function l($ref, $text = '', $configuration = [])
     {
-        $href     = '';
-        $get      = '';
+        $href = '';
+        $get = '';
         $getArray = [];
-        $hash     = '';
+        $hash = '';
         if (isset($configuration['get']) && !empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
@@ -52,7 +55,7 @@ class Html
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-        $href                  .= static::ref($ref) . $get . $hash;
+        $href .= static::ref($ref) . $get . $hash;
         $configuration['href'] = $href;
 
         return static::tag('a', $text, $configuration);
@@ -79,28 +82,29 @@ class Html
     #region DEPENDENT
     static public function aRef($url)
     {
-        if (\alina\Utils\Str::startsWith($url, 'http://')
+        if (
+            \alina\Utils\Str::startsWith($url, 'http://')
             ||
             \alina\Utils\Str::startsWith($url, 'https://')
         ) {
             return $url;
         }
         $vocAliasToUrl = AlinaCfg(['vocAliasUrl']);
-        $bdVoc         = (new router_alias())->getAsVoc();
+        $bdVoc = (new router_alias())->getAsVoc();
         $vocAliasToUrl = array_merge($vocAliasToUrl, $bdVoc);
-        $url           = \alina\Utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
-        $url           = ltrim($url, '/');
-        $url           = ltrim($url, '\\');
+        $url = \alina\Utils\Url::routeAccordance($url, $vocAliasToUrl, FALSE);
+        $url = ltrim($url, '/');
+        $url = ltrim($url, '\\');
 
         return "//{$_SERVER['HTTP_HOST']}/{$url}";
     }
 
     static public function aL($ref, $text = '', $configuration = [])
     {
-        $href     = '';
-        $get      = '';
+        $href = '';
+        $get = '';
         $getArray = [];
-        $hash     = '';
+        $hash = '';
         if (isset($configuration['get']) && !empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
@@ -112,7 +116,7 @@ class Html
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
-        $href                  .= static::aRef($ref) . $get . $hash;
+        $href .= static::aRef($ref) . $get . $hash;
         $configuration['href'] = $href;
 
         return \alina\Utils\Html::tag('a', $text, $configuration);
