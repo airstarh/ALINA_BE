@@ -40,10 +40,10 @@ class Data
 
     /**
      * @param $v
-     * @return mixed
+     * @return object
      * @throws Exception
      */
-    static public function toObject($v)
+    static public function toObject($v): object
     {
         if (!isset($v) || empty($v)) {
             return new \stdClass();
@@ -73,10 +73,7 @@ class Data
             $ohjJsonDecoded = json_decode((string)$string, false, 512);
             return (json_last_error() === JSON_ERROR_NONE);
         } // Executed only in PHP 7, will not match in PHP 5
-        catch (\Throwable  $exception) {
-            return false;
-        } // Executed only in PHP 5, will not be reached in PHP 7
-        catch (\Exception $exception) {
+        catch (\Throwable  $e) {
             return false;
         }
     }

@@ -204,7 +204,7 @@ class AdminDbManager
         $vd->sources = $m->getReferencesSources();
         ##################################################
         #region POST
-        $p = Sys::resolvePostDataAsObject();
+        $p = Request::obj()->POST;
         if (!empty((array)$p)) {
 
             ##############################

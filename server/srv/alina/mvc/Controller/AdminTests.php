@@ -36,6 +36,11 @@ class AdminTests
             "___('ADMIN')"   => ___('ADMIN'),
             "___('admin')"   => ___('admin'),
         ];
+
+        // $x = 10 / 0;
+        AlinaDebug($vd);
+        AlinaDebug(static::class);
+
         echo (new html)->page($vd);
     }
 

@@ -1,7 +1,7 @@
 <?php
-/** @var $data html */
-
 use alina\mvc\View\html;
+
+/** @var html $data  */
 
 ?>
 <!DOCTYPE html>

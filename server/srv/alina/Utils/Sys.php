@@ -52,158 +52,165 @@ class Sys
         return static::$fPath;
     }
 
-    static public function fDebug($data, $isLog = false, $fPath = null, ?string $transform = null): void
+    static public function fDebug($data, $isLog = false, $fPath = null, ?string $transform = null): bool
     {
-        $fPath = static::initLogFilePath($fPath, $transform);
-        $prefix = [];
+        try {
+            $fPath = static::initLogFilePath($fPath, $transform);
+            $prefix = [];
 
-        ###############################
-        # region FLAGS, COUNTERs, etc.
-        static::$flagStarted[$fPath] = static::$flagStarted[$fPath] ?? false;
-        static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath])
-            ? ++static::$counterCalls[$fPath]
-            : 1;
-        # endregion FLAGS, COUNTERs, etc.
-        ###############################
-        # region CLARIFY TEMPLATE
+            ###############################
+            # region FLAGS, COUNTERs, etc.
+            static::$flagStarted[$fPath] = static::$flagStarted[$fPath] ?? false;
+            static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath])
+                ? ++static::$counterCalls[$fPath]
+                : 1;
+            # endregion FLAGS, COUNTERs, etc.
+            ###############################
+            # region CLARIFY TEMPLATE
 
-        switch ($transform) {
-            case 'php':
-                $output = $data;
+            switch ($transform) {
+                case 'php':
+                    $output = $data;
 
-                ##################################################
-                #region TEMPLATE
+                    ##################################################
+                    #region TEMPLATE
 
-                ob_start();
-                ob_implicit_flush(FALSE);
-                echo PHP_EOL;
-                echo '<?php';
-                echo PHP_EOL;
-                echo sprintf('$XXX_%s = ', static::$counterCalls[$fPath]);
-                echo PHP_EOL;
+                    ob_start();
+                    ob_implicit_flush(FALSE);
+                    echo PHP_EOL;
+                    echo '<?php';
+                    echo PHP_EOL;
+                    echo sprintf('$XXX_%s = ', static::$counterCalls[$fPath]);
+                    echo PHP_EOL;
 
-                static::dump($output);
+                    static::dump($output);
 
-                echo PHP_EOL;
-                echo ';';
-                echo PHP_EOL;
-                echo '?>';
-                echo PHP_EOL;
+                    echo PHP_EOL;
+                    echo ';';
+                    echo PHP_EOL;
+                    echo '?>';
+                    echo PHP_EOL;
 
-                #endregion TEMPLATE
-                ##################################################
+                    #endregion TEMPLATE
+                    ##################################################
 
-                $output = ob_get_clean();
+                    $output = ob_get_clean();
 
-                break;
+                    break;
 
-            case 'json':
-                $output = Data::hlpGetBeautifulJsonString($data);
-                break;
-            case 'flat':
-                //ToDO:
-                //$output = static::dataToFlat($data);
-                break;
-            default:
-                $output = $data;
-                ##################################################
-                #region TEMPLATE
-                ob_start();
-                ob_implicit_flush(FALSE);
-                echo PHP_EOL;
-                echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
-                echo PHP_EOL;
-                echo '<pre>';
-                echo PHP_EOL;
-                static::dump($output);
-                echo PHP_EOL;
-                echo '</pre>';
-                echo PHP_EOL;
-                echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
-                echo PHP_EOL;
-                #endregion TEMPLATE
-                ##################################################
+                case 'json':
+                    $output = Data::hlpGetBeautifulJsonString($data);
+                    break;
+                case 'flat':
+                    //ToDO:
+                    //$output = static::dataToFlat($data);
+                    break;
+                default:
+                    $output = $data;
+                    ##################################################
+                    #region TEMPLATE
+                    ob_start();
+                    ob_implicit_flush(FALSE);
+                    echo PHP_EOL;
+                    echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
+                    echo PHP_EOL;
+                    echo '<pre>';
+                    echo PHP_EOL;
+                    static::dump($output);
+                    echo PHP_EOL;
+                    echo '</pre>';
+                    echo PHP_EOL;
+                    echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
+                    echo PHP_EOL;
+                    #endregion TEMPLATE
+                    ##################################################
 
-                $output = ob_get_clean();
+                    $output = ob_get_clean();
 
-                break;
-        }
+                    break;
+            }
 
-        # endregion CLARIFY TEMPLATE
-        ###############################
-        # region PREFIX
+            # endregion CLARIFY TEMPLATE
+            ###############################
+            # region PREFIX
 
-        if (static::$flagStarted[$fPath] === false) {
-            static::$flagStarted[$fPath] = true;
+            if (static::$flagStarted[$fPath] === false) {
+                static::$flagStarted[$fPath] = true;
 
-            // WIPE LOG FILE
-            if ($isLog === false) {
-                file_put_contents($fPath, PHP_EOL, 0);
+                // WIPE LOG FILE
+                if ($isLog === false) {
+                    file_put_contents($fPath, PHP_EOL, 0);
+                }
+
+                if ($isLog) {
+
+                    $method = static::getReqMethod();
+                    $ip = static::getUserIp();
+                    $from = $_SERVER['HTTP_REFERER'] ?? $ip;
+                    $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
+
+                    $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? getcwd();
+                    $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI';
+
+                    $prefix = [
+                        'LOG STARTED ##########################################################################################',
+                        $method,
+                        "FROM: $from",
+                        "AGENT: $agent",
+                        ' ',
+                        'SERVER_NAME:' . $SERVER_NAME,
+                        'REQUEST_URI:' . $REQUEST_URI,
+                        ' ',
+                        '$_GET:',
+                        json_encode($_GET),
+                        ' ',
+                        '$_POST:',
+                        json_encode($_POST),
+                    ];
+                }
             }
 
             if ($isLog) {
 
-                $method = static::getReqMethod();
-                $ip = static::getUserIp();
-                $from = $_SERVER['HTTP_REFERER'] ?? $ip;
-                $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
+                $date = static::getNow();
+                $memory = static::getMemoryUsed() . ' bytes';
 
-                $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? getcwd();
-                $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? '~URI';
+                $prefix = array_merge($prefix, [
+                    "MEM: $memory",
+                    "AT $date",
+                ]);
 
-                $prefix = [
-                    'LOG STARTED ##########################################################################################',
-                    $method,
-                    "FROM: $from",
-                    "AGENT: $agent",
-                    ' ',
-                    'SERVER_NAME:' . $SERVER_NAME,
-                    'REQUEST_URI:' . $REQUEST_URI,
-                    ' ',
-                    '$_GET:',
-                    json_encode($_GET),
-                    ' ',
-                    '$_POST:',
-                    json_encode($_POST),
-                ];
+                $prefix = implode(PHP_EOL . '#> ', $prefix);
+
+                file_put_contents($fPath, PHP_EOL, FILE_APPEND);
+                file_put_contents($fPath, PHP_EOL, FILE_APPEND);
+                file_put_contents($fPath, $prefix, FILE_APPEND);
             }
+            # endregion PREFIX
+            ###############################
+            # region LOG
+
+            file_put_contents($fPath, $output, FILE_APPEND);
+            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+            # endregion LOG
+            ###############################
+            # region BactTrace
+            $trace = static::getCallStack();
+            $trace = var_export($trace, 1);
+
+            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, $trace, FILE_APPEND);
+            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+            # endregion BactTrace
+            ###############################
+
+            return true;
+
+        } catch (\Throwable $e) {
+            return false;
         }
-
-        if ($isLog) {
-
-            $date = static::getNow();
-            $memory = static::getMemoryUsed() . ' bytes';
-
-            $prefix = array_merge($prefix, [
-                "MEM: $memory",
-                "AT $date",
-            ]);
-
-            $prefix = implode(PHP_EOL . '#> ', $prefix);
-
-            file_put_contents($fPath, PHP_EOL, FILE_APPEND);
-            file_put_contents($fPath, PHP_EOL, FILE_APPEND);
-            file_put_contents($fPath, $prefix, FILE_APPEND);
-        }
-        # endregion PREFIX
-        ###############################
-        # region LOG
-
-        file_put_contents($fPath, $output, FILE_APPEND);
-        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
-
-        # endregion LOG
-        ###############################
-        # region BactTrace
-        $trace = static::getCallStack();
-        $trace = var_export($trace, 1);
-
-        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
-        file_put_contents($fPath, $trace, FILE_APPEND);
-        file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
-
-        # endregion BactTrace
-        ###############################
     }
 
     public static function buffer($callback, ...$params)

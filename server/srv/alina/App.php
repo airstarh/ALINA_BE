@@ -10,7 +10,7 @@ use alina\Utils\Arr;
 use alina\Utils\Sys;
 use alina\Utils\Url;
 use alina\MessageAdmin;
-use alina\Utils\Resolver;
+use alina\Utils\Request;
 use alina\AppExceptionCatcher;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\router_alias;
@@ -31,6 +31,7 @@ class App
         set_exception_handler([\alina\AppExceptionCatcher::obj(), 'exception']);
         set_error_handler([\alina\AppExceptionCatcher::obj(), 'error']);
         #####
+        Request::obj();
         CurrentUser::obj();
         #####
         AlinaResponseSuccess(1);
@@ -91,7 +92,7 @@ class App
     protected $config        = [];
     protected $configDefault = [];
 
-    protected function setConfig($config = [])
+    protected function setConfig(array $config = [])
     {
         $defaultConfigPath   = \alina\Utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
         $defaultConfig       = require($defaultConfigPath);
@@ -127,7 +128,6 @@ class App
     {
         if (isset(static::$instance) && is_a(static::$instance, get_class())) {
             return static::$instance;
-            //throw new \Exception("Alina App is set already.");
         }
         $_this = new static($config);
 

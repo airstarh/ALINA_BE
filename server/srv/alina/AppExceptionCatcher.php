@@ -41,7 +41,7 @@ class AppExceptionCatcher
     }
 
     /**
-     * @param \Exception $objException
+     * @param \Throwable $objException
      * @param bool $forceExit
      * @throws \Exception
      */
@@ -58,7 +58,7 @@ class AppExceptionCatcher
         #endregion Clean buffer
         ##################################################
         \alina\mvc\Model\_baseAlinaEloquentTransaction::rollback();
-        ##################################################
+
         $strUNKNOWN         = 'UNKNOWN';
         $this->expClassName = get_class($objException);
         $this->eSeverity    = method_exists($objException, 'getSeverity')
@@ -79,16 +79,19 @@ class AppExceptionCatcher
         $this->eTrace       = method_exists($objException, 'getTraceAsString')
             ? $objException->getTraceAsString()
             : $strUNKNOWN;
-        ##################################################
+
         $this->processError();
-        ##################################################
+
         if (isset($_REQUEST['route_plan_b']) && !empty($_REQUEST['route_plan_b'])) {
             $R   = (object)$_REQUEST;
             $url = $R->route_plan_b;
             Data::sanitizeOutputObj($R);
             $url = Url::addGetFromObject($url, $R);
             Sys::redirect($url, 303);
-        } elseif ($forceExit) {
+            die();
+        }
+
+        if ($forceExit) {
             if (Request::isPostPutDelete()) {
                 $_POST                     = [];
                 $_FILES                    = [];
@@ -96,27 +99,24 @@ class AppExceptionCatcher
                 Request::obj()->METHOD     = 'GET';
                 Request::obj()->POST       = [];
                 Request::obj()->FILES      = [];
-                try {
-                    Alina()->mvcGo(Alina()->router->controller, Alina()->router->action, Alina()->router->pathParameter);
-                } catch (\Exception $e) {
-                    Alina()->mvcGo('Root', 'Exception', $this);
-                }
-            } else {
-                Alina()->mvcGo('Root', 'Exception', $this);
             }
+
+            return Alina()->mvcGo('Root', 'Exception', $this);
         }
-        ##################################################
     }
 
     protected function processError()
     {
         $eMsg = $this->strMessage();
+        
         #region PHP ERROR LOG
         error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
         error_log($eMsg, 0);
         error_log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 0);
         #endregion PHP ERROR LOG
+
         $dbgCfg = AlinaCfg('debug');
+
         if (in_array(true, $dbgCfg)) {
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {
@@ -135,11 +135,13 @@ class AppExceptionCatcher
                     error_log($e->getMessage());
                 }
             }
+
             if (isset($dbgCfg['toPage']) && $dbgCfg['toPage']) {
                 Message::setDanger('¯\_(ツ)_/¯');
                 Message::setDanger($eMsg);
                 //MessageAdmin::setDanger(eMsg);
             }
+
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
                 $NL = PHP_EOL . '<br>' . PHP_EOL;
                 Sys::fDebug($this->strMessage($NL));
