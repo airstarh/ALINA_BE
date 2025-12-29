@@ -1,6 +1,9 @@
 #!/bin/sh
 ##################################################
 # https://serverfault.com/questions/357108/what-permissions-should-my-website-files-folders-have-on-a-linux-webserver?newreg=39fc9a6627a248cea5726ab197bcab22
+# ssh -i C:\_A001\STATICA\_SSH\127-0-0-1 sewa@saysimsim.ru
+#@deprecated sudo sh /home/sewa/DEPLOYMENT/sh-chmods.sh
+# sudo sh /srv/alina/programs/deploy/sh-chmods.sh
 ##################################################
 #region /srv/
  chown -R sewa /srv/
@@ -20,14 +23,14 @@
  chmod -R 770 /var/www/saysimsim.ru/uploads
  chmod -R 770 /var/www/m45a/uploads
  chmod -R 770 /var/www/vov/uploads
- chmod -R 770 /var/www/zero.home/uploads
+ chmod -R 770 /var/www/stage/uploads
 #endregion UPLOADS
 ##################################################
 #region HOME SEWA DEPLOYMENT
-chown -R sewa /home/sewa/DEPLOYMENT/
-chgrp -R www-data /home/sewa/DEPLOYMENT/
-chmod -R 750 /home/sewa/DEPLOYMENT/
-chmod -R u+x /home/sewa/DEPLOYMENT/
+#@deprecated chown -R sewa /home/sewa/DEPLOYMENT/
+#@deprecated chgrp -R www-data /home/sewa/DEPLOYMENT/
+#@deprecated chmod -R 750 /home/sewa/DEPLOYMENT/
+#@deprecated chmod -R u+x /home/sewa/DEPLOYMENT/
 #endregion HOME SEWA DEPLOYMENT
 ##################################################
 #region RESTART
