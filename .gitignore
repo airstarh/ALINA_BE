@@ -9,14 +9,6 @@ nbproject/
 ALINA_BE.code-workspace
 **/vendor/
 **/apps/vue/
-server/var/www/_frontend_sss/apps/
-server/var/www/_frontend_m45a/apps/
-server/var/www/_frontend_vov/apps/
-server/var/www/saysimsim.ru/apps/vue/
-server/var/www/vov/apps/vue/
-server/var/www/m45a/apps/vue/
-_DEV_DOCS/_DRAFT/
-server/var/www/zero.home/apps/vue/
-server/var/www/zero.home/apps/vue3/
+**/apps/vue3/
 server/var/www/a.borg.home/BorgToolKit/
 _DEV_DOCS/
