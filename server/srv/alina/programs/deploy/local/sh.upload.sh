@@ -31,7 +31,7 @@ for PROJECT in "${PROJECTS[@]}"; do
         --filter='H uploads/' \
          -e \
          "ssh" \
-         --rsync-path="mkdir -p ${TARGET} && rsync" \
+         --rsync-path="sudo mkdir -p ${TARGET} && sudo rsync" \
          "${SOURCE}" \
          "${REMOTE_ADDR}:${TARGET}"
     
