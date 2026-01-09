@@ -1,4 +1,5 @@
 <?php
+// saysimsim.ru
 define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(TRUE));
 define('ALINA_TIME', $_SERVER['REQUEST_TIME'] ?: time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
