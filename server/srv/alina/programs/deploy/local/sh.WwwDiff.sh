@@ -41,9 +41,10 @@ sync_with_protection() {
     rsync \
         -av \
         --delete \
-        --exclude='uploads/' \
-        --exclude='apps/' \
-        --existing \
+        --filter='P uploads/' \
+        --filter='P apps/' \
+        --filter='H uploads/' \
+        --filter='H apps/' \
         "$SOURCE_DIFF" \
         "$SOURCE_BASE" \
         "$TARGET"
@@ -74,21 +75,21 @@ PROJECT="stage"
 SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
 TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
-
-# saysimsim.ru
-PROJECT="saysimsim.ru"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
-
-# m45a
-PROJECT="m45a"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
-
-# vov
-PROJECT="vov"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+# 
+# # saysimsim.ru
+# PROJECT="saysimsim.ru"
+# SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+# TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+# sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+# 
+# # m45a
+# PROJECT="m45a"
+# SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+# TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+# sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+# 
+# # vov
+# PROJECT="vov"
+# SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+# TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+# sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
