@@ -41,8 +41,9 @@ sync_with_protection() {
     rsync \
         -av \
         --delete \
-        --filter='protect uploads/' \
-        --filter='protect apps/' \
+        --exclude='uploads/' \
+        --exclude='apps/' \
+        --existing \
         "$SOURCE_DIFF" \
         "$SOURCE_BASE" \
         "$TARGET"
