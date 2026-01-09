@@ -8,13 +8,13 @@ TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
 SOURCE_DIFF="/home/qqq/a/b/server/src/alina_consumers/${PROJECT}/.wwwDiff/"
 
 rsync \
-    -avn \
+    -av \
     --exclude='uploads' \
     --exclude='apps' \
     "${SOURCE_BASE}" "${TARGET}"
 
 rsync \
-    -avn \
+    -av \
     --exclude='uploads' \
     --exclude='apps' \
     "${SOURCE_DIFF}" "${TARGET}"
