@@ -1,8 +1,8 @@
 #!/bin/sh
 ##################################################
 # https://serverfault.com/questions/357108/what-permissions-should-my-website-files-folders-have-on-a-linux-webserver?newreg=39fc9a6627a248cea5726ab197bcab22
-# ssh -i C:\_A001\STATICA\_SSH\127-0-0-1 sewa@saysimsim.ru
-#@deprecated sudo sh /home/sewa/DEPLOYMENT/sh-chmods.sh
+# @deprecated ssh -i C:\_A001\STATICA\_SSH\127-0-0-1 sewa@saysimsim.ru
+# ssh sewa@saysimsim.ru
 # sudo sh /srv/alina/programs/deploy/sh-chmods.sh
 ##################################################
 #region /srv/
