@@ -3,7 +3,7 @@
 REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"
 REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
-REMOTE_TARGET="/tmp/diff"
+REMOTE_TARGET="/var/www"
 
 # Define array of projects
 PROJECTS=(
@@ -22,7 +22,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     
     # Define source and target paths
     SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/"
-    TARGET="${REMOTE_TARGET}/www/${PROJECT}/"
+    TARGET="${REMOTE_TARGET}/${PROJECT}/"
     
     # Sync files
     rsync \
