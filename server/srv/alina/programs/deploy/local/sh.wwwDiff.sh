@@ -74,3 +74,9 @@ PROJECT="stage"
 SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
 TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+
+# saysimsim.ru
+PROJECT="saysimsim.ru"
+SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
