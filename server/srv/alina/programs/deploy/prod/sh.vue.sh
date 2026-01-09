@@ -18,7 +18,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     
     # Define source and target paths
     SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/apps/vue/"
-    TARGET="/var/www/${PROJECT}/apps/vue"
+    TARGET="/var/www/${PROJECT}/apps/vue/"
     
     # Remove remote directory with sudo
     ssh "${REMOTE_ADDR}" "sudo rm -rf '${TARGET}'"
