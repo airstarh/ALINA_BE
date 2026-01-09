@@ -26,8 +26,8 @@ for PROJECT in "${PROJECTS[@]}"; do
     rsync \
         -avz \
         --delete-after \
-        --filter='P cfg/' \
-        --filter='H cfg/' \
+        --filter='- **/cfg/db.php' \
+        --filter='- **/cfg/mailer.php' \
          -e \
          "ssh" \
          --rsync-path="sudo mkdir -p ${TARGET} && sudo rsync" \
