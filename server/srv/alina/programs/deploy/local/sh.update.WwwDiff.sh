@@ -40,6 +40,7 @@ sync_with_protection() {
     # Execute rsync with protection filters
     rsync \
         -av \
+        --no-perms --no-owner --no-group \
         --delete \
         --filter='P uploads/' \
         --filter='P apps/' \

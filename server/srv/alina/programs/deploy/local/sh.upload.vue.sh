@@ -24,8 +24,13 @@ for PROJECT in "${PROJECTS[@]}"; do
     ssh "${REMOTE_ADDR}" "sudo rm -rf '${TARGET}'"
     
     # Sync files
-    rsync -avz -e "ssh" "${SOURCE}" "${REMOTE_ADDR}:${TARGET}"
-    
+    rsync \
+        -avz\
+        --no-perms --no-owner --no-group \
+         -e "ssh"\
+         "${SOURCE}"\
+         "${REMOTE_ADDR}:${TARGET}"
+
     echo "✅ Completed: ${PROJECT}"
 done
 

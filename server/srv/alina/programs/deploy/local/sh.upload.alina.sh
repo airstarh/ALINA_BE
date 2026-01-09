@@ -22,12 +22,13 @@ for PROJECT in "${PROJECTS[@]}"; do
     # Sync files
     rsync \
         -avz \
+        --no-perms --no-owner --no-group \
         --delete-after \
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
          -e \
          "ssh" \
-         --rsync-path="sudo mkdir -p ${TARGET} && sudo rsync" \
+         --rsync-path="sudo mkdir -p -m 750 ${TARGET} && sudo rsync --no-perms --no-owner --no-group" \
          "${SOURCE}" \
          "${REMOTE_ADDR}:${TARGET}"
     
