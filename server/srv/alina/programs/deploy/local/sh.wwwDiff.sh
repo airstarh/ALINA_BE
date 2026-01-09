@@ -63,6 +63,6 @@ BASE="zero.home"
 SOURCE_BASE="/home/qqq/a/b/server/srv/alina_consumers/${BASE}/.WwwDiff/"
 
 PROJECT="stage"
-SOURCE_DIFF="/home/qqq/a/b/server/src/alina_consumers/${PROJECT}/.WwwDiff/"
+SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
 TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
