@@ -11,10 +11,6 @@ rsync \
     -av \
     --exclude='uploads' \
     --exclude='apps' \
-    "${SOURCE_BASE}" "${TARGET}"
-
-rsync \
-    -av \
-    --exclude='uploads' \
-    --exclude='apps' \
-    "${SOURCE_DIFF}" "${TARGET}"
+    "${SOURCE_BASE}" \
+    "${SOURCE_DIFF}" \
+    "${TARGET}"
