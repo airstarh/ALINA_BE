@@ -21,12 +21,13 @@ for PROJECT in "${PROJECTS[@]}"; do
     TARGET="/var/www/${PROJECT}/apps/vue/"
     
     # Remove remote directory with sudo
-    ssh "${REMOTE_ADDR}" "sudo rm -rf '${TARGET}'"
+    # ssh "${REMOTE_ADDR}" "sudo rm -rf '${TARGET}'"
     
     # Sync files
     rsync \
         -avz\
         --no-perms --no-owner --no-group \
+        --delete \
          -e "ssh"\
          "${SOURCE}"\
          "${REMOTE_ADDR}:${TARGET}"
