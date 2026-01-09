@@ -27,7 +27,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     # Sync files
     rsync \
         -avz \
-        --delete \
+        --delete-after \
         --filter='P uploads/' \
         --filter='H uploads/' \
          -e \
