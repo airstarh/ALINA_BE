@@ -8,9 +8,9 @@ REMOTE_TARGET="/var/www"
 # Define array of projects
 PROJECTS=(
     "stage"
-    # "saysimsim.ru"
-    # "m45a"
-    # "vov"
+    "saysimsim.ru"
+    "m45a"
+    "vov"
 )
 
 ALINA="/home/qqq/a/b/server/srv/alina"
