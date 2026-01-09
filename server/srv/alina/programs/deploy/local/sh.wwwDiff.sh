@@ -43,8 +43,8 @@ sync_with_protection() {
         --delete \
         --filter='protect uploads/' \
         --filter='protect apps/' \
-        "$SOURCE_BASE" \
         "$SOURCE_DIFF" \
+        "$SOURCE_BASE" \
         "$TARGET"
 
     # Check rsync exit status
