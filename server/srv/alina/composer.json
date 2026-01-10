@@ -1,7 +1,7 @@
 {
     "scripts": {
         "deploy": [
-            "php ./programs/deploy/index.php"
+            "bash ./programs/deploy/setup.exe"
         ]
     },
     "require": {
