@@ -7,14 +7,14 @@
 ##################################################
 #region /srv/
 chown -R www-data:www-data /srv/
-find /srv -type d -exec chmod 775 {} +
-find /srv -type f -exec chmod 664 {} +
+find /srv -type d -exec chmod 755 {} +
+find /srv -type f -exec chmod 644 {} +
 #endregion /srv/
 ##################################################
 #region /var/www/
 chown -R www-data:www-data /var/www/
-find /var/www -type d -exec chmod 775 {} +
-find /var/www -type f -exec chmod 664 {} +
+find /var/www -type d -exec chmod 755 {} +
+find /var/www -type f -exec chmod 644 {} +
 #endregion /var/www/
 ##################################################
 #region RESTART
