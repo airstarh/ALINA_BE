@@ -1,15 +1,33 @@
 #!/usr/bin/bash
 
+cd /home/qqq/a/f
 ####################################################################################################
 # FRONT
-# cd /home/qqq/a/f
 # nvm install "16.19.1"
-# nvm use "16.19.1"
-# npm run build:all
+nvm use "16.19.1"
+npm run build:stage
+
+
+
+
+
+cd /home/qqq/a/b/server/srv/alina/programs/deploy
+####################################################################################################
+# OWN
+bash ./local/sh.own.sh
 
 ####################################################################################################
-# BACK
-cd /home/qqq/a/b/server/srv/alina/programs/deploy
-bash ./local/sh.upload.alina.sh
+# ALINA
+# bash ./local/sh.upload.alina.sh
+
+####################################################################################################
+# WWW
 bash ./local/sh.upload.www.sh
-ssh sewa@saysimsim.ru 'sudo bash /srv/alina/programs/deploy/prod/sh.own.sh'
+
+####################################################################################################
+# OWN
+bash ./local/sh.own.sh
+
+####################################################################################################
+# RESTART
+# bash ./local/sh.restart.sh

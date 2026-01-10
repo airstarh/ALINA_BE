@@ -13,9 +13,6 @@ PROJECTS=(
     "vov"
 )
 
-ALINA="/home/qqq/a/b/server/srv/alina"
-ALINA_CONSUMERS="/home/qqq/a/b/server/srv/alina_consumers"
-
 # Loop through each project
 for PROJECT in "${PROJECTS[@]}"; do
     echo "=== Processing project: ${PROJECT} ==="
@@ -33,7 +30,11 @@ for PROJECT in "${PROJECTS[@]}"; do
         --filter='H uploads/' \
          -e \
          "ssh" \
-         --rsync-path="sudo mkdir -p -m 750 ${TARGET} && sudo rsync --no-perms --no-owner --no-group" \
+         --rsync-path=" \
+         mkdir -p -m 775 ${TARGET} \
+         && sudo chown www-data:www-data ${TARGET} \
+         && sudo rsync --no-perms --no-owner --no-group \
+         " \
          "${SOURCE}" \
          "${REMOTE_ADDR}:${TARGET}"
     

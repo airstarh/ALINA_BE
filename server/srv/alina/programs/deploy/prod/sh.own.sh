@@ -6,24 +6,22 @@
 # sudo sh /srv/alina/programs/deploy/sh-chmods.sh
 ##################################################
 #region /srv/
-chown -R www-data:www-data /srv
-chmod g+s /srv
+chown -R www-data:www-data /srv/
 find /srv -type d -exec chmod 775 {} +
-find /srv -type f -exec chmod 660 {} +
+find /srv -type f -exec chmod 664 {} +
 #endregion /srv/
 ##################################################
 #region /var/www/
 chown -R www-data:www-data /var/www/
-chmod g+s /var/www
 find /var/www -type d -exec chmod 775 {} +
-find /var/www -type f -exec chmod 660 {} +
+find /var/www -type f -exec chmod 664 {} +
 #endregion /var/www/
 ##################################################
 #region RESTART
 
-# systemctl restart nginx
-# systemctl restart php7.4-fpm
-# service mysql restart
+systemctl restart nginx
+systemctl restart php7.4-fpm
+service mysql restart
 
 #endregion RESTART
 ##################################################
