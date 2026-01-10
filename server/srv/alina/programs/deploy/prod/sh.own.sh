@@ -15,15 +15,15 @@
 #region /var/www/
  chown -R sewa /var/www/
  chgrp -R www-data /var/www/
- chmod -R 750 /var/www/
+ chmod -R 770 /var/www/
  chmod g+s /var/www/
 #endregion /var/www/
 ##################################################
 #region UPLOADS
- chmod -R 770 /var/www/saysimsim.ru/uploads/
- chmod -R 770 /var/www/m45a/uploads/
- chmod -R 770 /var/www/vov/uploads/
- chmod -R 770 /var/www/stage/uploads/
+ chmod -R 660 /var/www/saysimsim.ru/uploads/
+ chmod -R 660 /var/www/m45a/uploads/
+ chmod -R 660 /var/www/vov/uploads/
+ chmod -R 660 /var/www/stage/uploads/
 #endregion UPLOADS
 ##################################################
 #region HOME SEWA DEPLOYMENT
@@ -34,8 +34,10 @@
 #endregion HOME SEWA DEPLOYMENT
 ##################################################
 #region RESTART
-systemctl restart nginx
-systemctl restart php7.4-fpm
-service mysql restart
+
+# systemctl restart nginx
+# systemctl restart php7.4-fpm
+# service mysql restart
+
 #endregion RESTART
 ##################################################
