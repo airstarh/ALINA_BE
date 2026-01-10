@@ -29,8 +29,7 @@ for PROJECT in "${PROJECTS[@]}"; do
          -e \
          "ssh" \
          --rsync-path=" \
-         mkdir -p -m 775 ${TARGET} \
-         && sudo chown www-data:www-data ${TARGET} \
+         sudo mkdir -p -m 775 ${TARGET} \
          && sudo rsync --no-perms --no-owner --no-group \
          " \
          "${SOURCE}" \
