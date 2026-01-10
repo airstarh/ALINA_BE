@@ -5,7 +5,7 @@ cd /home/qqq/a/f
 # FRONT
 # nvm install "16.19.1"
 nvm use "16.19.1"
-npm run build:stage
+npm run build:all
 
 
 
