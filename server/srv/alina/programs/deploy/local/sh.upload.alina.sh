@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"

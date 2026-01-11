@@ -1,0 +1,35 @@
+# Git-related
+.git
+.gitignore
+.gitmodules
+.gitattributes
+
+# VS Code-related
+.vscode/
+*.code-workspace
+
+# JetBrains (IntelliJ, PyCharm, etc.)-related
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# NetBeans-related
+nbproject/
+build/
+dist/
+nbbuild/
+
+# Optional: common OS/editor temp files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+_DEV_DOCS/
+PROD/
+README.md
+RELEASE_VERSION.txt

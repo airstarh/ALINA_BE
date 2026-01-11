@@ -16,11 +16,11 @@ PROJECTS=(
 # Loop through each project
 for PROJECT in "${PROJECTS[@]}"; do
     echo "=== Processing project: ${PROJECT} ==="
-    
+
     # Define source and target paths
     SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/"
     TARGET="${REMOTE_TARGET}/${PROJECT}/"
-    
+
     # Sync files
     rsync \
         -avz \
@@ -28,15 +28,15 @@ for PROJECT in "${PROJECTS[@]}"; do
         --delete-after \
         --filter='P uploads/' \
         --filter='H uploads/' \
-         -e \
-         "ssh" \
-         --rsync-path=" \
-         sudo mkdir -p ${TARGET} \
-         && sudo rsync --no-perms --no-owner --no-group \
+        -e \
+        "ssh" \
+        --rsync-path=" \
+            sudo mkdir -p ${TARGET} \
+            && sudo rsync --no-perms --no-owner --no-group \
          " \
-         "${SOURCE}" \
-         "${REMOTE_ADDR}:${TARGET}"
-    
+        "${SOURCE}" \
+        "${REMOTE_ADDR}:${TARGET}"
+
     echo "✅ Completed: ${PROJECT}"
 done
 
