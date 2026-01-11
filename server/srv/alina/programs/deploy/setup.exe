@@ -1,6 +1,11 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-source . inc.sh
+SCRIPT_PATH="$(readlink -f "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+cd "$SCRIPT_DIR" || { echo "Failed to cd to $SCRIPT_DIR"; exit 1; }
+
+source inc.sh
 
 cd /home/qqq/a/f
 ####################################################################################################
@@ -13,7 +18,7 @@ cd /home/qqq/a/f
 
 
 
-cd /home/qqq/a/b/server/srv/alina/programs/deploy
+cd "$SCRIPT_DIR" || { echo "Failed to cd to $SCRIPT_DIR"; exit 1; }
 ####################################################################################################
 # OWN
 bash ./local/sh.own.sh

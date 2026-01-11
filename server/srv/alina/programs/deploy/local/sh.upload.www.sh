@@ -1,11 +1,7 @@
 #!/usr/bin/bash
 
-REMOTE_USER="sewa"
-REMOTE_HOST="saysimsim.ru"
-REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
 REMOTE_TARGET="/var/www"
 
-# Define array of projects
 PROJECTS=(
     "stage"
     "saysimsim.ru"
@@ -13,31 +9,16 @@ PROJECTS=(
     "vov"
 )
 
-# Loop through each project
 for PROJECT in "${PROJECTS[@]}"; do
-    echo "=== Processing project: ${PROJECT} ==="
 
-    # Define source and target paths
+    echo ">>> ${PROJECT}"
+
     SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/"
     TARGET="${REMOTE_TARGET}/${PROJECT}/"
 
-    # Sync files
-    rsync \
-        -avz \
-        --no-perms --no-owner --no-group \
-        --delete-after \
-        --filter='P uploads/' \
-        --filter='H uploads/' \
-        -e \
-        "ssh" \
-        --rsync-path=" \
-            sudo mkdir -p ${TARGET} \
-            && sudo rsync --no-perms --no-owner --no-group \
-         " \
-        "${SOURCE}" \
-        "${REMOTE_ADDR}:${TARGET}"
+    rsyncSsh "$SOURCE" "$TARGET"
 
-    echo "✅ Completed: ${PROJECT}"
+    echo "<<< ${PROJECT}"
 done
 
-echo "✅ ✅ ✅ All projects synced successfully!"
+echo "✅ ✅ ✅ ✅"
