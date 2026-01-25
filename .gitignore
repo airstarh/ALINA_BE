@@ -6,7 +6,7 @@ server/var/log/
 **/DEBUG.*
 **/uploads/
 nbproject/
-ALINA_BE.code-workspace
+**/*.code-workspace
 **/vendor/
 **/apps/vue/
 **/apps/vue3/
