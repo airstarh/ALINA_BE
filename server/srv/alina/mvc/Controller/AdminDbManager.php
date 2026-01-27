@@ -24,6 +24,15 @@ class AdminDbManager
 
     public function __construct()
     {
+        ##############################
+        # CHECK OWNERSHIP
+        if (Request::obj()->isPostPutDelete($p)) {
+            if (property_exists($p, 'owner_id')) {
+                AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
+                return;
+            }
+        }
+
         AlinaRejectIfNotAdminOrModerator();
     }
 
