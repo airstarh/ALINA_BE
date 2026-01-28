@@ -130,12 +130,19 @@ class _BaseAlinaModel
 
     public function getAll($conditions = [], $backendSortArray = null, $limit = null, $offset = null)
     {
-        $this->collection
-            = $this
-                ->q()
-                ->where($conditions)
-                ->get()
-        ;
+        $q = $this->q();
+
+        $q->where($conditions);
+
+        if ($limit) {
+            $q->take($limit);
+        }
+
+        if ($offset) {
+            $q->skip($offset);
+        }
+
+        $this->collection = $q->get();
 
         return $this->collection;
     }
