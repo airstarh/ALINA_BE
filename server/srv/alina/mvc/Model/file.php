@@ -48,7 +48,7 @@ class file extends _BaseAlinaModel
     public function uniqueKeys()
     {
         return [
-            ['name_fs', 'owner_id'],
+            ['name_fs', 'owner_id', 'entity_id', 'entity_table'],
         ];
     }
 
