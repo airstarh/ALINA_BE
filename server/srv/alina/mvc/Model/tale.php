@@ -35,8 +35,8 @@ class tale extends _BaseAlinaModel
                     [
                         // 'f' - Could be a closure, string with function name or an array
                         'f' =>
-                            function ($v) {
-                                if ($this->attributes->is_submitted == 1) {
+                            function ($v, $data = null) {
+                                if ($data->is_submitted == 1) {
                                     return trim(strip_tags($v));
                                 }
                                 return true;

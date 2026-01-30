@@ -821,14 +821,14 @@ class Data
                         $VALIDATION_RESULT = $CHECKER($fValue);
                     }
                     else if ($CHECKER instanceof \Closure) {
-                        $VALIDATION_RESULT = call_user_func($CHECKER, $fValue);;
+                        $VALIDATION_RESULT = call_user_func($CHECKER, $fValue, $data);
                     }
                     else if (is_array($CHECKER)) {
                         $countArgs = count($CHECKER);
                         switch ($countArgs) {
                             case 2:
                                 [$class, $staticMethod] = $CHECKER;
-                                $VALIDATION_RESULT = call_user_func([$class, $staticMethod], $fValue);
+                                $VALIDATION_RESULT = call_user_func([$class, $staticMethod], $fValue, $data);
                                 break;
                         }
                     }
