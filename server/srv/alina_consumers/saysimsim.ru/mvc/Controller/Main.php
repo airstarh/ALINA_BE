@@ -2,6 +2,8 @@
 
 namespace sss\mvc\Controller;
 
+use alina\mvc\View\html;
+
 class Main
 {
     public function actionIndex()
@@ -11,8 +13,11 @@ class Main
 
     public function action404()
     {
-        echo '<pre>';
-        print_r('<h1>404</h1>Страница не найдена');
-        echo '</pre>';
+        AlinaResponseSuccess(0);
+        http_response_code(404);
+        echo (new html)->page((object) [
+            'pageNotFound' => ___('Page not found'),
+        ]);
+        exit;
     }
 }

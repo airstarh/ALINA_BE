@@ -2,7 +2,7 @@
 
 namespace m45a\mvc\Controller;
 
-use alina\Message;
+use alina\mvc\View\html;
 
 class Main
 {
@@ -13,10 +13,11 @@ class Main
 
     public function action404()
     {
-        Message::setDanger('Такой страницы нет на сайте');
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo (new \alina\mvc\View\html)->page();
+        echo (new html)->page((object) [
+            'pageNotFound' => ___('Page not found'),
+        ]);
         exit;
     }
 }
