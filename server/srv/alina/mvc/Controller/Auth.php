@@ -9,6 +9,7 @@ use alina\mvc\Model\user;
 use alina\mvc\Model\watch_login;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
+use alina\Utils\Obj;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 use alina\Watcher;
@@ -144,19 +145,22 @@ class Auth
     public function actionProfile($id = NULL)
     {
         ##################################################
-        $path = \alina\Utils\FS::buildPathFromBlocks(
-            AlinaCfg('frontend/path'),
-            AlinaCfg('frontend/profile'),
-        );
-        AlinaRedirectIfNotAjax($path, 303, TRUE);
-        ##################################################
         if (empty($id)) {
             $id = CurrentUser::obj()->id();
         }
         if (empty($id)) {
             AlinaRejectIfNotLoggedIn();
         }
-        #####
+        ##################################################
+        if (!Request::obj()->AJAX) {
+            $path = \alina\Utils\FS::buildPathFromBlocks(
+                AlinaCfg('frontend/path'),
+                AlinaCfg('frontend/profile'),
+                $id
+            );
+            AlinaRedirectIfNotAjax($path, 303, TRUE);
+        }
+        ##################################################
         $vd = (object)[
             'form_id' => __FUNCTION__,
             'user'    => (object)[],

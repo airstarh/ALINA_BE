@@ -11,7 +11,7 @@ class Request
     public $DOMAIN;
     public $URL_PATH;
     public $METHOD;
-    public $AJAX;
+    public $AJAX = false;
     public $QUERY_STRING;
     public $IP;
     public $BROWSER;
