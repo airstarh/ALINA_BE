@@ -2,6 +2,9 @@
     "scripts": {
         "deploy": [
             "bash ./programs/deploy/setup.exe"
+        ],
+        "wwwdiff": [
+            "bash ./programs/deploy/local/sh.update.WwwDiff.sh"
         ]
     },
     "require": {
