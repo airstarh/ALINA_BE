@@ -129,7 +129,7 @@ class tale extends _BaseAlinaModel
                 'default' => 'hybrid',
             ],
             'geo_zoom' => [
-                'default' => 10,
+                'default' => 2,
             ],
             'geo_is_map_shown' => [
                 'default' => 0,
