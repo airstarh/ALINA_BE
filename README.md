@@ -1,6 +1,7 @@
 # Alina Framework
 
 **Fast-deployment framework for general-purpose websites**
+
 *Blogs • Profiles • Business cards • Data tools • Presentations • Technical docs & brochures*
 
 ### Built with
@@ -16,6 +17,7 @@
 ---
 
 **Инструмент для быстрого развертывания сайтов общего назначения**
+
 *Блоги • Анкеты • Визитки • Инструменты работы с данными • Презентации • Техническая документация и проспекты*
 
 ### Использованные технологии и подходы
