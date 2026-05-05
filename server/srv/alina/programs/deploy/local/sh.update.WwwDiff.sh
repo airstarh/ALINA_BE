@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../constfants
+
 # Function: sync_with_protection
 # Purpose: Run rsync with protected directories (uploads/, apps/) and deletion
 # Parameters:
@@ -63,34 +65,34 @@ sync_with_protection() {
 }
 
 BASE="zero.home"
-SOURCE_BASE="/home/qqq/a/b/server/srv/alina_consumers/${BASE}/.WwwDiff/"
+SOURCE_BASE="${BE}/server/srv/alina_consumers/${BASE}/.WwwDiff/"
 
 # zero.home
 PROJECT="zero.home"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="${BE}/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
 
 # STAGE
 PROJECT="stage"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="${BE}/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
 
 # saysimsim.ru
 PROJECT="saysimsim.ru"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="${BE}/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
 
 # m45a
 PROJECT="m45a"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="${BE}/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
 
 # vov
 PROJECT="vov"
-SOURCE_DIFF="/home/qqq/a/b/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="/home/qqq/a/b/server/var/www/${PROJECT}/"
+SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+TARGET="${BE}/server/var/www/${PROJECT}/"
 sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"

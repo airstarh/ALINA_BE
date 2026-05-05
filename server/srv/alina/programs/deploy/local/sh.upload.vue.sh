@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+source ../constfants
+
 REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"
 REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
@@ -17,7 +19,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     echo "=== Processing project: ${PROJECT} ==="
     
     # Define source and target paths
-    SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/apps/vue/"
+    SOURCE="${BE}/server/var/www/${PROJECT}/apps/vue/"
     TARGET="/var/www/${PROJECT}/apps/vue/"
     
     # Remove remote directory with sudo

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../constfants
+
 REMOTE_TARGET="/srv"
 
 # Define array of projects
@@ -12,7 +14,7 @@ PROJECTS=(
 for PROJECT in "${PROJECTS[@]}"; do
     echo ">>> ${PROJECT}"
 
-    SOURCE="/home/qqq/a/b/server/srv/${PROJECT}/"
+    SOURCE="${BE}/server/srv/${PROJECT}/"
     TARGET="${REMOTE_TARGET}/${PROJECT}/"
 
     rsyncSsh "$SOURCE" "$TARGET"

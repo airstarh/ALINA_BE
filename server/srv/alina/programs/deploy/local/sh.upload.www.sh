@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+source ../constants
+
 REMOTE_TARGET="/var/www"
 
 PROJECTS=(
@@ -13,7 +15,7 @@ for PROJECT in "${PROJECTS[@]}"; do
 
     echo ">>> ${PROJECT}"
 
-    SOURCE="/home/qqq/a/b/server/var/www/${PROJECT}/"
+    SOURCE="${BE}/server/var/www/${PROJECT}/"
     TARGET="${REMOTE_TARGET}/${PROJECT}/"
 
     rsyncSsh "$SOURCE" "$TARGET"
