@@ -45,12 +45,12 @@ sync_with_protection() {
         --no-perms --no-owner --no-group \
         --delete \
         --filter='P uploads/' \
+        --filter='- uploads/' \
         --filter='P apps/' \
-        --filter='H uploads/' \
-        --filter='H apps/' \
-        "$SOURCE_DIFF" \
-        "$SOURCE_BASE" \
-        "$TARGET"
+        --filter='- apps/' \
+        "${SOURCE_DIFF}" \
+        "${SOURCE_BASE}" \
+        "${TARGET}"
 
     # Check rsync exit status
     if [[ $? -eq 0 ]]; then
@@ -64,35 +64,15 @@ sync_with_protection() {
     fi
 }
 
-BASE="zero.home"
-SOURCE_BASE="${BE}/server/srv/alina_consumers/${BASE}/.WwwDiff/"
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# zero.home
-PROJECT="zero.home"
-SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="${BE}/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+DIFF_BASE="zero.home"
+DIFF_DEFAULT="${BE}/server/srv/alina_consumers/${DIFF_BASE}/.WwwDiff/"
 
-# STAGE
-PROJECT="stage"
-SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="${BE}/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+PROJECTS=("zero.home" "stage" "saysimsim.ru" "m45a" "vov")
 
-# saysimsim.ru
-PROJECT="saysimsim.ru"
-SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="${BE}/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
-
-# m45a
-PROJECT="m45a"
-SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="${BE}/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
-
-# vov
-PROJECT="vov"
-SOURCE_DIFF="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
-TARGET="${BE}/server/var/www/${PROJECT}/"
-sync_with_protection "$SOURCE_BASE" "$SOURCE_DIFF" "$TARGET"
+for PROJECT in "${PROJECTS[@]}"; do
+    DIFF_PROJECT="${BE}/server/srv/alina_consumers/${PROJECT}/.WwwDiff/"
+    TO_FINAL_PLACE="${BE}/server/var/www/${PROJECT}/"
+    sync_with_protection "${DIFF_DEFAULT}" "${DIFF_PROJECT}" "${TO_FINAL_PLACE}"
+done

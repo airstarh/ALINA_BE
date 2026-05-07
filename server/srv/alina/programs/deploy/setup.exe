@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_PATH="$(readlink -f "$0")"
-SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+PATH_SETUP_EXE="$(readlink -f "$0")"
+DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
 
-cd "$SCRIPT_DIR" || { echo "Failed to cd to $SCRIPT_DIR"; exit 1; }
+cd "${DIR_SETUP_EXE}" || { echo "Failed to cd to ${DIR_SETUP_EXE}"; exit 1; }
 
 source inc.sh
 source ./constants
@@ -19,7 +19,7 @@ npm run build:all
 
 
 
-cd "$SCRIPT_DIR" || { echo "Failed to cd to $SCRIPT_DIR"; exit 1; }
+cd "${DIR_SETUP_EXE}" || { echo "Failed to cd to ${DIR_SETUP_EXE}"; exit 1; }
 ####################################################################################################
 # OWN
 bash ./local/sh.own.sh
