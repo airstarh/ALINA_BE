@@ -17,8 +17,8 @@ rsyncSsh() {
                 --delete-after \
                 --filter='- **/cfg/db.php' \
                 --filter='- **/cfg/mailer.php' \
-                --filter='P **/uploads/' \
                 --filter='- **/uploads/' \
+                --filter='P **/uploads/' \
                 -e \
                 "ssh" \
                 --rsync-path="sudo rsync" \

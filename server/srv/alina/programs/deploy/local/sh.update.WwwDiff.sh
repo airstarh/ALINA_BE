@@ -44,10 +44,10 @@ sync_with_protection() {
         -av \
         --no-perms --no-owner --no-group \
         --delete \
-        --filter='P uploads/' \
-        --filter='- uploads/' \
-        --filter='P apps/' \
-        --filter='- apps/' \
+        --filter='- **/uploads/' \
+        --filter='P **/uploads/' \
+        --filter='- **/apps/' \
+        --filter='P **/apps/' \
         "${SOURCE_DIFF}" \
         "${SOURCE_BASE}" \
         "${TARGET}"
