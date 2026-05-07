@@ -1,0 +1,4 @@
+ALTER TABLE
+    tale
+MODIFY
+    COLUMN geo_zoom int DEFAULT 3 NULL;
