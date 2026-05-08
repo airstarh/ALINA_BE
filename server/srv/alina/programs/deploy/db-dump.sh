@@ -33,7 +33,7 @@ for db in "${ALINA_DB_BASES[@]}"; do
     DB_TOTAL_TIME=$((DB_END_TIME - DB_START_TIME))
 
     # Get file size
-    FILE_SIZE=$(ls -lh "${ALINA_LOCAL_DUMP_DIR}/db_${db}.sql" | awk '{print $5}')
+    FILE_SIZE=$(ls -lh "${ALINA_LOCAL_DUMP_DIR}/${db}.sql" | awk '{print $5}')
 
     echo "Dumped: $db (${FILE_SIZE}) - Time: ${DB_TOTAL_TIME} seconds"
     echo ""
