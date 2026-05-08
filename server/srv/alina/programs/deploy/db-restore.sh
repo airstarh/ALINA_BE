@@ -4,7 +4,10 @@ PATH_SETUP_EXE="$(readlink -f "$0")"
 DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
 source "${DIR_SETUP_EXE}/inc.sh"
 
-echo "Starting import at $(date)"
+echo ""
+echo "Starting import..."
+
+START_TIME=$(date +%s)
 
 docker exec alina_mysql mysql \
   -u "${ALINA_LOCAL_DB_USER}" \
@@ -17,4 +20,9 @@ docker exec alina_mysql mysql \
   -e "SOURCE ${ALINA_LOCAL_DB_DUMPS}/db_m45a.sql;" \
   -e "COMMIT; SET FOREIGN_KEY_CHECKS=1; SET UNIQUE_CHECKS=1;"
 
-echo "Import finished at $(date)"
+END_TIME=$(date +%s)
+TOTAL_TIME=$((END_TIME - START_TIME))
+
+echo ""
+echo "Total import time: ${TOTAL_TIME} seconds ($((TOTAL_TIME / 60)) minutes and $((TOTAL_TIME % 60)) seconds)"
+echo ""
