@@ -7,4 +7,13 @@ source "${DIR_SETUP_EXE}/inc.sh"
 
 #####
 
-docker exec -i alina_mysql mysql -u root -pborg_root_pass < "${ALINA_LOCAL_DUMP_DIR}/db_m45a.sql"
+docker exec alina_mysql mysql -u "${ALINA_DB_USER}" -p"${ALINA_DB_PASS}" <<EOSQL
+SET FOREIGN_KEY_CHECKS=0;
+SET UNIQUE_CHECKS=0;
+SET AUTOCOMMIT=0;
+SOURCE ${ALINA_DB_DUMPS_DIR}/db_m45a.sql;
+COMMIT;
+SET FOREIGN_KEY_CHECKS=1;
+SET UNIQUE_CHECKS=1;
+EOSQL
+
