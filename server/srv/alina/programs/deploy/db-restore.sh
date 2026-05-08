@@ -4,7 +4,7 @@ PATH_SETUP_EXE="$(readlink -f "$0")"
 DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
 source "${DIR_SETUP_EXE}/inc.sh"
 
-DUMP_FILE_NAME="db_m45a.sql"
+DUMP_FILE_NAME="m45a.sql"
 
 echo ""
 echo "Starting import..."

@@ -27,7 +27,7 @@ for db in "${ALINA_DB_BASES[@]}"; do
         --routines \
         --triggers \
         --events \
-        --complete-insert" > "${ALINA_LOCAL_DUMP_DIR}/db_${db}.sql"
+        --complete-insert" > "${ALINA_LOCAL_DUMP_DIR}/${db}.sql"
 
     DB_END_TIME=$(date +%s)
     DB_TOTAL_TIME=$((DB_END_TIME - DB_START_TIME))
