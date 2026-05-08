@@ -26,7 +26,6 @@ rsyncSsh() {
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function: sync_with_protection
 # Purpose: Run rsync with protected directories (uploads/, apps/) and deletion
 # Parameters:
 #   $1 - SOURCE_BASE

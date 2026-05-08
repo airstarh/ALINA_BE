@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-source ../inc.sh
-
 REMOTE_TARGET="/var/www"
 
 PROJECTS=(

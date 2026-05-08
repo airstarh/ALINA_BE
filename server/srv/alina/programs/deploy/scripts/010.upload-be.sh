@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ../inc.sh
-
 REMOTE_TARGET="/srv"
 
 # Define array of projects
