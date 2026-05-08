@@ -5,3 +5,5 @@ FE="/home/qqq/_A001/rep/ALINA_FE"
 REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"
 export REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
+
+export BE FE REMOTE_USER REMOTE_HOST REMOTE_ADDR
