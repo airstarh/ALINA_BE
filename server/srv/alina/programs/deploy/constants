@@ -2,6 +2,13 @@
 
 BE="/home/qqq/_A001/rep/ALINA_BE"
 FE="/home/qqq/_A001/rep/ALINA_FE"
+
 REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"
-export REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
+REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
+
+ALINA_DB_USER="root"
+ALINA_DB_PASS="1378862"
+ALINA_DB_BASES=("alina" "m45a" "stage" "vov")
+
+ALINA_REMOTE_DUMP_DIR="/howm/sewa/dumps"
