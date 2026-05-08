@@ -31,7 +31,7 @@ rsyncSsh() {
 #   $1 - SOURCE_BASE
 #   $2 - SOURCE_DIFF
 #   $3 - TARGET
-sync_with_protection() {
+rsyncLocal() {
     local SOURCE_BASE="$1"
     local SOURCE_DIFF="$2"
     local TARGET="$3"
@@ -81,7 +81,7 @@ sync_with_protection() {
     fi
 }
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# export -f sync_with_protection
+# export -f rsyncLocal
 # export -f rsyncSsh
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

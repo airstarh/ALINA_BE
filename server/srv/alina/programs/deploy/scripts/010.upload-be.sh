@@ -16,7 +16,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     SOURCE="${BE}/server/srv/${PROJECT}/"
     TARGET="${REMOTE_TARGET}/${PROJECT}/"
 
-    rsyncSsh "$SOURCE" "$TARGET"
+    rsyncSsh "${SOURCE}" "${TARGET}"
 
     echo "<<< ${PROJECT}"
     echo ""
