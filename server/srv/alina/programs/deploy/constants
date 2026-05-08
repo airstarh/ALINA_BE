@@ -11,4 +11,5 @@ ALINA_DB_USER="root"
 ALINA_DB_PASS="1378862"
 ALINA_DB_BASES=("alina" "m45a" "stage" "vov")
 
-ALINA_REMOTE_DUMP_DIR="/howm/sewa/dumps"
+ALINA_REMOTE_DUMP_DIR="/home/sewa/dumps"
+ALINA_LOCAL_DUMP_DIR="/home/qqq/dumps"
