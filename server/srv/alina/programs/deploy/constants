@@ -9,8 +9,11 @@ REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
 
 ALINA_DB_USER="root"
 ALINA_DB_PASS="1378862"
-ALINA_DB_DUMPS_DIR="/tmp/dumps"
 ALINA_DB_BASES=("alina" "m45a" "stage" "vov")
+
+ALINA_LOCAL_DB_USER="root"
+ALINA_LOCAL_DB_PASS="borg_root_pass"
+ALINA_LOCAL_DB_DUMPS="/tmp/dumps"
 
 ALINA_REMOTE_DUMP_DIR="/home/sewa/dumps"
 ALINA_LOCAL_DUMP_DIR="/home/qqq/dumps"
