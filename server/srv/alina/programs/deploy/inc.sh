@@ -38,7 +38,7 @@ sync_with_protection() {
 
     if [[ -z "$SOURCE_BASE" || -z "$SOURCE_DIFF" || -z "$TARGET" ]]; then
         echo "Error: Missing required arguments." >&2
-        echo "Usage: sync_with_protection <SOURCE_BASE> <SOURCE_DIFF> <TARGET>" >&2
+        echo "Usage: FUNCTION <SOURCE_BASE> <SOURCE_DIFF> <TARGET>" >&2
         return 1
     fi
 
