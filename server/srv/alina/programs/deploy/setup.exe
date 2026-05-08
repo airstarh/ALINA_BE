@@ -1,12 +1,12 @@
 #!/bin/bash
 
+source ./constants
+source inc.sh
+
 PATH_SETUP_EXE="$(readlink -f "$0")"
 DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
 
 cd "${DIR_SETUP_EXE}" || { echo "Failed to cd to ${DIR_SETUP_EXE}"; exit 1; }
-
-source inc.sh
-source ./constants
 
 cd "${FE}"
 ####################################################################################################

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../constfants
+source ../constants
 
 REMOTE_TARGET="/srv"
 
