@@ -81,7 +81,7 @@ sync_with_protection() {
     fi
 }
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-export -f sync_with_protection
-export -f rsyncSsh
+# export -f sync_with_protection
+# export -f rsyncSsh
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

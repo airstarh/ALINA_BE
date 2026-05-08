@@ -18,9 +18,9 @@ cd "${FE}"
 cd "${DIR_SETUP_EXE}" || { echo "Failed to cd to ${DIR_SETUP_EXE}"; exit 1; }
 ####################################################################################################
 # OWN
-#bash ./scripts/000.ownership.sh
-#bash ./scripts/010.upload-be.sh
-bash ./scripts/015.www-diff.sh
-#bash ./scripts/020.upload-web.sh
-#bash ./scripts/000.ownership.sh
-# bash ./scripts/030.restart.sh
+#source ./scripts/000.ownership.sh
+#source ./scripts/010.upload-be.sh
+source ./scripts/015.www-diff.sh
+#source ./scripts/020.upload-web.sh
+#source ./scripts/000.ownership.sh
+# source ./scripts/030.restart.sh
