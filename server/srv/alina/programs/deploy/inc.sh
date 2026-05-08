@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./constants
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 rsyncSsh() {
         local SOURCE="$1"

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source ./constants
 source inc.sh
 
 PATH_SETUP_EXE="$(readlink -f "$0")"
