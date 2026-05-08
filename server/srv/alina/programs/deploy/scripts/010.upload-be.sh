@@ -10,6 +10,7 @@ PROJECTS=(
 
 # Loop through each project
 for PROJECT in "${PROJECTS[@]}"; do
+    echo ""
     echo ">>> ${PROJECT}"
 
     SOURCE="${BE}/server/srv/${PROJECT}/"
@@ -18,6 +19,7 @@ for PROJECT in "${PROJECTS[@]}"; do
     rsyncSsh "$SOURCE" "$TARGET"
 
     echo "<<< ${PROJECT}"
+    echo ""
 done
 
 echo "✅ ✅"
