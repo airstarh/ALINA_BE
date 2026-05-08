@@ -11,7 +11,7 @@ docker exec alina_mysql mysql \
   -p"${ALINA_LOCAL_DB_PASS}" \
   --batch \
   --quick \
-  --max_allowed_packet=3G \
+  --max_allowed_packet=2G \
   --net_buffer_length=1M \
   -e "SET FOREIGN_KEY_CHECKS=0; SET UNIQUE_CHECKS=0; SET AUTOCOMMIT=0;" \
   -e "SOURCE ${ALINA_LOCAL_DB_DUMPS}/db_m45a.sql;" \
