@@ -1,9 +1,8 @@
 #!/bin/bash
 
-PATH_SETUP_EXE="$(readlink -f "$0")"
-DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
-
-source "${DIR_SETUP_EXE}/inc.sh"
+DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${DIR_THIS}" || exit
+source "./inc.sh"
 
 cd "${FE}"
 ####################################################################################################
@@ -15,7 +14,7 @@ cd "${FE}"
 
 
 
-cd "${DIR_SETUP_EXE}" || { echo "Failed to cd to ${DIR_SETUP_EXE}"; exit 1; }
+cd "${DIR_THIS}" || { echo "Failed to cd to ${DIR_THIS}"; exit 1; }
 ####################################################################################################
 # OWN
 #source ./scripts/000.ownership.sh

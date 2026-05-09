@@ -1,9 +1,8 @@
 #!/bin/bash
 
-PATH_SETUP_EXE="$(readlink -f "$0")"
-DIR_SETUP_EXE="$(dirname "${PATH_SETUP_EXE}")"
-
-source "${DIR_SETUP_EXE}/inc.sh"
+DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${DIR_THIS}" || exit
+source "./inc.sh"
 
 #####
 
