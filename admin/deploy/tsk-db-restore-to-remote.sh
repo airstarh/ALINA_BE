@@ -7,70 +7,35 @@ source "./inc.sh"
 #####
 
 # Database to restore - SET THIS VARIABLE
-ALINA_DB_NAME_TO_RESTORE="database_name_here"
-
-# Remote dumps directory (from your inc.sh)
-REMOTE_DUMP_DIR="${ALINA_REMOTE_DUMP_DIR}"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+ALINA_DB_NAME_TO_RESTORE="stage"
 
 # Check if database name is set
 if [ -z "${ALINA_DB_NAME_TO_RESTORE}" ] || [ "${ALINA_DB_NAME_TO_RESTORE}" = "database_name_here" ]; then
-    echo -e "${RED}ERROR: Please set ALINA_DB_NAME_TO_RESTORE variable in the script${NC}"
+    echo "ERROR: Database name not set"
     exit 1
 fi
 
 # Check if remote dump exists
-echo "Checking for remote dump: ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz"
-if ! ssh "${REMOTE_ADDR}" "test -f ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz"; then
-    echo -e "${RED}ERROR: Dump file not found: ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz${NC}"
-
-    # List available dumps
-    echo -e "${YELLOW}Available dumps on remote:${NC}"
-    ssh "${REMOTE_ADDR}" "ls -lh ${REMOTE_DUMP_DIR}/*.sql.gz 2>/dev/null | awk '{print \$9, \"(\" \$5 \")\"}'"
+if ! ssh "${REMOTE_ADDR}" "test -f ${ALINA_REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz"; then
+    echo "ERROR: Dump file not found: ${ALINA_REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz"
     exit 1
-fi
-
-# Confirm restoration
-echo -e "${YELLOW}WARNING: This will restore the database '${ALINA_DB_NAME_TO_RESTORE}' on remote host${NC}"
-read -p "Are you sure you want to continue? (yes/no): " CONFIRM
-
-if [ "${CONFIRM}" != "yes" ]; then
-    echo "Restoration cancelled."
-    exit 0
 fi
 
 # Track time
 START_TIME=$(date +%s)
 
-echo ""
-echo "Starting restoration of database: ${ALINA_DB_NAME_TO_RESTORE}"
-
 # Restore directly on remote server
-ssh "${REMOTE_ADDR}" \
-    "gunzip -c ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz | \
-    mysql -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}'"
+if ssh "${REMOTE_ADDR}" \
+    "gunzip -c ${ALINA_REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz | \
+    mysql -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}'"; then
 
-if [ $? -eq 0 ]; then
-    # Calculate time
     END_TIME=$(date +%s)
     TOTAL_TIME=$((END_TIME - START_TIME))
     TOTAL_MINUTES=$((TOTAL_TIME / 60))
     TOTAL_SECONDS=$((TOTAL_TIME % 60))
 
-    echo ""
-    echo -e "${GREEN}=========================================${NC}"
-    echo -e "${GREEN}Database restored successfully!${NC}"
-    echo "Database: ${ALINA_DB_NAME_TO_RESTORE}"
-    echo "Total time: ${TOTAL_TIME} seconds (${TOTAL_MINUTES} minutes ${TOTAL_SECONDS} seconds)"
-    echo -e "${GREEN}=========================================${NC}"
+    echo "SUCCESS: ${ALINA_DB_NAME_TO_RESTORE} restored in ${TOTAL_TIME} seconds (${TOTAL_MINUTES}m ${TOTAL_SECONDS}s)"
 else
-    echo -e "${RED}ERROR: Failed to restore database${NC}"
+    echo "ERROR: Failed to restore database ${ALINA_DB_NAME_TO_RESTORE}"
+    exit 1
 fi
-
-echo ""
-echo "Restoration complete!"
