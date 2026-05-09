@@ -12,9 +12,6 @@ ALINA_DB_NAME_TO_RESTORE="database_name_here"
 # Remote dumps directory (from your inc.sh)
 REMOTE_DUMP_DIR="${ALINA_REMOTE_DUMP_DIR}"
 
-# Local temporary directory for downloaded dump
-TEMP_DIR="/tmp/db_restore_$$"
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -39,7 +36,7 @@ if ! ssh "${REMOTE_ADDR}" "test -f ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE
 fi
 
 # Confirm restoration
-echo -e "${YELLOW}WARNING: This will OVERWRITE the database '${ALINA_DB_NAME_TO_RESTORE}' on remote host${NC}"
+echo -e "${YELLOW}WARNING: This will restore the database '${ALINA_DB_NAME_TO_RESTORE}' on remote host${NC}"
 read -p "Are you sure you want to continue? (yes/no): " CONFIRM
 
 if [ "${CONFIRM}" != "yes" ]; then
@@ -47,51 +44,16 @@ if [ "${CONFIRM}" != "yes" ]; then
     exit 0
 fi
 
-# Create temp directory
-mkdir -p "${TEMP_DIR}"
-echo "Created temporary directory: ${TEMP_DIR}"
-
 # Track time
 START_TIME=$(date +%s)
 
 echo ""
 echo "Starting restoration of database: ${ALINA_DB_NAME_TO_RESTORE}"
 
-# Step 1: Download the gzipped dump from remote
-echo "Downloading compressed dump from remote..."
-scp "${REMOTE_ADDR}:${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz" "${TEMP_DIR}/"
-
-if [ $? -ne 0 ]; then
-    echo -e "${RED}ERROR: Failed to download dump from remote${NC}"
-    rm -rf "${TEMP_DIR}"
-    exit 1
-fi
-
-# Step 2: Get file size
-FILE_SIZE=$(ls -lh "${TEMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz" | awk '{print $5}')
-echo "Downloaded: ${ALINA_DB_NAME_TO_RESTORE}.sql.gz (${FILE_SIZE})"
-
-# Step 3: Decompress
-echo "Decompressing dump..."
-gunzip "${TEMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz"
-
-if [ $? -ne 0 ]; then
-    echo -e "${RED}ERROR: Failed to decompress dump${NC}"
-    rm -rf "${TEMP_DIR}"
-    exit 1
-fi
-
-# Step 4: Restore to remote database
-echo "Restoring to remote database '${ALINA_DB_NAME_TO_RESTORE}'..."
+# Restore directly on remote server
 ssh "${REMOTE_ADDR}" \
-    "mysql -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}' \
-    -e 'DROP DATABASE IF EXISTS ${ALINA_DB_NAME_TO_RESTORE}; \
-    CREATE DATABASE ${ALINA_DB_NAME_TO_RESTORE};'"
-
-# Restore the database
-cat "${TEMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql" | ssh "${REMOTE_ADDR}" \
-    "mysql -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}' \
-    ${ALINA_DB_NAME_TO_RESTORE}"
+    "gunzip -c ${REMOTE_DUMP_DIR}/${ALINA_DB_NAME_TO_RESTORE}.sql.gz | \
+    mysql -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}'"
 
 if [ $? -eq 0 ]; then
     # Calculate time
@@ -109,10 +71,6 @@ if [ $? -eq 0 ]; then
 else
     echo -e "${RED}ERROR: Failed to restore database${NC}"
 fi
-
-# Cleanup
-echo "Cleaning up temporary files..."
-rm -rf "${TEMP_DIR}"
 
 echo ""
 echo "Restoration complete!"
