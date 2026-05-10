@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# shellcheck source=../tsk-code-to-remote.sh
-# shellcheck source=../inc.sh
-# shellcheck source=../constants
-
 ALINA_DEFAULT_PROJECT_DIFF="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_BE}/${ALINA_FRAMEWORK_CONSUMERS}/${ALINA_DEFAULT_PROJECT}/.WwwDiff/"
 
 for PROJECT in "${ALINA_PROJECTS[@]}"; do
@@ -11,6 +7,6 @@ for PROJECT in "${ALINA_PROJECTS[@]}"; do
     LOC_SOURCE="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_BE}/${ALINA_FRAMEWORK_CONSUMERS}/${PROJECT}/.WwwDiff/"
     LCO_TARGET="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_FE}/${PROJECT}/"
 
-    rsyncLocal "${ALINA_DEFAULT_PROJECT_DIFF}" "${LOC_SOURCE}" "${LCO_TARGET}"
+    alina_rsync_local "${ALINA_DEFAULT_PROJECT_DIFF}" "${LOC_SOURCE}" "${LCO_TARGET}"
 
 done
