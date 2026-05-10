@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 
 BE="/home/qqq/_A001/rep/ALINA_BE"
 FE="/home/qqq/_A001/rep/ALINA_FE"
