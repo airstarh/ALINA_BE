@@ -1,12 +1,12 @@
 #!/bin/bash
 
 
-for LOC_PROJECT in "${ALINA_PROJECTS[@]}"; do
+for LOC_PROJECT in "${ALINA_BE_FREAMEWORK_FOLDERS[@]}"; do
 
     echo ""
     echo ">>> ${LOC_PROJECT}"
 
-    LOC_SOURCE="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_FE}/${LOC_PROJECT}/"
+    LOC_SOURCE="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_BE}/${LOC_PROJECT}/"
     LOC_TARGET="${ALINA_BE_REMOTE_DIR}/${LOC_PROJECT}/"
 
     alina_rsync_ssh "${LOC_SOURCE}" "${LOC_TARGET}"

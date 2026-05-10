@@ -4,6 +4,10 @@ source ./constants.sh
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 alina_rsync_ssh() {
+
+        echo ""
+        echo "STARTED alina_rsync_ssh"
+
         local SOURCE="$1"
         local TARGET="$2"
 
@@ -33,6 +37,10 @@ alina_rsync_ssh() {
 #   $2 - SOURCE_DIFF
 #   $3 - TARGET
 alina_rsync_local() {
+
+    echo ""
+    echo "STARTED alina_rsync_local"
+
     local SOURCE_BASE="$1"
     local SOURCE_DIFF="$2"
     local TARGET="$3"
