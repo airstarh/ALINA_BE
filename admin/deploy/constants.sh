@@ -26,7 +26,13 @@ export ALINA_BE_FREAMEWORK_FOLDERS=(
     "${ALINA_FRAMEWORK_CONSUMERS}"
 )
 
-export ALINA_PROJECTS=("zero.home" "stage" "saysimsim.ru" "m45a" "vov")
+export ALINA_PROJECTS=(
+    "zero.home"
+    "stage"
+    "saysimsim.ru"
+    "m45a"
+    "vov"
+)
 export ALINA_DEFAULT_PROJECT="zero.home"
 
 
