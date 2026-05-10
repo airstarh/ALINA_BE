@@ -1,25 +1,18 @@
 #!/bin/bash
 
-REMOTE_BASE_FOLDER="/srv"
 
-# Define array of projects
-ALINA_BE_FOLDERS=(
-    "alina"
-    "alina_consumers"
-)
+for LOC_PROJECT in "${ALINA_PROJECTS[@]}"; do
 
-# Loop through each project
-for BE_FOLDER in "${ALINA_BE_FOLDERS[@]}"; do
     echo ""
-    echo ">>> ${BE_FOLDER}"
+    echo ">>> ${LOC_PROJECT}"
 
-    SOURCE_ALINA_BE_FOLDER="${BE}/server/srv/${BE_FOLDER}/"
-    TARGET_ALINA_BE_FOLDER="${REMOTE_BASE_FOLDER}/${BE_FOLDER}/"
+    LOC_SOURCE="${BE}/${ALINA_BE_DOCKER}/${LOC_PROJECT}/"
+    LOC_TARGET="${ALINA_BE_REMOTE_DIR}/${LOC_PROJECT}/"
 
-    rsyncSsh "${SOURCE_ALINA_BE_FOLDER}" "${TARGET_ALINA_BE_FOLDER}"
+    rsyncSsh "${LOC_SOURCE}" "${LOC_TARGET}"
 
-    echo "<<< ${BE_FOLDER}"
+    echo "<<< ${LOC_PROJECT}"
     echo ""
 done
 
-echo "✅ ✅"
+echo "✅ ✅ ✅ ✅"

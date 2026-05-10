@@ -1,6 +1,8 @@
 #!/bin/bash
 # shellcheck disable=SC2034
 
+####################################################################################################
+# Code
 BE="/home/qqq/_A001/rep/ALINA_BE"
 FE="/home/qqq/_A001/rep/ALINA_FE"
 
@@ -8,6 +10,30 @@ REMOTE_USER="sewa"
 REMOTE_HOST="saysimsim.ru"
 REMOTE_ADDR="${REMOTE_USER}@${REMOTE_HOST}"
 
+###
+
+ALINA_BE_LOCAL_DIR="/home/qqq/_A001/rep/ALINA_BE"
+ALINA_FE_LOCAL_DIR="/home/qqq/_A001/rep/ALINA_FE"
+ALINA_BE_DOCKER="server/var/www"
+ALINA_FE_DOCKER="server/srv"
+
+ALINA_FRAMEWORK="alina"
+ALINA_FRAMEWORK_CONSUMERS="alina_consumers"
+ALINA_BE_FREAMEWORK_FOLDERS=(
+    "${ALINA_FRAMEWORK}"
+    "${ALINA_FRAMEWORK_CONSUMERS}"
+)
+
+ALINA_BE_REMOTE_DIR="/srv"
+ALINA_FE_REMOTE_DIR="/var/www"
+
+ALINA_PROJECTS=("zero.home" "stage" "saysimsim.ru" "m45a" "vov")
+ALINA_DEFAULT_PROJECT="zero.home"
+ALINA_DEFAULT_PROJECT_DIFF="${BE}/server/srv/${ALINA_FRAMEWORK_CONSUMERS}/${ALINA_DEFAULT_PROJECT}/.WwwDiff/"
+
+
+####################################################################################################
+# Databsase
 ALINA_DB_USER="root"
 ALINA_DB_PASS="1378862"
 ALINA_DB_BASES=("alina" "m45a" "stage" "vov")
@@ -18,3 +44,5 @@ ALINA_DOCKER_DB_PASS="borg_root_pass"
 ALINA_LOCAL_DUMP_DIR="/home/qqq/dumps"
 ALINA_DOCKER_DUMPS_DIR="/tmp/dumps"
 ALINA_REMOTE_DUMP_DIR="/home/sewa/dumps"
+
+####################################################################################################

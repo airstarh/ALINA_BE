@@ -1,24 +1,17 @@
 #!/usr/bin/bash
 
-REMOTE_TARGET="/var/www"
+for LOC_PROJECT in "${ALINA_PROJECTS[@]}"; do
 
-PROJECTS=(
-    "stage"
-    "saysimsim.ru"
-    "m45a"
-    "vov"
-)
+        echo ""
+    echo ">>> ${LOC_PROJECT}"
 
-for PROJECT in "${PROJECTS[@]}"; do
+    LOC_SOURCE="${BE}/server/var/www/${LOC_PROJECT}/"
+    LOC_TARGET="${ALINA_FE_REMOTE_DIR}/${LOC_PROJECT}/"
 
-    echo ">>> ${PROJECT}"
+    rsyncSsh "$LOC_SOURCE" "$LOC_TARGET"
 
-    SOURCE="${BE}/server/var/www/${PROJECT}/"
-    TARGET="${REMOTE_TARGET}/${PROJECT}/"
-
-    rsyncSsh "$SOURCE" "$TARGET"
-
-    echo "<<< ${PROJECT}"
+    echo "<<< ${LOC_PROJECT}"
+    echo ""
 done
 
 echo "✅ ✅ ✅ ✅"
