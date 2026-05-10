@@ -81,6 +81,30 @@ rsyncLocal() {
     fi
 }
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Function to sync projects with specific docker and remote paths
+# Usage: sync_projects "docker_subdir" "remote_dir" "label"
+# Example: sync_projects "$ALINA_FE_DOCKER" "$ALINA_FE_REMOTE_DIR" "FE"
+sync_projects() {
+    local docker_subdir="$1"
+    local remote_dir="$2"
+    local label="$3"
+
+    for LOC_PROJECT in "${ALINA_PROJECTS[@]}"; do
+        echo ""
+        echo ">>> ${LOC_PROJECT} (${label})"
+
+        LOC_SOURCE="${BE}/${docker_subdir}/${LOC_PROJECT}/"
+        LOC_TARGET="${remote_dir}/${LOC_PROJECT}/"
+
+        rsyncSsh "${LOC_SOURCE}" "${LOC_TARGET}"
+
+        echo "<<< ${LOC_PROJECT} (${label})"
+        echo ""
+    done
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # exports...
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
