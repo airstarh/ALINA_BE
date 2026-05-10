@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./constants
+source ./constants.sh
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 alina_rsync_ssh() {
