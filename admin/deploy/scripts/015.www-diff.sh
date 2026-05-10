@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+ALINA_DEFAULT_PROJECT_DIFF="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_BE}/${ALINA_FRAMEWORK_CONSUMERS}/${ALINA_DEFAULT_PROJECT}/.WwwDiff/"
 
 for PROJECT in "${ALINA_PROJECTS[@]}"; do
 
-    DIFF="${BE}/server/srv/${ALINA_FRAMEWORK_CONSUMERS}/${PROJECT}/.WwwDiff/"
-    TO_FINAL_PLACE="${BE}/server/var/www/${PROJECT}/"
+    LOC_SOURCE="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_BE}/${ALINA_FRAMEWORK_CONSUMERS}/${PROJECT}/.WwwDiff/"
+    LCO_TARGET="${ALINA_BE_LOCAL_DIR}/${ALINA_DOCKER_VOL_FE}/${PROJECT}/"
 
-    rsyncLocal "${ALINA_DEFAULT_PROJECT_DIFF}" "${DIFF}" "${TO_FINAL_PLACE}"
+    rsyncLocal "${ALINA_DEFAULT_PROJECT_DIFF}" "${LOC_SOURCE}" "${LCO_TARGET}"
 
 done
