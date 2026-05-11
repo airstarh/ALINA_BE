@@ -36,7 +36,7 @@ alina_rsync_ssh() {
 
     local rsync_status=$?
     if [[ $rsync_status -ne 0 ]]; then
-        echo "Error: rsync failed (exit: $rsync_status)" >&2
+        echo "Error: sync failed (exit: $rsync_status)" >&2
     fi
     return $rsync_status
 }
@@ -91,7 +91,7 @@ alina_rsync_local() {
         echo "  SOURCE_DIFF: $SOURCE_DIFF"
         echo "  TARGET: $TARGET"
     else
-        echo "Error: rsync failed with exit code $rsync_status" >&2
+        echo "Error: sync failed with exit code $rsync_status" >&2
     fi
     return $rsync_status
 }
