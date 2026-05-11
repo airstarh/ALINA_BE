@@ -22,7 +22,6 @@ alina_rsync_ssh() {
     rsync \
         -rltv \
         -z \
-        -in \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
         --filter='- **/cfg/db.php' \
@@ -73,7 +72,6 @@ alina_rsync_local() {
 
     rsync \
         -av \
-        -in \
         --no-perms --no-owner --no-group \
         --delete \
         --filter='- **/uploads/' \
