@@ -38,5 +38,15 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ##################################################
+# COPY ENTRYPOINT SCRIPT
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+##################################################
 # CHMOD CHOWN
 RUN chmod -R 777 /var/www
+
+##################################################
+# SET ENTRYPOINT
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["php-fpm"]
