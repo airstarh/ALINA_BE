@@ -27,11 +27,11 @@ export ALINA_BE_FREAMEWORK_FOLDERS=(
 )
 
 export ALINA_PROJECTS=(
-    # "zero.home"
-    # "stage"
+    "zero.home"
+    "stage"
     "saysimsim.ru"
-    # "m45a"
-    # "vov"
+    "m45a"
+    "vov"
 )
 export ALINA_DEFAULT_PROJECT="zero.home"
 
