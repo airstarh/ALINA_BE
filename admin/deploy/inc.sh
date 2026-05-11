@@ -1,43 +1,47 @@
 #!/bin/bash
 
+# Run:
+# bash ./admin/deploy/tsk-code-to-remote.sh > ~/ln-log 2>&1
+
 source ./constants.sh
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 alina_rsync_ssh() {
+    echo ""
+    echo "STARTED alina_rsync_ssh"
 
-        echo ""
-        echo "STARTED alina_rsync_ssh"
+    local SOURCE="$1"
+    local TARGET="$2"
 
-        local SOURCE="$1"
-        local TARGET="$2"
+    ssh "${REMOTE_ADDR}" "sudo mkdir -p -m 755 ${TARGET}"
+    local ssh_status=$?
+    if [[ $ssh_status -ne 0 ]]; then
+        echo "Error: SSH mkdir failed (exit: $ssh_status)" >&2
+        return $ssh_status
+    fi
 
-        ssh "${REMOTE_ADDR}" "sudo mkdir -p -m 755 ${TARGET}"
+    rsync \
+        -rltv \
+        -z \
+        -in \
+        --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
+        --delete-after \
+        --filter='- **/cfg/db.php' \
+        --filter='- **/cfg/mailer.php' \
+        --filter='- **/uploads/' \
+        --filter='P **/uploads/' \
+        -e "ssh" \
+        --rsync-path="sudo rsync" \
+        "${SOURCE}" \
+        "${REMOTE_ADDR}:${TARGET}"
 
-        rsync \
-                -rltv \
-                -z \
-                -in \
-                --skip-compress=jpg/jpeg/png/gif/mp4/mp3/zip/gz/pdf \
-                --delete-after \
-                --filter='- **/cfg/db.php' \
-                --filter='- **/cfg/mailer.php' \
-                --filter='- **/uploads/' \
-                --filter='P **/uploads/' \
-                -e \
-                "ssh" \
-                --rsync-path="sudo rsync" \
-                "${SOURCE}" \
-                "${REMOTE_ADDR}:${TARGET}"
+    local rsync_status=$?
+    if [[ $rsync_status -ne 0 ]]; then
+        echo "Error: rsync failed (exit: $rsync_status)" >&2
+    fi
+    return $rsync_status
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Purpose: Run rsync with protected directories (uploads/, apps/) and deletion
-# Parameters:
-#   $1 - SOURCE_BASE
-#   $2 - SOURCE_DIFF
-#   $3 - TARGET
 alina_rsync_local() {
-
     echo ""
     echo "STARTED alina_rsync_local"
 
@@ -47,7 +51,6 @@ alina_rsync_local() {
 
     if [[ -z "$SOURCE_BASE" || -z "$SOURCE_DIFF" || -z "$TARGET" ]]; then
         echo "Error: Missing required arguments." >&2
-        echo "Usage: FUNCTION <SOURCE_BASE> <SOURCE_DIFF> <TARGET>" >&2
         return 1
     fi
 
@@ -62,9 +65,10 @@ alina_rsync_local() {
     fi
 
     mkdir -p "$TARGET"
-    if [[ ! -d "$TARGET" ]]; then
+    local mkdir_status=$?
+    if [[ $mkdir_status -ne 0 ]]; then
         echo "Error: Failed to create TARGET: $TARGET" >&2
-        return 1
+        return $mkdir_status
     fi
 
     rsync \
@@ -80,17 +84,14 @@ alina_rsync_local() {
         "${SOURCE_BASE}" \
         "${TARGET}"
 
-    if [[ $? -eq 0 ]]; then
+    local rsync_status=$?
+    if [[ $rsync_status -eq 0 ]]; then
         echo "Sync completed successfully:"
         echo "  SOURCE_BASE: $SOURCE_BASE"
         echo "  SOURCE_DIFF: $SOURCE_DIFF"
         echo "  TARGET: $TARGET"
     else
-        echo "Error: rsync failed with exit code $?" >&2
-        return $?
+        echo "Error: rsync failed with exit code $rsync_status" >&2
     fi
+    return $rsync_status
 }
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# exports...
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
