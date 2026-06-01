@@ -24,7 +24,7 @@ define('ALINA_DT_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
 define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 ##################################################
 /**
- * @return App
+ * @return \alina\App
  * @throws Exception
  */
 function Alina()

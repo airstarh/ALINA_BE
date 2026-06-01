@@ -104,6 +104,8 @@ class App
     }
     #endregion Initiation
     #region Instantiation
+    
+    /** @var static $instance */
     static protected $instance = NULL;
 
     /**

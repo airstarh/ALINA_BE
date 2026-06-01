@@ -1,8 +1,15 @@
 <?php
 
 namespace alina\mvc\Controller;
+
+use alina\mvc\View\html;
+use alina\Utils\FS;
+use function Alina;
+use function AlinaRejectIfNotAdmin;
+
 class alinaFileProxy
 {
+
     public $allowedExtensions = [
         'js',
         'css',
@@ -30,13 +37,13 @@ class alinaFileProxy
                 return NULL;
             }
             $p = Alina()->resolvePath($relativePath);
-            \alina\Utils\FS::giveFile($p);
+            FS::giveFile($p);
         }
     }
 
     public function actionTestIt()
     {
         $p = 'alinaFileProxy/fullHtmlLayout.php';
-        echo (new \alina\mvc\View\html)->piece($p);
+        echo (new html)->piece($p);
     }
 }
