@@ -22,3 +22,12 @@ Adding debian:home-ca.pem
 done.
 done.
 qqq@aaa:~/_A001/rep/ALINA_BE/server/srv/sewa/cert003/cert$
+
+###
+
+qqq@aaa:~/_A001/rep/ALINA_BE$
+qqq@aaa:~/_A001/rep/ALINA_BE$ certutil -d sql:$HOME/.pki/nssdb -D -n "Zero Home CA"
+qqq@aaa:~/_A001/rep/ALINA_BE$ certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n "zero.home" -i ./server/srv/sewa/cert003/cert/040.byrobot.fullchain.pem
+qqq@aaa:~/_A001/rep/ALINA_BE$ certutil -d sql:$HOME/.pki/nssdb -L | grep zero
+zero.home                                                    P,,
+qqq@aaa:~/_A001/rep/ALINA_BE$
