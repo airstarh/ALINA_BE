@@ -15,5 +15,8 @@ Trust: import in browsers
 6.
 Add to nginx
 
+7. Other optional steps:
+080.trust.android.sh
+
 P.S.
 Eacg hour new rules...
