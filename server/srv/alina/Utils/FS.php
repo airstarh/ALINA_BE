@@ -168,8 +168,11 @@ class FS
     static public function giveFile($realPath)
     {
         if (!file_exists($realPath)) {
-            throw new \ErrorException("File {$realPath} does not exist.");
+            http_response_code(404);
+            echo '';
+            exit;
         }
+        
         $pathInfo = pathinfo($realPath);
         $fileSize = filesize($realPath);
         $ext = $pathInfo['extension'];

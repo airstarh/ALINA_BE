@@ -4,6 +4,7 @@ namespace alina\mvc\Controller;
 
 use alina\mvc\View\html;
 use alina\Utils\FS;
+use alina\Utils\Request;
 use function Alina;
 use function AlinaRejectIfNotAdmin;
 
@@ -25,20 +26,43 @@ class alinaFileProxy
         AlinaRejectIfNotAdmin();
     }
 
+    /**
+     * Outputs '' or file content
+     */
     public function actionIndex()
     {
-        if (isset($_GET['file']) && !empty($_GET['file'])) {
-            $relativePath = $_GET['file'];
-            $relativePath = trim($relativePath, "'");
-            $relativePath = trim($relativePath, '"');
-            // Preventive Validation
-            $pathInfo = pathinfo($relativePath);
-            if (!in_array($pathInfo['extension'], $this->allowedExtensions)) {
-                return NULL;
-            }
-            $p = Alina()->resolvePath($relativePath);
-            FS::giveFile($p);
+        $flagDo = true;
+        $get    = (string) (Request::obj()->GET ?? '');
+
+        if ($get->file === '') {
+            $flagDo = false;
         }
+
+        $relativePath = trim($get->file, "'\"");
+
+        $pathInfo = pathinfo($relativePath);
+        $ext      = $pathInfo['extension'] ?? '';
+
+        if ($ext === '' || !in_array($ext, $this->allowedExtensions, true)) {
+            $flagDo = false;
+        }
+
+        $p = Alina()->resolvePath($relativePath);
+
+        $realPath    = realpath($p);
+        $allowedBase = realpath(ALINA_WEB_PATH . '/uploads');
+
+        if ($realPath === false || mb_strpos($realPath, $allowedBase) !== 0) {
+            $flagDo = false;
+        }
+
+        if ($flagDo) {
+            FS::giveFile($realPath);
+            exit;
+        }
+
+        echo '';
+        exit;
     }
 
     public function actionTestIt()
