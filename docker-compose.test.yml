@@ -1,13 +1,9 @@
-version: "3.8"
 services:
   nginx:
     restart: unless-stopped
-    env_file: .env
     container_name: alina_nginx
     build: ./docker/nginx
     command: nginx -g "daemon off;"
-    links:
-      - php
     ports:
       - "50080:80"
       - "50443:443"
@@ -18,57 +14,26 @@ services:
       - ./server/var/log/nginx:/var/log/nginx
       - ./server/srv/sewa:/srv/sewa
       - ./server/var/www:/var/www
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETUID
-      - SETGID
-      - FOWNER
-      - KILL
 
   php:
     restart: unless-stopped
-    env_file: .env
     container_name: alina_php
     build: ./docker/php
-    links:
-      - mysql
     expose:
       - "9000"
-      - "9001"
     volumes:
-      # php.ini
       - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini
       - ./server/var/log/php:/var/log/php
-      ###- ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
-      # /var/www
       - ./server/var/www:/var/www
-      # ALINA framework
       - ./server/srv:/srv
     working_dir: /srv/alina
 
   mysql:
     restart: unless-stopped
-    env_file: .env
     image: mysql:8.0.27
     container_name: alina_mysql
-    command:
-      - --innodb-buffer-pool-size=2G
-      - --innodb-log-file-size=512M
-      - --innodb-flush-log-at-trx-commit=0
-      - --sync-binlog=0
-      - --innodb-flush-method=O_DIRECT
-      - --innodb-io-capacity=2000
-      - --max-allowed-packet=1G
-      - --skip-log-bin
     ports:
       - "53306:3306"
     volumes:
       - ./database/mysql:/var/lib/mysql
       - ~/dumps:/tmp/dumps
-
