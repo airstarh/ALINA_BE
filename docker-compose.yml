@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   nginx:
     restart: unless-stopped
@@ -81,4 +80,16 @@ services:
     volumes:
       - ./database/mysql:/var/lib/mysql
       - ~/dumps:/tmp/dumps
-
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/mysqld
