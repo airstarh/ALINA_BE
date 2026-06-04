@@ -5,8 +5,8 @@
 
 ALINA_USER_PHP=33
 ALINA_GROUP_PHP=33
-ALINA_USER_NHINX=101
-ALINA_GROUP_NHINX=101
+ALINA_USER_NGINX=101
+ALINA_GROUP_NGINX=101
 ALINA_USER_MYSQL=999
 ALINA_GROUP_MYSQL=999
 
@@ -27,12 +27,11 @@ sudo find ./server/srv/alina_consumers -type d -exec chmod 755 {} \;
 sudo find ./server/srv/alina_consumers -type f -exec chmod 644 {} \;
 
 # NGINX (nginx 101)
-sudo chown -R "${ALINA_USER_NHINX}":${ALINA_GROUP_NHINX} ./server/var/log/nginx   # Nginx user
-sudo chown "${ALINA_USER_NHINX}":${ALINA_GROUP_NHINX} ./server/srv/sewa/cert003/cert/*.pem
+sudo chown -R "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/var/log/nginx
+sudo chown "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/srv/sewa/cert003/cert/*.pem
 sudo chmod 644 ./server/srv/sewa/cert003/cert/*.pem
 sudo chmod 755 ./server/srv/sewa/cert003/cert
 sudo chmod 755 ./server/var/log/nginx
-
 
 # CONFIGS PROTECTED SECURITY
 sudo chmod 644 ./server/etc/nginx/*.conf
