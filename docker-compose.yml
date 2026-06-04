@@ -43,14 +43,24 @@ services:
       - "9001"
     volumes:
       # php.ini
-      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini
+      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
       - ./server/var/log/php:/var/log/php
       ###- ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
       # /var/www
       - ./server/var/www:/var/www
       # ALINA framework
-      - ./server/srv:/srv
+      - ./server/srv:/srv:ro
     working_dir: /srv/alina
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
 
   mysql:
     restart: unless-stopped
