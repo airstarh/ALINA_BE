@@ -80,6 +80,8 @@ services:
       - --skip-log-bin
     ports:
       - "53306:3306"
+    expose:
+      - "3306"
     volumes:
       - ./database/mysql:/var/lib/mysql
       - ~/dumps:/tmp/dumps
