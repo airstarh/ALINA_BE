@@ -18,23 +18,23 @@ sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/var/log/php
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/var/www
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/srv/alina
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/srv/alina_consumers
-chmod 755 ./server/var/log/php
-find ./server/var/www -type d -exec chmod 755 {} \;
-find ./server/var/www -type f -exec chmod 644 {} \;
-find ./server/srv/alina -type d -exec chmod 755 {} \;
-find ./server/srv/alina -type f -exec chmod 644 {} \;
-find ./server/srv/alina_consumers -type d -exec chmod 755 {} \;
-find ./server/srv/alina_consumers -type f -exec chmod 644 {} \;
+sudo chmod 755 ./server/var/log/php
+sudo find ./server/var/www -type d -exec chmod 755 {} \;
+sudo find ./server/var/www -type f -exec chmod 644 {} \;
+sudo find ./server/srv/alina -type d -exec chmod 755 {} \;
+sudo find ./server/srv/alina -type f -exec chmod 644 {} \;
+sudo find ./server/srv/alina_consumers -type d -exec chmod 755 {} \;
+sudo find ./server/srv/alina_consumers -type f -exec chmod 644 {} \;
 
 # NGINX (nginx 101)
 sudo chown -R "${ALINA_USER_NHINX}":${ALINA_GROUP_NHINX} ./server/var/log/nginx   # Nginx user
 sudo chown "${ALINA_USER_NHINX}":${ALINA_GROUP_NHINX} ./server/srv/sewa/cert003/cert/*.pem
-chmod 644 ./server/srv/sewa/cert003/cert/*.pem
-chmod 755 ./server/srv/sewa/cert003/cert
-chmod 755 ./server/var/log/nginx
+sudo chmod 644 ./server/srv/sewa/cert003/cert/*.pem
+sudo chmod 755 ./server/srv/sewa/cert003/cert
+sudo chmod 755 ./server/var/log/nginx
 
 
 # CONFIGS PROTECTED SECURITY
-chmod 644 ./server/etc/nginx/*.conf
-chmod 644 ./server/etc/nginx/conf.d/*.conf
-chmod 644 ./server/usr/local/etc/php/php.ini
+sudo chmod 644 ./server/etc/nginx/*.conf
+sudo chmod 644 ./server/etc/nginx/conf.d/*.conf
+sudo chmod 644 ./server/usr/local/etc/php/php.ini
