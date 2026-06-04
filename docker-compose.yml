@@ -60,6 +60,9 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   mysql:
     restart: unless-stopped
@@ -93,3 +96,9 @@ services:
     tmpfs:
       - /tmp
       - /var/run/mysqld
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 30s
