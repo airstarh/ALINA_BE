@@ -2,7 +2,7 @@
 
 DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${DIR_THIS}" || exit
-source "./inc.sh"
+source "../inc.sh"
 
 cd "${ALINA_FE_LOCAL_DIR}"
 ####################################################################################################

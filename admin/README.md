@@ -1,7 +1,7 @@
 
 # MySQL
 
-Lacations:
+Locations:
     - local
     - docker
     - remote
