@@ -35,7 +35,6 @@ export ALINA_PROJECTS=(
 )
 export ALINA_DEFAULT_PROJECT="zero.home"
 
-
 ####################################################################################################
 # Databsase
 export ALINA_DB_USER="root"
