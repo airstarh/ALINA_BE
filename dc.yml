@@ -7,7 +7,6 @@ x-vol-nginx: &vol-nginx
   - ./server/etc/nginx/conf.d:/etc/nginx/conf.d:ro
   # LETSECTYPT, CERTS
   - ./server/etc/letsencrypt:/etc/letsencrypt
-  # - ./server/var/www/certbot:/var/www/certbot:rw
   - ./server/srv/sewa:/srv/sewa:ro
   # LOG
   - ./server/var/log:/var/log:rw
@@ -127,18 +126,17 @@ services:
     extra_hosts:
       - "default.org:host-gateway"
     entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        sleep 10
-        certbot certonly \
-          --webroot \
-          --webroot-path=/var/www/certbot \
-          --email vsevolod.azovsky@gmail.com \
-          --agree-tos \
-          --no-eff-email \
-          --staging \
-          --keep-until-expiring \
-          --force-renewal \
-          -d default.org
+    command: >
+      -c "
+      echo '[INFO] Запуск теста записи в /var/www/certbot...' &&
+      sleep 5 &&
+      mkdir -p /var/www/certbot/.well-known/acme-challenge &&
+      echo 'test-key-auth-content' > /var/www/certbot/.well-known/acme-challenge/test-challenge-123 &&
+      echo '[INFO] Файл создан: /var/www/certbot/.well-known/acme-challenge/test-challenge-123' &&
+      echo '[INFO] Содержимое папки:' &&
+      ls -la /var/www/certbot/.well-known/acme-challenge/ &&
+      echo '[INFO] Жду вручную... Проверь curl и нажми Ctrl+C, когда закончишь' &&
+      tail -f /dev/null
+      "
     volumes: *vol-nginx
+
