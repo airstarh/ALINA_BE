@@ -1,0 +1,7 @@
+location ^~ /.well-known/acme-challenge/ {
+    alias /var/www/html/.well-known/acme-challenge;
+    default_type "text/plain";
+    allow all;
+    expires off;
+    access_log off;
+}
