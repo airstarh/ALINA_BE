@@ -125,18 +125,17 @@ services:
       - 1.1.1.1
     extra_hosts:
       - "default.org:host-gateway"
-    entrypoint: /bin/sh
-    command: >
-      -c "
-      echo '[INFO] Запуск теста записи в /var/www/certbot...' &&
-      sleep 5 &&
-      mkdir -p /var/www/certbot/.well-known/acme-challenge &&
-      echo 'test-key-auth-content' > /var/www/certbot/.well-known/acme-challenge/test-challenge-123 &&
-      echo '[INFO] Файл создан: /var/www/certbot/.well-known/acme-challenge/test-challenge-123' &&
-      echo '[INFO] Содержимое папки:' &&
-      ls -la /var/www/certbot/.well-known/acme-challenge/ &&
-      echo '[INFO] Жду вручную... Проверь curl и нажми Ctrl+C, когда закончишь' &&
-      tail -f /dev/null
-      "
+    entrypoint: /usr/local/bin/certbot
+    command:
+      - certonly
+      - --webroot
+      - --webroot-path=/var/www/certbot
+      - --email=vsevolod.azovsky@gmail.com
+      - --agree-tos
+      - --no-eff-email
+      - --force-renewal
+      - --non-interactive
+      - --keep-until-expiring
+      - -d
+      - default.org
     volumes: *vol-nginx
-
