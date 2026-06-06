@@ -115,27 +115,27 @@ services:
       interval: 10s
       start_period: 30s
 
-  certbot:
-    image: certbot/certbot:latest
-    container_name: alina_certbot
-    depends_on:
-      - nginx
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
-    extra_hosts:
-      - "default.org:host-gateway"
-    entrypoint: /usr/local/bin/certbot
-    command:
-      - certonly
-      - --webroot
-      - --webroot-path=/var/www/certbot
-      - --email=vsevolod.azovsky@gmail.com
-      - --agree-tos
-      - --no-eff-email
-      - --force-renewal
-      - --non-interactive
-      - --keep-until-expiring
-      - -d
-      - default.org
-    volumes: *vol-nginx
+  # certbot:
+  #   image: certbot/certbot:latest
+  #   container_name: alina_certbot
+  #   depends_on:
+  #     - nginx
+  #   dns:
+  #     - 8.8.8.8
+  #     - 1.1.1.1
+  #   extra_hosts:
+  #     - "default.org:host-gateway"
+  #   entrypoint: /usr/local/bin/certbot
+  #   command:
+  #     - certonly
+  #     - --webroot
+  #     - --webroot-path=/var/www/certbot
+  #     - --email=vsevolod.azovsky@gmail.com
+  #     - --agree-tos
+  #     - --no-eff-email
+  #     - --force-renewal
+  #     - --non-interactive
+  #     - --keep-until-expiring
+  #     - -d
+  #     - default.org
+  #   volumes: *vol-nginx
