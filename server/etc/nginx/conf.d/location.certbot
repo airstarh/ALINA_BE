@@ -2,6 +2,5 @@ location ^~ /.well-known/acme-challenge/ {
     root /var/www/certbot;
     default_type "text/plain";
     allow all;
-    expires off;
-    access_log off;
+    try_files $uri =404;
 }
