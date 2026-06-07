@@ -4,15 +4,15 @@ x-vol-nginx: &vol-nginx
   - ./server/etc/nginx/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
   # NGINX CONF
   - ./server/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  - ./server/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+  - ./server/etc/nginx/conf.d/:/etc/nginx/conf.d/:rw
   # LETSECTYPT, CERTS
-  - ./server/etc/letsencrypt:/etc/letsencrypt
-  - ./server/srv/sewa:/srv/sewa:ro
+  - ./server/etc/letsencrypt/:/etc/letsencrypt/
+  - ./server/srv/sewa/:/srv/sewa/:ro
   # LOG
-  - ./server/var/log:/var/log:rw
+  - ./server/var/log/:/var/log/:rw
   # WEB
-  - ./server/var/www:/var/www:rw
-  - ./server/var/www/certbot:/var/www/certbot:rw
+  - ./server/var/www/:/var/www/:rw
+  - ./server/var/www/certbot/:/var/www/certbot/:rw
 
 services:
   nginx:
@@ -53,12 +53,12 @@ services:
     volumes:
       # php.ini
       - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
-      - ./server/var/log/php:/var/log/php
+      - ./server/var/log/php/:/var/log/php/
       ###- ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
       # /var/www
-      - ./server/var/www:/var/www
+      - ./server/var/www/:/var/www/:rw
       # ALINA framework
-      - ./server/srv:/srv:ro
+      - ./server/srv/:/srv/:ro
     working_dir: /srv/alina
     security_opt:
       - no-new-privileges:true
@@ -93,8 +93,8 @@ services:
     expose:
       - "3306"
     volumes:
-      - ./database/mysql:/var/lib/mysql
-      - ~/dumps:/tmp/dumps
+      - ./database/mysql/:/var/lib/mysql/
+      - ./_GITOUT/:/srv/_GITOUT/
     security_opt:
       - no-new-privileges:true
     cap_drop:
