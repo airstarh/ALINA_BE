@@ -1,3 +1,5 @@
+#! /bin/bash
+
 docke compose \
 -f dc.yml \
 run --rm \
