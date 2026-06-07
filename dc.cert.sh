@@ -3,7 +3,7 @@
 docker compose \
   -f dc.yml \
   run --rm \
-  alina_certbot \
+  certbot \
   certonly \
   --webroot \
   --webroot-path=/var/www/certbot \
@@ -15,3 +15,5 @@ docker compose \
   -d ospl1942.ru \
   -d stage.saysimsim.ru \
   -d chat.saysimsim.ru
+
+# docker compose -f dc.yml exec nginx nginx -s reload
