@@ -14,17 +14,17 @@ export ALINA_REMOTE_URL="${ALINA_REMOTE_HOST}@${ALINA_REMOTE_USER}"
 ALINA_ROOT=$(pwd)
 export ALINA_ROOT
 
-export ALINA_FOLDERS=(
-    "stage"
+export ALINA_BASES=(
     "alina" # sss
-    "m45a"
+    "stage" # stage/zero.home
     "vov"
+    "m45a"
 )
 
-export ALINA_BASES=(
-    "zero.home"
-    "stage"
+export ALINA_FOLDERS=(
     "saysimsim.ru"
+    "zero.home"     # uses DB stage
+    "stage"         # uses DB stage
     "m45a"
     "vov"
 )
