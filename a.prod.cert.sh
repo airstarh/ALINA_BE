@@ -14,6 +14,5 @@ docker compose \
   -d mironova45a.ru \
   -d ospl1942.ru \
   -d stage.saysimsim.ru \
-  -d chat.saysimsim.ru
 
 # docker compose -f dc.yml exec nginx nginx -s reload
