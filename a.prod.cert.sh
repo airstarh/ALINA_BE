@@ -2,6 +2,7 @@
 
 docker compose \
   -f dc.yml \
+  -f dc.prod.yml \
   run --rm \
   certbot \
   certonly \
