@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 docker exec alina_mysql mysqldump \
   -u root \
@@ -11,5 +11,4 @@ docker exec alina_mysql mysqldump \
   --single-transaction \
   --extended-insert=FALSE \
   --set-gtid-purged=OFF \
-  > ./_GITOUT/db/stage.sql
-
+  | gzip > ./_GITOUT/db/stage.sql.gz
