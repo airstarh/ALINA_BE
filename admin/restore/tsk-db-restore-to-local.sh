@@ -1,8 +1,6 @@
 #!/bin/bash
 
-DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${DIR_THIS}" || exit
-source "../inc.sh"
+source "./admin/inc.sh"
 
 DUMP_FILE_NAME="stage.sql"
 
