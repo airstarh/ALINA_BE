@@ -20,6 +20,7 @@ sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/var/log/php
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/var/www
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/srv/alina
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/srv/alina_consumers
+#
 sudo chmod -R "${ALINA_DIR}" ./server/var/log/php
 sudo find ./server/var/www -type d -exec chmod "${ALINA_DIR}" {} \;
 sudo find ./server/var/www -type f -exec chmod "${ALINA_FILE}" {} \;
@@ -33,6 +34,7 @@ sudo chown -R "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/var/log/ngin
 sudo chown -R "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/etc/nginx
 sudo chown -R "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/etc/letsencrypt
 sudo chown "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/srv/sewa/cert003/cert/*.pem
+##
 sudo chmod "${ALINA_FILE}" ./server/srv/sewa/cert003/cert/*.pem
 sudo chmod -R "${ALINA_DIR}" ./server/srv/sewa/cert003/cert
 sudo chmod -R "${ALINA_DIR}" ./server/var/log/nginx
