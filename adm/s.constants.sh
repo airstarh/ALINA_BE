@@ -27,6 +27,7 @@ export ALINA_FOLDERS=(
     "stage"         # uses DB stage
     "m45a"
     "vov"
+    # "chat"
 )
 # endregion XXX
 
