@@ -1,7 +1,7 @@
 <?php
 return [
     'driver'    => 'mysql',
-    'host'      => 'localhost',
+    'host'      => getenv('MYSQL_HOST_1'),
     'database'  => 'vov',
     'username'  => 'root',
     'password'  => getenv('MYSQL_ROOT_PASSWORD'),

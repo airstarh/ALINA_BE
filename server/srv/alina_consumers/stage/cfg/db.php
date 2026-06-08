@@ -1,8 +1,8 @@
 <?php
 return [
     'driver'    => 'mysql',
-    'host'      => 'localhost',
-    'database'  => 'xxx',
+    'host'      => getenv('MYSQL_HOST_1'),
+    'database'  => 'stage',
     'username'  => 'root',
     'password'  => getenv('MYSQL_ROOT_PASSWORD'),
     'charset'   => 'utf8mb4',
