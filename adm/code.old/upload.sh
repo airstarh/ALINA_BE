@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "./admin/inc.sh"
+source ./adm/s.includes.sh
 
 cd "${ALINA_FE_LOCAL_DIR}"
 ####################################################################################################
