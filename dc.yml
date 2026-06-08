@@ -60,7 +60,7 @@ services:
       # /var/www
       - ./server/var/www/:/var/www/:rw
       # ALINA framework
-      - ./server/srv/:/srv/:ro
+      - ./server/srv/:/srv/:rw
     working_dir: /srv/alina
     security_opt:
       - no-new-privileges:true
