@@ -22,17 +22,17 @@ for db in "${ALINA_DB_BASES[@]}"; do
     echo "Starting dump of database: $db"
 
     # Execute dump, zip, and remove SQL file all on remote
-    ssh "${REMOTE_ADDR}" \
-        "mysqldump -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}' \
-        --databases '$db' \
-        --add-drop-database \
-        --single-transaction \
-        --routines \
-        --triggers \
-        --events \
-        --complete-insert > ${ALINA_REMOTE_DUMP_DIR}/${db}.sql && \
-        gzip ${ALINA_REMOTE_DUMP_DIR}/${db}.sql && \
-        echo 'SUCCESS'"
+ssh "${REMOTE_ADDR}" \
+  "mysqldump -u '${ALINA_DB_USER}' -p'${ALINA_DB_PASS}' \
+    --databases '$db' \
+    --add-drop-database \
+    --single-transaction \
+    --routines \
+    --triggers \
+    --events \
+    --complete-insert \
+    | gzip > ${ALINA_REMOTE_DUMP_DIR}/${db}.sql.gz && \
+    echo 'SUCCESS'"
 
     DB_END_TIME=$(date +%s)
     DB_TOTAL_TIME=$((DB_END_TIME - DB_START_TIME))
