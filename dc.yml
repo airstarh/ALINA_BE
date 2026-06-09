@@ -18,7 +18,7 @@ x-vol-nginx: &vol-nginx
 services:
   nginx:
     restart: unless-stopped
-    env_file: .env
+    env_file: _GITOUT/env/.env
     container_name: alina_nginx
     build: ./docker/nginx
     command: nginx -g "daemon off;"
@@ -45,7 +45,7 @@ services:
 
   php:
     restart: unless-stopped
-    env_file: .env
+    env_file: _GITOUT/env/.env
     container_name: alina_php
     build: ./docker/php
     links:
@@ -79,7 +79,7 @@ services:
 
   mysql:
     restart: unless-stopped
-    env_file: .env
+    env_file: _GITOUT/env/.env
     image: mysql:8.0.27
     container_name: alina_mysql
     command:
