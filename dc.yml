@@ -91,8 +91,6 @@ services:
       - --innodb-io-capacity=2000
       - --max-allowed-packet=1G
       - --skip-log-bin
-    ports:
-      - "53306:3306"
     expose:
       - "3306"
     volumes:

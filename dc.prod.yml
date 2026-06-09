@@ -3,7 +3,3 @@ services:
     ports:
       - "80:80"
       - "443:443"
-
-  mysql:
-    ports:
-      - "53306:3306"
