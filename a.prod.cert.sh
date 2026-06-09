@@ -16,4 +16,5 @@ docker compose \
   -d ospl1942.ru \
   -d stage.saysimsim.ru \
 
-# docker compose -f dc.yml exec nginx nginx -s reload
+# bash ./a.prod.perms.sh
+# docker compose -f dc.yml -f dc.prod.yml exec nginx nginx -s reload
