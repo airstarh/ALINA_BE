@@ -12,9 +12,11 @@ ALINA_GROUP_MYSQL=999
 ALINA_DIR=755
 ALINA_FILE=644
 
+ # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # MYSQL (999)
 sudo chown -R "${ALINA_USER_MYSQL}":"${ALINA_GROUP_MYSQL}" ./database/mysql
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # PHP (www-data 33)
 sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/var/log/php
 sudo find ./server/var/log/php -type d -exec chmod "${ALINA_DIR}" {} \;
@@ -32,7 +34,7 @@ sudo chown -R "${ALINA_USER_PHP}":"${ALINA_GROUP_PHP}" ./server/srv/alina_consum
 sudo find ./server/srv/alina_consumers -type d -exec chmod "${ALINA_DIR}" {} \;
 sudo find ./server/srv/alina_consumers -type f -exec chmod "${ALINA_FILE}" {} \;
 
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # NGINX (nginx 101)
 sudo chown -R "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/var/log/nginx
 sudo chmod -R "${ALINA_DIR}" ./server/var/log/nginx
@@ -46,7 +48,8 @@ sudo chmod -R "${ALINA_DIR}" ./server/etc/letsencrypt
 sudo chown "${ALINA_USER_NGINX}":"${ALINA_GROUP_NGINX}" ./server/srv/sewa/cert003/cert/*.pem
 sudo chmod "${ALINA_FILE}" ./server/srv/sewa/cert003/cert/*.pem
 sudo chmod -R "${ALINA_DIR}" ./server/srv/sewa/cert003/cert
-###
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # CONFIGS PROTECTED SECURITY
 sudo chmod "${ALINA_FILE}" ./server/etc/nginx/*.conf
 sudo chmod "${ALINA_FILE}" ./server/etc/nginx/conf.d/*.conf
