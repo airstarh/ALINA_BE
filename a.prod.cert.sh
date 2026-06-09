@@ -16,7 +16,6 @@ docker compose \
   -d mironova45a.ru \
   -d www.mironova45a.ru \
   -d ospl1942.ru \
-  -d www.ospl1942.ru \
   -d stage.saysimsim.ru \
   -d chat.saysimsim.ru \
   --cert-name saysimsim.ru \
