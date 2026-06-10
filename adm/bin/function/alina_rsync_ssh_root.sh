@@ -5,7 +5,7 @@ alina_rsync_ssh_root() {
     local SOURCE="$1"
     local TARGET="$2"
 
-    ssh "${REMOTE_ADDR}" "sudo mkdir -p -m 755 ${TARGET}"
+    ssh "${ALINA_REMOTE_URL}" "sudo mkdir -p -m 755 ${TARGET}"
     local ssh_status=$?
 
     if [[ $ssh_status -ne 0 ]]; then
@@ -38,7 +38,7 @@ alina_rsync_ssh_root() {
         -e "ssh" \
         --rsync-path="sudo rsync" \
         "${SOURCE}" \
-        "${REMOTE_ADDR}:${TARGET}"
+        "${ALINA_REMOTE_URL}:${TARGET}"
 
     local rsync_status=$?
 
