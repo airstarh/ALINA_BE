@@ -16,6 +16,7 @@ alina_rsync_ssh_root() {
     rsync \
         -rltv \
         -z \
+        --dry-run \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
         --filter='- **/cfg/db.php' \
@@ -34,9 +35,6 @@ alina_rsync_ssh_root() {
         --filter='P ./.vscode/' \
         --filter='- ./nbproject/' \
         --filter='P ./nbproject/' \
-        --filter='- ./nbproject/' \
-        --filter='P ./nbproject/' \
-        --dry-run
         -e "ssh" \
         --rsync-path="sudo rsync" \
         "${SOURCE}" \

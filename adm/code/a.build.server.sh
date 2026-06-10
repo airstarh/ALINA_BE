@@ -12,7 +12,7 @@ cd "${A_L_FE}"
 
 
 
-cd "${DIR_THIS}" || { echo "Failed to cd to ${DIR_THIS}"; exit 1; }
+cd "${A_L_BE}" || { echo "Failed to cd to ${DIR_THIS}"; exit 1; }
 ####################################################################################################
 # OWN
 source ./adm/bin/script/code/010.wwwdiff.build.sh

@@ -31,6 +31,7 @@ alina_rsync_local() {
     rsync \
         -av \
         --no-perms --no-owner --no-group \
+        --dry-run \
         --delete \
         --filter='- **/uploads/' \
         --filter='P **/uploads/' \

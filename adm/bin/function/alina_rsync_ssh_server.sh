@@ -15,6 +15,7 @@ alina_rsync_ssh_server() {
     rsync \
         -rltv \
         -z \
+        --dry-run \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
         --filter='- **/cfg/db.php' \
