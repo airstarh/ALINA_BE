@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ALINA_DEFAULT_PROJECT_DIFF="${A_BE}/${A_L_SERVER_SRV}/${A_CONSUMERS}/${ALINA_DEFAULT_PROJECT}/.WwwDiff/"
+
+for PROJECT in "${A_LIST_PROJECTS[@]}"; do
+
+    LOC_SOURCE="${A_BE}/${A_L_SERVER_SRV}/${A_CONSUMERS}/${PROJECT}/.WwwDiff/"
+    LCO_TARGET="${A_BE}/${A_L_VAR_WWW}/${PROJECT}/"
+
+    alina_rsync_local "${ALINA_DEFAULT_PROJECT_DIFF}" "${LOC_SOURCE}" "${LCO_TARGET}"
+
+done

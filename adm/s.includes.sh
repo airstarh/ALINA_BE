@@ -1,5 +1,5 @@
 #! /bin/bash
 
-source ./.env
+source ./_GITOUT/env/.env
 source ./adm/s.constants.sh
 source ./adm/s.function.sh

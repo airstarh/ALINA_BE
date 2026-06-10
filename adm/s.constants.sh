@@ -18,23 +18,23 @@ export ALINA_BASES=(
 # endregion Databes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region CODE
-export ALINA_BE_LOCAL_DIR="."
-export ALINA_FE_LOCAL_DIR="./../ALINA_FE"
+export A_BE="."
+export A_FE="./../ALINA_FE"
 
-export ALINA_DOCKER_VOL_BE="server/srv"
-export ALINA_DOCKER_VOL_FE="server/var/www"
+export A_L_SERVER_SRV="server/srv"
+export A_L_VAR_WWW="server/var/www"
 
-export ALINA_BE_REMOTE_DIR="/srv"
-export ALINA_FE_REMOTE_DIR="/var/www"
+export A_R_SRV="/srv"
+export A_R_VAR_WWW="/var/www"
 
-export ALINA_FRAMEWORK="alina"
-export ALINA_FRAMEWORK_CONSUMERS="alina_consumers"
-export ALINA_BE_FREAMEWORK_FOLDERS=(
-    "${ALINA_FRAMEWORK}"
-    "${ALINA_FRAMEWORK_CONSUMERS}"
+export A_FRAMEWORK="alina"
+export A_CONSUMERS="alina_consumers"
+export A_LIST_CORE=(
+    "${A_FRAMEWORK}"
+    "${A_CONSUMERS}"
 )
 
-export ALINA_PROJECTS=(
+export A_LIST_PROJECTS=(
     "zero.home"
     "stage"
     "saysimsim.ru"
