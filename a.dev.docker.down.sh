@@ -1,3 +1,3 @@
 #! /bin/bash
 
-docker compose -f dc.yml down
+docker compose -f dc.yml -f dc.dev.yml down

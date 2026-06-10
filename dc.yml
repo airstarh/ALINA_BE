@@ -24,9 +24,6 @@ services:
     command: nginx -g "daemon off;"
     links:
       - php
-    ports:
-      - "50080:80"
-      - "50443:443"
     volumes: *vol-nginx
     depends_on:
       - php
@@ -93,8 +90,6 @@ services:
       - --skip-log-bin
     expose:
       - "3306"
-    ports:
-      - "53306:3306"
     volumes:
       - ./database/mysql/:/var/lib/mysql/
     security_opt:
