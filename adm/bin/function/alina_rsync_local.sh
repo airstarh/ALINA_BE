@@ -1,8 +1,6 @@
 #! /bin/bash
 
 alina_rsync_local() {
-    echo ""
-    echo "STARTED alina_rsync_local"
 
     local SOURCE_BASE="$1"
     local SOURCE_DIFF="$2"
@@ -43,14 +41,11 @@ alina_rsync_local() {
         "${TARGET}"
 
     local rsync_status=$?
-    if [[ $rsync_status -eq 0 ]]; then
-        echo "Sync completed successfully:"
-        echo "  SOURCE_BASE: $SOURCE_BASE"
-        echo "  SOURCE_DIFF: $SOURCE_DIFF"
-        echo "  TARGET: $TARGET"
-    else
-        echo "Error: sync failed with exit code $rsync_status" >&2
+    
+    if [[ $rsync_status -ne 0 ]]; then
+        echo "Error: sync failed (exit: $rsync_status)" >&2
     fi
+
     return $rsync_status
 }
 export alina_rsync_local

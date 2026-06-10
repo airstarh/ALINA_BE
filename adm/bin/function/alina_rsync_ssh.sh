@@ -1,8 +1,6 @@
 #! /bin/bash
 
 alina_rsync_ssh() {
-    echo ""
-    echo "STARTED alina_rsync_ssh"
 
     local SOURCE="$1"
     local TARGET="$2"
@@ -29,9 +27,11 @@ alina_rsync_ssh() {
         "${REMOTE_ADDR}:${TARGET}"
 
     local rsync_status=$?
+
     if [[ $rsync_status -ne 0 ]]; then
         echo "Error: sync failed (exit: $rsync_status)" >&2
     fi
+
     return $rsync_status
 }
 export alina_rsync_ssh
