@@ -18,14 +18,14 @@ export ALINA_BASES=(
 # endregion Databes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region CODE
-export A_BE="."
-export A_FE="./../ALINA_FE"
+export A_L_BE="."
+export A_L_FE="./../ALINA_FE"
 
-export A_L_SERVER_SRV="server/srv"
+export A_L_SRV="server/srv"
 export A_L_VAR_WWW="server/var/www"
 
-export A_R_SRV="/srv"
-export A_R_VAR_WWW="/var/www"
+export A_R_SRV="/home/sewa/_A001/rep/ALINA_BE/server/srv"
+export A_R_VAR_WWW="/home/sewa/_A001/rep/ALINA_BE/server/var/www"
 
 export A_FRAMEWORK="alina"
 export A_CONSUMERS="alina_consumers"
