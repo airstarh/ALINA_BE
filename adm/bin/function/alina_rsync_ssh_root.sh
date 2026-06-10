@@ -50,4 +50,4 @@ alina_rsync_ssh_root() {
 
     return $rsync_status
 }
-export alina_rsync_ssh_server
+export alina_rsync_ssh_root
