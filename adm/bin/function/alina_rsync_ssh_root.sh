@@ -5,27 +5,32 @@ alina_rsync_ssh_root() {
     local TARGET="$2"
 
     # Создаём удалённую папку
-    ssh "${ALINA_REMOTE_URL}" "sudo mkdir -p -m 755 ${TARGET}"
-    local ssh_status=$?
-    if [[ $ssh_status -ne 0 ]]; then
-        echo "❌ Error: SSH mkdir failed (exit: $ssh_status)" >&2
-        return $ssh_status
-    fi
+    # ssh "${ALINA_REMOTE_URL}" "sudo mkdir -p -m 755 ${TARGET}"
+    # local ssh_status=$?
+    # if [[ $ssh_status -ne 0 ]]; then
+    #     echo "❌ Error: SSH mkdir failed (exit: $ssh_status)" >&2
+    #     return $ssh_status
+    # fi
 
     echo "🔍 Проверка изменений (dry-run)..."
     echo "📌 Источник: $SOURCE"
     echo "📌 Назначение: ${ALINA_REMOTE_URL}:${TARGET}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # Запускаем rsync с выводом изменений
+    # Запускаем rsync, сравнивая ТОЛЬКО по времени изменения (mtime)
     local changes
     changes=$(rsync \
-        -rltv \
+        -rltLv \
         -z \
         --dry-run \
         --itemize-changes \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
+        --no-perms \
+        --no-owner \
+        --no-group \
+        --omit-dir-times \
+        --checksum \
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
         --filter='- **/uploads/' \
