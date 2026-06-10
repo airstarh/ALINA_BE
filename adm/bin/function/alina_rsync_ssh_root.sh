@@ -31,7 +31,6 @@ alina_rsync_ssh_root() {
         --no-group \
         --omit-dir-times \
         --checksum \
-        --omit-dir-times \
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
         --filter='- **/uploads/' \
@@ -56,6 +55,9 @@ alina_rsync_ssh_root() {
         --filter='P **/letsencrypt/' \
         -e "ssh" \
         --rsync-path="sudo rsync" \
+        --force \
+        --whole-file \
+        --verbose \
         "${SOURCE}/" \
         "${ALINA_REMOTE_URL}:${TARGET}/")
 
