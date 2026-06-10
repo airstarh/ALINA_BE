@@ -15,3 +15,6 @@ cd "${A_L_FE}"
 cd "${DIR_THIS}" || { echo "Failed to cd to ${DIR_THIS}"; exit 1; }
 ####################################################################################################
 # OWN
+source ./adm/bin/script/010.wwwdiff.build.sh
+source ./adm/bin/script/020.www.to.remote.sh
+source ./adm/bin/script/030.alina.to.remote.sh

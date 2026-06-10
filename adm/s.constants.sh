@@ -18,8 +18,8 @@ export ALINA_BASES=(
 # endregion Databes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region CODE
-export A_L_BE="."
-export A_L_FE="./../ALINA_FE"
+export A_L_BE="/home/qqq/_A001/rep/ALINA_BE"
+export A_L_FE="/home/qqq/_A001/rep/ALINA_FE"
 
 export A_L_SRV="server/srv"
 export A_L_VAR_WWW="server/var/www"
