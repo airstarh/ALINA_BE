@@ -4,7 +4,7 @@
 # region SERVER
 export ALINA_REMOTE_HOST="saysimsim.ru"
 export ALINA_REMOTE_USER="sewa"
-export ALINA_REMOTE_URL="${ALINA_REMOTE_HOST}@${ALINA_REMOTE_USER}"
+export ALINA_REMOTE_URL="${ALINA_REMOTE_USER}@${ALINA_REMOTE_HOST}"
 # endregion SERVER
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region Databes
