@@ -559,16 +559,28 @@ class Sys
 
     public static function getUserIp()
     {
-
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        // Проверяем X-Forwarded-For (может содержать цепочку IP)
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = array_map('trim', explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+            // Берём первый IP — это и есть клиент
+            $ip = $ips[0];
+        }
+        // Или X-Real-IP
+        elseif (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        }
+        // Или REMOTE_ADDR (по умолчанию, если нет прокси)
+        else {
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         }
 
-        if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
+        // Валидация IP
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return $ip;
         }
 
-        return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        // Если IP внутренний (например, 172.19.0.4), возвращаем хотя бы его
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'unknown';
     }
 
     public static function getUserLanguage()

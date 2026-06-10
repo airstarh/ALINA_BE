@@ -93,6 +93,8 @@ services:
       - --skip-log-bin
     expose:
       - "3306"
+    ports:
+      - "53306:3306"
     volumes:
       - ./database/mysql/:/var/lib/mysql/
     security_opt:
