@@ -9,55 +9,59 @@ alina_rsync_from_remote() {
     echo "📌 Назначение: $TARGET"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+    local rsync_cmd=(
+        rsync
+        -rltLv
+        -z
+        --itemize-changes
+        --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf
+        --delete-after
+        --no-perms
+        --no-owner
+        --no-group
+        --omit-dir-times
+        --no-times
+        --checksum
+        --filter='- **/cfg/db.php'
+        --filter='- **/cfg/mailer.php'
+        --filter='- **/*code-workspace'
+        --filter='- **/database/'
+        --filter='P **/database/'
+        --filter='- **/log/'
+        --filter='P **/log/'
+        --filter='- **/uploads/'
+        --filter='P **/uploads/'
+        --filter='- **/.git/'
+        --filter='P **/.git/'
+        --filter='- **/_GITOUT/'
+        --filter='P **/_GITOUT/'
+        --filter='- **/.idea/'
+        --filter='P **/.idea/'
+        --filter='- **/.vscode/'
+        --filter='P **/.vscode/'
+        --filter='- **/nbproject/'
+        --filter='P **/nbproject/'
+        --filter='- **/letsencrypt/'
+        --filter='P **/letsencrypt/'
+        --filter='- **/node_modules/'
+        --filter='P **/node_modules/'
+        -e "ssh -i ${ALINA_REMOTE_SSH} -o StrictHostKeyChecking=no"
+        --rsync-path="rsync"
+        --force
+        --whole-file
+        "${ALINA_REMOTE_URL}:${SOURCE}/"
+        "${TARGET}/"
+    )
+
     local changes
-    changes=$(rsync \
-        -rltLv \
-        -z \
-        --itemize-changes \
-        --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
-        --delete-after \
-        --no-perms \
-        --no-owner \
-        --no-group \
-        --omit-dir-times \
-        --checksum \
-        --filter='- **/cfg/db.php' \
-        --filter='- **/cfg/mailer.php' \
-        --filter='- **/*code-workspace' \
-        --filter='- **/database/' \
-        --filter='P **/database/' \
-        --filter='- **/log/' \
-        --filter='P **/log/' \
-        --filter='- **/uploads/' \
-        --filter='P **/uploads/' \
-        --filter='- **/.git/' \
-        --filter='P **/.git/' \
-        --filter='- **/_GITOUT/' \
-        --filter='P **/_GITOUT/' \
-        --filter='- **/.idea/' \
-        --filter='P **/.idea/' \
-        --filter='- **/.vscode/' \
-        --filter='P **/.vscode/' \
-        --filter='- **/nbproject/' \
-        --filter='P **/nbproject/' \
-        --filter='- **/letsencrypt/' \
-        --filter='P **/letsencrypt/' \
-        --filter='- **/node_modules/' \
-        --filter='P **/node_modules/' \
-        -e "ssh" \
-        --rsync-path="sudo rsync" \
-        --force \
-        --whole-file \
-        "${ALINA_REMOTE_URL}:${SOURCE}/" \
-        "${TARGET}/")
+    changes=$(sudo "${rsync_cmd[@]}" --dry-run)
 
     local rsync_status=$?
     if [[ $rsync_status -ne 0 ]] && [[ $rsync_status -ne 24 ]]; then
-        echo "❌ Ошибка: rsync завершился с кодом $rsync_status" >&2
+        echo "❌ Ошибка: rsync (dry-run) завершился с кодом $rsync_status" >&2
         return $rsync_status
     fi
 
-    # Обработка вывода rsync и отображение изменений
     echo "$changes" | while IFS= read -r line; do
         [[ -z "$line" ]] && continue
         line=$(echo "$line" | sed 's/\x1b\[[0-9;]*m//g')
@@ -96,7 +100,6 @@ alina_rsync_from_remote() {
         esac
     done
 
-    # Статистика
     local download_count=$(echo "$changes" | grep -c "^>f")
     local delete_count=$(echo "$changes" | grep -c "^\*deleting")
     local create_dir_count=$(echo "$changes" | grep -c "^cd")
@@ -110,6 +113,17 @@ alina_rsync_from_remote() {
     [[ $create_dir_count -gt 0 ]] && echo "📁 Будет создано: $create_dir_count папок(и)"
     [[ $delete_count -gt 0 ]]     && echo "🗑️  Будет удалено: $delete_count файл(ов)"
     [[ $download_count -eq 0 && $update_count -eq 0 && $delete_count -eq 0 ]] && echo "✅ Изменений нет"
+
+    echo
+    echo "🚀 Запуск синхронизации..."
+    sudo "${rsync_cmd[@]}"
+
+    rsync_status=$?
+    if [[ $rsync_status -eq 0 ]]; then
+        echo "✅ Синхронизация завершена"
+    else
+        echo "❌ Ошибка при синхронизации: код $rsync_status" >&2
+    fi
 
     return $rsync_status
 }
