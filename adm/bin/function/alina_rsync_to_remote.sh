@@ -42,6 +42,8 @@ alina_rsync_to_remote() {
         --filter='P **/nbproject/' \
         --filter='- **/letsencrypt/' \
         --filter='P **/letsencrypt/' \
+        --filter='- **/node_modules/' \
+        --filter='P **/node_modules/' \
         -e "ssh" \
         --rsync-path="sudo rsync" \
         --force \
