@@ -1,6 +1,6 @@
 #!/bin/bash
 
-alina_rsync_ssh_root() {
+alina_rsync_to_remote() {
     local SOURCE="$1"
     local TARGET="$2"
 
@@ -24,28 +24,24 @@ alina_rsync_ssh_root() {
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
         --filter='- **/*code-workspace' \
+        --filter='- **/database/' \
+        --filter='P **/database/' \
+        --filter='- **/log/' \
+        --filter='P **/log/' \
         --filter='- **/uploads/' \
         --filter='P **/uploads/' \
-        --filter='- **/apps/' \
-        --filter='P **/apps/' \
-        --filter='- database/' \
-        --filter='P database/' \
-        --filter='- .git/' \
-        --filter='P .git/' \
-        --filter='- _GITOUT/' \
-        --filter='P _GITOUT/' \
-        --filter='- .idea/' \
-        --filter='P .idea/' \
-        --filter='- .vscode/' \
-        --filter='P .vscode/' \
-        --filter='- nbproject/' \
-        --filter='P nbproject/' \
-        --filter='- **/vendor/' \
-        --filter='P **/vendor/' \
+        --filter='- **/.git/' \
+        --filter='P **/.git/' \
+        --filter='- **/_GITOUT/' \
+        --filter='P **/_GITOUT/' \
+        --filter='- **/.idea/' \
+        --filter='P **/.idea/' \
+        --filter='- **/.vscode/' \
+        --filter='P **/.vscode/' \
+        --filter='- **/nbproject/' \
+        --filter='P **/nbproject/' \
         --filter='- **/letsencrypt/' \
         --filter='P **/letsencrypt/' \
-        --filter='- server/var/log/' \
-        --filter='P server/var/log/' \
         -e "ssh" \
         --rsync-path="sudo rsync" \
         --force \
@@ -114,4 +110,4 @@ alina_rsync_ssh_root() {
     return $rsync_status
 }
 
-export alina_rsync_ssh_root
+export alina_rsync_to_remote

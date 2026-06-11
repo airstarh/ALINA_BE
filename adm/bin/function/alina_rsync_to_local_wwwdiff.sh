@@ -1,6 +1,6 @@
 #!/bin/bash
 
-alina_rsync_local() {
+alina_rsync_to_local_wwwdiff() {
     local SOURCE_BASE="$1"
     local SOURCE_DIFF="$2"
     local TARGET="$3"
@@ -41,4 +41,4 @@ alina_rsync_local() {
         "$TARGET/"
 }
 
-export -f alina_rsync_local
+export -f alina_rsync_to_local_wwwdiff
