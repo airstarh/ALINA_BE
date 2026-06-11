@@ -13,7 +13,6 @@ alina_rsync_ssh_root() {
     changes=$(rsync \
         -rltLv \
         -z \
-        --dry-run \
         --itemize-changes \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
