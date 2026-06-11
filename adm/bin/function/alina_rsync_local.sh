@@ -1,7 +1,6 @@
-#! /bin/bash
+#!/bin/bash
 
 alina_rsync_local() {
-
     local SOURCE_BASE="$1"
     local SOURCE_DIFF="$2"
     local TARGET="$3"
@@ -22,31 +21,62 @@ alina_rsync_local() {
     fi
 
     mkdir -p "$TARGET"
-    local mkdir_status=$?
-    if [[ $mkdir_status -ne 0 ]]; then
+    if [[ $? -ne 0 ]]; then
         echo "Error: Failed to create TARGET: $TARGET" >&2
-        return $mkdir_status
+        return 1
     fi
 
-    rsync \
-        -av \
+    local rsync_output
+    rsync_output=$(rsync \
+        -rltDv \
         --no-perms --no-owner --no-group \
-        --dry-run \
+        --itemize-changes \
         --delete \
+        --force \
         --filter='- **/uploads/' \
         --filter='P **/uploads/' \
         --filter='- **/apps/' \
         --filter='P **/apps/' \
-        "${SOURCE_DIFF}" \
-        "${SOURCE_BASE}" \
-        "${TARGET}"
+        "$SOURCE_DIFF/" \
+        "$SOURCE_BASE/" \
+        "$TARGET/" 2>&1)
 
     local rsync_status=$?
-    
-    if [[ $rsync_status -ne 0 ]]; then
-        echo "Error: sync failed (exit: $rsync_status)" >&2
+
+    local added_count=0
+    local updated_count=0
+    local deleted_count=0
+
+    while IFS= read -r line; do
+        case "$line" in
+            'deleting '*)
+                deleted_count=$((deleted_count + 1))
+                ;;
+            *'>'*'f'*)
+                added_count=$((added_count + 1))
+                ;;
+            *'.'*'f'*)
+                updated_count=$((updated_count + 1))
+                ;;
+        esac
+    done <<< "$rsync_output"
+
+    echo "$rsync_output" | sed '/^$/d' || true
+    echo
+
+    printf "Summary:\n"
+    printf "   Added:     %3d file(s)\n" "$added_count"
+    printf "   Updated:   %3d file(s)\n" "$updated_count"
+    printf "   Deleted:   %3d file(s)\n" "$deleted_count"
+    echo
+
+    if [[ $((added_count + updated_count + deleted_count)) -eq 0 ]]; then
+        echo "No changes detected."
+    else
+        echo "Total changes detected: $((added_count + updated_count + deleted_count))"
     fi
 
-    return $rsync_status
+    return 0
 }
-export alina_rsync_local
+
+export -f alina_rsync_local
