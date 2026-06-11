@@ -26,8 +26,7 @@ alina_rsync_local() {
         return 1
     fi
 
-    local rsync_output
-    rsync_output=$(rsync \
+    rsync \
         -rltDv \
         --no-perms --no-owner --no-group \
         --itemize-changes \
@@ -39,42 +38,7 @@ alina_rsync_local() {
         --filter='P **/apps/' \
         "$SOURCE_DIFF/" \
         "$SOURCE_BASE/" \
-        "$TARGET/" 2>&1)
-
-    local rsync_status=$?
-
-    local added_count=0
-    local updated_count=0
-    local deleted_count=0
-
-    while IFS= read -r line; do
-        line=$(echo "$line" | tr -s ' ')
-        if [[ "$line" =~ ^deleting\ .+ ]]; then
-            deleted_count=$((deleted_count + 1))
-        elif [[ "$line" =~ ^\>f ]]; then
-            added_count=$((added_count + 1))
-        elif [[ "$line" =~ ^\.[f] ]]; then
-            updated_count=$((updated_count + 1))
-        fi
-    done <<< "$rsync_output"
-
-    echo "$rsync_output" | sed '/^$/d' || true
-    echo
-
-    printf "Summary:\n"
-    printf "   Added:     %3d file(s)\n" "$added_count"
-    printf "   Updated:   %3d file(s)\n" "$updated_count"
-    printf "   Deleted:   %3d file(s)\n" "$deleted_count"
-    echo
-
-    local total_changes=$((added_count + updated_count + deleted_count))
-    if [[ $total_changes -eq 0 ]]; then
-        echo "No changes detected."
-    else
-        echo "Total changes: $total_changes"
-    fi
-
-    return 0
+        "$TARGET/"
 }
 
 export -f alina_rsync_local
