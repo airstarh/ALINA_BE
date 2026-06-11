@@ -48,17 +48,14 @@ alina_rsync_local() {
     local deleted_count=0
 
     while IFS= read -r line; do
-        case "$line" in
-            'deleting '*)
-                deleted_count=$((deleted_count + 1))
-                ;;
-            *'>'*'f'*)
-                added_count=$((added_count + 1))
-                ;;
-            *'.'*'f'*)
-                updated_count=$((updated_count + 1))
-                ;;
-        esac
+        line=$(echo "$line" | tr -s ' ')
+        if [[ "$line" =~ ^deleting\ .+ ]]; then
+            deleted_count=$((deleted_count + 1))
+        elif [[ "$line" =~ ^\>f ]]; then
+            added_count=$((added_count + 1))
+        elif [[ "$line" =~ ^\.[f] ]]; then
+            updated_count=$((updated_count + 1))
+        fi
     done <<< "$rsync_output"
 
     echo "$rsync_output" | sed '/^$/d' || true
@@ -70,10 +67,11 @@ alina_rsync_local() {
     printf "   Deleted:   %3d file(s)\n" "$deleted_count"
     echo
 
-    if [[ $((added_count + updated_count + deleted_count)) -eq 0 ]]; then
+    local total_changes=$((added_count + updated_count + deleted_count))
+    if [[ $total_changes -eq 0 ]]; then
         echo "No changes detected."
     else
-        echo "Total changes detected: $((added_count + updated_count + deleted_count))"
+        echo "Total changes: $total_changes"
     fi
 
     return 0
