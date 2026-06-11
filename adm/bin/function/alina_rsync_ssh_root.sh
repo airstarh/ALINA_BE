@@ -33,6 +33,7 @@ alina_rsync_ssh_root() {
         --checksum \
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
+        --filter='- **/*code-workspace' \
         --filter='- **/uploads/' \
         --filter='P **/uploads/' \
         --filter='- **/apps/' \
@@ -53,11 +54,12 @@ alina_rsync_ssh_root() {
         --filter='P **/vendor/' \
         --filter='- **/letsencrypt/' \
         --filter='P **/letsencrypt/' \
+        --filter='- server/var/log/' \
+        --filter='P server/var/log/' \
         -e "ssh" \
         --rsync-path="sudo rsync" \
         --force \
         --whole-file \
-        --verbose \
         "${SOURCE}/" \
         "${ALINA_REMOTE_URL}:${TARGET}/")
 
