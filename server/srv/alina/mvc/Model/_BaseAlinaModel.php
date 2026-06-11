@@ -14,15 +14,12 @@ use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use \Illuminate\Database\Capsule\Manager as Dal;
 use \alina\AppExceptionValidation;
 use Illuminate\Database\Query\Builder as BuilderAlias;
-use Illuminate\Support\Collection as CollectionAlias;
-
-// Laravel initiation
-Loader::init();
 
 class _BaseAlinaModel
 {
     ##################################################
     #region STATES / MODES
+    static public $flagDbAvailable = false;
     const MODE_SELECT = 'SELECT';
     const MODE_INSERT = 'INSERT';
     const MODE_UPDATE = 'UPDATE';
@@ -92,6 +89,10 @@ class _BaseAlinaModel
     #region Constructor
     public function __construct($opts = null)
     {
+        static::$flagDbAvailable = Loader::init();
+        if (static::$flagDbAvailable === false) {
+            exit('No db');
+        }
         $this->attributes = (object) [];
         $this->setPkValue(null);
         if ($opts) {
@@ -930,7 +931,7 @@ class _BaseAlinaModel
 
     /**
      * @param string $alias
-     * @return BuilderAlias
+     * @return BuilderAlias|false
      */
     public function q($alias = null)
     {
