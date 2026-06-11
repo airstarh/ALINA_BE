@@ -2,9 +2,7 @@
 
 namespace alina\mvc\Model;
 
-use alina\Utils\Data;
 use Illuminate\Database\Capsule\Manager as Dal;
-use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class tale extends _BaseAlinaModel
 {

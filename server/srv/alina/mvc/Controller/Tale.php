@@ -12,14 +12,9 @@ use alina\mvc\Model\router_alias;
 use alina\mvc\Model\tale as taleAlias;
 use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
-use alina\mvc\View\json as jsonView;
 use alina\Utils\Data;
-use alina\Utils\Obj;
 use alina\Utils\Request;
 use alina\Utils\Sys;
-use alina\Watcher;
-use Illuminate\Database\Capsule\Manager as Dal;
-use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class Tale
 {

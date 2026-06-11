@@ -9,7 +9,6 @@ use alina\Utils\DateTime;
 use alina\Utils\Str;
 use alina\Utils\Sys;
 use Illuminate\Database\Capsule\Manager as Dal;
-use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class user extends _BaseAlinaModel
 {
