@@ -37,11 +37,11 @@ export A_LIST_CORE=(
 )
 
 export A_LIST_PROJECTS=(
-    # "zero.home"
-    # "stage"
+    "zero.home"
+    "stage"
     "saysimsim.ru"
-    # "m45a"
-    # "vov"
+    "m45a"
+    "vov"
 )
 export ALINA_DEFAULT_PROJECT="zero.home"
 # endregion CODE
