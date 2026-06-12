@@ -12,9 +12,6 @@ use \Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use \Illuminate\Events\Dispatcher;
 
-// Laravel initiation
-alinaLaravelCapsuleLoader::init();
-
 class alinaLaravelCapsuleLoader
 {
 
@@ -26,14 +23,14 @@ class alinaLaravelCapsuleLoader
      */
     static public function init()
     {
+        $res = false;
 
-        // Make sure this function executes only once
         if (isset(static::$objIlluminate) && is_object(static::$objIlluminate)) {
+            $res = true;
             return static::$objIlluminate;
         }
 
         try {
-            //DB Environment configs.
             $config = AlinaCfg('db');
             if (!is_array($config)) {
                 $config = AlinaCfgDefault('db');
@@ -42,30 +39,25 @@ class alinaLaravelCapsuleLoader
             $capsule = new Manager;
             $capsule->addConnection($config);
 
-            // Set the event dispatcher used by Eloquent models... (optional)
             $capsule->setEventDispatcher(new Dispatcher(new Container));
 
-            // Make this Capsule instance available globally via static methods... (optional)
             $capsule->setAsGlobal();
-            // Setup the Eloquent ORM... (optional; unless you've used setEventDispatcher())
             $capsule->bootEloquent();
 
             try {
-                // Выполняем простой запрос: "SELECT 1"
                 $result = $capsule->connection()->getPdo()->query('SELECT 1')->fetch();
 
                 if ($result) {
+                    $res = true;
                     static::$objIlluminate = $capsule;
                     return static::$objIlluminate;
                 }
             } catch (\Throwable $e) {
-                return false;
+                $res = false;
             }
-
-            return false;
-
         } catch (\Throwable $e) {
-            return false;
+            $res = false;
         }
+        exit('No db');
     }
 }

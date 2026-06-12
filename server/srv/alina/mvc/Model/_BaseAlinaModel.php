@@ -89,10 +89,7 @@ class _BaseAlinaModel
     #region Constructor
     public function __construct($opts = null)
     {
-        static::$flagDbAvailable = Loader::init();
-        if (static::$flagDbAvailable === false) {
-            exit('No db');
-        }
+        Loader::init();
         $this->attributes = (object) [];
         $this->setPkValue(null);
         if ($opts) {
