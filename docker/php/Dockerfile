@@ -1,4 +1,5 @@
 FROM php:7.4-fpm
+
 RUN ln -sf /bin/bash /bin/sh
 
 ##################################################
@@ -38,15 +39,24 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ##################################################
-# COPY ENTRYPOINT SCRIPT
-COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# CREATE PHP USER/GROUP WITH HOST-COMPATIBLE IDS (www-data = uid/gid 33)
+RUN usermod -u 33 www-data && \
+    groupmod -g 33 www-data && \
+    mkdir -p /var/www && \
+    chown -R www-data:www-data /var/www && \
+    chmod -R 755 /var/www
 
 ##################################################
-# CHMOD CHOWN
-RUN chmod -R 777 /var/www
+# COPY ENTRYPOINT SCRIPT
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    chown www-data:www-data /usr/local/bin/entrypoint.sh
+
+##################################################
+# SWITCH TO PHP USER
+USER www-data
 
 ##################################################
 # SET ENTRYPOINT
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
