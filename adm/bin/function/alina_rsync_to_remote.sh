@@ -32,8 +32,6 @@ alina_rsync_to_remote() {
         --filter='P **/uploads/' \
         --filter='- **/.git/' \
         --filter='P **/.git/' \
-        --filter='- **/_GITOUT/' \
-        --filter='P **/_GITOUT/' \
         --filter='- **/.idea/' \
         --filter='P **/.idea/' \
         --filter='- **/.vscode/' \
