@@ -12,5 +12,5 @@ for db in "${ALINA_BASES[@]}"; do
     --single-transaction \
     --extended-insert=FALSE \
     --set-gtid-purged=OFF \
-    | gzip > "./_GITOUT/db/${db}.sql.gz"
+    | gzip > "./${A_R_GITOUT}/db/${db}.sql.gz"
 done
