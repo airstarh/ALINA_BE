@@ -35,9 +35,9 @@ return [
     ],
     'watcher' => [
         'maxPer1sec'          => 20,
-        'maxPer10secs'        => 10      / 5 * 20,
-        'maxPer1min'          => 60      / 2 * 20,
-        'maxPer10mins'        => 60          * 60 / 2 * 20,
+        'maxPer10secs'        => (10 / 5 * 20),
+        'maxPer1min'          => (60 / 2 * 20),
+        'maxPer10mins'        => (60 * 60 / 2 * 20),
         'classDataFiltration' => '',
         'fileUpload'          => [
             'max' => [
