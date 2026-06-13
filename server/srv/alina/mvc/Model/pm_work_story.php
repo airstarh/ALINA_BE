@@ -51,18 +51,18 @@ class pm_work_story extends _BaseAlinaModel
         return [
             ##### field ######
             'pm_organization_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_organization',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
                 ],
                 'conditions' => [],
@@ -76,19 +76,19 @@ class pm_work_story extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'pm_department_id'   => [
-                'has'        => 'one',
-                'multiple'   => false,
+            'pm_department_id' => [
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_department',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', "{$this->alias}.pm_department_id"],
                 ],
                 'conditions' => [],
@@ -103,19 +103,19 @@ class pm_work_story extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'pm_project_id'      => [
-                'has'        => 'one',
-                'multiple'   => false,
+            'pm_project_id' => [
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_project',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
                 ],
                 'conditions' => [],
@@ -130,19 +130,19 @@ class pm_work_story extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'pm_task_id'         => [
-                'has'        => 'one',
-                'multiple'   => false,
+            'pm_task_id' => [
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_task',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
                 ],
                 'conditions' => [],
@@ -156,19 +156,19 @@ class pm_work_story extends _BaseAlinaModel
                 ],
             ],
             ##### field ######
-            'pm_subtask_id'      => [
-                'has'        => 'one',
-                'multiple'   => false,
+            'pm_subtask_id' => [
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_subtask',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', "{$this->alias}.pm_subtask_id"],
                 ],
                 'conditions' => [],
@@ -191,10 +191,8 @@ class pm_work_story extends _BaseAlinaModel
     {
         if (
             (isset($this->monkeyVar['mW']))
-            &&
-            (isset($this->monkeyVar['mWd']))
-            &&
-            (isset($this->monkeyVar['mAssa']))
+            && (isset($this->monkeyVar['mWd']))
+            && (isset($this->monkeyVar['mAssa']))
         ) {
             return $this->monkeyVar;
         }
@@ -210,6 +208,7 @@ class pm_work_story extends _BaseAlinaModel
             'mWd'   => $mWd,
             'mAssa' => $mAssa,
         ];
+
         return $this->monkeyVar;
     }
 
@@ -244,6 +243,7 @@ class pm_work_story extends _BaseAlinaModel
                 'pm_work_done_id',
             ],
         ]);
+
         return $this;
     }
 
@@ -264,7 +264,7 @@ class pm_work_story extends _BaseAlinaModel
         $st_time_estimated  = $mW->attributes->pm_subtask->time_estimated;
         $w_price_this_work  = $mW->attributes->price_this_work;
         ###
-        $d                       = [
+        $d = [
             'wd_for_date'        => $wd_for_date,
             'd_price_min'        => $d_price_min,
             'p_price_multiplier' => $p_price_multiplier,
@@ -290,13 +290,15 @@ class pm_work_story extends _BaseAlinaModel
         ###
         $d
             = array_merge(
-            [
-                'assa_id'        => $mAssa->attributes->id,
-                'assa_firstname' => $mAssa->attributes->firstname,
-                'assa_lastname'  => $mAssa->attributes->lastname,
-                'assa_mail'      => $mAssa->attributes->mail,
-            ],
-            $dataArray);
+                [
+                    'assa_id'        => $mAssa->attributes->id,
+                    'assa_firstname' => $mAssa->attributes->firstname,
+                    'assa_lastname'  => $mAssa->attributes->lastname,
+                    'assa_mail'      => $mAssa->attributes->mail,
+                ],
+                $dataArray
+            );
+
         return json_encode($d);
     }
 

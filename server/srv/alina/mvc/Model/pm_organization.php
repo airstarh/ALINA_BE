@@ -14,8 +14,8 @@ class pm_organization extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'          => [],
-            'name_human'  => [
+            'id'         => [],
+            'name_human' => [
                 'required' => true,
                 'default'  => 'Организация',
             ],
@@ -30,7 +30,8 @@ class pm_organization extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             $this->manager_id(),
             $this->_pm_department(),
             $this->_pm_project(),
@@ -45,7 +46,7 @@ class pm_organization extends _BaseAlinaModel
     public function hookRightAfterSave($data)
     {
         //ToDo: Security
-        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
+        if (! AlinaAccessIfAdmin() && ! AlinaAccessIfModerator()) {
             return $this;
         }
         _baseAlinaEloquentTransaction::begin();
@@ -60,7 +61,7 @@ class pm_organization extends _BaseAlinaModel
                 (isset($cfg['has']) && $cfg['has'] === 'manyThrough')
             ) {
                 if (isset($cfg['apply'])) {
-                    if (isset($data->{$refName}) && !empty($data->{$refName})) {
+                    if (isset($data->{$refName}) && ! empty($data->{$refName})) {
                         ####################
                         # Definitions
                         $glueTable    = $cfg['apply']['glueTable'];
@@ -100,7 +101,7 @@ class pm_organization extends _BaseAlinaModel
                         ####################
                         # INSERT
                         foreach ($arrNewChildPkValues as $newChildId) {
-                            if (!in_array($newChildId, $currChildIds)) {
+                            if (! in_array($newChildId, $currChildIds)) {
                                 $mGlueTable->insert([
                                     $glueMasterPk => $pkValue,
                                     $glueChildPk  => $newChildId,
@@ -119,7 +120,7 @@ class pm_organization extends _BaseAlinaModel
                 (isset($cfg['has']) && $cfg['has'] === 'many')
             ) {
                 if (isset($cfg['apply'])) {
-                    if (isset($data->{$refName}) && !empty($data->{$refName})) {
+                    if (isset($data->{$refName}) && ! empty($data->{$refName})) {
                         ####################
                         # Definitions
                         $childTable   = $cfg['apply']['childTable'];

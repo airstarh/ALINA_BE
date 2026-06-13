@@ -2,9 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\App;
-use alina\Utils\Request;
-
 class watch_banned_visit extends _BaseAlinaModel
 {
     public $table = 'watch_banned_visit';
@@ -22,8 +19,7 @@ class watch_banned_visit extends _BaseAlinaModel
         ];
     }
 
-    public
-    function uniqueKeys()
+    public function uniqueKeys()
     {
         return [
             ['ip', 'browser_enc'],

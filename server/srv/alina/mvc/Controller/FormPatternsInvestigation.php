@@ -24,6 +24,6 @@ class FormPatternsInvestigation
             'post' => $post,
             'get'  => $get,
         ];
-        echo (new htmlAlias)->page($data);
+        echo (new htmlAlias())->page($data);
     }
 }

@@ -30,7 +30,7 @@ class watch_browser extends _BaseAlinaModel
         $dataArray['enc'] = Request::obj()->BROWSER_enc;
 
         if (property_exists($this->attributes, 'visits')) {
-            $dataArray['visits'] = $this->attributes->visits +1;
+            $dataArray['visits'] = $this->attributes->visits + 1;
         }
 
         return $this;

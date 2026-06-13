@@ -10,21 +10,22 @@ use alina\Utils\Sys;
 
 class json
 {
-    public function __construct($data = NULL)
+    public function __construct($data = null)
     {
-
     }
 
-    public function standardRestApiResponse($data = NULL, $toReturn = FALSE)
+    public function standardRestApiResponse($data = null, $toReturn = false)
     {
         $response             = [];
         $response['data']     = $data;
         $response['messages'] = Message::returnAllMessages();
+
         if (AlinaAccessIfAdmin()) {
             $response['messages_admin'] = MessageAdmin::returnAllMessages();
         }
         $response['meta']        = GlobalRequestStorage::getAll();
         $response['CurrentUser'] = CurrentUser::obj()->attributes();
+
         if (AlinaAccessIfAdmin()) {
             $response['test'] = ['Проверка русских букв.',];
             $response['sys']  = $this->systemData();
@@ -35,7 +36,7 @@ class json
         return static::response($response);
     }
 
-    public function simpleRestApiResponse($data = NULL, $toReturn = FALSE)
+    public function simpleRestApiResponse($data = null, $toReturn = false)
     {
         $response = $data;
         header('Content-Type: application/json; charset=utf-8');
@@ -48,7 +49,7 @@ class json
         return Sys::SUPER_DEBUG_INFO();
     }
 
-    static public function response($response)
+    public static function response($response)
     {
         //ToDo: Think about encoding (utf8ize).
         //return json_encode($response);

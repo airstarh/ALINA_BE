@@ -2,7 +2,7 @@
 
 namespace alina\mvc\Controller;
 
-use \alina\mvc\Model\_baseAlinaEloquentTransaction as Transaction;
+use alina\mvc\Model\_baseAlinaEloquentTransaction as Transaction;
 
 class egTransaction
 {
@@ -14,9 +14,10 @@ class egTransaction
     public function actionIndex()
     {
         Transaction::begin(__FUNCTION__);
+
         try {
-            $eg1 = new \alina\mvc\Model\eg1();
-            $eg2 = new \alina\mvc\Model\eg2();
+            $eg1    = new \alina\mvc\Model\eg1();
+            $eg2    = new \alina\mvc\Model\eg2();
             $stdEg1 = $eg1->insert([
                 'val' => 'DELETEME',
             ]);
@@ -41,7 +42,8 @@ class egTransaction
             //print_r('+++++ After +++++');
             print_r($res);
             echo '</pre>';
-        } catch (\alina\AppException $e) {
+        }
+        catch (\alina\AppException $e) {
             echo '<pre>';
             print_r('+++++ CATCH +++++');
             //print_r($e);

@@ -2,15 +2,16 @@
 
 namespace alina\mvc\Controller;
 
+use function Alina;
+
 use alina\mvc\View\html;
 use alina\Utils\FS;
 use alina\Utils\Request;
-use function Alina;
+
 use function AlinaRejectIfNotAdmin;
 
 class alinaFileProxy
 {
-
     public $allowedExtensions = [
         'js',
         'css',
@@ -43,7 +44,7 @@ class alinaFileProxy
         $pathInfo = pathinfo($relativePath);
         $ext      = $pathInfo['extension'] ?? '';
 
-        if ($ext === '' || !in_array($ext, $this->allowedExtensions, true)) {
+        if ($ext === '' || ! in_array($ext, $this->allowedExtensions, true)) {
             $flagDo = false;
         }
 
@@ -68,6 +69,6 @@ class alinaFileProxy
     public function actionTestIt()
     {
         $p = 'alinaFileProxy/fullHtmlLayout.php';
-        echo (new html)->piece($p);
+        echo (new html())->piece($p);
     }
 }

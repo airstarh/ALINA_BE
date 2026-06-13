@@ -9,15 +9,15 @@ class tag extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'  => [],
-            'name'  => [],
+            'id'   => [],
+            'name' => [],
         ];
     }
 
     public function uniqueKeys()
     {
         return [
-            ['name']
+            ['name'],
         ];
     }
 }

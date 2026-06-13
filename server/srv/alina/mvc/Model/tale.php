@@ -7,16 +7,16 @@ use Illuminate\Database\Capsule\Manager as Dal;
 class tale extends _BaseAlinaModel
 {
     public $flagAuditInfoLog = false;
-    public $table = 'tale';
-    public $ownerId_root = NULL;
-    public $ownerId_answer = NULL;
-    public $sortDefault = [['publish_at', 'DESC']];
+    public $table            = 'tale';
+    public $ownerId_root     = null;
+    public $ownerId_answer   = null;
+    public $sortDefault      = [['publish_at', 'DESC']];
 
     public function fields()
     {
         $pFields = parent::fields();
-        $fields = [
-            'id' => [],
+        $fields  = [
+            'id'       => [],
             'owner_id' => [
                 'default' => CurrentUser::obj()->id(),
             ],
@@ -32,15 +32,15 @@ class tale extends _BaseAlinaModel
                 'validators' => [
                     [
                         // 'f' - Could be a closure, string with function name or an array
-                        'f' =>
-                            function ($v, $data = null) {
-                                if ($data->is_submitted == 1) {
-                                    return trim(strip_tags($v));
-                                }
-                                return true;
-                            },
+                        'f' => static function ($v, $data = null) {
+                            if ($data->is_submitted == 1) {
+                                return trim(strip_tags($v));
+                            }
+
+                            return true;
+                        },
                         'errorIf' => ['', false, null],
-                        'msg' => ___('Tale Body is required!'),
+                        'msg'     => ___('Tale Body is required!'),
                     ],
                 ],
             ],
@@ -52,7 +52,7 @@ class tale extends _BaseAlinaModel
             'body_free' => [
             ],
             'iframe' => [
-                'default' => NULL,
+                'default' => null,
             ],
             'created_at' => [
                 'default' => ALINA_TIME,
@@ -67,10 +67,10 @@ class tale extends _BaseAlinaModel
                 'default' => 0,
             ],
             'root_tale_id' => [
-                'default' => NULL,
+                'default' => null,
             ],
             'answer_to_tale_id' => [
-                'default' => NULL,
+                'default' => null,
             ],
             'type' => [
                 'default' => 'POST',
@@ -142,7 +142,7 @@ class tale extends _BaseAlinaModel
     {
         return [
             'owner' => [
-                'has' => 'one',
+                'has'   => 'one',
                 'joins' => [
                     ['leftJoin', 'user AS owner', 'owner.id', '=', "{$this->alias}.owner_id"],
                 ],
@@ -155,12 +155,12 @@ class tale extends _BaseAlinaModel
                             'owner.firstname AS owner_firstname',
                             'owner.lastname AS owner_lastname',
                             'owner.emblem AS owner_emblem',
-                        ]
+                        ],
                     ],
                 ],
             ],
             'router_alias' => [
-                'has' => 'one',
+                'has'   => 'one',
                 'joins' => [
                     //['leftJoin', 'router_alias AS rs', 'rs.table_id', '=', "{$this->alias}.id"],
                     [
@@ -169,7 +169,7 @@ class tale extends _BaseAlinaModel
                         function ($join) {
                             $join->on('rs.table_id', '=', "{$this->alias}.id");
                             $join->on('rs.table', '=', Dal::raw("'tale'"));
-                        }
+                        },
                     ],
                 ],
                 'conditions' => [],
@@ -181,7 +181,7 @@ class tale extends _BaseAlinaModel
                 ],
             ],
             'tag' => [
-                'has' => 'manyThrough',
+                'has'   => 'manyThrough',
                 'joins' => [
                     ['leftJoin', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['leftJoin', 'tag AS child', 'child.id', '=', 'glue.tag_id'],
@@ -250,45 +250,50 @@ class tale extends _BaseAlinaModel
         }
         #####
         #region Double check parents
-        $root_tale_id = NULL;
-        $answer_to_tale_id = NULL;
-        $level = 0;
-        $type = 'POST';
+        $root_tale_id      = null;
+        $answer_to_tale_id = null;
+        $level             = 0;
+        $type              = 'POST';
+
         if (array_key_exists('answer_to_tale_id', $dataArray)) {
             #####
             # ANSWER p1 - parent-1
-            if (!empty($dataArray['answer_to_tale_id'])) {
-                $p1_id = $dataArray['answer_to_tale_id'];
-                $p1 = new tale();
-                $p1Q = $p1->q();
+            if (! empty($dataArray['answer_to_tale_id'])) {
+                $p1_id   = $dataArray['answer_to_tale_id'];
+                $p1      = new tale();
+                $p1Q     = $p1->q();
                 $p1Attrs = $p1Q->select(['id', 'root_tale_id', 'answer_to_tale_id', 'owner_id'])->where([['id', $p1_id]])->first();
+
                 #####
                 # ROOT p2 - parent-2
-                if (isset($p1Attrs->id) && !empty($p1Attrs->id)) {
-                    $root_tale_id = $p1Attrs->id;
-                    $answer_to_tale_id = $p1Attrs->id;
-                    $level = 1;
-                    $type = 'COMMENT';
+                if (isset($p1Attrs->id) && ! empty($p1Attrs->id)) {
+                    $root_tale_id         = $p1Attrs->id;
+                    $answer_to_tale_id    = $p1Attrs->id;
+                    $level                = 1;
+                    $type                 = 'COMMENT';
                     $this->ownerId_answer = $p1Attrs->owner_id;
-                    if (isset($p1Attrs->answer_to_tale_id) && !empty($p1Attrs->answer_to_tale_id)) {
-                        $p2_id = $p1Attrs->answer_to_tale_id;
-                        $p2 = new tale();
-                        $p2Q = $p2->q();
+
+                    if (isset($p1Attrs->answer_to_tale_id) && ! empty($p1Attrs->answer_to_tale_id)) {
+                        $p2_id   = $p1Attrs->answer_to_tale_id;
+                        $p2      = new tale();
+                        $p2Q     = $p2->q();
                         $p2Attrs = $p2Q->select(['id', 'root_tale_id', 'answer_to_tale_id', 'owner_id'])->where([['id', $p2_id]])->first();
-                        if (isset($p2Attrs->id) && !empty($p2Attrs->id)) {
-                            $root_tale_id = $p2Attrs->id;
-                            $level = 2;
-                            $type = 'COMMENT';
+
+                        if (isset($p2Attrs->id) && ! empty($p2Attrs->id)) {
+                            $root_tale_id       = $p2Attrs->id;
+                            $level              = 2;
+                            $type               = 'COMMENT';
                             $this->ownerId_root = $p2Attrs->owner_id;
                         }
                     }
                 }
             }
         }
-        $dataArray['root_tale_id'] = $root_tale_id;
+        $dataArray['root_tale_id']      = $root_tale_id;
         $dataArray['answer_to_tale_id'] = $answer_to_tale_id;
-        $dataArray['level'] = $level;
-        $dataArray['type'] = $type;
+        $dataArray['level']             = $level;
+        $dataArray['type']              = $type;
+
         #endregion Double check parents
         #####
         #####

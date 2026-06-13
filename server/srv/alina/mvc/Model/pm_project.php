@@ -13,40 +13,40 @@ class pm_project extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'               => [],
-            'name_human'       => [
+            'id'         => [],
+            'name_human' => [
                 'required' => true,
             ],
             'pm_department_id' => [],
             'price_multiplier' => [
                 'default' => 1,
             ],
-            'manager_id'       => [],
-            'assignee_id'      => [],
-            'completed_at'     => [],
-            'status'           => [],
-            'created_at'       => [],
-            'created_by'       => [],
-            'modified_at'      => [],
-            'modified_by'      => [],
+            'manager_id'   => [],
+            'assignee_id'  => [],
+            'completed_at' => [],
+            'status'       => [],
+            'created_at'   => [],
+            'created_by'   => [],
+            'modified_at'  => [],
+            'modified_by'  => [],
         ];
     }
 
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             $this->pm_department_id(),
             $this->manager_id(),
             $this->assignee_id(),
-
             [
                 ##### field #####
                 '_children' => [
-                    'has'        => 'many',
+                    'has' => 'many',
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', "{$this->alias}.{$this->pkName}"],
                         ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
                     ],
@@ -95,6 +95,7 @@ class pm_project extends _BaseAlinaModel
             unset($item->price_this_work);
             (new pm_work())->updateById($item);
         }
+
         return $this;
     }
     #####

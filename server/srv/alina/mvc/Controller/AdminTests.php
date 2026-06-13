@@ -7,13 +7,11 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
-use alina\mvc\Model\pm_organization;
 use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
-use alina\Services\AlinaTranslate;
 use alina\Utils\Crypto;
 use alina\Utils\Data;
 use alina\Utils\FS;
@@ -41,7 +39,7 @@ class AdminTests
         AlinaDebug($vd);
         AlinaDebug(static::class);
 
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     public function actionFast_1()
@@ -53,7 +51,7 @@ class AdminTests
         $pm_subtask->getParents();
         ##################################################
         $vd = $pm_subtask->attributes;
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     ##############################################
@@ -66,7 +64,7 @@ class AdminTests
         $vd[] = $m->getChainOfParents(405);
         $vd[] = $m->getChainOfParents(1008);
         $vd[] = $m->getChainOfParents(1009);
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     /**
@@ -79,6 +77,7 @@ class AdminTests
         ];
         CurrentUser::obj();
         Message::setInfo('Just an Info message');
+
         throw new \ErrorException('Error is thrown in the controller!!!');
         // echo (new html)->page($vd);
     }
@@ -130,7 +129,7 @@ class AdminTests
     {
         Message::setSuccess('For User');
         MessageAdmin::setSuccess('For Admin');
-        echo (new html)->page('1234');
+        echo (new html())->page('1234');
     }
 
     /**
@@ -142,7 +141,7 @@ class AdminTests
         Message::setSuccess('AdminTest Response');
         Message::setSuccess('Message for User');
         MessageAdmin::setSuccess('Message for Admin');
-        echo (new html)->page(Request::obj());
+        echo (new html())->page(Request::obj());
     }
 
     ##############################################
@@ -154,7 +153,7 @@ class AdminTests
     public function actionTestCase()
     {
         $content = func_get_args();
-        echo (new html)->page($content);
+        echo (new html())->page($content);
     }
 
     ##############################################
@@ -168,7 +167,7 @@ class AdminTests
         $m          = new user();
         $conditions = [
             [
-                function ($qu) {
+                static function ($qu) {
                     $qu->whereIn('user.id', [2, 3]);
                 },
             ],
@@ -190,10 +189,10 @@ class AdminTests
      */
     public function actionMailer()
     {
-        $data = Sys::buffer(function () {
+        $data = Sys::buffer(static function () {
             return (new Mailer())->usageExample();
         });
-        echo (new html)->page($data);
+        echo (new html())->page($data);
     }
 
     ##############################################
@@ -207,7 +206,7 @@ class AdminTests
         $vd['str']  = 'mail';
         $vd['encr'] = (new Crypto())->encrypt($vd['str']);
         $vd['decr'] = (new Crypto())->decrypt($vd['encr']);
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     ##############################################
@@ -216,7 +215,7 @@ class AdminTests
         $res                         = [];
         $res['getById']              = (new user())->getById(1);
         $res['getOneWithReferences'] = (new user())->getOneWithReferences(['user.id' => 1,]);
-        echo (new html)->page($res);
+        echo (new html())->page($res);
     }
 
     ##############################################
@@ -225,7 +224,7 @@ class AdminTests
         $vd = [
             'date(\'Z\')' => date('Z'),
         ];
-        echo (new html)->page(date('Z'));
+        echo (new html())->page(date('Z'));
     }
 
     ##############################################
@@ -237,7 +236,7 @@ class AdminTests
             'initial'   => $initial,
             'converted' => $converted,
         ];
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     ##############################################
@@ -271,7 +270,7 @@ class AdminTests
         ##################################################
         $vd->init = $html;
         $vd->res  = $bodyHTML;
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     public function actionphpinfo()
@@ -295,7 +294,7 @@ class AdminTests
     public function actionRedirect2()
     {
         $vd = (object)[];
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
     #endregion Redirect Messages
     #####
@@ -308,7 +307,7 @@ class AdminTests
             $f1     => FS::countFilesInDir($f1),
             $f2     => FS::countFilesInDir($f2),
         ];
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 
     #####
@@ -323,7 +322,7 @@ class AdminTests
         Message::setInfo('Hello, people');
         Message::setInfo('Hello, people');
         $vd = [];
-        echo (new html)->page($vd, html::$htmLayoutCleanBody);
+        echo (new html())->page($vd, html::$htmLayoutCleanBody);
     }
 
     #####
@@ -335,7 +334,7 @@ class AdminTests
         $vd = (object)[
             'max_execution_time' => $max_execution_time,
         ];
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
     #####
 }

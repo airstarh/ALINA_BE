@@ -13,26 +13,26 @@ class watch_fools extends _BaseAlinaModel
         $RQ = Request::obj();
 
         return [
-            'id'         => [],
-            'ip'         => [
+            'id' => [],
+            'ip' => [
                 'default' => $RQ->IP,
             ],
-            'browser'    => [
+            'browser' => [
                 'default' => $RQ->BROWSER,
             ],
-            'method'     => [
+            'method' => [
                 'default' => $RQ->METHOD,
             ],
-            'header'     => [
+            'header' => [
                 'default' => json_encode($RQ->HEADERS, JSON_UNESCAPED_UNICODE),
             ],
-            'get'        => [
+            'get' => [
                 'default' => $RQ->QUERY_STRING,
             ],
-            'post'       => [
+            'post' => [
                 'default' => json_encode($RQ->POST, JSON_UNESCAPED_UNICODE),
             ],
-            'file'       => [
+            'file' => [
                 'default' => json_encode($RQ->FILES, JSON_UNESCAPED_UNICODE),
             ],
             'created_at' => [

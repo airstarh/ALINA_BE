@@ -2,8 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Utils\Request;
-
 class like extends _BaseAlinaModel
 {
     public $table = 'lk';
@@ -11,13 +9,13 @@ class like extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'         => [],
-            'ref_table'  => [],
-            'ref_id'     => [],
-            'user_id'    => [
+            'id'        => [],
+            'ref_table' => [],
+            'ref_id'    => [],
+            'user_id'   => [
                 'default' => CurrentUser::obj()->id(),
             ],
-            'val'        => [
+            'val' => [
                 'default' => 1,
             ],
             'created_at' => [
@@ -31,8 +29,8 @@ class like extends _BaseAlinaModel
     {
         return [
             'from' => [
-                'has'        => 'one',
-                'joins'      => [
+                'has'   => 'one',
+                'joins' => [
                     ['leftJoin', 'user AS from', 'from.id', '=', "{$this->alias}.user_id"],
                 ],
                 'conditions' => [],

@@ -27,7 +27,7 @@ class Generic
         // echo '</pre>';
         // echo '</div>';
         #####
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }

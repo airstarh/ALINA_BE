@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\App;
 use alina\Utils\Request;
 
 class watch_visit extends _BaseAlinaModel
@@ -16,38 +15,38 @@ class watch_visit extends _BaseAlinaModel
 
         #####
         return [
-            'id'           => [],
-            'ip'           => [
+            'id' => [],
+            'ip' => [
                 'default' => $Request->IP,
             ],
-            'browser_enc'  => [
+            'browser_enc' => [
                 'default' => $Request->BROWSER_enc,
             ],
             'query_string' => [
                 'default' => $Request->QUERY_STRING,
             ],
-            'user_id'      => [
+            'user_id' => [
                 'default' => CurrentUser::obj()->id(),
             ],
-            'visited_at'   => [
+            'visited_at' => [
                 'default' => ALINA_TIME,
             ],
-            'method'       => [
+            'method' => [
                 'default' => $Request->METHOD,
             ],
-            'data'         => [
+            'data' => [
                 'default' => json_encode($Request, JSON_UNESCAPED_UNICODE),
             ],
-            'controller'   => [
+            'controller' => [
                 'default' => Alina()->router->controller,
             ],
-            'action'       => [
+            'action' => [
                 'default' => Alina()->router->action,
             ],
-            'suspicious'   => [
+            'suspicious' => [
                 'default' => 0,
             ],
-            'ajax'         => [
+            'ajax' => [
                 'default' => $Request->AJAX,
             ],
         ];

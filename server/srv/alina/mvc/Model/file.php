@@ -2,32 +2,29 @@
 
 namespace alina\mvc\Model;
 
-use alina\Message;
-use alina\Utils\Request;
-
 class file extends _BaseAlinaModel
 {
-    public $table = 'file';
+    public $table       = 'file';
     public $sortDefault = [['name_human', 'ASC']];
 
     public function fields()
     {
         return [
-            'id' => [],
-            'entity_id' => [],
+            'id'           => [],
+            'entity_id'    => [],
             'entity_table' => [],
-            'name_fs' => [],
-            'name_human' => [],
-            'url_path' => [],
-            'dir' => [],
-            'container' => [
+            'name_fs'      => [],
+            'name_human'   => [],
+            'url_path'     => [],
+            'dir'          => [],
+            'container'    => [
                 'default' => 'FILE',
             ],
             'root_id' => [
-                'default' => NULL,
+                'default' => null,
             ],
             'parent_id' => [
-                'default' => NULL,
+                'default' => null,
             ],
             'level' => [
                 'default' => 1,
@@ -60,7 +57,7 @@ class file extends _BaseAlinaModel
         $fList = (new static())->getAll(
             [
                 ['name_human', '=', $this->attributes->name_human],
-                ['owner_id', '=', $this->attributes->owner_id]
+                ['owner_id', '=', $this->attributes->owner_id],
             ],
             null,
             2
@@ -70,7 +67,6 @@ class file extends _BaseAlinaModel
 
         if ($this->attributes->name_fs) {
             if (AlinaAccessIfAdminOrModeratorOrOwner($this->attributes->owner_id)) {
-
                 $path = $this->attributes->dir;
 
                 if (file_exists($path)) {
@@ -83,11 +79,11 @@ class file extends _BaseAlinaModel
 
                 $this->deleteById($id);
 
-                return TRUE;
+                return true;
             }
         }
 
-        return FALSE;
+        return false;
     }
     #####
 }

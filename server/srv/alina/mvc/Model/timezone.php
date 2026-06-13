@@ -19,7 +19,7 @@ class timezone extends _BaseAlinaModel
     public function uniqueKeys()
     {
         return [
-            ['name']
+            ['name'],
         ];
     }
 }

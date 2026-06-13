@@ -43,9 +43,7 @@ $i = 0;
                         <?php } ?>
                     </a>
                 </td>
-                <?php
-                $formId = "form-user-{$mUser->id}";
-            ?>
+                <? $formId = "form-user-{$mUser->id}"; ?>
                 <td>
                     <form
                             id="<?= $formId ?>"

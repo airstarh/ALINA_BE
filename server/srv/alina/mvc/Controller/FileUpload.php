@@ -7,7 +7,6 @@ use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\file;
 use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
-use alina\mvc\View\json as jsonView;
 use alina\Utils\Data;
 use alina\Utils\FS;
 use alina\Utils\Request;
@@ -29,23 +28,26 @@ class FileUpload
 
     public function actionIndex()
     {
-        $vd = NULL;
+        $vd = null;
+
         if (Request::isPostPutDelete()) {
             $resp = $this->processUpload();
+
             if ($resp) {
                 $vd = $this->respv2;
             }
         }
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
     }
 
     public function actionCommon()
     {
-        $vd = NULL;
+        $vd = null;
+
         if (Request::isPostPutDelete()) {
             $vd = $this->processUpload();
         }
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
     }
 
     public function actionCkEditor()
@@ -57,26 +59,29 @@ class FileUpload
             'newFileName' => $resp->uploaded ? $resp->newFileName[0] : '',
             'url'         => $resp->uploaded ? $resp->url[0] : '',
         ];
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
     }
 
     public function actionDelete($id)
     {
-        $res = FALSE;
+        $res = false;
+
         if (Request::isPostPutDelete()) {
             $m        = new file();
             $deletion = $m->bizDelete($id);
+
             if ($deletion) {
-                $res = TRUE;
+                $res = true;
             }
         }
+
         if ($res) {
             Message::setSuccess('Deleted');
         }
         else {
             Message::setDanger('Deletion failed');
         }
-        echo (new htmlAlias)->page();
+        echo (new htmlAlias())->page();
     }
 
     public function actionGetFiles($entity_table, $entity_id)
@@ -90,14 +95,14 @@ class FileUpload
             [['order', 'ASC'], ['name_human', 'ASC']],
             1000
         );
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
     }
     ##################################################
     #region Utils
     protected function processUpload()
     {
         #####
-        $stateSuccess = FALSE;
+        $stateSuccess = false;
         $this->respv2 = [];
         $this->resp   = (object)[
             'uploaded'    => 0,
@@ -105,12 +110,14 @@ class FileUpload
             'newFileName' => [],
             'url'         => [],
         ];
+
         #####
         if (CurrentUser::obj()->isLoggedIn()) {
             if (isset($_FILES[ALINA_FILE_UPLOAD_KEY])) {
                 $FILE_CONTAINER = $_FILES[ALINA_FILE_UPLOAD_KEY];
                 $targetDir      = $this->destinationDir();
-                if (!$this->processWatch()) {
+
+                if (! $this->processWatch()) {
                     return $this->resp;
                 }
                 $counterUploadedFiles = 0;
@@ -120,10 +127,12 @@ class FileUpload
                         $sourceFileCleanName = $FILE_CONTAINER["name"][$i];
                         $newFileCleanName    = md5_file($sourceFileFullPath);
                         $ext                 = FS::fileEXT($sourceFileCleanName);
+
                         #####
-                        if (!$this->isExtAllowed($ext)) {
+                        if (! $this->isExtAllowed($ext)) {
                             Message::setDanger("%s is not uploaded", [$sourceFileCleanName]);
-                            $stateSuccess = FALSE;
+                            $stateSuccess = false;
+
                             continue;
                         }
                         #####
@@ -131,6 +140,7 @@ class FileUpload
                         $this->resp->newFileName[] = $newFileName = "{$newFileCleanName}.{$ext}";
                         $targetFile                = FS::buildPathFromBlocks($targetDir, $newFileName);
                         $muf                       = move_uploaded_file($sourceFileFullPath, $targetFile);
+
                         if ($muf) {
                             #####
                             if ($this->isImage($targetFile)) {
@@ -155,9 +165,10 @@ class FileUpload
                         }
                     }
                 } //end foreach
+
                 #####
                 if ($counterUploadedFiles) {
-                    $stateSuccess  = TRUE;
+                    $stateSuccess  = true;
                     $max           = $this->getMax();
                     $currentAmount = $this->getCurrentAmount();
                     $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
@@ -169,8 +180,9 @@ class FileUpload
                 #####
             }
         }
+
         #####
-        if (!$stateSuccess) {
+        if (! $stateSuccess) {
             AlinaResponseSuccess(0);
             Message::setDanger('Upload failed');
         }
@@ -186,20 +198,22 @@ class FileUpload
     {
         $targetDir = $this->destinationDir();
         $max       = $this->getMax();
+
         if ($max == -1) {
-            return TRUE;
+            return true;
         }
         $currentAmount = $this->getCurrentAmount($targetDir);
+
         if ($currentAmount >= $max) {
             Message::setDanger("File upload limit exceeded. Already uploaded %s files", [$currentAmount]);
 
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
-    public function getMax($uid = NULL)
+    public function getMax($uid = null)
     {
         if (empty($uid)) {
             $CU = CurrentUser::obj();
@@ -217,16 +231,17 @@ class FileUpload
             'privileged' => 0,
         ];*/
         $max = 0;
+
         if ($CU->hasRole('privileged')) {
             $max = $cfg['privileged'];
         }
-        else if ($CU->hasRole('admin')) {
+        elseif ($CU->hasRole('admin')) {
             $max = $cfg['admin'];
         }
-        else if ($CU->hasRole('moderator')) {
+        elseif ($CU->hasRole('moderator')) {
             $max = $cfg['moderator'];
         }
-        else if ($CU->hasRole('registered')) {
+        elseif ($CU->hasRole('registered')) {
             $max = $cfg['registered'];
         }
         $this->max = $max;
@@ -234,7 +249,7 @@ class FileUpload
         return $this->max;
     }
 
-    protected function getCurrentAmount($targetDir = NULL)
+    protected function getCurrentAmount($targetDir = null)
     {
         if (empty($targetDir)) {
             $targetDir = $this->destinationDir();
@@ -250,6 +265,7 @@ class FileUpload
         $image   = $manager
             ->make($realPath)
         ;
+
         if ($image->width() > 1500) {
             $image->widen(1500);
         }
@@ -268,7 +284,7 @@ class FileUpload
         return $mFile->attributes;
     }
 
-    protected function destinationDir($uid = NULL)
+    protected function destinationDir($uid = null)
     {
         if (empty($uid)) {
             $uid = CurrentUser::obj()->id() ?: 0;
@@ -277,7 +293,7 @@ class FileUpload
             AlinaCfg('fileUploadDir'),
             $uid,
         ];
-        $res    = FS::buildPathFromBlocks($blocks);
+        $res = FS::buildPathFromBlocks($blocks);
         FS::mkChainedDirIfNotExists($res);
         $this->targetDir = $res;
 
@@ -294,8 +310,8 @@ class FileUpload
             Request::obj()->DOMAIN,
             $relPath,
         ];
-        $res      = '//' . FS::buildPathFromBlocks($blocks);
-        $res      = str_replace('\\', '/', $res);
+        $res = '//' . FS::buildPathFromBlocks($blocks);
+        $res = str_replace('\\', '/', $res);
 
         return $res;
     }
@@ -332,7 +348,7 @@ class FileUpload
     protected function isExtAllowed($ext)
     {
         if (CurrentUser::obj()->isAdminOrModerator()) {
-            return TRUE;
+            return true;
         }
 
         return

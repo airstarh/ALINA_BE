@@ -25,18 +25,22 @@ class Admin
     public function actionUsers($pageSze = 5, $page = 1)
     {
         $vd = (object)[];
+
         ########################################
         if (Request::isPost()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
             switch ($post->action) {
                 case 'set-roles':
                     $this->userSetRoles($post);
+
                     break;
                 case 'update':
                     $this->userUpdate($post);
+
                     break;
                 case 'delete':
                     $this->userDelete($post);
+
                     break;
             }
         }
@@ -50,7 +54,7 @@ class Admin
         $pagination                     = $processResponse['pagination'];
         $vd->pagination                 = $pagination;
         $vd->pagination->path           = "/admin/users";
-        $vd->pagination->flagHrefAsPath = TRUE;
+        $vd->pagination->flagHrefAsPath = true;
         $vd->users                      = $collection->toArray();
         $vd->users                      = array_filter($vd->users, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Users
@@ -60,7 +64,7 @@ class Admin
         $vd->roles = $mRoles->getAllWithReferences()->toArray();
         #endregion Roles
         ########################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     private function userSetRoles($post)
@@ -68,6 +72,7 @@ class Admin
         $uid = $post->id;
         $m   = new rbac_user_role();
         $m->delete(['user_id' => $uid]);
+
         if (isset($post->role_ids) && Data::isIterable($post->role_ids)) {
             foreach ($post->role_ids as $rid) {
                 $m->upsertByUniqueFields(['user_id' => $uid, 'role_id' => $rid]);
@@ -85,6 +90,7 @@ class Admin
     {
         $id = $post->id;
         $vd = (new user())->bizDelete($id);
+
         if ($vd && $vd->users == 1) {
             Message::setSuccess('Deleted');
             Message::setSuccess("Users: {$vd->users}");

@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Controller;
 
-use alina\AppExceptionValidation;
 use alina\Message;
 use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
@@ -24,13 +23,12 @@ use alina\Utils\Request;
 
 class Pm
 {
-    const URL_FILL_REPORT = '/pm/fill';
-    const URL_EDIT        = '/pm/edit';
-    const URL_REPORT      = '/pm/report';
+    public const URL_FILL_REPORT = '/pm/fill';
+    public const URL_EDIT        = '/pm/edit';
+    public const URL_REPORT      = '/pm/report';
 
     public function __construct()
     {
-
     }
 
     /**
@@ -43,7 +41,7 @@ class Pm
             'args' => $arg,
         ];
 
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }
@@ -55,8 +53,7 @@ class Pm
         $task_id = null,
         $subtask_id = null,
         $work_id = null
-    )
-    {
+    ) {
         AlinaRejectIfNotLoggedIn();
         $vd = [];
         ##################################################
@@ -78,13 +75,14 @@ class Pm
             'txt'   => ___('Home'),
             'table' => '',
         ];
-        $mOrganization       = new pm_organization();
-        $mDepartment         = new pm_department();
-        $mProject            = new pm_project();
-        $mTask               = new pm_task();
-        $mSubTask            = new pm_subtask();
-        $mWork               = new pm_work();
-        $mWorkDone           = new pm_work_done();
+        $mOrganization = new pm_organization();
+        $mDepartment   = new pm_department();
+        $mProject      = new pm_project();
+        $mTask         = new pm_task();
+        $mSubTask      = new pm_subtask();
+        $mWork         = new pm_work();
+        $mWorkDone     = new pm_work_done();
+
         ##################################################
         if (empty($organization_id)) {
             $vd['list']        = $mOrganization->getAllWithReferences()->toArray();
@@ -98,6 +96,7 @@ class Pm
                 'href'  => $href,
                 'table' => $mOrganization->table,
             ];
+
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
                 $vd['listOfTable'] = $mDepartment->table;
@@ -151,7 +150,7 @@ class Pm
                             ];
 
                             if (empty($work_id)) {
-                                $vd['list']        = $mWork->getAllWithReferences([
+                                $vd['list'] = $mWork->getAllWithReferences([
                                     ['flag_archived', '=', 0],
                                     ["$mWork->alias.pm_organization_id", '=', $organization_id],
                                     ["$mWork->alias.pm_department_id", '=', $department_id],
@@ -178,6 +177,7 @@ class Pm
                                             $amount     = Request::obj()->POST->amount;
                                             $pm_work_id = Request::obj()->POST->pm_work_id;
                                             $for_date   = ALINA_TIME;
+
                                             if (Request::obj()->POST->for_date) {
                                                 $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
                                             }
@@ -186,10 +186,12 @@ class Pm
                                                 'pm_work_id' => $pm_work_id,
                                                 'for_date'   => $for_date,
                                             ]);
+
                                             break;
                                         case 'delete_pm_work_done':
                                             $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
                                             (new pm_work_done())->smartDeleteById($pm_work_done_id);
+
                                             break;
                                     }
                                 }
@@ -197,7 +199,8 @@ class Pm
                                 ##################################################
 
                                 $vd['listWorkDone'] = $mWorkDone
-                                    ->getAllWithReferences([
+                                    ->getAllWithReferences(
+                                        [
                                         ["$mWorkDone->alias.pm_work_id", '=', $work_id],
                                     ],
                                         [
@@ -207,13 +210,9 @@ class Pm
                                     )
                                     ->toArray()
                                 ;
-
                             }
-
                         }
-
                     }
-
                 }
             }
         }
@@ -229,7 +228,8 @@ class Pm
         $vd['mWorkDone']     = $mWorkDone->attributes;
         $vd['url']           = $this->url(...array_merge([static::URL_FILL_REPORT], func_get_args()));
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+
         return $this;
     }
 
@@ -240,8 +240,7 @@ class Pm
         $task_id = null,
         $subtask_id = null,
         $work_id = null
-    )
-    {
+    ) {
         AlinaRejectIfNotAdminOrModerator();
         $vd = [];
         ##################################################
@@ -280,29 +279,33 @@ class Pm
             switch ($p->do) {
                 case 'order_in_view':
                     foreach ($p->order_in_view as $id => $order) {
-
                         $m = modelNamesResolver::getModelObject($p->model);
                         $m->updateById([
                             'order_in_view' => $order,
                         ], $id);
                     }
+
                     break;
                 case 'new_model':
                     $m = modelNamesResolver::getModelObject($p->model);
                     $m->insert($p);
+
                     break;
                 case 'delete_model':
                     $m = modelNamesResolver::getModelObject($p->model);
                     $m->smartDeleteById($p->id);
+
                     break;
                 case 'insert_pm_work_done':
                     $amount     = Request::obj()->POST->amount;
                     $pm_work_id = Request::obj()->POST->pm_work_id;
                     $for_date   = ALINA_TIME;
+
                     if (Request::obj()->POST->for_date) {
                         $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
                     }
                     $assignee_id = CurrentUser::id();
+
                     if (Request::obj()->POST->assignee_id) {
                         $assignee_id = Request::obj()->POST->assignee_id;
                     }
@@ -312,10 +315,12 @@ class Pm
                         'for_date'    => $for_date,
                         'assignee_id' => $assignee_id,
                     ]);
+
                     break;
                 case 'delete_pm_work_done':
                     $pm_work_done_id = Request::obj()->POST->pm_work_done_id;
                     (new pm_work_done())->smartDeleteById($pm_work_done_id);
+
                     break;
             }
         }
@@ -334,6 +339,7 @@ class Pm
                 'href'  => $href,
                 'table' => $mOrganization->table,
             ];
+
             if (empty($department_id)) {
                 $vd['list']        = $mDepartment->getAllWithReferences([['pm_organization_id', '=', $organization_id]])->toArray();
                 $vd['listOfTable'] = $mDepartment->table;
@@ -387,7 +393,7 @@ class Pm
                             ];
 
                             if (empty($work_id)) {
-                                $vd['list']        = $mWork->getAllWithReferences([
+                                $vd['list'] = $mWork->getAllWithReferences([
                                     ['flag_archived', '=', 0],
                                     ["$mWork->alias.pm_organization_id", '=', $organization_id],
                                     ["$mWork->alias.pm_department_id", '=', $department_id],
@@ -407,7 +413,8 @@ class Pm
                                 ];
 
                                 $vd['listWorkDone'] = $mWorkDone
-                                    ->getAllWithReferences([
+                                    ->getAllWithReferences(
+                                        [
                                         ["$mWorkDone->alias.pm_work_id", '=', $work_id],
                                         ["$mWorkDone->alias.flag_archived", '=', 0],
                                     ],
@@ -437,7 +444,8 @@ class Pm
         $vd['url']           = $this->url(...array_merge([static::URL_EDIT], func_get_args()));
         $vd['userList']      = (new user())->getAll()->toArray();
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+
         return $this;
     }
 
@@ -445,12 +453,14 @@ class Pm
     public function url(...$args)
     {
         $res = array_filter($args);
+
         return implode('/', $res);
     }
 
     public function actionReport()
     {
         AlinaRejectIfNotAdminOrModerator();
+
         ##################################################
         if (Request::isPostPutDelete()) {
             $p = Request::obj()->POST;
@@ -458,10 +468,12 @@ class Pm
                 case 'doArchive':
                     $wd_id = $p->wd_id;
                     (new pm_work_done())->doArchive($wd_id);
+
                     break;
                 case 'doUnArchive':
                     $wd_id = $p->wd_id;
                     (new pm_work_done())->doUnArchive($wd_id);
+
                     break;
 
                 case 'doArchiveAll':
@@ -472,7 +484,8 @@ class Pm
                     $date_end       = DateTime::dateToUtDayEnd($date_end);
 
                     $listWd = (new pm_work_done())
-                        ->getAll([
+                        ->getAll(
+                            [
                                 ['assignee_id', '=', $wd_assignee_id],
                                 ['for_date', '>=', $date_start],
                                 ['for_date', '<=', $date_end],
@@ -483,6 +496,7 @@ class Pm
                     foreach ($listWd as $item) {
                         (new pm_work_done())->doArchive($item->id);
                     }
+
                     break;
                 case 'doUnArchiveAll':
                     $wd_assignee_id = $p->wd_assignee_id;
@@ -492,7 +506,8 @@ class Pm
                     $date_end       = DateTime::dateToUtDayEnd($date_end);
                     $listWd
                                     = (new pm_work_done())
-                        ->getAll([
+                        ->getAll(
+                            [
                                 ['assignee_id', '=', $wd_assignee_id],
                                 ['for_date', '>=', $date_start],
                                 ['for_date', '<=', $date_end],
@@ -503,11 +518,13 @@ class Pm
                     foreach ($listWd as $item) {
                         (new pm_work_done())->doUnArchive($item->id);
                     }
+
                     break;
                 case 'doDeleteWdId':
                     $wd_id = $p->wd_id;
                     (new pm_work_story())->delete([['pm_work_done_id','=',$wd_id]]);
                     (new pm_work_done())->deleteById($wd_id);
+
                     break;
                 default:
 
@@ -529,11 +546,11 @@ class Pm
         $ddTotals      = [];
         $pd            = [];
         $pdTotals      = [];
+
         ##################################################
         if (
-            !empty(Request::obj()->GET->date_start)
-            &&
-            !empty(Request::obj()->GET->date_end)
+            ! empty(Request::obj()->GET->date_start)
+            && ! empty(Request::obj()->GET->date_end)
         ) {
             ##################################################
             $date_start = $GET->date_start;
@@ -552,7 +569,7 @@ class Pm
             $vd['s']                = $s;
             $vd['e']                = $e;
             ##################################################
-            $sql       = (new html)->piece('/Pm/sql/report_001.php', $vd);
+            $sql       = (new html())->piece('/Pm/sql/report_001.php', $vd);
             $vd['sql'] = $sql;
             ##################################################
             $m         = new _BaseAlinaModel();
@@ -590,54 +607,123 @@ class Pm
 
                 ####################################################################################################
 
-                if (empty($byUsers[$assaId])) $byUsers[$assaId] = [];
-                if (empty($byUsers[$assaId]['full_name'])) $byUsers[$assaId]['full_name'] = $afn;
-                if (empty($byUsers[$assaId]['price_total'])) $byUsers[$assaId]['price_total'] = 0;
-                if (empty($byUsers[$assaId]['time_total'])) $byUsers[$assaId]['time_total'] = 0;
+                if (empty($byUsers[$assaId])) {
+                    $byUsers[$assaId] = [];
+                }
+
+                if (empty($byUsers[$assaId]['full_name'])) {
+                    $byUsers[$assaId]['full_name'] = $afn;
+                }
+
+                if (empty($byUsers[$assaId]['price_total'])) {
+                    $byUsers[$assaId]['price_total'] = 0;
+                }
+
+                if (empty($byUsers[$assaId]['time_total'])) {
+                    $byUsers[$assaId]['time_total'] = 0;
+                }
 
                 $byUsers[$assaId]['price_total'] += $pf;
                 $byUsers[$assaId]['time_total']  += $ts;
+
                 #####
-                if (empty($byUsersTotals['xxx'])) $byUsersTotals['xxx'] = [];
-                if (empty($byUsersTotals['xxx']['full_name'])) $byUsersTotals['xxx']['full_name'] = ___('sum');
-                if (empty($byUsersTotals['xxx']['price_total'])) $byUsersTotals['xxx']['price_total'] = 0;
-                if (empty($byUsersTotals['xxx']['time_total'])) $byUsersTotals['xxx']['time_total'] = 0;
+                if (empty($byUsersTotals['xxx'])) {
+                    $byUsersTotals['xxx'] = [];
+                }
+
+                if (empty($byUsersTotals['xxx']['full_name'])) {
+                    $byUsersTotals['xxx']['full_name'] = ___('sum');
+                }
+
+                if (empty($byUsersTotals['xxx']['price_total'])) {
+                    $byUsersTotals['xxx']['price_total'] = 0;
+                }
+
+                if (empty($byUsersTotals['xxx']['time_total'])) {
+                    $byUsersTotals['xxx']['time_total'] = 0;
+                }
 
                 $byUsersTotals['xxx']['price_total'] += $pf;
                 $byUsersTotals['xxx']['time_total']  += $ts;
 
                 ####################################################################################################
 
-                if (empty($od[$oid])) $od[$oid] = [];
-                if (empty($od[$oid]['full_name'])) $od[$oid]['full_name'] = $onh;
-                if (empty($od[$oid]['price_total'])) $od[$oid]['price_total'] = 0;
-                if (empty($od[$oid]['time_total'])) $od[$oid]['time_total'] = 0;
+                if (empty($od[$oid])) {
+                    $od[$oid] = [];
+                }
+
+                if (empty($od[$oid]['full_name'])) {
+                    $od[$oid]['full_name'] = $onh;
+                }
+
+                if (empty($od[$oid]['price_total'])) {
+                    $od[$oid]['price_total'] = 0;
+                }
+
+                if (empty($od[$oid]['time_total'])) {
+                    $od[$oid]['time_total'] = 0;
+                }
 
                 $od[$oid]['price_total'] += $pf;
                 $od[$oid]['time_total']  += $ts;
+
                 #####
-                if (empty($odTotals['xxx'])) $odTotals['xxx'] = [];
-                if (empty($odTotals['xxx']['full_name'])) $odTotals['xxx']['full_name'] = ___('sum');
-                if (empty($odTotals['xxx']['price_total'])) $odTotals['xxx']['price_total'] = 0;
-                if (empty($odTotals['xxx']['time_total'])) $odTotals['xxx']['time_total'] = 0;
+                if (empty($odTotals['xxx'])) {
+                    $odTotals['xxx'] = [];
+                }
+
+                if (empty($odTotals['xxx']['full_name'])) {
+                    $odTotals['xxx']['full_name'] = ___('sum');
+                }
+
+                if (empty($odTotals['xxx']['price_total'])) {
+                    $odTotals['xxx']['price_total'] = 0;
+                }
+
+                if (empty($odTotals['xxx']['time_total'])) {
+                    $odTotals['xxx']['time_total'] = 0;
+                }
 
                 $odTotals['xxx']['price_total'] += $pf;
                 $odTotals['xxx']['time_total']  += $ts;
 
                 ####################################################################################################
 
-                if (empty($dd[$did])) $dd[$did] = [];
-                if (empty($dd[$did]['full_name'])) $dd[$did]['full_name'] = implode(' ', [$dnh, "[$onh]"]);
-                if (empty($dd[$did]['price_total'])) $dd[$did]['price_total'] = 0;
-                if (empty($dd[$did]['time_total'])) $dd[$did]['time_total'] = 0;
+                if (empty($dd[$did])) {
+                    $dd[$did] = [];
+                }
+
+                if (empty($dd[$did]['full_name'])) {
+                    $dd[$did]['full_name'] = implode(' ', [$dnh, "[$onh]"]);
+                }
+
+                if (empty($dd[$did]['price_total'])) {
+                    $dd[$did]['price_total'] = 0;
+                }
+
+                if (empty($dd[$did]['time_total'])) {
+                    $dd[$did]['time_total'] = 0;
+                }
 
                 $dd[$did]['price_total'] += $pf;
                 $dd[$did]['time_total']  += $ts;
+
                 #####
-                if (empty($ddTotals['xxx'])) $ddTotals['xxx'] = [];
-                if (empty($ddTotals['xxx']['full_name'])) $ddTotals['xxx']['full_name'] = ___('sum');
-                if (empty($ddTotals['xxx']['price_total'])) $ddTotals['xxx']['price_total'] = 0;
-                if (empty($ddTotals['xxx']['time_total'])) $ddTotals['xxx']['time_total'] = 0;
+                if (empty($ddTotals['xxx'])) {
+                    $ddTotals['xxx'] = [];
+                }
+
+                if (empty($ddTotals['xxx']['full_name'])) {
+                    $ddTotals['xxx']['full_name'] = ___('sum');
+                }
+
+                if (empty($ddTotals['xxx']['price_total'])) {
+                    $ddTotals['xxx']['price_total'] = 0;
+                }
+
+                if (empty($ddTotals['xxx']['time_total'])) {
+                    $ddTotals['xxx']['time_total'] = 0;
+                }
 
                 $ddTotals['xxx']['price_total'] += $pf;
                 $ddTotals['xxx']['time_total']  += $ts;
@@ -645,18 +731,41 @@ class Pm
                 ####################################################################################################
 
 
-                if (empty($pd[$pid])) $pd[$pid] = [];
-                if (empty($pd[$pid]['full_name'])) $pd[$pid]['full_name'] = implode(' ', [$pnh, "[$onh, $dnh]"]);
-                if (empty($pd[$pid]['price_total'])) $pd[$pid]['price_total'] = 0;
-                if (empty($pd[$pid]['time_total'])) $pd[$pid]['time_total'] = 0;
+                if (empty($pd[$pid])) {
+                    $pd[$pid] = [];
+                }
+
+                if (empty($pd[$pid]['full_name'])) {
+                    $pd[$pid]['full_name'] = implode(' ', [$pnh, "[$onh, $dnh]"]);
+                }
+
+                if (empty($pd[$pid]['price_total'])) {
+                    $pd[$pid]['price_total'] = 0;
+                }
+
+                if (empty($pd[$pid]['time_total'])) {
+                    $pd[$pid]['time_total'] = 0;
+                }
 
                 $pd[$pid]['price_total'] += $pf;
                 $pd[$pid]['time_total']  += $ts;
+
                 #####
-                if (empty($pdTotals['xxx'])) $pdTotals['xxx'] = [];
-                if (empty($pdTotals['xxx']['full_name'])) $pdTotals['xxx']['full_name'] = ___('sum');
-                if (empty($pdTotals['xxx']['price_total'])) $pdTotals['xxx']['price_total'] = 0;
-                if (empty($pdTotals['xxx']['time_total'])) $pdTotals['xxx']['time_total'] = 0;
+                if (empty($pdTotals['xxx'])) {
+                    $pdTotals['xxx'] = [];
+                }
+
+                if (empty($pdTotals['xxx']['full_name'])) {
+                    $pdTotals['xxx']['full_name'] = ___('sum');
+                }
+
+                if (empty($pdTotals['xxx']['price_total'])) {
+                    $pdTotals['xxx']['price_total'] = 0;
+                }
+
+                if (empty($pdTotals['xxx']['time_total'])) {
+                    $pdTotals['xxx']['time_total'] = 0;
+                }
 
                 $pdTotals['xxx']['price_total'] += $pf;
                 $pdTotals['xxx']['time_total']  += $ts;
@@ -673,9 +782,17 @@ class Pm
 
                 ####################################################################################################
 
-                if (empty($ud[$assaId]['sum']['amount'])) $ud[$assaId]['sum']['amount'] = 0;
-                if (empty($ud[$assaId]['sum']['price_final'])) $ud[$assaId]['sum']['price_final'] = 0;
-                if (empty($ud[$assaId]['sum']['time_spent'])) $ud[$assaId]['sum']['time_spent'] = 0;
+                if (empty($ud[$assaId]['sum']['amount'])) {
+                    $ud[$assaId]['sum']['amount'] = 0;
+                }
+
+                if (empty($ud[$assaId]['sum']['price_final'])) {
+                    $ud[$assaId]['sum']['price_final'] = 0;
+                }
+
+                if (empty($ud[$assaId]['sum']['time_spent'])) {
+                    $ud[$assaId]['sum']['time_spent'] = 0;
+                }
 
                 $ud[$assaId][$wdid] = [
                     'wd_id'            => $wdid,
@@ -693,9 +810,9 @@ class Pm
                     'wd_flag_archived' => $fa,
                 ];
 
-                $sumAmnt = $ud[$assaId]['sum']['amount'] + $ud[$assaId][$wdid]['amount'];
+                $sumAmnt = $ud[$assaId]['sum']['amount']      + $ud[$assaId][$wdid]['amount'];
                 $sumPf   = $ud[$assaId]['sum']['price_final'] + $ud[$assaId][$wdid]['price_final'];
-                $sumTs   = $ud[$assaId]['sum']['time_spent'] + $ud[$assaId][$wdid]['time_spent'];
+                $sumTs   = $ud[$assaId]['sum']['time_spent']  + $ud[$assaId][$wdid]['time_spent'];
 
                 $ud[$assaId]['sum'] = [
                     'wd_id'            => '',
@@ -735,10 +852,10 @@ class Pm
         $vd['ud']      = $ud;
         $vd['res']     = $res;
         $vd['zzz']     = Data::toObject([]);
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+
         return $this;
     }
 
     ###
-
 }

@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\App;
 use alina\Utils\Request;
 
 class error_log extends _BaseAlinaModel
@@ -13,26 +12,26 @@ class error_log extends _BaseAlinaModel
     {
         #####
         return [
-            'id'             => [],
-            'ip'             => [
+            'id' => [],
+            'ip' => [
                 'default' => Request::obj()->IP,
             ],
-            'browser'        => [
+            'browser' => [
                 'default' => Request::obj()->BROWSER,
             ],
-            'method'         => [
+            'method' => [
                 'default' => Request::obj()->METHOD,
             ],
-            'ajax'           => [
+            'ajax' => [
                 'default' => Request::obj()->AJAX,
             ],
-            'user_id'        => [
+            'user_id' => [
                 'default' => CurrentUser::obj()->id(),
             ],
-            'url_path'       => [
+            'url_path' => [
                 'default' => Request::obj()->URL_PATH,
             ],
-            'query_string'   => [
+            'query_string' => [
                 'default' => Request::obj()->QUERY_STRING,
             ],
             'request'        => [],

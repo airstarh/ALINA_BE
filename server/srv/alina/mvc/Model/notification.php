@@ -9,17 +9,17 @@ class notification extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'           => [],
-            'to_id'        => [],
-            'from_id'      => [],
-            'txt'          => [],
-            'params'       => [],
-            'link'         => [],
-            'severity_id'  => [],
-            'is_shown'     => [
+            'id'          => [],
+            'to_id'       => [],
+            'from_id'     => [],
+            'txt'         => [],
+            'params'      => [],
+            'link'        => [],
+            'severity_id' => [],
+            'is_shown'    => [
                 'default' => 0,
             ],
-            'created_at'   => [
+            'created_at' => [
                 'default' => ALINA_TIME,
             ],
             'id_root'      => [],
@@ -28,8 +28,8 @@ class notification extends _BaseAlinaModel
             'tbl'          => [
                 'default' => 'tale',
             ],
-            'bind_tbl'     => [],
-            'bind_id'      => [],
+            'bind_tbl' => [],
+            'bind_id'  => [],
         ];
     }
 
@@ -37,9 +37,9 @@ class notification extends _BaseAlinaModel
     public function referencesTo()
     {
         return [
-            'to'       => [
-                'has'        => 'one',
-                'joins'      => [
+            'to' => [
+                'has'   => 'one',
+                'joins' => [
                     ['leftJoin', 'user AS to', 'to.id', '=', "{$this->alias}.to_id"],
                 ],
                 'conditions' => [],
@@ -50,9 +50,9 @@ class notification extends _BaseAlinaModel
                     ]],
                 ],
             ],
-            'from'     => [
-                'has'        => 'one',
-                'joins'      => [
+            'from' => [
+                'has'   => 'one',
+                'joins' => [
                     ['leftJoin', 'user AS from', 'from.id', '=', "{$this->alias}.from_id"],
                 ],
                 'conditions' => [],
@@ -65,8 +65,8 @@ class notification extends _BaseAlinaModel
                 ],
             ],
             'severity' => [
-                'has'        => 'one',
-                'joins'      => [
+                'has'   => 'one',
+                'joins' => [
                     ['leftJoin', 'notification_severity AS severity', 'severity.id', '=', "{$this->alias}.severity_id"],
                 ],
                 'conditions' => [],

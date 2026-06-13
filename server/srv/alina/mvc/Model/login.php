@@ -2,8 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Utils\Data;
-
 class login extends _BaseAlinaModel
 {
     public $flagAuditInfoLog = false;
@@ -12,9 +10,9 @@ class login extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'          => [],
-            'user_id'     => [],
-            'token'       => [
+            'id'      => [],
+            'user_id' => [],
+            'token'   => [
                 'default' => null,
             ],
             'ip'          => [],
@@ -22,7 +20,7 @@ class login extends _BaseAlinaModel
             'lastentered' => [
                 'default' => ALINA_TIME,
             ],
-            'expires_at'  => [
+            'expires_at' => [
                 'default' => ALINA_AUTH_EXPIRES,
             ],
         ];

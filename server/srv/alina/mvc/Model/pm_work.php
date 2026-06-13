@@ -14,11 +14,11 @@ class pm_work extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'                 => [],
-            'name_human'         => [
+            'id'         => [],
+            'name_human' => [
                 'type' => 'readonly',
             ], /*calculation*/
-            'price_this_work'    => [
+            'price_this_work' => [
                 'type' => 'readonly',
             ], /*calculation*/
             'pm_organization_id' => [],
@@ -37,23 +37,24 @@ class pm_work extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             [
                 ##### field ######
-                'pm_organization_id'        => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_organization_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'pm_organization',
                         'childPk'        => 'id',
                         'childHumanName' => ['name_human'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
                     ],
                     'conditions' => [],
@@ -67,20 +68,20 @@ class pm_work extends _BaseAlinaModel
                     ],
                 ],
                 ##### field ######
-                'pm_department_id'          => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_department_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'pm_department',
                         'childPk'        => 'id',
                         'childHumanName' => ['name_human'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', "{$this->alias}.pm_department_id"],
                     ],
                     'conditions' => [],
@@ -95,20 +96,20 @@ class pm_work extends _BaseAlinaModel
                     ],
                 ],
                 ##### field ######
-                'pm_project_id'             => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_project_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'pm_project',
                         'childPk'        => 'id',
                         'childHumanName' => ['name_human'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
                     ],
                     'conditions' => [],
@@ -123,20 +124,20 @@ class pm_work extends _BaseAlinaModel
                     ],
                 ],
                 ##### field ######
-                'pm_task_id'                => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_task_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'pm_task',
                         'childPk'        => 'id',
                         'childHumanName' => ['name_human'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
                     ],
                     'conditions' => [],
@@ -150,20 +151,20 @@ class pm_work extends _BaseAlinaModel
                     ],
                 ],
                 ##### field ######
-                'pm_subtask_id'             => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_subtask_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'pm_subtask',
                         'childPk'        => 'id',
                         'childHumanName' => ['name_human'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', "{$this->alias}.pm_subtask_id"],
                     ],
                     'conditions' => [],
@@ -181,12 +182,12 @@ class pm_work extends _BaseAlinaModel
                 ##### field ######
                 '_pm_work_done_notarchived' => [
                     ///'disabled'   => true,
-                    'has'        => 'many',
-                    'multiple'   => true,
-                    'type'       => 'readonly',
+                    'has'      => 'many',
+                    'multiple' => true,
+                    'type'     => 'readonly',
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_work_done AS child', 'child.pm_work_id', '=', "$this->alias.$this->pkName"],
                     ],
                     'conditions' => [
@@ -261,7 +262,7 @@ class pm_work extends _BaseAlinaModel
 
     public function pmWorkDoneBulkUpdate($idWork = null)
     {
-        if (!empty($idWork)) {
+        if (! empty($idWork)) {
             $this->getById($idWork);
         }
         else {
@@ -277,7 +278,8 @@ class pm_work extends _BaseAlinaModel
                 ])
                 ->toArray()
             ;
-            if (!empty($listWorkDone)) {
+
+            if (! empty($listWorkDone)) {
                 $counterUpdated = [];
                 foreach ($listWorkDone as $item) {
                     /**
@@ -306,11 +308,11 @@ class pm_work extends _BaseAlinaModel
         $mWork         = $this;
         $mSubtask      = new pm_subtask();
         $mTask         = new pm_task();
-        $mProject      = new pm_project;
+        $mProject      = new pm_project();
         $mDepartment   = new pm_department();
         $mOrganization = new pm_organization();
 
-        if (!empty($idWork)) {
+        if (! empty($idWork)) {
             $mWork->getById($idWork);
         }
         else {
@@ -335,8 +337,7 @@ class pm_work extends _BaseAlinaModel
         $pm_department_price_min,
         $pm_project_price_multiplier,
         $pm_subtask_time_estimated
-    )
-    {
+    ) {
         return $pm_department_price_min * $pm_project_price_multiplier * $pm_subtask_time_estimated;
     }
 
@@ -349,8 +350,7 @@ class pm_work extends _BaseAlinaModel
         $department_price_min,
         $project_price_multiplier,
         $subtask_time_estimated
-    )
-    {
+    ) {
         return json_encode([
             'onh'                      => $onh,
             'dnh'                      => $dnh,

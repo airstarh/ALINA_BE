@@ -1,4 +1,5 @@
 <?php
+
 /**
  * URL's to test:
  * short:
@@ -44,6 +45,7 @@ class alinaRestAccept
             //INSERT
             case 'POST':
                 $post = Sys::resolvePostDataAsObject();
+
                 if ($command === 'Model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -51,10 +53,12 @@ class alinaRestAccept
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
                     echo (new jsonView())->standardRestApiResponse($data);
                 }
+
                 break;
-            //UPDATE
+                //UPDATE
             case 'PUT':
                 $post = Sys::resolvePostDataAsObject();
+
                 if ($command === 'Model') {
                     $modelName = $_GET['m'];
                     $m         = modelNamesResolver::getModelObject($modelName);
@@ -63,16 +67,18 @@ class alinaRestAccept
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
                     echo (new jsonView())->standardRestApiResponse($data[0]);
                 }
+
                 break;
             case 'OPTIONS':
                 (new jsonView())->simpleRestApiResponse('o.k.');
+
                 break;
             case 'GET':
             default:
                 /**
                  *  /?cmd=Model&m=user&[search_parameters]
                  */
-                if ($command && !empty($command)) {
+                if ($command && ! empty($command)) {
                     if ($command === 'collection') {
                         $modelName = $_GET['m'];
                         $m         = modelNamesResolver::getModelObject($modelName);
@@ -83,16 +89,19 @@ class alinaRestAccept
                         GlobalRequestStorage::set('rowsTotal', $m->state_ROWS_TOTAL);
                         echo (new jsonView())->standardRestApiResponse($data);
                     }
+
                     if ($command === 'Model') {
                         $modelName = $_GET['m'];
                         $mId       = $_GET['mId'];
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $cond      = ["{$m->alias}.{$m->pkName}" => $mId];
                         $data      = $m->getAllWithReferences($cond);
-                        $resp      = NULL;
-                        if (!empty($data)) {
+                        $resp      = null;
+
+                        if (! empty($data)) {
                             foreach ($data as $pk => $d) {
                                 $resp = $d;
+
                                 break;
                             }
                         }
@@ -100,6 +109,7 @@ class alinaRestAccept
                         echo (new jsonView())->standardRestApiResponse($resp);
                     }
                 }
+
                 break;
         }
     }
@@ -107,7 +117,7 @@ class alinaRestAccept
     public function actionForm()
     {
         $data = '';
-        echo (new \alina\mvc\View\html)->page($data);
+        echo (new \alina\mvc\View\html())->page($data);
     }
 
     /**

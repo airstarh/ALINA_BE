@@ -1,6 +1,7 @@
 <?php
 
 namespace alina\mvc\Model;
+
 class referenceProcessor
 {
     /** @var \Illuminate\Database\Query\Builder $q */
@@ -23,12 +24,13 @@ class referenceProcessor
         $q            = $this->model->q;
         $referencesTo = $m->referencesTo();
         foreach ($referencesTo as $rName => $rConfig) {
-            if (!empty($refNames)) {
-                if (!in_array($rName, $refNames)) {
+            if (! empty($refNames)) {
+                if (! in_array($rName, $refNames)) {
                     continue;
                 }
             }
-            if (!isset($rConfig['has'])) {
+
+            if (! isset($rConfig['has'])) {
                 continue;
             }
             switch ($rConfig['has']) {
@@ -36,10 +38,12 @@ class referenceProcessor
                 case 1:
                     $this->q              = $q;
                     $this->qArray[$rName] = $this->applyRefConfigToQuery($rConfig);
-                    if (!empty($this->forIds)) {
+
+                    if (! empty($this->forIds)) {
                         $this->qArray[$rName]->whereIn("{$m->alias}.{$m->pkName}", $this->forIds);
                     }
-                    $this->q = NULL;
+                    $this->q = null;
+
                     break;
             }
         }
@@ -48,6 +52,7 @@ class referenceProcessor
     public function joinHasMany($refNames = [], $forIds = [])
     {
         $this->forIds = $forIds;
+
         /** @var $m _BaseAlinaModel */
         /**
          * ATTENTION.
@@ -64,12 +69,13 @@ class referenceProcessor
         $m->alias     = 'main';
         $referencesTo = $m->referencesTo();
         foreach ($referencesTo as $rName => $rConfig) {
-            if (!empty($refNames)) {
-                if (!in_array($rName, $refNames, TRUE)) {
+            if (! empty($refNames)) {
+                if (! in_array($rName, $refNames, true)) {
                     continue;
                 }
             }
-            if (!isset($rConfig['has'])) {
+
+            if (! isset($rConfig['has'])) {
                 continue;
             }
             switch ($rConfig['has']) {
@@ -77,10 +83,12 @@ class referenceProcessor
                 case 'manyThrough':
                     $this->q              = $m->q();
                     $this->qArray[$rName] = $this->applyRefConfigToQuery($rConfig);
-                    if (!empty($this->forIds)) {
+
+                    if (! empty($this->forIds)) {
                         $this->qArray[$rName]->whereIn("{$m->alias}.{$m->pkName}", $this->forIds);
                     }
-                    $this->q = NULL;
+                    $this->q = null;
+
                     break;
             }
         }
@@ -94,12 +102,15 @@ class referenceProcessor
         if (isset($refConfig['joins'])) {
             $this->applyQueryOperations($refConfig['joins']);
         }
+
         if (isset($refConfig['conditions'])) {
             $this->applyQueryOperations($refConfig['conditions']);
         }
+
         if (isset($refConfig['addSelects'])) {
             $this->applyQueryOperations($refConfig['addSelects']);
         }
+
         if (isset($refConfig['orders'])) {
             $this->applyQueryOperations($refConfig['orders']);
         }

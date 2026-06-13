@@ -4,7 +4,6 @@ namespace alina\mvc\Controller;
 
 use alina\Message;
 use alina\mvc\Model\modelNamesResolver;
-use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
 use alina\traits\RequestProcessor;
 use alina\Utils\Data;
@@ -16,11 +15,11 @@ class AdminDbManager
 {
     use RequestProcessor;
 
-    const URL_DB         = '/AdminDbManager/DbTablesColumnsInfo';
-    const URL_LIST       = '/AdminDbManager/Models';
-    const URL_ROW_EDIT   = '/AdminDbManager/EditRow';
-    const URL_ROW_COPY   = '/AdminDbManager/Copy';
-    const URL_ROW_DELETE = '/AdminDbManager/Delete';
+    public const URL_DB         = '/AdminDbManager/DbTablesColumnsInfo';
+    public const URL_LIST       = '/AdminDbManager/Models';
+    public const URL_ROW_EDIT   = '/AdminDbManager/EditRow';
+    public const URL_ROW_COPY   = '/AdminDbManager/Copy';
+    public const URL_ROW_DELETE = '/AdminDbManager/Delete';
 
     public function __construct()
     {
@@ -29,6 +28,7 @@ class AdminDbManager
         if (Request::obj()->isPostPutDelete($p)) {
             if (property_exists($p, 'owner_id')) {
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
+
                 return;
             }
         }
@@ -67,6 +67,7 @@ class AdminDbManager
             'colsAsJson'         => '',
             'colsAsPHPArr'       => '',
         ];
+
         if (Request::isPost($p)) {
             $p               = \alina\Utils\Data::deleteEmptyProps($p);
             $vd              = \alina\Utils\Data::mergeObjects($vd, $p);
@@ -82,15 +83,18 @@ class AdminDbManager
             $qResp = $q->qsGetColumnInformation();
             foreach ($qResp as $x) {
                 $exe[$x->TABLE_SCHEMA][$x->TABLE_NAME][$x->COLUMN_NAME] = $x;
-                if (!isset($arrTablesPk[$x->TABLE_NAME])) {
+
+                if (! isset($arrTablesPk[$x->TABLE_NAME])) {
                     $arrTablesPk[$x->TABLE_NAME] = [];
                 }
+
                 if (strtoupper($x->COLUMN_KEY) === 'PRI') {
                     $arrTablesPk[$x->TABLE_NAME]['pkName'] = $x->COLUMN_NAME;
                 }
             }
             $arrTables     = array_keys($arrTablesPk);
             $vd->arrTables = $arrTables;
+
             //$r['exe'] = $exe;
             ##########################################################################################
             if (@$vd->tableName && in_array($vd->tableName, $vd->arrTables)) {
@@ -153,23 +157,26 @@ class AdminDbManager
         //$vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     public function actionModels($model)
     {
         $vd    = (object)[];
         $model = modelNamesResolver::getModelObject($model);
+
         ########################################
         if (Request::isPostPutDelete()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
             switch ($post->action) {
                 case 'update':
                     $model->updateById($post);
+
                     break;
                 case 'delete':
                     $id = $model->{$model->pkName};
                     $model->smartDeleteById($id);
+
                     break;
             }
         }
@@ -187,7 +194,7 @@ class AdminDbManager
         $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Models
         ########################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     public function actionEditRow($table, $id)
@@ -196,13 +203,15 @@ class AdminDbManager
         $flagModelIsNew = false;
         $vd             = (object)[];
         $m              = modelNamesResolver::getModelObject($table);
+
         if ($id && $id != 'new') {
             $m->getOneWithReferences([["$m->alias.$m->pkName", '=', $id]]);
         }
         else {
             $flagModelIsNew = true;
             $m->buildDefaultData();
-            if (!empty(Request::obj()->GET)) {
+
+            if (! empty(Request::obj()->GET)) {
                 $get = Request::obj()->GET;
                 unset($get->alinapath);
                 $m->attributes = Data::mergeObjects($m->attributes, $get);
@@ -214,8 +223,8 @@ class AdminDbManager
         ##################################################
         #region POST
         $p = Request::obj()->POST;
-        if (!empty((array)$p)) {
 
+        if (! empty((array)$p)) {
             ##############################
             #region CHECK OWNERSHIP
             if (property_exists($p, 'owner_id')) {
@@ -227,11 +236,12 @@ class AdminDbManager
             ##################################################
             #reguin FIXES
             unset($p->form_id);
+
             if ($m->table === 'user') {
                 /**
                  * All can save any info but password
                  */
-                if (!empty($p->password)) {
+                if (! empty($p->password)) {
                     AlinaRejectIfNotAdmin();
                 }
                 else {
@@ -252,10 +262,11 @@ class AdminDbManager
 
         if ($flagModelIsNew && $newId) {
             Sys::redirect("/admindbmanager/editrow/$table/$newId", 303);
+
             return $this;
         }
 
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }
@@ -276,7 +287,7 @@ class AdminDbManager
         foreach ($p->list as $i => $m) {
             $p->list[$i] = $this->actionUpdate($table, $m->id, $m);
         }
-        echo (new htmlAlias)->page($p);
+        echo (new htmlAlias())->page($p);
     }
 
     public function actionDelete($table, $id)

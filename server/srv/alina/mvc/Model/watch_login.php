@@ -11,15 +11,15 @@ class watch_login extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'          => [],
-            'mail'        => [],
-            'ip'          => [
+            'id'   => [],
+            'mail' => [],
+            'ip'   => [
                 'default' => Request::obj()->IP,
             ],
             'browser_enc' => [
                 'default' => Request::obj()->BROWSER_enc,
             ],
-            'visits'      => [],
+            'visits' => [],
         ];
     }
 

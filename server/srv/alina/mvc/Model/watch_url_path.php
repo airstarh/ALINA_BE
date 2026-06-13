@@ -1,6 +1,7 @@
 <?php
 
 namespace alina\mvc\Model;
+
 class watch_url_path extends _BaseAlinaModel
 {
     public $table = 'watch_url_path';

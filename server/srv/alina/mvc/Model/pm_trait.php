@@ -8,19 +8,19 @@ trait pm_trait
     {
         return [
             'created_by' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                'disabled'   => true,
+                'has'      => 'one',
+                'multiple' => false,
+                'disabled' => true,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'user AS creator', 'creator.id', '=', "$this->alias.created_by"],
                 ],
                 'conditions' => [],
@@ -44,19 +44,19 @@ trait pm_trait
     {
         return [
             'modified_by' => [
-                'has'        => 'one',
-                'multiple'   => false,
-                'disabled'   => true,
+                'has'      => 'one',
+                'multiple' => false,
+                'disabled' => true,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'user AS modifier', 'modifier.id', '=', "$this->alias.modified_by"],
                 ],
                 'conditions' => [],
@@ -80,18 +80,18 @@ trait pm_trait
     {
         return [
             'manager_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'user AS manager', 'manager.id', '=', "{$this->alias}.manager_id"],
                 ],
                 'conditions' => [],
@@ -115,18 +115,18 @@ trait pm_trait
     {
         return [
             'assignee_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'user',
                     'childPk'        => 'id',
                     'childHumanName' => ['firstname', 'lastname', 'mail'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'user AS assignee', 'assignee.id', '=', "{$this->alias}.assignee_id"],
                 ],
                 'conditions' => [],
@@ -150,12 +150,12 @@ trait pm_trait
     {
         return [
             '_pm_department' => [
-                'has'        => 'many',
-                'multiple'   => true,
-                'disabled'   => true,
+                'has'      => 'many',
+                'multiple' => true,
+                'disabled' => true,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_department',
                     'childPk'        => 'id',
                     'childGlueKey'   => 'pm_organization_id',
@@ -163,7 +163,7 @@ trait pm_trait
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'pm_department AS child', 'child.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
                 ],
                 'conditions' => [],
@@ -186,10 +186,10 @@ trait pm_trait
     {
         return [
             '_pm_project' => [
-                'has'        => 'many',
+                'has' => 'many',
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
                 ],
@@ -215,10 +215,10 @@ trait pm_trait
     {
         return [
             '_pm_task' => [
-                'has'        => 'many',
+                'has' => 'many',
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
                     ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
@@ -244,10 +244,10 @@ trait pm_trait
     {
         return [
             '_pm_subtask' => [
-                'has'        => 'many',
+                'has' => 'many',
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'pm_department AS pm_department', 'pm_department.pm_organization_id', '=', $this->qAliasPk()],
                     ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', 'pm_department.id'],
                     ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
@@ -268,7 +268,7 @@ trait pm_trait
                         ],
                     ],
                 ],
-                'orders'     => [
+                'orders' => [
                     ['orderBy', 'pm_project.name_human', 'ASC'],
                     ['orderBy', 'pm_task.order_in_view', 'ASC'],
                     ['orderBy', 'pm_subtask.order_in_view', 'ASC'],
@@ -284,18 +284,18 @@ trait pm_trait
     {
         return [
             'pm_organization_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_organization',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_organization AS pm_organization', 'pm_organization.id', '=', "{$this->alias}.pm_organization_id"],
                 ],
                 'conditions' => [],
@@ -317,18 +317,18 @@ trait pm_trait
     {
         return [
             'pm_department_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_department',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_department AS pm_department', 'pm_department.id', '=', "{$this->alias}.pm_department_id"],
                 ],
                 'conditions' => [],
@@ -349,18 +349,18 @@ trait pm_trait
     {
         return [
             'pm_project_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_project',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_project AS pm_project', 'pm_project.id', '=', "{$this->alias}.pm_project_id"],
                 ],
                 'conditions' => [],
@@ -382,18 +382,18 @@ trait pm_trait
     {
         return [
             'pm_task_id' => [
-                'has'        => 'one',
-                'multiple'   => false,
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'pm_task',
                     'childPk'        => 'id',
                     'childHumanName' => ['name_human'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', "{$this->alias}.pm_task_id"],
                 ],
                 'conditions' => [],

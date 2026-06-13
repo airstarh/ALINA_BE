@@ -13,8 +13,8 @@ class pm_task extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'            => [],
-            'name_human'    => [
+            'id'         => [],
+            'name_human' => [
                 'required' => true,
             ],
             'order_in_view' => ['default' => 0],
@@ -34,17 +34,17 @@ class pm_task extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-
-        return array_merge([],
+        return array_merge(
+            [],
             $this->manager_id(),
             $this->assignee_id(),
             $this->pm_project_id(),
             [
                 '_children' => [
-                    'has'        => 'many',
+                    'has' => 'many',
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', $this->qAliasPk()],
                     ],
                     'conditions' => [],
@@ -60,7 +60,7 @@ class pm_task extends _BaseAlinaModel
                             ],
                         ],
                     ],
-                    'orders'     => [
+                    'orders' => [
                         ['orderBy', 'pm_subtask.order_in_view', 'ASC'],
                         ['orderBy', 'pm_subtask.id', 'ASC'],
                     ],
@@ -74,7 +74,7 @@ class pm_task extends _BaseAlinaModel
 
     public function hookRightAfterSave($data)
     {
-        if (!AlinaAccessIfAdmin() && !AlinaAccessIfModerator()) {
+        if (! AlinaAccessIfAdmin() && ! AlinaAccessIfModerator()) {
             return $this;
         }
 
@@ -85,12 +85,15 @@ class pm_task extends _BaseAlinaModel
 
     public function bulkUpdate()
     {
-        if (empty($this->attributes->_children)) return $this;
+        if (empty($this->attributes->_children)) {
+            return $this;
+        }
         foreach ($this->attributes->_children as $child) {
             $id = $child->_pm_subtask_id;
             $m  = new pm_subtask();
             $m->pmWorkBulkUpdate($id);
         }
+
         return $this;
     }
     #####

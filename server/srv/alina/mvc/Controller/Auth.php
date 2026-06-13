@@ -26,7 +26,7 @@ class Auth
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/login'),
         );
-        AlinaRedirectIfNotAjax($path, 303, TRUE);
+        AlinaRedirectIfNotAjax($path, 303, true);
         ##################################################
         $vd = (object)[
             'form_id'  => __FUNCTION__,
@@ -35,14 +35,16 @@ class Auth
             'uid'      => '',
             'token'    => '',
         ];
+
         ##################################################
         if (Request::isPostPutDelete($p)) {
             $p  = Data::deleteEmptyProps($p);
             $vd = Data::mergeObjects($vd, $p);
+
             if (empty($vd->mail) || empty($vd->password)) {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Incorrect data');
-                echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+                echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
                 exit;
             }
             ##################################################
@@ -51,14 +53,16 @@ class Auth
                 'ip'          => Request::obj()->IP,
                 'browser_enc' => Request::obj()->BROWSER_enc,
             ])->first();
+
             //ToDo: hardcoded
             if ($amount && $amount->visits && $amount->visits >= 10) {
                 Message::setDanger('ATTENTION');
-                Watcher::obj()->banVisit(NULL, NULL, 'Too many login attempts');
+                Watcher::obj()->banVisit(null, null, 'Too many login attempts');
             }
             ##################################################
             $CU    = CurrentUser::obj();
             $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
+
             /**
              * SUCCESS
              */
@@ -73,13 +77,12 @@ class Auth
                 // Request::obj()->METHOD = 'GET';
                 // Alina()->mvcGo('auth', 'profile');
                 //Sys::redirect('/auth/profile', 303);
-                echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+                echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
                 exit;
             }
             /**
              * FAIL
-             */
-            else {
+             */ else {
                 AlinaResponseSuccess(0);
                 ##################################################
                 (new watch_login())->upsertByUniqueFields([
@@ -92,7 +95,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
@@ -107,7 +110,7 @@ class Auth
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/register'),
         );
-        AlinaRedirectIfNotAjax($path, 303, TRUE);
+        AlinaRedirectIfNotAjax($path, 303, true);
         ##################################################
         $vd = (object)[
             'form_id'          => __FUNCTION__,
@@ -116,14 +119,17 @@ class Auth
             'confirm_password' => '',
         ];
         $CU = CurrentUser::obj();
+
         ##################################################
         if (Request::isPost()) {
             $p  = Data::deleteEmptyProps(Request::obj()->POST);
             $vd = Data::mergeObjects($vd, $p);
+
             if ($vd->password !== $vd->confirm_password) {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Passwords do not match');
             }
+
             if (AlinaIsResponseSuccess()) {
                 if ($CU->Register($vd)) {
                     Message::setSuccess('Success');
@@ -135,29 +141,31 @@ class Auth
         ##################################################
         $CU->resetDiscoveredData();
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
 
     ##################################################
-    public function actionProfile($id = NULL)
+    public function actionProfile($id = null)
     {
         ##################################################
         if (empty($id)) {
             $id = CurrentUser::obj()->id();
         }
+
         if (empty($id)) {
             AlinaRejectIfNotLoggedIn();
         }
+
         ##################################################
-        if (!Request::obj()->AJAX) {
+        if (! Request::obj()->AJAX) {
             $path = \alina\Utils\FS::buildPathFromBlocks(
                 AlinaCfg('frontend/path'),
                 AlinaCfg('frontend/profile'),
                 $id
             );
-            AlinaRedirectIfNotAjax($path, 303, TRUE);
+            AlinaRedirectIfNotAjax($path, 303, true);
         }
         ##################################################
         $vd = (object)[
@@ -165,7 +173,8 @@ class Auth
             'user'    => (object)[],
             'sources' => (object)[],
         ];
-        $u  = new user();
+        $u = new user();
+
         #####
         if (Request::isPostPutDelete($post)) {
             $id = $post->id;
@@ -174,7 +183,8 @@ class Auth
                 AlinaCfg('frontend/path'),
                 AlinaCfg('frontend/profile'),
             );
-            AlinaRedirectIfNotAjax($path, 303, TRUE);
+            AlinaRedirectIfNotAjax($path, 303, true);
+
             ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
@@ -189,7 +199,7 @@ class Auth
         #####
         $vd->user = $u->attributes;
         //$vd->sources = $u->getReferencesSources();
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
     }
 
     public function actionLogout()
@@ -208,19 +218,22 @@ class Auth
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/resetPasswordRequest'),
         );
-        AlinaRedirectIfNotAjax($path, 303, TRUE);
+        AlinaRedirectIfNotAjax($path, 303, true);
         ##################################################
         $vd = (object)[
             'form_id' => __FUNCTION__,
             'message' => '',
             'mail'    => '',
         ];
+
         ##################################################
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
-            if (!empty($vd->mail)) {
+
+            if (! empty($vd->mail)) {
                 $mUser = new user();
                 $atrs  = $mUser->getOne(['mail' => $vd->mail,]);
+
                 if ($mUser->id) {
                     //if ($atrs->reset_required != 1) {
                     $code = ALINA_TIME;
@@ -238,7 +251,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
 
         return $this;
     }
@@ -252,7 +265,7 @@ class Auth
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/resetPasswordWithCode'),
         );
-        AlinaRedirectIfNotAjax($path, 303, TRUE);
+        AlinaRedirectIfNotAjax($path, 303, true);
         ##################################################
         $rd = Request::obj()->R;
         $vd = (object)[
@@ -264,19 +277,23 @@ class Auth
             'confirm_password' => '',
         ];
         $vd = Data::mergeObjects($vd, $rd);
+
         ##################################################
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
-            if (!empty($vd->mail) && !empty($vd->reset_code)) {
+
+            if (! empty($vd->mail) && ! empty($vd->reset_code)) {
                 $mUser  = new user();
                 $uAttrs = $mUser->getOne(['mail' => $vd->mail,]);
+
                 if ($mUser->id && $uAttrs->reset_required == 1) {
                     $vd->reset_code = trim($vd->reset_code);
+
                     if ($vd->reset_code === $uAttrs->reset_code) {
                         if ($vd->password === $vd->confirm_password) {
                             $mUser->updateById([
                                 'password'       => $vd->password,
-                                'reset_code'     => NULL,
+                                'reset_code'     => null,
                                 'reset_required' => 0,
                             ]);
                             Message::setInfo('Password is changed');
@@ -296,7 +313,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
     }
 
     ##################################################
@@ -307,9 +324,10 @@ class Auth
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/changePassword'),
         );
-        AlinaRedirectIfNotAjax('$path', 303, TRUE);
+        AlinaRedirectIfNotAjax('$path', 303, true);
+
         ##################################################
-        if (!AlinaAccessIfLoggedIn()) {
+        if (! AlinaAccessIfLoggedIn()) {
             Message::setDanger('Login first');
             Sys::redirect('/auth/login', 303);
         }
@@ -320,6 +338,7 @@ class Auth
             'form_id'          => __FUNCTION__,
             'route_plan_b'     => '/auth/ChangePassword',
         ];
+
         if (Request::isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
             #####
@@ -334,34 +353,37 @@ class Auth
             #####
             $m = new user();
             $m->updateById($vd, CurrentUser::obj()->id());
+
             if ($m->state_AFFECTED_ROWS === 1) {
                 Message::setSuccess('Password is changed');
                 Sys::redirect('/auth/profile', 303);
             }
-            else if ($m->state_AFFECTED_ROWS > 1) {
+            elseif ($m->state_AFFECTED_ROWS > 1) {
                 Message::setDanger('Something bad happened');
             }
             else {
                 Message::setDanger('Password not changed!');
             }
         }
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutMiddled);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
     }
 
     ##################################################
     public function actionUserDelete($id)
     {
         if (in_array($id, ['null', '', 'NULL', 0])) {
-            $id = NULL;
+            $id = null;
         }
-        $vd     = (object)[
+        $vd = (object)[
             'form_id' => __FUNCTION__,
         ];
         $isPost = Request::isPostPutDelete($post);
+
         ##################################################
         if ($isPost && AlinaAccessIfAdminOrModeratorOrOwner($id) && $post->id == $id) {
             $vd = (new user())->bizDelete($id);
         }
+
         if ($vd && $vd->users == 1) {
             Message::setSuccess('Deleted');
         }
@@ -370,7 +392,7 @@ class Auth
             Message::setDanger('Failed');
         }
         ########################################
-        echo (new htmlAlias)->page($vd);
+        echo (new htmlAlias())->page($vd);
 
         return $this;
     }

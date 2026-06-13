@@ -1,6 +1,7 @@
 <?php
 
 namespace alina\mvc\Model;
+
 class router_alias extends _BaseAlinaModel
 {
     public $table = 'router_alias';
@@ -26,8 +27,7 @@ class router_alias extends _BaseAlinaModel
     public function getAsVoc()
     {
         $res        = [];
-        $collection =
-            $this
+        $collection = $this
                 ->q()
                 ->select(['alias', 'url'])
                 ->get();

@@ -2,8 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Utils\Request;
-
 class watch_banned_browser extends _BaseAlinaModel
 {
     public $table = 'watch_banned_browser';

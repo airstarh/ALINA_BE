@@ -15,7 +15,7 @@ class Tools
     public function actionSerializedDataEditor()
     {
         ##################################################
-        $vd   = (object)[
+        $vd = (object)[
             'form_id'         => __FUNCTION__,
             'strSource'       => '',
             'mixedSource'     => '',
@@ -28,6 +28,7 @@ class Tools
             'tCount'          => 0,
         ];
         $data = (object)[];
+
         ##################################################
         if (Request::isPost($post)) {
             $p         = $post;
@@ -40,7 +41,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
         $vd = \alina\Utils\Data::mergeObjects($vd, $data);
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }
@@ -55,7 +56,7 @@ class Tools
         $str       = @file_get_contents(ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
         $strSource = Data::hlpGetBeautifulJsonString($str);
         ##################################################
-        $vd   = (object)[
+        $vd = (object)[
             'form_id'           => __FUNCTION__,
             'strSource'         => $strSource,
             'strFrom'           => '',
@@ -66,6 +67,7 @@ class Tools
             'tCount'            => 0,
         ];
         $data = (object)[];
+
         ##################################################
         if (Request::isPost($post)) {
             $p         = $post;
@@ -78,7 +80,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'JSON Search-Replace-Beautify online');
         $vd = \alina\Utils\Data::mergeObjects($vd, $data);
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
 
         return $this;
     }

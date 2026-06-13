@@ -2,8 +2,8 @@
 
 namespace alina\mvc\Model;
 
-use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
-use \Illuminate\Database\Capsule\Manager as Dal;
+use alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
+use Illuminate\Database\Capsule\Manager as Dal;
 
 // Laravel initiation
 Loader::init();
@@ -12,55 +12,61 @@ class _baseAlinaEloquentTransaction
 {
     //Make this class non-extendable and non-instanciatable.
     //Static methods only.
-    static public $keys = [];
+    public static $keys = [];
     #region Transaction.
-    static public $isInProgress = FALSE;
-    static public $isSuccess    = NULL;
+    public static $isInProgress = false;
+    public static $isSuccess    = null;
 
-    private function __construct() { }
-
-    static public function begin($transKey = 'default')
+    private function __construct()
     {
-        static::$keys[] = $transKey;
-        if (static::$isInProgress) {
-            return TRUE;
-        }
-        Dal::beginTransaction();
-        static::$isInProgress = TRUE;
-
-        return TRUE;
     }
 
-    static public function commit($transKey = 'default')
+    public static function begin($transKey = 'default')
+    {
+        static::$keys[] = $transKey;
+
+        if (static::$isInProgress) {
+            return true;
+        }
+        Dal::beginTransaction();
+        static::$isInProgress = true;
+
+        return true;
+    }
+
+    public static function commit($transKey = 'default')
     {
         try {
             $lastStartedTransaction = array_slice(static::$keys, -1)[0];
+
             if ($transKey === $lastStartedTransaction) {
                 array_pop(static::$keys);
             }
+
             if (count(static::$keys) === 0) {
                 Dal::commit();
                 static::$keys         = [];
-                static::$isInProgress = FALSE;
-                static::$isSuccess    = TRUE;
+                static::$isInProgress = false;
+                static::$isSuccess    = true;
             }
 
-            return TRUE;
+            return true;
         } //ToDO: Perhaps, this try-catch is redundant...
         catch (\Exception $e) {
             static::rollback();
+
             throw $e;
         }
     }
 
-    static public function rollback()
+    public static function rollback()
     {
         Dal::rollback();
         //static::$keys         = [];
-        static::$isInProgress = FALSE;
-        static::$isSuccess    = FALSE;
+        static::$isInProgress = false;
+        static::$isSuccess    = false;
 
-        return TRUE;
+        return true;
     }
     #endregion Transaction.
 }

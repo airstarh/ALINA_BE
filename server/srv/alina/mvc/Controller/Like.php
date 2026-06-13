@@ -4,9 +4,9 @@ namespace alina\mvc\Controller;
 
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\like as mLike;
+use alina\mvc\Model\notification;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Request as Request;
-use alina\mvc\Model\notification;
 
 class Like
 {
@@ -21,6 +21,7 @@ class Like
     public function actionProcess()
     {
         AlinaRejectIfNotLoggedIn();
+
         if (Request::isPostPutDelete($post)) {
             $ref_table  = $post->ref_table;
             $ref_id     = $post->ref_id;
@@ -30,9 +31,10 @@ class Like
                 'ref_id'    => $ref_id,
                 'user_id'   => CurrentUser::obj()->id(),
             ]);
+
             ###
             #remove Like
-            if (isset($mLikeAttrs->id) && !empty($mLikeAttrs->id)) {
+            if (isset($mLikeAttrs->id) && ! empty($mLikeAttrs->id)) {
                 $this->model->deleteById($mLikeAttrs->id);
                 (new notification())->delete([
                     'bind_tbl' => 'like',
@@ -79,22 +81,22 @@ class Like
                     'val'       => $val,
                 ])
                 ->count();
-            $vd          = (object)[
+            $vd = (object)[
                 'CurrentUserLiked' => $CurrentUserLiked,
                 'AmountLikes'      => $AmountLikes,
             ];
-            echo (new htmlAlias)->page($vd);
+            echo (new htmlAlias())->page($vd);
         }
     }
     #####
     #region SELECT
-    public function actionSelectList($pageSze = 10, $page = 1, $ref_table = 'tale', $ref_id = NULL)
+    public function actionSelectList($pageSze = 10, $page = 1, $ref_table = 'tale', $ref_id = null)
     {
         $backendSortArray = [['lk.created_at', 'DESC']];
         $conditions       = ['lk.ref_table' => $ref_table, 'lk.ref_id' => $ref_id];
         $q                = $this->model->getAllWithReferencesPart1($conditions);
         $collection       = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $page);
-        echo (new htmlAlias)->page($collection);
+        echo (new htmlAlias())->page($collection);
     }
 
     #endregion SELECT

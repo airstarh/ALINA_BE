@@ -11,21 +11,21 @@ use alina\Utils\Sys;
 class html
 {
     #region Init
-    static public $htmLayout             = '_system/html/htmlLayout.php';
-    static public $htmLayoutWide         = '_system/html/htmlLayoutWide.php';
-    static public $htmLayoutMiddled      = '_system/html/htmlLayoutMiddled.php';
-    static public $htmLayoutCleanBody    = '_system/html/htmlLayoutCleanBody.php';
-    static public $htmLayoutErrorCatcher = '_system/html/htmlLayoutErrorCatcher.php';
+    public static $htmLayout             = '_system/html/htmlLayout.php';
+    public static $htmLayoutWide         = '_system/html/htmlLayoutWide.php';
+    public static $htmLayoutMiddled      = '_system/html/htmlLayoutMiddled.php';
+    public static $htmLayoutCleanBody    = '_system/html/htmlLayoutCleanBody.php';
+    public static $htmLayoutErrorCatcher = '_system/html/htmlLayoutErrorCatcher.php';
     #####
-    static public $htmlMenu   = '/_system/html/menu.php';
-    static public $htmlFooter = '/_system/html/_commonFooter.php';
+    public static $htmlMenu   = '/_system/html/menu.php';
+    public static $htmlFooter = '/_system/html/_commonFooter.php';
     #####
-    public $mvcTemplateRoot                         = NULL;
+    public $mvcTemplateRoot                         = null;
     public $mvcTemplateRootDefault                  = 'mvc/template';
     public $currentControllerDir                    = 'Root';
     public $currentActionFileName                   = 'actionIndex';
     public $ext                                     = 'php';
-    public $pathToCurrentControllerActionLayoutFile = NULL;
+    public $pathToCurrentControllerActionLayoutFile = null;
     public $pathToGlobalHtmlPageWrapper             = '_system/html/htmlLayout.php';
     public $messageLayout                           = '_system/html/message.php';
     public $content                                 = '';
@@ -49,18 +49,20 @@ class html
         $this->currentActionFileName = Alina()->currentAction;
     }
 
-    public function page($data = NULL, $htmlLayout = FALSE)
+    public function page($data = null, $htmlLayout = false)
     {
         //GlobalRequestStorage::set('viewData', $data);
         if (Sys::isAjax()) {
             return (new jsonView())->standardRestApiResponse($data);
         }
+
         if ($htmlLayout) {
             $this->pathToGlobalHtmlPageWrapper = $htmlLayout;
         }
         $this->content = $this->piece($this->definePathToCurrentControllerActionLayoutFile(), $data);
-        if (FALSE === $this->content) {
-            if ($data === NULL) {
+
+        if (false === $this->content) {
+            if ($data === null) {
                 $this->content = '';
             }
             else {
@@ -79,13 +81,15 @@ class html
         return $htmlString;
     }
 
-    public function piece($mvcRelativePathLayout, $data = NULL, $return = TRUE)
+    public function piece($mvcRelativePathLayout, $data = null, $return = true)
     {
         $templateRealPath = $this->resolvePathToTemplate($mvcRelativePathLayout);
-        if (FALSE === $templateRealPath) {
-            return FALSE;
+
+        if (false === $templateRealPath) {
+            return false;
         }
         $htmlString = \alina\Utils\Sys::template($templateRealPath, $data);
+
         if ($return) {
             return $htmlString;
         }
@@ -93,7 +97,7 @@ class html
             echo $htmlString;
         }
 
-        return TRUE;
+        return true;
     }
 
     public function resolvePathToTemplate($mvcRelativePathLayout)
@@ -103,21 +107,23 @@ class html
             $templateFile = Alina()->resolvePath($templateFile);
 
             return $templateFile;
-        } catch (\ErrorException $e) {
+        }
+        catch (\ErrorException $e) {
             try {
                 $templateFile = \alina\Utils\FS::buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
                 $templateFile = Alina()->resolvePath($templateFile);
 
                 return $templateFile;
-            } catch (\Exception $e) {
-                return FALSE;
+            }
+            catch (\Exception $e) {
+                return false;
             }
         }
     }
 
     public function definePathToCurrentControllerActionLayoutFile()
     {
-        $p                                             = \alina\Utils\FS::buildPathFromBlocks(
+        $p = \alina\Utils\FS::buildPathFromBlocks(
             $this->currentControllerDir,
             $this->currentActionFileName . ".{$this->ext}"
         );
@@ -131,6 +137,7 @@ class html
     public function pageTitle()
     {
         $res = GlobalRequestStorage::obj()->get('pageTitle');
+
         if ($res) {
             return strip_tags($res);
         }
@@ -141,6 +148,7 @@ class html
     public function pageDescription()
     {
         $res = GlobalRequestStorage::obj()->get('pageDescription');
+
         if ($res) {
             return $res;
         }
@@ -165,7 +173,8 @@ class html
     public function css()
     {
         $urls = AlinaCfg('html/css');
-        if (isset($urls) && !empty($urls && \alina\Utils\Data::isIterable($urls))) {
+
+        if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {
                 $result .= $this->piece('_system/html/tag/link.php', $url);
@@ -181,7 +190,8 @@ class html
     public function js()
     {
         $urls = AlinaCfg('html/js');
-        if (isset($urls) && !empty($urls && \alina\Utils\Data::isIterable($urls))) {
+
+        if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
             foreach ($urls as $i => $url) {
                 $result .= $this->piece('_system/html/tag/script.php', $url);
@@ -197,6 +207,7 @@ class html
     {
         $str = '';
         $str .= Message::returnAllHtmlString();
+
         if (AlinaAccessIfAdmin()) {
             $str .= MessageAdmin::returnAllHtmlString();
         }
@@ -211,32 +222,32 @@ class html
     #endregion HTML page specials (css, js, etc.)
     ##################################################
     #region Elements
-    static public function elForm($p = [])
+    public static function elForm($p = [])
     {
         return (new static())->piece('_system/html/_form/form.php', (object)$p);
     }
 
-    static public function elBootstrapBadge(array $p = [])
+    public static function elBootstrapBadge(array $p = [])
     {
         return (new static())->piece('_system/html/tag/bootstrapBadge.php', (object)$p);
     }
 
-    static public function elFormSelectOneSimple(array $p = [])
+    public static function elFormSelectOneSimple(array $p = [])
     {
         return (new static())->piece('_system/html/_form/selectOneSimple.php', (object)$p);
     }
 
-    static public function elFormSelect(array $p = [])
+    public static function elFormSelect(array $p = [])
     {
         return (new static())->piece('_system/html/_form/select.php', (object)$p);
     }
 
-    static public function elFormInputText(array $p = [])
+    public static function elFormInputText(array $p = [])
     {
         return (new static())->piece('_system/html/_form/inputText.php', (object)$p);
     }
 
-    static public function elFormStandardButtons(array $p = [])
+    public static function elFormStandardButtons(array $p = [])
     {
         return (new static())->piece('_system/html/_form/standardFormButtons.php', (object)$p);
     }

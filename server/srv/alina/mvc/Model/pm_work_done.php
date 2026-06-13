@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Message;
 use alina\Utils\DateTime;
 
 class pm_work_done extends _BaseAlinaModel
@@ -15,26 +14,28 @@ class pm_work_done extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'            => [],
-            'pm_work_id'    => [],
-            'assignee_id'   => [
+            'id'          => [],
+            'pm_work_id'  => [],
+            'assignee_id' => [
                 'default' => CurrentUser::id(),
             ],
-            'amount'        => [
+            'amount' => [
                 'required' => true,
             ],
-            'price_final'   => [
+            'price_final' => [
                 'type' => 'readonly',
             ], /*calculation*/
-            'time_spent'    => [
+            'time_spent' => [
                 'type' => 'readonly',
             ], /*calculation*/
-            'for_date'      => [
+            'for_date' => [
                 'filters' => [
-                    function ($v) {
+                    static function ($v) {
+                        if (empty($v)) {
+                            return null;
+                        }
 
-                        if (empty($v)) return null;
-                        if (!is_numeric($v)) {
+                        if (! is_numeric($v)) {
                             if (is_string($v)) {
                                 $v = DateTime::dateToUnixTime($v);
                             }
@@ -55,22 +56,23 @@ class pm_work_done extends _BaseAlinaModel
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             [
                 ##### field ######
                 'assignee_id' => [
-                    'has'        => 'one',
-                    'multiple'   => false,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
-                    'apply'      => [
+                    'apply' => [
                         'childTable'     => 'user',
                         'childPk'        => 'id',
                         'childHumanName' => ['firstname', 'lastname', 'mail'],
                     ],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'user AS assignee', 'assignee.id', '=', "{$this->alias}.assignee_id"],
                     ],
                     'conditions' => [],
@@ -87,10 +89,10 @@ class pm_work_done extends _BaseAlinaModel
                     ],
                 ],
                 ##### field ######
-                'pm_work_id'  => [
-                    'disabled'   => true,
-                    'has'        => 'one',
-                    'multiple'   => false,
+                'pm_work_id' => [
+                    'disabled' => true,
+                    'has'      => 'one',
+                    'multiple' => false,
                     ##############################
                     # for Apply dependencies
                     //'apply'      => [
@@ -100,7 +102,7 @@ class pm_work_done extends _BaseAlinaModel
                     //],
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['leftJoin', 'pm_work AS pm_work', 'pm_work.id', '=', "{$this->alias}.pm_work_id"],
                         ['leftJoin', 'pm_subtask AS pm_subtask', 'pm_subtask.id', '=', 'pm_work.pm_subtask_id'],
                         ['leftJoin', 'pm_task AS pm_task', 'pm_task.id', '=', 'pm_work.pm_task_id'],
@@ -133,7 +135,6 @@ class pm_work_done extends _BaseAlinaModel
     public function hookRightBeforeSave(&$dataArray)
     {
         if ($dataArray['flag_archived'] == 0) {
-
             $mWork = new pm_work();
             $mWork->getById($dataArray['pm_work_id']);
             $w_price_this_work = $mWork->attributes->price_this_work;
@@ -159,18 +160,17 @@ class pm_work_done extends _BaseAlinaModel
     public function hookRightAfterSave($data)
     {
         if ($data->flag_archived == 1) {
-
             _baseAlinaEloquentTransaction::begin();
 
             $mWorkStory = new pm_work_story();
             $mWorkStory->doArchiveWorkDone($data->id);
 
             _baseAlinaEloquentTransaction::commit();
-
         }
 
         if ($data->flag_archived == 0) {
-            (new pm_work_story())->delete([
+            (new pm_work_story())->delete(
+                [
                     ['pm_work_done_id', '=', $data->id],
                 ]
             );
@@ -189,7 +189,7 @@ class pm_work_done extends _BaseAlinaModel
 
     public function doArchive($idWorkDone = null)
     {
-        if (!empty($idWorkDone)) {
+        if (! empty($idWorkDone)) {
             $this->getById($idWorkDone);
         }
         else {
@@ -206,7 +206,7 @@ class pm_work_done extends _BaseAlinaModel
 
     public function doUnArchive($idWorkDone = null)
     {
-        if (!empty($idWorkDone)) {
+        if (! empty($idWorkDone)) {
             $this->getById($idWorkDone);
         }
         else {

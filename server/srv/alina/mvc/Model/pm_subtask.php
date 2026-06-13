@@ -2,9 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Message;
-use alina\Utils\Data;
-
 class pm_subtask extends _BaseAlinaModel
 {
     use pm_trait;
@@ -16,8 +13,8 @@ class pm_subtask extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'             => [],
-            'name_human'     => [
+            'id'         => [],
+            'name_human' => [
                 'required' => true,
             ],
             'time_estimated' => [],
@@ -28,17 +25,18 @@ class pm_subtask extends _BaseAlinaModel
             //'price'          => [],
             //'completed_at'   => [],
             //'status'         => [],
-            'created_at'     => [],
-            'created_by'     => [],
-            'modified_at'    => [],
-            'modified_by'    => [],
+            'created_at'  => [],
+            'created_by'  => [],
+            'modified_at' => [],
+            'modified_by' => [],
         ];
     }
 
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             $this->manager_id(),
             $this->assignee_id(),
             $this->pm_task_id(),
@@ -79,11 +77,11 @@ class pm_subtask extends _BaseAlinaModel
     {
         $mSubtask      = $this;
         $mTask         = new pm_task();
-        $mProject      = new pm_project;
+        $mProject      = new pm_project();
         $mDepartment   = new pm_department();
         $mOrganization = new pm_organization();
 
-        if (!empty($idSubTask)) {
+        if (! empty($idSubTask)) {
             $mSubtask->getById($idSubTask);
         }
         else {

@@ -2,35 +2,33 @@
 
 namespace alina\mvc\Model;
 
+use alina\AppExceptionValidation;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\Utils\Arr;
 use alina\Utils\Data;
 use alina\Utils\Request;
-use alina\Utils\Str;
-use alina\Utils\Sys;
+use alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
 use Exception;
-use \alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
-use \Illuminate\Database\Capsule\Manager as Dal;
-use \alina\AppExceptionValidation;
+use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
 
 class _BaseAlinaModel
 {
     ##################################################
     #region STATES / MODES
-    static public $flagDbAvailable = false;
-    const MODE_SELECT = 'SELECT';
-    const MODE_INSERT = 'INSERT';
-    const MODE_UPDATE = 'UPDATE';
-    const MODE_DELETE = 'DELETE';
+    public static $flagDbAvailable = false;
+    public const MODE_SELECT       = 'SELECT';
+    public const MODE_INSERT       = 'INSERT';
+    public const MODE_UPDATE       = 'UPDATE';
+    public const MODE_DELETE       = 'DELETE';
     #endregion STATES / MODES
     ##################################################
     #region Required
     public $table;
-    public $alias = '';
+    public $alias  = '';
     public $pkName = 'id';
-    public $id = null;
+    public $id     = null;
     protected $opts;
     public $dataArrayIdentity;
     #endregion Required
@@ -41,13 +39,13 @@ class _BaseAlinaModel
     public $o_GET = null;
     public $apiOperators
         = [
-            'llt_' => '<',
-            'ggt_' => '>',
-            'eq_' => '=',
-            'lk_' => 'LIKE',
-            'notlk_' => 'NOT LIKE',
-            'noteq_' => '!=',
-            'emp_' => 'IS NULL',
+            'llt_'    => '<',
+            'ggt_'    => '>',
+            'eq_'     => '=',
+            'lk_'     => 'LIKE',
+            'notlk_'  => 'NOT LIKE',
+            'noteq_'  => '!=',
+            'emp_'    => 'IS NULL',
             'notemp_' => 'IS NOT NULL',
         ];
     #endregion Request
@@ -56,22 +54,22 @@ class _BaseAlinaModel
     /**@var  \stdClass */
     public $attributes;
     /**@var  CollectionAlias */
-    public $collection = [];
+    public $collection       = [];
     public $state_ROWS_TOTAL = -1;
-    public $pagesTotal = 0;
+    public $pagesTotal       = 0;
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    private $mode = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $state_DATA_FILTERED = false;
-    public $state_DATA_VALIDATED = false;
-    public $state_AFFECTED_ROWS = null;
+    private $mode                       = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    public $state_DATA_FILTERED         = false;
+    public $state_DATA_VALIDATED        = false;
+    public $state_AFFECTED_ROWS         = null;
     public $state_EXCLUDE_COUNT_REQUEST = false;
-    public $matchedUniqueFields = [];
-    public $matchedConditions = [];
-    public $addAuditInfo = false;
-    public $flagAuditInfoLog = false;
-    public $state_APPLY_GET_PARAMS = false;
+    public $matchedUniqueFields         = [];
+    public $matchedConditions           = [];
+    public $addAuditInfo                = false;
+    public $flagAuditInfoLog            = false;
+    public $state_APPLY_GET_PARAMS      = false;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -79,11 +77,11 @@ class _BaseAlinaModel
      * @var $sortDefault array
      *                   [['field1', 'DESC'], ['field2', 'ASC']]
      */
-    public $sortDefault = [];
-    public $sortName = null;
-    public $sortAsc = 'ASC';
+    public $sortDefault       = [];
+    public $sortName          = null;
+    public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
-    public $pageSize = 500;
+    public $pageSize          = 500;
     #endregion Search Parameters
     ##################################################
     #region Constructor
@@ -92,9 +90,11 @@ class _BaseAlinaModel
         Loader::init();
         $this->attributes = (object) [];
         $this->setPkValue(null);
+
         if ($opts) {
-            $opts = Data::toObject($opts);
+            $opts       = Data::toObject($opts);
             $this->opts = $opts;
+
             if (isset($opts->table)) {
                 $this->table = $opts->table;
             }
@@ -113,11 +113,13 @@ class _BaseAlinaModel
     public function getOne($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
-        $data = $this->q()->where($conditions)->first();
+        $data                              = $this->q()->where($conditions)->first();
+
         if (empty($data)) {
             $data = (object) [];
         }
         $this->attributes = Data::mergeObjects($this->attributes, $data);
+
         if ($this->attributes->{$this->pkName}) {
             $this->setPkValue($this->attributes->{$this->pkName});
         }
@@ -148,49 +150,57 @@ class _BaseAlinaModel
     public function getModelByUniqueKeys($data, $uniqueKeys = null)
     {
         $data = Data::toObject($data);
+
         if (empty($uniqueKeys)) {
             $uniqueKeys = $this->uniqueKeys();
         }
         foreach ($uniqueKeys as $uniqueFields) {
             $conditions = [];
-            $uFields = [];
-            if (!is_array($uniqueFields)) {
+            $uFields    = [];
+
+            if (! is_array($uniqueFields)) {
                 throw new \ErrorException('Uniq Fields must be array');
             }
             foreach ($uniqueFields as $uf) {
                 if (property_exists($data, $uf)) {
                     $conditions[$uf] = $data->{$uf};
-                    $uFields[] = $uf;
+                    $uFields[]       = $uf;
                 }
                 // If $data doesn't contain one of Unique Keys,
                 // simply skip this check entirely.
                 else {
                     $conditions = [];
+
                     continue 2; // Skips this and previous "foreach".
                 }
             }
-            if (empty($conditions))
+
+            if (empty($conditions)) {
                 return false;
+            }
             // Check if similar Model exists.
             $m = new static(['table' => $this->table]);
             $q = $m->q();
             $q->where($conditions);
+
             /*
              * If $data already contains a field with Primary Key of a Model,
              * we should exclude this Model while the check.
              */
-            if (property_exists($data, $this->pkName) && !empty($data->{$this->pkName})) {
+            if (property_exists($data, $this->pkName) && ! empty($data->{$this->pkName})) {
                 $q->where($this->pkName, '!=', $data->{$this->pkName});
             }
+
             // Check only NOT is_deleted
             if ($m->tableHasField('is_deleted')) {
                 $q->where('is_deleted', '!=', 1);
             }
             $aRecord = $q->first();
-            if (isset($aRecord) && !empty($aRecord)) {
+
+            if (isset($aRecord) && ! empty($aRecord)) {
                 $this->matchedUniqueFields = $uFields;
-                $this->matchedConditions = $conditions;
-                $this->attributes = $aRecord;
+                $this->matchedConditions   = $conditions;
+                $this->attributes          = $aRecord;
                 $this->setPkValue($aRecord->{$this->pkName});
 
                 return $aRecord;
@@ -208,6 +218,7 @@ class _BaseAlinaModel
         $q->select(["{$this->alias}.*"]);
         //API WHERE
         $q->where($conditions);
+
         if ($this->state_APPLY_GET_PARAMS) {
             //SEARCH from _GET
             $this->apiUnpackGetParams();
@@ -215,6 +226,7 @@ class _BaseAlinaModel
         }
         //Has One JOINs.
         $this->qJoinHasOne();
+
         #####
         if (method_exists($this, 'hookGetWithReferences')) {
             $this->hookGetWithReferences($q);
@@ -227,11 +239,13 @@ class _BaseAlinaModel
     public function getAllWithReferencesPart2($backendSortArray = null, $pageSize = null, $pageCurrentNumber = null, $paginationVersa = false)
     {
         $q = $this->q;
+
         //COUNT
         if ($this->state_EXCLUDE_COUNT_REQUEST) {
-            $this->state_ROWS_TOTAL = 1;
+            $this->state_ROWS_TOTAL            = 1;
             $this->state_EXCLUDE_COUNT_REQUEST = false;
-        } else {
+        }
+        else {
             $this->state_ROWS_TOTAL = $q->count();
         }
         //ORDER
@@ -249,7 +263,7 @@ class _BaseAlinaModel
     public function getAllWithReferences($conditions = [], $backendSortArray = null, $pageSize = null, $pgeCurrentNumber = null, $paginationVersa = false)
     {
         /** @var $q BuilderAlias object */
-        $q = $this->getAllWithReferencesPart1($conditions);
+        $q   = $this->getAllWithReferencesPart1($conditions);
         $res = $this->getAllWithReferencesPart2($backendSortArray, $pageSize, $pgeCurrentNumber, $paginationVersa);
 
         return $res;
@@ -263,10 +277,12 @@ class _BaseAlinaModel
     public function getOneWithReferences($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
-        $attributes = $this->getAllWithReferences($conditions, [], 1, 0)->first();
+        $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
+
         if (empty($attributes)) {
             $attributes = (object) [];
         }
+
         if (isset($attributes->{$this->pkName})) {
             $this->setPkValue($attributes->{$this->pkName});
         }
@@ -282,10 +298,12 @@ class _BaseAlinaModel
     public function upsert($data)
     {
         $data = Data::toObject($data);
-        if (isset($data->{$this->pkName}) && !empty($data->{$this->pkName})) {
+
+        if (isset($data->{$this->pkName}) && ! empty($data->{$this->pkName})) {
             $this->setPkValue($data->{$this->pkName});
             $this->updateById($data);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
@@ -294,13 +312,15 @@ class _BaseAlinaModel
 
     public function upsertByUniqueFields($data, $uniqueKeys = null)
     {
-        $data = Data::toObject($data);
-        $data = Data::mergeObjects($this->buildDefaultData(), $data);
+        $data    = Data::toObject($data);
+        $data    = Data::mergeObjects($this->buildDefaultData(), $data);
         $aRecord = $this->getModelByUniqueKeys($data, $uniqueKeys);
+
         if ($aRecord) {
             $conditions = $this->matchedConditions;
             $this->update($data, $conditions);
-        } else {
+        }
+        else {
             $this->insert($data);
         }
 
@@ -312,21 +332,23 @@ class _BaseAlinaModel
     public function insert($data)
     {
         $this->mode = self::MODE_INSERT;
-        $pkName = $this->pkName;
-        $data = Data::toObject($data);
-        $data = Data::mergeObjects($this->buildDefaultData(), $data);
-        $dataArray = $this->prepareDbData($data);
+        $pkName     = $this->pkName;
+        $data       = Data::toObject($data);
+        $data       = Data::mergeObjects($this->buildDefaultData(), $data);
+        $dataArray  = $this->prepareDbData($data);
+
         #####
         if (method_exists($this, 'hookRightBeforeSave')) {
             $this->hookRightBeforeSave($dataArray);
         }
         #####
-        $id = $this->q()->insertGetId($dataArray, $pkName);
+        $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = Data::toObject($dataArray);
         $this->setPkValue($id, $data);
         #####
         GlobalRequestStorage::setPlus1('BaseModelQueries');
         $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($data, $this->mode, $this->table, $this->id) : null;
+
         #####
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
@@ -350,22 +372,27 @@ class _BaseAlinaModel
      */
     public function updateById($data, $id = null)
     {
-        $data = Data::toObject($data);
+        $data   = Data::toObject($data);
         $pkName = $this->pkName;
-        if (isset($id) && !empty($id)) {
+
+        if (isset($id) && ! empty($id)) {
             $this->setPkValue($id);
             $pkValue = $id;
-        } else if (isset($data->{$pkName}) && !empty($data->{$pkName})) {
+        }
+        elseif (isset($data->{$pkName}) && ! empty($data->{$pkName})) {
             $this->setPkValue($data->{$pkName});
             $pkValue = $data->{$pkName};
-        } else if (isset($this->id) && !empty($this->id)) {
+        }
+        elseif (isset($this->id) && ! empty($this->id)) {
             $this->setPkValue($this->id);
             $pkValue = $this->id;
         }
-        if (!isset($pkValue) || empty($pkValue)) {
-            $table = $this->table;
+
+        if (! isset($pkValue) || empty($pkValue)) {
+            $table   = $this->table;
             $message = "Cannot UPDATE row in table {$table}. Primary Key is not set.";
             Message::setDanger($message);
+
             throw new AppExceptionValidation($message);
         }
         $conditions = [$pkName => $pkValue];
@@ -379,9 +406,10 @@ class _BaseAlinaModel
     public function update($data, $conditions = [])
     {
         $this->mode = self::MODE_UPDATE;
-        $pkName = $this->pkName;
-        $data = Data::toObject($data);
-        $dataArray = $this->prepareDbData($data);
+        $pkName     = $this->pkName;
+        $data       = Data::toObject($data);
+        $dataArray  = $this->prepareDbData($data);
+
         ##################################################
         if (method_exists($this, 'hookRightBeforeSave')) {
             $this->hookRightBeforeSave($dataArray);
@@ -392,13 +420,16 @@ class _BaseAlinaModel
                 ->where($conditions)
                 ->update($dataArray)
         ;
+
         #####
         if ($this->state_AFFECTED_ROWS == 1) {
             $this->attributes = Data::mergeObjects($this->attributes, Data::toObject($dataArray));
+
             if (isset($this->attributes->{$this->pkName})) {
                 $this->setPkValue($this->attributes->{$this->pkName});
             }
         }
+
         ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
@@ -417,7 +448,7 @@ class _BaseAlinaModel
     #region DELETE
     public function delete(array $conditions)
     {
-        $this->mode = self::MODE_DELETE;
+        $this->mode        = self::MODE_DELETE;
         $affectedRowsCount = $this
             ->q()
             ->where($conditions)
@@ -435,7 +466,7 @@ class _BaseAlinaModel
 
     public function deleteById($id)
     {
-        $pkName = $this->pkName;
+        $pkName  = $this->pkName;
         $pkValue = $id;
         $this->setPkValue($pkValue);
 
@@ -446,24 +477,29 @@ class _BaseAlinaModel
     {
         if (method_exists($this, 'bizDelete')) {
             $this->bizDelete($id);
+
             return true;
         }
-        if ($this->tableHasField('is_deleted') || (isset($additionalData) && !empty($additionalData))) {
+
+        if ($this->tableHasField('is_deleted') || (isset($additionalData) && ! empty($additionalData))) {
             $pkName = $this->pkName;
-            $data = (isset($additionalData) && !empty($additionalData))
+            $data   = (isset($additionalData) && ! empty($additionalData))
                 ? Data::toObject($additionalData)
                 : new \stdClass();
             // Even if there is no is_deleted in this->fields, it does not bring error
             // due to $this->bindModel functionality.
             $data->is_deleted = 1;
-            $data->{$pkName} = $id;
+            $data->{$pkName}  = $id;
             // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
             $this->updateById($data);
+
             return true;
-        } else {
+        }
+        else {
             // If table does not participate in Audit process,
             // simply DELETE row from database.
             $this->deleteById($id);
+
             return true;
         }
     }
@@ -491,8 +527,8 @@ class _BaseAlinaModel
         $this->qApiLimitOffset();
         // Result
         $this->collection = $q->get();
-        $page = $this->pageCurrentNumber;
-        $output = ["total" => $total, "page" => $page, "models" => $this->collection];
+        $page             = $this->pageCurrentNumber;
+        $output           = ["total" => $total, "page" => $page, "models" => $this->collection];
 
         return $output;
     }
@@ -506,14 +542,17 @@ class _BaseAlinaModel
     {
         /** @var $q BuilderAlias object */
         $q = $this->q;
+
         #####
-        if (isset($backendSortArray) && !empty($backendSortArray)) {
+        if (isset($backendSortArray) && ! empty($backendSortArray)) {
             $sortArray = $backendSortArray;
-        } else {
+        }
+        else {
             if ($this->state_APPLY_GET_PARAMS) {
                 $sortArray = $this->calcSortNameSortAscData($this->sortName, $this->sortAsc);
             }
         }
+
         if (empty($sortArray)) {
             $sortArray = $this->sortDefault;
         }
@@ -531,9 +570,11 @@ class _BaseAlinaModel
     {
         /** @var $q BuilderAlias object */
         $q = $this->q;
+
         if (empty($orderArray)) {
             return $q;
         }
+
         if (is_string($orderArray)) {
             $orderArray = [[$orderArray, 'ASC']];
         }
@@ -562,22 +603,24 @@ class _BaseAlinaModel
         if ($backendLimit !== null) {
             $this->pageSize = $backendLimit;
         }
+
         if ($backendPageCurrentNumber !== null) {
             $this->pageCurrentNumber = $backendPageCurrentNumber;
         }
         #####
-        $q = $this->q;
-        $PG = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize, $backendVersa);
-        $this->pagesTotal = $PG->pages;
+        $q                       = $this->q;
+        $PG                      = Data::paginator($this->state_ROWS_TOTAL, $this->pageCurrentNumber, $this->pageSize, $backendVersa);
+        $this->pagesTotal        = $PG->pages;
         $this->pageCurrentNumber = $PG->page;
-        $this->pageSize = $PG->limit;
-        $offset = $PG->offset;
+        $this->pageSize          = $PG->limit;
+        $offset                  = $PG->offset;
         $q->skip($offset)->take($this->pageSize);
         #####
         GlobalRequestStorage::set("{$this->alias}/pageCurrentNumber", $this->pageCurrentNumber);
         GlobalRequestStorage::set("{$this->alias}/pageSize", $this->pageSize);
         GlobalRequestStorage::set("{$this->alias}/rowsTotal", $this->state_ROWS_TOTAL);
         GlobalRequestStorage::set("{$this->alias}/pagesTotal", $this->pagesTotal);
+
         #####
         #####
         return $q;
@@ -590,9 +633,10 @@ class _BaseAlinaModel
     protected function qApiJoinAuditInfo()
     {
         /** @var $q BuilderAlias object */
-        $q = $this->q;
+        $q          = $this->q;
         $thisFields = $this->fields();
-        $alias = $this->alias;
+        $alias      = $this->alias;
+
         // Join Creator if possible
         if (array_key_exists('created_by', $thisFields)) {
             $q->addSelect([
@@ -601,6 +645,7 @@ class _BaseAlinaModel
             ]);
             $q->leftJoin('person as pc', 'pc.person_id', '=', "{$alias}.created_by");
         }
+
         if (array_key_exists('modified_by', $thisFields)) {
             $q->addSelect([
                 'pm.first_name as modified_first_name',
@@ -617,9 +662,9 @@ class _BaseAlinaModel
      */
     protected function apiUnpackGetParams()
     {
-        $R = Request::obj();
-        $R_GET = $R->GET;
-        $this->o_GET = new \stdClass();
+        $R            = Request::obj();
+        $R_GET        = $R->GET;
+        $this->o_GET  = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
         foreach ($vocGetSearch as $short => $full) {
             /*
@@ -632,17 +677,21 @@ class _BaseAlinaModel
                 $this->o_GET->{$full} = $R_GET->{$short};
             }
         }
+
         // Additional Special Condition $this->sortName, $this->sortAsc
         if (isset($R_GET->sa)) {
             $this->sortAsc = $R_GET->sa;
         }
+
         if (isset($R_GET->sn)) {
             $this->sortName = $R_GET->sn;
         }
+
         // Additional Special Condition $this->pageSize, $this->page
         if (isset($R_GET->ps)) {
             $this->pageSize = $R_GET->ps;
         }
+
         //ToDo: Rename to pn.
         if (isset($R_GET->p)) {
             $this->pageCurrentNumber = $R_GET->p;
@@ -664,22 +713,25 @@ class _BaseAlinaModel
             return $this;
         }
         $filters = [];
-        $fields = $this->fields();
+        $fields  = $this->fields();
         #####
         foreach ($fields as $fieldName => $cfg) {
             if (property_exists($data, $fieldName)) {
                 #####
                 if ($this->mode === self::MODE_INSERT && empty($data->{$fieldName}) && isset($cfg['default'])) {
                     $data->{$fieldName} = $cfg['default'];
+
                     continue;
                 }
                 #####
                 ##################################################
                 $cfg['filters'][] = [Data::class, 'smartTrim'];
-                if (!empty($cfg['filters'])) {
+
+                if (! empty($cfg['filters'])) {
                     $filters[$fieldName] = $cfg['filters'];
                 }
-            } else {
+            }
+            else {
                 if ($this->mode === self::MODE_INSERT && isset($cfg['default'])) {
                     $data->{$fieldName} = $cfg['default'];
                 }
@@ -698,10 +750,10 @@ class _BaseAlinaModel
             return $this;
         }
         $validators = [];
-        $fields = $this->fields();
+        $fields     = $this->fields();
         foreach ($fields as $fieldNameCfg => $params) {
             if (property_exists($data, $fieldNameCfg)) {
-                if (isset($params['validators']) && !empty($params['validators'])) {
+                if (isset($params['validators']) && ! empty($params['validators'])) {
                     $validators[$fieldNameCfg] = $params['validators'];
                 }
             }
@@ -716,15 +768,17 @@ class _BaseAlinaModel
     public function validateUniqueKeys($data)
     {
         if ($this->mode === self::MODE_UPDATE) {
-            if (!property_exists($data, $this->pkName) || empty($data->{$this->pkName})) {
+            if (! property_exists($data, $this->pkName) || empty($data->{$this->pkName})) {
                 return $this;
             }
         }
+
         if ($this->getModelByUniqueKeys($data)) {
-            $fields = strtoupper(implode(', ', $this->matchedUniqueFields));
-            $table = strtoupper($this->table);
+            $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
+            $table   = strtoupper($this->table);
             $message = ___("{$table} with such {$fields} already exists");
             Message::setDanger($message);
+
             throw new AppExceptionValidation($message);
         }
 
@@ -743,12 +797,13 @@ class _BaseAlinaModel
     private function restrictIdentityAutoincrementReadOnlyFields($data)
     {
         $dataArray = [];
-        $fields = $this->fields();
+        $fields    = $this->fields();
         foreach ($fields as $name => $params) {
             if (property_exists($data, $name)) {
                 if ($this->isFieldIdentity($name)) {
                     $this->dataArrayIdentity[$name] = $data->{$name};
-                } else {
+                }
+                else {
                     $dataArray[$name] = $data->{$name};
                 }
             }
@@ -767,11 +822,11 @@ class _BaseAlinaModel
         }
         // Sorting functionality
         // Pre-saving backward compatibility.
-        $sn = explode(',', $sortName);
-        $sa = explode(',', $sortAsc);
+        $sn        = explode(',', $sortName);
+        $sa        = explode(',', $sortAsc);
         $sortArray = [];
         foreach ($sn as $i => $n) {
-            $asc = isset($sa[$i]) ? Data::getSqlDirection($sa[$i]) : 'ASC';
+            $asc         = isset($sa[$i]) ? Data::getSqlDirection($sa[$i]) : 'ASC';
             $sortArray[] = [$n, $asc];
         }
 
@@ -780,11 +835,11 @@ class _BaseAlinaModel
 
     protected function resetFlags()
     {
-        $this->mode = self::MODE_SELECT;
-        $this->state_DATA_FILTERED = false;
+        $this->mode                 = self::MODE_SELECT;
+        $this->state_DATA_FILTERED  = false;
         $this->state_DATA_VALIDATED = false;
-        $this->matchedUniqueFields = [];
-        $this->matchedConditions = [];
+        $this->matchedUniqueFields  = [];
+        $this->matchedConditions    = [];
     }
 
     /**
@@ -793,12 +848,13 @@ class _BaseAlinaModel
      */
     public function buildDefaultData()
     {
-        $fields = $this->fields();
+        $fields        = $this->fields();
         $defaultRawObj = new \stdClass();
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
-            } else {
+            }
+            else {
                 $defaultRawObj->{$f} = null;
             }
         }
@@ -847,18 +903,22 @@ class _BaseAlinaModel
     protected function addAuditInfo(\stdClass $data, string $saveMode = null)
     {
         $saveMode = $saveMode ?? $this->mode;
-        $userId = CurrentUser::id();
-        $now = ALINA_TIME;
+        $userId   = CurrentUser::id();
+        $now      = ALINA_TIME;
+
         if ($this->tableHasField('modified_at')) {
             $data->modified_at = $now;
         }
+
         if ($this->tableHasField('modified_by')) {
             $data->modified_by = $userId;
         }
+
         if ($saveMode === self::MODE_INSERT) {
             if ($this->tableHasField('created_at')) {
                 $data->created_at = $now;
             }
+
             if ($this->tableHasField('created_by')) {
                 $data->created_by = $userId;
             }
@@ -876,14 +936,14 @@ class _BaseAlinaModel
         ###
         $eventName = $eventName ?? $this->mode;
         $tableName = $tableName ?? $this->table;
-        $tableId = $tableId ?? $this->id;
+        $tableId   = $tableId   ?? $this->id;
 
         $mAudit = new audit();
         $mAudit->insert(
             [
                 'event_name' => $eventName,
                 'table_name' => $tableName,
-                'table_id' => $tableId,
+                'table_id'   => $tableId,
                 'event_data' => json_encode($eventData),
             ]
         );
@@ -936,17 +996,21 @@ class _BaseAlinaModel
          * ATTENTION: Important security fix in order to avoid accident start of a query,
          * while a previous is in progress.
          */
-        if (isset($this->q) && !empty($this->q)) {
+        if (isset($this->q) && ! empty($this->q)) {
             $this->q = null;
         }
+
         if ($alias == -1) {
             $this->alias = null;
-        } else {
+        }
+        else {
             $this->alias = $alias ? $alias : $this->alias;
         }
+
         if ($this->mode === self::MODE_INSERT || $this->mode === self::MODE_DELETE || $alias == -1) {
             $this->q = Dal::table("{$this->table}");
-        } else {
+        }
+        else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
         #####
@@ -968,8 +1032,8 @@ class _BaseAlinaModel
     public function fields()
     {
         $fields = [];
-        $items = [];
-        $items = Dal::table('information_schema.columns')
+        $items  = [];
+        $items  = Dal::table('information_schema.columns')
             ->select('COLUMN_NAME')
             ->where('table_name', '=', $this->table)
             ->where('table_schema', '=', AlinaCfg('db/database'))
@@ -977,7 +1041,7 @@ class _BaseAlinaModel
             ->pluck('COLUMN_NAME')
         ;
         foreach ($items as $v) {
-            if (!empty($v)) {
+            if (! empty($v)) {
                 $fields[$v] = [];
             }
         }
@@ -998,16 +1062,16 @@ class _BaseAlinaModel
 
     public function getFieldsMetaInfo()
     {
-        $fields = $this->fields();
-        $pkName = $this->pkName;
+        $fields   = $this->fields();
+        $pkName   = $this->pkName;
         $identity = $this->fieldsIdentity();
-        $unique = $this->uniqueKeys();
+        $unique   = $this->uniqueKeys();
 
         return [
-            'fields' => $fields,
-            'pkName' => $pkName,
+            'fields'   => $fields,
+            'pkName'   => $pkName,
             'identity' => $identity,
-            'unique' => $unique,
+            'unique'   => $unique,
         ];
     }
 
@@ -1019,13 +1083,14 @@ class _BaseAlinaModel
     protected function vocGetSearch()
     {
         $vocSpecial = [];
+
         if (method_exists($this, 'vocGetSearchSpecial')) {
             $vocSpecial = $this->vocGetSearchSpecial();
         }
         $vocGetSearch = [
             // Pagination
             'ps' => 'pageSize',
-            'p' => 'page',
+            'p'  => 'page',
             // Sorting functionality
             'sa' => 'sortAsc',
             'sn' => 'sortName',
@@ -1038,9 +1103,9 @@ class _BaseAlinaModel
 
     protected function vocGetSearchSpecial()
     {
-        $res = [];
-        $R = Request::obj();
-        $R_GET = $R->GET;
+        $res    = [];
+        $R      = Request::obj();
+        $R_GET  = $R->GET;
         $fields = $this->fields();
         $fNames = array_keys($fields);
         foreach ($fNames as $f) {
@@ -1062,11 +1127,13 @@ class _BaseAlinaModel
                 continue;
             }
             $t = $this->alias;
+
             //The simplest search case.
             if ($this->tableHasField($f)) {
                 if (is_array($v)) {
                     $q->whereIn("{$t}.{$f}", $v);
-                } else {
+                }
+                else {
                     $q->where("{$t}.{$f}", 'LIKE', "%{$v}%");
                 }
             }
@@ -1075,33 +1142,42 @@ class _BaseAlinaModel
             foreach ($apiOperators as $o => $oV) {
                 if (\alina\Utils\Str::startsWith($f, $o)) {
                     $fName = implode('', explode($o, $f, 2));
+
                     if ($this->tableHasField($fName)) {
                         switch ($o) {
                             case ('llt_'):
                                 $q->where("{$t}.{$fName}", '<', $v);
+
                                 break;
                             case ('ggt_'):
                                 $q->where("{$t}.{$fName}", '>', $v);
+
                                 break;
                             case ('eq_'):
                                 $q->where("{$t}.{$fName}", '=', $v);
+
                                 break;
                             case ('lk_'):
                                 $q->where("{$t}.{$fName}", 'LIKE', "%{$v}%");
+
                                 break;
                             case ('notlk_'):
                                 $q->where("{$t}.{$fName}", 'NOT LIKE', "%{$v}%");
+
                                 break;
                             case ('noteq_'):
                                 $q->where("{$t}.{$fName}", '!=', $v);
+
                                 break;
                             case ('emp_'):
                                 // ATTENTION: In MySQL any_string == 0
                                 $q->whereRaw("({$t}.{$fName} = '' OR {$t}.{$fName} IS NULL)");
+
                                 break;
                             case ('notemp_'):
                                 // ATTENTION: In MySQL any_string == 0
                                 $q->whereRaw("({$t}.{$fName} != '' OR {$t}.{$fName} IS NOT NULL)");
+
                                 break;
                         }
                     }
@@ -1128,9 +1204,10 @@ class _BaseAlinaModel
 
     protected function setPkValue($id, \stdClass $data = null)
     {
-        $this->{$this->pkName} = $id;
-        $this->id = $id;
+        $this->{$this->pkName}             = $id;
+        $this->id                          = $id;
         $this->attributes->{$this->pkName} = $id;
+
         if ($data) {
             $data->{$this->pkName} = $id;
         }
@@ -1155,7 +1232,7 @@ class _BaseAlinaModel
 
     protected function joinHasMany()
     {
-        $forIds = $this->collection->pluck($this->pkName);
+        $forIds        = $this->collection->pluck($this->pkName);
         $qHasManyArray = (new referenceProcessor($this))->joinHasMany([], $forIds);
         foreach ($qHasManyArray as $rName => $q) {
             //ToDO: Hardcoded id
@@ -1175,15 +1252,17 @@ class _BaseAlinaModel
     public function getReferencesSources()
     {
         $rel = [];
+
         if (method_exists($this, 'referencesTo')) {
             $referencesSources = $this->referencesTo();
             foreach ($referencesSources as $relName => $relCfg) {
                 $rel[$relName] = [];
+
                 if (isset($relCfg['apply'])) {
-                    $childTable = $relCfg['apply']['childTable'];
-                    $childPk = $relCfg['apply']['childPk'];
+                    $childTable   = $relCfg['apply']['childTable'];
+                    $childPk      = $relCfg['apply']['childPk'];
                     $arrHumanName = $relCfg['apply']['childHumanName'];
-                    $conditions = $relCfg['conditions'] ?? [];
+                    $conditions   = $relCfg['conditions'] ?? [];
                     #####
                     $m = modelNamesResolver::getModelObject($childTable);
                     $q = $m->q();
@@ -1222,19 +1301,19 @@ class _BaseAlinaModel
      */
     private function EXAMPLE_fields()
     {
-        $className = 'ValidatorClassName';
-        $staticMethod = 'staticMethodName';
+        $className             = 'ValidatorClassName';
+        $staticMethod          = 'staticMethodName';
         $externalScopeVariable = 'someValue';
 
         return
             [
                 'fieldName' => [
                     'default' => 'field default value on INSERT',
-                    'type' => ['string', 'number', 'etc'],
+                    'type'    => ['string', 'number', 'etc'],
                     'filters' => [
                         // Could be a closure, string with function name or an array
                         [$className, $staticMethod],
-                        function ($value) use ($externalScopeVariable) {
+                        static function ($value) use ($externalScopeVariable) {
                             return trim($value);
                         },
                         'trim',
@@ -1242,9 +1321,9 @@ class _BaseAlinaModel
                     'validators' => [
                         [
                             // 'f' - Could be a closure, string with function name or an array
-                            'f' => 'strlen',
+                            'f'       => 'strlen',
                             'errorIf' => [false, 0],
-                            'msg' => 'Please, fill Name',
+                            'msg'     => 'Please, fill Name',
                         ],
                     ],
                 ],

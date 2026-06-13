@@ -24,10 +24,10 @@ class BoxApi
         $this->srvBoxApi = new BoxService();
         $objFile         = (object)[
             'file_id'  => -1,
-            'box_id'   => NULL,
+            'box_id'   => null,
             'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
         ];
-        $strUrlPreview   = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
+        $strUrlPreview = $this->srvBoxApi->retrieveBoxPreviewUrl($objFile);
         #####
         $vd = (object)[
             'objFile'       => $objFile,
@@ -40,7 +40,7 @@ class BoxApi
         // echo '</pre>';
         // echo '</div>';
         #####
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
 
     public function actionBox2023()
@@ -48,7 +48,7 @@ class BoxApi
         $this->srvBoxApi = new BoxService2023();
         $objFile         = (object)[
             'file_id'  => -1,
-            'box_id'   => NULL,
+            'box_id'   => null,
             'fullPath' => 'C:\_A001\REPOS\OWN\ALINA\_backend\alina\_MISC_CONTENT\_TEST_FILES_CONTENT\_PDF\PDF_1_PAGE.pdf',
         ];
         #####
@@ -61,6 +61,6 @@ class BoxApi
             //'list' => $this->srvBoxApi->requestFileList(0),
         ];
         #####
-        echo (new htmlAlias)->page($vd, htmlAlias::$htmLayoutWide);
+        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
 }

@@ -9,17 +9,17 @@ class audit extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'         => [],
-            'at'         => [
+            'id' => [],
+            'at' => [
                 'default' => ALINA_TIME,
             ],
-            'user_id'    => [
+            'user_id' => [
                 'default' => CurrentUser::id(),
             ],
             'table_name' => [
 
             ],
-            'table_id'   => [
+            'table_id' => [
 
             ],
             'event_name' => [
@@ -36,8 +36,8 @@ class audit extends _BaseAlinaModel
     {
         return [
             '_user' => [
-                'has'        => 'one',
-                'joins'      => [
+                'has'   => 'one',
+                'joins' => [
                     ['leftJoin', 'user AS _user', '_user.id', '=', "{$this->alias}.user_id"],
                     //ToDo: JOIN table by table.name & table.id
                     // https://stackoverflow.com/questions/16848987/a-join-with-additional-conditions-using-query-builder-or-eloquent

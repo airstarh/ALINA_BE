@@ -15,15 +15,15 @@ class CurrentUser
     #region SingleTon
     use Singleton;
 
-    const KEY_USER_ID    = 'uid';
-    const KEY_USER_TOKEN = 'token';
-    static protected user $USER;
+    public const KEY_USER_ID    = 'uid';
+    public const KEY_USER_TOKEN = 'token';
+    protected static user $USER;
     protected login       $LOGIN;
     protected string      $device_ip;
     protected string      $device_browser_enc;
     ##################################################
-    static protected bool $state_AUTHORIZATION_PASSED  = false;
-    static protected bool $state_AUTHORIZATION_SUCCESS = false;
+    protected static bool $state_AUTHORIZATION_PASSED  = false;
+    protected static bool $state_AUTHORIZATION_SUCCESS = false;
     ##################################################
     public $msg = [];
 
@@ -31,6 +31,7 @@ class CurrentUser
     {
         $this->reset();
         $this->authorize();
+
         if (static::$state_AUTHORIZATION_SUCCESS) {
             $this->upsertLogin(static::$USER->id);
         }
@@ -49,10 +50,12 @@ class CurrentUser
             return static::$state_AUTHORIZATION_SUCCESS;
         }
         $isAuthenticated = $this->discoverLogin();
+
         if ($isAuthenticated) {
             static::$state_AUTHORIZATION_SUCCESS = true;
         }
         static::$state_AUTHORIZATION_PASSED = true;
+
         return static::$state_AUTHORIZATION_SUCCESS;
     }
 
@@ -60,6 +63,7 @@ class CurrentUser
     {
         if ($this->discoverLogin()) {
             $this->msg[] = ___('You are already Logged-in');
+
             return false;
         }
 
@@ -81,8 +85,10 @@ class CurrentUser
     {
         $this->reset();
         static::$USER->getOneWithReferences($conditions);
+
         if (static::$USER->id) {
             $this->upsertLogin(static::$USER->id);
+
             return true;
         }
 
@@ -108,12 +114,14 @@ class CurrentUser
             ['token', '=', $oldToken],
             ['expires_at', '>', ALINA_TIME],
         ]);
+
         if ($this->LOGIN->id) {
             $uId = static::$USER->alias;
             $uPk = static::$USER->pkName;
             static::$USER->getOneWithReferences([
                 "{$uId}.{$uPk}" => $userId,
             ]);
+
             if (static::$USER->id) {
                 return true;
             }
@@ -125,16 +133,20 @@ class CurrentUser
     protected function discoverUserId()
     {
         $id = null;
+
         if (empty($id)) {
             $id = static::$USER->id;
         }
+
         if (empty($id)) {
             $id = AppCookie::get(static::KEY_USER_ID);
         }
+
         if (empty($id)) {
             $id = Request::obj()->tryHeader(static::KEY_USER_ID);
         }
-        if (!is_numeric($id)) {
+
+        if (! is_numeric($id)) {
             $id = null;
         }
 
@@ -144,15 +156,19 @@ class CurrentUser
     protected function discoverToken()
     {
         $token = null;
+
         if (empty($token)) {
             $token = $this->LOGIN->attributes->token;
         }
+
         if (empty($token)) {
             $token = AppCookie::get(static::KEY_USER_TOKEN);
         }
+
         if (empty($token)) {
             $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
         }
+
         if (strlen($token) < 10) {
             $token = null;
         }
@@ -196,6 +212,7 @@ class CurrentUser
         if ($this->isLoggedIn()) {
             return $this->forgetAuthInfo();
         }
+
         return false;
     }
 
@@ -228,6 +245,7 @@ class CurrentUser
         $vd->is_verified = 0;
         $vd->is_deleted  = 0;
         $u->insert($vd);
+
         if (isset($u->id)) {
             $mUserRole = new rbac_user_role();
             $mUserRole->insert([
@@ -235,6 +253,7 @@ class CurrentUser
                 //ToDo: Hardcoded, 5-servants
                 'role_id' => 5,
             ]);
+
             if (isset($mUserRole->id)) {
                 $this->msg[] = 'Registration has passed successfully!';
             }
@@ -299,6 +318,7 @@ class CurrentUser
     public function name()
     {
         $res = static::$USER->attributes->mail;
+
         if (empty($res)) {
             $res = ___('Not Logged-in');
         }
@@ -374,7 +394,7 @@ class CurrentUser
         if (
             //Request::obj()->AJAX
             //&&
-        !empty($this->LOGIN->attributes->token)
+            ! empty($this->LOGIN->attributes->token)
         ) {
             return $this->LOGIN->attributes->token;
         }

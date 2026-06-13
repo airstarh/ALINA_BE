@@ -4,7 +4,6 @@ namespace alina\mvc\Model;
 
 class pm_department extends _BaseAlinaModel
 {
-
     use pm_trait;
 
     public $table        = 'pm_department';
@@ -14,35 +13,36 @@ class pm_department extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'                 => [],
-            'name_human'         => [
+            'id'         => [],
+            'name_human' => [
                 'required' => true,
             ],
             'pm_organization_id' => [],
             'price_min'          => [
                 'default' => 1,
             ],
-            'manager_id'         => [],
-            'created_at'         => [],
-            'created_by'         => [],
-            'modified_at'        => [],
-            'modified_by'        => [],
+            'manager_id'  => [],
+            'created_at'  => [],
+            'created_by'  => [],
+            'modified_at' => [],
+            'modified_by' => [],
         ];
     }
 
     #####
     public function referencesTo()
     {
-        return array_merge([],
+        return array_merge(
+            [],
             $this->manager_id(),
             $this->pm_organization_id(),
             [
                 ##### field #####
                 '_children' => [
-                    'has'        => 'many',
+                    'has' => 'many',
                     ##############################
                     # for Select With References
-                    'joins'      => [
+                    'joins' => [
                         ['join', 'pm_project AS pm_project', 'pm_project.pm_department_id', '=', "{$this->alias}.{$this->pkName}"],
                         ['join', 'pm_task AS pm_task', 'pm_task.pm_project_id', '=', 'pm_project.id'],
                         ['join', 'pm_subtask AS pm_subtask', 'pm_subtask.pm_task_id', '=', 'pm_task.id'],
@@ -94,6 +94,7 @@ class pm_department extends _BaseAlinaModel
             unset($item->price_this_work);
             (new pm_work())->updateById($item);
         }
+
         return $this;
     }
 

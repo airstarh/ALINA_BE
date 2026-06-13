@@ -2,7 +2,6 @@
 
 namespace alina\mvc\Model;
 
-use alina\Message;
 use alina\mvc\Model\tale as taleAlias;
 use alina\Utils\Data;
 use alina\Utils\DateTime;
@@ -14,7 +13,7 @@ class user extends _BaseAlinaModel
 {
     public $table = 'user';
     public $sortDefault
-                  = [
+        = [
             ["lastname", 'ASC'],
             ["firstname", 'ASC'],
         ];
@@ -24,13 +23,13 @@ class user extends _BaseAlinaModel
         $fDefault = parent::fields();
         //$fDefault = [];
         $fCustom = [
-            'id'             => [],
-            'mail'           => [
-                'required'   => true,
-                'filters'    => [
+            'id'   => [],
+            'mail' => [
+                'required' => true,
+                'filters'  => [
                     // Could be a closure, string with function name or an array
                     'trim',
-                    function ($v) {
+                    static function ($v) {
                         return mb_strtolower($v);
                     },
                 ],
@@ -42,17 +41,16 @@ class user extends _BaseAlinaModel
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
-                        'f'       =>
-                            function ($v) {
-                                return filter_var($v, FILTER_VALIDATE_EMAIL);
-                            },
+                        'f' => static function ($v) {
+                            return filter_var($v, FILTER_VALIDATE_EMAIL);
+                        },
                         'errorIf' => [false, 0],
                         'msg'     => ___('Invalid Email Address!'),
                     ],
                 ],
             ],
-            'password'       => [
-                'filters'    => [
+            'password' => [
+                'filters' => [
                     // Could be a closure, string with function name or an array
                     'trim',
                     ['\alina\utils\Data', 'filterVarStripTags'],
@@ -66,7 +64,7 @@ class user extends _BaseAlinaModel
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
-                        'f'       => function ($v) {
+                        'f' => static function ($v) {
                             return Str::lessThan($v, 8);
                         },
                         'errorIf' => [true],
@@ -75,8 +73,8 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'firstname'      => [
-                'filters'    => [
+            'firstname' => [
+                'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
                 'validators' => [
@@ -87,19 +85,20 @@ class user extends _BaseAlinaModel
                     // ],
                 ],
             ],
-            'lastname'       => [
+            'lastname' => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
-            'emblem'         => [],
-            'birth'          => [
+            'emblem' => [],
+            'birth'  => [
                 'filters' => [
                     //['alina\\Utils\\Data', 'filterVarInteger'],
-                    function ($v) {
+                    static function ($v) {
                         if (empty($v)) {
                             return 0;
                         }
+
                         if (is_numeric($v)) {
                             return $v;
                         }
@@ -108,13 +107,13 @@ class user extends _BaseAlinaModel
                     },
                 ],
             ],
-            'language'       => [
+            'language' => [
                 'filters' => [
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
                 'default' => Sys::getUserLanguage(),
             ],
-            'about_myself'   => [
+            'about_myself' => [
                 'type'    => 'textarea',
                 'default' => '',
                 'filters' => [
@@ -122,23 +121,23 @@ class user extends _BaseAlinaModel
                 ],
             ],
             #####
-            'is_verified'    => [
+            'is_verified' => [
                 'default' => 0,
             ],
-            'banned_till'    => [
+            'banned_till' => [
                 'default' => 0,
             ],
-            'created_at'     => [
+            'created_at' => [
                 'default' => ALINA_TIME,
             ],
-            'is_deleted'     => [
+            'is_deleted' => [
                 'default' => 0,
             ],
             #####
             'reset_code'     => [],
             'reset_required' => [],
         ];
-        $fRes    = array_merge($fDefault, $fCustom);
+        $fRes = array_merge($fDefault, $fCustom);
 
         return $fRes;
     }
@@ -156,12 +155,12 @@ class user extends _BaseAlinaModel
     {
         return [
             ##### field #####
-            'rbac_user_role'   => [
-                'has'        => 'manyThrough',
-                'multiple'   => true,
+            'rbac_user_role' => [
+                'has'      => 'manyThrough',
+                'multiple' => true,
                 ##############################
                 # for Edit Form
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'rbac_role',
                     'childPk'        => 'id',
                     'childHumanName' => ['name'],
@@ -172,7 +171,7 @@ class user extends _BaseAlinaModel
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role AS child', 'child.id', '=', 'glue.role_id'],
                 ],
@@ -183,13 +182,13 @@ class user extends _BaseAlinaModel
             ],
             ##### field #####
             '_rbac_permission' => [
-                'has'        => 'manyThrough',
+                'has' => 'manyThrough',
                 ##############################
                 # for Edit Form
                 # ... There is no way to edit Permissions on User model: Permissions related to Roles only now...
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'rbac_user_role AS glue', 'glue.user_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'rbac_role_permission AS glue2', 'glue2.role_id', '=', 'glue.role_id'],
                     ['join', 'rbac_permission AS child', 'child.id', '=', 'glue2.permission_id'],
@@ -209,19 +208,19 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'timezone'         => [
-                'has'        => 'one',
-                'multiple'   => false,
+            'timezone' => [
+                'has'      => 'one',
+                'multiple' => false,
                 ##############################
                 # for Apply dependencies
-                'apply'      => [
+                'apply' => [
                     'childTable'     => 'timezone',
                     'childPk'        => 'id',
                     'childHumanName' => ['name'],
                 ],
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['leftJoin', 'timezone AS timezone', 'timezone.id', '=', "{$this->alias}.timezone"],
                 ],
                 'conditions' => [],
@@ -230,11 +229,11 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'file'             => [
-                'has'        => 'many',
+            'file' => [
+                'has' => 'many',
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'file AS child', 'child.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                 ],
                 'conditions' => [
@@ -245,11 +244,11 @@ class user extends _BaseAlinaModel
                 ],
             ],
             ##### field #####
-            'tag'              => [
-                'has'        => 'manyThrough',
+            'tag' => [
+                'has' => 'manyThrough',
                 ##############################
                 # for Select With References
-                'joins'      => [
+                'joins' => [
                     ['join', 'tag_to_entity AS glue', 'glue.entity_id', '=', "{$this->alias}.{$this->pkName}"],
                     ['join', 'tag AS child', 'child.id', '=', 'glue.tag_id'],
                 ],
@@ -259,7 +258,7 @@ class user extends _BaseAlinaModel
                 'addSelects' => [
                     ['addSelect', ['child.*', 'child.id AS child_id', 'glue.id AS ref_id', "{$this->alias}.{$this->pkName} AS main_id"]],
                 ],
-                'orders'     => [
+                'orders' => [
                     ['orderBy', 'child.name', 'ASC'],
                 ],
             ],
@@ -270,7 +269,7 @@ class user extends _BaseAlinaModel
     public function hookRightBeforeSave(&$dataArray)
     {
         //ToDO: seems could be 1 line...
-        if (!empty($dataArray['password'])) {
+        if (! empty($dataArray['password'])) {
             $dataArray['password'] = static::encrypt($dataArray['password']);
         }
         else {
@@ -284,7 +283,7 @@ class user extends _BaseAlinaModel
     public function hookRightAfterSave($data)
     {
         //ToDo: Security
-        if (!AlinaAccessIfAdmin()) {
+        if (! AlinaAccessIfAdmin()) {
             return $this;
         }
         _baseAlinaEloquentTransaction::begin();
@@ -294,7 +293,7 @@ class user extends _BaseAlinaModel
                 (isset($cfg['has']) && $cfg['has'] === 'manyThrough')
             ) {
                 if (isset($cfg['apply'])) {
-                    if (isset($data->{$refName}) && !empty($data->{$refName})) {
+                    if (isset($data->{$refName}) && ! empty($data->{$refName})) {
                         ####################
                         # Definitions
                         $glueTable           = $cfg['apply']['glueTable'];
@@ -335,7 +334,7 @@ class user extends _BaseAlinaModel
                         ####################
                         # INSERT
                         foreach ($arrNewChildPkValues as $newChildId) {
-                            if (!in_array($newChildId, $currChildIds)) {
+                            if (! in_array($newChildId, $currChildIds)) {
                                 $mGlueTable->insert([
                                     $glueMasterPk => $pkValue,
                                     $glueChildPk  => $newChildId,
@@ -363,13 +362,14 @@ class user extends _BaseAlinaModel
     #region RBAC
     public function hasRole($role)
     {
-        if (!isset($this->attributes->rbac_user_role)) {
+        if (! isset($this->attributes->rbac_user_role)) {
             if (isset($this->id)) {
                 $this->getOneWithReferences([
                     "{$this->alias}.{$this->pkName}" => $this->id,
                 ]);
             }
         }
+
         if (isset($this->attributes->rbac_user_role)) {
             $roles = $this->attributes->rbac_user_role;
             foreach ($roles as $r) {
@@ -384,13 +384,14 @@ class user extends _BaseAlinaModel
 
     public function hasPerm($perm)
     {
-        if (!isset($this->attributes->rbac_permission)) {
+        if (! isset($this->attributes->rbac_permission)) {
             if (isset($this->id)) {
                 $this->getOneWithReferences([
                     "{$this->alias}.{$this->pkName}" => $this->id,
                 ]);
             }
         }
+
         if (isset($this->attributes->rbac_permission)) {
             $perms = $this->attributes->rbac_permission;
             foreach ($perms as $p) {
@@ -408,11 +409,12 @@ class user extends _BaseAlinaModel
     public function bizDelete($id)
     {
         $vd = (object)[];
+
         if (AlinaAccessIfAdminOrModeratorOrOwner($id)) {
             _baseAlinaEloquentTransaction::begin();
             $vd->notifications = (new notification())
                 ->q(-1)
-                ->where(function ($q) use ($id) {
+                ->where(static function ($q) use ($id) {
                     /** @var $q BuilderAlias object */
                     $q
                         ->where('to_id', '=', $id)
@@ -421,28 +423,31 @@ class user extends _BaseAlinaModel
                 })
                 ->delete()
             ;
-            $vd->likes         = (new \alina\mvc\Model\like())
+            $vd->likes = (new \alina\mvc\Model\like())
                 ->q(-1)
                 ->where('user_id', '=', $id)
                 ->delete()
             ;
-            $vd->tales         = (new taleAlias())->delete(['owner_id' => $id,]);
-            $vd->rbac_roles    = (new rbac_user_role())->delete(['user_id' => $id,]);
-            $vd->login         = (new login())->delete(['user_id' => $id,]);
-            $vd->users         = (new user())->deleteById($id);
+            $vd->tales      = (new taleAlias())->delete(['owner_id' => $id,]);
+            $vd->rbac_roles = (new rbac_user_role())->delete(['user_id' => $id,]);
+            $vd->login      = (new login())->delete(['user_id' => $id,]);
+            $vd->users      = (new user())->deleteById($id);
             _baseAlinaEloquentTransaction::commit();
         }
 
         return $vd;
     }
 
-    static public function encrypt($v)
+    public static function encrypt($v)
     {
-        if (empty($v))
+        if (empty($v)) {
             throw new \ErrorException(___('Attempt to encrypt empty value!'));
-        if (!Data::isValidMd5($v)) {
+        }
+
+        if (! Data::isValidMd5($v)) {
             $v = md5($v);
         }
+
         return $v;
     }
     ##################################################

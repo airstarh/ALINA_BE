@@ -9,16 +9,16 @@ class tag_to_entity extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'  => [],
-            'entity_id'  => [],
-            'entity_table'  => [],
+            'id'           => [],
+            'entity_id'    => [],
+            'entity_table' => [],
         ];
     }
 
     public function uniqueKeys()
     {
         return [
-            ['entity_id', 'entity_table']
+            ['entity_id', 'entity_table'],
         ];
     }
 }

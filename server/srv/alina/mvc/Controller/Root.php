@@ -1,11 +1,11 @@
 <?php
+
 namespace alina\mvc\Controller;
 
 use alina\mvc\View\html;
 
 class Root
 {
-
     /**
      * Summary of actionIndex
      * @return void
@@ -55,20 +55,20 @@ class Root
             '/AdminTests/Serialization'                          => 'Tst Serialization',
             '/AdminTests/JsonEncode'                             => 'Tst Json Encode',
         ];
-        echo(new html)->page($vd);
+        echo(new html())->page($vd);
     }
 
     public function actionIndex3()
     {
         $vd = \alina\Utils\FS::dirToClassActionIndex(ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller');
-        echo(new html)->page($vd);
+        echo(new html())->page($vd);
     }
 
     public function action404()
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo(new html)->page();
+        echo(new html())->page();
         exit;
     }
 
@@ -76,7 +76,7 @@ class Root
     {
         AlinaResponseSuccess(0);
         http_response_code(500);
-        echo(new html)->page($vd, html::$htmLayoutErrorCatcher);
+        echo(new html())->page($vd, html::$htmLayoutErrorCatcher);
         exit;
     }
 
@@ -84,7 +84,7 @@ class Root
     {
         AlinaResponseSuccess(0);
         http_response_code($code);
-        echo(new html)->page(null, html::$htmLayoutErrorCatcher);
+        echo(new html())->page(null, html::$htmLayoutErrorCatcher);
         exit;
     }
 }
