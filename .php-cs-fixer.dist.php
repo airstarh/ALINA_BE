@@ -25,6 +25,12 @@ return (new PhpCsFixer\Config())
         'single_blank_line_at_eof' => true,
         'no_extra_blank_lines' => true,
         'static_lambda' => true,
+        'elseif' => false,
+        'braces' => [
+            'position_after_functions_and_oop_constructs' => 'next',
+            'position_after_control_structures' => 'same',
+            'position_after_anonymous_constructs' => 'same',
+        ],
     ])
     ->setFinder($finder)
     ->setUsingCache(true);
