@@ -6,7 +6,7 @@ use alina\mvc\View\html as htmlAlias;
 $i = 0;
 ?>
 <h1>User Manager</h1>
-<?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $data->pagination) ?>
+<?= (new htmlAlias())->piece('_system/html/_form/paginator.php', $data->pagination) ?>
 
 <div class="table-responsive">
     <table class="table table-striped table-hover  table-dark">
@@ -17,7 +17,7 @@ $i = 0;
                     <div>
                         <?php
                         $formRolesId = "form-user-{$mUser->id}-role";
-                        ?>
+            ?>
                         <form action="" method="post" id="<?= $formRolesId ?>">
                             <input type="hidden" name="form_id" value="<?= $formRolesId ?>"/>
                             <input type="hidden" name="id" value="<?= $mUser->id ?>"/>
@@ -37,14 +37,15 @@ $i = 0;
                     <a href="/auth/profile/<?= $mUser->id ?>">
                         <?php if ($mUser->emblem) { ?>
                             <img src="<?= $mUser->emblem ?>" alt="" width="100">
-                        <?php } else { ?>
+                        <?php }
+                        else { ?>
                             <img src="undefined.png" alt="NO AVATAR" width="100">
                         <?php } ?>
                     </a>
                 </td>
                 <?php
                 $formId = "form-user-{$mUser->id}";
-                ?>
+            ?>
                 <td>
                     <form
                             id="<?= $formId ?>"

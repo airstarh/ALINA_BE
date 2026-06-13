@@ -1,4 +1,5 @@
 <?php
+
 /** @var $data stdClass */
 /**
  * $ud[$assaId][$afn][$oid][$onh][$did][$dnh][$pid][$pnh][$tid][$tnh][$stid][$stnh][$wid][$wnh][$wdid] = [
@@ -10,4 +11,3 @@
  */
 
 $vd = $data;
-?>

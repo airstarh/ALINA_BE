@@ -1,6 +1,5 @@
 <?php
 
-use alina\mvc\Model\CurrentUser;
 use alina\Utils\Html;
 
 $cu = alina\mvc\Model\CurrentUser::obj();
@@ -19,11 +18,11 @@ $ua = $cu->attributes();
                     <?= $cu->name() ?>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/register/') ?>"><?= ___("Register") ?></a> <?php endif; ?>
-                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/login/') ?>"><?= ___("LogIn") ?></a><?php endif; ?>
+                    <?php if (! $cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/register/') ?>"><?= ___("Register") ?></a> <?php endif; ?>
+                    <?php if (! $cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/login/') ?>"><?= ___("LogIn") ?></a><?php endif; ?>
                     <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/profile') ?>"><?= ___("Profile") ?></a><?php endif; ?>
                     <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/ChangePassword') ?>"><?= ___("Change Password") ?></a><?php endif; ?>
-                    <?php if (!$cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/ResetPasswordRequest') ?>"><?= ___("Reset Password Request") ?></a><?php endif; ?>
+                    <?php if (! $cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/ResetPasswordRequest') ?>"><?= ___("Reset Password Request") ?></a><?php endif; ?>
                     <div class="dropdown-divider"></div>
                     <?php if ($cu->isLoggedIn()): ?><a class="dropdown-item" href="<?= Html::aRef('/auth/logOut/') ?>"><?= ___("Exit") ?></a><?php endif; ?>
                 </div>

@@ -8,7 +8,9 @@ if (empty($data)) {
     return;
 }
 
-if (is_object($data)) $data = [$data];
+if (is_object($data)) {
+    $data = [$data];
+}
 
 $counter = 1;
 
@@ -24,10 +26,14 @@ foreach ($data as $iR => &$r) {
         $headers[$f] = $f;
         switch ($f) {
             case 'wd_assignee_id':
-                if ($f) $wd_assignee_id = $v;
+                if ($f) {
+                    $wd_assignee_id = $v;
+                }
+
                 break;
             case 'wd_flag_archived':
                 $classArchived[$iR] = $v === 1 ? 'archived' : 'notarchived';
+
                 break;
             default:
                 break;
@@ -85,7 +91,7 @@ foreach ($data as $iR => &$r) {
 
         <tfoot>
         <?php foreach ($data as $iRow => $vRow): ?>
-            <?php if (!is_numeric($iRow)): ?>
+            <?php if (! is_numeric($iRow)): ?>
                 <tr>
                     <th><?= ___($iRow) ?></th>
                     <?php foreach ($vRow as $iF => $vF): ?>
@@ -107,10 +113,12 @@ foreach ($data as $iR => &$r) {
         <!--####################################################################################################-->
         <tbody>
         <?php foreach ($data as $idxRow => $row) { ?>
-            <?php if (!is_numeric($idxRow)) continue; ?>
+            <?php if (! is_numeric($idxRow)) {
+                continue;
+            } ?>
             <tr class="<?= $classArchived[$idxRow] ?>">
                 <td>
-                    <?php if (!is_numeric($idxRow)): ?>
+                    <?php if (! is_numeric($idxRow)): ?>
                         <div>
                             <?= ___($idxRow) ?>
                         </div>
@@ -119,7 +127,7 @@ foreach ($data as $iR => &$r) {
                     <?php endif; ?>
                 </td>
 
-                <?php if (!Data::isIterable($row)): ?>
+                <?php if (! Data::isIterable($row)): ?>
                     <td>
                         <div><?= $idxRow ?></div>
                         <div><?= $row ?></div>
@@ -135,13 +143,14 @@ foreach ($data as $iR => &$r) {
                         >
                             <?php if (Data::isIterable($colValue)) { ?>
                                 <div><?= $colName ?></div>
-                                <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
-                            <?php } else { ?>
+                                <?= (new html())->piece('_system/html/_form/table002.php', $colValue) ?>
+                            <?php }
+                            else { ?>
 
                                 <?php if (
                                     isset($prevRow[$colName])
-                                    && !is_numeric($prevRow[$colName])
-                                    && !Str::ifContains($colName, 'date')
+                                    && ! is_numeric($prevRow[$colName])
+                                    && ! Str::ifContains($colName, 'date')
                                     && $prevRow[$colName] === $colValue
                                 ): ?>
 

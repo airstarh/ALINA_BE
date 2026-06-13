@@ -6,8 +6,8 @@ use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Request as RequestAlias;
-use alina\Utils\Url;
 use alina\Utils\Str;
+use alina\Utils\Url;
 
 /** @var $data stdClass */
 /** @var $model _BaseAlinaModel */
@@ -17,10 +17,13 @@ $model        = $data->model;
 $counter      = 0;
 $formIdSearch = 'formIdSearch';
 $GET          = \alina\Utils\Request::obj()->GET;
+
 if (count($models) <= 0) {
     Message::setDanger('No data.');
     $models    = [$model->fields()];
-    $models[0] = array_map(function ($el) { return 'NO DATA'; }, $models[0]);
+    $models[0] = array_map(static function ($el) {
+        return 'NO DATA';
+    }, $models[0]);
     //AlinaRedirectIfNotAjax(Request::obj()->URL_PATH);
     //return '';
 }
@@ -36,7 +39,7 @@ $colHeaders = array_keys((array)$models[0]);
 ><?= ___("Create New") ?></a>
 
 <div class="clear mt-3">&nbsp;</div>
-<?= (new htmlAlias)->piece('_system/html/_form/paginator.php', $pagination) ?>
+<?= (new htmlAlias())->piece('_system/html/_form/paginator.php', $pagination) ?>
 <div class="clear mt-3">&nbsp;</div>
 <div>
     <table class="table-sm table-striped table-hover  table-dark alina-data-table">
@@ -46,12 +49,14 @@ $colHeaders = array_keys((array)$models[0]);
             <?php foreach ($colHeaders as $h) {
                 #####
                 $nameSortField = $h;
+
                 if ($model->tableHasField($h)) {
                     $nameSortField = "{$model->table}.{$h}";
                 }
                 #####
                 $clasAsc  = '';
                 $clasDesc = '';
+
                 if (isset($GET->sn) && isset($GET->sa)) {
                     $clasAsc  = $GET->sn == $nameSortField && $GET->sa == 1 ? 'btn-danger' : '';
                     $clasDesc = $GET->sn == $nameSortField && $GET->sa == 0 ? 'btn-danger' : '';
@@ -59,11 +64,11 @@ $colHeaders = array_keys((array)$models[0]);
                 #####
                 ?>
                 <th class="text-nowrap bg-primary sticky-top border-bottom">
-                    <?php if (!Str::startsWith($h, '_')): ?>
+                    <?php if (! Str::startsWith($h, '_')): ?>
                         <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 1,]) ?>" class="btn <?= $clasAsc ?>">▲</a>
                     <?php endif; ?>
                     <?= mb_strtoupper(___($h)) ?>
-                    <?php if (!Str::startsWith($h, '_')): ?>
+                    <?php if (! Str::startsWith($h, '_')): ?>
                         <a href="<?= Url::bizAddGetParamsToCurrentState('', ['sn' => $nameSortField, 'sa' => 0,]) ?>" class="btn <?= $clasDesc ?>">▼</a>
                     <?php endif; ?>
                 </th>
@@ -102,7 +107,7 @@ $colHeaders = array_keys((array)$models[0]);
                 $fValueNotEmp = $GET->{$fNameNotEmp} ?? '';
                 ?>
                 <th>
-                    <?php if (!Str::startsWith($h, '_')): ?>
+                    <?php if (! Str::startsWith($h, '_')): ?>
                         <div>
                             <label>
                                 <input form="<?= $formIdSearch ?>" type="checkbox" name="<?= $fNameEmp ?>" value="1" <?= $fValueEmp == 1 ? 'checked' : '' ?> placeholder="Empty" class="">
@@ -142,8 +147,9 @@ $colHeaders = array_keys((array)$models[0]);
                     ?>
                     <td>
                         <?php if (Data::isIterable($v)) { ?>
-                            <?= (new htmlAlias)->piece('_system/html/_form/table002.php', $v) ?>
-                        <?php } else { ?>
+                            <?= (new htmlAlias())->piece('_system/html/_form/table002.php', $v) ?>
+                        <?php }
+                        else { ?>
                             <div><?= $_v ?></div>
                             <?php if ($f === $model->pkName) { ?>
                                 <br>

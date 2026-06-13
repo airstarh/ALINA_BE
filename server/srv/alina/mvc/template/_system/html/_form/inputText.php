@@ -16,6 +16,7 @@ $value       = $data->value;
 $placeholder = @$data->placeholder ?: '';
 $_name       = substr(strip_tags($name), 0, 200);
 $_value      = substr(strip_tags(Data::stringify($value)), 0, 200);
+
 ##################################################
 #region PROCESSING
 if ($name === 'password') {
@@ -45,7 +46,8 @@ if ($name === 'password') {
             ><?= $value ?></textarea>
 
 
-        <?php } else { ?>
+        <?php }
+        else { ?>
             <input
                 <?= $required ? 'required' : '' ?>
                 <?= $disabled ? 'disabled' : '' ?>

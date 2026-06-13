@@ -61,13 +61,13 @@
                     </div>
                 </div>
 
-                <? if (!empty($data->body_free)) { ?>
+                <? if (! empty($data->body_free)) { ?>
                     <div class="mt-3">
                         <div><?= $data->body_free ?></div>
                     </div>
                 <? } ?>
 
-                <? if (!empty($data->iframe)) { ?>
+                <? if (! empty($data->iframe)) { ?>
                     <div class="mt-3">
                         <iframe src="<?= $data->iframe ?>" frameborder="1" width="100%" height="500px"></iframe>
                     </div>

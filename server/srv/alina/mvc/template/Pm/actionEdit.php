@@ -2,7 +2,6 @@
 /**@var $data array */
 
 use alina\mvc\Controller\AdminDbManager;
-use alina\mvc\Controller\Pm;
 use alina\mvc\View\html;
 
 $list         = $data['list'];
@@ -29,7 +28,7 @@ $userList     = $data['userList'];
             </h1>
             <div class="clear">&nbsp;</div>
 
-            <?= (new html)->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
+            <?= (new html())->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
 
             <!--########################################################################################################################-->
             <!--region FORM NEW-->
@@ -123,7 +122,7 @@ $userList     = $data['userList'];
 
             <!--########################################################################################################################-->
             <!--region LIST -->
-            <?php if (!empty($list)): ?>
+            <?php if (! empty($list)): ?>
                 <div>
 
                     <!--########################################################################################################################-->
@@ -240,7 +239,7 @@ $userList     = $data['userList'];
                         </form>
                     </div>
 
-                    <?php if (!empty($listWorkDone)): ?>
+                    <?php if (! empty($listWorkDone)): ?>
                         <div>
                             <table class="bg-black alina-data-table">
                                 <thead>

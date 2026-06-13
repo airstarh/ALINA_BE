@@ -20,7 +20,7 @@ $listWorkDone = $data['listWorkDone'];
             <h1><?= ___("Fill Work Unit Done") ?></h1>
             <div class="clear">&nbsp;</div>
 
-            <?= (new html)->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
+            <?= (new html())->piece('Pm/_pmBreadCrumbs.php', $breadcrumbs) ?>
 
             <div>
                 <?php foreach ($list as $item): ?>
@@ -72,7 +72,7 @@ $listWorkDone = $data['listWorkDone'];
                         </form>
                     </div>
 
-                    <?php if (!empty($listWorkDone)): ?>
+                    <?php if (! empty($listWorkDone)): ?>
                         <div>
                             <table class="bg-black alina-data-table">
                                 <thead>

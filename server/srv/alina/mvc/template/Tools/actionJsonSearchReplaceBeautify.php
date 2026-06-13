@@ -83,7 +83,7 @@ use alina\Utils\Data as DataAlias;
         ]) ?>
         <input type="text" name="strTo" value="<?= $data->strTo ?>" class="form-control">
 
-        <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+        <?= (new htmlAlias())->piece('_system/html/_form/standardFormButtons.php') ?>
 
     </form>
     <!-- ##################################################-->
@@ -108,7 +108,7 @@ use alina\Utils\Data as DataAlias;
         <div class="row">
             <div class="col-6">
                 <div>
-                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                    <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                         'title' => 'Was',
                         'badge' => mb_strlen($data->strSource),
                     ]) ?>
@@ -116,24 +116,24 @@ use alina\Utils\Data as DataAlias;
                 <div class="ck-content">
                     <?php
                     echo '<pre>';
-                    echo htmlentities(var_export($data->mxdJsonDecoded, 1));
-                    echo '</pre>';
-                    ?>
+echo htmlentities(var_export($data->mxdJsonDecoded, 1));
+echo '</pre>';
+?>
                 </div>
             </div>
             <div class="col-6">
                 <div>
-                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                        'title' => 'Is',
-                        'badge' => mb_strlen($data->strRes),
-                    ]) ?>
+                    <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
+    'title' => 'Is',
+    'badge' => mb_strlen($data->strRes),
+]) ?>
                 </div>
                 <div class="ck-content">
                     <?php
-                    echo '<pre>';
-                    echo htmlentities(var_export($data->mxdResJsonDecoded, 1));
-                    echo '</pre>';
-                    ?>
+echo '<pre>';
+echo htmlentities(var_export($data->mxdResJsonDecoded, 1));
+echo '</pre>';
+?>
                 </div>
             </div>
         </div>

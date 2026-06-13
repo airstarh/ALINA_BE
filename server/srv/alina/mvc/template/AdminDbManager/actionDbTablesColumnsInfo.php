@@ -7,18 +7,18 @@ use alina\mvc\View\html as htmlAlias;
 <div>
   <form action="" method="post" enctype="multipart/form-data">
     <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
-      <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+      <?= (new htmlAlias())->piece('_system/html/_form/standardFormButtons.php') ?>
 
-      <?= (new htmlAlias)->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>
+      <?= (new htmlAlias())->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>
 
-      <?= (new htmlAlias)->piece('_system/html/_form/selectOneSimple.php', \alina\Utils\Data::mergeObjects($data, (object)[
+      <?= (new htmlAlias())->piece('_system/html/_form/selectOneSimple.php', \alina\Utils\Data::mergeObjects($data, (object)[
           'name'        => 'tableName',
           'value'       => $data->tableName,
           'options'     => $data->arrTables,
           'placeholder' => '--- select a table ---',
       ])) ?>
 
-      <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+      <?= (new htmlAlias())->piece('_system/html/_form/standardFormButtons.php') ?>
   </form>
   <div class="mt-3">
     <ul class="list-group-item-dark">
@@ -38,7 +38,7 @@ use alina\mvc\View\html as htmlAlias;
     <div class="row">
       <div class="col-sm">
         <div class="mt-3">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'SELECT',
                 'badge' => 'strSqlSELECT',
             ]) ?>
@@ -49,7 +49,7 @@ use alina\mvc\View\html as htmlAlias;
       </div>
       <div class="col-sm">
         <div class="mt-3">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'INSERT',
                 'badge' => 'strSqlINSERT',
             ]) ?>
@@ -62,7 +62,7 @@ use alina\mvc\View\html as htmlAlias;
       <div class="col-sm">
 
         <div class="mt-3">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'UPDATE',
                 'badge' => 'strSqlUPDATE',
             ]) ?>
@@ -74,7 +74,7 @@ use alina\mvc\View\html as htmlAlias;
       </div>
       <div class="col-sm">
         <div class="mt-3">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'DELETE',
                 'badge' => 'strSqlDELETE',
             ]) ?>
@@ -90,7 +90,7 @@ use alina\mvc\View\html as htmlAlias;
     <!-- ##################################################-->
     <!-- ##################################################-->
     <div class="mt-3">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'PDO bind',
             'badge' => 'strSqlPDObind',
         ]) ?>
@@ -104,7 +104,7 @@ use alina\mvc\View\html as htmlAlias;
     <div class="container-sm mt-3">
       <div class="row">
         <div class="col-sm">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'JSON',
                 'badge' => 'colsAsJson',
             ]) ?>
@@ -113,7 +113,7 @@ use alina\mvc\View\html as htmlAlias;
           ><?= $data->colsAsJson ?></textarea>
         </div>
         <div class="col-sm">
-            <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+            <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                 'title' => 'PHP Array',
                 'badge' => 'colsAsPHPArr',
             ]) ?>
@@ -127,11 +127,11 @@ use alina\mvc\View\html as htmlAlias;
     <!-- ##################################################-->
     <!-- ##################################################-->
     <div class="mt-5">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'Fields` details',
             'badge' => 'tColsInfo',
         ]) ?>
-        <?= (new htmlAlias)->piece('_system/html/_form/table001.php', \alina\Utils\Data::mergeObjects($data, (object)[
+        <?= (new htmlAlias())->piece('_system/html/_form/table001.php', \alina\Utils\Data::mergeObjects($data, (object)[
             'arr' => $data->tColsInfo,
         ])) ?>
     </div>
@@ -143,7 +143,7 @@ use alina\mvc\View\html as htmlAlias;
 
     <?php
     echo '<pre>';
-    print_r($data);
-    echo '</pre>';
-    ?>
+print_r($data);
+echo '</pre>';
+?>
 </div>

@@ -7,7 +7,7 @@ use alina\Utils\Data;
 $multiple    = (bool)(@$data->multiple);
 $disabled    = (bool)(@$data->disabled);
 $required    = (bool)(@$data->required);
-$name        = !empty($multiple) ? "{$data->name}[]" : $data->name;
+$name        = ! empty($multiple) ? "{$data->name}[]" : $data->name;
 $value       = $data->value;
 $options     = $data->options;
 $placeholder = @$data->placeholder ?: '';
@@ -17,9 +17,11 @@ $_options = [];
 foreach ($options as $i => $v) {
     $ind = $v;
     $val = Data::stringify($v);
+
     if (Data::isIterable($v)) {
         $ind = $i;
         $_v  = (object)$v;
+
         if (property_exists($_v, 'id')) {
             $ind = $_v->id;
         }
@@ -32,9 +34,11 @@ $_value = [];
 foreach ($value as $i => $v) {
     $ind = $v;
     $val = Data::stringify($v);
+
     if (Data::isIterable($v)) {
         $ind = $i;
         $_v  = (object)$v;
+
         if (property_exists($_v, 'id')) {
             $ind = $_v->id;
         }

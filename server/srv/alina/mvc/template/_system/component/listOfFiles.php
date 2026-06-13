@@ -6,15 +6,16 @@ use alina\Utils\FS;
 ?>
 <div>
     <?php
-    $h1    = $data['h1'];
-    $h1_a  = $data['h1_a'];
-    $dir   = $data['dir'];
-    $class = $data['class'];
-    $list  = FS::dirToRelativeUrlList($dir);
-    ?>
+    $h1 = $data['h1'];
+$h1_a   = $data['h1_a'];
+$dir    = $data['dir'];
+$class  = $data['class'];
+$list   = FS::dirToRelativeUrlList($dir);
+?>
     <?php if ($h1_a) { ?>
         <h1><a href="<?= $h1_a ?>"><?= $h1 ?></a></h1>
-    <?php } else { ?>
+    <?php }
+    else { ?>
         <h1><?= $h1 ?></h1>
     <?php } ?>
 

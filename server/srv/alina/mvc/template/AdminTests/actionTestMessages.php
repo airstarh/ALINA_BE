@@ -1,4 +1,5 @@
 <?php
+
 /** @var $data stdClass */
 
 echo '<pre>';

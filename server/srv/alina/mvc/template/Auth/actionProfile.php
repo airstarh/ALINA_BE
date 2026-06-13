@@ -1,8 +1,6 @@
 <?php
 /** @var $data stdClass */
 
-use alina\mvc\Model\CurrentUser as CurrentUserAlias;
-use alina\mvc\View\html as htmlAlias;
 
 $m = $data->user;
 //$sources = $data->sources;

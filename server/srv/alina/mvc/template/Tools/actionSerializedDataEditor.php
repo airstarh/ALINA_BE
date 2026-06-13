@@ -47,38 +47,38 @@ use alina\Utils\Data as DataAlias;
 <div id="array-serializer">
     <form action="" method="post" enctype="multipart/form-data">
         <input type="hidden" name="form_id" value="<?= $data->form_id ?>">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'Serialized string:',
             'badge' => 'your data-source',
         ]) ?>
         <textarea name="strSource" class="form-control w-100" rows="10"><?= htmlentities($data->strSource) ?></textarea>
         <br>
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'From',
             'badge' => 'I change from...',
         ]) ?>
         <input type="text" name="strFrom" value="<?= $data->strFrom ?>" class="form-control">
         <br>
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'To',
             'badge' => 'I change to...',
         ]) ?>
         <input type="text" name="strTo" value="<?= $data->strTo ?>" class="form-control">
 
-        <?= (new htmlAlias)->piece('_system/html/_form/standardFormButtons.php') ?>
+        <?= (new htmlAlias())->piece('_system/html/_form/standardFormButtons.php') ?>
 
     </form>
     <div class="mt-5"></div>
     <div class="display-4">Total Changes: <?= $data->tCount ?></div>
     <div class="mt-3">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT',
             'badge' => 'this is what you get after changes',
         ]) ?>
         <textarea class="form-control w-100" rows="10"><?= htmlentities($data->strRes) ?></textarea>
     </div>
     <div class="mt-3">
-        <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+        <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT JSON',
             'badge' => 'this is what you get in JSON format',
         ]) ?>
@@ -89,7 +89,7 @@ use alina\Utils\Data as DataAlias;
         <div class="row">
             <div class="col-6">
                 <div>
-                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
+                    <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
                         'title' => 'Source',
                         'badge' => 'var_export of your UnSerialized source-string',
                     ]) ?>
@@ -98,25 +98,25 @@ use alina\Utils\Data as DataAlias;
                 <div>
                     <?php
                     echo '<pre>';
-                    echo htmlentities(var_export($data->mixedSource, 1));
-                    echo '</pre>';
-                    ?>
+echo htmlentities(var_export($data->mixedSource, 1));
+echo '</pre>';
+?>
                 </div>
             </div>
             <div class="col-6">
                 <div>
-                    <?= (new htmlAlias)->piece('_system/html/tag/bootstrapBadge.php', (object)[
-                        'title' => 'Result',
-                        'badge' => 'var_export of your UnSerialized result-string',
-                    ]) ?>
+                    <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
+    'title' => 'Result',
+    'badge' => 'var_export of your UnSerialized result-string',
+]) ?>
                 </div>
                 <div>Symbols: <?= mb_strlen($data->strRes) ?></div>
                 <div>
                     <?php
-                    echo '<pre>';
-                    echo htmlentities(var_export($data->mixedRes, 1));
-                    echo '</pre>';
-                    ?>
+echo '<pre>';
+echo htmlentities(var_export($data->mixedRes, 1));
+echo '</pre>';
+?>
                 </div>
             </div>
         </div>

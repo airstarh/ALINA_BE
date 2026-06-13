@@ -1,9 +1,7 @@
 <?php
 /** @var $data stdClass */
 
-use alina\Utils\Data;
-use alina\Utils\Request;
-use \alina\Utils\Url;
+use alina\Utils\Url;
 
 $pageCurrentNumber = $data->pageCurrentNumber;
 $pageSize          = $data->pageSize;
@@ -13,11 +11,12 @@ $paginationVersa   = $data->paginationVersa;
 $arrPages          = range(1, $pagesTotal);
 $path              = $data->path;
 $flagHrefAsPath    = $data->flagHrefAsPath;
+
 if ($pagesTotal > 5) {
     $length   = count($arrPages);
     $n        = 10;
     $l        = 20;
-    $i        = $pageCurrentNumber - 1;
+    $i        = $pageCurrentNumber      - 1;
     $cutFrom  = ($i - $n <= 0) ? 0 : $i - $n;
     $arrPages = array_slice($arrPages, $cutFrom, $l);
     //$arrPages = array_slice($arrPages, $pageCurrentNumber + 3, $length);
@@ -29,7 +28,7 @@ if ($pagesTotal > 5) {
 if ($flagHrefAsPath) {
     ?>...<?php
 }
-else { ?>
+    else { ?>
   <a
     href="<?= Url::bizAddGetParamsToCurrentState('', ['p' => 1, 'ps' => $pageSize,]) ?>"
     class="btn btn-sm btn-outline-info m-1"

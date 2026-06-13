@@ -1,8 +1,6 @@
 <?php
 /**@var $data array */
 
-use alina\mvc\Controller\AdminDbManager;
-use alina\mvc\Controller\Pm;
 use alina\mvc\View\html;
 
 $vd  = $data;
@@ -69,28 +67,28 @@ $GET = \alina\Utils\Request::obj()->GET;
 
             <!--##################################################-->
             <h2><?= ___('Totals by Users') ?></h2>
-            <?= (new html)->piece('_system/html/_form/table002.php', $vd['byUsers']) ?>
+            <?= (new html())->piece('_system/html/_form/table002.php', $vd['byUsers']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
 
 
             <!--##################################################-->
             <h2><?= ___('Totals by Organization') ?></h2>
-            <?= (new html)->piece('_system/html/_form/table002.php', $vd['od']) ?>
+            <?= (new html())->piece('_system/html/_form/table002.php', $vd['od']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
 
 
             <!--##################################################-->
             <h2><?= ___('Totals by Department') ?></h2>
-            <?= (new html)->piece('_system/html/_form/table002.php', $vd['dd']) ?>
+            <?= (new html())->piece('_system/html/_form/table002.php', $vd['dd']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
 
 
             <!--##################################################-->
             <h2><?= ___('Totals by Project') ?></h2>
-            <?= (new html)->piece('_system/html/_form/table002.php', $vd['pd']) ?>
+            <?= (new html())->piece('_system/html/_form/table002.php', $vd['pd']) ?>
             <div class="clear">&nbsp;</div>
             <!--##################################################-->
 
@@ -98,7 +96,7 @@ $GET = \alina\Utils\Request::obj()->GET;
             <!--##################################################-->
             <h2><?= ___('Each User Detalization') ?></h2>
             <?php foreach ($vd['ud'] as $uid => $user): ?>
-                <?= (new html)->piece('Pm/_pmTablePerUser.php', $user) ?>
+                <?= (new html())->piece('Pm/_pmTablePerUser.php', $user) ?>
                 <div class="clear">&nbsp;</div>
             <?php endforeach; ?>
             <div class="clear">&nbsp;</div>

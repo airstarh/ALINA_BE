@@ -3,7 +3,6 @@
 
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
-use alina\Utils\Str;
 
 $action     = @$data->action ?: '';
 $enctype    = @$data->enctype ?: 'multipart/form-data';
@@ -36,33 +35,30 @@ $sources    = $data->sources;
 
         if (
             \alina\Utils\Str::startsWith($_f, '_')
-            ||
-            \alina\Utils\Str::ifContains($_f, '.')
+            || \alina\Utils\Str::ifContains($_f, '.')
         ) {
             $type = 'readonly';
         }
 
         if (
-            $f === 'created_at'
-            ||
-            $f === 'modified_at'
+            $f    === 'created_at'
+            || $f === 'modified_at'
         ) {
             $type = 'readonly';
         }
 
         if (
-            $f === 'created_at'
-            ||
-            $f === 'modified_at'
+            $f    === 'created_at'
+            || $f === 'modified_at'
         ) {
-            $v = (!empty($v)) ? \alina\Utils\DateTime::toHumanDateTime($v) : null;
+            $v = (! empty($v)) ? \alina\Utils\DateTime::toHumanDateTime($v) : null;
         }
 
         if (
             \alina\Utils\Str::ifContains($f, 'date')
         ) {
             $type = 'date';
-            $v    = (!empty($v)) ? \alina\Utils\DateTime::toHumanDate($v) : null;
+            $v    = (! empty($v)) ? \alina\Utils\DateTime::toHumanDate($v) : null;
         }
 
         if ($f === 'id') {

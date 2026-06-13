@@ -7,7 +7,9 @@ if (empty($data)) {
     return;
 }
 
-if (is_object($data)) $data = [$data];
+if (is_object($data)) {
+    $data = [$data];
+}
 
 $counter = 1;
 
@@ -31,7 +33,7 @@ $headers  = array_keys((array)$firstRow);
             <tr>
                 <td>
 
-                    <?php if (!is_numeric($k)): ?>
+                    <?php if (! is_numeric($k)): ?>
                         <div>
                             <?= ___($k) ?>
                         </div>
@@ -40,7 +42,7 @@ $headers  = array_keys((array)$firstRow);
                     <?php endif; ?>
                 </td>
 
-                <?php if (!Data::isIterable($row)): ?>
+                <?php if (! Data::isIterable($row)): ?>
                     <td>
                         <div><?= $k ?></div>
                         <div><?= $row ?></div>
@@ -53,8 +55,9 @@ $headers  = array_keys((array)$firstRow);
                         <td>
                             <?php if (Data::isIterable($colValue)) { ?>
                                 <div><?= $colName ?></div>
-                                <?= (new html)->piece('_system/html/_form/table002.php', $colValue) ?>
-                            <?php } else { ?>
+                                <?= (new html())->piece('_system/html/_form/table002.php', $colValue) ?>
+                            <?php }
+                            else { ?>
                                 <?= $colValue ?>
                             <?php } ?>
                         </td>

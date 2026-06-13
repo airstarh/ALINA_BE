@@ -1,6 +1,8 @@
 <?php /** @var $data array|object */
 
-use alina\mvc\View\html as htmlAlias; ?>
+use alina\mvc\View\html as htmlAlias;
+
+?>
 <div class="row align-items-center h-100">
     <div class="col mx-auto">
         <form enctype="multipart/form-data" action="" method="POST">
