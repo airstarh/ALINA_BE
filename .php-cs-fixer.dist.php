@@ -36,6 +36,7 @@ return (new PhpCsFixer\Config())
             'position_after_control_structures' => 'same',
             'position_after_anonymous_constructs' => 'same',
         ],
+        'visibility_required' => ['elements' => ['property', 'method', 'const']],
     ])
     ->setFinder($finder)
     ->setUsingCache(true);
