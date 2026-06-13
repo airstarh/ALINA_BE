@@ -1,11 +1,12 @@
 <?php
+
 return [
-    'appNamespace'        => 'alina',
-    'title'               => 'Alina: another PHP framework. Powered by BorgTechService.',
-    'fileUploadDir'       => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
-    'logVisitsToDb'       => true,
-    'db'                  => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
-    'mvc'                 => [
+    'appNamespace'  => 'alina',
+    'title'         => 'Alina: another PHP framework. Powered by BorgTechService.',
+    'fileUploadDir' => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
+    'logVisitsToDb' => true,
+    'db'            => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
+    'mvc'           => [
         'defaultController'       => 'Root',
         'defaultAction'           => 'Index',
         'pageNotFoundController'  => 'Root',
@@ -13,7 +14,7 @@ return [
         'pageExceptionController' => 'Root',
         'pageExceptionAction'     => 'Exception',
         // Relative Class Namespace Path.
-        'structure'               => [
+        'structure' => [
             'controller' => 'mvc\Controller',
             'Model'      => 'mvc\Model',
             'View'       => 'mvc\View',
@@ -27,16 +28,16 @@ return [
         'действие/:p2/контроллер/:p1' => 'cont/act/:p1/:p2', // /действие/ВТОРОЙ_ПАРАМЕТР/контроллер/ПЕРВЫЙ_ПАРАМЕТР
         'Рест_Запрос'                 => 'alinaRestAccept/index',
     ],
-    'debug'               => [
+    'debug' => [
         'toPage' => true,
         'toDb'   => true,
         'toFile' => true,
     ],
-    'watcher'             => [
+    'watcher' => [
         'maxPer1sec'          => 20,
-        'maxPer10secs'        => 10 / 5 * 20,
-        'maxPer1min'          => 60 / 2 * 20,
-        'maxPer10mins'        => 60 * 60 / 2 * 20,
+        'maxPer10secs'        => 10      / 5 * 20,
+        'maxPer1min'          => 60      / 2 * 20,
+        'maxPer10mins'        => 60          * 60 / 2 * 20,
         'classDataFiltration' => '',
         'fileUpload'          => [
             'max' => [
@@ -46,7 +47,7 @@ return [
                 'privileged' => -1,
             ],
         ],
-        'newTale'             => [
+        'newTale' => [
             'max' => [
                 'registered' => 3,
                 'admin'      => -1,
@@ -55,9 +56,9 @@ return [
             ],
         ],
     ],
-    'mailer'              => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'mailer.php'),
-    'html'                => [
-        'css'  => [
+    'mailer' => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'mailer.php'),
+    'html'   => [
+        'css' => [
             // Jquery; Jquery UI
             '/kiss/their.bootstrap/jquery-ui.css',
 
@@ -73,7 +74,7 @@ return [
             '/kiss/alina.css.specific/index.css',
 
         ],
-        'js'   => [
+        'js' => [
             // Jquery; Jquery UI
             '/kiss/their.bootstrap/jquery.js',
             '/kiss/their.bootstrap/jquery-ui.js',
@@ -87,7 +88,7 @@ return [
         ],
         'meta' => [],
     ],
-    'frontend'            => [
+    'frontend' => [
         'path'                  => '/root/frontend',
         'login'                 => '/#/auth/login',
         'register'              => '/#/auth/register',

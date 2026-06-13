@@ -1,4 +1,5 @@
 <?php
+
 return [
     'admin' => [
         'Host'       => 'smtp.yandex.ru',

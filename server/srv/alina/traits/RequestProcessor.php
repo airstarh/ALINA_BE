@@ -15,7 +15,7 @@ trait RequestProcessor
      * @param $paginationVersa
      * @return array
      */
-    protected function processGetModelList($model, $conditions = [], $sort = [], $pageSize = NULL, $pageCurrentNumber = NULL, $paginationVersa = FALSE)
+    protected function processGetModelList($model, $conditions = [], $sort = [], $pageSize = null, $pageCurrentNumber = null, $paginationVersa = false)
     {
         $q          = $model->getAllWithReferencesPart1($conditions);
         $collection = $model->getAllWithReferencesPart2($sort, $pageSize, $pageCurrentNumber, $paginationVersa);
@@ -29,5 +29,4 @@ trait RequestProcessor
 
         return ['collection' => $collection, 'pagination' => $pagination];
     }
-
 }

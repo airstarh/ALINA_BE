@@ -3,12 +3,10 @@
 namespace alina;
 
 use alina\traits\Msg;
-use alina\Utils\Arr;
-use alina\Utils\Data;
 
 class MessageAdmin
 {
     use Msg;
-    const MSG_KEY = 'ALINA_MESSAGES_ADMIN';
-    static public $MESSAGE_GET_KEY = 'alinamsgadm';
+    public const MSG_KEY           = 'ALINA_MESSAGES_ADMIN';
+    public static $MESSAGE_GET_KEY = 'alinamsgadm';
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace alina;
+
 //ToDO: Completely rewrite,
 use alina\Utils\Arr;
 use alina\Utils\Str;
@@ -11,13 +12,13 @@ class AppCookie
     #region Init
     protected static $past      = ALINA_COOKIE_PAST;
     protected static $justAdded = [];
-    protected        $name;
-    protected        $value     = '';
-    protected        $expire;
-    protected        $path      = '/';
-    protected        $domain    = NULL;
-    protected        $secure    = TRUE;
-    protected        $httponly  = FALSE;
+    protected $name;
+    protected $value = '';
+    protected $expire;
+    protected $path     = '/';
+    protected $domain   = null;
+    protected $secure   = true;
+    protected $httponly = false;
 
     protected function __construct()
     {
@@ -43,7 +44,8 @@ class AppCookie
     {
         if (PHP_VERSION_ID < 70300) {
             return setcookie($name, $value, $expire, "$path; samesite=None", $domain, $secure, $httponly);
-        } else {
+        }
+        else {
             return setcookie($name, $value, [
                 'expires'  => $expire,
                 'path'     => $path,
@@ -55,17 +57,18 @@ class AppCookie
         }
     }
 
-    static public function set($name, $value, $expire = NULL, $path = '/', $domain = NULL, $secure = TRUE, $httponly = FALSE)
+    public static function set($name, $value, $expire = null, $path = '/', $domain = null, $secure = true, $httponly = false)
     {
-        $_this           = new static;
+        $_this           = new static();
         $_this->name     = $name;
         $_this->value    = $value;
-        $_this->expire   = (!empty($expire)) ? $expire : $_this->expire;
+        $_this->expire   = (! empty($expire)) ? $expire : $_this->expire;
         $_this->path     = $path;
         $_this->domain   = $domain;
         $_this->secure   = $secure;
         $_this->httponly = $httponly;
         $apply           = $_this->apply();
+
         if ($apply) {
             if ($_this->expire > ALINA_TIME) {
                 Arr::setArrayValue($name, $value, $_COOKIE);
@@ -75,7 +78,7 @@ class AppCookie
         return $apply;
     }
 
-    static public function setPath($stringPath, $value, $expire = NULL, $delimiter = '/', $path = '/', $domain = NULL, $secure = FALSE, $httponly = FALSE)
+    public static function setPath($stringPath, $value, $expire = null, $delimiter = '/', $path = '/', $domain = null, $secure = false, $httponly = false)
     {
         $name = static::buildNameByPath($stringPath, $delimiter);
 
@@ -84,33 +87,37 @@ class AppCookie
     #endregion SET
     ##################################################
     #region GET
-    static public function get($stringPath, $delimiter = '/')
+    public static function get($stringPath, $delimiter = '/')
     {
         return Arr::getArrayValue($stringPath, $_COOKIE, $delimiter);
     }
     #endregion GET
     ##################################################
     #region Delete
-    static public function deletePath($stringPath, $delimiter = '/')
+    public static function deletePath($stringPath, $delimiter = '/')
     {
         $cookieFamilyName = static::buildNameByPath($stringPath, $delimiter);
         // Look into Just Added paths.
         foreach (static::$justAdded as $cookieFullName) {
             if (Str::startsWith($cookieFullName, $cookieFamilyName)) {
                 $apply = static::delete($cookieFullName);
+
                 if ($apply) {
                     Arr::unsetArrayPath($stringPath, $_COOKIE, $delimiter);
                 }
             }
         }
+
         // Look into earlier set cookies.
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
             foreach ($cookies as $cPair) {
                 $cNameValue     = explode('=', $cPair);
                 $cookieFullName = trim($cNameValue[0]);
+
                 if (Str::startsWith($cookieFullName, $cookieFamilyName)) {
                     $apply = static::delete($cookieFullName);
+
                     if ($apply) {
                         Arr::unsetArrayPath($stringPath, $_COOKIE, $delimiter);
                     }
@@ -119,9 +126,10 @@ class AppCookie
         }
     }
 
-    static public function delete($name)
+    public static function delete($name)
     {
-        $apply = static::set($name, NULL, static::$past);
+        $apply = static::set($name, null, static::$past);
+
         if ($apply) {
             unset($_COOKIE[$name]);
         }
@@ -142,6 +150,7 @@ class AppCookie
             $this->secure,
             $this->httponly
         );
+
         if ($this->expire > ALINA_TIME) {
             static::$justAdded[] = $this->name;
         }
@@ -149,19 +158,20 @@ class AppCookie
         return $process;
     }
 
-    static protected function buildNameByPath($stringPath, $delimiter = '/')
+    protected static function buildNameByPath($stringPath, $delimiter = '/')
     {
         // Prepare $name string.
         $pathArray = explode($delimiter, $stringPath);
         $name      = array_shift($pathArray);
-        if (!empty($pathArray)) {
+
+        if (! empty($pathArray)) {
             $name .= '[' . implode('][', $pathArray) . ']';
         }
 
         return $name;
     }
 
-    static public function exists($path, $delimiter = '/')
+    public static function exists($path, $delimiter = '/')
     {
         return Arr::arrayHasPath($path, $_COOKIE, $delimiter);
     }

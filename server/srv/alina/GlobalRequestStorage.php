@@ -10,7 +10,9 @@ class GlobalRequestStorage
     #region Singleton
     use Singleton;
 
-    protected function __construct() { }
+    protected function __construct()
+    {
+    }
     #endregion Singleton
     #region CRUD
     protected $memory = [
@@ -18,11 +20,11 @@ class GlobalRequestStorage
         'BaseModelQueries'       => 0,
         'modelMetaInfo'          => [],
         #####
-        'pageTitle'              => NULL,
-        'pageDescription'        => NULL,
-        'viewData'               => NULL,
-        'tagRelAlternateUrl'     => NULL,
-        'tagRelCanonicalUrl'     => NULL,
+        'pageTitle'          => null,
+        'pageDescription'    => null,
+        'viewData'           => null,
+        'tagRelAlternateUrl' => null,
+        'tagRelCanonicalUrl' => null,
         #####
         /**In sub-props*/
         /*
@@ -34,16 +36,17 @@ class GlobalRequestStorage
         #####
     ];
 
-    static public function set($prop, $val)
+    public static function set($prop, $val)
     {
         Arr::setArrayValue($prop, $val, static::obj()->memory);
 
         return $val;
     }
 
-    static public function setPlus1($prop)
+    public static function setPlus1($prop)
     {
         $count = static::get($prop);
+
         if (empty($count)) {
             $count = 0;
         }
@@ -53,16 +56,16 @@ class GlobalRequestStorage
         return $count;
     }
 
-    static public function get($prop)
+    public static function get($prop)
     {
         if (Arr::arrayHasPath($prop, static::obj()->memory)) {
             return Arr::getArrayValue($prop, static::obj()->memory);
         }
 
-        return NULL;
+        return null;
     }
 
-    static public function getAll()
+    public static function getAll()
     {
         return static::obj()->memory;
     }

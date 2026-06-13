@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Box API Service.
  *
@@ -29,7 +30,7 @@ class BoxService
     ##################################################
     #region FIELDS
     private array  $_appConfig;
-    private        $_accessToken;
+    private $_accessToken;
     private string $tokenDelimiter = '|||';
     private string $DIR_STATIC     = __DIR__ . '/static';
     private string $DIR_DYNAMIC    = __DIR__ . '/dynamic';
@@ -42,14 +43,14 @@ class BoxService
         $this->_accessToken = $this->getAppUserAccessTokenFromBoxApi();
     }
 
-    function getBoxApiConfig(): array
+    public function getBoxApiConfig(): array
     {
         return require __DIR__ . '/config-box-api.php';
     }
 
     ##############################
     #region TOKEN
-    function getAppUserAccessTokenFromBoxApi()
+    public function getAppUserAccessTokenFromBoxApi()
     {
         $boxApiConfig                           = $this->_appConfig; //$this->getBoxApiConfig();
         $boxApiConfig['claims']['sub']          = $boxApiConfig['claims']['sub_user'];
@@ -65,17 +66,20 @@ class BoxService
      * StackOverFlow JWT discussion:
      * https://stackoverflow.com/a/45989059/6369072
      */
-    function retrieveAccessTokenFromBoxApi($boxApiConfig = [])
+    public function retrieveAccessTokenFromBoxApi($boxApiConfig = [])
     {
         error_log("retrieveAccessTokenFromBoxApi()", 0);
         //error_log("  config=".json_encode($boxApiConfig),0);
-        $boxCfg = (isset($boxApiConfig) && !empty($boxApiConfig))
+        $boxCfg = (isset($boxApiConfig) && ! empty($boxApiConfig))
             ? $boxApiConfig
             : $this->getBoxApiConfig();
         // If current token is valid, return current token.
         $currentToken = $this->currentTokenIsValid($boxCfg['access_token_storage']);
         error_log("  token=" . json_encode($currentToken), 0);
-        if ($currentToken) return $currentToken;
+
+        if ($currentToken) {
+            return $currentToken;
+        }
         ##############################
         #region Generate JWT
         $token = new Builder();
@@ -88,7 +92,7 @@ class BoxService
         $token
             ->setIssuer($boxCfg['claims']['iss'])// Configures the issuer (iss claim)
             ->setAudience($boxCfg['claims']['aud'])// Configures the audience (aud claim)
-            ->setId($boxCfg['claims']['jti'], TRUE)// Configures the id (jti claim), replicating as a header item
+            ->setId($boxCfg['claims']['jti'], true)// Configures the id (jti claim), replicating as a header item
             ->setExpiration($boxCfg['claims']['exp'])// Configures the expiration time of the token (exp claim)
             ->set('sub', $boxCfg['claims']['sub'])// Configures a new claim, called "uid"
             ->set('box_sub_type', $boxCfg['claims']['box_sub_type'])// Configures a new claim, called "uid"
@@ -119,17 +123,19 @@ class BoxService
         #region Send request to Box API
         $response = $this->urlRequest($url, $request);
         $response = json_decode($response);
-        if (isset($response->error) && !empty($response->error)) {
+
+        if (isset($response->error) && ! empty($response->error)) {
             error_log("  box login error {$response->error_description}", 0);
+
             throw new Exception("BoxAPI Error: " . $response->error_description);
         }
-        $access_token = (isset($response->access_token) && !empty($response->access_token))
+        $access_token = (isset($response->access_token) && ! empty($response->access_token))
             ? $response->access_token
             : 'Not Defined';
-        $expiresIn    = (isset($response->expires_in) && !empty($response->expires_in))
+        $expiresIn = (isset($response->expires_in) && ! empty($response->expires_in))
             ? $response->expires_in
             : 0;
-        $expiresAt    = $expiresIn + time();
+        $expiresAt = $expiresIn + time();
         // Write current token to file
         file_put_contents($boxCfg['access_token_storage'], $access_token);
         file_put_contents($boxCfg['access_token_storage'], $this->tokenDelimiter, FILE_APPEND);
@@ -141,40 +147,44 @@ class BoxService
         return $access_token;
     }
 
-    function currentTokenIsValid($tokenStorage)
+    public function currentTokenIsValid($tokenStorage)
     {
         // Get expired-at time
         $tokenString = file_get_contents($tokenStorage);
         $tokenArray  = explode($this->tokenDelimiter, $tokenString);
+
         //error_log("  token=".json_encode($tokenArray),0);
-        if (!isset($tokenArray[1]) || empty($tokenArray[1])) return FALSE;
+        if (! isset($tokenArray[1]) || empty($tokenArray[1])) {
+            return false;
+        }
         $expiresAt = $tokenArray[1];
         // Define validity
         $time = time();
+
         //error_log("  check expire={$expiresAt} now={$time}",0);
         if ($expiresAt <= ($time - 10)/*seconds**/) {
             //error_log("  expired",0);
-            return FALSE;
+            return false;
         }
 
         return $tokenArray[0]; // current access token
     }
 
-    function getAccessTokenHeader()
+    public function getAccessTokenHeader()
     {
         $accessToken = $this->_accessToken;
 
         return "Authorization: Bearer {$accessToken}";
     }
 
-    function getAccessTokenHeaderEnterprise()
+    public function getAccessTokenHeaderEnterprise()
     {
         $accessToken = $this->getAccessTokenEnterprise();
 
         return "Authorization: Bearer {$accessToken}";
     }
 
-    function getAccessTokenEnterprise()
+    public function getAccessTokenEnterprise()
     {
         $boxCfg      = $this->_appConfig; //$this->getBoxApiConfig();
         $tokenString = file_get_contents($boxCfg['access_token_storage_enterprise']);
@@ -183,7 +193,7 @@ class BoxService
         return $tokenArray[0];
     }
 
-    function getEnterpriseAccessTokenFromBoxApi()
+    public function getEnterpriseAccessTokenFromBoxApi()
     {
         $boxApiConfig                           = $this->_appConfig;  //$this->getBoxApiConfig();
         $boxApiConfig['claims']['sub']          = $boxApiConfig['claims']['sub_enterprise'];
@@ -197,18 +207,20 @@ class BoxService
     #endregion INIT
     ##################################################
     #region REQUEST
-    function urlRequest($url, $post = [], $headers = [])
+    public function urlRequest($url, $post = [], $headers = [])
     {
         $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
         // POST
-        if (!empty($post)) {
+        if (! empty($post)) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         }
+
         // Set Headers
-        if (!empty($headers)) {
+        if (! empty($headers)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
         $response = curl_exec($ch);
@@ -220,13 +232,13 @@ class BoxService
     #endregion REQUEST
     ##################################################
     #region USER MANAGEMENT
-    function createAppUser()
+    public function createAppUser()
     {
         $this->getEnterpriseAccessTokenFromBoxApi();
-        $url      = 'https://api.box.com/2.0/users';
-        $user     = [
+        $url  = 'https://api.box.com/2.0/users';
+        $user = [
             'name'                    => 'arena_' . time(),
-            'is_platform_access_only' => TRUE,
+            'is_platform_access_only' => true,
         ];
         $user     = json_encode($user);
         $response = $this->urlRequest($url, $user, [$this->getAccessTokenHeaderEnterprise()]);
@@ -237,26 +249,26 @@ class BoxService
     #endregion USER MANAGEMENT
     ##################################################
     #region FOLDERS/FILES
-    function getBoxFolderObject($boxFolderId = NULL)
+    public function getBoxFolderObject($boxFolderId = null)
     {
         /*
          *
          * curl https://api.box.com/2.0/folders/FOLDER_ID \
          * -H "Authorization: Bearer ACCESS_TOKEN"
          */
-        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
+        $boxFolderId = $boxFolderId === null ? $this->_appConfig['folder_id'] : $boxFolderId;
         $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
         $response    = $this->urlRequest($url, [], [$this->getAccessTokenHeader()]);
 
         return $response;
     }
 
-    function getFileSha1($path)
+    public function getFileSha1($path)
     {
         return sha1_file($path);
     }
 
-    function uploadFileToBox($path, $boxFolderId = NULL)
+    public function uploadFileToBox($path, $boxFolderId = null)
     {
         error_log('uploadFileToBox path=' . $path, 0);
         /*
@@ -266,9 +278,12 @@ class BoxService
          * -F attributes='{"name":"tigers.jpeg", "parent":{"id":"11446498"}}' \
          * -F file=@myfile.jpg
          */
-        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
+        $boxFolderId = $boxFolderId === null ? $this->_appConfig['folder_id'] : $boxFolderId;
         $realPath    = realpath($path);
-        if (!file_exists($realPath)) throw new Exception('No original file on server.');
+
+        if (! file_exists($realPath)) {
+            throw new Exception('No original file on server.');
+        }
         // Preparations
         $fileName = time() . '-' . basename($realPath);
         $fileSha1 = $this->getFileSha1($realPath);
@@ -302,39 +317,47 @@ class BoxService
      * @return string
      * @throws Exception
      */
-    function retrieveBoxPreviewUrl(object $fileObj, string $boxFolderId = NULL): string
+    public function retrieveBoxPreviewUrl(object $fileObj, string $boxFolderId = null): string
     {
         // @file api/boxApi/access-token-storage
         //$this->getAppUserAccessTokenFromBoxApi();
-        $boxFolderId = $boxFolderId === NULL ? $this->_appConfig['folder_id'] : $boxFolderId;
+        $boxFolderId = $boxFolderId === null ? $this->_appConfig['folder_id'] : $boxFolderId;
         // ToDo: It is possible to set a default 'Preview unavailable' URL;
         $embedLink             = '';
-        $flagEmbedLinkReceived = FALSE;
-        if (isset($fileObj->box_id) && !empty($fileObj->box_id)) {
+        $flagEmbedLinkReceived = false;
+
+        if (isset($fileObj->box_id) && ! empty($fileObj->box_id)) {
             $boxFileId = $fileObj->box_id;
             $response  = $this->getBoxEmbedUrl($boxFileId);
             $response  = json_decode($response);
-            if (isset($response->expiring_embed_link->url) && !empty($response->expiring_embed_link->url)) {
-                $flagEmbedLinkReceived = TRUE;
+
+            if (isset($response->expiring_embed_link->url) && ! empty($response->expiring_embed_link->url)) {
+                $flagEmbedLinkReceived = true;
                 $embedLink             = $response->expiring_embed_link->url;
             }
         }
+
         //error_log(" link received? {$flagEmbedLinkReceived} link={$embedLink}", 0);
         // When there is no file in Box storage
-        if (!$flagEmbedLinkReceived) {
+        if (! $flagEmbedLinkReceived) {
             $path = $fileObj->fullPath;
             $file = $this->uploadFileToBox($path, $boxFolderId);
             $file = json_decode($file);
-            if (!isset($file->entries[0]) || empty($file->entries[0]))
+
+            if (! isset($file->entries[0]) || empty($file->entries[0])) {
                 throw new Exception('File preview failed.');
+            }
             $file      = $file->entries[0];
             $boxFileId = $file->id;
             $response  = $this->getBoxEmbedUrl($boxFileId);
             $response  = json_decode($response);
-            if (!isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url))
+
+            if (! isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url)) {
                 throw new Exception('File preview failed.');
+            }
             $embedLink = $response->expiring_embed_link->url;
-            if (isset($fileObj->file_id) && !empty($fileObj->file_id) && function_exists('dboUpdateByTableName')) {
+
+            if (isset($fileObj->file_id) && ! empty($fileObj->file_id) && function_exists('dboUpdateByTableName')) {
                 dboUpdateByTableName(
                     'file',
                     ['box_id' => $boxFileId],
@@ -347,7 +370,7 @@ class BoxService
         return $embedLink;
     }
 
-    function getBoxEmbedUrl($boxFileId)
+    public function getBoxEmbedUrl($boxFileId)
     {
         /*
          *
@@ -367,4 +390,3 @@ class BoxService
     #endregion FOLDERS/FILES
     ##################################################
 }
-

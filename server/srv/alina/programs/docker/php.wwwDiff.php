@@ -3,10 +3,11 @@
 /**
  * Self-deploy
  * php /srv/alina/programs/deploy/index.php
- * 
+ *
  */
 
 use alina\Utils\FS;
+
 require_once __DIR__ . '/../../AppBoot.php';
 
 $projectList = [

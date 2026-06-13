@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Box API Service 2023.
  *
@@ -49,7 +50,7 @@ class BoxService2023
         // so it is handy to define here
         $authenticationUrl = 'https://api.box.com/oauth2/token';
         $claims            = [
-            'iss'          => $config->boxAppSettings->clientID,
+            'iss' => $config->boxAppSettings->clientID,
             #########
             'sub'          => $config->enterpriseID,
             'box_sub_type' => 'enterprise',
@@ -58,14 +59,14 @@ class BoxService2023
             // 'sub'          => '271874469',
             // 'box_sub_type' => 'user',
             #########
-            'aud'          => $authenticationUrl,
+            'aud' => $authenticationUrl,
             // This is an identifier that helps protect against
             // replay attacks
-            'jti'          => base64_encode(random_bytes(64)),
+            'jti' => base64_encode(random_bytes(64)),
             // We give the assertion a lifetime of 45 seconds
             // before it expires
-            'exp'          => time() + 45,
-            'kid'          => $config->boxAppSettings->appAuth->publicKeyID,
+            'exp' => time() + 45,
+            'kid' => $config->boxAppSettings->appAuth->publicKeyID,
         ];
         // Rather than constructing the JWT assertion manually, we are
         // using the firebase/php-jwt library.
@@ -98,7 +99,7 @@ class BoxService2023
         return json_decode($response);
     }
 
-    static public function selfCheck(): array
+    public static function selfCheck(): array
     {
         $_this     = new static();
         $aFile     = __DIR__ . '/static/self-check.png';
@@ -160,11 +161,11 @@ class BoxService2023
             'aud'          => $authenticationUrl,
             // This is an identifier that helps protect against
             // replay attacks
-            'jti'          => base64_encode(random_bytes(64)),
+            'jti' => base64_encode(random_bytes(64)),
             // We give the assertion a lifetime of 45 seconds
             // before it expires
-            'exp'          => $tokenExpiresAfter,
-            'kid'          => $config->boxAppSettings->appAuth->publicKeyID,
+            'exp' => $tokenExpiresAfter,
+            'kid' => $config->boxAppSettings->appAuth->publicKeyID,
         ];
         // Rather than constructing the JWT assertion manually, we are
         // using the firebase/php-jwt library.
@@ -191,6 +192,7 @@ class BoxService2023
         #region STORE TOKEN
         file_put_contents($this->cfg->accessTokenFile, $token);
         file_put_contents($this->cfg->accessTokenExpiresTimeFile, $tokenExpiresAfter);
+
         #endregion STORE TOKEN
         #####
         return $token;
@@ -209,7 +211,7 @@ class BoxService2023
     #endregion REQUEST
     ##################################################
     #region FOLDERS/FILES
-    function getFileSha1($path)
+    public function getFileSha1($path)
     {
         return sha1_file($path);
     }
@@ -226,9 +228,9 @@ class BoxService2023
         return $res;
     }
 
-    function requestFolder($boxFolderId = NULL)
+    public function requestFolder($boxFolderId = null)
     {
-        $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
+        $boxFolderId = $boxFolderId === null ? $this->cfg->folderId : $boxFolderId;
         $url         = "https://api.box.com/2.0/folders/{$boxFolderId}";
         $http        = new HttpRequest($url);
         $http->addReqHeaders([$this->getTokenHeader()]);
@@ -266,12 +268,14 @@ class BoxService2023
      * Documentation:
      * https://developer.box.com/reference/get-search/#param-ancestor_folder_ids
      */
-    public function searchFileByName($name, $folderId = NULL)
+    public function searchFileByName($name, $folderId = null)
     {
-        if ($folderId === NULL) $folderId = $this->cfg->folderId;
-        $res  = NULL;
-        $url  = 'https://api.box.com/2.0/search';
-        $get  = [
+        if ($folderId === null) {
+            $folderId = $this->cfg->folderId;
+        }
+        $res = null;
+        $url = 'https://api.box.com/2.0/search';
+        $get = [
             'query'               => $name,
             'type'                => 'file',
             'ancestor_folder_ids' => "$folderId",
@@ -284,6 +288,7 @@ class BoxService2023
         $http->addReqGet($get);
         $http->addReqHeaders([$this->getTokenHeader()]);
         $file = $http->exe()->take('respBodyObject');
+
         #####
         if ($file) {
             if (property_exists($file, 'entries')) {
@@ -297,11 +302,14 @@ class BoxService2023
         return $res;
     }
 
-    function uploadFileToBox($path, $boxFolderId = NULL)
+    public function uploadFileToBox($path, $boxFolderId = null)
     {
-        $boxFolderId = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
+        $boxFolderId = $boxFolderId === null ? $this->cfg->folderId : $boxFolderId;
         $realPath    = realpath($path);
-        if (!file_exists($realPath)) throw new Exception('No original file on server.');
+
+        if (! file_exists($realPath)) {
+            throw new Exception('No original file on server.');
+        }
         #####
         # Prepare. Generate File Name.
         $fileSha1 = $this->getFileSha1($realPath);
@@ -310,6 +318,7 @@ class BoxService2023
         #####
         #region FILE EXISTS in Box Disk.
         $f = $this->searchFileByName($fileName, $boxFolderId);
+
         if ($f) {
             return $f;
         }
@@ -334,7 +343,8 @@ class BoxService2023
         $http->addReqHeaders([$this->getTokenHeader()]);
         $http->setReqFields($post);
         $response = $http->exe()->take('respBodyObject');
-        if (!$http->flagRespSuccess()) {
+
+        if (! $http->flagRespSuccess()) {
             throw new Exception(json_encode($response));
         }
 
@@ -348,36 +358,44 @@ class BoxService2023
      * @return string
      * @throws Exception
      */
-    function requestPreview(object $fileObj, string $boxFolderId = NULL): string
+    public function requestPreview(object $fileObj, string $boxFolderId = null): string
     {
-        $boxFolderId           = $boxFolderId === NULL ? $this->cfg->folderId : $boxFolderId;
+        $boxFolderId           = $boxFolderId === null ? $this->cfg->folderId : $boxFolderId;
         $embedLink             = '';
-        $flagEmbedLinkReceived = FALSE;
+        $flagEmbedLinkReceived = false;
+
         #####
         # When source file object has box_id.
-        if (isset($fileObj->box_id) && !empty($fileObj->box_id)) {
+        if (isset($fileObj->box_id) && ! empty($fileObj->box_id)) {
             $boxFileId = $fileObj->box_id;
             $response  = $this->requestBoxEmbedUrl($boxFileId);
             $response  = json_decode($response);
-            if (isset($response->expiring_embed_link->url) && !empty($response->expiring_embed_link->url)) {
-                $flagEmbedLinkReceived = TRUE;
+
+            if (isset($response->expiring_embed_link->url) && ! empty($response->expiring_embed_link->url)) {
+                $flagEmbedLinkReceived = true;
                 $embedLink             = $response->expiring_embed_link->url;
             }
         }
+
         #####
         # When there is no box_id in the source file object.
-        if (!$flagEmbedLinkReceived) {
+        if (! $flagEmbedLinkReceived) {
             $path = $fileObj->fullPath;
             $file = $this->uploadFileToBox($path, $boxFolderId);
-            if (!isset($file->entries[0]) || empty($file->entries[0]))
+
+            if (! isset($file->entries[0]) || empty($file->entries[0])) {
                 throw new Exception('File preview failed.');
+            }
             $file      = $file->entries[0];
             $boxFileId = $file->id;
             $response  = $this->requestBoxEmbedUrl($boxFileId);
-            if (!isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url))
+
+            if (! isset($response->expiring_embed_link->url) || empty($response->expiring_embed_link->url)) {
                 throw new Exception('File preview failed.');
+            }
             $embedLink = $response->expiring_embed_link->url;
-            if (isset($fileObj->file_id) && !empty($fileObj->file_id) && function_exists('dboUpdateByTableName')) {
+
+            if (isset($fileObj->file_id) && ! empty($fileObj->file_id) && function_exists('dboUpdateByTableName')) {
                 dboUpdateByTableName(
                     'file',
                     ['box_id' => $boxFileId],

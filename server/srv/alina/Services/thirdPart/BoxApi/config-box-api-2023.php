@@ -1,4 +1,5 @@
 <?php
+
 return (object)[
     ##################################################
     #region LOCAL DEFINITIONS
@@ -9,7 +10,7 @@ return (object)[
      * Get here (see URL path):
      * https://app.box.com/folder/0
      */
-    'folderId'                   => 0,
+    'folderId' => 0,
     #endregion LOCAL DEFINITIONS
     ##################################################
     #region AUTH
@@ -17,14 +18,14 @@ return (object)[
      * Documentation:
      * https://github.com/box-community/samples-docs-authenticate-with-jwt-api/blob/main/config.json.example
      */
-    'boxAppSettings'             => (object)[
+    'boxAppSettings' => (object)[
         /**
          * Get here:
          * https://app.box.com/master/custom-apps/configure/4853
          * or Get here:
          * https://app.box.com/developers/console/app/217558/configuration
          */
-        'clientID'     => 'yt193kvi5tm9jlmr6hpb4793wckn2qst',
+        'clientID' => 'yt193kvi5tm9jlmr6hpb4793wckn2qst',
         /**
          * Get here (search on page "secret" and copy from hidden input box):
          * https://app.box.com/developers/console/app/217558/configuration
@@ -43,11 +44,11 @@ return (object)[
              * Get here:
              * https://app.box.com/developers/console/app/217558/configuration
              */
-            'privateKey'  => file_get_contents(__DIR__ . '/static/private_key.pem'),
+            'privateKey' => file_get_contents(__DIR__ . '/static/private_key.pem'),
             /**
              * Get here: Box Developer Account password.
              */
-            'passphrase'  => 'qqqwwweee',
+            'passphrase' => 'qqqwwweee',
         ],
     ],
     /**
@@ -57,7 +58,7 @@ return (object)[
      * or Get here:
      * https://app.box.com/developers/console/app/217558
      */
-    'enterpriseID'               => '911269',
+    'enterpriseID' => '911269',
     #endregion AUTH
     ##################################################
 ];

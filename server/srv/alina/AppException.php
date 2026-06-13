@@ -2,4 +2,6 @@
 
 namespace alina;
 
-class AppException extends \ErrorException {}
+class AppException extends \ErrorException
+{
+}

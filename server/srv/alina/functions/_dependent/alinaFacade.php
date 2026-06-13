@@ -1,4 +1,5 @@
 <?php
+
 ##################################################
 use alina\App;
 use alina\GlobalRequestStorage;
@@ -46,7 +47,8 @@ function AlinaGetNowInDbFormat()
 {
     if (defined('ALINA_TIME')) {
         return date(ALINA_DT_FORMAT_DB, ALINA_TIME);
-    } else {
+    }
+    else {
         return date(ALINA_DT_FORMAT_DB);
     }
 }
@@ -54,6 +56,7 @@ function AlinaGetNowInDbFormat()
 function AlinaResponseSuccess($success = 1)
 {
     static $flagAlreadySet = 0;
+
     if ($success != 1 && $flagAlreadySet === 0) {
         Message::setDanger(___('Response is not success'));
         $flagAlreadySet = 1;
@@ -97,18 +100,15 @@ function AlinaAccessIfAdminOrModeratorOrOwner($owner_id)
 {
     return
         AlinaAccessIfOwner($owner_id)
-        ||
-        AlinaAccessIfAdmin()
-        ||
-        AlinaAccessIfModerator();
+        || AlinaAccessIfAdmin()
+        || AlinaAccessIfModerator();
 }
 
 function AlinaAccessIfAdminOrModerator()
 {
     return
         AlinaAccessIfAdmin()
-        ||
-        AlinaAccessIfModerator();
+        || AlinaAccessIfModerator();
 }
 
 #####
@@ -116,9 +116,11 @@ function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
 {
     AlinaResponseSuccess(0);
     Message::setDanger($message);
+
     if ($page) {
         Sys::redirect($page, $code);
-    } else {
+    }
+    else {
         Request::obj()->METHOD = 'GET';
         Alina()->mvcGo('Root', 'AccessDenied', [$code]);
     }
@@ -130,35 +132,35 @@ function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
  */
 function AlinaRejectIfNotLoggedIn($code = 302)
 {
-    if (!AlinaAccessIfLoggedIn()) {
+    if (! AlinaAccessIfLoggedIn()) {
         AlinaReject(AlinaCfg('frontend/login'), $code);
     }
 }
 
 function AlinaRejectIfNotAdmin()
 {
-    if (!AlinaAccessIfAdmin()) {
+    if (! AlinaAccessIfAdmin()) {
         AlinaReject(null, 403, ___('DENIED'));
     }
 }
 
 function AlinaRejectIfNotAdminOrModeratorOrOwner($id)
 {
-    if (!AlinaAccessIfAdminOrModeratorOrOwner($id)) {
+    if (! AlinaAccessIfAdminOrModeratorOrOwner($id)) {
         AlinaReject(null, 403, ___('DENIED'));
     }
 }
 
 function AlinaRejectIfNotAdminOrModerator()
 {
-    if (!AlinaAccessIfAdminOrModerator()) {
+    if (! AlinaAccessIfAdminOrModerator()) {
         AlinaReject(null, 403, ___('DENIED'));
     }
 }
 
 function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = false)
 {
-    if (!Request::obj()->AJAX) {
+    if (! Request::obj()->AJAX) {
         Sys::redirect($to, $code, $isToOrigin);
     }
 }
@@ -173,11 +175,13 @@ function Alina_file_exists($fileName, $caseSensitive = false)
     if (file_exists($fileName)) {
         return $fileName;
     }
-    if ($caseSensitive)
+
+    if ($caseSensitive) {
         return false;
+    }
     // Handle case insensitive requests
-    $directoryName = dirname($fileName);
-    $fileArray = glob($directoryName . '/*', GLOB_NOSORT);
+    $directoryName     = dirname($fileName);
+    $fileArray         = glob($directoryName . '/*', GLOB_NOSORT);
     $fileNameLowerCase = strtolower($fileName);
     foreach ($fileArray as $file) {
         if (strtolower($file) == $fileNameLowerCase) {
@@ -191,9 +195,9 @@ function Alina_file_exists($fileName, $caseSensitive = false)
 ##################################################
 function AlinaGetCurrentDomainUrl()
 {
-    $protocol = $_SERVER['REQUEST_SCHEME'] ?? 'CLI_REQUEST_SCHEME';
-    $domainName = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
-    $parts = [
+    $protocol   = $_SERVER['REQUEST_SCHEME'] ?? 'CLI_REQUEST_SCHEME';
+    $domainName = $_SERVER['HTTP_HOST']      ?? 'CLI_HTTP_HOST';
+    $parts      = [
         $protocol,
         '://',
         $domainName,
@@ -205,7 +209,7 @@ function AlinaGetCurrentDomainUrl()
 function AlinaDefineTagRelAlternateUrl()
 {
     $domain = AlinaGetCurrentDomainUrl();
-    $parts = [
+    $parts  = [
         $domain,
         AlinaCfg('frontend/path'),
         '/#/',
@@ -218,7 +222,7 @@ function AlinaDefineTagRelAlternateUrl()
 function AlinaDefineTagRelCanonicalUrl()
 {
     $domain = AlinaGetCurrentDomainUrl();
-    $parts = [
+    $parts  = [
         $domain,
         '/',
         Router::obj()->pathSys,
@@ -230,7 +234,7 @@ function AlinaDefineTagRelCanonicalUrl()
 function AlinaFePath($routeName)
 {
     $frontend = AlinaCfg('frontend');
-    $blocks = [];
+    $blocks   = [];
     $blocks[] = $frontend['path'];
     $blocks[] = $frontend[$routeName];
 
@@ -242,7 +246,8 @@ function ___($str, $loc = 'ru_RU')
 {
     try {
         return \alina\Services\AlinaTranslate::obj()->t($str, $loc);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
         return $str;
     }
 }

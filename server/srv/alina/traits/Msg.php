@@ -14,8 +14,8 @@ trait Msg
      * @property array
      * Contains array of \alina\message objects
      **/
-    static protected $collection    = [];
-    static public    $statusClasses = [
+    protected static $collection = [];
+    public static $statusClasses = [
         0 => 'alert alert-success',
         1 => 'alert alert-info',
         2 => 'alert alert-warning',
@@ -26,7 +26,7 @@ trait Msg
     /**
      * @param $text
      * @param array $params
-     * @param integer $status
+     * @param int $status
      * @return static
      * @see https://getbootstrap.com/docs/4.0/components/alerts/
      * alert alert-primary
@@ -39,16 +39,16 @@ trait Msg
      * alert alert-dark
      *
      */
-    static protected function set($text, $params = [], $status = 1)
+    protected static function set($text, $params = [], $status = 1)
     {
-        if (!is_string($text)) {
+        if (! is_string($text)) {
             $text = var_export($text, 1);
         }
-        $_this                 = new static;
+        $_this                 = new static();
         $_this->templateString = $text;
         $_this->params         = $params;
         $_this->status         = $status;
-        $_this->isShown        = FALSE;
+        $_this->isShown        = false;
         $_this->addToCollection();
 
         return $_this;
@@ -56,28 +56,28 @@ trait Msg
 
     ###############
     #region Set
-    static public function setSuccess($text, $params = [])
+    public static function setSuccess($text, $params = [])
     {
         $status = 0;
 
         return static::set($text, $params, $status);
     }
 
-    static public function setInfo($text, $params = [])
+    public static function setInfo($text, $params = [])
     {
         $status = 1;
 
         return static::set($text, $params, $status);
     }
 
-    static public function setWarning($text, $params = [])
+    public static function setWarning($text, $params = [])
     {
         $status = 2;
 
         return static::set($text, $params, $status);
     }
 
-    static public function setDanger($text, $params = [])
+    public static function setDanger($text, $params = [])
     {
         $status = 3;
 
@@ -85,19 +85,20 @@ trait Msg
     }
     #rendegion Set
     ###############
-    static public function fromRequest()
+    public static function fromRequest()
     {
         if (isset(Request::obj()->GET->{static::$MESSAGE_GET_KEY})) {
             try {
                 $arr = Request::obj()->GET->{static::$MESSAGE_GET_KEY};
                 static::addFromArray(json_decode($arr));
-            } catch (\ErrorException $e) {
+            }
+            catch (\ErrorException $e) {
                 static::setDanger('Message delivery problem');
             }
         }
     }
 
-    static protected function addFromArray($arr)
+    protected static function addFromArray($arr)
     {
         foreach ($arr as $i => $msg) {
             static::set(
@@ -108,15 +109,15 @@ trait Msg
         }
     }
 
-    static public function returnAllHtmlString()
+    public static function returnAllHtmlString()
     {
         $collection = static::getCollection();
         $all        = '';
         /** @var Message $msg */
         foreach ($collection as $pseudoId => $msg) {
-            if (!$msg->isShown) {
-                $all          .= $msg->messageHtml();
-                $msg->isShown = TRUE;
+            if (! $msg->isShown) {
+                $all .= $msg->messageHtml();
+                $msg->isShown = true;
                 static::removeById($msg->id);
             }
         }
@@ -124,21 +125,21 @@ trait Msg
         return $all;
     }
 
-    static public function returnAllMessages()
+    public static function returnAllMessages()
     {
         $collection = static::getCollection();
         $all        = [];
         /** @var Message $message */
         foreach ($collection as $pseudoId => $message) {
-            if (!$message->isShown) {
-                $all[]            = [
+            if (! $message->isShown) {
+                $all[] = [
                     'text'           => $message->messageRawText(),
                     'status'         => $message->status,
                     'id'             => $message->id,
                     'params'         => $message->params,
                     'templateString' => $message->templateString,
                 ];
-                $message->isShown = TRUE;
+                $message->isShown = true;
                 static::removeById($message->id);
             }
         }
@@ -147,26 +148,27 @@ trait Msg
         return $all;
     }
 
-    static protected function getCollection()
+    protected static function getCollection()
     {
         return static::$collection;
     }
 
-    static public function removeAll()
+    public static function removeAll()
     {
         static::$collection = [];
     }
 
-    static public function removeById($id)
+    public static function removeById($id)
     {
         static::$collection = static::getCollection();
+
         if (array_key_exists($id, static::$collection)) {
             unset(static::$collection[$id]);
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
     #endregion Facade (Collection)
     ##################################################
@@ -178,13 +180,14 @@ trait Msg
     public $params         = [];
     public $messageRawText = '';
     public $status         = 0;
-    public $isShown        = FALSE;
+    public $isShown        = false;
 
     protected function addToCollection()
     {
         static::$collection   = static::getCollection();
         static::$collection[] = $this;
-        if (!isset($this->id) || empty($this->id)) {
+
+        if (! isset($this->id) || empty($this->id)) {
             $this->id = Arr::lastArrayKey(static::$collection);
         }
     }
@@ -194,9 +197,11 @@ trait Msg
         if (Data::isIterable($this->templateString)) {
             $this->templateString = Data::hlpGetBeautifulJsonString($this->templateString);
         }
+
         try {
             $this->messageRawText = vsprintf($this->templateString, $this->params);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->messageRawText = '';
             $this->messageRawText .= PHP_EOL;
             $this->messageRawText .= '>>>';

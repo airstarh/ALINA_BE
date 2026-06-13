@@ -10,7 +10,7 @@ class AlinaTranslate
     use Singleton;
 
     public voc $voc;
-    public     $dict;
+    public $dict;
 
     public function __construct()
     {
@@ -20,11 +20,17 @@ class AlinaTranslate
 
     public function t($str, $loc = 'ru_RU')
     {
-        if (empty($str)) return null;
-        if (!empty($this->dict[$str]->{$loc})) return $this->dict[$str]->{$loc};
+        if (empty($str)) {
+            return null;
+        }
+
+        if (! empty($this->dict[$str]->{$loc})) {
+            return $this->dict[$str]->{$loc};
+        }
         $this->voc->upsertByUniqueFields([
             'from' => $str,
         ], [['from']]);
+
         return $str;
     }
 }

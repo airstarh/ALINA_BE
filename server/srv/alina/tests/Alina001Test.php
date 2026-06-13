@@ -4,7 +4,7 @@
  * DO NOT FORGET ADD phpUnit to %PATH%!!!
  * cd F:\_REPO\ALINA\_backend\alina
  * phpunit unitTests/testFunctions.php
- * 
+ *
  * vendor/bin/phpunit --version
  * vendor/bin/phpunit ./tests/Alina001Test.php
  */

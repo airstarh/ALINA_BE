@@ -1,4 +1,5 @@
 <?php
+
 /**
  * According the official documentation,
  * @link https://github.com/illuminate/database
@@ -8,38 +9,39 @@
 
 namespace alina\vendorExtend\illuminate;
 
-use \Illuminate\Container\Container;
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
-use \Illuminate\Events\Dispatcher;
+use Illuminate\Events\Dispatcher;
 
 class alinaLaravelCapsuleLoader
 {
-
-    static protected $objIlluminate = NULL;
+    protected static $objIlluminate = null;
 
     /**
      * Initiates PHP Illuminate Database toolkit.
      * @return Manager|false
      */
-    static public function init()
+    public static function init()
     {
         $res = false;
 
         if (isset(static::$objIlluminate) && is_object(static::$objIlluminate)) {
             $res = true;
+
             return static::$objIlluminate;
         }
 
         try {
             $config = AlinaCfg('db');
-            if (!is_array($config)) {
+
+            if (! is_array($config)) {
                 $config = AlinaCfgDefault('db');
             }
 
-            $capsule = new Manager;
+            $capsule = new Manager();
             $capsule->addConnection($config);
 
-            $capsule->setEventDispatcher(new Dispatcher(new Container));
+            $capsule->setEventDispatcher(new Dispatcher(new Container()));
 
             $capsule->setAsGlobal();
             $capsule->bootEloquent();
@@ -48,14 +50,17 @@ class alinaLaravelCapsuleLoader
                 $result = $capsule->connection()->getPdo()->query('SELECT 1')->fetch();
 
                 if ($result) {
-                    $res = true;
+                    $res                   = true;
                     static::$objIlluminate = $capsule;
+
                     return static::$objIlluminate;
                 }
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
                 $res = false;
             }
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $res = false;
         }
         exit('No db');

@@ -37,10 +37,10 @@ class Watcher
     #endregion Singleton
     ##################################################
     #region Watch
-    protected        $mIP;
-    protected        $mBROWSER;
-    protected        $mURL_PATH;
-    protected        $mVISIT;
+    protected $mIP;
+    protected $mBROWSER;
+    protected $mURL_PATH;
+    protected $mVISIT;
     protected static $state_VISIT_LOGGED = false;
 
     public function logVisitsToDb()
@@ -49,7 +49,7 @@ class Watcher
         #####
         //ToDo: better Store Procedure
         if (AlinaCfg('logVisitsToDb')) {
-            if (!static::$state_VISIT_LOGGED) {
+            if (! static::$state_VISIT_LOGGED) {
                 #####
                 $this->mBROWSER->upsertByUniqueFields([
                     'user_agent' => Request::obj()->BROWSER,
@@ -74,11 +74,12 @@ class Watcher
     #region Firewall
     protected function firewallByRequestsAmount()
     {
-        if (!Request::isPostPutDelete()) {
+        if (! Request::isPostPutDelete()) {
             return;
         }
         $maxPer10secs = AlinaCfg('watcher/maxPer10secs');
         $per10secs    = $this->countRequestsPerSeconds(10, $maxPer10secs);
+
         if ($per10secs > $maxPer10secs) {
             $this->banVisit();
             $msg = 'Are you trying to DDOS me?';
@@ -89,7 +90,7 @@ class Watcher
 
     protected function firewallByBannedIp()
     {
-        if (!Request::isPostPutDelete()) {
+        if (! Request::isPostPutDelete()) {
             return;
         }
         $m   = new watch_banned_ip();
@@ -100,6 +101,7 @@ class Watcher
             ])
             ->first()
         ;
+
         if ($res) {
             $msg = 'Your IP is banned';
             AlinaReject(false, 403, $msg);
@@ -109,7 +111,7 @@ class Watcher
 
     protected function firewallByBannedBrowser()
     {
-        if (!Request::isPostPutDelete()) {
+        if (! Request::isPostPutDelete()) {
             return;
         }
         $m   = new watch_banned_browser();
@@ -120,6 +122,7 @@ class Watcher
             ])
             ->first()
         ;
+
         if ($res) {
             $msg = 'Your browser is banned';
             AlinaReject(false, 403, $msg);
@@ -129,7 +132,7 @@ class Watcher
 
     protected function firewallByBannedVisit()
     {
-        if (!Request::isPostPutDelete()) {
+        if (! Request::isPostPutDelete()) {
             return;
         }
         $mBannedVisits = new watch_banned_visit();
@@ -141,6 +144,7 @@ class Watcher
             ])
             ->first()
         ;
+
         if ($res) {
             $msg = 'You are completely banned';
             AlinaReject(false, 403, $msg);
@@ -153,20 +157,15 @@ class Watcher
         if (
             (
                 Request::has('alinafool', $alinafool)
-                &&
-                $alinafool == 1
+                && $alinafool == 1
             )
-            ||
-            empty(Request::obj()->DOMAIN)
-            ||
-            empty(Request::obj()->BROWSER)
-            ||
-            (Request::isPostPutDelete()
-                &&
-                (
-                    !isset(Request::obj()->POST->form_id)
-                    ||
-                    empty(Request::obj()->POST->form_id)
+            || empty(Request::obj()->DOMAIN)
+            || empty(Request::obj()->BROWSER)
+            || (
+                Request::isPostPutDelete()
+                && (
+                    ! isset(Request::obj()->POST->form_id)
+                    || empty(Request::obj()->POST->form_id)
                 )
             )
         ) {
@@ -186,6 +185,7 @@ class Watcher
                     AlinaReject(null, 403);
                     exit;
                 }
+
                 if ($fgp !== Request::obj()->BROWSER) {
                     $orig = Request::obj()->BROWSER;
                     //Message::setDanger(Request::obj()->BROWSER);
@@ -245,6 +245,7 @@ class Watcher
         if (empty($ip)) {
             $ip = Request::obj()->IP;
         }
+
         if (empty($browser_enc)) {
             $browser_enc = Request::obj()->BROWSER_enc;
         }

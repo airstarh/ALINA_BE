@@ -2,18 +2,12 @@
 
 namespace alina;
 
-use alina\Router;
-use alina\Message;
-use alina\Watcher;
-use alina\Utils\FS;
-use alina\Utils\Arr;
-use alina\Utils\Sys;
-use alina\Utils\Url;
-use alina\MessageAdmin;
-use alina\Utils\Request;
-use alina\AppExceptionCatcher;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\router_alias;
+use alina\Utils\Arr;
+use alina\Utils\Request;
+use alina\Utils\Sys;
+use alina\Utils\Url;
 
 class App
 {
@@ -41,7 +35,6 @@ class App
         Message::fromRequest();
         MessageAdmin::fromRequest();
         #####
-
     }
 
     protected function autoload($config)
@@ -54,6 +47,7 @@ class App
         //spl_autoload_register(function(){});
         spl_autoload_register(function ($class) use ($config) {
             $extension = '.php';
+
             // For Application
             if (isset($config['appNamespace'])) {
                 $appNamespace = $config['appNamespace'];
@@ -63,10 +57,11 @@ class App
                 $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
                 $classFile    = $className . $extension;
                 $classPath    = ALINA_PATH_TO_APP . DIRECTORY_SEPARATOR . $classFile;
-                if (FALSE !== ($res = Alina_file_exists($classPath))) {
+
+                if (false !== ($res = Alina_file_exists($classPath))) {
                     require_once $res;
 
-                    return NULL;
+                    return null;
                 }
             }
             // For Alina
@@ -77,16 +72,17 @@ class App
             $className    = str_replace('\\', DIRECTORY_SEPARATOR, $className);
             $classFile    = $className . $extension;
             $classPath    = ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . $classFile;
-            if (FALSE !== ($res = Alina_file_exists($classPath))) {
+
+            if (false !== ($res = Alina_file_exists($classPath))) {
                 require_once $res;
 
-                return NULL;
+                return null;
             }
 
-            return NULL;
+            return null;
         });
 
-        return NULL;
+        return null;
     }
 
     protected $config        = [];
@@ -104,17 +100,17 @@ class App
     }
     #endregion Initiation
     #region Instantiation
-    
+
     /** @var static $instance */
-    static protected $instance = NULL;
+    protected static $instance = null;
 
     /**
      * @return static
      * @throws \Exception
      */
-    static public function get()
+    public static function get()
     {
-        if (!isset(static::$instance) || !is_a(static::$instance, get_class())) {
+        if (! isset(static::$instance) || ! is_a(static::$instance, get_class())) {
             throw new \Exception("Alina App is not set");
         }
 
@@ -126,7 +122,7 @@ class App
      * @return App
      * @throws \Exception
      */
-    static public function set($config)
+    public static function set($config)
     {
         if (isset(static::$instance) && is_a(static::$instance, get_class())) {
             return static::$instance;
@@ -137,7 +133,7 @@ class App
     }
     #endregion Instantiation
     #region Config manipulations
-    static public function getConfig($path)
+    public static function getConfig($path)
     {
         $_this = static::get();
         $cfg   = $_this->config;
@@ -145,7 +141,7 @@ class App
         return Arr::getArrayValue($path, $cfg);
     }
 
-    static public function getConfigDefault($path)
+    public static function getConfigDefault($path)
     {
         $_this = static::get();
         $cfg   = $_this->configDefault;
@@ -170,7 +166,7 @@ class App
             }
         }
 
-        return FALSE;
+        return false;
     }
     #endregion Namespace Resolver
     #region Paths Resolver
@@ -178,29 +174,35 @@ class App
     {
         // -Check if Path exists in User Application directory.
         $fullPath = \alina\Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
-        if (FALSE !== ($rp = realpath($fullPath))) {
+
+        if (false !== ($rp = realpath($fullPath))) {
             return $rp;
         }
+
         #####
-        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
+        if (false !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
             return $rp;
         }
         #####
         #####
         // -Check if Path exists in Alina directory.
         $fullPath = \alina\Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
-        if (FALSE !== ($rp = realpath($fullPath))) {
+
+        if (false !== ($rp = realpath($fullPath))) {
             return $rp;
         }
-        if (FALSE !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
+
+        if (false !== ($rp = realpath(DIRECTORY_SEPARATOR . $fullPath))) {
             return $rp;
         }
+
         #####
         #####
         // -Check if Path exists as is.
-        if (FALSE !== ($rp = realpath($path))) {
+        if (false !== ($rp = realpath($path))) {
             return $rp;
         }
+
         throw new \ErrorException("Path {$path} is not defined.");
     }
     #endregion Paths Resolver
@@ -215,6 +217,7 @@ class App
         $bdVoc                     = (new router_alias())->getAsVoc();
         $this->router->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
         $this->router->processUrl();
+
         ##################################################
         #region Redirect
         /*
@@ -222,7 +225,8 @@ class App
          */
         if (AlinaCfg('forceSysPathToAlias')) {
             if ($this->router->pathAlias == $this->router->pathSys) {
-                $this->router->forcedAlias = \alina\Utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, FALSE);
+                $this->router->forcedAlias = \alina\Utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, false);
+
                 if ($this->router->forcedAlias != $this->router->pathSys) {
                     $uri = [
                         'path'  => $this->router->forcedAlias,
@@ -247,18 +251,20 @@ class App
     public $currentController   = '';
     public $currentAction       = '';
     public $currentActionParams = [];
-    const ACTION_PREFIX = 'action';
+    public const ACTION_PREFIX  = 'action';
 
     public function mvcControllerAction($controllerName, $action, $params = [])
     {
-        if (!class_exists($controllerName, TRUE)) {
+        if (! class_exists($controllerName, true)) {
             throw new \alina\AppException("No Class: $controllerName");
         }
         $go = new $controllerName();
-        if (FALSE === ($action = $this->resolveMethodName($go, $action))) {
+
+        if (false === ($action = $this->resolveMethodName($go, $action))) {
             throw new \alina\AppException("No Method: $action");
         }
-        if (!is_array($params)) {
+
+        if (! is_array($params)) {
             $params = [$params];
         }
         $this->currentController   = get_class($go);
@@ -273,20 +279,24 @@ class App
         return static::ACTION_PREFIX . ucfirst($name);
     }
 
-    public function mvcGo($controller = NULL, $action = NULL, $params = NULL)
+    public function mvcGo($controller = null, $action = null, $params = null)
     {
         $this->controller   = (isset($controller)) ? $controller : $this->router->controller;
         $this->action       = (isset($action)) ? $action : $this->router->action;
         $this->actionParams = (isset($params)) ? $params : $this->router->pathParameter;
+
         if (empty($this->controller) && empty($this->action)) {
             return $this->mvcDefaultPage();
         }
+
         if (empty($this->controller)) {
             return $this->mvcPageNotFound();
         }
+
         if (empty($this->action)) {
             $this->action = static::getConfigDefault('mvc/defaultAction');
         }
+
         // Defined by route in user app.
         try {
             $namespace      = static::getConfig('appNamespace');
@@ -297,7 +307,8 @@ class App
             $params         = $this->actionParams;
 
             return $this->mvcControllerAction($controller, $action, $params);
-        } catch (\alina\AppException $e) {
+        }
+        catch (\alina\AppException $e) {
             // Defined by route in Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -308,7 +319,8 @@ class App
                 $params         = $this->actionParams;
 
                 return $this->mvcControllerAction($controller, $action, $params);
-            } catch (\alina\AppException $e) {
+            }
+            catch (\alina\AppException $e) {
                 return $this->mvcPageNotFound();
             }
         }
@@ -325,7 +337,8 @@ class App
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
 
             return $this->mvcControllerAction($controller, $action);
-        } catch (\alina\AppException $e) {
+        }
+        catch (\alina\AppException $e) {
             // Default page of Alina
             try {
                 $namespace      = static::getConfigDefault(['appNamespace']);
@@ -335,7 +348,8 @@ class App
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
 
                 return $this->mvcControllerAction($controller, $action);
-            } catch (\alina\AppException $e) {
+            }
+            catch (\alina\AppException $e) {
                 throw new \alina\AppException('No index page');
             }
         }
@@ -354,7 +368,8 @@ class App
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
 
             return $this->mvcControllerAction($controller, $action);
-        } catch (\alina\AppException $e) {
+        }
+        catch (\alina\AppException $e) {
             // 404 of Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
@@ -364,7 +379,8 @@ class App
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
 
                 return $this->mvcControllerAction($controller, $action);
-            } catch (\alina\AppException $e) {
+            }
+            catch (\alina\AppException $e) {
                 throw new \Exception('Alina Total Fail');
             }
         }

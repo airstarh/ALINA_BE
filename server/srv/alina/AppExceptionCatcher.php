@@ -25,19 +25,20 @@ class AppExceptionCatcher
     /**
      * @return static object
      */
-    static public function obj()
+    public static function obj()
     {
-        return new static;
+        return new static();
     }
 
     public function error($strErrLevelExpSeverity, $eString, $eFile, $eLine, $eContext = null)
     {
         //AlinaResponseSuccess(0);
-        if (!(error_reporting() & $strErrLevelExpSeverity)) {
+        if (! (error_reporting() & $strErrLevelExpSeverity)) {
             // This error code is not included in error_reporting
             return;
         }
-        throw new \ErrorException ($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
+
+        throw new \ErrorException($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
     }
 
     /**
@@ -64,25 +65,25 @@ class AppExceptionCatcher
         $this->eSeverity    = method_exists($objException, 'getSeverity')
             ? $objException->getSeverity()
             : $strUNKNOWN;
-        $this->eCode        = method_exists($objException, 'getCode')
+        $this->eCode = method_exists($objException, 'getCode')
             ? $objException->getCode()
             : $strUNKNOWN;
-        $this->eString      = method_exists($objException, 'getMessage')
+        $this->eString = method_exists($objException, 'getMessage')
             ? $objException->getMessage()
             : $strUNKNOWN;
-        $this->eFile        = method_exists($objException, 'getFile')
+        $this->eFile = method_exists($objException, 'getFile')
             ? $objException->getFile()
             : $strUNKNOWN;
-        $this->eLine        = method_exists($objException, 'getLine')
+        $this->eLine = method_exists($objException, 'getLine')
             ? $objException->getLine()
             : $strUNKNOWN;
-        $this->eTrace       = method_exists($objException, 'getTraceAsString')
+        $this->eTrace = method_exists($objException, 'getTraceAsString')
             ? $objException->getTraceAsString()
             : $strUNKNOWN;
 
         $this->processError();
 
-        if (isset($_REQUEST['route_plan_b']) && !empty($_REQUEST['route_plan_b'])) {
+        if (isset($_REQUEST['route_plan_b']) && ! empty($_REQUEST['route_plan_b'])) {
             $R   = (object)$_REQUEST;
             $url = $R->route_plan_b;
             Data::sanitizeOutputObj($R);
@@ -108,7 +109,7 @@ class AppExceptionCatcher
     protected function processError()
     {
         $eMsg = $this->strMessage();
-        
+
         #region PHP ERROR LOG
         error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
         error_log($eMsg, 0);
@@ -130,7 +131,8 @@ class AppExceptionCatcher
                         'error_line'     => $this->eLine,
                         'error_trace'    => $this->eTrace,
                     ]);
-                } catch (\Exception $e) {
+                }
+                catch (\Exception $e) {
                     error_log('Was unable to write Error to db!!!');
                     error_log($e->getMessage());
                 }
@@ -166,7 +168,8 @@ class AppExceptionCatcher
         foreach ($arrMessage as $k => $v) {
             if (in_array($k, ['TRACE........', 'TEXT.........'])) {
                 $strMessage .= "{$NL}{$k}:{$NL}{$v}{$NL}{$NL}";
-            } else {
+            }
+            else {
                 $strMessage .= "{$k}{$v}{$NL}";
             }
         }

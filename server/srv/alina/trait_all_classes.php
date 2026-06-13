@@ -6,9 +6,10 @@ trait trait_all_classes
 {
     #region Names Resolver
 
-    public function getShortClassName($subject) {
+    public function getShortClassName($subject)
+    {
         if (is_object($subject)) {
-            $subject = get_class ($subject);
+            $subject = get_class($subject);
         }
 
         return \alina\Utils\Resolver::shortClassName($subject);

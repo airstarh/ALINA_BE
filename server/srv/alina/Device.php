@@ -20,8 +20,8 @@ class Device
         $this->browser = Request::obj()->BROWSER;
     }
 
-    protected function getBrowserId() {
-
+    protected function getBrowserId()
+    {
     }
     #endregion Singleton
     ##################################################
