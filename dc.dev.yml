@@ -8,11 +8,9 @@ services:
       - "53306:3306"
 
   php-cs-fixer:
-    # CHANGED: Replaced the broken 'csutik' image with the stable, official production build
     image: ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.2
     container_name: alina_php_cs_fixer
     volumes:
-      # NOTE: Official image uses '/apps' as its internal base container working root directory
       - ./server/var/www/:/apps/server/var/www/:rw
       - ./server/srv/:/apps/server/srv/:rw
       - ./.php-cs-fixer.dist.php:/apps/.php-cs-fixer.dist.php:ro
@@ -21,5 +19,4 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-    # Force the local internal tool cache directly into the writable /tmp volume layer
-    command: fix --cache-file=/tmp/.php-cs-fixer.cache
+
