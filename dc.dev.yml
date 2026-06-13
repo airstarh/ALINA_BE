@@ -6,3 +6,17 @@ services:
   mysql:
     ports:
       - "53306:3306"
+
+  php-cs-fixer:
+    image: docker.io/friendsofphp/php-cs-fixer:3
+    container_name: alina_php_cs_fixer
+    volumes:
+      - ./server/var/www/:/app/server/var/www/:rw
+      - ./server/srv/:/app/server/srv/:rw
+      - ./.php-cs-fixer.dist.php:/app/.php-cs-fixer.dist.php:ro
+    working_dir: /app
+    command: --version  # заглушка, чтобы контейнер не падал
+    user: "${UID:-33}:${GID:-33}"  # сохраняет права на файлы
+    read_only: true
+    tmpfs:
+      - /tmp
