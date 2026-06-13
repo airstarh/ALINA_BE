@@ -64,7 +64,6 @@ class Auth
              */
             if ($LogIn) {
                 AlinaResponseSuccess(1);
-                $user = $CU->name();
                 (new watch_login())->delete([
                     'mail'        => $vd->mail,
                     'ip'          => Request::obj()->IP,

@@ -55,9 +55,9 @@ class Data
             // ToDo: Make less heavy
             return json_decode(json_encode($v), false);
         }
+
         if (is_string($v)) {
-            $res = json_decode($v);
-            if (json_last_error() == JSON_ERROR_NONE) {
+            if (static::isStringValidJson($v, $res)) {
                 return $res;
             }
         }
