@@ -26,7 +26,7 @@ return (new PhpCsFixer\Config())
         ],
         'blank_line_after_opening_tag' => true,
         'single_blank_line_at_eof' => true,
-        'no_extra_blank_lines' => true,
+        'no_extra_blank_lines' => false,
         'static_lambda' => true,
         'control_structure_continuation_position' => [
             'position' => 'next_line',
@@ -37,9 +37,10 @@ return (new PhpCsFixer\Config())
             'position_after_anonymous_constructs' => 'next',
         ],
         'visibility_required' => ['elements' => ['property', 'method', 'const']],
-        'no_blank_lines_after_phpdoc' => false,
-        'phpdoc_trim' => true,
-        'phpdoc_trim_consecutive_blank_line_separation' => true,
+        'statement_indentation' => true,
+        'method_argument_space' => [
+            'on_multiline' => 'ensure_fully_multiline',
+        ],
     ])
     ->setFinder($finder)
     ->setUsingCache(true);
