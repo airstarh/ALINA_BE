@@ -139,7 +139,7 @@ class Data
                 /**
                  * If a string
                  */ #
-                 else {
+                else {
                     if (
                         $v === $strFrom
                     ) {
