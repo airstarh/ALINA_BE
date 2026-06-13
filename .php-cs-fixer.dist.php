@@ -21,6 +21,7 @@ return (new PhpCsFixer\Config())
         'blank_line_before_statement' => true,
         'single_blank_line_at_eof' => true,
         'no_extra_blank_lines' => true,
+        'static_lambda' => true,
     ])
     ->setFinder($finder)
     ->setUsingCache(true);
