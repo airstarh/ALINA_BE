@@ -12,10 +12,10 @@ class HttpRequest
 {
     ##########################################
     #region Class Adjustments
-    private array $log             = [];
-    private int   $attemptMax      = 1;
-    private int   $attempt         = 0;
-    private array $methods         = [
+    private array $log        = [];
+    private int   $attemptMax = 1;
+    private int   $attempt    = 0;
+    private array $methods    = [
         'Method Name' => 'Does Method causes Mutation?',
         'GET'         => 0,
         'POST'        => 1,
@@ -40,7 +40,7 @@ class HttpRequest
     #endregion Class Adjustments
     ##########################################
     #region Request
-    private        $ch                = NULL;
+    private $ch                       = null;
     private string $reqUrl            = '';
     private string $reqMethod         = 'GET';
     private int    $flagMethodMutator = 0;
@@ -49,19 +49,19 @@ class HttpRequest
      */
     private array $reqGet = [];
     /**@var array|string */
-    private       $reqFields     = [];
+    private $reqFields           = [];
     private int   $flagFieldsRaw = 0;
     private array $reqHeaders    = [
         ###'Pragma' => 'no-cache',
     ];
-    private array $reqCookie     = [];
+    private array $reqCookie = [];
     #endregion Request
     ##########################################
     #region Response/Results
     public array    $curlInfo                = [];
     private string  $resUrl                  = '';
     private string  $respBody                = '';
-    private ?object $respBodyObject          = NULL;
+    private ?object $respBodyObject          = null;
     private int     $httpCode                = 0;
     private int     $respErrno               = 0;
     private string  $respErr                 = '';
@@ -72,31 +72,53 @@ class HttpRequest
     ##########################################
     #region INIT
     public function __construct(
-        $uri = NULL,           //string
-        $method = NULL,        //string uppercase
-        $query = NULL,         //array
-        $fields = NULL,        //array|string
-        $headers = NULL,       //array ["Header-Name"=>"Header Value"]
-        $cookie = NULL,        //array ["Cookie-Name"=>"Cookie Value"]
-        $flagFieldsRaw = NULL, // 0|1
+        $uri = null,           //string
+        $method = null,        //string uppercase
+        $query = null,         //array
+        $fields = null,        //array|string
+        $headers = null,       //array ["Header-Name"=>"Header Value"]
+        $cookie = null,        //array ["Cookie-Name"=>"Cookie Value"]
+        $flagFieldsRaw = null, // 0|1
         $attemptMax = 1// int
-    )
-    {
-        if ($attemptMax !== NULL) $this->attemptMax = $attemptMax;
-        if ($flagFieldsRaw !== NULL) $this->flagFieldsRaw = $flagFieldsRaw;
-        if ($uri) $this->setReqUrl($uri);
-        if ($query) $this->addReqGet($query);
-        if ($method) $this->setReqMethod($method);
-        if ($fields) $this->setReqFields($fields);
-        if ($headers) $this->addReqHeaders($headers);
-        if ($cookie) $this->addReqCookie($cookie);
+    ) {
+        if ($attemptMax !== null) {
+            $this->attemptMax = $attemptMax;
+        }
+
+        if ($flagFieldsRaw !== null) {
+            $this->flagFieldsRaw = $flagFieldsRaw;
+        }
+
+        if ($uri) {
+            $this->setReqUrl($uri);
+        }
+
+        if ($query) {
+            $this->addReqGet($query);
+        }
+
+        if ($method) {
+            $this->setReqMethod($method);
+        }
+
+        if ($fields) {
+            $this->setReqFields($fields);
+        }
+
+        if ($headers) {
+            $this->addReqHeaders($headers);
+        }
+
+        if ($cookie) {
+            $this->addReqCookie($cookie);
+        }
 
         return $this;
     }
     #endregion INIT
     ##########################################
     #region SELF CHECK
-    static public function selfCheck(): array
+    public static function selfCheck(): array
     {
         $url  = 'http://www.example.com';
         $http = new static($url);
@@ -145,6 +167,7 @@ class HttpRequest
         $strGet = (isset($parsedUri['query'])) ? $parsedUri['query'] : '';
         parse_str($strGet, $arrGet);
         $this->setReqGet($arrGet);
+
         #endregion Extract and add Get
         ##############################
         return $this;
@@ -221,14 +244,18 @@ class HttpRequest
      * $this->reqFields:[]|string
      * @param mixed $mixed
      */
-    public function setReqFields($mixed, $method = 'POST', $flagFieldsRaw = NULL): HttpRequest
+    public function setReqFields($mixed, $method = 'POST', $flagFieldsRaw = null): HttpRequest
     {
         //#####
-        if (empty($mixed)) return $this;
+        if (empty($mixed)) {
+            return $this;
+        }
+
         //#####
-        if ($flagFieldsRaw !== NULL) {
+        if ($flagFieldsRaw !== null) {
             $this->setFlagFieldsRaw($flagFieldsRaw);
         }
+
         //#####
         if ($this->flagFieldsRaw) {
             $this->reqFields = $mixed;
@@ -236,7 +263,8 @@ class HttpRequest
         else {
             $this->reqFields = array_merge($this->reqFields, (array)$mixed);
         }
-        if (!empty($this->reqFields) && $this->reqMethod === 'GET') {
+
+        if (! empty($this->reqFields) && $this->reqMethod === 'GET') {
             $this->setReqMethod($method);
         }
 
@@ -271,39 +299,45 @@ class HttpRequest
             curl_setopt($this->ch, CURLOPT_TIMEOUT, $CURLOPT_TIMEOUT);
             curl_setopt($this->ch, CURLOPT_URL, $url);
             curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->reqMethod);
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, TRUE);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->ch, CURLOPT_MAXREDIRS, 11);
-            curl_setopt($this->ch, CURLOPT_HEADER, FALSE);
+            curl_setopt($this->ch, CURLOPT_HEADER, false);
             curl_setopt($this->ch, CURLOPT_HEADERFUNCTION, [$this, 'callback_CURLOPT_HEADERFUNCTION']);
+
             ##### POST PUT PATCH
-            if (!empty($fields)) {
+            if (! empty($fields)) {
                 if ($this->flagFieldsRaw) {
                     curl_setopt($this->ch, CURLOPT_HTTPHEADER, ['Content-Type: text/plain']);
                     //$this->addHeaders(['Content-Type' => 'text/plain',]);
                 }
                 curl_setopt($this->ch, CURLOPT_POSTFIELDS, $fields);
             }
+
             ##### HEADERS
-            if (!empty($headers)) {
+            if (! empty($headers)) {
                 curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
             }
+
             ##### COOKIE
-            if (!empty($cookie)) {
+            if (! empty($cookie)) {
                 curl_setopt($this->ch, CURLOPT_COOKIE, $cookie);
             }
             ##### EXECUTION
             $this->respBody = curl_exec($this->ch);
+
             try {
                 $this->respBodyObject = json_decode($this->respBody);
-            } catch (Exception $e) {
+            }
+            catch (Exception $e) {
                 $this->respBodyObject = (object)[];
             }
             $this->curlInfo = curl_getinfo($this->ch);
             $this->httpCode = (int)$this->curlInfo['http_code'];
             $errno          = curl_errno($this->ch);
+
             //if ($errno > 0 || !$this->flagRespSuccess()) {
             if ($errno > 0) {
                 $this->respErrno = $errno;
@@ -311,10 +345,12 @@ class HttpRequest
             }
             else {
                 $closeConnection();
+
                 break;
             }
             $closeConnection();
-        } while ($this->attempt < $this->attemptMax);
+        }
+        while ($this->attempt < $this->attemptMax);
 
         return $this;
     }
@@ -324,9 +360,9 @@ class HttpRequest
     #region Request Prepare Staff
     private function prepareUrlAndGet(): string
     {
-        $reqUrlClean  = $this->reqUrl;
-        $get          = http_build_query($this->reqGet);
-        $arr          = [
+        $reqUrlClean = $this->reqUrl;
+        $get         = http_build_query($this->reqGet);
+        $arr         = [
             $reqUrlClean,
             empty($get) ? '' : '?',
             $get,
@@ -362,7 +398,7 @@ class HttpRequest
             }
             else {
                 if (is_string($k)) {
-                    if (!empty($v)) {
+                    if (! empty($v)) {
                         $s = "$k: $v";
                     }
                     else {
@@ -370,7 +406,8 @@ class HttpRequest
                     }
                 }
             }
-            if (!empty($s)) {
+
+            if (! empty($s)) {
                 $res[] = $s;
             }
         } #end foreach
@@ -393,7 +430,7 @@ class HttpRequest
             }
             else {
                 if (is_string($k)) {
-                    if (!empty($v)) {
+                    if (! empty($v)) {
                         $s = "$k=$v";
                     }
                     else {
@@ -401,11 +438,13 @@ class HttpRequest
                     }
                 }
             }
-            if (!empty($s)) {
+
+            if (! empty($s)) {
                 $res[] = $s;
             }
         } #end foreach
-        if (!empty($res)) {
+
+        if (! empty($res)) {
             $res = implode('; ', $res);
         }
         else {
@@ -443,15 +482,17 @@ class HttpRequest
         $this->respHeaders[] = $str;
         $counter             = count($this->respHeaders);
         $a                   = explode(':', $str, 2);
+
         if (count($a) === 2) {
-            $n = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
-            $v = (!empty(trim($a[1]))) ? trim($a[1]) : 'UNDEFINED';
+            $n = (! empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
+            $v = (! empty(trim($a[1]))) ? trim($a[1]) : 'UNDEFINED';
         }
-        else if (count($a) === 1) {
+        elseif (count($a) === 1) {
             $n = "_header_$counter";
-            $v = (!empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
+            $v = (! empty(trim($a[0]))) ? trim($a[0]) : 'UNDEFINED';
         }
         $this->respHeadersStructurized[$this->amountLocationsVisited][$n] = $v;
+
         if (empty(trim($str))) {
             $this->amountLocationsVisited++;
         }
@@ -478,31 +519,39 @@ class HttpRequest
              */
             case 'attemptMax':
                 call_user_func($commonSetter, $this, $prop, ...$value);
+
                 break;
             case 'flagFieldsRaw':
                 call_user_func([$this, 'setFlagFieldsRaw'], ...$value);
+
                 break;
             case 'reqUrl':
                 call_user_func([$this, 'setReqUrl'], ...$value);
+
                 break;
             case 'reqMethod':
                 call_user_func([$this, 'setReqMethod'], ...$value);
+
                 break;
             case 'reqGet':
                 call_user_func([$this, 'addReqGet'], ...$value);
+
                 break;
             case 'reqFields':
                 call_user_func([$this, 'setReqFields'], ...$value);
+
                 break;
             case 'reqHeaders':
                 call_user_func([$this, 'addReqHeaders'], ...$value);
+
                 break;
             case 'reqCookie':
                 call_user_func([$this, 'addReqCookie'], ...$value);
+
                 break;
-            /**
-             * Block of Read-Only Properties or Properties are changed during the execution.
-             */
+                /**
+                 * Block of Read-Only Properties or Properties are changed during the execution.
+                 */
             case 'respErr':
             case 'respErrno':
             case 'ch':
@@ -527,7 +576,7 @@ class HttpRequest
     public function report(): array
     {
         return [
-            'REQUEST'  => [
+            'REQUEST' => [
                 'reqMethod'     => $this->reqMethod,
                 'reqUrl'        => $this->reqUrl,
                 'reqGet'        => $this->reqGet,

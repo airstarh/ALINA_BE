@@ -6,22 +6,24 @@ class Resolver
 {
     ##################################################
     #region OOP Class Names
-    static public function shortClassName($className)
+    public static function shortClassName($className)
     {
         $dirName = str_replace('\\', DIRECTORY_SEPARATOR, $className);
 
         return basename($dirName);
     }
 
-    static public function returnClassMethod($class, $method, $params = [])
+    public static function returnClassMethod($class, $method, $params = [])
     {
-        if (!class_exists($class, TRUE))
+        if (! class_exists($class, true)) {
             throw new \Exception("No Class: $class");
+        }
 
         $go = new $class();
 
-        if (!method_exists($go, $method))
+        if (! method_exists($go, $method)) {
             throw new \Exception("No Method: $method");
+        }
 
         return call_user_func_array([$go, $method], $params);
     }
@@ -29,14 +31,15 @@ class Resolver
     /**
      * @see buildPathFromBlocks
      */
-    static public function buildClassNameFromBlocks()
+    public static function buildClassNameFromBlocks()
     {
         $args   = func_get_args();
         $blocks = [];
         foreach ($args as $block) {
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
-            } else {
+            }
+            else {
                 $blocks[] = trim($block);
             }
         }

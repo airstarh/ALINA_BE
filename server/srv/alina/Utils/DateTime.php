@@ -78,8 +78,7 @@ class DateTime extends \DateTime
     {
         $date2 = new static($date2->format(ALINA_DT_FORMAT_DB));
 
-        return ($date2->isLastDayOfMonth() && $this->isLastDayOfMonth()) ||
-            $this->format('j') === $date2->format('j');
+        return ($date2->isLastDayOfMonth() && $this->isLastDayOfMonth()) || $this->format('j') === $date2->format('j');
     }
 
     /**
@@ -103,7 +102,8 @@ class DateTime extends \DateTime
     public function isDiffMonth($date2)
     {
         $date2 = $this->leapYearAdj($date2);
-        if (!$this->isSameDayOfMonth($date2)) {
+
+        if (! $this->isSameDayOfMonth($date2)) {
             return false;
         }
 
@@ -118,7 +118,8 @@ class DateTime extends \DateTime
     public function isDiffQuarter($date2)
     {
         $date2 = $this->leapYearAdj($date2);
-        if (!$this->isSameDayOfMonth($date2)) {
+
+        if (! $this->isSameDayOfMonth($date2)) {
             return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
@@ -134,7 +135,8 @@ class DateTime extends \DateTime
     public function isDiffHalfYear($date2)
     {
         $date2 = $this->leapYearAdj($date2);
-        if (!$this->isSameDayOfMonth($date2)) {
+
+        if (! $this->isSameDayOfMonth($date2)) {
             return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
@@ -150,7 +152,8 @@ class DateTime extends \DateTime
     public function isDiffYear($date2)
     {
         $date2 = $this->leapYearAdj($date2);
-        if (!$this->isSameDayOfMonth($date2)) {
+
+        if (! $this->isSameDayOfMonth($date2)) {
             return false;
         }
         $diffInMonths = $this->diffInMonths($date2);
@@ -167,9 +170,11 @@ class DateTime extends \DateTime
     {
         $dateDT      = new static($date->format(ALINA_DT_FORMAT_DB));
         $leapYearAdj = $dateDT->format('L') - $this->format('L');
+
         if ($leapYearAdj === 1) {
             $dateDT->add(new DateInterval("P1D"));
         }
+
         if ($leapYearAdj === -1) {
             $dateDT->sub(new DateInterval("P1D"));
         }
@@ -178,81 +183,90 @@ class DateTime extends \DateTime
     }
 
     ##################################################
-    static public function toHumanDate($v)
+    public static function toHumanDate($v)
     {
         return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB_D);
     }
 
-    static public function toHumanDateTime($v)
+    public static function toHumanDateTime($v)
     {
         return (new static())->setTimestamp((int)$v)->format(ALINA_DT_FORMAT_DB);
     }
 
-    static public function dateToUnixTime($date)
+    public static function dateToUnixTime($date)
     {
         $unixTimeStamp = strtotime($date);
+
         return $unixTimeStamp;
     }
 
-    static public function utToDateTimeStartOfDay(int $ut)
+    public static function utToDateTimeStartOfDay(int $ut)
     {
         $m = new static();
         $m->setTimestamp($ut);
         $m->setTime(0, 0);
         $res = $m->format(ALINA_DT_FORMAT_DB);
+
         return $res;
     }
 
-    static public function utToDateTimeEndOfDay(int $ut)
+    public static function utToDateTimeEndOfDay(int $ut)
     {
         $m = new static();
         $m->setTimestamp($ut);
         $m->setTime(23, 59);
         $res = $m->format(ALINA_DT_FORMAT_DB);
+
         return $res;
     }
 
-    static public function utToUtDayStart(int $ut)
+    public static function utToUtDayStart(int $ut)
     {
         $d   = static::utToDateTimeStartOfDay($ut);
         $res = static::dateToUnixTime($d);
+
         return $res;
     }
 
-    static public function utToUtDayEnd(int $ut)
+    public static function utToUtDayEnd(int $ut)
     {
         $d   = static::utToDateTimeEndOfDay($ut);
         $res = static::dateToUnixTime($d);
+
         return $res;
     }
 
-    static public function dateToHumanDayStart(string $date)
+    public static function dateToHumanDayStart(string $date)
     {
         $m = new static($date);
         $m->setTime(0, 0, 0);
         $res = $m->format(ALINA_DT_FORMAT_DB);
+
         return $res;
     }
 
-    static public function dateToHumanDayEnd(string $date)
+    public static function dateToHumanDayEnd(string $date)
     {
         $m = new static($date);
         $m->setTime(23, 59, 59);
         $res = $m->format(ALINA_DT_FORMAT_DB);
+
         return $res;
     }
 
-    static public function dateToUtDayStart(string $date)
+    public static function dateToUtDayStart(string $date)
     {
         $d  = static::dateToHumanDayStart($date);
         $ut = static::dateToUnixTime($d);
+
         return $ut;
     }
 
-    static public function dateToUtDayEnd(string $date)
+    public static function dateToUtDayEnd(string $date)
     {
         $d  = static::dateToHumanDayEnd($date);
         $ut = static::dateToUnixTime($d);
+
         return $ut;
     }
     ##################################################

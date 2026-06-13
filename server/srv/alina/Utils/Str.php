@@ -4,34 +4,35 @@ namespace alina\Utils;
 
 class Str
 {
-    static public function startsWith($haystack, $needle)
+    public static function startsWith($haystack, $needle)
     {
         $length = mb_strlen($needle);
 
         return (mb_substr($haystack, 0, $length) === (string)$needle);
     }
 
-    static public function endsWith($haystack, $needle)
+    public static function endsWith($haystack, $needle)
     {
         $length = mb_strlen($needle);
+
         if ($length == 0) {
-            return TRUE;
+            return true;
         }
 
         return (mb_substr($haystack, -$length) === (string)$needle);
     }
 
-    static public function ifContains($haystack, $needle)
+    public static function ifContains($haystack, $needle)
     {
-        return mb_stripos($haystack, $needle) !== FALSE;
+        return mb_stripos($haystack, $needle) !== false;
     }
 
-    static public function removeEnters($haystack, $needle = '')
+    public static function removeEnters($haystack, $needle = '')
     {
         return $string = str_replace(["\n", "\r"], $needle, $haystack);
     }
 
-    static public function lessThan($str, $number)
+    public static function lessThan($str, $number)
     {
         return mb_strlen($str) < $number;
     }

@@ -4,7 +4,7 @@ namespace alina\Utils;
 
 class Browser
 {
-    static public function hash($userAgent)
+    public static function hash($userAgent)
     {
         return md5($userAgent);
     }

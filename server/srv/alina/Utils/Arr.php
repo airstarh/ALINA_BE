@@ -1,11 +1,12 @@
 <?php
 
 namespace alina\Utils;
+
 class Arr
 {
     #region Getters & Setters
     #region Getters
-    static public function getArrayValue($path, array $array, $delimiter = '/')
+    public static function getArrayValue($path, array $array, $delimiter = '/')
     {
         if (is_array($path)) {
             return static::getArrayValueByArrayPath($path, $array);
@@ -14,7 +15,7 @@ class Arr
         return static::getArrayValueByStringPath($path, $array, $delimiter);
     }
 
-    static public function getArrayValueByArrayPath(array $path, array $array)
+    public static function getArrayValueByArrayPath(array $path, array $array)
     {
         $temp = &$array;
         foreach ($path as $section) {
@@ -29,7 +30,7 @@ class Arr
         return $temp;
     }
 
-    static public function getArrayValueByStringPath($path, array $array, $delimiter = '/')
+    public static function getArrayValueByStringPath($path, array $array, $delimiter = '/')
     {
         $path = explode($delimiter, $path);
 
@@ -38,7 +39,7 @@ class Arr
 
     #endregion Getters
     #region Setters
-    static public function setArrayValue($path, $value, array &$array, $delimiter = '/')
+    public static function setArrayValue($path, $value, array &$array, $delimiter = '/')
     {
         if (is_array($path)) {
             return static::setArrayValueByArrayPath($path, $value, $array);
@@ -47,7 +48,7 @@ class Arr
         return static::setArrayValueByStringPath($path, $value, $array, $delimiter);
     }
 
-    static public function setArrayValueByArrayPath(array $path, $value, array &$array)
+    public static function setArrayValueByArrayPath(array $path, $value, array &$array)
     {
         $temp = &$array;
         foreach ($path as $p) {
@@ -58,7 +59,7 @@ class Arr
         return true;
     }
 
-    static public function setArrayValueByStringPath($path, $value, array &$array, $delimiter = '/')
+    public static function setArrayValueByStringPath($path, $value, array &$array, $delimiter = '/')
     {
         $path = explode($delimiter, $path);
 
@@ -67,7 +68,7 @@ class Arr
 
     #endregion Setters
     #region Path checker
-    static public function arrayHasPath($path, array $array, $delimiter = '/')
+    public static function arrayHasPath($path, array $array, $delimiter = '/')
     {
         if (is_array($path)) {
             return static::checkArrayPathByArray($path, $array);
@@ -77,7 +78,7 @@ class Arr
         }
     }
 
-    static public function checkArrayPathByArray(array $path, array $array, &$value = null)
+    public static function checkArrayPathByArray(array $path, array $array, &$value = null)
     {
         $temp = &$array;
         foreach ($path as $p) {
@@ -93,7 +94,7 @@ class Arr
         return true;
     }
 
-    static public function checkArrayPathByString($path, array $array, $delimiter = '/')
+    public static function checkArrayPathByString($path, array $array, $delimiter = '/')
     {
         $path = explode($delimiter, $path);
 
@@ -102,7 +103,7 @@ class Arr
 
     #endregion Path checker
     #region Unsetter
-    static public function unsetArrayPath($path, array &$array, $delimiter = '/')
+    public static function unsetArrayPath($path, array &$array, $delimiter = '/')
     {
         if (is_array($path)) {
             return static::unsetArrayPathByArrayPath($path, $array);
@@ -111,7 +112,7 @@ class Arr
         return static::unsetArrayPathByStringPath($path, $array, $delimiter);
     }
 
-    static public function unsetArrayPathByArrayPath(array $path, array &$array)
+    public static function unsetArrayPathByArrayPath(array $path, array &$array)
     {
         $previousElement = null;
         $temp            = &$array;
@@ -119,6 +120,7 @@ class Arr
             $previousElement = &$temp;
             $temp            = &$temp[$p];
         }
+
         if ($previousElement !== null && isset($p)) {
             unset($previousElement[$p]);
         }
@@ -126,7 +128,7 @@ class Arr
         return $array;
     }
 
-    static public function unsetArrayPathByStringPath($path, array &$array, $delimiter = '/')
+    public static function unsetArrayPathByStringPath($path, array &$array, $delimiter = '/')
     {
         $path = explode($delimiter, $path);
 
@@ -135,7 +137,7 @@ class Arr
 
     #endregion Unsetter
     #endregion Getters & Setters
-    static public function firstArrayKey($array)
+    public static function firstArrayKey($array)
     {
         reset($array);
         [$key, $value] = each($array);
@@ -143,7 +145,7 @@ class Arr
         return $key;
     }
 
-    static public function firstArrayValue($array)
+    public static function firstArrayValue($array)
     {
         reset($array);
         [$key, $value] = each($array);
@@ -151,28 +153,28 @@ class Arr
         return $value;
     }
 
-    static public function lastArrayKey($array)
+    public static function lastArrayKey($array)
     {
         $arrayOfKeys = array_keys($array);
 
         return end($arrayOfKeys);
     }
 
-    static public function lastArrayValue($array)
+    public static function lastArrayValue($array)
     {
         return end($array);
     }
 
-    static public function arrayMergeRecursive(array $array1, array $array2)
+    public static function arrayMergeRecursive(array $array1, array $array2)
     {
         $merged = $array1;
         foreach ($array2 as $key => &$value) {
-            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && !is_numeric($key)) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && ! is_numeric($key)) {
                 $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);
             }
             else {
                 if (is_numeric($key)) {
-                    if (!in_array($value, $merged)) {
+                    if (! in_array($value, $merged)) {
                         $merged[] = $value;
                     }
                 }

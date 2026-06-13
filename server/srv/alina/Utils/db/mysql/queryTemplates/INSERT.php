@@ -2,12 +2,16 @@
 INSERT INTO `<?= $data->tableName ?>`
 (
 <?php $arr = [] ?>
-<?php array_walk($data->arrColumnsWithoutPk, function ($v, $k) use (&$arr) { $arr[$k] = "`{$v}`"; }); ?>
+<?php array_walk($data->arrColumnsWithoutPk, static function ($v, $k) use (&$arr) {
+    $arr[$k] = "`{$v}`";
+}); ?>
 <?= implode(", \n", $arr) ?>
 
 ) VALUES (
 <?php $arr = [] ?>
-<?php array_walk($data->arrColumnsWithoutPk, function ($v, $k) use (&$arr) { $arr[$k] = ":{$v}"; }) ?>
+<?php array_walk($data->arrColumnsWithoutPk, static function ($v, $k) use (&$arr) {
+    $arr[$k] = ":{$v}";
+}) ?>
 <?= implode(", \n", $arr) ?>
 
 );

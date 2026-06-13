@@ -1,4 +1,5 @@
 <?php
+
 namespace alina\Utils;
 
 use alina\GlobalRequestStorage;
@@ -10,23 +11,25 @@ use alina\Utils\Data as DataAlias;
 class Sys
 {
     ##################################################
-    private static array $flagStarted = [];
+    private static array $flagStarted  = [];
     private static array $counterCalls = [];
-    public static int $countSome1 = 0;
-    public static int $countSome2 = 0;
-    public static int $countSome3 = 0;
+    public static int $countSome1      = 0;
+    public static int $countSome2      = 0;
+    public static int $countSome3      = 0;
 
-    static protected function initLogFilePath(?string $fPath = null, $transform = null)
+    protected static function initLogFilePath(?string $fPath = null, $transform = null)
     {
         $fPath = $fPath ?? ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
 
         switch ($transform) {
             case 'php':
                 $fPath = $fPath . '.php';
+
                 break;
 
             case 'json':
                 $fPath = $fPath . '.yaml';
+
                 break;
             default:
                 break;
@@ -40,7 +43,6 @@ class Sys
 
     protected static function fPath(?string $fPath = null)
     {
-
         if ($fPath) {
             static::$fPath = $fPath;
         }
@@ -52,15 +54,15 @@ class Sys
         return static::$fPath;
     }
 
-    static public function fDebug($data, $isLog = false, $fPath = null, ?string $transform = null): bool
+    public static function fDebug($data, $isLog = false, $fPath = null, ?string $transform = null): bool
     {
         try {
-            $fPath = static::initLogFilePath($fPath, $transform);
+            $fPath  = static::initLogFilePath($fPath, $transform);
             $prefix = [];
 
             ###############################
             # region FLAGS, COUNTERs, etc.
-            static::$flagStarted[$fPath] = static::$flagStarted[$fPath] ?? false;
+            static::$flagStarted[$fPath]  = static::$flagStarted[$fPath] ?? false;
             static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath])
                 ? ++static::$counterCalls[$fPath]
                 : 1;
@@ -76,7 +78,7 @@ class Sys
                     #region TEMPLATE
 
                     ob_start();
-                    ob_implicit_flush(FALSE);
+                    ob_implicit_flush(false);
                     echo PHP_EOL;
                     echo '<?php';
                     echo PHP_EOL;
@@ -100,6 +102,7 @@ class Sys
 
                 case 'json':
                     $output = Data::hlpGetBeautifulJsonString($data);
+
                     break;
                 case 'flat':
                     //ToDO:
@@ -110,7 +113,7 @@ class Sys
                     ##################################################
                     #region TEMPLATE
                     ob_start();
-                    ob_implicit_flush(FALSE);
+                    ob_implicit_flush(false);
                     echo PHP_EOL;
                     echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
                     echo PHP_EOL;
@@ -143,11 +146,10 @@ class Sys
                 }
 
                 if ($isLog) {
-
                     $method = static::getReqMethod();
-                    $ip = static::getUserIp();
-                    $from = $_SERVER['HTTP_REFERER'] ?? $ip;
-                    $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
+                    $ip     = static::getUserIp();
+                    $from   = $_SERVER['HTTP_REFERER']    ?? $ip;
+                    $agent  = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
 
                     $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? getcwd();
                     $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI';
@@ -171,8 +173,7 @@ class Sys
             }
 
             if ($isLog) {
-
-                $date = static::getNow();
+                $date   = static::getNow();
                 $memory = static::getMemoryUsed() . ' bytes';
 
                 $prefix = array_merge($prefix, [
@@ -207,8 +208,8 @@ class Sys
             ###############################
 
             return true;
-
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             return false;
         }
     }
@@ -249,6 +250,7 @@ class Sys
 
         $res = DataAlias::toObject($post);
         Data::itrCastToHealth($res);
+
         return $res;
     }
 
@@ -262,24 +264,24 @@ class Sys
 
     public static function isAjax()
     {
-
-        if (isset($_GET['isAjax']) && !empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
+        if (isset($_GET['isAjax']) && ! empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
             return true;
         }
 
-        if (isset($_POST['isAjax']) && !empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
+        if (isset($_POST['isAjax']) && ! empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
             return true;
         }
 
         // Cross Domain AJAX request.
-        if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
+        if (isset($_SERVER['HTTP_HOST']) && ! empty($_SERVER['HTTP_HOST'])) {
             $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
-            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+
+            if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
                 $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
+
                 if ($o !== $h) {
                     return true;
                 }
-
             }
 
             // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
@@ -294,8 +296,7 @@ class Sys
             // }
         }
 
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
 
             //     return TRUE;
@@ -307,10 +308,9 @@ class Sys
             ) {
                 return true;
             }
-
         }
 
-        if (isset($_SERVER['HTTP_REQUESTED_WITH']) && !empty($_SERVER['HTTP_REQUESTED_WITH'])) {
+        if (isset($_SERVER['HTTP_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_REQUESTED_WITH'])) {
             return true;
         }
 
@@ -332,26 +332,26 @@ class Sys
         //ToDo: PROD! Security!
         #####
         $allowedHeaders = [
-            'Accept-Encoding' => '',
-            'Accept-Language' => '',
+            'Accept-Encoding'                => '',
+            'Accept-Language'                => '',
             'Access-Control-Request-Headers' => '',
-            'Access-Control-Request-Method' => '',
-            'Connection' => '',
-            'Host' => '',
-            'Origin' => '',
-            'Referer' => '',
-            'User-Agent' => '',
-            'Cache-Control' => '',
-            'Access-Control-Allow-Origin' => '',
+            'Access-Control-Request-Method'  => '',
+            'Connection'                     => '',
+            'Host'                           => '',
+            'Origin'                         => '',
+            'Referer'                        => '',
+            'User-Agent'                     => '',
+            'Cache-Control'                  => '',
+            'Access-Control-Allow-Origin'    => '',
             #####
-            'Accept' => '',
+            'Accept'           => '',
             'X-Requested-With' => '',
-            'Content-Type' => '',
-            'Vary' => '',
+            'Content-Type'     => '',
+            'Vary'             => '',
             #####
-            'fgp' => '',
-            'Alina-Server-Header' => '',
-            CurrentUser::KEY_USER_ID => '',
+            'fgp'                       => '',
+            'Alina-Server-Header'       => '',
+            CurrentUser::KEY_USER_ID    => '',
             CurrentUser::KEY_USER_TOKEN => '',
         ];
         $allowedHeaders = array_keys($allowedHeaders);
@@ -381,7 +381,7 @@ class Sys
         #region Fix for Chrome Back button
 
         #####
-        if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
                     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -401,7 +401,6 @@ class Sys
                     ##################################################
                     break;
             }
-
         }
 
         $state_ALREADY_SET = true;
@@ -411,7 +410,6 @@ class Sys
 
     public static function redirect($page, $code = 307, $isToOrigin = false)
     {
-
         if (
             \alina\Utils\Str::startsWith($page, 'http://')
             || \alina\Utils\Str::startsWith($page, 'https://')
@@ -426,14 +424,15 @@ class Sys
         if (
             $isToOrigin
             && isset($_SERVER['HTTP_REFERER'])
-            && !empty($_SERVER['HTTP_REFERER'])
+            && ! empty($_SERVER['HTTP_REFERER'])
         ) {
-            $url = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
+            $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
                 trim($url, '/'),
                 ltrim($page, '/'),
             ]);
-        } else {
+        }
+        else {
             $page = \alina\Utils\Html::ref($page);
         }
 
@@ -452,11 +451,10 @@ class Sys
                 $get->{MessageAdmin::$MESSAGE_GET_KEY}
                     = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
             }
-
         }
 
         #####
-        if (!empty($get)) {
+        if (! empty($get)) {
             $page = \alina\Utils\Url::addGetFromObject($page, $get);
         }
 
@@ -517,7 +515,6 @@ class Sys
                 parse_str(current(explode(';', $value, 1)), $pair);
                 $cookies = array_merge_recursive($cookies, $pair);
             }
-
         }
 
         if (isset($name)) {
@@ -560,13 +557,13 @@ class Sys
     public static function getUserIp()
     {
         // Проверяем X-Forwarded-For (может содержать цепочку IP)
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ips = array_map('trim', explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
             // Берём первый IP — это и есть клиент
             $ip = $ips[0];
         }
         // Или X-Real-IP
-        elseif (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+        elseif (! empty($_SERVER['HTTP_X_REAL_IP'])) {
             $ip = $_SERVER['HTTP_X_REAL_IP'];
         }
         // Или REMOTE_ADDR (по умолчанию, если нет прокси)
@@ -603,33 +600,34 @@ class Sys
     {
         return [
             'REQUEST' => Request::obj()->TOTAL_DEBUG_DATA(),
-            'ROUTER' => Alina()->router,
-            'META' => GlobalRequestStorage::getAll(),
+            'ROUTER'  => Alina()->router,
+            'META'    => GlobalRequestStorage::getAll(),
         ];
     }
 
     ##################################################
 
-    static public function dump($data, $depth = 5)
+    public static function dump($data, $depth = 5)
     {
         try {
             var_export($data, 0);
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             static::print_limited_r($data, $depth);
         }
     }
 
-    static public function getNow()
+    public static function getNow()
     {
         return date('Y-m-d H:i:s');
     }
 
-    static public function getMemoryUsed()
+    public static function getMemoryUsed()
     {
         return number_format(memory_get_usage(), 0, '.', ' ');
     }
 
-    static public function getCallStack(?array $backtrace = null): array
+    public static function getCallStack(?array $backtrace = null): array
     {
         if ($backtrace === null) {
             $backtrace = debug_backtrace();
@@ -638,18 +636,19 @@ class Sys
         $stack = [];
         foreach ($backtrace as $trace) {
             $functionName = '';
-            $functionName .= $trace['class'] ?? '';
-            $functionName .= $trace['type'] ?? '';
+            $functionName .= $trace['class']    ?? '';
+            $functionName .= $trace['type']     ?? '';
             $functionName .= $trace['function'] ?? '';
 
             $stack[] = $functionName;
         }
+
         // $stack['$_GET'] = $_GET;
         // $stack['$_POST'] = $_POST;
         return $stack;
     }
 
-    static public function print_limited_r($object, $depth = 5)
+    public static function print_limited_r($object, $depth = 5)
     {
         if ($depth == 0) {
             return ''; // Stop the recursion

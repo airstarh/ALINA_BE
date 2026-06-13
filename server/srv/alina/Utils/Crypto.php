@@ -6,7 +6,7 @@ class Crypto
 {
     protected function getKey()
     {
-        $k              = [
+        $k = [
             Request::obj()->IP,
             Request::obj()->BROWSER,
         ];
@@ -41,6 +41,7 @@ class Crypto
         $ciphertext_raw = substr($c, $ivlen + $sha2len);
         $plaintext      = openssl_decrypt($ciphertext_raw, $cipher, $ENCRYPTION_KEY, $options = OPENSSL_RAW_DATA, $iv);
         $calcmac        = hash_hmac('sha256', $ciphertext_raw, $ENCRYPTION_KEY, $as_binary = true);
+
         if (hash_equals($hmac, $calcmac)) {
             return $plaintext;
         }

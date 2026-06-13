@@ -12,14 +12,14 @@ SELECT
     , PRIVILEGES
 FROM information_schema.COLUMNS
 WHERE 1
-<?php if (property_exists($data, 'db') && !empty($data->db)) { ?>
+<?php if (property_exists($data, 'db') && ! empty($data->db)) { ?>
     AND TABLE_SCHEMA = '<?= $data->db  ?>'
 <?php } ?>
-<?php if (property_exists($data, 'tableName') && !empty($data->tableName)) { ?>
+<?php if (property_exists($data, 'tableName') && ! empty($data->tableName)) { ?>
     AND
         TABLE_NAME = '<?= $data->tableName  ?>'
 <?php } ?>
-<?php if (property_exists($data, 'col') && !empty($data->col)) { ?>
+<?php if (property_exists($data, 'col') && ! empty($data->col)) { ?>
     AND
         COLUMN_NAME = '<?= $data->col  ?>'
 <?php } ?>

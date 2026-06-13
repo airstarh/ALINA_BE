@@ -2,7 +2,6 @@
 
 namespace alina\Utils\db\mysql;
 
-use alina\App;
 use Exception;
 use PDO;
 
@@ -14,8 +13,8 @@ class DbManager
     #region Connector
     protected $pdo;
     protected $arrTransaction       = [];
-    protected $isInTransaction      = FALSE;
-    protected $flagForceTransaction = FALSE;
+    protected $isInTransaction      = false;
+    protected $flagForceTransaction = false;
     #region CREDENTIALS
     protected $host = '127.0.0.1';
     protected $user = 'root';
@@ -27,7 +26,7 @@ class DbManager
     /**
      * Mostly unnecessary.
      */
-    public function setCredentials(\stdClass $creds = NULL)
+    public function setCredentials(\stdClass $creds = null)
     {
         $creds      = (object)$creds;
         $this->host = @$creds->alina_form_db_host ?: AlinaCfg('db/host');
@@ -39,15 +38,16 @@ class DbManager
         return $this;
     }
 
-    protected function connect($forceNew = FALSE)
+    protected function connect($forceNew = false)
     {
         if ($this->isInTransaction) {
             return $this;
         }
+
         if ($forceNew
-            || !isset($this->pdo)
+            || ! isset($this->pdo)
             || empty($this->pdo)
-            || !($this->pdo instanceof PDO)
+            || ! ($this->pdo instanceof PDO)
         ) {
             $this->pdo = new PDO("mysql:dbname={$this->db};host={$this->host};port={$this->port}", $this->user, $this->pass, [PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8']);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -62,11 +62,12 @@ class DbManager
     {
         $this->connect();
         $this->arrTransaction[] = $strTransactionHumanName;
+
         if ($this->isInTransaction) {
             return $this;
         }
         $this->pdo->beginTransaction();
-        $this->isInTransaction = TRUE;
+        $this->isInTransaction = true;
 
         return $this;
     }
@@ -75,13 +76,15 @@ class DbManager
     {
         try {
             array_pop($this->arrTransaction);
+
             if (count($this->arrTransaction) > 0) {
                 return $this;
             }
 
             $this->pdo->commit();
-            $this->isInTransaction = FALSE;
-        } catch (Exception $e) {
+            $this->isInTransaction = false;
+        }
+        catch (Exception $e) {
             $this->TransactionRollBack($e);
         }
 
@@ -91,6 +94,7 @@ class DbManager
     protected function TransactionRollBack($e)
     {
         $this->pdo->rollBack();
+
         throw $e;
     }
 
@@ -98,16 +102,18 @@ class DbManager
 
     #region Queries
     #region Generic Execution
-    protected function qExecGetStatement($sql, $arrParams = NULL, $arrTypes = NULL)
+    protected function qExecGetStatement($sql, $arrParams = null, $arrTypes = null)
     {
         $this->connect();
         $pdo  = $this->pdo;
         $stmt = $pdo->prepare($sql);
+
         if (isset($arrParams)) {
             foreach ($arrParams as $key => $value) {
                 if ($arrTypes && is_array($arrTypes) && array_key_exists($key, $arrTypes)) {
                     $stmt->bindValue($key, $value, $arrTypes[$key]);
-                } else {
+                }
+                else {
                     $stmt->bindValue($key, $value);
                 }
             }
@@ -117,13 +123,14 @@ class DbManager
         return $stmt;
     }
 
-    public function qExecGetAffectedRows($sql, $arrParams = NULL, $arrTypes = NULL)
+    public function qExecGetAffectedRows($sql, $arrParams = null, $arrTypes = null)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
         }
         $stmt = $this->qExecGetStatement($sql, $arrParams, $arrTypes);
         $rows = $stmt->rowCount();
+
         if ($this->flagForceTransaction) {
             $this->TransactionCommit();
         }
@@ -131,13 +138,14 @@ class DbManager
         return $rows;
     }
 
-    public function qExecFetchAll($sql, $arrParams = NULL, $arrTypes = NULL)
+    public function qExecFetchAll($sql, $arrParams = null, $arrTypes = null)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
         }
         $stmt = $this->qExecGetStatement($sql, $arrParams, $arrTypes);
         $data = $stmt->fetchAll(PDO::FETCH_OBJ);
+
         if ($this->flagForceTransaction) {
             $this->TransactionCommit();
         }
@@ -145,13 +153,14 @@ class DbManager
         return $data;
     }
 
-    public function qExecFetchColumn($column, $sql, $arrParams = NULL, $arrTypes = NULL)
+    public function qExecFetchColumn($column, $sql, $arrParams = null, $arrTypes = null)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
         }
         $stmt = $this->qExecGetStatement($sql, $arrParams, $arrTypes);
         $data = $stmt->fetchColumn($column);
+
         if ($this->flagForceTransaction) {
             $this->TransactionCommit();
         }
@@ -159,13 +168,14 @@ class DbManager
         return $data;
     }
 
-    public function qExecPluck($sql, $arrParams = NULL, $arrTypes = NULL)
+    public function qExecPluck($sql, $arrParams = null, $arrTypes = null)
     {
         if ($this->flagForceTransaction) {
             $this->TransactionStart();
         }
         $stmt = $this->qExecGetStatement($sql, $arrParams, $arrTypes);
         $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
         if ($this->flagForceTransaction) {
             $this->TransactionCommit();
         }
@@ -184,7 +194,7 @@ class DbManager
 
     public function qsGetTableFields($table)
     {
-        $o      = (object)[
+        $o = (object)[
             'tableName' => $table,
             'db'        => $this->db,
         ];
@@ -195,10 +205,10 @@ class DbManager
         return $d;
     }
 
-    public function qsGetColumnInformation($db = NULL, $tableName = NULL, $col = NULL)
+    public function qsGetColumnInformation($db = null, $tableName = null, $col = null)
     {
-        $db     = $db ?: $this->db;
-        $o      = (object)[
+        $db = $db ?: $this->db;
+        $o  = (object)[
             'col'       => $col,
             'tableName' => $tableName,
             'db'        => $db,
