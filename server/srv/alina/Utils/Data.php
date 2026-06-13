@@ -138,7 +138,8 @@ class Data
                 }
                 /**
                  * If a string
-                 */ else {
+                 */ #
+                 else {
                     if (
                         $v === $strFrom
                     ) {
@@ -205,7 +206,7 @@ class Data
                 /**
                  * If $v a string or primitive
                  */ #
-                 else {
+                else {
                     $v = static::itrCastToHealth($v);
                 }
             } // END foreach
