@@ -1,6 +1,7 @@
 <?php
+
 // STAGE
-define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(TRUE));
+define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(true));
 define('ALINA_TIME', $_SERVER['REQUEST_TIME'] ?: time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
 define('ALINA_MAX_TIME_DIFF_SEC', 48 * 60 * 60);
@@ -8,12 +9,12 @@ define('ALINA_MIN_TIME_DIFF_SEC', 30);
 define('ALINA_AUTH_EXPIRES', ALINA_TIME + ALINA_MAX_TIME_DIFF_SEC);
 ##################################################
 # Make sure we see all available errors
- ini_set('display_errors', 1);
- ini_set('display_startup_errors', 1);
- error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ##################################################
 #region SHUTDOWN
-register_shutdown_function(function () {
+register_shutdown_function(static function () {
     error_log(\alina\Utils\Sys::reportSpentTime(['FINAL'], []), 0);
 });
 #endregion SHUTDOWN
