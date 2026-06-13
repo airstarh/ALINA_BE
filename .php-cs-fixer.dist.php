@@ -37,7 +37,7 @@ return (new PhpCsFixer\Config())
             'position_after_anonymous_constructs' => 'next',
         ],
         'visibility_required' => ['elements' => ['property', 'method', 'const']],
-        'no_blank_lines_after_phpdoc' => false,
+        'phpdoc_trim_consecutive_blank_line_separation' => true,
     ])
     ->setFinder($finder)
     ->setUsingCache(true);
