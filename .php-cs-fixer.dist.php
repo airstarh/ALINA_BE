@@ -33,8 +33,8 @@ return (new PhpCsFixer\Config())
         ],
         'braces' => [
             'position_after_functions_and_oop_constructs' => 'next',
-            'position_after_control_structures' => 'same',
-            'position_after_anonymous_constructs' => 'same',
+            'position_after_control_structures' => 'next',
+            'position_after_anonymous_constructs' => 'next',
         ],
         'visibility_required' => ['elements' => ['property', 'method', 'const']],
     ])
