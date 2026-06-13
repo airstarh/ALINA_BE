@@ -28,7 +28,9 @@ return (new PhpCsFixer\Config())
         'single_blank_line_at_eof' => true,
         'no_extra_blank_lines' => true,
         'static_lambda' => true,
-        'elseif' => false,
+        'control_structure_continuation_position' => [
+            'position' => 'next_line',
+        ],
         'braces' => [
             'position_after_functions_and_oop_constructs' => 'next',
             'position_after_control_structures' => 'same',
