@@ -18,7 +18,10 @@ return (new PhpCsFixer\Config())
         'phpdoc_scalar' => true,
         'unary_operator_spaces' => true,
         'binary_operator_spaces' => true,
-        'blank_line_before_statement' => true,
+        'blank_line_before_statement' => [
+            'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try'],
+        ],
+        'blank_line_after_opening_tag' => true,
         'single_blank_line_at_eof' => true,
         'no_extra_blank_lines' => true,
         'static_lambda' => true,
