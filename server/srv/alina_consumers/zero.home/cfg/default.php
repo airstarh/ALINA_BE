@@ -1,4 +1,5 @@
 <?php
+
 return [
     'appNamespace'  => 'zero',
     'title'         => 'ZERO',

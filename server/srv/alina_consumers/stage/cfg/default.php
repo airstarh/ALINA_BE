@@ -1,4 +1,5 @@
 <?php
+
 return [
     'appNamespace'  => 'stage',
     'title'         => 'STAGE',

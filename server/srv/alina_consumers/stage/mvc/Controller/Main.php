@@ -3,8 +3,8 @@
 namespace stage\mvc\Controller;
 
 use alina\Message;
-use stage\CustomZeroFolder\CustomZeroClass;
 use alina\mvc\View\html;
+use stage\CustomZeroFolder\CustomZeroClass;
 
 class Main
 {
@@ -17,7 +17,7 @@ class Main
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo (new html)->page((object) [
+        echo (new html())->page((object) [
             'pageNotFound' => ___('Page not found'),
         ]);
         exit;
@@ -32,13 +32,11 @@ class Main
         http_response_code(200);
 
         $vd = [
-            'Простой' => 'текст',
-            'func_get_args' => func_get_args(),
+            'Простой'                       => 'текст',
+            'func_get_args'                 => func_get_args(),
             'CustomZeroClass::someMethod()' => CustomZeroClass::someMethod(),
         ];
 
-        echo (new \alina\mvc\View\html)->page($vd);
+        echo (new \alina\mvc\View\html())->page($vd);
     }
-
-
 }

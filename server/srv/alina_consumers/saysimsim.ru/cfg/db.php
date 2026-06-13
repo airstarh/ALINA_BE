@@ -1,4 +1,5 @@
 <?php
+
 return [
     'driver'    => 'mysql',
     'host'      => getenv('MYSQL_HOST_1'),

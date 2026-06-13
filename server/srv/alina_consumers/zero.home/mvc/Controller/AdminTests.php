@@ -11,6 +11,6 @@ class AdminTests extends \alina\mvc\Controller\AdminTests
         $vd = [
             'Hello' => 'AdminTests',
         ];
-        echo (new html)->page($vd);
+        echo (new html())->page($vd);
     }
 }
