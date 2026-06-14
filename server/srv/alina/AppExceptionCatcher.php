@@ -146,7 +146,7 @@ class AppExceptionCatcher
 
             if (isset($dbgCfg['toFile']) && $dbgCfg['toFile']) {
                 $NL = PHP_EOL . '<br>' . PHP_EOL;
-                Sys::fDebug($this->strMessage($NL));
+                Sys::fDebug($this->strMessage($NL), true);
             }
         }
     }
