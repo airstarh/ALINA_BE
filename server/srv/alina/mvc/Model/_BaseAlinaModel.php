@@ -306,45 +306,29 @@ class _BaseAlinaModel
     #region UPSERT
     public function upsert($data)
     {
+        return $this->upsertByUniqueFields($data);
+    }
+
+    public function upsertByUniqueFields($data, ?array $uniqueKeys = null)
+    {
         $data = Data::toObject($data);
+        $data = Data::mergeObjects($this->buildDefaultData(), $data);
 
         if (isset($data->{$this->pkName}) && ! empty($data->{$this->pkName})) {
             $this->setPkValue($data->{$this->pkName});
             $this->updateById($data);
+
+            return $this;
+        }
+
+        $aRecord = $this->getModelByUniqueKeys($data, $uniqueKeys);
+
+        if ($aRecord) {
+            $conditions = $this->matchedConditions;
+            $this->update($data, $conditions);
         }
         else {
             $this->insert($data);
-        }
-
-        return $this;
-    }
-
-    public function upsertByUniqueFields($data, $uniqueKeys = null)
-    {
-        try {
-            $this->insert($data);
-        }
-        catch (AppExceptionValidation $e) {
-            Message::removeAll();
-            $conditions = [];
-
-            try {
-                if (
-                    $this->matchedUniqueFields  === []
-                    || $this->matchedConditions === []
-                ) {
-                    $this->resetFlags();
-
-                    throw $e;
-                }
-
-                $conditions = $this->matchedConditions;
-
-                $this->update($data, $conditions);
-            }
-            catch (\Throwable $e) {
-                throw $e;
-            }
         }
 
         return $this;
