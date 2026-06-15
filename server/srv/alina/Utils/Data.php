@@ -395,12 +395,12 @@ class Data
     //ToDo: Less heavy. Validate input.
     public static function mergeObjects(...$objects)
     {
-        $res = new stdClass();
+        $arr = [];
         foreach ($objects as $o) {
-            $res = (object) array_merge((array) $res, (array) $o);
+            $ob = (object) array_merge( $arr, (array) $o);
         }
 
-        return $res;
+        return $ob;
     }
 
     /**
