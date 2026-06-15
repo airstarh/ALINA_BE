@@ -312,7 +312,6 @@ class _BaseAlinaModel
     public function upsertByUniqueFields($data, ?array $uniqueKeys = null)
     {
         $data = Data::toObject($data);
-        $data = Data::mergeObjects($this->buildDefaultData(), $data);
 
         if (isset($data->{$this->pkName}) && ! empty($data->{$this->pkName})) {
             $this->setPkValue($data->{$this->pkName});
