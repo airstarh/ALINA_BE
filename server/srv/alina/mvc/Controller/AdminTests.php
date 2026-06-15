@@ -13,6 +13,7 @@ use alina\mvc\Model\watch_ip;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
+use alina\Utils\Arr;
 use alina\Utils\Crypto;
 use alina\Utils\Data;
 use alina\Utils\FS;
@@ -359,7 +360,28 @@ class AdminTests
         //     ['visits' => $q->raw('visits + 1')]
         // );
 
+        $arr1 = [
+            'a' => 1,
+            'b' => [1,2,3, 'sewa', 'pizda'],
+            'c' => [
+                'aaa' => 1,
+                'bbb' => 2,
+            ],
+        ];
+
+        $arr2 = [
+            'a' => 2,
+            'b' => [3, 4, 5, 'sewa', 'huy'],
+            'c' => [
+                'ccc' => 33,
+            ],
+        ];
+
+        $res = Arr::arrayMergeRecursive($arr1, $arr2);
+        // $res = array_merge($arr1, $arr2);
+        // $res = array_merge_recursive($arr1, $arr2);
+
         echo '<pre>';
-        var_export($m->attributes);
+        var_export($res);
     }
 }

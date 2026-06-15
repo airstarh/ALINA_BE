@@ -397,7 +397,7 @@ class Data
     {
         $arr = [];
         foreach ($objects as $o) {
-            $ob = (object) array_merge( $arr, (array) $o);
+            $ob = (object) array_merge($arr, (array) $o);
         }
 
         return $ob;
