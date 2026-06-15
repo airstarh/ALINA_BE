@@ -4,17 +4,28 @@ source ./adm/s.includes.sh
 
 DATABASES=("${ALINA_BASES[@]}")
 PASSWORD=$MYSQL_ROOT_PASSWORD
-SQL_FILE_NAME="001.sgl.sql"
+
+SQL_DIR="./adm/db/migration/mig.indexes.duplicate"
+SQL_FILES=(
+    "test.sql"
+    # "001.watch_ip.sql"
+)
 
 for DB in "${DATABASES[@]}"; do
-
     echo ""
     echo ">>> $DB"
-    echo ""
 
-    docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB" < ./adm/db/migration/$SQL_FILE_NAME
+    for SQL_FILE in "${SQL_FILES[@]}"; do
+        echo '';
+        echo "  > $SQL_FILE";
 
-    echo ""
+        FILE_PATH="$SQL_DIR/$SQL_FILE"
+        docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB" < "$FILE_PATH"
+
+        echo "  < $SQL_FILE";
+        echo '';
+    done
+
     echo "<<< $DB"
     echo ""
 done
