@@ -38,6 +38,7 @@ for DB in "${DATABASES[@]}"; do
 
         FILE_PATH="$SQL_DIR/$SQL_FILE"
         (cat "$FILE_PATH"; cat "$COMMON_SQL_PATH") | docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB"
+        # (cat "$SQL_DIR/test.sql") | docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB"
 
         echo "  < $SQL_FILE";
     done
