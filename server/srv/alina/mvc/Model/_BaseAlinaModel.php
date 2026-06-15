@@ -147,6 +147,14 @@ class _BaseAlinaModel
         return $this->collection;
     }
 
+    /**
+     * Accepts $data model and tries to fetch similar models from database by taking unique keys from initial $data.
+     *
+     * @param array|object $data
+     * @param mixed $uniqueKeys
+     * @throws \ErrorException
+     * @return false|BuilderAlias|object|\Illuminate\Database\Eloquent\Model
+     */
     public function getModelByUniqueKeys($data, $uniqueKeys = null)
     {
         $data = Data::toObject($data);
@@ -154,6 +162,7 @@ class _BaseAlinaModel
         if (empty($uniqueKeys)) {
             $uniqueKeys = $this->uniqueKeys();
         }
+
         foreach ($uniqueKeys as $uniqueFields) {
             $conditions = [];
             $uFields    = [];
@@ -312,16 +321,30 @@ class _BaseAlinaModel
 
     public function upsertByUniqueFields($data, $uniqueKeys = null)
     {
-        $data    = Data::toObject($data);
-        $data    = Data::mergeObjects($this->buildDefaultData(), $data);
-        $aRecord = $this->getModelByUniqueKeys($data, $uniqueKeys);
-
-        if ($aRecord) {
-            $conditions = $this->matchedConditions;
-            $this->update($data, $conditions);
-        }
-        else {
+        try {
             $this->insert($data);
+        }
+        catch (AppExceptionValidation $e) {
+            Message::removeAll();
+            $conditions = [];
+
+            try {
+                if (
+                    $this->matchedUniqueFields  === []
+                    || $this->matchedConditions === []
+                ) {
+                    $this->resetFlags();
+
+                    throw $e;
+                }
+
+                $conditions = $this->matchedConditions;
+
+                $this->update($data, $conditions);
+            }
+            catch (\Throwable $e) {
+                throw $e;
+            }
         }
 
         return $this;

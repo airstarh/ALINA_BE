@@ -9,6 +9,7 @@ use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\user;
+use alina\mvc\Model\watch_ip;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
@@ -72,7 +73,7 @@ class AdminTests
      */
     public function actionErrors(...$args)
     {
-        $vd = (object)[
+        $vd = (object) [
             'somw' => 'data',
         ];
         CurrentUser::obj();
@@ -243,7 +244,7 @@ class AdminTests
     // /AdminTests/DomDocument
     public function actionDomDocument()
     {
-        $vd = (object)[
+        $vd = (object) [
             'init' => 'val',
             'res'  => 'val',
         ];
@@ -293,7 +294,7 @@ class AdminTests
 
     public function actionRedirect2()
     {
-        $vd = (object)[];
+        $vd = (object) [];
         echo (new html())->page($vd);
     }
     #endregion Redirect Messages
@@ -302,7 +303,7 @@ class AdminTests
     {
         $f1 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25';
         $f2 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25AAA';
-        $vd = (object)[
+        $vd = (object) [
             __DIR__ => FS::countFilesInDir(__DIR__),
             $f1     => FS::countFilesInDir($f1),
             $f2     => FS::countFilesInDir($f2),
@@ -331,10 +332,34 @@ class AdminTests
         $max_execution_time = ini_get('max_execution_time');
         //sleep($max_execution_time + 1);
         http_response_code(403);
-        $vd = (object)[
+        $vd = (object) [
             'max_execution_time' => $max_execution_time,
         ];
         echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
     }
     #####
+
+    public function actionUniqModel()
+    {
+        $ip = 'asd';
+        $d  = ['ip' => $ip];
+        $m  = new watch_ip();
+
+        // $q  = $m->q(-1);
+
+        // $r = $m->getModelByUniqueKeys($d);
+
+        $r = $m->upsertByUniqueFields($d);
+
+        // $r = $m->insert($d);
+
+        // $r = $q->upsert(
+        //     $d,
+        //     ['ip'],
+        //     ['visits' => $q->raw('visits + 1')]
+        // );
+
+        echo '<pre>';
+        var_export($m->attributes);
+    }
 }
