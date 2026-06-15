@@ -9,12 +9,12 @@ SQL_FILE_NAME="001.sgl.sql"
 for DB in "${DATABASES[@]}"; do
 
     echo ""
-    echo "start $DB"
+    echo ">>> $DB"
     echo ""
 
     docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB" < ./adm/db/migration/$SQL_FILE_NAME
 
     echo ""
-    echo "fin $DB"
+    echo "<<< $DB"
     echo ""
 done
