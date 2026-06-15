@@ -2,6 +2,6 @@
 
 namespace alina;
 
-class AppExceptionValidation extends \Exception
+class AppExceptionValidation extends \ErrorException
 {
 }
