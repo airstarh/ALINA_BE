@@ -16,14 +16,12 @@ for DB in "${DATABASES[@]}"; do
     echo ">>> $DB"
 
     for SQL_FILE in "${SQL_FILES[@]}"; do
-        echo '';
         echo "  > $SQL_FILE";
 
         FILE_PATH="$SQL_DIR/$SQL_FILE"
         docker exec -i alina_mysql mysql -u root -p"$PASSWORD" "$DB" < "$FILE_PATH"
 
         echo "  < $SQL_FILE";
-        echo '';
     done
 
     echo "<<< $DB"
