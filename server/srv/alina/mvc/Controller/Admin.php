@@ -64,7 +64,7 @@ class Admin
         $vd->roles = $mRoles->getAllWithReferences()->toArray();
         #endregion Roles
         ########################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
     }
 
     private function userSetRoles($post)

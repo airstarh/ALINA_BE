@@ -55,36 +55,33 @@ class Root
             '/AdminTests/Serialization'                          => 'Tst Serialization',
             '/AdminTests/JsonEncode'                             => 'Tst Json Encode',
         ];
-        echo(new html())->page($vd);
+        AlinaEcho((new html())->page($vd));
     }
 
     public function actionIndex3()
     {
         $vd = \alina\Utils\FS::dirToClassActionIndex(ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller');
-        echo(new html())->page($vd);
+        AlinaEcho((new html())->page($vd));
     }
 
     public function action404()
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo(new html())->page();
-        exit();
+        AlinaEcho((new html())->page());
     }
 
     public function actionException($vd = null)
     {
         AlinaResponseSuccess(0);
         http_response_code(500);
-        echo(new html())->page($vd, html::$htmLayoutErrorCatcher);
-        exit();
+        AlinaEcho((new html())->page($vd, html::$htmLayoutErrorCatcher));
     }
 
     public function actionAccessDenied($code = 403)
     {
         AlinaResponseSuccess(0);
         http_response_code($code);
-        echo(new html())->page(null, html::$htmLayoutErrorCatcher);
-        exit();
+        AlinaEcho((new html())->page(null, html::$htmLayoutErrorCatcher));
     }
 }

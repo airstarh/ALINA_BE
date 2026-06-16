@@ -85,7 +85,7 @@ class Like
                 'CurrentUserLiked' => $CurrentUserLiked,
                 'AmountLikes'      => $AmountLikes,
             ];
-            echo (new htmlAlias())->page($vd);
+            AlinaEcho((new htmlAlias())->page($vd));
         }
     }
     #####
@@ -96,7 +96,7 @@ class Like
         $conditions       = ['lk.ref_table' => $ref_table, 'lk.ref_id' => $ref_id];
         $q                = $this->model->getAllWithReferencesPart1($conditions);
         $collection       = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $page);
-        echo (new htmlAlias())->page($collection);
+        AlinaEcho((new htmlAlias())->page($collection));
     }
 
     #endregion SELECT

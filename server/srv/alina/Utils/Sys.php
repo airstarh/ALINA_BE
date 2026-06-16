@@ -528,6 +528,7 @@ class Sys
 
     public static function template($fileFullPath, $data = null)
     {
+        GlobalRequestStorage::setPlus1('TemplateQueries');
         $fileFullPath = realpath($fileFullPath);
         ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_FLUSHABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
         ob_implicit_flush(false);

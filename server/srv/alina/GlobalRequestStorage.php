@@ -18,6 +18,7 @@ class GlobalRequestStorage
     protected $memory = [
         'alina_response_success' => 1,
         'BaseModelQueries'       => 0,
+        'TemplateQueries'        => 0,
         'modelMetaInfo'          => [],
         #####
         'pageTitle'          => null,

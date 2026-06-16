@@ -29,7 +29,7 @@ class Notification
         $q          = $this->model->getAllWithReferencesPart1($conditions);
         $collection = $this->model->getAllWithReferencesPart2($backendSortArray, $pageSze, $pageNumber);
         #####
-        echo (new htmlAlias())->page($collection);
+        AlinaEcho((new htmlAlias())->page($collection));
     }
 
     public function actionMarkAsShownEarlierThan($timestamp)
@@ -44,7 +44,7 @@ class Notification
             ['created_at', '<=', $timestamp],
         ];
         $this->model->update($data, $conditions);
-        echo (new htmlAlias())->page([]);
+        AlinaEcho((new htmlAlias())->page([]));
     }
 
     public function actionDelete($id = null)
@@ -64,6 +64,6 @@ class Notification
                 AlinaResponseSuccess(0);
             }
         }
-        echo (new htmlAlias())->page([]);
+        AlinaEcho((new htmlAlias())->page([]));
     }
 }

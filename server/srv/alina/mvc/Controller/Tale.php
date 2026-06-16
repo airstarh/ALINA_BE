@@ -209,7 +209,7 @@ class Tale
         GlobalRequestStorage::obj()->set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
         GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         GlobalRequestStorage::obj()->set('tagRelCanonicalUrl', AlinaDefineTagRelCanonicalUrl());
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     ########################################
@@ -263,7 +263,7 @@ class Tale
             Message::setDanger('Failed');
         }
         ########################################
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
 
         return $this;
     }
@@ -313,7 +313,7 @@ class Tale
         ########################################
         GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         ########################################
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     ########################################

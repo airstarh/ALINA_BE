@@ -41,7 +41,7 @@ class Pm
             'args' => $arg,
         ];
 
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -228,7 +228,7 @@ class Pm
         $vd['mWorkDone']     = $mWorkDone->attributes;
         $vd['url']           = $this->url(...array_merge([static::URL_FILL_REPORT], func_get_args()));
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -444,7 +444,7 @@ class Pm
         $vd['url']           = $this->url(...array_merge([static::URL_EDIT], func_get_args()));
         $vd['userList']      = (new user())->getAll()->toArray();
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -852,7 +852,7 @@ class Pm
         $vd['ud']      = $ud;
         $vd['res']     = $res;
         $vd['zzz']     = Data::toObject([]);
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }

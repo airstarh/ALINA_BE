@@ -4,7 +4,6 @@ namespace alina\mvc\Controller;
 
 use function Alina;
 
-use alina\mvc\View\html;
 use alina\Utils\FS;
 use alina\Utils\Request;
 
@@ -64,11 +63,5 @@ class alinaFileProxy
 
         echo '';
         exit();
-    }
-
-    public function actionTestIt()
-    {
-        $p = 'alinaFileProxy/fullHtmlLayout.php';
-        echo (new html())->piece($p);
     }
 }

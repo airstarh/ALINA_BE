@@ -17,8 +17,7 @@ class Main
         Message::setDanger('<h1>404</h1>Такой страницы нет на сайте');
         AlinaResponseSuccess(0);
         http_response_code(404);
-        echo (new \alina\mvc\View\html())->page();
-        exit();
+        AlinaEcho((new \alina\mvc\View\html())->page());
     }
 
 
@@ -35,6 +34,6 @@ class Main
             'CustomZeroClass::someMethod()' => CustomZeroClass::someMethod(),
         ];
 
-        echo (new \alina\mvc\View\html())->page($vd);
+        AlinaEcho((new \alina\mvc\View\html())->page($vd));
     }
 }

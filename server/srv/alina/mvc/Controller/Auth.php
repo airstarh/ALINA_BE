@@ -44,8 +44,7 @@ class Auth
             if (empty($vd->mail) || empty($vd->password)) {
                 AlinaResponseSuccess(0);
                 Message::setDanger('Incorrect data');
-                echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
-                exit();
+                AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
             }
             ##################################################
             $amount = (new watch_login())->q()->where([
@@ -77,8 +76,7 @@ class Auth
                 // Request::obj()->METHOD = 'GET';
                 // Alina()->mvcGo('auth', 'profile');
                 //Sys::redirect('/auth/profile', 303);
-                echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
-                exit();
+                AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
             }
             /**
              * FAIL
@@ -95,7 +93,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
 
         return $this;
     }
@@ -141,7 +139,7 @@ class Auth
         ##################################################
         $CU->resetDiscoveredData();
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
 
         return $this;
     }
@@ -199,7 +197,7 @@ class Auth
         #####
         $vd->user = $u->attributes;
         //$vd->sources = $u->getReferencesSources();
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionLogout()
@@ -251,7 +249,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
 
         return $this;
     }
@@ -313,7 +311,7 @@ class Auth
             }
         }
         ##################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
     }
 
     ##################################################
@@ -365,7 +363,7 @@ class Auth
                 Message::setDanger('Password not changed!');
             }
         }
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
     }
 
     ##################################################
@@ -392,7 +390,7 @@ class Auth
             Message::setDanger('Failed');
         }
         ########################################
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
 
         return $this;
     }

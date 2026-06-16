@@ -37,7 +37,7 @@ class FileUpload
                 $vd = $this->respv2;
             }
         }
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionCommon()
@@ -47,7 +47,7 @@ class FileUpload
         if (Request::isPostPutDelete()) {
             $vd = $this->processUpload();
         }
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionCkEditor()
@@ -59,7 +59,7 @@ class FileUpload
             'newFileName' => $resp->uploaded ? $resp->newFileName[0] : '',
             'url'         => $resp->uploaded ? $resp->url[0] : '',
         ];
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionDelete($id)
@@ -81,7 +81,7 @@ class FileUpload
         else {
             Message::setDanger('Deletion failed');
         }
-        echo (new htmlAlias())->page();
+        AlinaEcho((new htmlAlias())->page());
     }
 
     public function actionGetFiles($entity_table, $entity_id)
@@ -95,7 +95,7 @@ class FileUpload
             [['order', 'ASC'], ['name_human', 'ASC']],
             1000
         );
-        echo (new htmlAlias())->page($vd);
+        AlinaEcho((new htmlAlias())->page($vd));
     }
     ##################################################
     #region Utils

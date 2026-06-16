@@ -142,7 +142,7 @@ class SendRestApiQueries
             'respHeadersStructurized' => $respHeadersStructurized,
             'report'                  => $report,
         ];
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         #endregionn View
         ############################################

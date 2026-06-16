@@ -157,7 +157,7 @@ class AdminDbManager
         //$vd->result = $r;
         //$vd->arrTables = $arrTables;
         ##########################################################################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
     }
 
     public function actionModels($model)
@@ -194,7 +194,7 @@ class AdminDbManager
         $vd->models                     = array_filter($vd->models, ['\alina\utils\Data', 'sanitizeOutputObj']);
         #endregion Models
         ########################################
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
     }
 
     public function actionEditRow($table, $id)
@@ -266,7 +266,7 @@ class AdminDbManager
             return $this;
         }
 
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -287,7 +287,7 @@ class AdminDbManager
         foreach ($p->list as $i => $m) {
             $p->list[$i] = $this->actionUpdate($table, $m->id, $m);
         }
-        echo (new htmlAlias())->page($p);
+        AlinaEcho((new htmlAlias())->page($p));
     }
 
     public function actionDelete($table, $id)

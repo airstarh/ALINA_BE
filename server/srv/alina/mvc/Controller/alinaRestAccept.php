@@ -15,7 +15,6 @@ use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\modelNamesResolver;
-use alina\mvc\View\html as htmlAlias;
 use alina\mvc\View\json as jsonView;
 use alina\Utils\Sys;
 
@@ -51,7 +50,7 @@ class alinaRestAccept
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $m->insert($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
-                    echo (new jsonView())->standardRestApiResponse($data);
+                    AlinaEcho((new jsonView())->standardRestApiResponse($data));
                 }
 
                 break;
@@ -65,7 +64,7 @@ class alinaRestAccept
                     $id        = $post->{$m->pkName};
                     $m->updateById($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
-                    echo (new jsonView())->standardRestApiResponse($data[0]);
+                    AlinaEcho((new jsonView())->standardRestApiResponse($data[0]));
                 }
 
                 break;
@@ -87,7 +86,7 @@ class alinaRestAccept
                         GlobalRequestStorage::set('pageCurrentNumber', $m->pageCurrentNumber);
                         GlobalRequestStorage::set('pageSize', $m->pageSize);
                         GlobalRequestStorage::set('rowsTotal', $m->state_ROWS_TOTAL);
-                        echo (new jsonView())->standardRestApiResponse($data);
+                        AlinaEcho((new jsonView())->standardRestApiResponse($data));
                     }
 
                     if ($command === 'Model') {
@@ -106,7 +105,7 @@ class alinaRestAccept
                             }
                         }
                         //$resp = $data;
-                        echo (new jsonView())->standardRestApiResponse($resp);
+                        AlinaEcho((new jsonView())->standardRestApiResponse($resp));
                     }
                 }
 
@@ -117,7 +116,7 @@ class alinaRestAccept
     public function actionForm()
     {
         $data = '';
-        echo (new \alina\mvc\View\html())->page($data);
+        AlinaEcho((new \alina\mvc\View\html())->page($data));
     }
 
     /**
@@ -126,7 +125,7 @@ class alinaRestAccept
     public function actionTestGet()
     {
         Sys::setCrossDomainHeaders();
-        echo (new jsonView())->standardRestApiResponse($_GET);
+        AlinaEcho((new jsonView())->standardRestApiResponse($_GET));
     }
 
     public function actionTestCors()
@@ -136,7 +135,6 @@ class alinaRestAccept
         //$vd = Request::obj()->all();
         $vd = 'Привет';
         ############################################
-        //echo (new htmlAlias)->page($vd);
-        echo (new jsonView())->standardRestApiResponse($vd);
+        AlinaEcho((new jsonView())->standardRestApiResponse($vd));
     }
 }

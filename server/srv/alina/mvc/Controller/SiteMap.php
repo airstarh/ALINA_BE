@@ -21,7 +21,7 @@ class SiteMap
     public function actionIndex(...$arg)
     {
         $vd = $this->actionFeed();
-        echo (new htmlAlias())->piece('/SiteMap/actionIndex.php', $vd);
+        AlinaEcho((new htmlAlias())->piece('/SiteMap/actionIndex.php', $vd));
     }
 
     protected function actionFeed()

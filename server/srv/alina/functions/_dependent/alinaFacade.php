@@ -253,6 +253,24 @@ function ___($str, $loc = 'ru_RU')
 }
 
 ##################################################
+function AlinaEcho(string $string)
+{
+    echo $string;
+    AlinaExit($string);
+}
+
+function AlinaExit($data)
+{
+    try {
+        $string = \alina\Utils\Str::anyToString($data);
+        \alina\Watcher::obj()->answer(['answer' => $string]);
+    }
+    catch (\Throwable $e) {
+        error_log('salam');
+    }
+    exit();
+}
+##################################################
 #region DEBUG
 function AlinaDebug($data)
 {
