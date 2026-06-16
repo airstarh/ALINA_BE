@@ -263,7 +263,10 @@ function AlinaExit($data)
 {
     try {
         $string = \alina\Utils\Str::anyToString($data);
-        \alina\Watcher::obj()->answer(['answer' => $string]);
+        \alina\Watcher::obj()->answer([
+            'answer' => $string,
+            'suspicious' => AlinaIsResponseSuccess() === 1 ? 0 : 1,
+        ]);
     }
     catch (\Throwable $e) {
         error_log('salam');

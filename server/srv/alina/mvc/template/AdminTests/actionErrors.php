@@ -4,3 +4,4 @@
     </h1>
 </div>
 <?php throw new \ErrorException('Error is thrown in the template!!!'); ?>
+<div>Some data!!!</div>

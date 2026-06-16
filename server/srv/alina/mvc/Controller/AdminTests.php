@@ -40,7 +40,7 @@ class AdminTests
         AlinaDebug($vd);
         AlinaDebug(static::class);
 
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionFast_1()
@@ -52,7 +52,7 @@ class AdminTests
         $pm_subtask->getParents();
         ##################################################
         $vd = $pm_subtask->attributes;
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     ##############################################
@@ -65,7 +65,7 @@ class AdminTests
         $vd[] = $m->getChainOfParents(405);
         $vd[] = $m->getChainOfParents(1008);
         $vd[] = $m->getChainOfParents(1009);
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     /**
@@ -79,7 +79,8 @@ class AdminTests
         CurrentUser::obj();
         Message::setInfo('Just an Info message');
 
-        throw new \ErrorException('Error is thrown in the controller!!!');
+        // throw new \ErrorException('Error is thrown in the controller!!!');
+        AlinaEcho((new htmlAlias())->page('Hellow Error'));
     }
     ##############################################
 
@@ -127,7 +128,7 @@ class AdminTests
     {
         Message::setSuccess('For User');
         MessageAdmin::setSuccess('For Admin');
-        AlinaEcho((new html())->page('1234'));
+        AlinaEcho((new htmlAlias())->page('1234'));
     }
 
     /**
@@ -139,7 +140,7 @@ class AdminTests
         Message::setSuccess('AdminTest Response');
         Message::setSuccess('Message for User');
         MessageAdmin::setSuccess('Message for Admin');
-        AlinaEcho((new html())->page(Request::obj()));
+        AlinaEcho((new htmlAlias())->page(Request::obj()));
     }
 
     ##############################################
@@ -151,7 +152,7 @@ class AdminTests
     public function actionTestCase()
     {
         $content = func_get_args();
-        AlinaEcho((new html())->page($content));
+        AlinaEcho((new htmlAlias())->page($content));
     }
 
     ##############################################
@@ -190,7 +191,7 @@ class AdminTests
         $data = Sys::buffer(static function () {
             return (new Mailer())->usageExample();
         });
-        AlinaEcho((new html())->page($data));
+        AlinaEcho((new htmlAlias())->page($data));
     }
 
     ##############################################
@@ -204,7 +205,7 @@ class AdminTests
         $vd['str']  = 'mail';
         $vd['encr'] = (new Crypto())->encrypt($vd['str']);
         $vd['decr'] = (new Crypto())->decrypt($vd['encr']);
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     ##############################################
@@ -222,7 +223,7 @@ class AdminTests
         $vd = [
             'date(\'Z\')' => date('Z'),
         ];
-        AlinaEcho((new html())->page(date('Z')));
+        AlinaEcho((new htmlAlias())->page(date('Z')));
     }
 
     ##############################################
@@ -234,7 +235,7 @@ class AdminTests
             'initial'   => $initial,
             'converted' => $converted,
         ];
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     ##############################################
@@ -268,7 +269,7 @@ class AdminTests
         ##################################################
         $vd->init = $html;
         $vd->res  = $bodyHTML;
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     public function actionphpinfo()
@@ -292,7 +293,7 @@ class AdminTests
     public function actionRedirect2()
     {
         $vd = (object) [];
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
     #endregion Redirect Messages
     #####
@@ -305,7 +306,7 @@ class AdminTests
             $f1     => FS::countFilesInDir($f1),
             $f2     => FS::countFilesInDir($f2),
         ];
-        AlinaEcho((new html())->page($vd));
+        AlinaEcho((new htmlAlias())->page($vd));
     }
 
     #####
@@ -320,7 +321,7 @@ class AdminTests
         Message::setInfo('Hello, people');
         Message::setInfo('Hello, people');
         $vd = [];
-        AlinaEcho((new html())->page($vd, html::$htmLayoutCleanBody));
+        AlinaEcho((new htmlAlias())->page($vd, html::$htmLayoutCleanBody));
     }
 
     #####
