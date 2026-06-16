@@ -72,7 +72,7 @@ final class Watcher
             $this->banVisit();
             $msg = 'Are you trying to DDOS me?';
             AlinaReject(false, 403, $msg);
-            exit;
+            exit();
         }
     }
 
@@ -93,7 +93,7 @@ final class Watcher
         if ($res) {
             $msg = 'Your IP is banned';
             AlinaReject(false, 403, $msg);
-            exit;
+            exit();
         }
     }
 
@@ -114,7 +114,7 @@ final class Watcher
         if ($res) {
             $msg = 'Your browser is banned';
             AlinaReject(false, 403, $msg);
-            exit;
+            exit();
         }
     }
 
@@ -136,7 +136,7 @@ final class Watcher
         if ($res) {
             $msg = 'You are completely banned';
             AlinaReject(false, 403, $msg);
-            exit;
+            exit();
         }
     }
 
@@ -161,7 +161,7 @@ final class Watcher
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
             AlinaReject(false, 403, $msg);
-            exit;
+            exit();
         }
     }
 
@@ -172,7 +172,7 @@ final class Watcher
                 if (empty($fgp)) {
                     (new error_log())->insert(['error_text' => 'Suspicious request. Empty fgp',]);
                     AlinaReject(null, 403);
-                    exit;
+                    exit();
                 }
 
                 if ($fgp !== Request::obj()->BROWSER) {

@@ -18,7 +18,7 @@ class Main
         AlinaResponseSuccess(0);
         http_response_code(404);
         echo (new \alina\mvc\View\html())->page();
-        exit;
+        exit();
     }
 
 

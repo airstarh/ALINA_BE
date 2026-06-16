@@ -89,7 +89,7 @@ class AppExceptionCatcher
             Data::sanitizeOutputObj($R);
             $url = Url::addGetFromObject($url, $R);
             Sys::redirect($url, 303);
-            die();
+            exit();
         }
 
         if ($forceExit) {

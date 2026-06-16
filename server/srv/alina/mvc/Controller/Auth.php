@@ -45,7 +45,7 @@ class Auth
                 AlinaResponseSuccess(0);
                 Message::setDanger('Incorrect data');
                 echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
-                exit;
+                exit();
             }
             ##################################################
             $amount = (new watch_login())->q()->where([
@@ -78,7 +78,7 @@ class Auth
                 // Alina()->mvcGo('auth', 'profile');
                 //Sys::redirect('/auth/profile', 303);
                 echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled);
-                exit;
+                exit();
             }
             /**
              * FAIL

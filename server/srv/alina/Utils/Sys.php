@@ -395,7 +395,7 @@ class Sys
 
                     if ($method === 'OPTIONS') {
                         echo 'ok';
-                        exit;
+                        exit();
                     }
 
                     ##################################################
@@ -415,7 +415,7 @@ class Sys
             || \alina\Utils\Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
-            die();
+            exit();
         }
 
         ##########
@@ -460,7 +460,7 @@ class Sys
 
         #####
         header("Location: $page", true, $code);
-        die();
+        exit();
     }
 
     ##################################################

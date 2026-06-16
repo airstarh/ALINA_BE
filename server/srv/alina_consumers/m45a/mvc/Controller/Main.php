@@ -18,6 +18,6 @@ class Main
         echo (new html())->page((object) [
             'pageNotFound' => ___('Page not found'),
         ]);
-        exit;
+        exit();
     }
 }

@@ -69,7 +69,7 @@ class Root
         AlinaResponseSuccess(0);
         http_response_code(404);
         echo(new html())->page();
-        exit;
+        exit();
     }
 
     public function actionException($vd = null)
@@ -77,7 +77,7 @@ class Root
         AlinaResponseSuccess(0);
         http_response_code(500);
         echo(new html())->page($vd, html::$htmLayoutErrorCatcher);
-        exit;
+        exit();
     }
 
     public function actionAccessDenied($code = 403)
@@ -85,6 +85,6 @@ class Root
         AlinaResponseSuccess(0);
         http_response_code($code);
         echo(new html())->page(null, html::$htmLayoutErrorCatcher);
-        exit;
+        exit();
     }
 }

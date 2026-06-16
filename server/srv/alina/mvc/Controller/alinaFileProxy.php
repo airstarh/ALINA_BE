@@ -59,11 +59,11 @@ class alinaFileProxy
 
         if ($flagDo) {
             FS::giveFile($realPath);
-            exit;
+            exit();
         }
 
         echo '';
-        exit;
+        exit();
     }
 
     public function actionTestIt()
