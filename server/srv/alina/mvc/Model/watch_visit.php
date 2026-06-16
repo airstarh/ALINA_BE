@@ -46,6 +46,7 @@ class watch_visit extends _BaseAlinaModel
             'ajax' => [
                 'default' => $Request->AJAX,
             ],
+            'answer' => [],
         ];
     }
 }

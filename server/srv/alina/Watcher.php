@@ -12,15 +12,15 @@ use alina\mvc\Model\watch_visit;
 use alina\traits\Singleton;
 use alina\Utils\Request;
 
-class Watcher
+final class Watcher
 {
     #region Singleton
     use Singleton;
 
-    protected function __construct()
+    private function __construct()
     {
-        $this->mBROWSER  = new watch_browser();
-        $this->mVISIT    = new watch_visit();
+        $this->mBROWSER = new watch_browser();
+        $this->mVISIT   = new watch_visit();
         #####
         $this->firewallFools();
         $this->firewallByBannedIp();
@@ -33,9 +33,9 @@ class Watcher
     #endregion Singleton
     ##################################################
     #region Watch
-    protected $mBROWSER;
-    protected $mVISIT;
-    protected static $state_VISIT_LOGGED = false;
+    private $mBROWSER;
+    private $mVISIT;
+    private static $state_VISIT_LOGGED = false;
 
     public function logVisitsToDb()
     {
@@ -60,7 +60,7 @@ class Watcher
     #endregion Watch
     ##################################################
     #region Firewall
-    protected function firewallByRequestsAmount()
+    private function firewallByRequestsAmount()
     {
         if (! Request::isPostPutDelete()) {
             return;
@@ -76,7 +76,7 @@ class Watcher
         }
     }
 
-    protected function firewallByBannedIp()
+    private function firewallByBannedIp()
     {
         if (! Request::isPostPutDelete()) {
             return;
@@ -97,7 +97,7 @@ class Watcher
         }
     }
 
-    protected function firewallByBannedBrowser()
+    private function firewallByBannedBrowser()
     {
         if (! Request::isPostPutDelete()) {
             return;
@@ -118,7 +118,7 @@ class Watcher
         }
     }
 
-    protected function firewallByBannedVisit()
+    private function firewallByBannedVisit()
     {
         if (! Request::isPostPutDelete()) {
             return;
@@ -140,7 +140,7 @@ class Watcher
         }
     }
 
-    protected function firewallFools()
+    private function firewallFools()
     {
         if (
             (
@@ -165,7 +165,7 @@ class Watcher
         }
     }
 
-    protected function firewallFgp()
+    private function firewallFgp()
     {
         if (Request::obj()->AJAX) {
             if (Request::obj()->tryHeader('fgp', $fgp)) {
@@ -188,7 +188,7 @@ class Watcher
     #endregion Firewall
     ##################################################
     #region Utils
-    protected function countRequestsPerSeconds($seconds, $maxPossible = 10000)
+    private function countRequestsPerSeconds($seconds, $maxPossible = 10000)
     {
         $res = $this->mVISIT
             ->q()
@@ -203,6 +203,15 @@ class Watcher
         ;
 
         return $res;
+    }
+
+    public function answer($data)
+    {
+        if (! empty($this->mVISIT->id)) {
+            $this->mVISIT->update($data);
+        }
+
+        return $this;
     }
     #endregion Utils
     ##################################################
