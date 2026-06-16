@@ -256,16 +256,26 @@ function ___($str, $loc = 'ru_RU')
 function AlinaEcho(string $string)
 {
     echo $string;
+
     AlinaExit($string);
 }
 
 function AlinaExit($data)
 {
     try {
-        $string = \alina\Utils\Str::anyToString($data);
+        $msg = null;
+        $flagSuspicious = AlinaIsResponseSuccess() === 1 ? 0 : 1;
+        if($flagSuspicious){
+            $msg = [];
+            $msg['usr'] = \alina\Message::returnAllMessages();
+            $msg['adm'] = \alina\MessageAdmin::returnAllMessages();
+        }
+
+        $string = $msg ? \alina\Utils\Str::anyToString($msg) : null;
+
         \alina\Watcher::obj()->answer([
             'answer' => $string,
-            'suspicious' => AlinaIsResponseSuccess() === 1 ? 0 : 1,
+            'suspicious' => $flagSuspicious,
         ]);
     }
     catch (\Throwable $e) {

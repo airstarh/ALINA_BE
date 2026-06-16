@@ -117,8 +117,8 @@ trait Msg
         foreach ($collection as $pseudoId => $msg) {
             if (! $msg->isShown) {
                 $all .= $msg->messageHtml();
-                $msg->isShown = true;
-                static::removeById($msg->id);
+                // $msg->isShown = true;
+                // static::removeById($msg->id);
             }
         }
 
@@ -139,12 +139,11 @@ trait Msg
                     'params'         => $message->params,
                     'templateString' => $message->templateString,
                 ];
-                $message->isShown = true;
-                static::removeById($message->id);
+                // $message->isShown = true;
+                // static::removeById($message->id);
             }
         }
 
-        //static::removeAll();
         return $all;
     }
 
