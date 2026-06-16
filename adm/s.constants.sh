@@ -11,10 +11,10 @@ export ALINA_REMOTE_SSH="/home/qqq/.ssh/001"
 # region Databes
 
 export ALINA_BASES=(
-    "alina"
+    # "alina"
     "stage"
-    "vov"
-    "m45a"
+    # "vov"
+    # "m45a"
 )
 
 export ALINA_BASES

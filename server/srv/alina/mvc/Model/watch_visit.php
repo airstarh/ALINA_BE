@@ -24,6 +24,9 @@ class watch_visit extends _BaseAlinaModel
             ],
             'query_string' => [
                 'default' => $Request->QUERY_STRING,
+                'filters' => [static function ($v) {
+                    return mb_substr($v, 0, 444, 'UTF-8');
+                }],
             ],
             'user_id' => [
                 'default' => CurrentUser::obj()->id(),
@@ -39,9 +42,17 @@ class watch_visit extends _BaseAlinaModel
             ],
             'controller' => [
                 'default' => Alina()->router->controller,
+                'filters' => [
+                    function ($v) {
+                    return mb_substr($v, 0, 44, 'UTF-8');
+                }
+                ],
             ],
             'action' => [
                 'default' => Alina()->router->action,
+                'filters' => [static function ($v) {
+                    return mb_substr($v, 0, 44, 'UTF-8');
+                }],
             ],
             'suspicious' => [
                 'default' => 0,
