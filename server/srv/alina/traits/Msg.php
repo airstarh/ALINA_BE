@@ -11,7 +11,7 @@ trait Msg
 {
     #region Facade (Collection)
     /**
-     * @property array
+     * @property array $collection
      * Contains array of \alina\message objects
      **/
     protected static $collection = [];
