@@ -4,7 +4,7 @@ ALTER TABLE router_alias MODIFY COLUMN url varchar(500) CHARACTER SET utf8mb4 CO
 DROP TABLE watch_url_path;
 DROP TABLE watch_ip;
 ALTER TABLE watch_visit ADD answer TEXT NULL;
-ALTER TABLE watch_visit
-    DROP COLUMN controller,
-    DROP COLUMN action;
+-- ALTER TABLE watch_visit
+--     DROP COLUMN controller,
+--     DROP COLUMN action;
 
