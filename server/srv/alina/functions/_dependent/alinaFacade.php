@@ -263,10 +263,11 @@ function AlinaEcho(string $string)
 function AlinaExit($data)
 {
     try {
-        $msg = null;
+        $msg            = null;
         $flagSuspicious = AlinaIsResponseSuccess() === 1 ? 0 : 1;
-        if($flagSuspicious){
-            $msg = [];
+
+        if ($flagSuspicious) {
+            $msg        = [];
             $msg['usr'] = \alina\Message::returnAllMessages();
             $msg['adm'] = \alina\MessageAdmin::returnAllMessages();
         }
@@ -274,7 +275,7 @@ function AlinaExit($data)
         $string = $msg ? \alina\Utils\Str::anyToString($msg) : null;
 
         \alina\Watcher::obj()->answer([
-            'answer' => $string,
+            'answer'     => $string,
             'suspicious' => $flagSuspicious,
         ]);
     }
