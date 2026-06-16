@@ -149,6 +149,7 @@ class Watcher
             )
             || empty(Request::obj()->DOMAIN)
             || empty(Request::obj()->BROWSER)
+            || \mb_strlen(Request::obj()->URL_PATH) > 2000
             || (
                 Request::isPostPutDelete()
                 && (

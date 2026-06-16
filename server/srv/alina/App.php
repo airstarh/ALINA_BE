@@ -32,6 +32,8 @@ class App
         #####
         Sys::setCrossDomainHeaders();
         #####
+        Watcher::obj()->logVisitsToDb();
+        #####
         Message::fromRequest();
         MessageAdmin::fromRequest();
         #####
@@ -239,7 +241,6 @@ class App
         }
         #endregion Redirect
         ##################################################
-        Watcher::obj()->logVisitsToDb();
 
         return $this;
     }

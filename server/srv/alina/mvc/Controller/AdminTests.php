@@ -344,13 +344,11 @@ class AdminTests
     {
         $ip = 'asd';
         $d  = ['ip' => $ip];
-        $m  = new watch_ip();
 
         // $q  = $m->q(-1);
 
         // $r = $m->getModelByUniqueKeys($d);
 
-        $r = $m->upsertByUniqueFields($d);
 
         // $r = $m->insert($d);
 
