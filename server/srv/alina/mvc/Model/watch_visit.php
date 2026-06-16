@@ -23,7 +23,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $Request->BROWSER_enc,
             ],
             'query_string' => [
-                'default' => $Request->QUERY_STRING,
+                'default' => $Request->URL_PATH,
                 'filters' => [static function ($v) {
                     return mb_substr($v, 0, 444, 'UTF-8');
                 }],
@@ -39,20 +39,6 @@ class watch_visit extends _BaseAlinaModel
             ],
             'data' => [
                 'default' => json_encode($Request, JSON_UNESCAPED_UNICODE),
-            ],
-            'controller' => [
-                'default' => Alina()->router->controller,
-                'filters' => [
-                    function ($v) {
-                    return mb_substr($v, 0, 44, 'UTF-8');
-                }
-                ],
-            ],
-            'action' => [
-                'default' => Alina()->router->action,
-                'filters' => [static function ($v) {
-                    return mb_substr($v, 0, 44, 'UTF-8');
-                }],
             ],
             'suspicious' => [
                 'default' => 0,

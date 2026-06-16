@@ -8,8 +8,6 @@ use alina\mvc\Model\watch_banned_ip;
 use alina\mvc\Model\watch_banned_visit;
 use alina\mvc\Model\watch_browser;
 use alina\mvc\Model\watch_fools;
-use alina\mvc\Model\watch_ip;
-use alina\mvc\Model\watch_url_path;
 use alina\mvc\Model\watch_visit;
 use alina\traits\Singleton;
 use alina\Utils\Request;
@@ -21,9 +19,7 @@ class Watcher
 
     protected function __construct()
     {
-        $this->mIP       = new watch_ip();
         $this->mBROWSER  = new watch_browser();
-        $this->mURL_PATH = new watch_url_path();
         $this->mVISIT    = new watch_visit();
         #####
         $this->firewallFools();
@@ -37,9 +33,7 @@ class Watcher
     #endregion Singleton
     ##################################################
     #region Watch
-    protected $mIP;
     protected $mBROWSER;
-    protected $mURL_PATH;
     protected $mVISIT;
     protected static $state_VISIT_LOGGED = false;
 
@@ -54,15 +48,9 @@ class Watcher
                 $this->mBROWSER->upsertByUniqueFields([
                     'user_agent' => Request::obj()->BROWSER,
                 ]);
-                $this->mIP->upsertByUniqueFields([
-                    'ip' => Request::obj()->IP,
-                ]);
-                $this->mURL_PATH->upsertByUniqueFields([
-                    'url_path' => Request::obj()->URL_PATH,
-                ]);
                 ##################################################
                 $this->mVISIT->insert([]);
-                #####
+                ##################################################
                 static::$state_VISIT_LOGGED = true;
             }
         }
