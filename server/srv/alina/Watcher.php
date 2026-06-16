@@ -208,7 +208,7 @@ final class Watcher
     public function answer($data)
     {
         if (! empty($this->mVISIT->id)) {
-            $this->mVISIT->up, wv.suspicious, wv.suspiciousdateById($data);
+            $this->mVISIT->updateById($data);
         }
 
         return $this;
