@@ -412,7 +412,7 @@ class Sys
     {
         if (
             \alina\Utils\Str::startsWith($page, 'http://')
-            || \alina\Utils\Str::startsWith($page, 'https://')
+            socet.start        || \alina\Utils\Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
             exit();
