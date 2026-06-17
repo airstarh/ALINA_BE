@@ -78,9 +78,11 @@ services:
     env_file: _GITOUT/env/.env
     image: mysql:8.0.27
     container_name: alina_mysql
-    mem_limit: 1g
-    mem_reservation: 1g
-    cpus: 1.0
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
     command:
       - --innodb-buffer-pool-size=512M
       - --innodb-log-file-size=256M
@@ -97,7 +99,7 @@ services:
       - --slow-query-log-file=/var/log/mysql/slow.log
       - --long-query-time=2
       - --tls-version=TLSv1.2,TLSv1.3
-      - --max_execution_time=10000
+      - --max-execution-time=10000
       - --connect-timeout=30
       - --net-read-timeout=60
       - --net-write-timeout=60
