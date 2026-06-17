@@ -78,6 +78,9 @@ services:
     env_file: _GITOUT/env/.env
     image: mysql:8.0.27
     container_name: alina_mysql
+    mem_limit: 1g
+    mem_reservation: 1g
+    cpus: 2.0
     command:
       - --innodb-buffer-pool-size=2G
       - --innodb-log-file-size=512M
