@@ -81,10 +81,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
-          cpus: '1.0'
+          memory: 2G
+          cpus: '2.0'
     command:
-      - --innodb-buffer-pool-size=512M
+      - --innodb-buffer-pool-size=256M
       - --innodb-log-file-size=256M
       - --max-allowed-packet=64M
       - --skip-log-bin
