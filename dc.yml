@@ -80,16 +80,16 @@ services:
     container_name: alina_mysql
     mem_limit: 1g
     mem_reservation: 1g
-    cpus: 2.0
+    cpus: 1.0
     command:
-      - --innodb-buffer-pool-size=2G
-      - --innodb-log-file-size=512M
-      - --max-allowed-packet=256M
+      - --innodb-buffer-pool-size=512M
+      - --innodb-log-file-size=256M
+      - --max-allowed-packet=64M
       - --skip-log-bin
       - --skip-name-resolve
-      - --table-open-cache=4000
-      - --tmp-table-size=256M
-      - --max-heap-table-size=256M
+      - --table-open-cache=2000
+      - --tmp-table-size=64M
+      - --max-heap-table-size=64M
       - --innodb-flush-neighbors=0
       - --performance-schema=ON
       - --log-error=/var/log/mysql/error.log
@@ -97,22 +97,17 @@ services:
       - --slow-query-log-file=/var/log/mysql/slow.log
       - --long-query-time=2
       - --tls-version=TLSv1.2,TLSv1.3
-      - --max_execution_time=10000  # Лимит на SELECT: 10 секунд
-      - --innodb-lock-wait-timeout=10  # Ожидание блокировок: 10 сек
-      - --lock-wait-timeout=10        # Глобальный таймаут блокировок
-      - --interactive-timeout=60      # Таймаут сессии (сек)
-      - --wait-timeout=60             # Таймаут ожидания запрос
+      - --max_execution_time=10000
+      - --connect-timeout=30
+      - --net-read-timeout=60
+      - --net-write-timeout=60
+      - --max-connections=100
     expose:
       - "3306"
     volumes:
       - ./database/mysql/:/var/lib/mysql/:rw
       - ./database/mysql-tmp/:/tmp/:rw
       - ./server/var/log/mysql/:/var/log/mysql/:rw
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     tmpfs:
       - /var/run/mysqld
     healthcheck:
