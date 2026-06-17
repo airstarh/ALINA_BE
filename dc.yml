@@ -93,6 +93,7 @@ services:
       - --slow-query-log=1
       - --slow-query-log-file=/var/log/mysql/slow.log
       - --long-query-time=2
+      - --tls-version=TLSv1.2,TLSv1.3
     expose:
       - "3306"
     volumes:
