@@ -81,25 +81,24 @@ services:
     command:
       - --innodb-buffer-pool-size=2G
       - --innodb-log-file-size=512M
-      - --innodb-flush-log-at-trx-commit=2
-      - --sync-binlog=1
-      - --innodb-flush-method=O_DIRECT
-      - --innodb-io-capacity=2000
-      - --innodb-io-capacity-max=4000
       - --max-allowed-packet=256M
       - --skip-log-bin
       - --skip-name-resolve
       - --table-open-cache=4000
       - --tmp-table-size=256M
       - --max-heap-table-size=256M
-      - --innodb-max-dirty-pages-pct=75
       - --innodb-flush-neighbors=0
       - --performance-schema=ON
+      - --log-error=/var/log/mysql/error.log
+      - --slow-query-log=1
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=2
     expose:
       - "3306"
     volumes:
       - ./database/mysql/:/var/lib/mysql/:rw
       - ./database/mysql-tmp/:/tmp/:rw
+      - ./server/var/log/mysql/:/var/log/mysql/:rw
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
