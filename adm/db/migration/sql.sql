@@ -6,33 +6,39 @@ SELECT
     VERSION() AS `Версия MySQL`;
 
 SELECT
-    (
-        SELECT
-            VARIABLE_VALUE
-        FROM
-            performance_schema.global_variables
-        WHERE
-            VARIABLE_NAME = 'innodb_buffer_pool_size'
+    CAST(
+        (
+            SELECT
+                VARIABLE_VALUE
+            FROM
+                performance_schema.global_variables
+            WHERE
+                VARIABLE_NAME = 'innodb_buffer_pool_size'
+        ) AS UNSIGNED
     ) / 1024 / 1024 / 1024 AS `InnoDB Buffer Pool (ГБ)`;
 
 SELECT
-    (
-        SELECT
-            VARIABLE_VALUE
-        FROM
-            performance_schema.global_variables
-        WHERE
-            VARIABLE_NAME = 'innodb_log_file_size'
+    CAST(
+        (
+            SELECT
+                VARIABLE_VALUE
+            FROM
+                performance_schema.global_variables
+            WHERE
+                VARIABLE_NAME = 'innodb_log_file_size'
+        ) AS UNSIGNED
     ) / 1024 / 1024 AS `InnoDB Log File Size (МБ)`;
 
 SELECT
-    (
-        SELECT
-            VARIABLE_VALUE
-        FROM
-            performance_schema.global_variables
-        WHERE
-            VARIABLE_NAME = 'max_allowed_packet'
+    CAST(
+        (
+            SELECT
+                VARIABLE_VALUE
+            FROM
+                performance_schema.global_variables
+            WHERE
+                VARIABLE_NAME = 'max_allowed_packet'
+        ) AS UNSIGNED
     ) / 1024 / 1024 AS `Max Allowed Packet (МБ)`;
 
 SELECT
