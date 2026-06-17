@@ -122,6 +122,7 @@ services:
       - DAC_OVERRIDE
       - SETUID
       - SETGID
+    init: true
 
   certbot:
     image: certbot/certbot:latest
