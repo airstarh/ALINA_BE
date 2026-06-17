@@ -94,6 +94,11 @@ services:
       - --slow-query-log-file=/var/log/mysql/slow.log
       - --long-query-time=2
       - --tls-version=TLSv1.2,TLSv1.3
+      - --max_execution_time=10000  # Лимит на SELECT: 10 секунд
+      - --innodb-lock-wait-timeout=10  # Ожидание блокировок: 10 сек
+      - --lock-wait-timeout=10        # Глобальный таймаут блокировок
+      - --interactive-timeout=60      # Таймаут сессии (сек)
+      - --wait-timeout=60             # Таймаут ожидания запрос
     expose:
       - "3306"
     volumes:
