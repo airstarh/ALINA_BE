@@ -37,6 +37,7 @@ ALINA_PERMISSIONS() {
 
 # === MySQL ===
 chown -R "$ALINA_USER_MYSQL:$ALINA_GROUP_MYSQL" "$BASE_DIR/database/mysql"
+chown -R "$ALINA_USER_MYSQL:$ALINA_GROUP_MYSQL" "$BASE_DIR/server/var/log/mysql"
 
 # === PHP ===
 ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/var/log/php"
