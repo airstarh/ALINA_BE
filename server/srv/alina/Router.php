@@ -9,7 +9,9 @@ class Router
 {
     ##################################################
     #region Instantiation
-    use Singleton;
+
+use Singleton;
+
     public $initialUrl        = null;
     public $initialUrlDecoded = null;
     public $pathAlias         = null;
@@ -25,9 +27,15 @@ class Router
 
     protected function __construct()
     {
+        $vocAliasUrl               = AlinaCfg(['vocAliasUrl']);
+        $bdVoc                     = (new \alina\mvc\Model\router_alias())->getAsVoc();
+        $this->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
+        $this->processUrl();
     }
+
     #endregion Instantiation
     ##################################################
+
     public function processUrl()
     {
         $this->initialUrl        = $_SERVER['REQUEST_URI'];
@@ -43,27 +51,23 @@ class Router
         }
 
         // Define path information
-        if (! empty(Request::obj()->GET->alinapath)) {
+        if (!empty(Request::obj()->GET->alinapath)) {
             $this->pathAlias = trim(Request::obj()->GET->alinapath, '/');
-            $this->pathSys   = (isset($this->vocAliasUrl) && ! empty($this->vocAliasUrl))
-                ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true)
-                : $this->pathAlias;
-            $_pathParts     = explode('/', $this->pathSys);
-            $this->pathPart = $_pathParts;
+            $this->pathSys   = (isset($this->vocAliasUrl) && !empty($this->vocAliasUrl)) ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true) : $this->pathAlias;
+            $_pathParts      = explode('/', $this->pathSys);
+            $this->pathPart  = $_pathParts;
 
-            if (isset($_pathParts[0]) && ! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
+            if (isset($_pathParts[0]) && !empty($_pathParts[0]) && !is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
             }
 
-            if (isset($_pathParts[0]) && ! empty($_pathParts[0])) {
+            if (isset($_pathParts[0]) && !empty($_pathParts[0])) {
                 $this->action = array_shift($_pathParts);
-            }
-            else {
+            } else {
                 $this->action = false;
             }
             $this->pathParameter = $_pathParts;
-        }
-        else {
+        } else {
             $this->controller = AlinaCfg('mvc/defaultController');
             $this->action     = AlinaCfg('mvc/defaultAction');
         }

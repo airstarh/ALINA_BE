@@ -216,10 +216,6 @@ class App
     public function defineRoute()
     {
         $this->router              = \alina\Router::obj();
-        $vocAliasUrl               = static::getConfig(['vocAliasUrl']);
-        $bdVoc                     = (new router_alias())->getAsVoc();
-        $this->router->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
-        $this->router->processUrl();
 
         ##################################################
         #region Redirect
