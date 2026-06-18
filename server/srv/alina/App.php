@@ -333,7 +333,7 @@ final class App
         }
     }
 
-    private function mvcPageNotFound()
+    public function mvcPageNotFound()
     {
         // ToDo: line below does not work with Nginx correct. Investigate.
         //http_response_code(404);

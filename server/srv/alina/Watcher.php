@@ -142,11 +142,6 @@ final class Watcher
 
     private function firewallFools()
     {
-        AlinaDebug([
-            Request::obj()->URL_PATH,
-            \alina\Utils\Sys::validateCurrentRoute(),
-        ]);
-
         if (
             (
                 Request::has('alinafool', $alinafool)

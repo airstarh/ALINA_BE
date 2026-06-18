@@ -16,16 +16,9 @@ use const ALINA_PATH_TO_FRAMEWORK;
 use const ALINA_WEB_PATH;
 
 use function AlinaAccessIfAdmin;
-use function AlinaCfg;
-use function AlinaCfgDefault;
 use function GuzzleHttp\json_encode;
 
 use const PHP_EOL;
-
-use ReflectionClass;
-use ReflectionMethod;
-
-use function str_starts_with;
 
 use Throwable;
 
@@ -672,104 +665,36 @@ class Sys
 
     ##################################################
 
-    public static function validateCurrentRoute(): bool
-    {
-        $res = false;
-        $url = Request::obj()->URL_PATH;
-        $wl  = static::getWhiteListRoutes();
-
-        if ($url === '/' || empty($url)) {
-            return true;
-        }
-
-        foreach ($wl as $route) {
-            if (Str::ifContains($url, $route)) {
-                return true;
-            }
-        }
-
-        return $res;
-    }
-
-    public static function getWhiteListRoutes(): array
+    public static function getWhiteListController(): array
     {
         $res = [];
 
         $folders = [
-            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller' => '\\' . AlinaCfgDefault('appNamespace') . '\\mvc\\Controller\\',
-            ALINA_PATH_TO_APP . '/mvc/Controller'       => '\\' . AlinaCfg('appNamespace') . '\\mvc\\Controller\\',
+            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller',
+            ALINA_PATH_TO_APP . '/mvc/Controller',
         ];
 
-        foreach ($folders as $controller => $mamespace) {
-            $res = \array_merge($res, Sys::getRouteByControllerAndNamespace($controller, $mamespace));
+        foreach ($folders as $folder) {
+            $res = \array_merge($res, Sys::getListFileToLowerCaseUniq($folder));
+        }
+
+        return \array_keys($res);
+    }
+
+    public static function getListFileToLowerCaseUniq(string $folder): array
+    {
+        $res   = [];
+        $files = glob($folder . '/*.php');
+
+        foreach ($files as $file) {
+            $fileName       = strtolower(basename($file, '.php'));
+            $res[$fileName] = $fileName;
         }
 
         return $res;
     }
 
-    public static function getRouteByControllerAndNamespace(string $controllersDir, string $namespacePrefix = ''): array
-    {
-        $routes = [];
 
-        // Получаем все PHP-файлы в папке
-        $files = glob($controllersDir . '/*.php');
-
-        foreach ($files as $file) {
-            $fileName  = basename($file, '.php');
-            $className = $namespacePrefix . $fileName;
-
-            // Подключаем файл, если класс ещё не объявлен
-            if (! class_exists($className)) {
-                require_once $file;
-            }
-
-            // Проверяем, существует ли класс
-            if (! class_exists($className)) {
-                continue;
-            }
-
-            // Создаём рефлексию класса
-            $reflection = new ReflectionClass($className);
-
-            // Получаем только публичные методы
-            $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
-
-            foreach ($methods as $method) {
-                $methodName = $method->getName();
-
-                // Пропускаем магические методы
-                if (str_starts_with($methodName, '__')) {
-                    continue;
-                }
-
-                // Фильтруем методы, начинающиеся с "action"
-                if (str_starts_with($methodName, 'action')) {
-                    // Преобразуем имя класса в нижний регистр (без префикса namespace)
-                    $controllerName = strtolower($fileName);
-
-                    // Преобразуем имя метода: actionUpsert → upsert
-                    $actionName = lcfirst(substr($methodName, 6)); // отрезаем 'action' и делаем первую букву строчной
-                    //                    $actionName = preg_replace('/(?<!^)[A-Z]/', '-$0', $actionName); // CamelCase → kebab-case
-                    $actionName = strtolower($actionName);
-
-                    // Формируем маршрут
-                    $route = $controllerName . '/' . $actionName;
-
-                    $routes[] = $route;
-
-                    if ($actionName === 'index') {
-                        $route    = $controllerName . '/';
-                        $routes[] = $route;
-
-                        $route    = $controllerName;
-                        $routes[] = $route;
-                    }
-                }
-            }
-        }
-
-        return $routes;
-    }
 
     ##################################################
     ##################################################
