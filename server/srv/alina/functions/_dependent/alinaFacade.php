@@ -30,19 +30,19 @@ define('ALINA_FILE_UPLOAD_KEY', 'userfile');
  * @throws Exception
  */
 
-function Alina()
+function Alina(): \alina\App
 {
     return App::get();
 }
 
 function AlinaCfg($path)
 {
-    return App::getConfig($path);
+    return Alina()::getConfig($path);
 }
 
 function AlinaCfgDefault($path)
 {
-    return App::getConfigDefault($path);
+    return Alina()::getConfigDefault($path);
 }
 
 function AlinaGetNowInDbFormat()

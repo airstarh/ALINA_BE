@@ -7,7 +7,7 @@ use alina\Utils\Arr;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 
-class App
+final class App
 {
     #region Officials
     public $name    = 'Alina';
@@ -15,7 +15,7 @@ class App
     public $license = 'Free For All';
     #endregion Officials
     #region Initiation
-    protected function __construct($config = [])
+    private function __construct($config = [])
     {
         $this->autoload($config);
         $this->setConfig($config);
@@ -85,10 +85,10 @@ class App
         return null;
     }
 
-    protected $config        = [];
-    protected $configDefault = [];
+    private $config        = [];
+    private $configDefault = [];
 
-    protected function setConfig(array $config = [])
+    private function setConfig(array $config = [])
     {
         $defaultConfigPath   = \alina\Utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
         $defaultConfig       = require($defaultConfigPath);
