@@ -1,6 +1,7 @@
 <?php
 
 ##################################################
+
 use alina\App;
 use alina\GlobalRequestStorage;
 use alina\Message;
@@ -28,6 +29,7 @@ define('ALINA_FILE_UPLOAD_KEY', 'userfile');
  * @return \alina\App
  * @throws Exception
  */
+
 function Alina()
 {
     return App::get();
@@ -71,6 +73,7 @@ function AlinaIsResponseSuccess()
 
 ##################################################
 #region Access
+
 function AlinaAccessIfLoggedIn()
 {
     return CurrentUser::obj()->isLoggedIn();
@@ -99,19 +102,17 @@ function AlinaAccessIfOwner($owner_id)
 function AlinaAccessIfAdminOrModeratorOrOwner($owner_id)
 {
     return
-        AlinaAccessIfOwner($owner_id)
-        || AlinaAccessIfAdmin()
-        || AlinaAccessIfModerator();
+            AlinaAccessIfOwner($owner_id) || AlinaAccessIfAdmin() || AlinaAccessIfModerator();
 }
 
 function AlinaAccessIfAdminOrModerator()
 {
     return
-        AlinaAccessIfAdmin()
-        || AlinaAccessIfModerator();
+            AlinaAccessIfAdmin() || AlinaAccessIfModerator();
 }
 
 #####
+
 function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
 {
     AlinaResponseSuccess(0);
@@ -170,6 +171,7 @@ function AlinaRedirectIfNotAjax($to = '/#/', $code = 303, $isToOrigin = false)
 /**
  * https://stackoverflow.com/questions/3964793/php-case-insensitive-version-of-file-exists
  */
+
 function Alina_file_exists($fileName, $caseSensitive = false)
 {
     if (file_exists($fileName)) {
@@ -193,6 +195,7 @@ function Alina_file_exists($fileName, $caseSensitive = false)
 }
 
 ##################################################
+
 function AlinaGetCurrentDomainUrl()
 {
     $protocol   = $_SERVER['REQUEST_SCHEME'] ?? 'CLI_REQUEST_SCHEME';
@@ -242,6 +245,7 @@ function AlinaFePath($routeName)
 }
 
 ##################################################
+
 function ___($str, $loc = 'ru_RU')
 {
     try {
@@ -253,6 +257,17 @@ function ___($str, $loc = 'ru_RU')
 }
 
 ##################################################
+
+function AlinaEchoDraft($data)
+{
+    echo '<pre>';
+    print_r($data);
+    echo '</pre>';
+    echo '<br>';
+
+    AlinaExit($data);
+}
+
 function AlinaEcho(string $string)
 {
     echo $string;
@@ -284,8 +299,10 @@ function AlinaExit($data)
     }
     exit();
 }
+
 ##################################################
 #region DEBUG
+
 function AlinaDebug($data)
 {
     return Sys::fDebug($data, true, null, 'php');
@@ -308,5 +325,6 @@ function AlinaDebugMemory($prepend = [], $append = [])
     $data = \alina\Utils\Sys::reportMemoryUsed($prepend, $append);
     \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
 }
+
 #endregion DEBUG
 ##################################################

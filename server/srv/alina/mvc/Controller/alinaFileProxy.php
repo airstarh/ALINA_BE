@@ -61,7 +61,6 @@ class alinaFileProxy
             exit();
         }
 
-        echo '';
-        exit();
+        AlinaEcho('');
     }
 }

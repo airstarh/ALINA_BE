@@ -3,9 +3,20 @@
 namespace alina\mvc\Controller;
 
 use alina\GlobalRequestStorage;
+use alina\mvc\Model\file;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
+use alina\Utils\Sys;
+
+use const ALINA_PATH_TO_APP;
+use const ALINA_PATH_TO_FRAMEWORK;
+use const ALINA_WEB_PATH;
+
+use function AlinaCfg;
+use function AlinaCfgDefault;
+use function AlinaEcho;
+use function AlinaEchoDraft;
 
 class Tools
 {
@@ -15,19 +26,19 @@ class Tools
     public function actionSerializedDataEditor()
     {
         ##################################################
-        $vd = (object)[
-            'form_id'         => __FUNCTION__,
-            'strSource'       => '',
-            'mixedSource'     => '',
-            'strRes'          => '',
-            'mixedRes'        => [],
-            'mixedResControl' => [],
-            'strResControl'   => '',
-            'strFrom'         => '',
-            'strTo'           => '',
-            'tCount'          => 0,
+        $vd = (object) [
+                    'form_id'         => __FUNCTION__,
+                    'strSource'       => '',
+                    'mixedSource'     => '',
+                    'strRes'          => '',
+                    'mixedRes'        => [],
+                    'mixedResControl' => [],
+                    'strResControl'   => '',
+                    'strFrom'         => '',
+                    'strTo'           => '',
+                    'tCount'          => 0,
         ];
-        $data = (object)[];
+        $data = (object) [];
 
         ##################################################
         if (Request::isPost($post)) {
@@ -40,13 +51,13 @@ class Tools
         }
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
-        $vd = \alina\Utils\Data::mergeObjects($vd, $data);
+        $vd = Data::mergeObjects($vd, $data);
         AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
 
-    #####
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     /**
      * @file _backend/alina/mvc/template/CtrlDataTransformations/actionJson.php
@@ -56,22 +67,22 @@ class Tools
         $str       = @file_get_contents(ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
         $strSource = Data::hlpGetBeautifulJsonString($str);
         ##################################################
-        $vd = (object)[
-            'form_id'           => __FUNCTION__,
-            'strSource'         => $strSource,
-            'strFrom'           => '',
-            'strTo'             => '',
-            'strRes'            => '',
-            'mxdJsonDecoded'    => '',
-            'mxdResJsonDecoded' => '',
-            'tCount'            => 0,
+        $vd = (object) [
+                    'form_id'           => __FUNCTION__,
+                    'strSource'         => $strSource,
+                    'strFrom'           => '',
+                    'strTo'             => '',
+                    'strRes'            => '',
+                    'mxdJsonDecoded'    => '',
+                    'mxdResJsonDecoded' => '',
+                    'tCount'            => 0,
         ];
-        $data = (object)[];
+        $data = (object) [];
 
         ##################################################
         if (Request::isPost($post)) {
             $p         = $post;
-            $vd        = \alina\Utils\Data::mergeObjects($vd, $p);
+            $vd        = Data::mergeObjects($vd, $p);
             $strSource = $vd->strSource;
             $strFrom   = $vd->strFrom;
             $strTo     = $vd->strTo;
@@ -79,9 +90,27 @@ class Tools
         }
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'JSON Search-Replace-Beautify online');
-        $vd = \alina\Utils\Data::mergeObjects($vd, $data);
+        $vd = Data::mergeObjects($vd, $data);
         AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
+    }
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    public function actionRouteWhiteList()
+    {
+        $res = [];
+
+        $folders = [
+            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller' => '\\' . AlinaCfgDefault('appNamespace') . '\\mvc\\Controller\\',
+            ALINA_PATH_TO_APP . '/mvc/Controller'       => '\\' . AlinaCfg('appNamespace') . '\\mvc\\Controller\\',
+        ];
+
+        foreach ($folders as $controller => $mamespace) {
+            $res = \array_merge($res, Sys::getRouteByControllerAndNamespace($controller, $mamespace));
+        }
+
+        AlinaEchoDraft($res);
     }
 }

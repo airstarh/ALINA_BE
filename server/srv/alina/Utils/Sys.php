@@ -11,6 +11,7 @@ use alina\Utils\Data as DataAlias;
 class Sys
 {
     ##################################################
+
     private static array $flagStarted  = [];
     private static array $counterCalls = [];
     public static int $countSome1      = 0;
@@ -37,6 +38,7 @@ class Sys
 
         return $fPath;
     }
+
     ##################################################
 
     private static string $fPath;
@@ -63,9 +65,7 @@ class Sys
             ###############################
             # region FLAGS, COUNTERs, etc.
             static::$flagStarted[$fPath]  = static::$flagStarted[$fPath] ?? false;
-            static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath])
-                ? ++static::$counterCalls[$fPath]
-                : 1;
+            static::$counterCalls[$fPath] = isset(static::$counterCalls[$fPath]) ? ++static::$counterCalls[$fPath] : 1;
             # endregion FLAGS, COUNTERs, etc.
             ###############################
             # region CLARIFY TEMPLATE
@@ -285,26 +285,19 @@ class Sys
             }
 
             // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-
             //     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
-
             //     if ($r !== $h) {
-
             //         return TRUE;
-
             //     }
             // }
         }
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
-
             //     return TRUE;
-
             // }
             if (
-                isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-                && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi'
+                isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi'
             ) {
                 return true;
             }
@@ -328,7 +321,6 @@ class Sys
         }
 
         //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
-
         //ToDo: PROD! Security!
         #####
         $allowedHeaders = [
@@ -364,9 +356,7 @@ class Sys
         header('Alina-Server-Header: Hello, from Alina');
 
         #endregion Custom headers for tests
-
         #####
-
         #region Fix for Chrome Back button
         //header('Vary: X-Requested-With');
         header('Vary:Content-Type');
@@ -377,9 +367,7 @@ class Sys
         header('Pragma: no-cache');
 
         //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-
         #region Fix for Chrome Back button
-
         #####
         if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
@@ -411,8 +399,7 @@ class Sys
     public static function redirect($page, $code = 307, $isToOrigin = false)
     {
         if (
-            \alina\Utils\Str::startsWith($page, 'http://')
-            || \alina\Utils\Str::startsWith($page, 'https://')
+            \alina\Utils\Str::startsWith($page, 'http://') || \alina\Utils\Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
             exit();
@@ -422,9 +409,7 @@ class Sys
         $get = (object) [];
 
         if (
-            $isToOrigin
-            && isset($_SERVER['HTTP_REFERER'])
-            && ! empty($_SERVER['HTTP_REFERER'])
+            $isToOrigin && isset($_SERVER['HTTP_REFERER']) && ! empty($_SERVER['HTTP_REFERER'])
         ) {
             $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
@@ -440,16 +425,14 @@ class Sys
         $messages = Message::returnAllMessages();
 
         if (count($messages) > 0) {
-            $get->{Message::$MESSAGE_GET_KEY}
-                = json_encode($messages, JSON_UNESCAPED_UNICODE);
+            $get->{Message::$MESSAGE_GET_KEY} = json_encode($messages, JSON_UNESCAPED_UNICODE);
         }
 
         if (AlinaAccessIfAdmin()) {
             $messages_admin = MessageAdmin::returnAllMessages();
 
             if (count($messages_admin) > 0) {
-                $get->{MessageAdmin::$MESSAGE_GET_KEY}
-                    = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
+                $get->{MessageAdmin::$MESSAGE_GET_KEY} = json_encode($messages_admin, JSON_UNESCAPED_UNICODE);
             }
         }
 
@@ -539,7 +522,6 @@ class Sys
     }
 
     ##################################################
-
     ##################################################
     ##################################################
 
@@ -665,12 +647,75 @@ class Sys
 
         return $output;
     }
-    ##################################################
 
     ##################################################
 
-    ##################################################
+    public static function getRouteByControllerAndNamespace(string $controllersDir, string $namespacePrefix = ''): array
+    {
+        $routes = [];
 
+        // Получаем все PHP-файлы в папке
+        $files = glob($controllersDir . '/*.php');
+
+        foreach ($files as $file) {
+            $fileName  = basename($file, '.php');
+            $className = $namespacePrefix . $fileName;
+
+            // Подключаем файл, если класс ещё не объявлен
+            if (! class_exists($className)) {
+                require_once $file;
+            }
+
+            // Проверяем, существует ли класс
+            if (! class_exists($className)) {
+                continue;
+            }
+
+            // Создаём рефлексию класса
+            $reflection = new \ReflectionClass($className);
+
+            // Получаем только публичные методы
+            $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+            foreach ($methods as $method) {
+                $methodName = $method->getName();
+
+                // Пропускаем магические методы
+                if (str_starts_with($methodName, '__')) {
+                    continue;
+                }
+
+                // Фильтруем методы, начинающиеся с "action"
+                if (str_starts_with($methodName, 'action')) {
+                    // Преобразуем имя класса в нижний регистр (без префикса namespace)
+                    $controllerName = strtolower($fileName);
+
+                    // Преобразуем имя метода: actionUpsert → upsert
+                    $actionName = lcfirst(substr($methodName, 6)); // отрезаем 'action' и делаем первую букву строчной
+                    //                    $actionName = preg_replace('/(?<!^)[A-Z]/', '-$0', $actionName); // CamelCase → kebab-case
+                    $actionName = strtolower($actionName);
+
+                    // Формируем маршрут
+                    $route = $controllerName . '/' . $actionName;
+
+                    $routes[] = $route;
+
+                    if ($actionName === 'index') {
+                        $route    = $controllerName . '/';
+                        $routes[] = $route;
+
+                        $route    = $controllerName;
+                        $routes[] = $route;
+                    }
+                }
+            }
+        }
+
+        return $routes;
+    }
+
+    ##################################################
+    ##################################################
     ##################################################
     ##################################################
 }

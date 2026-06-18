@@ -21,13 +21,7 @@ class Generic
             'args' => $arg,
         ];
         #####
-        // echo '<div class="ck-content">';
-        // echo '<pre>';
-        // print_r($vd);
-        // echo '</pre>';
-        // echo '</div>';
-        #####
-        echo (new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide);
+        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }

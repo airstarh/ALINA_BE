@@ -90,11 +90,8 @@ class AdminTests
     public function actionSerialization()
     {
         $d = require_once ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/complicated_nixed_object.php';
-        echo '<pre>';
-        print_r(serialize($d));
-        echo '</pre>';
 
-        return $this;
+        AlinaEchoDraft(serialize($d));
     }
 
     ##############################################
@@ -105,11 +102,8 @@ class AdminTests
     public function actionJsonEncode()
     {
         $d = require_once ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/complicated_nixed_object.php';
-        echo '<pre>';
-        print_r(json_encode($d));
-        echo '</pre>';
 
-        return $this;
+        AlinaEchoDraft(json_encode($d));
     }
 
     ##############################################
@@ -176,9 +170,8 @@ class AdminTests
         $limit      = null;
         $offset     = null;
         $m->getAllWithReferences($conditions, $orderArray, $limit, $offset);
-        echo '<pre>';
-        print_r($m->collection->toArray());
-        echo '</pre>';
+
+        AlinaEchoDraft($m->collection->toArray());
     }
 
     ##############################################
@@ -376,7 +369,6 @@ class AdminTests
         // $res = array_merge($arr1, $arr2);
         // $res = array_merge_recursive($arr1, $arr2);
 
-        echo '<pre>';
-        var_export($res);
+        AlinaEchoDraft($res);
     }
 }

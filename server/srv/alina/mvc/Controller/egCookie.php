@@ -21,11 +21,10 @@ class egCookie
         AppCookie::setPath('a/b/c/a2', 222);
         AppCookie::setPath('a/b/c1/a1', 333);
         //cookie::deletePath('a/b/c');
-        echo '<pre>';
-        print_r($_COOKIE);
-        echo '</pre>';
-        echo '<pre>';
-        print_r($_SERVER['HTTP_COOKIE'] ?? 'CLI_HTTP_COOKIE');
-        echo '</pre>';
+
+        AlinaEchoDraft([
+            '$_COOKIE'           => $_COOKIE,
+            'SERVER_HTTP_COOKIE' => $_SERVER['HTTP_COOKIE'] ?? 'CLI_HTTP_COOKIE',
+        ]);
     }
 }
