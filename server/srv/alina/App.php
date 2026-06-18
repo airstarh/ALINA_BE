@@ -6,7 +6,6 @@ use alina\mvc\Model\CurrentUser;
 use alina\Utils\Arr;
 use alina\Utils\Request;
 use alina\Utils\Sys;
-use alina\Utils\Url;
 
 class App
 {
@@ -215,28 +214,6 @@ class App
     public function defineRoute()
     {
         $this->router = \alina\Router::obj();
-
-        ##################################################
-        #region Redirect
-        /*
-         * This will redirect user to Page's Alias
-         */
-        if (AlinaCfg('forceSysPathToAlias')) {
-            if ($this->router->pathAlias == $this->router->pathSys) {
-                $this->router->forcedAlias = \alina\Utils\Url::routeAccordance($this->router->pathSys, $this->router->vocAliasUrl, false);
-
-                if ($this->router->forcedAlias != $this->router->pathSys) {
-                    $uri = [
-                        'path'  => $this->router->forcedAlias,
-                        'query' => $this->router->strGetQuery,
-                    ];
-                    $uri = Url::un_parse_url($uri);
-                    \alina\Utils\Sys::redirect($uri);
-                }
-            }
-        }
-        #endregion Redirect
-        ##################################################
 
         return $this;
     }

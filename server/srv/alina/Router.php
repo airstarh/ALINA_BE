@@ -31,12 +31,13 @@ class Router
         $bdVoc             = (new \alina\mvc\Model\router_alias())->getAsVoc();
         $this->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
         $this->processUrl();
+        $this->redirectIfNeeded();
     }
 
     #endregion Instantiation
     ##################################################
 
-    public function processUrl()
+    private function processUrl()
     {
         $this->initialUrl        = $_SERVER['REQUEST_URI'];
         $this->initialUrlDecoded = Request::obj()->URL_PATH;
@@ -75,16 +76,24 @@ class Router
         }
     }
 
-    public static function path($order = null)
+    private function redirectIfNeeded()
     {
-        $path = static::obj()->pathPart;
+        /*
+         * This will redirect user to Page's Alias
+         */
+        if (AlinaCfg('forceSysPathToAlias')) {
+            if ($this->pathAlias == $this->pathSys) {
+                $this->forcedAlias = \alina\Utils\Url::routeAccordance($this->pathSys, $this->vocAliasUrl, false);
 
-        if (isset($order)) {
-            if (isset($path[$order])) {
-                return $path[$order];
+                if ($this->forcedAlias != $this->pathSys) {
+                    $uri = [
+                        'path'  => $this->forcedAlias,
+                        'query' => $this->strGetQuery,
+                    ];
+                    $uri = \alina\Utils\Url::un_parse_url($uri);
+                    \alina\Utils\Sys::redirect($uri);
+                }
             }
         }
-
-        return false;
     }
 }
