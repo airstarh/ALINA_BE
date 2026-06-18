@@ -14,6 +14,7 @@ $placeholder = @$data->placeholder ?: '';
 $showLabel   = @$data->showLabel ?: false;
 #####
 $_options = [];
+
 foreach ($options as $i => $v) {
     $ind = $v;
     $val = Data::stringify($v);
@@ -31,6 +32,7 @@ foreach ($options as $i => $v) {
 $_options_keys = array_keys($_options);
 #####
 $_value = [];
+
 foreach ($value as $i => $v) {
     $ind = $v;
     $val = Data::stringify($v);

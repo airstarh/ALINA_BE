@@ -23,6 +23,7 @@ class referenceProcessor
         $m            = $this->model;
         $q            = $this->model->q;
         $referencesTo = $m->referencesTo();
+
         foreach ($referencesTo as $rName => $rConfig) {
             if (! empty($refNames)) {
                 if (! in_array($rName, $refNames)) {
@@ -68,6 +69,7 @@ class referenceProcessor
         $m            = new $mClassName();
         $m->alias     = 'main';
         $referencesTo = $m->referencesTo();
+
         foreach ($referencesTo as $rName => $rConfig) {
             if (! empty($refNames)) {
                 if (! in_array($rName, $refNames, true)) {
@@ -121,6 +123,7 @@ class referenceProcessor
     protected function applyQueryOperations(array $operations)
     {
         $q = $this->q;
+
         foreach ($operations as $operation) {
             $method = array_shift($operation);
             call_user_func_array([$q, $method], $operation);

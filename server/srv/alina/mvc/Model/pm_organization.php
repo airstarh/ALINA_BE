@@ -73,6 +73,7 @@ class pm_organization extends _BaseAlinaModel
                         # Preparation
                         $arrPostedChildIds = $data->{$refName} ?? [];
                         $ids               = [];
+
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
@@ -98,6 +99,7 @@ class pm_organization extends _BaseAlinaModel
                         $q->select($glueChildPk);
                         $q->where($glueMasterPk, '=', $pkValue);
                         $currChildIds = $q->pluck($glueChildPk)->toArray();
+
                         ####################
                         # INSERT
                         foreach ($arrNewChildPkValues as $newChildId) {
@@ -132,6 +134,7 @@ class pm_organization extends _BaseAlinaModel
                         # Preparation
                         $arrPostedChildIds = $data->{$refName} ?? [];
                         $ids               = [];
+
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;

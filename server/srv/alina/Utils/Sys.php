@@ -2,11 +2,32 @@
 
 namespace alina\Utils;
 
+use function Alina;
+
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
 use alina\Utils\Data as DataAlias;
+
+use const ALINA_MICROTIME;
+use const ALINA_PATH_TO_APP;
+use const ALINA_PATH_TO_FRAMEWORK;
+use const ALINA_WEB_PATH;
+
+use function AlinaAccessIfAdmin;
+use function AlinaCfg;
+use function AlinaCfgDefault;
+use function GuzzleHttp\json_encode;
+
+use const PHP_EOL;
+
+use ReflectionClass;
+use ReflectionMethod;
+
+use function str_starts_with;
+
+use Throwable;
 
 class Sys
 {
@@ -209,7 +230,7 @@ class Sys
 
             return true;
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             return false;
         }
     }
@@ -399,7 +420,7 @@ class Sys
     public static function redirect($page, $code = 307, $isToOrigin = false)
     {
         if (
-            \alina\Utils\Str::startsWith($page, 'http://') || \alina\Utils\Str::startsWith($page, 'https://')
+            Str::startsWith($page, 'http://') || Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
             exit();
@@ -418,7 +439,7 @@ class Sys
             ]);
         }
         else {
-            $page = \alina\Utils\Html::ref($page);
+            $page = Html::ref($page);
         }
 
         #####
@@ -438,7 +459,7 @@ class Sys
 
         #####
         if (! empty($get)) {
-            $page = \alina\Utils\Url::addGetFromObject($page, $get);
+            $page = Url::addGetFromObject($page, $get);
         }
 
         #####
@@ -595,7 +616,7 @@ class Sys
         try {
             var_export($data, 0);
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             static::print_limited_r($data, $depth);
         }
     }
@@ -617,6 +638,7 @@ class Sys
         }
 
         $stack = [];
+
         foreach ($backtrace as $trace) {
             $functionName = '';
             $functionName .= $trace['class']    ?? '';
@@ -650,9 +672,41 @@ class Sys
 
     ##################################################
 
+    public static function validateCurrentRoute():bool
+    {
+        $res = false;
+        $url = Request::obj()->URL_PATH;
+        $wl  = static::getWhiteListRoutes();
+
+        foreach ($wl as $route) {
+            if (Str::ifContains($url, $route)) {
+                return true;
+            }
+        }
+
+        return $res;
+    }
+
+    public static function getWhiteListRoutes(): array
+    {
+        $res = [];
+
+        $folders = [
+            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller' => '\\' . AlinaCfgDefault('appNamespace') . '\\mvc\\Controller\\',
+            ALINA_PATH_TO_APP . '/mvc/Controller'       => '\\' . AlinaCfg('appNamespace') . '\\mvc\\Controller\\',
+        ];
+
+        foreach ($folders as $controller => $mamespace) {
+            $res = \array_merge($res, Sys::getRouteByControllerAndNamespace($controller, $mamespace));
+        }
+
+        return $res;
+    }
+
     public static function getRouteByControllerAndNamespace(string $controllersDir, string $namespacePrefix = ''): array
     {
         $routes = [];
+        $routes[] = '/';
 
         // Получаем все PHP-файлы в папке
         $files = glob($controllersDir . '/*.php');
@@ -672,10 +726,10 @@ class Sys
             }
 
             // Создаём рефлексию класса
-            $reflection = new \ReflectionClass($className);
+            $reflection = new ReflectionClass($className);
 
             // Получаем только публичные методы
-            $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+            $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
 
             foreach ($methods as $method) {
                 $methodName = $method->getName();

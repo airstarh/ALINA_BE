@@ -88,6 +88,7 @@ class pm_task extends _BaseAlinaModel
         if (empty($this->attributes->_children)) {
             return $this;
         }
+
         foreach ($this->attributes->_children as $child) {
             $id = $child->_pm_subtask_id;
             $m  = new pm_subtask();

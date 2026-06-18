@@ -168,6 +168,7 @@ class Tale
                     $text = "Comment! Tale ID# {$attrs->root_tale_id}";
                     $tag  = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
                     $text = "You are commented!";
+
                     foreach ($allCommenters as $humanId) {
                         if ($humanId == CurrentUser::obj()->id()) {
                             continue;

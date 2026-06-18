@@ -113,6 +113,7 @@ trait Msg
     {
         $collection = static::getCollection();
         $all        = '';
+
         /** @var Message $msg */
         foreach ($collection as $pseudoId => $msg) {
             if (! $msg->isShown) {
@@ -129,6 +130,7 @@ trait Msg
     {
         $collection = static::getCollection();
         $all        = [];
+
         /** @var Message $message */
         foreach ($collection as $pseudoId => $message) {
             if (! $message->isShown) {

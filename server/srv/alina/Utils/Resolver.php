@@ -35,6 +35,7 @@ class Resolver
     {
         $args   = func_get_args();
         $blocks = [];
+
         foreach ($args as $block) {
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
@@ -45,6 +46,7 @@ class Resolver
         }
 
         $NAMESPACE_SEPARATOR = '\\';
+
         foreach ($blocks as $i => $block) {
             //$blocks[$i] = \alina\Utils\FS::normalizePath($block);
             $blocks[$i] = trim($block, DIRECTORY_SEPARATOR);

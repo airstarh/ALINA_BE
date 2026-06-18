@@ -162,6 +162,7 @@ class App
     public function resolveMethodName($classNameOrObject, $methodName)
     {
         $methods = get_class_methods($classNameOrObject);
+
         foreach ($methods as $m) {
             if (strtolower($m) === strtolower($methodName)) {
                 return $m;

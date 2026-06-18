@@ -176,6 +176,7 @@ class html
 
         if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
+
             foreach ($urls as $i => $url) {
                 $result .= $this->piece('_system/html/tag/link.php', $url);
                 $result .= PHP_EOL;
@@ -193,6 +194,7 @@ class html
 
         if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
+
             foreach ($urls as $i => $url) {
                 $result .= $this->piece('_system/html/tag/script.php', $url);
             }

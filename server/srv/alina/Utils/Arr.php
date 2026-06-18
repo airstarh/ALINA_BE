@@ -18,6 +18,7 @@ class Arr
     public static function getArrayValueByArrayPath(array $path, array $array)
     {
         $temp = &$array;
+
         foreach ($path as $section) {
             if (array_key_exists($section, $temp)) {
                 $temp = &$temp[$section];
@@ -51,6 +52,7 @@ class Arr
     public static function setArrayValueByArrayPath(array $path, $value, array &$array)
     {
         $temp = &$array;
+
         foreach ($path as $p) {
             $temp = &$temp[$p];
         }
@@ -81,6 +83,7 @@ class Arr
     public static function checkArrayPathByArray(array $path, array $array, &$value = null)
     {
         $temp = &$array;
+
         foreach ($path as $p) {
             if (array_key_exists($p, $temp)) {
                 $temp = &$temp[$p];
@@ -116,6 +119,7 @@ class Arr
     {
         $previousElement = null;
         $temp            = &$array;
+
         foreach ($path as &$p) {
             $previousElement = &$temp;
             $temp            = &$temp[$p];
@@ -168,6 +172,7 @@ class Arr
     public static function arrayMergeRecursive(array $array1, array $array2)
     {
         $merged = $array1;
+
         foreach ($array2 as $key => &$value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]) && ! is_numeric($key)) {
                 $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);

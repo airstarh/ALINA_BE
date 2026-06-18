@@ -81,6 +81,7 @@ class AdminDbManager
             ##########################################################################################
             $q->setCredentials($vd);
             $qResp = $q->qsGetColumnInformation();
+
             foreach ($qResp as $x) {
                 $exe[$x->TABLE_SCHEMA][$x->TABLE_NAME][$x->COLUMN_NAME] = $x;
 
@@ -284,6 +285,7 @@ class AdminDbManager
     public function actionUpdateBulk($table)
     {
         $p = Request::obj()->POST;
+
         foreach ($p->list as $i => $m) {
             $p->list[$i] = $this->actionUpdate($table, $m->id, $m);
         }

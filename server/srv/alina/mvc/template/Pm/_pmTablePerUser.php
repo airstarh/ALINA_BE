@@ -21,6 +21,7 @@ $prevRow        = [];
 $wd_assignee_id = null;
 $headers        = [];
 $classArchived  = [];
+
 foreach ($data as $iR => &$r) {
     foreach ($r as $f => &$v) {
         $headers[$f] = $f;

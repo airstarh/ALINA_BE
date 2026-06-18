@@ -121,6 +121,7 @@ class FileUpload
                     return $this->resp;
                 }
                 $counterUploadedFiles = 0;
+
                 foreach ($FILE_CONTAINER["error"] as $i => $error) {
                     if ($error == UPLOAD_ERR_OK) {
                         $sourceFileFullPath  = $FILE_CONTAINER["tmp_name"][$i];

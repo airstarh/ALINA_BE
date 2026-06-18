@@ -254,6 +254,7 @@ class AdminTests
         $HTML5DOMDocument->loadHTML($html);
         ##################################################
         $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);
         }

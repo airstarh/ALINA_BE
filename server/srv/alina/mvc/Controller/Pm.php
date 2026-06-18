@@ -493,6 +493,7 @@ class Pm
                         )
                         ->toArray()
                     ;
+
                     foreach ($listWd as $item) {
                         (new pm_work_done())->doArchive($item->id);
                     }
@@ -515,6 +516,7 @@ class Pm
                         )
                         ->toArray()
                     ;
+
                     foreach ($listWd as $item) {
                         (new pm_work_done())->doUnArchive($item->id);
                     }

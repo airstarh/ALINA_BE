@@ -281,6 +281,7 @@ class pm_work extends _BaseAlinaModel
 
             if (! empty($listWorkDone)) {
                 $counterUpdated = [];
+
                 foreach ($listWorkDone as $item) {
                     /**
                      * Other staff happens in hookRightBeforeSave of pm_work_done

@@ -66,6 +66,7 @@ class Html
     public static function convertAttributesArrayToString($attributes)
     {
         $attributeString = '';
+
         foreach ($attributes as $attribute => $value) {
             if (is_array($value)) {
                 $value = implode(' ', $value);

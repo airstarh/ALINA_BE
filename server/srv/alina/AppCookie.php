@@ -97,6 +97,7 @@ class AppCookie
     public static function deletePath($stringPath, $delimiter = '/')
     {
         $cookieFamilyName = static::buildNameByPath($stringPath, $delimiter);
+
         // Look into Just Added paths.
         foreach (static::$justAdded as $cookieFullName) {
             if (Str::startsWith($cookieFullName, $cookieFamilyName)) {
@@ -111,6 +112,7 @@ class AppCookie
         // Look into earlier set cookies.
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+
             foreach ($cookies as $cPair) {
                 $cNameValue     = explode('=', $cPair);
                 $cookieFullName = trim($cNameValue[0]);

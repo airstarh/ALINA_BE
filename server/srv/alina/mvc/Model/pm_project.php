@@ -90,6 +90,7 @@ class pm_project extends _BaseAlinaModel
             ['pm_project_id', '=', $this->id],
             ['flag_archived', '=', 0],
         ])->toArray();
+
         foreach ($listWork as $item) {
             unset($item->name_human);
             unset($item->price_this_work);

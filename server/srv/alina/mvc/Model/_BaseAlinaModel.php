@@ -170,6 +170,7 @@ class _BaseAlinaModel
             if (! is_array($uniqueFields)) {
                 throw new \ErrorException('Uniq Fields must be array');
             }
+
             foreach ($uniqueFields as $uf) {
                 if (property_exists($data, $uf)) {
                     $conditions[$uf] = $data->{$uf};
@@ -585,6 +586,7 @@ class _BaseAlinaModel
         if (is_string($orderArray)) {
             $orderArray = [[$orderArray, 'ASC']];
         }
+
         foreach ($orderArray as $orderBy) {
             if (count($orderBy) !== 2) {
                 //ToDo: Validate all necessary parameters.
@@ -673,6 +675,7 @@ class _BaseAlinaModel
         $R_GET        = $R->GET;
         $this->o_GET  = new \stdClass();
         $vocGetSearch = $this->vocGetSearch();
+
         foreach ($vocGetSearch as $short => $full) {
             /*
              * NOTE:
@@ -721,6 +724,7 @@ class _BaseAlinaModel
         }
         $filters = [];
         $fields  = $this->fields();
+
         #####
         foreach ($fields as $fieldName => $cfg) {
             if (property_exists($data, $fieldName)) {
@@ -758,6 +762,7 @@ class _BaseAlinaModel
         }
         $validators = [];
         $fields     = $this->fields();
+
         foreach ($fields as $fieldNameCfg => $params) {
             if (property_exists($data, $fieldNameCfg)) {
                 if (isset($params['validators']) && ! empty($params['validators'])) {
@@ -805,6 +810,7 @@ class _BaseAlinaModel
     {
         $dataArray = [];
         $fields    = $this->fields();
+
         foreach ($fields as $name => $params) {
             if (property_exists($data, $name)) {
                 if ($this->isFieldIdentity($name)) {
@@ -832,6 +838,7 @@ class _BaseAlinaModel
         $sn        = explode(',', $sortName);
         $sa        = explode(',', $sortAsc);
         $sortArray = [];
+
         foreach ($sn as $i => $n) {
             $asc         = isset($sa[$i]) ? Data::getSqlDirection($sa[$i]) : 'ASC';
             $sortArray[] = [$n, $asc];
@@ -857,6 +864,7 @@ class _BaseAlinaModel
     {
         $fields        = $this->fields();
         $defaultRawObj = new \stdClass();
+
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
@@ -1047,6 +1055,7 @@ class _BaseAlinaModel
             ->orderBy('ORDINAL_POSITION', 'ASC')
             ->pluck('COLUMN_NAME')
         ;
+
         foreach ($items as $v) {
             if (! empty($v)) {
                 $fields[$v] = [];
@@ -1115,6 +1124,7 @@ class _BaseAlinaModel
         $R_GET  = $R->GET;
         $fields = $this->fields();
         $fNames = array_keys($fields);
+
         foreach ($fNames as $f) {
             foreach ($R_GET as $gF => $gV) {
                 if (\alina\Utils\Str::endsWith($gF, $f)) {
@@ -1129,6 +1139,7 @@ class _BaseAlinaModel
     protected function qApplyGetSearchParams()
     {
         $q = $this->q;
+
         foreach ($this->o_GET as $f => $v) {
             if ($v == '') {
                 continue;
@@ -1146,6 +1157,7 @@ class _BaseAlinaModel
             }
             //API GET operators.
             $apiOperators = $this->apiOperators;
+
             foreach ($apiOperators as $o => $oV) {
                 if (\alina\Utils\Str::startsWith($f, $o)) {
                     $fName = implode('', explode($o, $f, 2));
@@ -1241,11 +1253,14 @@ class _BaseAlinaModel
     {
         $forIds        = $this->collection->pluck($this->pkName);
         $qHasManyArray = (new referenceProcessor($this))->joinHasMany([], $forIds);
+
         foreach ($qHasManyArray as $rName => $q) {
             //ToDO: Hardcoded id
             $qResult = $q->get();
+
             foreach ($this->collection as $thisModelAttributes) {
                 $thisModelAttributes->{$rName} = [];
+
                 foreach ($qResult as $row) {
                     if ($thisModelAttributes->{$this->pkName} === $row->main_id) {
                         $thisModelAttributes->{$rName}[] = $row;
@@ -1262,6 +1277,7 @@ class _BaseAlinaModel
 
         if (method_exists($this, 'referencesTo')) {
             $referencesSources = $this->referencesTo();
+
             foreach ($referencesSources as $relName => $relCfg) {
                 $rel[$relName] = [];
 
@@ -1275,6 +1291,7 @@ class _BaseAlinaModel
                     $q = $m->q();
                     $q->addSelect($childPk);
                     $q->addSelect($arrHumanName);
+
                     foreach ($arrHumanName as $hn) {
                         $q->orderBy($hn, 'ASC');
                     }

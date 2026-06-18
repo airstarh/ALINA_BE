@@ -43,6 +43,7 @@ $projectList = [
 
 foreach ($projectList as $to => $wwwDiff) {
     FS::cleanupDirectory($to, false, ['uploads', 'apps']);
+
     foreach ($wwwDiff as $from) {
         FS::copySmart($from, $to, true);
     }

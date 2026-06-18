@@ -23,7 +23,7 @@ return (new PhpCsFixer\Config())
             'operators' => ['=>' => 'align_single_space_minimal'],
         ],
         'blank_line_before_statement' => [
-            'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try'],
+            'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try', 'for', 'foreach', 'while', 'do'],
         ],
         'blank_line_after_opening_tag' => true,
         'single_blank_line_at_eof' => true,

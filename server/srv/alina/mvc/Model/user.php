@@ -288,6 +288,7 @@ class user extends _BaseAlinaModel
         }
         _baseAlinaEloquentTransaction::begin();
         $refCfg = $this->referencesTo();
+
         foreach ($refCfg as $refName => $cfg) {
             if (
                 (isset($cfg['has']) && $cfg['has'] === 'manyThrough')
@@ -306,6 +307,7 @@ class user extends _BaseAlinaModel
                         # Preparation
                         $arrPostedChildIds = $data->{$refName} ?? [];
                         $ids               = [];
+
                         foreach ($arrPostedChildIds as $v) {
                             if (is_object($v)) {
                                 $id = $v->id;
@@ -331,6 +333,7 @@ class user extends _BaseAlinaModel
                         $q->select($glueChildPk);
                         $q->where($glueMasterPk, '=', $pkValue);
                         $currChildIds = $q->pluck($glueChildPk)->toArray();
+
                         ####################
                         # INSERT
                         foreach ($arrNewChildPkValues as $newChildId) {
@@ -372,6 +375,7 @@ class user extends _BaseAlinaModel
 
         if (isset($this->attributes->rbac_user_role)) {
             $roles = $this->attributes->rbac_user_role;
+
             foreach ($roles as $r) {
                 if (strtoupper($r->name) === strtoupper($role)) {
                     return true;
@@ -394,6 +398,7 @@ class user extends _BaseAlinaModel
 
         if (isset($this->attributes->rbac_permission)) {
             $perms = $this->attributes->rbac_permission;
+
             foreach ($perms as $p) {
                 if (strtoupper($p->name) === strtoupper($perm)) {
                     return true;

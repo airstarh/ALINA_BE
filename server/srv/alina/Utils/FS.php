@@ -16,6 +16,7 @@ class FS
         //Sys::fDebug($pathParts);
         $chain              = [];
         $state_NIX_ABS_PATH = false;
+
         foreach ($pathParts as $i => $dir) {
             if ($i === 0 && empty($dir)) {
                 $state_NIX_ABS_PATH = true;
@@ -85,6 +86,7 @@ class FS
         $dir            = static::normalizePath($dir);
         $uniqueFileName = $fileName;
         $repeat         = true;
+
         do {
             $dirFile = $dir . DIRECTORY_SEPARATOR . $uniqueFileName;
 
@@ -147,6 +149,7 @@ class FS
     {
         $args   = func_get_args();
         $blocks = [];
+
         foreach ($args as $block) {
             if (is_array($block)) {
                 $blocks = array_merge($blocks, $block);
@@ -156,6 +159,7 @@ class FS
             }
         }
         $pp = [];
+
         foreach ($blocks as $i => $block) {
             $b = static::normalizePath($block);
 
@@ -246,6 +250,7 @@ class FS
         } //TODO: Adapt for CLI!!
         $pathToRemove = realpath($pathToRemove);
         $list         = glob($scan);
+
         foreach ($list as $index => $item) {
             $source      = $item;
             $link        = $item;
@@ -292,6 +297,7 @@ class FS
         $scan = str_replace('\\', '/', $scan);
         $scan = $scan . '/' . '*';
         $list = glob($scan);
+
         foreach ($list as $index => $item) {
             #####
             # Defaults:
@@ -336,6 +342,7 @@ class FS
                 if ($class) {
                     $ns_class   = \alina\Utils\Resolver::buildClassNameFromBlocks($ns, $class);
                     $methodList = get_class_methods($ns_class);
+
                     foreach ($methodList as $i => $m) {
                         if (str_starts_with($m, 'action')) {
                             $path  = ltrim($m, 'action');

@@ -12,6 +12,7 @@ class Url
         $pathSource      = $parsedUrlSource['path'];
         $pathSource      = trim($pathSource, '/');
         $pathRes         = '';
+
         foreach ($vocabulary as $aliasMask => $urlMask) {
             $compareWith       = ($aliasToSystemRoute) ? $aliasMask : $urlMask;
             $regularExpression = static::routeRegExp($compareWith);
@@ -37,6 +38,7 @@ class Url
     {
         $parts             = explode('/', $string);
         $regularExpression = [];
+
         foreach ($parts as $v) {
             if ($v === ':p' || false !== strpos($v, ':p')) {
                 $regularExpression[] = '.+?';
@@ -75,12 +77,14 @@ class Url
         $sourceArray   = explode('/', $source);
         $toMaskArray   = explode('/', $toMask);
         $_parameters   = [];
+
         foreach ($fromMaskArray as $i => $pN) {
             if (false !== strpos($pN, ':p')) {
                 $_parameters[$pN] = $sourceArray[$i];
             }
         }
         $convertedResult = [];
+
         foreach ($toMaskArray as $i => $pN) {
             if (false !== strpos($pN, ':p')) {
                 $convertedResult[] = $_parameters[$pN];

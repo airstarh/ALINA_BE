@@ -8,6 +8,7 @@ class Obj
     {
         $arr          = (array)$obj;
         $arrPropNames = array_keys($arr);
+
         foreach ($arrPropNames as $name) {
             if (strtolower($name) === strtolower($pName)) {
                 return $obj->{$name};

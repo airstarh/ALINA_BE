@@ -9,12 +9,8 @@ use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 
-use const ALINA_PATH_TO_APP;
-use const ALINA_PATH_TO_FRAMEWORK;
 use const ALINA_WEB_PATH;
 
-use function AlinaCfg;
-use function AlinaCfgDefault;
 use function AlinaEcho;
 use function AlinaEchoDraft;
 
@@ -100,16 +96,7 @@ class Tools
 
     public function actionRouteWhiteList()
     {
-        $res = [];
-
-        $folders = [
-            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller' => '\\' . AlinaCfgDefault('appNamespace') . '\\mvc\\Controller\\',
-            ALINA_PATH_TO_APP . '/mvc/Controller'       => '\\' . AlinaCfg('appNamespace') . '\\mvc\\Controller\\',
-        ];
-
-        foreach ($folders as $controller => $mamespace) {
-            $res = \array_merge($res, Sys::getRouteByControllerAndNamespace($controller, $mamespace));
-        }
+        $res = Sys::getWhiteListRoutes();
 
         AlinaEchoDraft($res);
     }

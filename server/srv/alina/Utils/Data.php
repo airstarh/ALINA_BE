@@ -396,6 +396,7 @@ class Data
     public static function mergeObjects(...$objects)
     {
         $res = (object) [];
+
         foreach ($objects as $o) {
             $res = (object) array_merge((array) $res, (array) $o);
         }
@@ -481,6 +482,7 @@ class Data
             $data     = preg_replace('%";%', "µµµ", $strFixed);
             $tab      = explode("µµµ", $data);
             $new_data = '';
+
             foreach ($tab as $line) {
                 $new_data .= preg_replace_callback(
                     '%\bs:(\d+):"(.*)%',
@@ -676,6 +678,7 @@ class Data
         #####
         $arrOutputDoNotTouch = ($arrOutputDoNotTouch === null) ? static::$arrOutputDoNotTouch : $arrOutputDoNotTouch;
         $arrOutputDoUnset    = ($arrOutputDoUnset === null) ? static::$arrOutputDoUnset : $arrOutputDoUnset;
+
         #####
         foreach ($object as $f => &$v) {
             #####
@@ -702,6 +705,7 @@ class Data
         #####
         $arrInputDoNotTouch = ($arrInputDoNotTouch === null) ? static::$arrInputDoNotTouch : $arrInputDoNotTouch;
         $arrInputDoUnset    = ($arrInputDoUnset === null) ? static::$arrInputDoUnset : $arrInputDoUnset;
+
         #####
         foreach ($object as $f => &$v) {
             #####
@@ -832,6 +836,7 @@ class Data
         $HTML5DOMDocument->loadHTML($html);
         ##################################################
         $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);
         }

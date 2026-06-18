@@ -31,6 +31,7 @@ class router_alias extends _BaseAlinaModel
                 ->q()
                 ->select(['alias', 'url'])
                 ->get();
+
         foreach ($collection as $i => $v) {
             $res["{$v->alias}"] = $v->url;
         }

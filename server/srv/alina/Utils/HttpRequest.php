@@ -285,6 +285,7 @@ class HttpRequest
         $headers = $this->prepareHeaders();
         $cookie  = $this->prepareCookie();
         $fields  = $this->prepareFields();
+
         do {
             ++$this->attempt;
             #####
@@ -392,6 +393,7 @@ class HttpRequest
         $arr = $this->reqHeaders;
         $res = [];
         $s   = '';
+
         foreach ($arr as $k => $v) {
             if (is_numeric($k)) {
                 $s = $v;
@@ -424,6 +426,7 @@ class HttpRequest
         $arr = $this->reqCookie;
         $res = [];
         $s   = '';
+
         foreach ($arr as $k => $v) {
             if (is_numeric($k)) {
                 $s = $v;
