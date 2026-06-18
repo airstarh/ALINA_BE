@@ -31,7 +31,7 @@ class Router
     public function processUrl()
     {
         $this->initialUrl        = $_SERVER['REQUEST_URI'];
-        $this->initialUrlDecoded = urldecode($_SERVER['REQUEST_URI']);
+        $this->initialUrlDecoded = Request::obj()->URL_PATH;
         $parsedUrl               = parse_url($this->initialUrlDecoded);
 
         if (isset($parsedUrl['query'])) {
