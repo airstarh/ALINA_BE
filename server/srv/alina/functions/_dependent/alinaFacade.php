@@ -284,8 +284,8 @@ function AlinaExit($data)
 
         if ($flagSuspicious) {
             $msg        = [];
-            $msg['usr'] = \alina\Message::returnAllMessages();
-            $msg['adm'] = \alina\MessageAdmin::returnAllMessages();
+            $msg['usr'] = \strip_tags(\alina\Message::returnAllHtmlString());
+            $msg['adm'] = \strip_tags(\alina\MessageAdmin::returnAllHtmlString());
         }
 
         $string = $msg ? \alina\Utils\Str::anyToString($msg) : null;
