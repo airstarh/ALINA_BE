@@ -672,12 +672,12 @@ class Sys
 
     ##################################################
 
-    public static function validateCurrentRoute():bool
+    public static function validateCurrentRoute(): bool
     {
         $res = false;
         $url = Request::obj()->URL_PATH;
         $wl  = static::getWhiteListRoutes();
-        
+
         if ($url === '/' || empty($url)) {
             return true;
         }

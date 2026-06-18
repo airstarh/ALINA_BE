@@ -3,7 +3,6 @@
 namespace alina;
 
 use alina\mvc\Model\CurrentUser;
-use alina\mvc\Model\router_alias;
 use alina\Utils\Arr;
 use alina\Utils\Request;
 use alina\Utils\Sys;
@@ -215,7 +214,7 @@ class App
 
     public function defineRoute()
     {
-        $this->router              = \alina\Router::obj();
+        $this->router = \alina\Router::obj();
 
         ##################################################
         #region Redirect

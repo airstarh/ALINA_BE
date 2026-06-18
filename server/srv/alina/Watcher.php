@@ -144,8 +144,9 @@ final class Watcher
     {
         AlinaDebug([
             Request::obj()->URL_PATH,
-            \alina\Utils\Sys::validateCurrentRoute()
+            \alina\Utils\Sys::validateCurrentRoute(),
         ]);
+
         if (
             (
                 Request::has('alinafool', $alinafool)
