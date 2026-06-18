@@ -677,6 +677,10 @@ class Sys
         $res = false;
         $url = Request::obj()->URL_PATH;
         $wl  = static::getWhiteListRoutes();
+        
+        if ($url === '/' || empty($url)) {
+            return true;
+        }
 
         foreach ($wl as $route) {
             if (Str::ifContains($url, $route)) {
@@ -706,7 +710,6 @@ class Sys
     public static function getRouteByControllerAndNamespace(string $controllersDir, string $namespacePrefix = ''): array
     {
         $routes = [];
-        $routes[] = '/';
 
         // Получаем все PHP-файлы в папке
         $files = glob($controllersDir . '/*.php');

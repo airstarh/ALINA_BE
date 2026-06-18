@@ -43,7 +43,7 @@ class Router
         }
 
         // Define path information
-        if (isset(Request::obj()->GET->alinapath) and ! empty(Request::obj()->GET->alinapath)) {
+        if (! empty(Request::obj()->GET->alinapath)) {
             $this->pathAlias = trim(Request::obj()->GET->alinapath, '/');
             $this->pathSys   = (isset($this->vocAliasUrl) && ! empty($this->vocAliasUrl))
                 ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true)
