@@ -58,11 +58,11 @@ class Router
             $_pathParts      = explode('/', $this->pathSys);
             $this->pathPart  = $_pathParts;
 
-            if (isset($_pathParts[0]) && ! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
+            if (! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
             }
 
-            if (isset($_pathParts[0]) && ! empty($_pathParts[0])) {
+            if (! empty($_pathParts[0])) {
                 $this->action = array_shift($_pathParts);
             }
             else {

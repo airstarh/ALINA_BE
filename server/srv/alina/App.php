@@ -208,8 +208,8 @@ class App
     }
     #endregion Paths Resolver
     #region Routes
-    /** @var \alina\Router */
-    public $router;
+
+    public \alina\Router $router;
 
     public function defineRoute()
     {
