@@ -255,50 +255,54 @@ final class App
 
     public function mvcGo($controller = null, $action = null, $params = null)
     {
-        $this->controller   = (isset($controller)) ? $controller : $this->router->controller;
-        $this->action       = (isset($action)) ? $action : $this->router->action;
-        $this->actionParams = (isset($params)) ? $params : $this->router->pathParameter;
+        // Set controller, action, and parameters from input or fallback to router values
+        $this->controller   = $controller ?? $this->router->controller;
+        $this->action       = $action     ?? $this->router->action;
+        $this->actionParams = $params     ?? $this->router->pathParameter;
 
+        // If both controller and action are missing, show default page
         if (empty($this->controller) && empty($this->action)) {
             return $this->mvcDefaultPage();
         }
 
+        // If controller is missing, show 404
         if (empty($this->controller)) {
             return $this->mvcPageNotFound();
         }
 
+        // If action is missing, use default action from config
         if (empty($this->action)) {
             $this->action = static::getConfigDefault('mvc/defaultAction');
         }
 
-        // Defined by route in user app.
+        // First attempt: Use application-defined configuration
         try {
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
-            $controller     = $this->controller;
-            $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
             $action         = $this->fullActionName($this->action);
             $params         = $this->actionParams;
 
             return $this->mvcControllerAction($controller, $action, $params);
         }
         catch (\alina\AppException $e) {
-            // Defined by route in Alina
+            // Fallback: Use Alina core configuration if app config fails
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
-                $controller     = $this->controller;
-                $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
                 $action         = $this->fullActionName($this->action);
                 $params         = $this->actionParams;
 
                 return $this->mvcControllerAction($controller, $action, $params);
             }
             catch (\alina\AppException $e) {
+                // If both attempts fail, return 404
                 return $this->mvcPageNotFound();
             }
         }
     }
+
 
     private function mvcDefaultPage()
     {
