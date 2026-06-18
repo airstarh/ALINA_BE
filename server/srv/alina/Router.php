@@ -54,9 +54,11 @@ class Router
         // Define path information
         if (! empty(Request::obj()->GET->alinapath)) {
             $this->pathAlias = trim(Request::obj()->GET->alinapath, '/');
-            $this->pathSys   = (isset($this->vocAliasUrl) && ! empty($this->vocAliasUrl)) ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true) : $this->pathAlias;
-            $_pathParts      = explode('/', $this->pathSys);
-            $this->pathPart  = $_pathParts;
+            $this->pathSys   = (! empty($this->vocAliasUrl))
+                    ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true)
+                    : $this->pathAlias;
+            $_pathParts     = explode('/', $this->pathSys);
+            $this->pathPart = $_pathParts;
 
             if (! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
