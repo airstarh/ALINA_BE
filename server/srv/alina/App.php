@@ -37,7 +37,7 @@ class App
         #####
     }
 
-    protected function autoload($config)
+    private function autoload($config)
     {
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . '_dependent' . DIRECTORY_SEPARATOR . '_autoloadFunctions.php';
         require_once __DIR__ . '/vendor/autoload.php';
@@ -227,7 +227,7 @@ class App
     public $currentActionParams = [];
     public const ACTION_PREFIX  = 'action';
 
-    public function mvcControllerAction($controllerName, $action, $params = [])
+    private function mvcControllerAction($controllerName, $action, $params = [])
     {
         if (! class_exists($controllerName, true)) {
             throw new \alina\AppException("No Class: $controllerName");
@@ -248,7 +248,7 @@ class App
         return call_user_func_array([$go, $action], $params);
     }
 
-    public function fullActionName($name)
+    private function fullActionName($name)
     {
         return static::ACTION_PREFIX . ucfirst($name);
     }
@@ -300,7 +300,7 @@ class App
         }
     }
 
-    public function mvcDefaultPage()
+    private function mvcDefaultPage()
     {
         // Default page of user app
         try {
@@ -329,7 +329,7 @@ class App
         }
     }
 
-    public function mvcPageNotFound()
+    private function mvcPageNotFound()
     {
         // ToDo: line below does not work with Nginx correct. Investigate.
         //http_response_code(404);
