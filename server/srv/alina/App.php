@@ -9,11 +9,23 @@ use alina\Utils\Sys;
 
 final class App
 {
+    ####################################################################################################
     #region Officials
     public $name    = 'Alina';
     public $version = 2;
     public $license = 'Free For All';
     #endregion Officials
+    ####################################################################################################
+    #region MVC
+    public $controller;
+    public $action;
+    public $actionParams        = [];
+    public $currentController   = '';
+    public $currentAction       = '';
+    public $currentActionParams = [];
+    public const ACTION_PREFIX  = 'action';
+    #region MVC
+    ####################################################################################################
     #region Initiation
     private function __construct($config = [])
     {
@@ -99,6 +111,7 @@ final class App
         return $this;
     }
     #endregion Initiation
+    ####################################################################################################
     #region Instantiation
 
     /** @var static $instance */
@@ -132,6 +145,7 @@ final class App
         return $_this;
     }
     #endregion Instantiation
+    ####################################################################################################
     #region Config manipulations
     public static function getConfig($path)
     {
@@ -150,6 +164,7 @@ final class App
     }
 
     #endregion Config manipulations
+    ####################################################################################################
     #region Namespace Resolver
     /**
      * Resolve Method Name in proper Case-Sensitive name.
@@ -170,6 +185,7 @@ final class App
         return false;
     }
     #endregion Namespace Resolver
+    ####################################################################################################
     #region Paths Resolver
     public function resolvePath($path)
     {
@@ -207,6 +223,7 @@ final class App
         throw new \ErrorException("Path {$path} is not defined.");
     }
     #endregion Paths Resolver
+    ####################################################################################################
     #region Routes
 
     public Router $router;
@@ -218,14 +235,8 @@ final class App
         return $this;
     }
     #endregion Routes
+    ####################################################################################################
     #region MVC
-    public $controller;
-    public $action;
-    public $actionParams        = [];
-    public $currentController   = '';
-    public $currentAction       = '';
-    public $currentActionParams = [];
-    public const ACTION_PREFIX  = 'action';
 
     private function mvcControllerAction($controllerName, $action, $params = [])
     {
@@ -364,4 +375,5 @@ final class App
         }
     }
     #endregion MVC
+    ####################################################################################################
 }
