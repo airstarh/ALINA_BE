@@ -1,10 +1,9 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__ . '/server/srv/alina')
     ->name('*.php')
     ->notName('*.blade.php')
-    ->ignoreDotFiles(true)
+    ->ignoreDotFiles(false)
     ->ignoreVCS(true);
 
 return (new PhpCsFixer\Config())
@@ -44,4 +43,4 @@ return (new PhpCsFixer\Config())
         ],
     ])
     ->setFinder($finder)
-    ->setUsingCache(true);
+    ;

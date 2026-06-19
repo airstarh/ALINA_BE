@@ -8,6 +8,7 @@
         ]
     },
     "require": {
+        "php": "^7.4",
         "illuminate/database": "^8",
         "illuminate/events": "^8",
         "cboden/ratchet": "^0.4",

@@ -1,6 +1,7 @@
 <?php
+
 // saysimsim.ru
-define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(TRUE));
+define('ALINA_MICROTIME', $_SERVER['REQUEST_TIME_FLOAT'] ?: microtime(true));
 define('ALINA_TIME', $_SERVER['REQUEST_TIME'] ?: time());
 define('ALINA_COOKIE_PAST', ALINA_TIME - 60 * 60);
 define('ALINA_MAX_TIME_DIFF_SEC', 48 * 60 * 60);
@@ -12,4 +13,3 @@ require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'App.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
 
 $app = \alina\App::set($config)->defineRoute()->mvcGo();
-
