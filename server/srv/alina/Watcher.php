@@ -170,17 +170,20 @@ final class Watcher
         if (Request::obj()->AJAX) {
             if (Request::obj()->tryHeader('fgp', $fgp)) {
                 if (empty($fgp)) {
-                    (new error_log())->insert(['error_text' => 'Suspicious request. Empty fgp',]);
+                    $this->answer([
+                        'error_text' => 'Suspicious request. Empty fgp',
+                        'ban_point' => $this->mVISIT->attributes->ban_point + 1,
+                    ]);
                     AlinaReject(null, 403);
                     exit();
                 }
 
                 if ($fgp !== Request::obj()->BROWSER) {
                     $orig = Request::obj()->BROWSER;
-                    //Message::setDanger(Request::obj()->BROWSER);
-                    //Message::setDanger($fgp);
-                    //AlinaReject(NULL, 403, 'Suspicious request');
-                    (new error_log())->insert(['error_text' => "Suspicious request. Bad fgp ---{$orig}--- ||| ---{$fgp}---",]);
+                    $this->answer([
+                        'error_text' => "Suspicious request. Bad fgp ---{$orig}--- ||| ---{$fgp}---",
+                        'ban_point' => $this->mVISIT->attributes->ban_point + 1,
+                    ]);
                 }
             }
         }

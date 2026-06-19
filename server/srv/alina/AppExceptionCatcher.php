@@ -122,8 +122,7 @@ class AppExceptionCatcher
         if (in_array(true, $dbgCfg)) {
             if (isset($dbgCfg['toDb']) && $dbgCfg['toDb']) {
                 try {
-                    $mEL = new error_log();
-                    $mEL->insert([
+                    Watcher::obj()->answer([
                         'error_class'    => $this->expClassName,
                         'error_severity' => $this->getSeverityStr(),
                         'error_code'     => $this->eCode,

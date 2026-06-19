@@ -40,13 +40,30 @@ class watch_visit extends _BaseAlinaModel
             'data' => [
                 'default' => json_encode($Request, JSON_UNESCAPED_UNICODE),
             ],
+            'controller' => [
+
+            ],
+            'action' => [
+
+            ],
+
             'suspicious' => [
                 'default' => 0,
             ],
             'ajax' => [
                 'default' => $Request->AJAX,
             ],
-            'answer' => [],
+            'answer'         => [],
+            'error_class'    => [],
+            'error_severity' => [],
+            'error_code'     => [],
+            'error_text'     => [],
+            'error_file'     => [],
+            'error_line'     => [],
+            'error_trace'    => [],
+            'referal'        => [
+                'default' => $Request->REFERAL,
+            ],
         ];
     }
 }

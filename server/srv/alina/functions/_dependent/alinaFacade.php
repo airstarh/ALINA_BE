@@ -293,6 +293,8 @@ function AlinaExit($data)
         alina\Watcher::obj()->answer([
             'answer'     => $string,
             'suspicious' => $flagSuspicious,
+            'controller' => GlobalRequestStorage::obj()->get('BaseModelQueries'),
+            'action'     => GlobalRequestStorage::obj()->get('TemplateQueries'),
         ]);
     }
     catch (Throwable $e) {

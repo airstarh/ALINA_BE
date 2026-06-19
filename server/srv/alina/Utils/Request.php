@@ -12,6 +12,7 @@ class Request
     public $URL_PATH;
     public $METHOD;
     public $AJAX = false;
+    public $REFERAL;
     public $QUERY_STRING;
     public $IP;
     public $BROWSER;
@@ -31,6 +32,7 @@ class Request
         //ToDo: process fields
         $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
+        $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI_QUERY_STRING');
         $this->METHOD       = Sys::getReqMethod();
         $this->AJAX         = Sys::isAjax();

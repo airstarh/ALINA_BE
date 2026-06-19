@@ -63,7 +63,7 @@ class Router
             if (! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
 
-                if (! \in_array($this->controller, Utils\Sys::getWhiteListController())) {
+                if (! \in_array(mb_strtolower($this->controller), Utils\Sys::getWhiteListController())) {
                     Alina()->mvcPageNotFound();
                 }
             }

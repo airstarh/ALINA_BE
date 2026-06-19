@@ -96,6 +96,7 @@ class Tools
 
     public function actionRouteWhiteList()
     {
+        // $a = 4 / 0;
         $res = Sys::getWhiteListController();
 
         AlinaEchoDraft($res);
