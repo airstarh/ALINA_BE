@@ -27,6 +27,10 @@ final class App
     #region MVC
     ####################################################################################################
     #region Initiation
+
+    private $config        = [];
+    private $configDefault = [];
+
     private function __construct($config = [])
     {
         $this->autoload($config);
@@ -97,8 +101,7 @@ final class App
         return null;
     }
 
-    private $config        = [];
-    private $configDefault = [];
+
 
     private function setConfig(array $config = [])
     {
