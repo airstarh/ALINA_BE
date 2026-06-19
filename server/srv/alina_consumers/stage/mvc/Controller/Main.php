@@ -36,6 +36,6 @@ class Main
             'CustomZeroClass::someMethod()' => CustomZeroClass::someMethod(),
         ];
 
-        AlinaEcho((new \alina\mvc\View\html())->page($vd));
+        AlinaEcho((new html())->page($vd));
     }
 }

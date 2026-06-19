@@ -254,7 +254,7 @@ $userList     = $data['userList'];
                                 </thead>
                                 <?php foreach ($listWorkDone as $k => $v): ?>
                                     <tr>
-                                        <td><?= \alina\Utils\DateTime::toHumanDate($v->for_date) ?></td>
+                                        <td><?= alina\Utils\DateTime::toHumanDate($v->for_date) ?></td>
                                         <td><?= $v->{'assignee.firstname'} ?> <?= $v->{'assignee.lastname'} ?></td>
                                         <td><?= $v->amount ?></td>
                                         <td><?= $v->price_final ?></td>

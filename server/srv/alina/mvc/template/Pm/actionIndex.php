@@ -21,7 +21,7 @@ $linkWorkDoneList     = '';
 
         <h2><?= ___("Common Things") ?></h2>
 
-        <a href="<?= \alina\mvc\Controller\Pm::URL_FILL_REPORT ?>"
+        <a href="<?= alina\mvc\Controller\Pm::URL_FILL_REPORT ?>"
            class="btn btn-primary"
            target="_blank"
         ><?= ___("Report Time") ?></a>
@@ -35,12 +35,12 @@ $linkWorkDoneList     = '';
     <div class="mt-5 mb-5">
         <h2><?= ___("Administrative Tools") ?></h2>
 
-        <a href="<?= \alina\mvc\Controller\Pm::URL_EDIT ?>"
+        <a href="<?= alina\mvc\Controller\Pm::URL_EDIT ?>"
            class="btn btn-primary"
            target="_blank"
         ><?= ___("Edit Structure") ?></a>
 
-        <a href="<?= \alina\mvc\Controller\Pm::URL_REPORT ?>"
+        <a href="<?= alina\mvc\Controller\Pm::URL_REPORT ?>"
            class="btn btn-primary"
            target="_blank"
         ><?= ___("Report") ?></a>

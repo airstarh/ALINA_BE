@@ -48,11 +48,11 @@ class Str
         }
 
         if (is_array($data)) {
-            return \alina\Utils\Data::hlpGetBeautifulJsonString($data);
+            return Data::hlpGetBeautifulJsonString($data);
         }
 
         if (is_object($data)) {
-            return \alina\Utils\Data::hlpGetBeautifulJsonString($data);
+            return Data::hlpGetBeautifulJsonString($data);
         }
 
         if (is_resource($data)) {

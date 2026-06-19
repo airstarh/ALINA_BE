@@ -28,8 +28,8 @@ class Html
     {
         //ToDO: Doubtful: http is enough... Unless a web-site is like httpdocs.com...
         if (
-            \alina\Utils\Str::startsWith($url, 'http://')
-            || \alina\Utils\Str::startsWith($url, 'https://')
+            Str::startsWith($url, 'http://')
+            || Str::startsWith($url, 'https://')
         ) {
             return $url;
         }
@@ -86,15 +86,15 @@ class Html
     public static function aRef($url)
     {
         if (
-            \alina\Utils\Str::startsWith($url, 'http://')
-            || \alina\Utils\Str::startsWith($url, 'https://')
+            Str::startsWith($url, 'http://')
+            || Str::startsWith($url, 'https://')
         ) {
             return $url;
         }
         $vocAliasToUrl = AlinaCfg(['vocAliasUrl']);
         $bdVoc         = (new router_alias())->getAsVoc();
         $vocAliasToUrl = array_merge($vocAliasToUrl, $bdVoc);
-        $url           = \alina\Utils\Url::routeAccordance($url, $vocAliasToUrl, false);
+        $url           = Url::routeAccordance($url, $vocAliasToUrl, false);
         $url           = ltrim($url, '/');
         $url           = ltrim($url, '\\');
 
@@ -123,7 +123,7 @@ class Html
         $href .= static::aRef($ref) . $get . $hash;
         $configuration['href'] = $href;
 
-        return \alina\Utils\Html::tag('a', $text, $configuration);
+        return Html::tag('a', $text, $configuration);
     }
     #endregion DEPENDENT
     ##################################################

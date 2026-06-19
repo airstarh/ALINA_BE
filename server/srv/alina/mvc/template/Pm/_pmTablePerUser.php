@@ -16,7 +16,7 @@ $counter = 1;
 
 //$firstRow = reset($data);
 //$headers  = array_keys((array)$firstRow);
-$GET            = \alina\Utils\Request::obj()->GET;
+$GET            = alina\Utils\Request::obj()->GET;
 $prevRow        = [];
 $wd_assignee_id = null;
 $headers        = [];

@@ -11,7 +11,7 @@ use alina\mvc\View\html as htmlAlias;
 
       <?= (new htmlAlias())->piece('_system/html/_form/dbConnectCredentials.php', $data) ?>
 
-      <?= (new htmlAlias())->piece('_system/html/_form/selectOneSimple.php', \alina\Utils\Data::mergeObjects($data, (object)[
+      <?= (new htmlAlias())->piece('_system/html/_form/selectOneSimple.php', alina\Utils\Data::mergeObjects($data, (object)[
           'name'        => 'tableName',
           'value'       => $data->tableName,
           'options'     => $data->arrTables,
@@ -131,7 +131,7 @@ use alina\mvc\View\html as htmlAlias;
             'title' => 'Fields` details',
             'badge' => 'tColsInfo',
         ]) ?>
-        <?= (new htmlAlias())->piece('_system/html/_form/table001.php', \alina\Utils\Data::mergeObjects($data, (object)[
+        <?= (new htmlAlias())->piece('_system/html/_form/table001.php', alina\Utils\Data::mergeObjects($data, (object)[
             'arr' => $data->tColsInfo,
         ])) ?>
     </div>

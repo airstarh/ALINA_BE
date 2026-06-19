@@ -428,7 +428,7 @@ class user extends _BaseAlinaModel
                 })
                 ->delete()
             ;
-            $vd->likes = (new \alina\mvc\Model\like())
+            $vd->likes = (new like())
                 ->q(-1)
                 ->where('user_id', '=', $id)
                 ->delete()

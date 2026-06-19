@@ -1,7 +1,7 @@
 <?php
 /**
  * @var stdClass $data
- * @var \alina\Utils\HttpRequest $data- >q
+ * @var alina\Utils\HttpRequest $data- >q
  */
 
 use alina\mvc\View\html as htmlAlias;
@@ -47,7 +47,7 @@ use alina\mvc\View\html as htmlAlias;
                         <textarea
                             name="reqGet" class="form-control"
                             rows="11"
-                        ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->reqGet) ?></textarea>
+                        ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->reqGet) ?></textarea>
                     </div>
                 </div>
                 <div class="col-sm">
@@ -58,7 +58,7 @@ use alina\mvc\View\html as htmlAlias;
                         <textarea
                             name="reqFields" class="form-control" id="reqFields"
                             rows="11"
-                        ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->reqFields) ?></textarea>
+                        ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->reqFields) ?></textarea>
 
                         <div class="custom-control custom-checkbox">
                             <input
@@ -80,7 +80,7 @@ use alina\mvc\View\html as htmlAlias;
                 <textarea
                     name="reqHeaders" class="form-control"
                     rows="5"
-                ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->reqHeaders) ?></textarea>
+                ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->reqHeaders) ?></textarea>
             </div>
 
             <div class="form-group mt-3">
@@ -90,7 +90,7 @@ use alina\mvc\View\html as htmlAlias;
                 <textarea
                     name="reqCookie" class="form-control"
                     rows="5"
-                ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->reqCookie) ?></textarea>
+                ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->reqCookie) ?></textarea>
             </div>
 
             <?= (new htmlAlias())->piece('_system/html/_form/standardFormButtons.php') ?>
@@ -116,7 +116,7 @@ use alina\mvc\View\html as htmlAlias;
                 </span>
                 <textarea
                     class="form-control w-100" rows="11"
-                ><?= htmlentities(\alina\Utils\Data::hlpGetBeautifulJsonString($data->respBody)) ?></textarea>
+                ><?= htmlentities(alina\Utils\Data::hlpGetBeautifulJsonString($data->respBody)) ?></textarea>
             </div>
 
             <div class="mt-3">
@@ -126,7 +126,7 @@ use alina\mvc\View\html as htmlAlias;
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->respHeadersStructurized) ?></textarea>
+                ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->respHeadersStructurized) ?></textarea>
             </div>
 
             <div class="mt-3">
@@ -136,7 +136,7 @@ use alina\mvc\View\html as htmlAlias;
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->curlInfo) ?></textarea>
+                ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->curlInfo) ?></textarea>
             </div>
 
             <div class="mt-3">
@@ -146,7 +146,7 @@ use alina\mvc\View\html as htmlAlias;
                 <textarea
                     class="form-control w-100"
                     rows="11"
-                ><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data->report) ?></textarea>
+                ><?= alina\Utils\Data::hlpGetBeautifulJsonString($data->report) ?></textarea>
             </div>
 
         </div>

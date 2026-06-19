@@ -13,4 +13,4 @@ require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'App.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
 //ob_start();
 //ob_implicit_flush(FALSE);
-$app = \alina\App::set($config)->defineRoute()->mvcGo();
+$app = alina\App::set($config)->defineRoute()->mvcGo();

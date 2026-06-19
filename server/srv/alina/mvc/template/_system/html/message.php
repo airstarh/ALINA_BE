@@ -1,6 +1,6 @@
 <?php
-/** @var \alina\Message | \alina\MessageAdmin $data */
-/** @var \alina\Message | \alina\MessageAdmin $class */
+/** @var alina\Message | alina\MessageAdmin $data */
+/** @var alina\Message | alina\MessageAdmin $class */
 
 $class = get_class($data);
 ?>

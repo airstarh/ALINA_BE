@@ -44,7 +44,7 @@ class Data
     public static function toObject($v): object
     {
         if (! isset($v) || empty($v)) {
-            return new \stdClass();
+            return new stdClass();
         }
 
         if (is_object($v)) {
@@ -256,7 +256,7 @@ class Data
                     return 1 * $itr;
                 }
             }
-            catch (\Exception $e) {
+            catch (Exception $e) {
                 return $itr;
             }
         }

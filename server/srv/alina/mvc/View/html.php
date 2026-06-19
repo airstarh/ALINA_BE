@@ -88,7 +88,7 @@ class html
         if (false === $templateRealPath) {
             return false;
         }
-        $htmlString = \alina\Utils\Sys::template($templateRealPath, $data);
+        $htmlString = Sys::template($templateRealPath, $data);
 
         if ($return) {
             return $htmlString;

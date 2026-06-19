@@ -12,7 +12,7 @@ use alina\Utils\Sys;
     echo '<pre>';
     print_r(Sys::SUPER_DEBUG_INFO());
     echo '</pre>';
-    print_r(\alina\Utils\Sys::reportSpentTime());
+    print_r(Sys::reportSpentTime());
     ?>
     </div>
 <?php } ?>

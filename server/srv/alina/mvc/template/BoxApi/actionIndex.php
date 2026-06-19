@@ -5,7 +5,7 @@
     <h1>Box API</h1>
     <div class="ck-content">
 
-        <pre><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data) ?></pre>
+        <pre><?= alina\Utils\Data::hlpGetBeautifulJsonString($data) ?></pre>
         <div class="m-5">&nbsp;</div>
         <div>
             <iframe src="<?= $data->strUrlPreview ?>" class="iframe-preview"></iframe>

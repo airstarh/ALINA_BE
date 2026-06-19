@@ -154,7 +154,7 @@ class Tale
                 ##################################################
                 #region Notification
                 if ($isComment) {
-                    $allCommenters = (new \alina\mvc\Model\tale())
+                    $allCommenters = (new taleAlias())
                         ->q('commenters')
                         ->where(['root_tale_id' => $attrs->root_tale_id,])
                         ->orWhere(['answer_to_tale_id' => $attrs->answer_to_tale_id,])
@@ -238,7 +238,7 @@ class Tale
                 ->delete()
             ;
             ###
-            $all = (new \alina\mvc\Model\tale())
+            $all = (new taleAlias())
                 ->q('commenters')
                 ->where(['root_tale_id' => $id,])
                 ->where(['answer_to_tale_id' => $id,])
@@ -459,7 +459,7 @@ class Tale
             $uid = CurrentUser::obj()->id();
         }
         #####
-        $mAmount = new \alina\mvc\Model\tale();
+        $mAmount = new taleAlias();
         $qAmount = $mAmount
             ->q(-1)
             ->where([

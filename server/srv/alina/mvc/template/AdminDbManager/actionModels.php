@@ -16,7 +16,7 @@ $models       = $data->models;
 $model        = $data->model;
 $counter      = 0;
 $formIdSearch = 'formIdSearch';
-$GET          = \alina\Utils\Request::obj()->GET;
+$GET          = RequestAlias::obj()->GET;
 
 if (count($models) <= 0) {
     Message::setDanger('No data.');

@@ -38,7 +38,7 @@ final class AppBoot
         ##################################################
         require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'App.php';
         $config        = require(ALINA_PATH_TO_APP_CONFIG);
-        static::$Alina = \alina\app::set($config);
+        static::$Alina = app::set($config);
     }
 
     public function app()

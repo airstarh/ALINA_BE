@@ -11,7 +11,7 @@ use alina\Utils\Request;
 
         <url>
             <loc>https://<?= Request::obj()->DOMAIN ?>/tale/upsert/<?= $tale->id ?></loc>
-            <lastmod><?= \alina\Utils\DateTime::toHumanDate($tale->publish_at) ?></lastmod>
+            <lastmod><?= alina\Utils\DateTime::toHumanDate($tale->publish_at) ?></lastmod>
             <changefreq>monthly</changefreq>
             <priority>0.8</priority>
         </url>

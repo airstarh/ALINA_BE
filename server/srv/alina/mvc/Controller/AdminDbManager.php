@@ -69,8 +69,8 @@ class AdminDbManager
         ];
 
         if (Request::isPost($p)) {
-            $p               = \alina\Utils\Data::deleteEmptyProps($p);
-            $vd              = \alina\Utils\Data::mergeObjects($vd, $p);
+            $p               = Data::deleteEmptyProps($p);
+            $vd              = Data::mergeObjects($vd, $p);
             $r               = [];
             $exe             = [];
             $q               = new DbManager();
@@ -121,31 +121,31 @@ class AdminDbManager
                 ###############
                 # SELECT
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/SELECT.php';
-                $vd->strSqlSELECT = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->strSqlSELECT = Sys::template($tpl, $dataTpl);
                 ###############
                 # INSERT
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/INSERT.php';
-                $vd->strSqlINSERT = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->strSqlINSERT = Sys::template($tpl, $dataTpl);
                 ###############
                 # UPDATE
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/UPDATE.php';
-                $vd->strSqlUPDATE = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->strSqlUPDATE = Sys::template($tpl, $dataTpl);
                 ###############
                 # DELETE
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/DELETE.php';
-                $vd->strSqlDELETE = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->strSqlDELETE = Sys::template($tpl, $dataTpl);
                 ###############
                 # PDO bind parameters
                 $tpl               = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/PDObind.php';
-                $vd->strSqlPDObind = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->strSqlPDObind = Sys::template($tpl, $dataTpl);
                 ###############
                 # JSON View
                 $tpl            = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/colsAsJson.php';
-                $vd->colsAsJson = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->colsAsJson = Sys::template($tpl, $dataTpl);
                 ###############
                 # Array 'field' => [],
                 $tpl              = ALINA_PATH_TO_FRAMEWORK . '/Utils/db/mysql/queryTemplates/colsAsPHPArr.php';
-                $vd->colsAsPHPArr = \alina\Utils\Sys::template($tpl, $dataTpl);
+                $vd->colsAsPHPArr = Sys::template($tpl, $dataTpl);
                 ###############
                 ###############
                 # Statistics. Count Rows.
@@ -275,7 +275,7 @@ class AdminDbManager
     public function actionUpdate($table, $id, $data)
     {
         $m    = modelNamesResolver::getModelObject($table);
-        $data = \alina\Utils\Data::toObject($data);
+        $data = Data::toObject($data);
         $m->upsert($data);
         $m->getOneWithReferences(["{$m->alias}.{$m->pkName}" => $id]);
 

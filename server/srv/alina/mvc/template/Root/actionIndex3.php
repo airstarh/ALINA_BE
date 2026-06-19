@@ -24,9 +24,9 @@
                                     </div>
                                     <div>
                                         <a
-                                            href="<?= \alina\Utils\Html::aRef($url) ?>"
+                                            href="<?= alina\Utils\Html::aRef($url) ?>"
                                             target="_blank"
-                                        ><?= \alina\Utils\Html::aRef($url) ?>
+                                        ><?= alina\Utils\Html::aRef($url) ?>
                                         </a>
                                     </div>
                                 </div>
@@ -43,5 +43,5 @@
 </div>
 
 <div class="ck-content">
-    <pre><?= \alina\Utils\Data::hlpGetBeautifulJsonString($data) ?></pre>
+    <pre><?= alina\Utils\Data::hlpGetBeautifulJsonString($data) ?></pre>
 </div>

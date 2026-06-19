@@ -21,7 +21,7 @@ $m = $data->user;
                     </div>
                     <div class="row mb-1 justify-content-center align-items-center">
                         <div class="col">
-                            <?= \alina\Utils\DateTime::toHumanDateTime($m->birth) ?>
+                            <?= alina\Utils\DateTime::toHumanDateTime($m->birth) ?>
                         </div>
                     </div>
                     <div class="row mb-1 justify-content-center align-items-center">

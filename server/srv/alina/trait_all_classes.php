@@ -12,7 +12,7 @@ trait trait_all_classes
             $subject = get_class($subject);
         }
 
-        return \alina\Utils\Resolver::shortClassName($subject);
+        return Utils\Resolver::shortClassName($subject);
     }
 
     #endregion Names Resolver

@@ -28,7 +28,7 @@ class Router
     protected function __construct()
     {
         $vocAliasUrl       = AlinaCfg(['vocAliasUrl']);
-        $bdVoc             = (new \alina\mvc\Model\router_alias())->getAsVoc();
+        $bdVoc             = (new mvc\Model\router_alias())->getAsVoc();
         $this->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
         $this->processUrl();
         $this->redirectIfNeeded();
@@ -55,7 +55,7 @@ class Router
         if (! empty(Request::obj()->GET->alinapath)) {
             $this->pathAlias = trim(Request::obj()->GET->alinapath, '/');
             $this->pathSys   = (! empty($this->vocAliasUrl))
-                    ? \alina\Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true)
+                    ? Utils\Url::routeAccordance($this->pathAlias, $this->vocAliasUrl, true)
                     : $this->pathAlias;
             $_pathParts     = explode('/', $this->pathSys);
             $this->pathPart = $_pathParts;
@@ -63,7 +63,7 @@ class Router
             if (! empty($_pathParts[0]) && ! is_numeric($_pathParts[0])) {
                 $this->controller = array_shift($_pathParts);
 
-                if (! \in_array($this->controller, \alina\Utils\Sys::getWhiteListController())) {
+                if (! \in_array($this->controller, Utils\Sys::getWhiteListController())) {
                     Alina()->mvcPageNotFound();
                 }
             }
@@ -89,15 +89,15 @@ class Router
          */
         if (AlinaCfg('forceSysPathToAlias')) {
             if ($this->pathAlias == $this->pathSys) {
-                $this->forcedAlias = \alina\Utils\Url::routeAccordance($this->pathSys, $this->vocAliasUrl, false);
+                $this->forcedAlias = Utils\Url::routeAccordance($this->pathSys, $this->vocAliasUrl, false);
 
                 if ($this->forcedAlias != $this->pathSys) {
                     $uri = [
                         'path'  => $this->forcedAlias,
                         'query' => $this->strGetQuery,
                     ];
-                    $uri = \alina\Utils\Url::un_parse_url($uri);
-                    \alina\Utils\Sys::redirect($uri);
+                    $uri = Utils\Url::un_parse_url($uri);
+                    Utils\Sys::redirect($uri);
                 }
             }
         }

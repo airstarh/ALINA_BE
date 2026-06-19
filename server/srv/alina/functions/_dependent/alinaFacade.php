@@ -26,11 +26,11 @@ define('ALINA_DT_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
 define('ALINA_FILE_UPLOAD_KEY', 'userfile');
 ##################################################
 /**
- * @return \alina\App
+ * @return App
  * @throws Exception
  */
 
-function Alina(): \alina\App
+function Alina(): App
 {
     return App::get();
 }
@@ -242,7 +242,7 @@ function AlinaFePath($routeName)
     $blocks[] = $frontend['path'];
     $blocks[] = $frontend[$routeName];
 
-    return \alina\Utils\FS::buildPathFromBlocks($blocks);
+    return alina\Utils\FS::buildPathFromBlocks($blocks);
 }
 
 ##################################################
@@ -250,9 +250,9 @@ function AlinaFePath($routeName)
 function ___($str, $loc = 'ru_RU')
 {
     try {
-        return \alina\Services\AlinaTranslate::obj()->t($str, $loc);
+        return alina\Services\AlinaTranslate::obj()->t($str, $loc);
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
         return $str;
     }
 }
@@ -284,18 +284,18 @@ function AlinaExit($data)
 
         if ($flagSuspicious) {
             $msg        = [];
-            $msg['usr'] = \strip_tags(\alina\Message::returnAllHtmlString());
-            $msg['adm'] = \strip_tags(\alina\MessageAdmin::returnAllHtmlString());
+            $msg['usr'] = \strip_tags(Message::returnAllHtmlString());
+            $msg['adm'] = \strip_tags(alina\MessageAdmin::returnAllHtmlString());
         }
 
-        $string = $msg ? \alina\Utils\Str::anyToString($msg) : null;
+        $string = $msg ? alina\Utils\Str::anyToString($msg) : null;
 
-        \alina\Watcher::obj()->answer([
+        alina\Watcher::obj()->answer([
             'answer'     => $string,
             'suspicious' => $flagSuspicious,
         ]);
     }
-    catch (\Throwable $e) {
+    catch (Throwable $e) {
         error_log('salam');
     }
     exit();
@@ -311,20 +311,20 @@ function AlinaDebug($data)
 
 function AlinaDebugJson($data)
 {
-    \alina\Utils\Sys::fDebug('>>>>>>>>>>', FILE_APPEND, null, 'json');
-    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+    Sys::fDebug('>>>>>>>>>>', FILE_APPEND, null, 'json');
+    Sys::fDebug($data, FILE_APPEND, null, 'json');
 }
 
 function AlinaDebugTime($prepend = [], $append = [])
 {
-    $data = \alina\Utils\Sys::reportSpentTime($prepend, $append);
-    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+    $data = Sys::reportSpentTime($prepend, $append);
+    Sys::fDebug($data, FILE_APPEND, null, 'json');
 }
 
 function AlinaDebugMemory($prepend = [], $append = [])
 {
-    $data = \alina\Utils\Sys::reportMemoryUsed($prepend, $append);
-    \alina\Utils\Sys::fDebug($data, FILE_APPEND, null, 'json');
+    $data = Sys::reportMemoryUsed($prepend, $append);
+    Sys::fDebug($data, FILE_APPEND, null, 'json');
 }
 
 #endregion DEBUG

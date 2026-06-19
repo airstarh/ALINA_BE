@@ -115,7 +115,7 @@ class Sys
                     break;
 
                 case 'json':
-                    $output = Data::hlpGetBeautifulJsonString($data);
+                    $output = DataAlias::hlpGetBeautifulJsonString($data);
 
                     break;
                 case 'flat':
@@ -263,7 +263,7 @@ class Sys
         }
 
         $res = DataAlias::toObject($post);
-        Data::itrCastToHealth($res);
+        DataAlias::itrCastToHealth($res);
 
         return $res;
     }

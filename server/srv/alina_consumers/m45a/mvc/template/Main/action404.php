@@ -1,5 +1,5 @@
 <?php
-/** @var \stdClass $data */
+/** @var stdClass $data */
 ?>
 <div>
     <h1>404</h1>

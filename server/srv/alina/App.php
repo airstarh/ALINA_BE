@@ -20,8 +20,8 @@ final class App
         $this->autoload($config);
         $this->setConfig($config);
         #####
-        set_exception_handler([\alina\AppExceptionCatcher::obj(), 'exception']);
-        set_error_handler([\alina\AppExceptionCatcher::obj(), 'error']);
+        set_exception_handler([AppExceptionCatcher::obj(), 'exception']);
+        set_error_handler([AppExceptionCatcher::obj(), 'error']);
         #####
         Request::obj();
         CurrentUser::obj();
@@ -90,10 +90,10 @@ final class App
 
     private function setConfig(array $config = [])
     {
-        $defaultConfigPath   = \alina\Utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
+        $defaultConfigPath   = Utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
         $defaultConfig       = require($defaultConfigPath);
         $this->configDefault = $defaultConfig;
-        $this->config        = \alina\Utils\Arr::arrayMergeRecursive($this->configDefault, $config);
+        $this->config        = Arr::arrayMergeRecursive($this->configDefault, $config);
         static::$instance    = $this;
 
         return $this;
@@ -146,7 +146,7 @@ final class App
         $_this = static::get();
         $cfg   = $_this->configDefault;
 
-        return \alina\Utils\Arr::getArrayValue($path, $cfg);
+        return Arr::getArrayValue($path, $cfg);
     }
 
     #endregion Config manipulations
@@ -174,7 +174,7 @@ final class App
     public function resolvePath($path)
     {
         // -Check if Path exists in User Application directory.
-        $fullPath = \alina\Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
+        $fullPath = Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_APP, $path);
 
         if (false !== ($rp = realpath($fullPath))) {
             return $rp;
@@ -187,7 +187,7 @@ final class App
         #####
         #####
         // -Check if Path exists in Alina directory.
-        $fullPath = \alina\Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
+        $fullPath = Utils\FS::buildPathFromBlocks(ALINA_PATH_TO_FRAMEWORK, $path);
 
         if (false !== ($rp = realpath($fullPath))) {
             return $rp;
@@ -209,11 +209,11 @@ final class App
     #endregion Paths Resolver
     #region Routes
 
-    public \alina\Router $router;
+    public Router $router;
 
     public function defineRoute()
     {
-        $this->router = \alina\Router::obj();
+        $this->router = Router::obj();
 
         return $this;
     }
@@ -230,12 +230,12 @@ final class App
     private function mvcControllerAction($controllerName, $action, $params = [])
     {
         if (! class_exists($controllerName, true)) {
-            throw new \alina\AppException("No Class: $controllerName");
+            throw new AppException("No Class: $controllerName");
         }
         $go = new $controllerName();
 
         if (false === ($action = $this->resolveMethodName($go, $action))) {
-            throw new \alina\AppException("No Method: $action");
+            throw new AppException("No Method: $action");
         }
 
         if (! is_array($params)) {
@@ -279,24 +279,24 @@ final class App
         try {
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
-            $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
+            $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
             $action         = $this->fullActionName($this->action);
             $params         = $this->actionParams;
 
             return $this->mvcControllerAction($controller, $action, $params);
         }
-        catch (\alina\AppException $e) {
+        catch (AppException $e) {
             // Fallback: Use Alina core configuration if app config fails
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
-                $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
+                $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $this->controller);
                 $action         = $this->fullActionName($this->action);
                 $params         = $this->actionParams;
 
                 return $this->mvcControllerAction($controller, $action, $params);
             }
-            catch (\alina\AppException $e) {
+            catch (AppException $e) {
                 // If both attempts fail, return 404
                 return $this->mvcPageNotFound();
             }
@@ -311,24 +311,24 @@ final class App
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/defaultController');
-            $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/defaultAction'));
 
             return $this->mvcControllerAction($controller, $action);
         }
-        catch (\alina\AppException $e) {
+        catch (AppException $e) {
             // Default page of Alina
             try {
                 $namespace      = static::getConfigDefault(['appNamespace']);
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/defaultController');
-                $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/defaultAction'));
 
                 return $this->mvcControllerAction($controller, $action);
             }
-            catch (\alina\AppException $e) {
-                throw new \alina\AppException('No index page');
+            catch (AppException $e) {
+                throw new AppException('No index page');
             }
         }
     }
@@ -342,23 +342,23 @@ final class App
             $namespace      = static::getConfig('appNamespace');
             $controllerPath = static::getConfig('mvc/structure/controller');
             $controller     = static::getConfig('mvc/pageNotFoundController');
-            $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+            $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
             $action         = $this->fullActionName(static::getConfig('mvc/pageNotFoundAction'));
 
             return $this->mvcControllerAction($controller, $action);
         }
-        catch (\alina\AppException $e) {
+        catch (AppException $e) {
             // 404 of Alina
             try {
                 $namespace      = static::getConfigDefault('appNamespace');
                 $controllerPath = static::getConfigDefault('mvc/structure/controller');
                 $controller     = static::getConfigDefault('mvc/pageNotFoundController');
-                $controller     = \alina\Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
+                $controller     = Utils\Resolver::buildClassNameFromBlocks($namespace, $controllerPath, $controller);
                 $action         = $this->fullActionName(static::getConfigDefault('mvc/pageNotFoundAction'));
 
                 return $this->mvcControllerAction($controller, $action);
             }
-            catch (\alina\AppException $e) {
+            catch (AppException $e) {
                 throw new \Exception('Alina Total Fail');
             }
         }

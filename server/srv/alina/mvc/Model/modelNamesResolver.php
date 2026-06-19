@@ -11,7 +11,7 @@ class modelNamesResolver
 
     /**
      * @param $describer
-     * @return \alina\mvc\Model\_BaseAlinaModel
+     * @return _BaseAlinaModel
      * @throws \ErrorException
      */
     public static function getModelObject($describer)

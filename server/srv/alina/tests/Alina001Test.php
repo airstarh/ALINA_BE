@@ -39,8 +39,8 @@ final class Alina001Test extends TestCase
         echo PHP_EOL . __FUNCTION__;
 
         $this->assertInstanceOf(
-            \stdClass::class,
-            \alina\Utils\Data::mergeObjects([], [])
+            stdClass::class,
+            alina\Utils\Data::mergeObjects([], [])
         );
     }
 }

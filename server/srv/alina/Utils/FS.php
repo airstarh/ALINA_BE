@@ -340,7 +340,7 @@ class FS
 
                 #####
                 if ($class) {
-                    $ns_class   = \alina\Utils\Resolver::buildClassNameFromBlocks($ns, $class);
+                    $ns_class   = Resolver::buildClassNameFromBlocks($ns, $class);
                     $methodList = get_class_methods($ns_class);
 
                     foreach ($methodList as $i => $m) {

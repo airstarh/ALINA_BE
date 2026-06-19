@@ -16,7 +16,7 @@
                         <a
                             href="<?= AlinaFePath('taleUpsert') ?>/<?= $data->id ?>"
                             class="btn-sm text-left mb-1 corporate-bg-gradient no-decoration"
-                        ><?= \alina\Utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
+                        ><?= alina\Utils\DateTime::toHumanDateTime($data->publish_at) ?></a>
                     </div>
                 <?php } ?>
             </div>

@@ -13,7 +13,7 @@ class AppSession
     {
         static::start();
 
-        return \alina\Utils\Arr::setArrayValue($path, $value, static::$storage);
+        return Utils\Arr::setArrayValue($path, $value, static::$storage);
     }
 
     public static function get($path = null)
@@ -24,21 +24,21 @@ class AppSession
             return static::$storage;
         }
 
-        return \alina\Utils\Arr::getArrayValue($path, static::$storage);
+        return Utils\Arr::getArrayValue($path, static::$storage);
     }
 
     public static function delete($path)
     {
         static::start();
 
-        return \alina\Utils\Arr::unsetArrayPath($path, static::$storage);
+        return Utils\Arr::unsetArrayPath($path, static::$storage);
     }
 
     public static function has($path)
     {
         static::start();
 
-        return \alina\Utils\Arr::arrayHasPath($path, static::$storage);
+        return Utils\Arr::arrayHasPath($path, static::$storage);
     }
 
     public static function start()

@@ -4,7 +4,7 @@
 use alina\mvc\View\html;
 
 $vd  = $data;
-$GET = \alina\Utils\Request::obj()->GET;
+$GET = alina\Utils\Request::obj()->GET;
 ?>
 <div class="container-fluid">
     <div class="row">

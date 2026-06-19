@@ -59,7 +59,7 @@ class AppExceptionCatcher
         }
         #endregion Clean buffer
         ##################################################
-        \alina\mvc\Model\_baseAlinaEloquentTransaction::rollback();
+        mvc\Model\_baseAlinaEloquentTransaction::rollback();
 
         $strUNKNOWN         = 'UNKNOWN';
         $this->expClassName = get_class($objException);

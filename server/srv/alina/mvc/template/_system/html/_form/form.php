@@ -34,8 +34,8 @@ $sources    = $data->sources;
             : 'text';
 
         if (
-            \alina\Utils\Str::startsWith($_f, '_')
-            || \alina\Utils\Str::ifContains($_f, '.')
+            alina\Utils\Str::startsWith($_f, '_')
+            || alina\Utils\Str::ifContains($_f, '.')
         ) {
             $type = 'readonly';
         }
@@ -51,14 +51,14 @@ $sources    = $data->sources;
             $f    === 'created_at'
             || $f === 'modified_at'
         ) {
-            $v = (! empty($v)) ? \alina\Utils\DateTime::toHumanDateTime($v) : null;
+            $v = (! empty($v)) ? alina\Utils\DateTime::toHumanDateTime($v) : null;
         }
 
         if (
-            \alina\Utils\Str::ifContains($f, 'date')
+            alina\Utils\Str::ifContains($f, 'date')
         ) {
             $type = 'date';
-            $v    = (! empty($v)) ? \alina\Utils\DateTime::toHumanDate($v) : null;
+            $v    = (! empty($v)) ? alina\Utils\DateTime::toHumanDate($v) : null;
         }
 
         if ($f === 'id') {
