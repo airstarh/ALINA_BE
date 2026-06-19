@@ -597,7 +597,7 @@ class Sys
     {
         return [
             'REQUEST' => Request::obj()->TOTAL_DEBUG_DATA(),
-            'ROUTER'  => Alina()->router,
+            //VA: ATTAENTION 'ROUTER'  => Alina()->router,
             'META'    => GlobalRequestStorage::getAll(),
         ];
     }
