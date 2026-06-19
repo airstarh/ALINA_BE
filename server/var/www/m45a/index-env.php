@@ -1,5 +1,4 @@
 <?php
-
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH    = __DIR__;
