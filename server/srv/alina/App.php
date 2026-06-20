@@ -244,12 +244,12 @@ final class App
     private function mvcControllerAction($controllerName, $action, $params = [])
     {
         if (! class_exists($controllerName, true)) {
-            throw new AppException("No Class: $controllerName");
+            throw new AppException("Controller does not exist");
         }
         $go = new $controllerName();
 
         if (false === ($action = $this->resolveMethodName($go, $action))) {
-            throw new AppException("No Method: $action");
+            throw new AppException("Action does not exist");
         }
 
         if (! is_array($params)) {
