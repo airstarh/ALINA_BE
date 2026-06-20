@@ -2,7 +2,6 @@
 
 namespace alina;
 
-use alina\mvc\Model\error_log;
 use alina\mvc\Model\watch_banned_browser;
 use alina\mvc\Model\watch_banned_ip;
 use alina\mvc\Model\watch_banned_visit;
@@ -10,12 +9,18 @@ use alina\mvc\Model\watch_browser;
 use alina\mvc\Model\watch_fools;
 use alina\mvc\Model\watch_visit;
 use alina\traits\Singleton;
+use alina\Utils\Data;
 use alina\Utils\Request;
 
 final class Watcher
 {
     #region Singleton
     use Singleton;
+
+    #####
+    private watch_browser $mBROWSER;
+    private watch_visit $mVISIT;
+    private static $state_VISIT_LOGGED = false;
 
     private function __construct()
     {
@@ -33,10 +38,6 @@ final class Watcher
     #endregion Singleton
     ##################################################
     #region Watch
-    private $mBROWSER;
-    private $mVISIT;
-    private static $state_VISIT_LOGGED = false;
-
     public function logVisitsToDb()
     {
         #####
@@ -70,8 +71,8 @@ final class Watcher
 
         if ($per10secs > $maxPer10secs) {
             $this->banVisit();
-            $msg = 'Are you trying to DDOS me?';
-            AlinaReject(false, 403, $msg);
+            $msg = 'DDos';
+            AlinaReject(null, 403, $msg);
             exit();
         }
     }
@@ -92,7 +93,7 @@ final class Watcher
 
         if ($res) {
             $msg = 'Your IP is banned';
-            AlinaReject(false, 403, $msg);
+            AlinaReject(null, 403, $msg);
             exit();
         }
     }
@@ -113,7 +114,7 @@ final class Watcher
 
         if ($res) {
             $msg = 'Your browser is banned';
-            AlinaReject(false, 403, $msg);
+            AlinaReject(null, 403, $msg);
             exit();
         }
     }
@@ -135,7 +136,7 @@ final class Watcher
 
         if ($res) {
             $msg = 'You are completely banned';
-            AlinaReject(false, 403, $msg);
+            AlinaReject(null, 403, $msg);
             exit();
         }
     }
@@ -160,7 +161,7 @@ final class Watcher
         ) {
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
-            AlinaReject(false, 403, $msg);
+            AlinaReject(null, 403, $msg);
             exit();
         }
     }
@@ -170,11 +171,8 @@ final class Watcher
         if (Request::obj()->AJAX) {
             if (Request::obj()->tryHeader('fgp', $fgp)) {
                 if (empty($fgp)) {
-                    $this->answer([
-                        'error_text' => 'Suspicious request. Empty fgp',
-                        'ban_point' => $this->mVISIT->attributes->ban_point + 1,
-                    ]);
-                    AlinaReject(null, 403);
+                    $msg = 'Suspicious request. Empty fgp';
+                    AlinaReject(null, 403, $msg);
                     exit();
                 }
 
@@ -182,7 +180,7 @@ final class Watcher
                     $orig = Request::obj()->BROWSER;
                     $this->answer([
                         'error_text' => "Suspicious request. Bad fgp ---{$orig}--- ||| ---{$fgp}---",
-                        'ban_point' => $this->mVISIT->attributes->ban_point + 1,
+                        'ban_point'  => 1,
                     ]);
                 }
             }
@@ -211,6 +209,11 @@ final class Watcher
     public function answer($data)
     {
         if (! empty($this->mVISIT->id)) {
+            $data = Data::toObject($data);
+
+            if (! empty($data->ban_point)) {
+                $data->ban_point = $data->ban_point + ($this->mVISIT->attributes->ban_point ?? 0);
+            }
             $this->mVISIT->updateById($data);
         }
 

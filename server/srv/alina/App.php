@@ -6,6 +6,8 @@ use alina\mvc\Model\CurrentUser;
 use alina\Utils\Arr;
 use alina\Utils\Request;
 use alina\Utils\Sys;
+use ErrorException;
+use Exception;
 
 final class App
 {
@@ -122,12 +124,12 @@ final class App
 
     /**
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public static function get()
     {
         if (! isset(static::$instance) || ! is_a(static::$instance, get_class())) {
-            throw new \Exception("Alina App is not set");
+            throw new Exception("Alina App is not set");
         }
 
         return static::$instance;
@@ -136,7 +138,7 @@ final class App
     /**
      * @param array $config
      * @return App
-     * @throws \Exception
+     * @throws Exception
      */
     public static function set($config)
     {
@@ -223,7 +225,7 @@ final class App
             return $rp;
         }
 
-        throw new \ErrorException("Path {$path} is not defined.");
+        throw new ErrorException("Path {$path} is not defined.");
     }
     #endregion Paths Resolver
     ####################################################################################################
@@ -373,7 +375,7 @@ final class App
                 return $this->mvcControllerAction($controller, $action);
             }
             catch (AppException $e) {
-                throw new \Exception('Alina Total Fail');
+                throw new Exception('Alina Total Fail');
             }
         }
     }

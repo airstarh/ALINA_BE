@@ -6,6 +6,8 @@ use alina\Message;
 use alina\Utils\Arr;
 use alina\Utils\Data;
 use alina\Utils\Request;
+use ErrorException;
+use Exception;
 
 trait Msg
 {
@@ -92,7 +94,7 @@ trait Msg
                 $arr = Request::obj()->GET->{static::$MESSAGE_GET_KEY};
                 static::addFromArray(json_decode($arr));
             }
-            catch (\ErrorException $e) {
+            catch (ErrorException $e) {
                 static::setDanger('Message delivery problem');
             }
         }
@@ -202,7 +204,7 @@ trait Msg
         try {
             $this->messageRawText = vsprintf($this->templateString, $this->params);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             $this->messageRawText = '';
             $this->messageRawText .= PHP_EOL;
             $this->messageRawText .= '>>>';

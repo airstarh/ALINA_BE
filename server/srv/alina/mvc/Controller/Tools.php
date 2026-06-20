@@ -9,11 +9,6 @@ use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 
-use const ALINA_WEB_PATH;
-
-use function AlinaEcho;
-use function AlinaEchoDraft;
-
 class Tools
 {
     /**
@@ -48,7 +43,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
         $vd = Data::mergeObjects($vd, $data);
-        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
+        \AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -60,7 +55,7 @@ class Tools
      */
     public function actionJsonSearchReplaceBeautify()
     {
-        $str       = @file_get_contents(ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
+        $str       = @file_get_contents(\ALINA_WEB_PATH . '/mockups/json.000.json') ?? '{}';
         $strSource = Data::hlpGetBeautifulJsonString($str);
         ##################################################
         $vd = (object) [
@@ -87,7 +82,7 @@ class Tools
         ##################################################
         GlobalRequestStorage::obj()->set('pageTitle', 'JSON Search-Replace-Beautify online');
         $vd = Data::mergeObjects($vd, $data);
-        AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
+        \AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
         return $this;
     }
@@ -96,9 +91,9 @@ class Tools
 
     public function actionRouteWhiteList()
     {
-        $a = 4 / 0;
+        $a   = 4 / 0;
         $res = Sys::getWhiteListController();
 
-        AlinaEchoDraft($res);
+        \AlinaEchoDraft($res);
     }
 }

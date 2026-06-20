@@ -2,6 +2,8 @@
 
 namespace alina\Utils;
 
+use Exception;
+
 class Resolver
 {
     ##################################################
@@ -16,13 +18,13 @@ class Resolver
     public static function returnClassMethod($class, $method, $params = [])
     {
         if (! class_exists($class, true)) {
-            throw new \Exception("No Class: $class");
+            throw new Exception("No Class: $class");
         }
 
         $go = new $class();
 
         if (! method_exists($go, $method)) {
-            throw new \Exception("No Method: $method");
+            throw new Exception("No Method: $method");
         }
 
         return call_user_func_array([$go, $method], $params);

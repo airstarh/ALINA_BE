@@ -42,6 +42,11 @@ return (new PhpCsFixer\Config())
         'method_argument_space' => [
             'on_multiline' => 'ensure_fully_multiline',
         ],
+        'global_namespace_import' => [
+            'import_classes' => true,
+            'import_constants' => false,
+            'import_functions' => false,
+        ],
     ])
     ->setFinder($finder)
     ;

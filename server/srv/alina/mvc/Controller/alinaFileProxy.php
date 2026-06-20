@@ -2,12 +2,8 @@
 
 namespace alina\mvc\Controller;
 
-use function Alina;
-
 use alina\Utils\FS;
 use alina\Utils\Request;
-
-use function AlinaRejectIfNotAdmin;
 
 class alinaFileProxy
 {
@@ -23,7 +19,7 @@ class alinaFileProxy
 
     public function __construct()
     {
-        AlinaRejectIfNotAdmin();
+        \AlinaRejectIfNotAdmin();
     }
 
     /**
@@ -47,7 +43,7 @@ class alinaFileProxy
             $flagDo = false;
         }
 
-        $p = Alina()->resolvePath($relativePath);
+        $p = \Alina()->resolvePath($relativePath);
 
         $realPath    = realpath($p);
         $allowedBase = realpath(ALINA_WEB_PATH . '/uploads');

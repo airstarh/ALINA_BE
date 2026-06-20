@@ -12,6 +12,7 @@ namespace alina\vendorExtend\illuminate;
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Events\Dispatcher;
+use Throwable;
 
 class alinaLaravelCapsuleLoader
 {
@@ -56,11 +57,11 @@ class alinaLaravelCapsuleLoader
                     return static::$objIlluminate;
                 }
             }
-            catch (\Throwable $e) {
+            catch (Throwable $e) {
                 $res = false;
             }
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             $res = false;
         }
         exit('No db');

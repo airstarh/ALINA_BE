@@ -3,6 +3,7 @@
 namespace alina\mvc\Model;
 
 use alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
+use Exception;
 use Illuminate\Database\Capsule\Manager as Dal;
 
 // Laravel initiation
@@ -52,7 +53,7 @@ class _baseAlinaEloquentTransaction
 
             return true;
         } //ToDO: Perhaps, this try-catch is redundant...
-        catch (\Exception $e) {
+        catch (Exception $e) {
             static::rollback();
 
             throw $e;

@@ -6,6 +6,9 @@ use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 use alina\Utils\Url;
+use ErrorException;
+use Exception;
+use Throwable;
 
 class AppExceptionCatcher
 {
@@ -37,13 +40,13 @@ class AppExceptionCatcher
             return;
         }
 
-        throw new \ErrorException($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
+        throw new ErrorException($eString, 0, $strErrLevelExpSeverity, $eFile, $eLine);
     }
 
     /**
-     * @param \Throwable $objException
+     * @param Throwable $objException
      * @param bool $forceExit
-     * @throws \Exception
+     * @throws Exception
      */
     public function exception($objException, $forceExit = true)
     {
@@ -131,7 +134,7 @@ class AppExceptionCatcher
                         'error_trace'    => $this->eTrace,
                     ]);
                 }
-                catch (\Exception $e) {
+                catch (Exception $e) {
                     error_log('Was unable to write Error to db!!!');
                     error_log($e->getMessage());
                 }
@@ -186,58 +189,58 @@ class AppExceptionCatcher
     }
 }
 
-class WarningException extends \ErrorException
+class WarningException extends ErrorException
 {
 }
 
-class ParseException extends \ErrorException
+class ParseException extends ErrorException
 {
 }
 
-class NoticeException extends \ErrorException
+class NoticeException extends ErrorException
 {
 }
 
-class CoreErrorException extends \ErrorException
+class CoreErrorException extends ErrorException
 {
 }
 
-class CoreWarningException extends \ErrorException
+class CoreWarningException extends ErrorException
 {
 }
 
-class CompileErrorException extends \ErrorException
+class CompileErrorException extends ErrorException
 {
 }
 
-class CompileWarningException extends \ErrorException
+class CompileWarningException extends ErrorException
 {
 }
 
-class UserErrorException extends \ErrorException
+class UserErrorException extends ErrorException
 {
 }
 
-class UserWarningException extends \ErrorException
+class UserWarningException extends ErrorException
 {
 }
 
-class UserNoticeException extends \ErrorException
+class UserNoticeException extends ErrorException
 {
 }
 
-class StrictException extends \ErrorException
+class StrictException extends ErrorException
 {
 }
 
-class RecoverableErrorException extends \ErrorException
+class RecoverableErrorException extends ErrorException
 {
 }
 
-class DeprecatedException extends \ErrorException
+class DeprecatedException extends ErrorException
 {
 }
 
-class UserDeprecatedException extends \ErrorException
+class UserDeprecatedException extends ErrorException
 {
 }

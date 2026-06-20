@@ -10,15 +10,7 @@ use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
 use alina\Utils\Data as DataAlias;
 
-use const ALINA_MICROTIME;
-use const ALINA_PATH_TO_APP;
-use const ALINA_PATH_TO_FRAMEWORK;
-use const ALINA_WEB_PATH;
-
-use function AlinaAccessIfAdmin;
 use function GuzzleHttp\json_encode;
-
-use const PHP_EOL;
 
 use Throwable;
 
@@ -34,7 +26,7 @@ class Sys
 
     protected static function initLogFilePath(?string $fPath = null, $transform = null)
     {
-        $fPath = $fPath ?? ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
+        $fPath = $fPath ?? \ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
 
         switch ($transform) {
             case 'php':
@@ -64,7 +56,7 @@ class Sys
         }
 
         if (empty(static::$fPath)) {
-            static::$fPath = ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
+            static::$fPath = \ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
         }
 
         return static::$fPath;
@@ -93,19 +85,19 @@ class Sys
 
                     ob_start();
                     ob_implicit_flush(false);
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '<?php';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo sprintf('$XXX_%s = ', static::$counterCalls[$fPath]);
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
 
                     static::dump($output);
 
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo ';';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '?>';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
 
                     #endregion TEMPLATE
                     ##################################################
@@ -128,17 +120,17 @@ class Sys
                     #region TEMPLATE
                     ob_start();
                     ob_implicit_flush(false);
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '<h1> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> </h1>';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '<pre>';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     static::dump($output);
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '</pre>';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     echo '<h2> <<<<<<<<<<<<<<<<<<<< </h2>';
-                    echo PHP_EOL;
+                    echo \PHP_EOL;
                     #endregion TEMPLATE
                     ##################################################
 
@@ -156,7 +148,7 @@ class Sys
 
                 // WIPE LOG FILE
                 if ($isLog === false) {
-                    file_put_contents($fPath, PHP_EOL, 0);
+                    file_put_contents($fPath, \PHP_EOL, 0);
                 }
 
                 if ($isLog) {
@@ -195,10 +187,10 @@ class Sys
                     "AT $date",
                 ]);
 
-                $prefix = implode(PHP_EOL . '#> ', $prefix);
+                $prefix = implode(\PHP_EOL . '#> ', $prefix);
 
-                file_put_contents($fPath, PHP_EOL, FILE_APPEND);
-                file_put_contents($fPath, PHP_EOL, FILE_APPEND);
+                file_put_contents($fPath, \PHP_EOL, FILE_APPEND);
+                file_put_contents($fPath, \PHP_EOL, FILE_APPEND);
                 file_put_contents($fPath, $prefix, FILE_APPEND);
             }
             # endregion PREFIX
@@ -206,7 +198,7 @@ class Sys
             # region LOG
 
             file_put_contents($fPath, $output, FILE_APPEND);
-            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, \PHP_EOL . \PHP_EOL, FILE_APPEND);
 
             # endregion LOG
             ###############################
@@ -214,9 +206,9 @@ class Sys
             $trace = static::getCallStack();
             $trace = var_export($trace, 1);
 
-            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, \PHP_EOL . \PHP_EOL, FILE_APPEND);
             file_put_contents($fPath, $trace, FILE_APPEND);
-            file_put_contents($fPath, PHP_EOL . PHP_EOL, FILE_APPEND);
+            file_put_contents($fPath, \PHP_EOL . \PHP_EOL, FILE_APPEND);
 
             # endregion BactTrace
             ###############################
@@ -243,9 +235,9 @@ class Sys
         ob_start();
         ob_implicit_flush(false);
         echo '<hr><pre>';
-        echo PHP_EOL;
+        echo \PHP_EOL;
         print_r($data);
-        echo PHP_EOL;
+        echo \PHP_EOL;
         echo '</pre>';
         $output = ob_get_clean();
 
@@ -442,7 +434,7 @@ class Sys
             $get->{Message::$MESSAGE_GET_KEY} = json_encode($messages, JSON_UNESCAPED_UNICODE);
         }
 
-        if (AlinaAccessIfAdmin()) {
+        if (\AlinaAccessIfAdmin()) {
             $messages_admin = MessageAdmin::returnAllMessages();
 
             if (count($messages_admin) > 0) {
@@ -470,7 +462,7 @@ class Sys
     public static function reportSpentTime($prepend = [], $append = [])
     {
         $main = [
-            number_format(static::getMicroTimeDifferenceFromNow(ALINA_MICROTIME), 10, '.', ' '),
+            number_format(static::getMicroTimeDifferenceFromNow(\ALINA_MICROTIME), 10, '.', ' '),
             "SPENT",
             $_SERVER['SERVER_ADDR'],
             isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI_REQUEST_URI',
@@ -656,7 +648,7 @@ class Sys
 
         if (is_array($object) || is_object($object)) {
             foreach ($object as $key => $value) {
-                $output .= static::print_limited_r($value, $depth - 1) . PHP_EOL . '<===>' . PHP_EOL;
+                $output .= static::print_limited_r($value, $depth - 1) . \PHP_EOL . '<===>' . \PHP_EOL;
             }
         }
 
@@ -670,8 +662,8 @@ class Sys
         $res = [];
 
         $folders = [
-            ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller',
-            ALINA_PATH_TO_APP . '/mvc/Controller',
+            \ALINA_PATH_TO_FRAMEWORK . '/mvc/Controller',
+            \ALINA_PATH_TO_APP . '/mvc/Controller',
         ];
 
         foreach ($folders as $folder) {

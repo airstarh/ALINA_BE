@@ -4,8 +4,12 @@ namespace alina\Utils;
 
 use alina\AppExceptionValidation;
 use alina\Message;
+use Closure;
+use DOMXpath;
+use ErrorException;
 use Exception;
 use stdClass;
+use Throwable;
 
 class Data
 {
@@ -74,7 +78,7 @@ class Data
 
             return (json_last_error() === JSON_ERROR_NONE);
         } // Executed only in PHP 7, will not match in PHP 5
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             return false;
         }
     }
@@ -552,7 +556,7 @@ class Data
             #endregion SOLUTION 6
             ####################################################################################################
         }
-        catch (\ErrorException $e) {
+        catch (ErrorException $e) {
             Message::setDanger($e->getMessage());
 
             return false;
@@ -754,7 +758,7 @@ class Data
                         $data->{$fName} = $filter($data->{$fName});
                     }
                     else {
-                        if ($filter instanceof \Closure) {
+                        if ($filter instanceof Closure) {
                             $data->{$fName} = call_user_func($filter, $data->{$fName});
                             ;
                         }
@@ -835,7 +839,7 @@ class Data
         $HTML5DOMDocument->formatOutput       = false;
         $HTML5DOMDocument->loadHTML($html);
         ##################################################
-        $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+        $DOMXpath = new DOMXpath($HTML5DOMDocument);
 
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);
@@ -885,7 +889,7 @@ class Data
                     elseif (is_string($CHECKER) && function_exists($CHECKER)) {
                         $VALIDATION_RESULT = $CHECKER($fValue);
                     }
-                    elseif ($CHECKER instanceof \Closure) {
+                    elseif ($CHECKER instanceof Closure) {
                         $VALIDATION_RESULT = call_user_func($CHECKER, $fValue, $data);
                     }
                     elseif (is_array($CHECKER)) {

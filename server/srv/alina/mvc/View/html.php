@@ -7,6 +7,8 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\View\json as jsonView;
 use alina\Utils\Sys;
+use ErrorException;
+use Exception;
 
 class html
 {
@@ -108,14 +110,14 @@ class html
 
             return $templateFile;
         }
-        catch (\ErrorException $e) {
+        catch (ErrorException $e) {
             try {
                 $templateFile = \alina\Utils\FS::buildPathFromBlocks($this->mvcTemplateRootDefault, $mvcRelativePathLayout);
                 $templateFile = Alina()->resolvePath($templateFile);
 
                 return $templateFile;
             }
-            catch (\Exception $e) {
+            catch (Exception $e) {
                 return false;
             }
         }

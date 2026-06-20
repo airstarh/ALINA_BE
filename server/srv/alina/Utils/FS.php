@@ -2,6 +2,10 @@
 
 namespace alina\Utils;
 
+use ErrorException;
+use Exception;
+use Throwable;
+
 class FS
 {
     /**
@@ -135,7 +139,7 @@ class FS
             static::mkChainedDirIfNotExists($dir);
 
             if (false === file_put_contents($path, null)) {
-                throw new \Exception("Unable to create file {$pathInfo}");
+                throw new Exception("Unable to create file {$pathInfo}");
             }
         }
 
@@ -373,23 +377,23 @@ class FS
     {
         // Validate source path
         if (! file_exists($from)) {
-            throw new \ErrorException("Source path does not exist: $from");
+            throw new ErrorException("Source path does not exist: $from");
         }
 
         if (! is_readable($from)) {
-            throw new \ErrorException("Source path is not readable: $from");
+            throw new ErrorException("Source path is not readable: $from");
         }
 
         // Create destination directory if it doesn't exist
         if (! file_exists($to)) {
             if (! mkdir($to, 0755, true)) {
-                throw new \ErrorException("Failed to create destination directory: $to");
+                throw new ErrorException("Failed to create destination directory: $to");
             }
         }
 
         // Check if destination is writable
         if (! is_writable($to)) {
-            throw new \ErrorException("Destination path is not writable: $to");
+            throw new ErrorException("Destination path is not writable: $to");
         }
 
         // Scan source directory
@@ -420,14 +424,14 @@ class FS
                         || $sourceMtime > $destMtime
                     ) {
                         if (! copy($sourcePath, $destPath)) {
-                            throw new \ErrorException("Failed to copy file: $sourcePath to $destPath");
+                            throw new ErrorException("Failed to copy file: $sourcePath to $destPath");
                         }
                     }
                 }
                 else {
                     // Destination file doesn't exist - copy it
                     if (! copy($sourcePath, $destPath)) {
-                        throw new \ErrorException("Failed to copy file: $sourcePath to $destPath");
+                        throw new ErrorException("Failed to copy file: $sourcePath to $destPath");
                     }
                 }
             }
@@ -495,7 +499,7 @@ class FS
 
             return true;
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             trigger_error("Error during directory cleanup: " . $e->getMessage(), E_USER_WARNING);
             closedir($dir);
 

@@ -7,6 +7,7 @@ use alina\Utils\Data;
 use alina\Utils\DateTime;
 use alina\Utils\Str;
 use alina\Utils\Sys;
+use ErrorException;
 use Illuminate\Database\Capsule\Manager as Dal;
 
 class user extends _BaseAlinaModel
@@ -446,7 +447,7 @@ class user extends _BaseAlinaModel
     public static function encrypt($v)
     {
         if (empty($v)) {
-            throw new \ErrorException(___('Attempt to encrypt empty value!'));
+            throw new ErrorException(___('Attempt to encrypt empty value!'));
         }
 
         if (! Data::isValidMd5($v)) {

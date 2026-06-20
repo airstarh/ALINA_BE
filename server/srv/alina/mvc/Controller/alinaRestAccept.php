@@ -17,6 +17,8 @@ use alina\MessageAdmin;
 use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\View\json as jsonView;
 use alina\Utils\Sys;
+use ErrorException;
+use Exception;
 
 class alinaRestAccept
 {
@@ -26,8 +28,8 @@ class alinaRestAccept
     }
 
     /**
-     * @throws \ErrorException
-     * @throws \Exception
+     * @throws ErrorException
+     * @throws Exception
      * @throws \alina\AppExceptionValidation
      * @link /alinaRestAccept?cmd=Model&m=user&mId=1
      * @link /alinaRestAccept

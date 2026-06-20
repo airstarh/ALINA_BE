@@ -18,6 +18,7 @@ use alina\Utils\Data;
 use alina\Utils\FS;
 use alina\Utils\Request;
 use alina\Utils\Sys;
+use DOMXpath;
 
 class AdminTests
 {
@@ -253,7 +254,7 @@ class AdminTests
         $HTML5DOMDocument->formatOutput       = false;
         $HTML5DOMDocument->loadHTML($html);
         ##################################################
-        $DOMXpath = new \DOMXpath($HTML5DOMDocument);
+        $DOMXpath = new DOMXpath($HTML5DOMDocument);
 
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);

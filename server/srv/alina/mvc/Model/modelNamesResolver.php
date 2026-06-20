@@ -2,6 +2,9 @@
 
 namespace alina\mvc\Model;
 
+use ErrorException;
+use Exception;
+
 class modelNamesResolver
 {
     public static $vocTableToClassName = [
@@ -12,7 +15,7 @@ class modelNamesResolver
     /**
      * @param $describer
      * @return _BaseAlinaModel
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public static function getModelObject($describer)
     {
@@ -23,7 +26,7 @@ class modelNamesResolver
         }
 
         if (! is_string($describer)) {
-            throw new \ErrorException($message[0]);
+            throw new ErrorException($message[0]);
         }
 
         if (class_exists($describer)) {
@@ -55,7 +58,7 @@ class modelNamesResolver
                 }
             }
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             //Nothing is to do here :-)
         }
         //ToDo: Implement Class Scanner.
@@ -74,10 +77,10 @@ class modelNamesResolver
 
             return $m;
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             $message[0] = "There is no table {$describer}";
         }
 
-        throw new \ErrorException($message[0]);
+        throw new ErrorException($message[0]);
     }
 }

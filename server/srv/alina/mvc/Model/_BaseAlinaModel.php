@@ -9,9 +9,11 @@ use alina\Utils\Arr;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\vendorExtend\illuminate\alinaLaravelCapsuleLoader as Loader;
+use ErrorException;
 use Exception;
 use Illuminate\Database\Capsule\Manager as Dal;
 use Illuminate\Database\Query\Builder as BuilderAlias;
+use stdClass;
 
 class _BaseAlinaModel
 {
@@ -152,7 +154,7 @@ class _BaseAlinaModel
      *
      * @param array|object $data
      * @param mixed $uniqueKeys
-     * @throws \ErrorException
+     * @throws ErrorException
      * @return false|BuilderAlias|object|\Illuminate\Database\Eloquent\Model
      */
     public function getModelByUniqueKeys($data, $uniqueKeys = null)
@@ -168,7 +170,7 @@ class _BaseAlinaModel
             $uFields    = [];
 
             if (! is_array($uniqueFields)) {
-                throw new \ErrorException('Uniq Fields must be array');
+                throw new ErrorException('Uniq Fields must be array');
             }
 
             foreach ($uniqueFields as $uf) {
@@ -374,7 +376,7 @@ class _BaseAlinaModel
      * PK could be passed either in $data object or as the second parameter separately.
      * @param $data array|\stdClass
      * @param null|mixed $id
-     * @return \stdClass
+     * @return stdClass
      * @throws Exception
      * @throws AppExceptionValidation
      */
@@ -493,7 +495,7 @@ class _BaseAlinaModel
             $pkName = $this->pkName;
             $data   = (isset($additionalData) && ! empty($additionalData))
                 ? Data::toObject($additionalData)
-                : new \stdClass();
+                : new stdClass();
             // Even if there is no is_deleted in this->fields, it does not bring error
             // due to $this->bindModel functionality.
             $data->is_deleted = 1;
@@ -673,7 +675,7 @@ class _BaseAlinaModel
     {
         $R            = Request::obj();
         $R_GET        = $R->GET;
-        $this->o_GET  = new \stdClass();
+        $this->o_GET  = new stdClass();
         $vocGetSearch = $this->vocGetSearch();
 
         foreach ($vocGetSearch as $short => $full) {
@@ -714,10 +716,10 @@ class _BaseAlinaModel
     #region FILTER, VALIDATE
     /**
      * Filter received $data according $this fields params.
-     * @param \stdClass $data
+     * @param stdClass $data
      * @return $this
      */
-    public function applyFilters(\stdClass $data)
+    public function applyFilters(stdClass $data)
     {
         if ($this->state_DATA_FILTERED) {
             return $this;
@@ -755,7 +757,7 @@ class _BaseAlinaModel
         return $this;
     }
 
-    public function validate(\stdClass $data)
+    public function validate(stdClass $data)
     {
         if ($this->state_DATA_VALIDATED) {
             return $this;
@@ -803,7 +805,7 @@ class _BaseAlinaModel
      * AND allows only those field names, which are listed in $this->fields() array.
      * Minimizes conflicts.
      * It does NOT change input object.
-     * @param \stdClass $data
+     * @param stdClass $data
      * @return array
      */
     private function restrictIdentityAutoincrementReadOnlyFields($data)
@@ -858,12 +860,12 @@ class _BaseAlinaModel
 
     /**
      * Creates $defaultRawObj with default values for DB.
-     * @return \stdClass object $defaultRawObj.
+     * @return stdClass object $defaultRawObj.
      */
     public function buildDefaultData()
     {
         $fields        = $this->fields();
-        $defaultRawObj = new \stdClass();
+        $defaultRawObj = new stdClass();
 
         foreach ($fields as $f => $props) {
             if (array_key_exists('default', $props)) {
@@ -911,12 +913,12 @@ class _BaseAlinaModel
     # modified_date
     /**
      * Add Audit Information to $data object.
-     * @param \stdClass $eventData
+     * @param stdClass $eventData
      * @param string|null $eventName
      * @return null
      * ToDo: Consider to delete.
      */
-    protected function addAuditInfo(\stdClass $data, string $saveMode = null)
+    protected function addAuditInfo(stdClass $data, string $saveMode = null)
     {
         $saveMode = $saveMode ?? $this->mode;
         $userId   = CurrentUser::id();
@@ -1208,13 +1210,16 @@ class _BaseAlinaModel
         return $this;
     }
 
-    public function g($f)
+    public function g(string $f)
     {
-        if (isset($this->attributes->{$f})) {
-            return $this->attributes->{$f};
-        }
+        return $this->attributes->{$f} ?? null;
+    }
 
-        return false;
+    public function s(string $f, $v)
+    {
+        $this->attributes->{$f} = $v ?? null;
+
+        return $this->g($f);
     }
 
     public function qAliasPk()
@@ -1222,7 +1227,7 @@ class _BaseAlinaModel
         return "$this->alias.$this->pkName";
     }
 
-    protected function setPkValue($id, ?\stdClass $data = null)
+    protected function setPkValue($id, ?stdClass $data = null)
     {
         $this->{$this->pkName}             = $id;
         $this->id                          = $id;

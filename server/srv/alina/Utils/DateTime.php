@@ -3,6 +3,7 @@
 namespace alina\Utils;
 
 use DateInterval;
+use Exception;
 
 class DateTime extends \DateTime
 {
@@ -72,7 +73,7 @@ class DateTime extends \DateTime
      * Checks if the second date is in the same day of month.
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isSameDayOfMonth($date2)
     {
@@ -84,7 +85,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isDiffWeek($date2)
     {
@@ -97,7 +98,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isDiffMonth($date2)
     {
@@ -113,7 +114,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isDiffQuarter($date2)
     {
@@ -130,7 +131,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isDiffHalfYear($date2)
     {
@@ -147,7 +148,7 @@ class DateTime extends \DateTime
     /**
      * @param DateTime $date2
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isDiffYear($date2)
     {
@@ -164,7 +165,7 @@ class DateTime extends \DateTime
     /**
      * @param static $date
      * @return DateTime
-     * @throws \Exception
+     * @throws Exception
      */
     private function leapYearAdj($date)
     {

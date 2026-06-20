@@ -3,6 +3,7 @@
 namespace alina\mvc\Controller;
 
 use alina\mvc\View\html;
+use alina\Watcher;
 
 class Root
 {
@@ -74,13 +75,14 @@ class Root
     public function actionException($vd = null)
     {
         AlinaResponseSuccess(0);
-        http_response_code(500);
+        http_response_code(403);
         AlinaEcho((new html())->page($vd, html::$htmLayoutErrorCatcher));
     }
 
     public function actionAccessDenied($code = 403)
     {
         AlinaResponseSuccess(0);
+        Watcher::obj()->answer(['ban_point' => 1]);
         http_response_code($code);
         AlinaEcho((new html())->page(null, html::$htmLayoutErrorCatcher));
     }

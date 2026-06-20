@@ -20,6 +20,7 @@ use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\DateTime;
 use alina\Utils\Request;
+use PDO;
 
 class Pm
 {
@@ -575,7 +576,7 @@ class Pm
             $vd['sql'] = $sql;
             ##################################################
             $m         = new _BaseAlinaModel();
-            $res       = $m->x($sql)->fetchAll(\PDO::FETCH_OBJ);
+            $res       = $m->x($sql)->fetchAll(PDO::FETCH_OBJ);
             $vd['res'] = $res;
             ##################################################
 
