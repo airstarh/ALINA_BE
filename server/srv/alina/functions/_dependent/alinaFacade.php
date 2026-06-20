@@ -281,19 +281,19 @@ function AlinaEcho(string $string)
 function AlinaExit($data = null)
 {
     try {
-        $msg            = null;
+        $answer         = new stdClass();
         $flagSuspicious = AlinaIsResponseSuccess() === 1 ? 0 : 1;
 
-        if ($flagSuspicious) {
-            $msg        = [];
-            $msg['usr'] = Message::returnAllMessages();
-            $msg['adm'] = MessageAdmin::returnAllMessages();
-        }
+        $msg        = [];
+        $msg['usr'] = Message::returnAllMessages();
+        $msg['adm'] = MessageAdmin::returnAllMessages();
 
-        $msgString = $msg ? alina\Utils\Str::anyToString($msg) : null;
+        $answer->msg  = $msg;
+        $answer->data = $data;
+        $answerString = alina\Utils\Str::anyToString($answer);
 
         alina\Watcher::obj()->answer([
-            'answer'     => $msgString,
+            'answer'     => $answerString,
             'suspicious' => $flagSuspicious,
             'controller' => GlobalRequestStorage::obj()->get('BaseModelQueries'),
             'action'     => GlobalRequestStorage::obj()->get('TemplateQueries'),

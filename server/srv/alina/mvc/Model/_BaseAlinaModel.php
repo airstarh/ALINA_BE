@@ -31,7 +31,7 @@ class _BaseAlinaModel
     public $alias  = '';
     public $pkName = 'id';
     public $id     = null;
-    protected $opts;
+    protected stdClass $opts;
     public $dataArrayIdentity;
     #endregion Required
     ##################################################
@@ -90,16 +90,15 @@ class _BaseAlinaModel
     public function __construct($opts = null)
     {
         Loader::init();
-        $this->attributes = (object) [];
+        $this->opts       = new stdClass();
+        $this->attributes = new stdClass();
         $this->setPkValue(null);
 
         if ($opts) {
-            $opts       = Data::toObject($opts);
-            $this->opts = $opts;
-
-            if (isset($opts->table)) {
-                $this->table = $opts->table;
-            }
+            $opts = Data::toObject($opts);
+            Data::mergeObjects($this->opts, $opts);
+            $this->opts  = $opts;
+            $this->table = $this->opts->table ?? $this->table;
         }
         $this->alias = $this->table;
         $this->buildDefaultData();

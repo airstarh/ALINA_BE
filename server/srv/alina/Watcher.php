@@ -19,7 +19,7 @@ final class Watcher
 
     #####
     private watch_browser $mBROWSER;
-    private watch_visit $mVISIT;
+    public watch_visit $mVISIT;
     private static $state_VISIT_LOGGED = false;
 
     private function __construct()
