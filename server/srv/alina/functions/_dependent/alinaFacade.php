@@ -122,6 +122,7 @@ function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $mes
 
     if ($page) {
         Sys::redirect($page, $code);
+        AlinaExit();
     }
     else {
         Request::obj()::resetToGet();
@@ -278,7 +279,7 @@ function AlinaEcho(string $string)
     AlinaExit($string);
 }
 
-function AlinaExit($data)
+function AlinaExit($data = null)
 {
     try {
         $msg            = null;
@@ -286,8 +287,8 @@ function AlinaExit($data)
 
         if ($flagSuspicious) {
             $msg        = [];
-            $msg['usr'] = Data::hlpGetBeautifulJsonString(Message::returnAllMessages());
-            $msg['adm'] = Data::hlpGetBeautifulJsonString(MessageAdmin::returnAllMessages());
+            $msg['usr'] = Message::returnAllMessages();
+            $msg['adm'] = MessageAdmin::returnAllMessages();
         }
 
         $msgString = $msg ? alina\Utils\Str::anyToString($msg) : null;
@@ -300,7 +301,7 @@ function AlinaExit($data)
         ]);
     }
     catch (Throwable $e) {
-        error_log('salam');
+        error_log($e->getMessage());
     }
     exit();
 }
