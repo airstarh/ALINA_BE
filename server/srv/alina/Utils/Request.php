@@ -179,6 +179,14 @@ class Request
         return static::obj()->POST;
     }
 
+    public static function resetToGet()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        static::obj()->METHOD      = 'GET';
+        $_POST                     = [];
+        static::obj()->POST        = (object) [];
+    }
+
     public static function has($key, &$value = null)
     {
         $is = property_exists(static::obj()->R, $key);

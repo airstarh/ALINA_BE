@@ -64,6 +64,7 @@ class watch_visit extends _BaseAlinaModel
             'referal'        => [
                 'default' => $Request->REFERAL,
             ],
+            'ban_point' => [],
         ];
     }
 }

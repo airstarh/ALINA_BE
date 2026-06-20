@@ -3,6 +3,8 @@
 ##################################################
 
 use alina\App;
+use alina\MessageAdmin;
+use alina\Utils\Data;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\mvc\Model\CurrentUser;
@@ -113,16 +115,16 @@ function AlinaAccessIfAdminOrModerator()
 
 #####
 
-function AlinaReject($page = null, $code = 303, $message = 'ACCESS DENIED')
+function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $messageParams = [])
 {
     AlinaResponseSuccess(0);
-    Message::setDanger($message);
+    Message::setDanger($message, $messageParams);
 
     if ($page) {
         Sys::redirect($page, $code);
     }
     else {
-        Request::obj()->METHOD = 'GET';
+        Request::obj()::resetToGet();
         Alina()->mvcGo('Root', 'AccessDenied', [$code]);
     }
 }
@@ -284,14 +286,14 @@ function AlinaExit($data)
 
         if ($flagSuspicious) {
             $msg        = [];
-            $msg['usr'] = \strip_tags(Message::returnAllHtmlString());
-            $msg['adm'] = \strip_tags(alina\MessageAdmin::returnAllHtmlString());
+            $msg['usr'] = Data::hlpGetBeautifulJsonString(Message::returnAllMessages());
+            $msg['adm'] = Data::hlpGetBeautifulJsonString(MessageAdmin::returnAllMessages());
         }
 
-        $string = $msg ? alina\Utils\Str::anyToString($msg) : null;
+        $msgString = $msg ? alina\Utils\Str::anyToString($msg) : null;
 
         alina\Watcher::obj()->answer([
-            'answer'     => $string,
+            'answer'     => $msgString,
             'suspicious' => $flagSuspicious,
             'controller' => GlobalRequestStorage::obj()->get('BaseModelQueries'),
             'action'     => GlobalRequestStorage::obj()->get('TemplateQueries'),

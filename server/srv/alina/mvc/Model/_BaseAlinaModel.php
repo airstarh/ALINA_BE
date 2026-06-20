@@ -881,6 +881,7 @@ class _BaseAlinaModel
     protected function prepareDbData($data)
     {
         $data = Data::toObject($data);
+        $data = Data::mergeObjects($this->attributes, $data);
         unset($data->created_by);
         unset($data->modified_by);
         unset($data->created_at);
@@ -1221,7 +1222,7 @@ class _BaseAlinaModel
         return "$this->alias.$this->pkName";
     }
 
-    protected function setPkValue($id, \stdClass $data = null)
+    protected function setPkValue($id, ?\stdClass $data = null)
     {
         $this->{$this->pkName}             = $id;
         $this->id                          = $id;

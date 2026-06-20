@@ -2,7 +2,6 @@
 
 namespace alina;
 
-use alina\mvc\Model\error_log;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
