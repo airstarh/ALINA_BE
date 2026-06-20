@@ -64,6 +64,7 @@ class Router
                 $this->controller = array_shift($_pathParts);
 
                 if (! \in_array(mb_strtolower($this->controller), Utils\Sys::getWhiteListController())) {
+                    Watcher::obj()->mVISIT->si('ban_point');
                     Alina()->mvcPageNotFound();
                 }
             }

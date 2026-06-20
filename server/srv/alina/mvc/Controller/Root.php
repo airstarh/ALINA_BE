@@ -75,7 +75,7 @@ class Root
     public function actionException($vd = null)
     {
         AlinaResponseSuccess(0);
-        http_response_code(403);
+        http_response_code(500);
         AlinaEcho((new html())->page($vd, html::$htmLayoutErrorCatcher));
     }
 

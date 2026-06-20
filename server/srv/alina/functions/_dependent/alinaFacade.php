@@ -281,16 +281,17 @@ function AlinaEcho(string $string)
 function AlinaExit($data = null)
 {
     try {
-        $answer         = new stdClass();
+        $answer         = [];
         $flagSuspicious = AlinaIsResponseSuccess() === 1 ? 0 : 1;
 
-        $msg        = [];
-        $msg['usr'] = Message::returnAllMessages();
-        $msg['adm'] = MessageAdmin::returnAllMessages();
-
-        $answer->msg  = $msg;
-        $answer->data = $data;
-        $answerString = alina\Utils\Str::anyToString($answer);
+        $answer[] = 'User';
+        $answer[] = Message::returnAllDbData();
+        $answer[] = 'Admin';
+        $answer[] = MessageAdmin::returnAllDbData();
+        $answer[] = 'Response';
+        $answer[] = is_string($data) ? 'ok' : alina\Utils\Str::anyToString($data);
+        ;
+        $answerString = implode(PHP_EOL, $answer);
 
         alina\Watcher::obj()->answer([
             'answer'     => $answerString,

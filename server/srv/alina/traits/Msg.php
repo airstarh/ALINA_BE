@@ -16,8 +16,8 @@ trait Msg
      * @property array $collection
      * Contains array of \alina\message objects
      **/
-    protected static $collection = [];
-    public static $statusClasses = [
+    protected static array $collection = [];
+    public static $statusClasses       = [
         0 => 'alert alert-success',
         1 => 'alert alert-info',
         2 => 'alert alert-warning',
@@ -109,6 +109,23 @@ trait Msg
                 $msg->status
             );
         }
+    }
+
+    public static function returnAllDbData(): string
+    {
+        $collection = static::getCollection();
+        $all        = [];
+
+        /** @var Message $msg */
+        foreach ($collection as $pseudoId => $msg) {
+            if (! $msg->isShown) {
+                $all[] = $msg->messageRawText();
+                // $msg->isShown = true;
+                // static::removeById($msg->id);
+            }
+        }
+
+        return implode(PHP_EOL, $all);
     }
 
     public static function returnAllHtmlString()
