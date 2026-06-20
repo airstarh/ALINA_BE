@@ -84,10 +84,7 @@ class Request
 
     public function tryHeader($prop, &$val = null)
     {
-        $val = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
-
-        return $val;
-        //return Arr::getArrayValue($name, (array)$this->HEADERS);
+        return Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
     }
 
     ##################################################

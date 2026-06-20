@@ -82,7 +82,7 @@ class Root
     public function actionAccessDenied($code = 403)
     {
         AlinaResponseSuccess(0);
-        Watcher::obj()->answer(['ban_point' => 1]);
+        Watcher::obj()->mVISIT->si('ban_point');
         http_response_code($code);
         AlinaEcho((new html())->page(null, html::$htmLayoutErrorCatcher));
     }

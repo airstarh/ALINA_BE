@@ -73,7 +73,6 @@ final class Watcher
             $this->banVisit();
             $msg = 'DDos';
             AlinaReject(null, 403, $msg);
-            exit();
         }
     }
 
@@ -94,7 +93,6 @@ final class Watcher
         if ($res) {
             $msg = 'Your IP is banned';
             AlinaReject(null, 403, $msg);
-            exit();
         }
     }
 
@@ -115,7 +113,6 @@ final class Watcher
         if ($res) {
             $msg = 'Your browser is banned';
             AlinaReject(null, 403, $msg);
-            exit();
         }
     }
 
@@ -137,7 +134,6 @@ final class Watcher
         if ($res) {
             $msg = 'You are completely banned';
             AlinaReject(null, 403, $msg);
-            exit();
         }
     }
 
@@ -162,27 +158,19 @@ final class Watcher
             (new watch_fools())->insert([]);
             $msg = 'fuck you';
             AlinaReject(null, 403, $msg);
-            exit();
         }
     }
 
     private function firewallFgp()
     {
         if (Request::obj()->AJAX) {
-            if (Request::obj()->tryHeader('fgp', $fgp)) {
-                if (empty($fgp)) {
-                    $msg = 'Suspicious request. Empty fgp';
-                    AlinaReject(null, 403, $msg);
-                    exit();
-                }
+            $fgpExpected = Request::obj()->BROWSER;
+            $fgpFact     = Request::obj()->tryHeader('fgp');
 
-                if ($fgp !== Request::obj()->BROWSER) {
-                    $orig = Request::obj()->BROWSER;
-                    $this->answer([
-                        'error_text' => "Suspicious request. Bad fgp ---{$orig}--- ||| ---{$fgp}---",
-                        'ban_point'  => 1,
-                    ]);
-                }
+            if ($fgpFact !== $fgpExpected) {
+                $msg = "Suspicious. Wrong FGP";
+                $this->mVISIT->si('ban_point');
+                AlinaReject(null, 403, $msg);
             }
         }
     }

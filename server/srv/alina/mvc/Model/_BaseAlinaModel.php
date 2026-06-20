@@ -1221,6 +1221,20 @@ class _BaseAlinaModel
         return $this->g($f);
     }
 
+    public function si(string $f, int $v = 1)
+    {
+        $this->attributes->{$f} = (int)($this->g($f) ?? 0) + $v;
+
+        return $this->g($f);
+    }
+
+    public function sc(string $f, string $v, ?string $delimiter = ' | ')
+    {
+        $this->attributes->{$f} = (string)($this->g($f) ?? '') . $delimiter . $v;
+
+        return $this->g($f);
+    }
+
     public function qAliasPk()
     {
         return "$this->alias.$this->pkName";

@@ -12,8 +12,6 @@ class Obj
         foreach ($arrPropNames as $name) {
             if (strtolower($name) === strtolower($pName)) {
                 return $obj->{$name};
-
-                break;
             }
         }
 
