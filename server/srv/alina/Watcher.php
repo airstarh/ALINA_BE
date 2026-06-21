@@ -33,6 +33,7 @@ final class Watcher
         $this->mBROWSER = new watch_browser();
         $this->mVISIT   = new watch_visit();
         #####
+        $this->logVisitsToDb();
         $this->firewallFools();
         $this->firewallByBannedIp();
         $this->firewallByBannedBrowser();
@@ -50,18 +51,13 @@ final class Watcher
             return;
         }
 
-        #####
-        if (self::$ENABLED) {
-            if (! static::$state_VISIT_LOGGED) {
-                #####
-                $this->mBROWSER->upsertByUniqueFields([
-                    'user_agent' => Request::obj()->BROWSER,
-                ]);
-                ##################################################
-                $this->mVISIT->insert([]);
-                ##################################################
-                static::$state_VISIT_LOGGED = true;
-            }
+        if (! static::$state_VISIT_LOGGED) {
+            $this->mBROWSER->upsertByUniqueFields([
+                'user_agent' => Request::obj()->BROWSER,
+            ]);
+            $this->mVISIT->insert([]);
+            ##################################################
+            static::$state_VISIT_LOGGED = true;
         }
 
         return $this;

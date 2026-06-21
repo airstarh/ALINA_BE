@@ -114,19 +114,12 @@ class _BaseAlinaModel
     public function getOne($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
-        $data                              = $this->q()->where($conditions)->first();
-
-        if (empty($data)) {
-            $data = (object) [];
-        }
-        $this->attributes = Data::mergeObjects($this->attributes, $data);
-
-        if ($this->attributes->{$this->pkName}) {
-            $this->setPkValue($this->attributes->{$this->pkName});
-        }
+        $attributes                        = $this->q()->where($conditions)->first();
+        $this->setPkValue($attributes->{$this->pkName} ?? null);
+        $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $this->attributes;
+        return $attributes;
     }
 
     public function getAll($conditions = [], $backendSortArray = null, $limit = null, $offset = null)
@@ -289,15 +282,9 @@ class _BaseAlinaModel
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
         $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
-
-        if (empty($attributes)) {
-            $attributes = (object) [];
-        }
-
-        if (isset($attributes->{$this->pkName})) {
-            $this->setPkValue($attributes->{$this->pkName});
-        }
-        $this->attributes = Data::mergeObjects($this->attributes, $attributes);
+        $this->setPkValue($attributes->{$this->pkName} ?? null);
+        $this->attributes = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
+        $this->state_EXCLUDE_COUNT_REQUEST = false;
 
         return $this->attributes;
     }

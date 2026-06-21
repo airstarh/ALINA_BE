@@ -48,7 +48,7 @@ final class App
         #####
         Sys::setCrossDomainHeaders();
         #####
-        Watcher::obj()->logVisitsToDb();
+        Watcher::obj();
         #####
         Message::fromRequest();
         MessageAdmin::fromRequest();

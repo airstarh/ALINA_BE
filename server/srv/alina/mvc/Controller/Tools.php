@@ -4,6 +4,7 @@ namespace alina\mvc\Controller;
 
 use alina\GlobalRequestStorage;
 use alina\mvc\Model\file;
+use alina\mvc\Model\watch_visit;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
@@ -91,8 +92,10 @@ class Tools
 
     public function actionRouteWhiteList()
     {
-        $a   = 4 / 0;
         $res = Sys::getWhiteListController();
+        //$a   = 4 / 0;
+        $m=new watch_visit();
+        $res = $m->getOne(['ip'=>'127.0.0.11']);
 
         \AlinaEchoDraft($res);
     }
