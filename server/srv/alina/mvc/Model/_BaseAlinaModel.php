@@ -286,7 +286,7 @@ class _BaseAlinaModel
         $this->attributes = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $this->attributes;
+        return $attributes;
     }
     #rendegion Get With References
     ###############
@@ -343,7 +343,7 @@ class _BaseAlinaModel
         $this->setPkValue($id, $data);
         #####
         GlobalRequestStorage::setPlus1('BaseModelQueries');
-        $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($data, $this->mode, $this->table, $this->id) : null;
+        $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($data, $this->mode, $this->table, $this->id) : null;
 
         #####
         if (method_exists($this, 'hookRightAfterSave')) {
