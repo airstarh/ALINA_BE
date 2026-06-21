@@ -263,9 +263,7 @@ final class Watcher
             return;
         }
 
-        if (empty($ip)) {
-            $ip = Request::obj()->IP;
-        }
+        $ip = $ip ?? Request::obj()->IP;
         (new watch_banned_ip())->upsertByUniqueFields([
             'ip'     => $ip,
             'reason' => $reason,
@@ -278,9 +276,7 @@ final class Watcher
             return;
         }
 
-        if (empty($browser_enc)) {
-            $browser_enc = Request::obj()->BROWSER_enc;
-        }
+        $browser_enc = $browser_enc ?? Request::obj()->BROWSER_enc;
         (new watch_banned_browser())->upsertByUniqueFields([
             'enc'    => $browser_enc,
             'reason' => $reason,
@@ -293,13 +289,9 @@ final class Watcher
             return;
         }
 
-        if (empty($ip)) {
-            $ip = Request::obj()->IP;
-        }
+        $ip          = $ip          ?? Request::obj()->IP;
+        $browser_enc = $browser_enc ?? Request::obj()->BROWSER_enc;
 
-        if (empty($browser_enc)) {
-            $browser_enc = Request::obj()->BROWSER_enc;
-        }
         (new watch_banned_visit())->upsertByUniqueFields([
             'ip'          => $ip,
             'browser_enc' => $browser_enc,
