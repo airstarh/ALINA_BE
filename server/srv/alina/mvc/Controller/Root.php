@@ -14,11 +14,13 @@ class Root
     public function actionIndex()
     {
         require_once ALINA_WEB_PATH . '/apps/vue/index.html';
+        AlinaExit('frontend');
     }
 
     public function actionFrontend()
     {
         require_once ALINA_WEB_PATH . '/apps/vue/index.html';
+        AlinaExit('frontend');
     }
 
     public function actionIndex2()

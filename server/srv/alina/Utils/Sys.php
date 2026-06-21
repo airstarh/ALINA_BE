@@ -408,7 +408,7 @@ class Sys
             Str::startsWith($page, 'http://') || Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
-            exit();
+            AlinaExit('raw redirect');
         }
 
         ##########
@@ -449,7 +449,7 @@ class Sys
 
         #####
         header("Location: $page", true, $code);
-        exit();
+        AlinaExit('complex redirect');
     }
 
     ##################################################
