@@ -389,7 +389,7 @@ class Sys
 
                     if ($method === 'OPTIONS') {
                         echo 'ok';
-                        exit();
+                        AlinaExit(__FUNCTION__);
                     }
 
                     ##################################################

@@ -10,6 +10,7 @@ class Main
     public function actionIndex()
     {
         require_once(ALINA_WEB_PATH . '/apps/vue/index.html');
+        AlinaExit(__FUNCTION__);
     }
 
     public function action404()

@@ -191,7 +191,7 @@ class FS
         if (! file_exists($realPath)) {
             http_response_code(404);
             echo '';
-            exit();
+            AlinaExit(__FUNCTION__);
         }
 
         $pathInfo = pathinfo($realPath);
@@ -208,7 +208,7 @@ class FS
         header('Pragma: public');
         header('Content-Length: ' . $fileSize);
         readfile($realPath);
-        exit();
+        AlinaExit(__FUNCTION__);
     }
 
     public static function getCleanFileName($path)

@@ -289,8 +289,13 @@ function AlinaExit($data = null)
         $answer[] = 'Admin';
         $answer[] = MessageAdmin::returnAllDbData();
         $answer[] = 'Response';
-        $answer[] = is_string($data) ? 'ok' : alina\Utils\Str::anyToString($data);
-        ;
+        $dataString = 'ok';
+        if(is_string($data)){
+            if(mb_strlen($data) <= 100){
+                $dataString = $data;
+            }
+        }
+        $answer[] = is_string($data) ? $dataString : alina\Utils\Str::anyToString($data);
         $answerString = implode(PHP_EOL, $answer);
 
         alina\Watcher::obj()->answer([

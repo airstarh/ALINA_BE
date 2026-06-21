@@ -54,7 +54,7 @@ class alinaFileProxy
 
         if ($flagDo) {
             FS::giveFile($realPath);
-            exit();
+            AlinaExit('file proxy');
         }
 
         AlinaEcho('');
