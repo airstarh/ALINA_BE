@@ -201,7 +201,7 @@ class _BaseAlinaModel
             }
             $aRecord = $q->first();
 
-            if (isset($aRecord) && ! empty($aRecord)) {
+            if (! empty($aRecord)) {
                 $this->matchedUniqueFields = $uFields;
                 $this->matchedConditions   = $conditions;
                 $this->attributes          = $aRecord;
