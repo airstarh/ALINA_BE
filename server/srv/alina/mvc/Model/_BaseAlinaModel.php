@@ -63,8 +63,8 @@ class _BaseAlinaModel
     ##################################################
     #region Flags, CHeck-Points
     private $mode                          = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    protected $state_DATA_FILTERED            = false;
-    protected $state_DATA_VALIDATED           = false;
+    protected $state_DATA_FILTERED         = false;
+    protected $state_DATA_VALIDATED        = false;
     public $state_AFFECTED_ROWS            = null;
     protected $state_EXCLUDE_COUNT_REQUEST = false;
     public $matchedUniqueFields            = [];
@@ -341,8 +341,6 @@ class _BaseAlinaModel
         $id               = $this->q()->insertGetId($dataArray, $pkName);
         $this->attributes = $data = Data::toObject($dataArray);
         $this->setPkValue($id, $data);
-        #####
-        GlobalRequestStorage::setPlus1('BaseModelQueries');
         $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($data, $this->mode, $this->table, $this->id) : null;
 
         #####
@@ -402,7 +400,6 @@ class _BaseAlinaModel
     public function update($data, $conditions = [])
     {
         $this->mode = self::MODE_UPDATE;
-        $pkName     = $this->pkName;
         $data       = Data::toObject($data);
         $dataArray  = $this->prepareDbData($data);
 
@@ -426,15 +423,11 @@ class _BaseAlinaModel
             }
         }
 
-        ##################################################
         if (method_exists($this, 'hookRightAfterSave')) {
             $this->hookRightAfterSave($data);
         }
-        #####
-        GlobalRequestStorage::setPlus1('BaseModelQueries');
-        $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog([$data, $conditions], $this->mode, $this->table, $this->id) : null;
-        #####
-        ##################################################
+
+        $this->flagAuditInfoLog ? $this->addAuditInfoEventLog([$data, $conditions], $this->mode, $this->table, $this->id) : null;
         $this->resetFlags();
 
         return $this;
@@ -451,7 +444,6 @@ class _BaseAlinaModel
             ->delete()
         ;
         #####
-        GlobalRequestStorage::setPlus1('BaseModelQueries');
         $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($conditions, $this->mode, $this->table, $this->id) : null;
         #####
         $this->state_AFFECTED_ROWS = $affectedRowsCount;
@@ -1017,16 +1009,16 @@ class _BaseAlinaModel
         else {
             $this->q = Dal::table("{$this->table} AS {$this->alias}");
         }
-        #####
-        //ToDo: Make Conditional
+
         GlobalRequestStorage::setPlus1('BaseModelQueries');
 
-        #####
         return $this->q;
     }
 
     public function x($sql)
     {
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
+
         return Dal::connection()->getPdo()->query($sql);
     }
 
@@ -1044,6 +1036,8 @@ class _BaseAlinaModel
             ->orderBy('ORDINAL_POSITION', 'ASC')
             ->pluck('COLUMN_NAME')
         ;
+
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
 
         foreach ($items as $v) {
             if (! empty($v)) {
@@ -1082,6 +1076,8 @@ class _BaseAlinaModel
 
     public function raw($expression)
     {
+        GlobalRequestStorage::setPlus1('BaseModelQueries');
+
         return Dal::raw($expression);
     }
 
