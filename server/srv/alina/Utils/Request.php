@@ -28,8 +28,6 @@ class Request
 
     protected function __construct()
     {
-        //ToDo: Security
-        //ToDo: process fields
         $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
         $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
