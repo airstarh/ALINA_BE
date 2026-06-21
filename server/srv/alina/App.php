@@ -43,12 +43,11 @@ final class App
         #####
         Request::obj();
         CurrentUser::obj();
+        Watcher::obj();
         #####
         AlinaResponseSuccess(1);
         #####
         Sys::setCrossDomainHeaders();
-        #####
-        Watcher::obj();
         #####
         Message::fromRequest();
         MessageAdmin::fromRequest();
