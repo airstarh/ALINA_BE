@@ -94,8 +94,8 @@ class Tools
     {
         $res = Sys::getWhiteListController();
         //$a   = 4 / 0;
-        $m=new watch_visit();
-        $res = $m->getOne(['ip'=>'127.0.0.11']);
+        $m   = new watch_visit();
+        $res = $m->getOne(['ip' => '127.0.0.11']);
 
         \AlinaEchoDraft($res);
     }

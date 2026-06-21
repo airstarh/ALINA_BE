@@ -62,16 +62,16 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    private $mode                       = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
-    public $state_DATA_FILTERED         = false;
-    public $state_DATA_VALIDATED        = false;
-    public $state_AFFECTED_ROWS         = null;
-    public $state_EXCLUDE_COUNT_REQUEST = false;
-    public $matchedUniqueFields         = [];
-    public $matchedConditions           = [];
-    public $addAuditInfo                = false;
-    public $flagAuditInfoLog            = false;
-    public $state_APPLY_GET_PARAMS      = false;
+    private $mode                          = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    protected $state_DATA_FILTERED            = false;
+    protected $state_DATA_VALIDATED           = false;
+    public $state_AFFECTED_ROWS            = null;
+    protected $state_EXCLUDE_COUNT_REQUEST = false;
+    public $matchedUniqueFields            = [];
+    public $matchedConditions              = [];
+    public $addAuditInfo                   = false;
+    public $flagAuditInfoLog               = false;
+    public $state_APPLY_GET_PARAMS         = false;
     #emdregion Flags, CHeck-Points
     ##################################################
     #region Search Parameters
@@ -283,7 +283,7 @@ class _BaseAlinaModel
         $this->state_EXCLUDE_COUNT_REQUEST = true;
         $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
         $this->setPkValue($attributes->{$this->pkName} ?? null);
-        $this->attributes = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
+        $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
         return $attributes;
