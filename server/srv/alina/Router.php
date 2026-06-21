@@ -34,7 +34,8 @@ class Router
 
     #endregion Instantiation
     ##################################################
-    public function firstStep(){
+    public function firstStep()
+    {
         $this->processUrl();
         $this->redirectIfNeeded();
     }

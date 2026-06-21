@@ -17,13 +17,19 @@ final class Watcher
     #region Singleton
     use Singleton;
 
-    #####
     private watch_browser $mBROWSER;
     private watch_visit $mVISIT;
+    private static $ENABLED            = true;
     private static $state_VISIT_LOGGED = false;
 
     private function __construct()
     {
+        self::$ENABLED = AlinaCfg('logVisitsToDb');
+
+        if (! self::$ENABLED) {
+            return;
+        }
+        #####
         $this->mBROWSER = new watch_browser();
         $this->mVISIT   = new watch_visit();
         #####
@@ -40,10 +46,12 @@ final class Watcher
     #region Watch
     public function logVisitsToDb()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         #####
-        #####
-        //ToDo: better Store Procedure
-        if (AlinaCfg('logVisitsToDb')) {
+        if (self::$ENABLED) {
             if (! static::$state_VISIT_LOGGED) {
                 #####
                 $this->mBROWSER->upsertByUniqueFields([
@@ -63,6 +71,10 @@ final class Watcher
     #region Firewall
     private function firewallByRequestsAmount()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (! Request::isPostPutDelete()) {
             return;
         }
@@ -78,6 +90,10 @@ final class Watcher
 
     private function firewallByBannedIp()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (! Request::isPostPutDelete()) {
             return;
         }
@@ -98,6 +114,10 @@ final class Watcher
 
     private function firewallByBannedBrowser()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (! Request::isPostPutDelete()) {
             return;
         }
@@ -118,6 +138,10 @@ final class Watcher
 
     private function firewallByBannedVisit()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (! Request::isPostPutDelete()) {
             return;
         }
@@ -139,6 +163,10 @@ final class Watcher
 
     private function firewallFools()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (
             (
                 Request::has('alinafool', $alinafool)
@@ -163,6 +191,10 @@ final class Watcher
 
     private function firewallFgp()
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (Request::obj()->AJAX) {
             $fgpExpected = Request::obj()->BROWSER;
             $fgpFact     = Request::obj()->tryHeader('fgp');
@@ -179,6 +211,9 @@ final class Watcher
     #region Utils
     private function countRequestsPerSeconds($seconds, $maxPossible = 10000)
     {
+        if (! self::$ENABLED) {
+            return;
+        }
         $res = $this->mVISIT
             ->q()
             ->where([
@@ -196,6 +231,10 @@ final class Watcher
 
     public function answer($data)
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (! empty($this->mVISIT->id)) {
             $data = Data::toObject($data);
 
@@ -208,7 +247,11 @@ final class Watcher
         return $this;
     }
 
-    public function mVisitAddBanPoints(?int $points = 1){
+    public function mVisitAddBanPoints(?int $points = 1)
+    {
+        if (! self::$ENABLED) {
+            return;
+        }
         $this->mVISIT->si('ban_point', $points);
     }
     #endregion Utils
@@ -216,6 +259,10 @@ final class Watcher
     #region Ban
     public function banIp($ip = null, $reason = 'spam')
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (empty($ip)) {
             $ip = Request::obj()->IP;
         }
@@ -227,6 +274,10 @@ final class Watcher
 
     public function banBrowser($browser_enc = null, $reason = 'spam')
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (empty($browser_enc)) {
             $browser_enc = Request::obj()->BROWSER_enc;
         }
@@ -238,6 +289,10 @@ final class Watcher
 
     public function banVisit($ip = null, $browser_enc = null, $reason = 'spam')
     {
+        if (! self::$ENABLED) {
+            return;
+        }
+
         if (empty($ip)) {
             $ip = Request::obj()->IP;
         }
