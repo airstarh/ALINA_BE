@@ -19,7 +19,7 @@ final class Watcher
 
     #####
     private watch_browser $mBROWSER;
-    public watch_visit $mVISIT;
+    private watch_visit $mVISIT;
     private static $state_VISIT_LOGGED = false;
 
     private function __construct()
@@ -206,6 +206,10 @@ final class Watcher
         }
 
         return $this;
+    }
+
+    public function mVisitAddBanPoints(?int $points = 1){
+        $this->mVISIT->si('ban_point', $points);
     }
     #endregion Utils
     ##################################################

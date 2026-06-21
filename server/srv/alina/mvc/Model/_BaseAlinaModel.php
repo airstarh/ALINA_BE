@@ -1013,7 +1013,7 @@ class _BaseAlinaModel
          * ATTENTION: Important security fix in order to avoid accident start of a query,
          * while a previous is in progress.
          */
-        if (isset($this->q) && ! empty($this->q)) {
+        if (! empty($this->q)) {
             $this->q = null;
         }
 

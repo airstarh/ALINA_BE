@@ -236,6 +236,7 @@ final class App
     public function defineRoute()
     {
         $this->router = Router::obj();
+        $this->router->firstStep();
 
         return $this;
     }

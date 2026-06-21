@@ -30,12 +30,14 @@ class Router
         $vocAliasUrl       = AlinaCfg(['vocAliasUrl']);
         $bdVoc             = (new mvc\Model\router_alias())->getAsVoc();
         $this->vocAliasUrl = array_merge($vocAliasUrl, $bdVoc);
-        $this->processUrl();
-        $this->redirectIfNeeded();
     }
 
     #endregion Instantiation
     ##################################################
+    public function firstStep(){
+        $this->processUrl();
+        $this->redirectIfNeeded();
+    }
 
     private function processUrl()
     {
@@ -64,7 +66,7 @@ class Router
                 $this->controller = array_shift($_pathParts);
 
                 if (! \in_array(mb_strtolower($this->controller), Utils\Sys::getWhiteListController())) {
-                    Watcher::obj()->mVISIT->si('ban_point');
+                    Watcher::obj()->mVisitAddBanPoints(1);
                     Alina()->mvcPageNotFound();
                 }
             }
