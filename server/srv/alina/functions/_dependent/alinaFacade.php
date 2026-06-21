@@ -284,18 +284,19 @@ function AlinaExit($data = null)
         $answer         = [];
         $flagSuspicious = AlinaIsResponseSuccess() === 1 ? 0 : 1;
 
-        $answer[] = 'User';
-        $answer[] = Message::returnAllDbData();
-        $answer[] = 'Admin';
-        $answer[] = MessageAdmin::returnAllDbData();
-        $answer[] = 'Response';
+        $answer[]   = 'User';
+        $answer[]   = Message::returnAllDbData();
+        $answer[]   = 'Admin';
+        $answer[]   = MessageAdmin::returnAllDbData();
+        $answer[]   = 'Response';
         $dataString = 'ok';
-        if(is_string($data)){
-            if(mb_strlen($data) <= 100){
+
+        if (is_string($data)) {
+            if (mb_strlen($data) <= 100) {
                 $dataString = $data;
             }
         }
-        $answer[] = is_string($data) ? $dataString : alina\Utils\Str::anyToString($data);
+        $answer[]     = is_string($data) ? $dataString : alina\Utils\Str::anyToString($data);
         $answerString = implode(PHP_EOL, $answer);
 
         alina\Watcher::obj()->answer([
