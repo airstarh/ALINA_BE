@@ -88,6 +88,7 @@ class Auth
                     'ip'          => Request::obj()->IP,
                     'browser_enc' => Request::obj()->BROWSER_enc,
                 ]);
+                Watcher::obj()->mVisitAddBanPoints(2);
                 ##################################################
                 $CU->messages();
             }
