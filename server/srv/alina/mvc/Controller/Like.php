@@ -34,7 +34,7 @@ class Like
 
             ###
             #remove Like
-            if (isset($mLikeAttrs->id) && ! empty($mLikeAttrs->id)) {
+            if (! empty($mLikeAttrs->id)) {
                 $this->model->deleteById($mLikeAttrs->id);
                 (new notification())->delete([
                     'bind_tbl' => 'like',

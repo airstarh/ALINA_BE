@@ -303,7 +303,7 @@ class _BaseAlinaModel
         $data = Data::toObject($data);
         $data = Data::mergeObjects($this->attributes, $data);
 
-        if (isset($data->{$this->pkName}) && ! empty($data->{$this->pkName})) {
+        if (! empty($data->{$this->pkName})) {
             $this->setPkValue($data->{$this->pkName});
             $this->updateById($data);
 
@@ -469,9 +469,9 @@ class _BaseAlinaModel
             return true;
         }
 
-        if ($this->tableHasField('is_deleted') || (isset($additionalData) && ! empty($additionalData))) {
+        if ($this->tableHasField('is_deleted') || ! empty($additionalData)) {
             $pkName = $this->pkName;
-            $data   = (isset($additionalData) && ! empty($additionalData))
+            $data   = (! empty($additionalData))
                 ? Data::toObject($additionalData)
                 : new stdClass();
             // Even if there is no is_deleted in this->fields, it does not bring error
@@ -532,7 +532,7 @@ class _BaseAlinaModel
         $q = $this->q;
 
         #####
-        if (isset($backendSortArray) && ! empty($backendSortArray)) {
+        if (! empty($backendSortArray)) {
             $sortArray = $backendSortArray;
         }
         else {
@@ -745,7 +745,7 @@ class _BaseAlinaModel
 
         foreach ($fields as $fieldNameCfg => $params) {
             if (property_exists($data, $fieldNameCfg)) {
-                if (isset($params['validators']) && ! empty($params['validators'])) {
+                if (! empty($params['validators'])) {
                     $validators[$fieldNameCfg] = $params['validators'];
                 }
             }

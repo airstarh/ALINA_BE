@@ -45,7 +45,7 @@ class Html
         $getArray = [];
         $hash     = '';
 
-        if (isset($configuration['get']) && ! empty($configuration['get'])) {
+        if (! empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
             }
@@ -53,7 +53,7 @@ class Html
             unset($configuration['get']);
         }
 
-        if (isset($configuration['hash']) && ! empty($configuration['hash'])) {
+        if (! empty($configuration['hash'])) {
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }
@@ -108,7 +108,7 @@ class Html
         $getArray = [];
         $hash     = '';
 
-        if (isset($configuration['get']) && ! empty($configuration['get'])) {
+        if (! empty($configuration['get'])) {
             foreach ($configuration['get'] as $parameterName => $parameterValue) {
                 $getArray[] = "$parameterName=$parameterValue";
             }
@@ -116,7 +116,7 @@ class Html
             unset($configuration['get']);
         }
 
-        if (isset($configuration['hash']) && ! empty($configuration['hash'])) {
+        if (! empty($configuration['hash'])) {
             $hash = '#' . $configuration['hash'];
             unset($configuration['hash']);
         }

@@ -176,7 +176,7 @@ class html
     {
         $urls = AlinaCfg('html/css');
 
-        if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
+        if (! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
 
             foreach ($urls as $i => $url) {
@@ -194,7 +194,7 @@ class html
     {
         $urls = AlinaCfg('html/js');
 
-        if (isset($urls) && ! empty($urls && \alina\Utils\Data::isIterable($urls))) {
+        if (! empty($urls && \alina\Utils\Data::isIterable($urls))) {
             $result = '';
 
             foreach ($urls as $i => $url) {

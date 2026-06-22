@@ -59,7 +59,7 @@ class Tale
         if (empty($id)) {
             $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id(),]);
 
-            if (! isset($attrs->id) || empty($attrs->id)) {
+            if (empty($attrs->id)) {
                 $attrs = $mTale->insert($vd);
             }
             $id = $attrs->id;
@@ -82,7 +82,7 @@ class Tale
                 #####
                 #region CHECK iF UPDATE or INSERT
                 $isNew     = $vd->is_submitted == 0 || empty($vd->is_submitted);
-                $isComment = isset($vd->answer_to_tale_id) && ! empty($vd->answer_to_tale_id);
+                $isComment = ! empty($vd->answer_to_tale_id);
                 $isPost    = ! $isComment;
 
                 /**
@@ -135,7 +135,7 @@ class Tale
                 //ToDo: ROLES!!!
                 $mRouterAlias = new router_alias();
 
-                if (isset($attrs->router_alias) && ! empty($attrs->router_alias)) {
+                if (! empty($attrs->router_alias)) {
                     $raId   = $attrs->router_alias_id ?? null;
                     $raData = (object)[
                         'id'       => $raId,

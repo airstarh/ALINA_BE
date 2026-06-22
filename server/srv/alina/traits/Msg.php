@@ -207,7 +207,7 @@ trait Msg
         static::$collection   = static::getCollection();
         static::$collection[] = $this;
 
-        if (! isset($this->id) || empty($this->id)) {
+        if (empty($this->id)) {
             $this->id = Arr::lastArrayKey(static::$collection);
         }
     }

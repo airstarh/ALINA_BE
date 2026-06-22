@@ -86,7 +86,7 @@ class AppExceptionCatcher
 
         $this->processError();
 
-        if (isset($_REQUEST['route_plan_b']) && ! empty($_REQUEST['route_plan_b'])) {
+        if (! empty($_REQUEST['route_plan_b'])) {
             $R   = (object)$_REQUEST;
             $url = $R->route_plan_b;
             Data::sanitizeOutputObj($R);

@@ -266,20 +266,20 @@ class tale extends _BaseAlinaModel
 
                 #####
                 # ROOT p2 - parent-2
-                if (isset($p1Attrs->id) && ! empty($p1Attrs->id)) {
+                if (! empty($p1Attrs->id)) {
                     $root_tale_id         = $p1Attrs->id;
                     $answer_to_tale_id    = $p1Attrs->id;
                     $level                = 1;
                     $type                 = 'COMMENT';
                     $this->ownerId_answer = $p1Attrs->owner_id;
 
-                    if (isset($p1Attrs->answer_to_tale_id) && ! empty($p1Attrs->answer_to_tale_id)) {
+                    if (! empty($p1Attrs->answer_to_tale_id)) {
                         $p2_id   = $p1Attrs->answer_to_tale_id;
                         $p2      = new tale();
                         $p2Q     = $p2->q();
                         $p2Attrs = $p2Q->select(['id', 'root_tale_id', 'answer_to_tale_id', 'owner_id'])->where([['id', $p2_id]])->first();
 
-                        if (isset($p2Attrs->id) && ! empty($p2Attrs->id)) {
+                        if (! empty($p2Attrs->id)) {
                             $root_tale_id       = $p2Attrs->id;
                             $level              = 2;
                             $type               = 'COMMENT';

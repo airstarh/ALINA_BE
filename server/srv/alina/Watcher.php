@@ -26,6 +26,7 @@ final class Watcher
 
     private function __construct()
     {
+        ###//VA: EMERGENT self::$ENABLED = AlinaCfg('logVisitsToDb') && ! AlinaAccessIfAdmin();
         self::$ENABLED = AlinaCfg('logVisitsToDb');
 
         $this->mBROWSER = new watch_browser();

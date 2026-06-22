@@ -295,7 +295,7 @@ class user extends _BaseAlinaModel
                 (isset($cfg['has']) && $cfg['has'] === 'manyThrough')
             ) {
                 if (isset($cfg['apply'])) {
-                    if (isset($data->{$refName}) && ! empty($data->{$refName})) {
+                    if (! empty($data->{$refName})) {
                         ####################
                         # Definitions
                         $glueTable           = $cfg['apply']['glueTable'];

@@ -47,7 +47,7 @@ class Data
      */
     public static function toObject($v): object
     {
-        if (! isset($v) || empty($v)) {
+        if (empty($v)) {
             return new stdClass();
         }
 
@@ -752,7 +752,7 @@ class Data
     public static function filterObject(stdClass &$data, array $filters)
     {
         foreach ($data as $fName => $fValue) {
-            if (isset($filters[$fName]) && ! empty($filters[$fName])) {
+            if (! empty($filters[$fName])) {
                 foreach ($filters[$fName] as $filter) {
                     if (is_string($filter) && function_exists($filter)) {
                         $data->{$fName} = $filter($data->{$fName});
@@ -856,7 +856,7 @@ class Data
     public static function validateObject(stdClass &$data, array $validators)
     {
         foreach ($data as $fName => $fValue) {
-            if (isset($validators[$fName]) && ! empty($validators[$fName])) {
+            if (! empty($validators[$fName])) {
                 foreach ($validators[$fName] as $validator) {
                     $VALIDATION_RESULT = true;
 
@@ -878,7 +878,7 @@ class Data
                     $errorIf = (isset($validator['errorIf']))
                         ? $validator['errorIf']
                         : [false, 0, '', null];
-                    $msg = (isset($validator['msg']) && ! empty($validator['msg']))
+                    $msg = (! empty($validator['msg']))
                         ? $validator['msg']
                         : "Validation failed. Field:{$fName}. Value: {$fValue}";
 
@@ -941,7 +941,7 @@ class Data
         #endregion Special Case All
         ##############################
         #region Validation
-        if (! isset($pg->limit) || empty($pg->limit) || $pg->limit <= 0) {
+        if (empty($pg->limit) || $pg->limit <= 0) {
             $pg->limit = $pg->rows;
         }
 
@@ -950,7 +950,7 @@ class Data
                 $pg->page = 1;
             }
 
-            if (! isset($pg->page) || empty($pg->page) || $pg->page <= 0) {
+            if (empty($pg->page) || $pg->page <= 0) {
                 $pg->page = 1;
             }
         }
@@ -973,8 +973,8 @@ class Data
         ##############################
         #region Offset
         if (
-            ! isset($pg->limit) || empty($pg->limit) || $pg->limit                     <= 0
-                                || ! isset($pg->page) || empty($pg->page) || $pg->page <= 0
+            empty($pg->limit) || $pg->limit                    <= 0
+                              || empty($pg->page) || $pg->page <= 0
         ) {
             $pg->offset = 0;
         }

@@ -271,19 +271,19 @@ class Sys
 
     public static function isAjax()
     {
-        if (isset($_GET['isAjax']) && ! empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
+        if (! empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
             return true;
         }
 
-        if (isset($_POST['isAjax']) && ! empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
+        if (! empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
             return true;
         }
 
         // Cross Domain AJAX request.
-        if (isset($_SERVER['HTTP_HOST']) && ! empty($_SERVER['HTTP_HOST'])) {
+        if (! empty($_SERVER['HTTP_HOST'])) {
             $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
 
-            if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
+            if (! empty($_SERVER['HTTP_ORIGIN'])) {
                 $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
 
                 if ($o !== $h) {
@@ -291,7 +291,7 @@ class Sys
                 }
             }
 
-            // if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            // if (!empty($_SERVER['HTTP_REFERER'])) {
             //     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
             //     if ($r !== $h) {
             //         return TRUE;
@@ -299,7 +299,7 @@ class Sys
             // }
         }
 
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        if (! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
             //     return TRUE;
             // }
@@ -310,7 +310,7 @@ class Sys
             }
         }
 
-        if (isset($_SERVER['HTTP_REQUESTED_WITH']) && ! empty($_SERVER['HTTP_REQUESTED_WITH'])) {
+        if (! empty($_SERVER['HTTP_REQUESTED_WITH'])) {
             return true;
         }
 
@@ -376,7 +376,7 @@ class Sys
         //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
         #region Fix for Chrome Back button
         #####
-        if (isset($_SERVER['HTTP_ORIGIN']) && ! empty($_SERVER['HTTP_ORIGIN'])) {
+        if (! empty($_SERVER['HTTP_ORIGIN'])) {
             switch ($_SERVER['HTTP_ORIGIN']) {
                 default:
                     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -416,7 +416,7 @@ class Sys
         $get = new stdClass();
 
         if (
-            $isToOrigin && isset($_SERVER['HTTP_REFERER']) && ! empty($_SERVER['HTTP_REFERER'])
+            $isToOrigin && ! empty($_SERVER['HTTP_REFERER'])
         ) {
             $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
             $page = implode('/', [
