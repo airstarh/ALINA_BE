@@ -373,16 +373,16 @@ class _BaseAlinaModel
             $this->setPkValue($id);
             $pkValue = $id;
         }
-        elseif (isset($data->{$pkName}) && ! empty($data->{$pkName})) {
+        elseif (! empty($data->{$pkName})) {
             $this->setPkValue($data->{$pkName});
             $pkValue = $data->{$pkName};
         }
-        elseif (isset($this->id) && ! empty($this->id)) {
+        elseif (! empty($this->id)) {
             $this->setPkValue($this->id);
             $pkValue = $this->id;
         }
 
-        if (! isset($pkValue) || empty($pkValue)) {
+        if (empty($pkValue)) {
             $table   = $this->table;
             $message = "Cannot UPDATE row in table {$table}. Primary Key is not set.";
             Message::setDanger($message);
