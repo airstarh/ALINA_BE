@@ -39,13 +39,13 @@ final class Watcher
         }
 
         $this->logVisitsToDb();
+        $this->firewallByBanPoint();
         $this->firewallFools();
         $this->firewallByBannedIp();
         $this->firewallByBannedBrowser();
         $this->firewallByBannedVisit();
         $this->firewallByRequestsAmount();
         $this->firewallFgp();
-        $this->firewallByBanPoint();
 
         return $this;
     }
@@ -202,7 +202,7 @@ final class Watcher
 
             if ($fgpFact !== $fgpExpected) {
                 $msg = "Suspicious. Wrong FGP";
-                $this->mVISIT->si('ban_point');
+                $this->mVisitAddBanPoints(1);
                 AlinaReject(null, 403, $msg);
             }
         }
@@ -210,17 +210,23 @@ final class Watcher
 
     public function firewallByBanPoint()
     {
-        $maxPointsLast10sec = 3;
-        $maxPointsLast60sec = 10;
-        $maxPointsLast1Hour = 20;
-        $sec10              = 10;
-        $sec60              = 60;
-        $hour1              = 60 * 60;
-        $banLest10sec       = $this->getBanPointsLastSeconds($sec10);
+        $deltaT    = 60;
+        $maxPoints = 10;
+        $points    = $this->getBanPointsLastSeconds($deltaT);
 
-        if ($banLest10sec > $maxPointsLast10sec) {
-            $this->mVisitAddBanPoints($maxPointsLast10sec);
-            $msg = 'Ban:'.$banLest10sec;
+        if ($points >= $maxPoints) {
+            $this->mVisitAddBanPoints($points > 100 ? 100 : $points);
+            $msg = "DDOS 1 minute ($points of $maxPoints)";
+            AlinaReject(null, 403, $msg);
+        }
+
+        $deltaT    = 60 * 60;
+        $maxPoints = 250;
+        $points    = $this->getBanPointsLastSeconds($deltaT);
+
+        if ($points >= $maxPoints) {
+            $this->mVisitAddBanPoints($points > 100 ? 100 : $points);
+            $msg = "DDOS 1 hour ($points of $maxPoints)";
             AlinaReject(null, 403, $msg);
         }
     }
@@ -256,9 +262,6 @@ final class Watcher
         if (! empty($this->mVISIT->id)) {
             $data = Data::toObject($data);
 
-            if (! empty($data->ban_point)) {
-                $data->ban_point = $data->ban_point + ($this->mVISIT->attributes->ban_point ?? 0);
-            }
             $this->mVISIT->updateById($data);
         }
 
@@ -270,6 +273,7 @@ final class Watcher
         if (! self::$ENABLED) {
             return;
         }
+
         $this->mVISIT->si('ban_point', $points);
     }
 
@@ -282,15 +286,13 @@ final class Watcher
                 'browser_enc' => Request::obj()->BROWSER_enc,
                 'ip'          => Request::obj()->IP,
                 'user_id'     => CurrentUser::obj()::id(),
-                ['visited_at', '>', ALINA_TIME - $seconds],
+                ['visited_at', '>=', ALINA_TIME - $seconds],
             ])
             ->selectRaw('ip, user_id, browser_enc, SUM(ban_point) as total_ban_point')
             ->groupBy('ip', 'user_id', 'browser_enc')
             ->first()
             ?? new stdClass()
         ;
-
-        AlinaDebug($res);
 
         return (int) ($res->total_ban_point ?? 0);
     }
