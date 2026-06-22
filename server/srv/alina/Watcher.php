@@ -93,6 +93,7 @@ final class Watcher
         if (! Request::isPostPutDelete()) {
             return;
         }
+
         $m   = new watch_banned_ip();
         $res = $m
             ->q()
