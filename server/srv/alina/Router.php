@@ -38,6 +38,8 @@ class Router
     {
         $this->processUrl();
         $this->redirectIfNeeded();
+
+        return $this;
     }
 
     private function processUrl()

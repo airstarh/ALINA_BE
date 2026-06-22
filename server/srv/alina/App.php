@@ -43,7 +43,7 @@ final class App
         #####
         Request::obj();
         CurrentUser::obj();
-        Watcher::obj();
+        Watcher::obj()->firstStep();
         #####
         AlinaResponseSuccess(1);
         #####
@@ -234,8 +234,7 @@ final class App
 
     public function defineRoute()
     {
-        $this->router = Router::obj();
-        $this->router->firstStep();
+        $this->router = Router::obj()->firstStep();
 
         return $this;
     }

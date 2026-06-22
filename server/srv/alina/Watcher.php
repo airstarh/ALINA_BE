@@ -2,6 +2,7 @@
 
 namespace alina;
 
+use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\watch_banned_browser;
 use alina\mvc\Model\watch_banned_ip;
 use alina\mvc\Model\watch_banned_visit;
@@ -11,6 +12,7 @@ use alina\mvc\Model\watch_visit;
 use alina\traits\Singleton;
 use alina\Utils\Data;
 use alina\Utils\Request;
+use stdClass;
 
 final class Watcher
 {
@@ -26,13 +28,16 @@ final class Watcher
     {
         self::$ENABLED = AlinaCfg('logVisitsToDb');
 
+        $this->mBROWSER = new watch_browser();
+        $this->mVISIT   = new watch_visit();
+    }
+
+    public function firstStep()
+    {
         if (! self::$ENABLED) {
             return;
         }
-        #####
-        $this->mBROWSER = new watch_browser();
-        $this->mVISIT   = new watch_visit();
-        #####
+
         $this->logVisitsToDb();
         $this->firewallFools();
         $this->firewallByBannedIp();
@@ -40,12 +45,14 @@ final class Watcher
         $this->firewallByBannedVisit();
         $this->firewallByRequestsAmount();
         $this->firewallFgp();
-        #####
+        $this->firewallByBanPoint();
+
+        return $this;
     }
     #endregion Singleton
     ##################################################
     #region Watch
-    public function logVisitsToDb()
+    private function logVisitsToDb()
     {
         if (! self::$ENABLED) {
             return;
@@ -174,10 +181,7 @@ final class Watcher
             || \mb_strlen(Request::obj()->URL_PATH) > 2000
             || (
                 Request::isPostPutDelete()
-                && (
-                    ! isset(Request::obj()->POST->form_id)
-                    || empty(Request::obj()->POST->form_id)
-                )
+                && empty(Request::obj()->POST->form_id)
             )
         ) {
             (new watch_fools())->insert([]);
@@ -201,6 +205,23 @@ final class Watcher
                 $this->mVISIT->si('ban_point');
                 AlinaReject(null, 403, $msg);
             }
+        }
+    }
+
+    public function firewallByBanPoint()
+    {
+        $maxPointsLast10sec = 3;
+        $maxPointsLast60sec = 10;
+        $maxPointsLast1Hour = 20;
+        $sec10              = 10;
+        $sec60              = 60;
+        $hour1              = 60 * 60;
+        $banLest10sec       = $this->getBanPointsLastSeconds($sec10);
+
+        if ($banLest10sec > $maxPointsLast10sec) {
+            $this->mVisitAddBanPoints($maxPointsLast10sec);
+            $msg = 'Ban:'.$banLest10sec;
+            AlinaReject(null, 403, $msg);
         }
     }
     #endregion Firewall
@@ -250,6 +271,28 @@ final class Watcher
             return;
         }
         $this->mVISIT->si('ban_point', $points);
+    }
+
+    public function getBanPointsLastSeconds(int $seconds = 10)
+    {
+        $res = $this->mVISIT
+            ->q()
+            ->where([
+                ['ban_point','>', 0],
+                'browser_enc' => Request::obj()->BROWSER_enc,
+                'ip'          => Request::obj()->IP,
+                'user_id'     => CurrentUser::obj()::id(),
+                ['visited_at', '>', ALINA_TIME - $seconds],
+            ])
+            ->selectRaw('ip, user_id, browser_enc, SUM(ban_point) as total_ban_point')
+            ->groupBy('ip', 'user_id', 'browser_enc')
+            ->first()
+            ?? new stdClass()
+        ;
+
+        AlinaDebug($res);
+
+        return (int) ($res->total_ban_point ?? 0);
     }
     #endregion Utils
     ##################################################
