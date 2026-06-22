@@ -119,9 +119,8 @@ function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $mes
     AlinaResponseSuccess(0);
     Message::setDanger($message, $messageParams);
 
-    if ($page) {
+    if ($page && ! Request::obj()->AJAX) {
         Sys::redirect($page, $code);
-        AlinaExit();
     }
     else {
         Request::obj()::resetToGet();
@@ -133,7 +132,7 @@ function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $mes
  * What is correct HTTP status code when redirecting to a login page?
  * https://stackoverflow.com/questions/2839585/what-is-correct-http-status-code-when-redirecting-to-a-login-page
  */
-function AlinaRejectIfNotLoggedIn($code = 302)
+function AlinaRejectIfNotLoggedIn($code = 403)
 {
     if (! AlinaAccessIfLoggedIn()) {
         AlinaReject(AlinaCfg('frontend/login'), $code);

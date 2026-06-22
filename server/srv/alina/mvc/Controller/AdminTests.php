@@ -287,7 +287,7 @@ class AdminTests
 
     public function actionRedirect2()
     {
-        $vd = (object) [];
+        $vd = new \stdClass();
         AlinaEcho((new htmlAlias())->page($vd));
     }
     #endregion Redirect Messages

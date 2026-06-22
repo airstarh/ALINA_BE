@@ -67,7 +67,7 @@ class Data
         }
 
         //throw new \Exception('Unable to convert to object');
-        return (object) [];
+        return new \stdClass();
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281
@@ -399,7 +399,7 @@ class Data
     //ToDo: Less heavy. Validate input.
     public static function mergeObjects(...$objects)
     {
-        $res = (object) [];
+        $res = new stdClass();
 
         foreach ($objects as $o) {
             $res = (object) array_merge((array) $res, (array) $o);

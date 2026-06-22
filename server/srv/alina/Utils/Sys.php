@@ -412,7 +412,7 @@ class Sys
         }
 
         ##########
-        $get = (object) [];
+        $get = new \stdClass();
 
         if (
             $isToOrigin && isset($_SERVER['HTTP_REFERER']) && ! empty($_SERVER['HTTP_REFERER'])

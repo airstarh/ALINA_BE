@@ -166,7 +166,7 @@ class Request
         }
         else {
             $_POST              = [];
-            static::obj()->POST = (object) [];
+            static::obj()->POST = new \stdClass();
         }
         $_SERVER['REQUEST_METHOD'] = 'POST';
         static::obj()->METHOD      = 'POST';
@@ -179,7 +179,7 @@ class Request
         $_SERVER['REQUEST_METHOD'] = 'GET';
         static::obj()->METHOD      = 'GET';
         $_POST                     = [];
-        static::obj()->POST        = (object) [];
+        static::obj()->POST        = new \stdClass();
     }
 
     public static function has($key, &$value = null)

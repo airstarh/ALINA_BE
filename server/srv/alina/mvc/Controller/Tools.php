@@ -30,7 +30,7 @@ class Tools
                     'strTo'           => '',
                     'tCount'          => 0,
         ];
-        $data = (object) [];
+        $data = new \stdClass();
 
         ##################################################
         if (Request::isPost($post)) {
@@ -69,7 +69,7 @@ class Tools
                     'mxdResJsonDecoded' => '',
                     'tCount'            => 0,
         ];
-        $data = (object) [];
+        $data = new \stdClass();
 
         ##################################################
         if (Request::isPost($post)) {
