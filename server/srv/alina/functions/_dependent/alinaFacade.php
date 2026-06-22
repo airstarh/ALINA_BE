@@ -302,7 +302,7 @@ function AlinaExit($data = null)
             'answer'     => $answerString,
             'suspicious' => $flagSuspicious,
             'controller' => GlobalRequestStorage::obj()->get('BaseModelQueries'),
-            'action'     => GlobalRequestStorage::obj()->get('TemplateQueries'),
+            'action'     => number_format(Sys::getMicroTimeDifferenceFromNow(\ALINA_MICROTIME), 10, '.', ' '),
         ]);
     }
     catch (Throwable $e) {
