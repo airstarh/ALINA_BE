@@ -19,6 +19,7 @@ use alina\Utils\FS;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 use DOMXpath;
+use stdClass;
 
 class AdminTests
 {
@@ -287,7 +288,7 @@ class AdminTests
 
     public function actionRedirect2()
     {
-        $vd = new \stdClass();
+        $vd = new stdClass();
         AlinaEcho((new htmlAlias())->page($vd));
     }
     #endregion Redirect Messages

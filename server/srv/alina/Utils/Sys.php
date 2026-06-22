@@ -12,6 +12,7 @@ use alina\Utils\Data as DataAlias;
 
 use function GuzzleHttp\json_encode;
 
+use stdClass;
 use Throwable;
 
 class Sys
@@ -412,7 +413,7 @@ class Sys
         }
 
         ##########
-        $get = new \stdClass();
+        $get = new stdClass();
 
         if (
             $isToOrigin && isset($_SERVER['HTTP_REFERER']) && ! empty($_SERVER['HTTP_REFERER'])

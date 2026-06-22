@@ -9,6 +9,7 @@ use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
+use stdClass;
 
 class Tools
 {
@@ -30,7 +31,7 @@ class Tools
                     'strTo'           => '',
                     'tCount'          => 0,
         ];
-        $data = new \stdClass();
+        $data = new stdClass();
 
         ##################################################
         if (Request::isPost($post)) {
@@ -69,7 +70,7 @@ class Tools
                     'mxdResJsonDecoded' => '',
                     'tCount'            => 0,
         ];
-        $data = new \stdClass();
+        $data = new stdClass();
 
         ##################################################
         if (Request::isPost($post)) {

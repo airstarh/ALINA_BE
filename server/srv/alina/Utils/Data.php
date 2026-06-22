@@ -67,7 +67,7 @@ class Data
         }
 
         //throw new \Exception('Unable to convert to object');
-        return new \stdClass();
+        return new stdClass();
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281

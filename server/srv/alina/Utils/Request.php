@@ -3,6 +3,7 @@
 namespace alina\Utils;
 
 use alina\traits\Singleton;
+use stdClass;
 
 class Request
 {
@@ -166,7 +167,7 @@ class Request
         }
         else {
             $_POST              = [];
-            static::obj()->POST = new \stdClass();
+            static::obj()->POST = new stdClass();
         }
         $_SERVER['REQUEST_METHOD'] = 'POST';
         static::obj()->METHOD      = 'POST';
@@ -179,7 +180,7 @@ class Request
         $_SERVER['REQUEST_METHOD'] = 'GET';
         static::obj()->METHOD      = 'GET';
         $_POST                     = [];
-        static::obj()->POST        = new \stdClass();
+        static::obj()->POST        = new stdClass();
     }
 
     public static function has($key, &$value = null)
