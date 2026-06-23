@@ -9,7 +9,6 @@ use alina\mvc\Model\user;
 use alina\mvc\Model\watch_login;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
-use alina\Utils\Obj;
 use alina\Utils\Request;
 use alina\Utils\Sys;
 use alina\Watcher;
@@ -22,7 +21,7 @@ class Auth
     public function actionLogin()
     {
         ##################################################
-        if(AlinaAccessIfLoggedIn()){
+        if (AlinaAccessIfLoggedIn()) {
             Sys::redirect('/');
         }
         ##################################################
@@ -39,6 +38,7 @@ class Auth
             'uid'      => '',
             'token'    => '',
         ];
+
         ##################################################
         if (Request::isPostPutDelete($p)) {
             $p  = Data::deleteEmptyProps($p);
