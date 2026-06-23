@@ -22,6 +22,10 @@ class Auth
     public function actionLogin()
     {
         ##################################################
+        if(AlinaAccessIfLoggedIn()){
+            Sys::redirect('/');
+        }
+        ##################################################
         $path = \alina\Utils\FS::buildPathFromBlocks(
             AlinaCfg('frontend/path'),
             AlinaCfg('frontend/login'),
@@ -35,7 +39,6 @@ class Auth
             'uid'      => '',
             'token'    => '',
         ];
-
         ##################################################
         if (Request::isPostPutDelete($p)) {
             $p  = Data::deleteEmptyProps($p);
@@ -47,20 +50,9 @@ class Auth
                 AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
             }
             ##################################################
-            $amount = (new watch_login())->q()->where([
-                'mail'        => $vd->mail,
-                'ip'          => Request::obj()->IP,
-                'browser_enc' => Request::obj()->BROWSER_enc,
-            ])->first();
-
-            //ToDo: hardcoded
-            if ($amount && $amount->visits && $amount->visits >= 10) {
-                Message::setDanger('ATTENTION');
-                Watcher::obj()->banVisit(null, null, 'Too many login attempts');
-            }
-            ##################################################
-            $CU    = CurrentUser::obj();
-            $LogIn = $CU->LogInByPass($vd->mail, $vd->password);
+            $CU           = CurrentUser::obj();
+            $LogIn        = $CU->LogInByPass($vd->mail, $vd->password);
+            $vd->password = '';
 
             /**
              * SUCCESS
@@ -72,15 +64,11 @@ class Auth
                     'ip'          => Request::obj()->IP,
                     'browser_enc' => Request::obj()->BROWSER_enc,
                 ]);
-                //Message::setSuccess("Welcome, %s!", [$user]);
-                // Request::obj()->METHOD = 'GET';
-                // Alina()->mvcGo('auth', 'profile');
-                //Sys::redirect('/auth/profile', 303);
-                AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
             }
             /**
              * FAIL
-             */ else {
+             */ #
+            else {
                 AlinaResponseSuccess(0);
                 ##################################################
                 (new watch_login())->upsertByUniqueFields([
@@ -90,13 +78,11 @@ class Auth
                 ]);
                 Watcher::obj()->mVisitAddBanPoints(2);
                 ##################################################
-                $CU->messages();
             }
         }
         ##################################################
+        $CU->messages();
         AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
-
-        return $this;
     }
 
     /**

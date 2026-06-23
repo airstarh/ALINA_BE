@@ -9,7 +9,7 @@ use alina\Utils\Data;
 use alina\Utils\Obj;
 use alina\Utils\Request;
 
-class CurrentUser
+final class CurrentUser
 {
     ##################################################
     #region SingleTon
@@ -25,7 +25,7 @@ class CurrentUser
     protected static bool $state_AUTHORIZATION_PASSED  = false;
     protected static bool $state_AUTHORIZATION_SUCCESS = false;
     ##################################################
-    public $msg = [];
+    private $msg = [];
 
     protected function __construct()
     {
