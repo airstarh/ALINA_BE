@@ -40,7 +40,7 @@ class Auth
         ];
 
         ##################################################
-        if (Request::isPostPutDelete($p)) {
+        if (Request::obj()->isPostPutDelete($p)) {
             $p  = Data::deleteEmptyProps($p);
             $vd = Data::mergeObjects($vd, $p);
 
@@ -161,7 +161,7 @@ class Auth
         $u = new user();
 
         #####
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $id = $post->id;
             ##################################################
             $path = \alina\Utils\FS::buildPathFromBlocks(
@@ -362,7 +362,7 @@ class Auth
         $vd = (object)[
             'form_id' => __FUNCTION__,
         ];
-        $isPost = Request::isPostPutDelete($post);
+        $isPost = Request::obj()->isPostPutDelete($post);
 
         ##################################################
         if ($isPost && AlinaAccessIfAdminOrModeratorOrOwner($id) && $post->id == $id) {

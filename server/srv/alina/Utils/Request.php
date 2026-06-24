@@ -132,22 +132,22 @@ class Request
         return $is;
     }
 
-    public static function isPostPutDelete(&$post = null)
+    public function isPostPutDelete(&$post = null)
     {
-        $is = static::isPost($post);
+        $post = static::isPost($post);
 
-        if ($is) {
-            return $is;
+        if ($post) {
+            return $post;
         }
-        $is = static::isPut($post);
+        $post = static::isPut($post);
 
-        if ($is) {
-            return $is;
+        if ($post) {
+            return $post;
         }
-        $is = static::isDelete($post);
+        $post = static::isDelete($post);
 
-        if ($is) {
-            return $is;
+        if ($post) {
+            return $post;
         }
 
         return false;

@@ -25,7 +25,7 @@ class AdminDbManager
     {
         ##############################
         # CHECK OWNERSHIP
-        if (Request::isPostPutDelete($p)) {
+        if (Request::obj()->isPostPutDelete($p)) {
             if (property_exists($p, 'owner_id')) {
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
 
@@ -167,7 +167,7 @@ class AdminDbManager
         $model = modelNamesResolver::getModelObject($model);
 
         ########################################
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
             switch ($post->action) {
                 case 'update':

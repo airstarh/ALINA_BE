@@ -51,7 +51,7 @@ class Notification
     {
         $affectedRows = 0;
 
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $conditions = [];
 
             if ($id) {

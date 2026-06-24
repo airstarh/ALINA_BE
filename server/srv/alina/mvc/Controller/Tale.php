@@ -36,7 +36,7 @@ class Tale
         ];
         $attrs  = (object)[];
         $isGet  = Request::isGet($get);
-        $isPost = Request::isPostPutDelete($post);
+        $isPost = Request::obj()->isPostPutDelete($post);
 
         ##################################################
         if (empty($id)) {
@@ -219,7 +219,7 @@ class Tale
         $vd = (object)[
             'form_id' => __FUNCTION__,
         ];
-        $isPost = Request::isPostPutDelete($post);
+        $isPost = Request::obj()->isPostPutDelete($post);
 
         ##################################################
         if ($isPost && $id && (AlinaAccessIfAdminOrModeratorOrOwner($post->owner_id))) {

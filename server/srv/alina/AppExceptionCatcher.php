@@ -96,7 +96,7 @@ class AppExceptionCatcher
         }
 
         if ($forceExit) {
-            if (Request::isPostPutDelete()) {
+            if (Request::obj()->isPostPutDelete()) {
                 $_POST                     = [];
                 $_FILES                    = [];
                 $_SERVER['REQUEST_METHOD'] = 'GET';

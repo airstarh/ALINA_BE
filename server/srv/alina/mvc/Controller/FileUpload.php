@@ -30,7 +30,7 @@ class FileUpload
     {
         $vd = null;
 
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $resp = $this->processUpload();
 
             if ($resp) {
@@ -44,7 +44,7 @@ class FileUpload
     {
         $vd = null;
 
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $vd = $this->processUpload();
         }
         AlinaEcho((new htmlAlias())->page($vd));
@@ -66,7 +66,7 @@ class FileUpload
     {
         $res = false;
 
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $m        = new file();
             $deletion = $m->bizDelete($id);
 

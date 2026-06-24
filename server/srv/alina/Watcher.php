@@ -79,7 +79,7 @@ final class Watcher
             return;
         }
 
-        if (! Request::isPostPutDelete()) {
+        if (! Request::obj()->isPostPutDelete()) {
             return;
         }
         $maxPer10secs = AlinaCfg('watcher/maxPer10secs');
@@ -98,7 +98,7 @@ final class Watcher
             return;
         }
 
-        if (! Request::isPostPutDelete()) {
+        if (! Request::obj()->isPostPutDelete()) {
             return;
         }
 
@@ -123,7 +123,7 @@ final class Watcher
             return;
         }
 
-        if (! Request::isPostPutDelete()) {
+        if (! Request::obj()->isPostPutDelete()) {
             return;
         }
         $m   = new watch_banned_browser();
@@ -147,7 +147,7 @@ final class Watcher
             return;
         }
 
-        if (! Request::isPostPutDelete()) {
+        if (! Request::obj()->isPostPutDelete()) {
             return;
         }
         $mBannedVisits = new watch_banned_visit();
@@ -182,7 +182,7 @@ final class Watcher
             || empty(Request::obj()->BROWSER)
             || \mb_strlen(Request::obj()->URL_PATH) > 2000
             || (
-                Request::isPostPutDelete()
+                Request::obj()->isPostPutDelete()
                 && empty(Request::obj()->POST->form_id)
             )
         ) {

@@ -39,7 +39,7 @@ class GenericCRUD
     {
         $data = (object)[];
 
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $data = $this->model->insert($post);
         }
         AlinaEcho((new htmlAlias())->page($data));
@@ -52,7 +52,7 @@ class GenericCRUD
         $data       = (object)[];
         $conditions = [];
 
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $data       = (object)$post['data'];
             $conditions = (array)$post['conditions'];
             $data       = $this->model->update($data, $conditions);
@@ -67,7 +67,7 @@ class GenericCRUD
     {
         $affectedRows = 0;
 
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $conditions   = (array)$post;
             $affectedRows = $this->model->delete($conditions);
         }

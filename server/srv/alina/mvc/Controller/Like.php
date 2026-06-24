@@ -22,7 +22,7 @@ class Like
     {
         AlinaRejectIfNotLoggedIn();
 
-        if (Request::isPostPutDelete($post)) {
+        if (Request::obj()->isPostPutDelete($post)) {
             $ref_table  = $post->ref_table;
             $ref_id     = $post->ref_id;
             $val        = $post->val;

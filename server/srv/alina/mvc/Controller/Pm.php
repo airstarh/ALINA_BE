@@ -172,7 +172,7 @@ class Pm
 
                                 ##################################################
                                 #region POST
-                                if (Request::isPostPutDelete()) {
+                                if (Request::obj()->isPostPutDelete()) {
                                     switch (Request::obj()->POST->do) {
                                         case 'insert_pm_work_done':
                                             $amount     = Request::obj()->POST->amount;
@@ -275,7 +275,7 @@ class Pm
 
         ##################################################
         #region POST 2
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $p = Request::obj()->POST;
             switch ($p->do) {
                 case 'order_in_view':
@@ -463,7 +463,7 @@ class Pm
         AlinaRejectIfNotAdminOrModerator();
 
         ##################################################
-        if (Request::isPostPutDelete()) {
+        if (Request::obj()->isPostPutDelete()) {
             $p = Request::obj()->POST;
             switch ($p->do) {
                 case 'doArchive':
