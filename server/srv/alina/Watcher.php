@@ -86,8 +86,8 @@ final class Watcher
         $per10secs    = $this->countRequestsPerSeconds(10, $maxPer10secs);
 
         if ($per10secs > $maxPer10secs) {
-            $this->banVisit();
-            $msg = 'DDoS';
+            $msg = 'DDoS last 10 seconds.';
+            $this->banVisit($msg);
             AlinaReject(null, 403, $msg);
         }
     }
@@ -307,7 +307,7 @@ final class Watcher
     #endregion Utils
     ##################################################
     #region Ban
-    public function banIp($ip = null, $reason = 'spam')
+    public function banIp($reason = 'spam', $ip = null)
     {
         if (! self::$ENABLED) {
             return;
@@ -321,7 +321,7 @@ final class Watcher
         ]);
     }
 
-    public function banBrowser($browser_enc = null, $reason = 'spam')
+    public function banBrowser($reason = 'spam', $browser_enc = null)
     {
         if (! self::$ENABLED) {
             return;
@@ -335,7 +335,7 @@ final class Watcher
         ]);
     }
 
-    public function banVisit($ip = null, $browser_enc = null, $user_id = null, $reason = 'spam')
+    public function banVisit($reason = 'spam', $ip = null, $browser_enc = null, $user_id = null)
     {
         if (! self::$ENABLED) {
             return;

@@ -181,6 +181,8 @@ class Request
         static::obj()->METHOD      = 'GET';
         $_POST                     = [];
         static::obj()->POST        = new stdClass();
+        $_FILES                    = [];
+        static::obj()->FILES       = new stdClass();
     }
 
     public static function has($key, &$value = null)
