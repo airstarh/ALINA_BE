@@ -244,6 +244,7 @@ final class Watcher
             ->where([
                 'browser_enc' => Request::obj()->BROWSER_enc,
                 'ip'          => Request::obj()->IP,
+                'user_id'     => CurrentUser::obj()::id(),
                 ['method', '!=', 'GET'],
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
