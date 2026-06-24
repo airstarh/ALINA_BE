@@ -301,7 +301,7 @@ final class Watcher
 
     public function id()
     {
-        return $this->mVISIT->id;
+        return $this->mVISIT->id ?? 0;
     }
     #endregion Utils
     ##################################################

@@ -95,7 +95,7 @@ class Tools
     public function actionRouteWhiteList()
     {
         // $res = Sys::getWhiteListController();
-        //$a   = 4 / 0;
+        $a = 4 / 0;
 
         $maxPossible = 10;
         $ip          = '172.18.0.1';
