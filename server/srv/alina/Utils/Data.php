@@ -880,7 +880,7 @@ class Data
                         : [false, 0, '', null];
                     $msg = (! empty($validator['msg']))
                         ? $validator['msg']
-                        : "Doublecheck field value.";
+                        : "Double check field value.";
 
                     #####
                     if (is_bool($CHECKER)) {
