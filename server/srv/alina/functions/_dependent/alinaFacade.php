@@ -311,7 +311,7 @@ function AlinaExit($data = null)
         alina\Watcher::obj()->answer([
             'answer'     => $answerString,
             'suspicious' => $flagSuspicious,
-            'controller' => GlobalRequestStorage::obj()->get('BaseModelQueries'),
+            'controller' => GlobalRequestStorage::get('BaseModelQueries'),
             'action'     => number_format(Sys::getMicroTimeDifferenceFromNow(\ALINA_MICROTIME), 10, '.', ' '),
         ]);
     }

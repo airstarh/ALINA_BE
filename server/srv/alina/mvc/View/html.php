@@ -138,7 +138,7 @@ class html
     #region HTML page specials (css, js, etc.)
     public function pageTitle()
     {
-        $res = GlobalRequestStorage::obj()->get('pageTitle');
+        $res = GlobalRequestStorage::get('pageTitle');
 
         if ($res) {
             return strip_tags($res);
@@ -149,7 +149,7 @@ class html
 
     public function pageDescription()
     {
-        $res = GlobalRequestStorage::obj()->get('pageDescription');
+        $res = GlobalRequestStorage::get('pageDescription');
 
         if ($res) {
             return $res;
@@ -160,14 +160,14 @@ class html
 
     public function tagRelAlternateUrl()
     {
-        $res = GlobalRequestStorage::obj()->get('tagRelAlternateUrl');
+        $res = GlobalRequestStorage::get('tagRelAlternateUrl');
 
         return $res;
     }
 
     public function tagRelCanonicalUrl()
     {
-        $res = GlobalRequestStorage::obj()->get('tagRelCanonicalUrl');
+        $res = GlobalRequestStorage::get('tagRelCanonicalUrl');
 
         return $res;
     }

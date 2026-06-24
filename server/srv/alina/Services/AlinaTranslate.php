@@ -30,7 +30,7 @@ class AlinaTranslate
             return $str;
         }
 
-        $loc = $loc ?? GlobalRequestStorage::obj()->get('loc');
+        $loc = $loc ?? GlobalRequestStorage::get('loc');
 
         if (! empty($this->dict[$str]->{$loc})) {
             return $this->dict[$str]->{$loc};

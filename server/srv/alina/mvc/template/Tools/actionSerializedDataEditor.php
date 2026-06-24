@@ -8,7 +8,7 @@ use alina\Utils\Data as DataAlias;
 
 <div>
     <div class="mt-5"></div>
-    <h1><?= GlobalRequestStorage::obj()->get('pageTitle') ?>
+    <h1><?= GlobalRequestStorage::get('pageTitle') ?>
         <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
             See the description
         </button>
