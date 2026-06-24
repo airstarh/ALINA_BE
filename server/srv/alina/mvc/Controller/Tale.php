@@ -20,7 +20,7 @@ class Tale
     /**
      * @route /tale/upsert
      * @route /Generic/index/test/path/parameters
-     * @param null $id
+     * @param int $id
      * @throws \alina\AppExceptionValidation
      */
     public function actionUpsert($id = null)
@@ -205,10 +205,10 @@ class Tale
         }
         ########################################
         $vd = Data::mergeObjects($vd, $attrs);
-        GlobalRequestStorage::obj()->set('pageTitle', $attrs->header);
-        GlobalRequestStorage::obj()->set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
-        GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
-        GlobalRequestStorage::obj()->set('tagRelCanonicalUrl', AlinaDefineTagRelCanonicalUrl());
+        GlobalRequestStorage::set('pageTitle', $attrs->header);
+        GlobalRequestStorage::set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
+        GlobalRequestStorage::set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
+        GlobalRequestStorage::set('tagRelCanonicalUrl', AlinaDefineTagRelCanonicalUrl());
         AlinaEcho((new htmlAlias())->page($vd));
     }
 
@@ -311,7 +311,7 @@ class Tale
         ########################################
         $vd->tale = $collection->toArray();
         ########################################
-        GlobalRequestStorage::obj()->set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
+        GlobalRequestStorage::set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         ########################################
         AlinaEcho((new htmlAlias())->page($vd));
     }

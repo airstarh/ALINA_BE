@@ -44,7 +44,7 @@ class Tools
             $data      = Data::serializedDataSearchReplace($strSource, $strFrom, $strTo);
         }
         ##################################################
-        GlobalRequestStorage::obj()->set('pageTitle', 'PHP-Serialized Data Editor online');
+        GlobalRequestStorage::set('pageTitle', 'PHP-Serialized Data Editor online');
         $vd = Data::mergeObjects($vd, $data);
         \AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
@@ -83,7 +83,7 @@ class Tools
             $data      = Data::jsonSearchReplace($strSource, $strFrom, $strTo);
         }
         ##################################################
-        GlobalRequestStorage::obj()->set('pageTitle', 'JSON Search-Replace-Beautify online');
+        GlobalRequestStorage::set('pageTitle', 'JSON Search-Replace-Beautify online');
         $vd = Data::mergeObjects($vd, $data);
         \AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
 
@@ -95,7 +95,7 @@ class Tools
     public function actionRouteWhiteList()
     {
         // $res = Sys::getWhiteListController();
-        $a = 4 / 0;
+        // $a = 4 / 0;
 
         $maxPossible = 10;
         $ip          = '172.18.0.1';
