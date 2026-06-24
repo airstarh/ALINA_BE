@@ -104,7 +104,7 @@ class Tale
                         $wmp = $this->watchMaxPosts();
 
                         if ($wmp->isDenied) {
-                            AlinaReject(null, 302, "In the  last 24 hours\nPosted: {$wmp->done}\nMax posts allowed: {$wmp->max}");
+                            AlinaReject(null, 302, "In the  last 24 hours\nPosted: %s\nMax posts allowed: %s.", [(string)$wmp->done, (string) $wmp->max]);
                         }
                         #endregion WATCH quantity
                         ##################################################

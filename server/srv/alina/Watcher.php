@@ -87,7 +87,7 @@ final class Watcher
 
         if ($per10secs > $maxPer10secs) {
             $this->banVisit();
-            $msg = 'DDos';
+            $msg = 'DDoS';
             AlinaReject(null, 403, $msg);
         }
     }
@@ -112,7 +112,7 @@ final class Watcher
         ;
 
         if ($res) {
-            $msg = 'Your IP is banned';
+            $msg = 'Your IP is banned.';
             AlinaReject(null, 403, $msg);
         }
     }
@@ -136,7 +136,7 @@ final class Watcher
         ;
 
         if ($res) {
-            $msg = 'Your browser is banned';
+            $msg = 'Your browser is banned.';
             AlinaReject(null, 403, $msg);
         }
     }
@@ -161,7 +161,7 @@ final class Watcher
         ;
 
         if ($res) {
-            $msg = 'You are completely banned';
+            $msg = 'You are completely banned.';
             AlinaReject(null, 403, $msg);
         }
     }
@@ -202,7 +202,7 @@ final class Watcher
             $fgpFact     = Request::obj()->tryHeader('fgp');
 
             if ($fgpFact !== $fgpExpected) {
-                $msg = "Suspicious. Wrong FGP";
+                $msg = "Suspicious. Wrong FGP.";
                 $this->mVisitAddBanPoints(1);
                 AlinaReject(null, 403, $msg);
             }
@@ -217,7 +217,7 @@ final class Watcher
 
         if ($points >= $maxPoints) {
             $this->mVisitAddBanPoints($points > 100 ? 100 : $points);
-            $msg = "DDOS 1 minute ($points of $maxPoints)";
+            $msg = "DDoS 1 minute.";
             AlinaReject(null, 403, $msg);
         }
 
@@ -227,7 +227,7 @@ final class Watcher
 
         if ($points >= $maxPoints) {
             $this->mVisitAddBanPoints($points > 100 ? 100 : $points);
-            $msg = "DDOS 1 hour ($points of $maxPoints)";
+            $msg = "DDoS 1 hour.";
             AlinaReject(null, 403, $msg);
         }
     }
