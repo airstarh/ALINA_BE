@@ -160,15 +160,15 @@ class Request
     public function lieThatPost($data = [])
     {
         if ($data) {
-            $_POST              = (array) $data;
+            $_POST      = (array) $data;
             $this->POST = (object) $data;
         }
         else {
-            $_POST              = [];
+            $_POST      = [];
             $this->POST = new stdClass();
         }
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $this->METHOD      = 'POST';
+        $this->METHOD              = 'POST';
 
         return $this->POST;
     }
@@ -176,11 +176,11 @@ class Request
     public function resetToGet()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->METHOD      = 'GET';
+        $this->METHOD              = 'GET';
         $_POST                     = [];
-        $this->POST        = new stdClass();
+        $this->POST                = new stdClass();
         $_FILES                    = [];
-        $this->FILES       = new stdClass();
+        $this->FILES               = new stdClass();
     }
 
     public function has($key, &$value = null)
