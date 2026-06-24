@@ -766,8 +766,8 @@ class _BaseAlinaModel
         }
 
         if ($this->getModelByUniqueKeys($data)) {
-            $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
-            $table   = strtoupper($this->table);
+            $fields = strtoupper(implode(', ', $this->matchedUniqueFields));
+            $table  = strtoupper($this->table);
             Message::setDanger("Table %s with such %s already exists.", [$table, $fields]);
 
             throw new AppExceptionValidation('Validation Error. Check unique keys.');

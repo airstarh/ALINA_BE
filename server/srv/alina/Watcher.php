@@ -298,7 +298,8 @@ final class Watcher
         return (int) ($res->total_ban_point ?? 0);
     }
 
-    public function id(){
+    public function id()
+    {
         return $this->mVISIT->id;
     }
     #endregion Utils

@@ -148,7 +148,7 @@ class FileUpload
                                 $targetFile = $this->processImageCompression($targetFile);
                             }
                             #####
-                            $webPath = $this->webPath($targetFile);
+                            $webPath              = $this->webPath($targetFile);
                             $this->resp->url[]    = $webPath;
                             $this->resp->uploaded = ++$counterUploadedFiles;
                             #####
