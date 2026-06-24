@@ -172,7 +172,7 @@ class Pm
 
                                 ##################################################
                                 #region POST
-                                if (Request::obj()->isPostPutDelete()) {
+                                if (Request::isPostPutDelete()) {
                                     switch (Request::obj()->POST->do) {
                                         case 'insert_pm_work_done':
                                             $amount     = Request::obj()->POST->amount;
@@ -275,7 +275,7 @@ class Pm
 
         ##################################################
         #region POST 2
-        if (Request::obj()->isPostPutDelete()) {
+        if (Request::isPostPutDelete()) {
             $p = Request::obj()->POST;
             switch ($p->do) {
                 case 'order_in_view':

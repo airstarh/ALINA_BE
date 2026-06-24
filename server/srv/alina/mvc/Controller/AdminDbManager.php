@@ -25,7 +25,7 @@ class AdminDbManager
     {
         ##############################
         # CHECK OWNERSHIP
-        if (Request::obj()->isPostPutDelete($p)) {
+        if (Request::isPostPutDelete($p)) {
             if (property_exists($p, 'owner_id')) {
                 AlinaRejectIfNotAdminOrModeratorOrOwner($p->owner_id);
 

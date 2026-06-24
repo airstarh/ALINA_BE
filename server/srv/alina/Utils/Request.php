@@ -159,30 +159,30 @@ class Request
      * When we copy a Model with UNIQUE fields.
      * xD xD xD
      */
-    public static function lieThatPost($data = [])
+    public function lieThatPost($data = [])
     {
         if ($data) {
             $_POST              = (array) $data;
-            static::obj()->POST = (object) $data;
+            $this->POST = (object) $data;
         }
         else {
             $_POST              = [];
-            static::obj()->POST = new stdClass();
+            $this->POST = new stdClass();
         }
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        static::obj()->METHOD      = 'POST';
+        $this->METHOD      = 'POST';
 
-        return static::obj()->POST;
+        return $this->POST;
     }
 
-    public static function resetToGet()
+    public function resetToGet()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        static::obj()->METHOD      = 'GET';
+        $this->METHOD      = 'GET';
         $_POST                     = [];
-        static::obj()->POST        = new stdClass();
+        $this->POST        = new stdClass();
         $_FILES                    = [];
-        static::obj()->FILES       = new stdClass();
+        $this->FILES       = new stdClass();
     }
 
     public static function has($key, &$value = null)

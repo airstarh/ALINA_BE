@@ -123,7 +123,7 @@ function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $mes
         Sys::redirect($page, $code);
     }
     else {
-        Request::obj()::resetToGet();
+        Request::obj()->resetToGet();
         Alina()->mvcGo('Root', 'AccessDenied', [$code]);
     }
 }
