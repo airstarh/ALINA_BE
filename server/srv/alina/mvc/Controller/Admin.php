@@ -27,7 +27,7 @@ class Admin
         $vd = (object)[];
 
         ########################################
-        if (Request::isPost()) {
+        if (Request::obj()->isPost()) {
             $post = Data::deleteEmptyProps(Request::obj()->POST);
             switch ($post->action) {
                 case 'set-roles':

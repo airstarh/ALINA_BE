@@ -35,7 +35,7 @@ class Tools
         $data = new stdClass();
 
         ##################################################
-        if (Request::isPost($post)) {
+        if (Request::obj()->isPost($post)) {
             $p         = $post;
             $vd        = Data::mergeObjects($vd, $p);
             $strFrom   = $vd->strFrom;
@@ -74,7 +74,7 @@ class Tools
         $data = new stdClass();
 
         ##################################################
-        if (Request::isPost($post)) {
+        if (Request::obj()->isPost($post)) {
             $p         = $post;
             $vd        = Data::mergeObjects($vd, $p);
             $strSource = $vd->strSource;

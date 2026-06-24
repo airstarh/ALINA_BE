@@ -175,7 +175,7 @@ final class Watcher
 
         if (
             (
-                Request::has('alinafool', $alinafool)
+                Request::obj()->has('alinafool', $alinafool)
                 && $alinafool == 1
             )
             || empty(Request::obj()->DOMAIN)

@@ -68,7 +68,7 @@ class AdminDbManager
             'colsAsPHPArr'       => '',
         ];
 
-        if (Request::isPost($p)) {
+        if (Request::obj()->isPost($p)) {
             $p               = Data::deleteEmptyProps($p);
             $vd              = Data::mergeObjects($vd, $p);
             $r               = [];

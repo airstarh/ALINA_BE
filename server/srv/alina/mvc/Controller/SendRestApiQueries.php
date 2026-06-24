@@ -55,7 +55,7 @@ class SendRestApiQueries
 
         #endregion Defaults
         ############################################
-        if (Request::isPost($p)) {
+        if (Request::obj()->isPost($p)) {
             ############################################
             #region Process POST Query
             if (property_exists($p, 'reqUrl')) {

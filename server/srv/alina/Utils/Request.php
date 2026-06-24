@@ -88,18 +88,18 @@ class Request
 
     ##################################################
     #region Facade
-    public static function isPost(&$post = null)
+    public function isPost(&$post = null)
     {
-        $is = static::obj()->METHOD === 'POST';
+        $is = $this->METHOD === 'POST';
 
         if ($is) {
-            $post = static::obj()->POST;
+            $post = $this->POST;
         }
 
         return $is;
     }
 
-    public static function isPut(&$post = null)
+    public function isPut(&$post = null)
     {
         $is = static::obj()->METHOD === 'PUT';
 
@@ -110,7 +110,7 @@ class Request
         return $is;
     }
 
-    public static function isDelete(&$post)
+    public function isDelete(&$post)
     {
         $is = static::obj()->METHOD === 'DELETE';
 
@@ -121,12 +121,12 @@ class Request
         return $is;
     }
 
-    public static function isGet(&$get = null)
+    public function isGet(&$get = null)
     {
-        $is = static::obj()->METHOD === 'GET';
+        $is = $this->METHOD === 'GET';
 
         if ($is) {
-            $get = static::obj()->GET;
+            $get = $this->GET;
         }
 
         return $is;
@@ -134,23 +134,21 @@ class Request
 
     public function isPostPutDelete(&$post = null)
     {
-        $post = static::isPost($post);
+        $is = $this->isPost($post);
 
-        if ($post) {
-            return $post;
-        }
-        $post = static::isPut($post);
-
-        if ($post) {
-            return $post;
-        }
-        $post = static::isDelete($post);
-
-        if ($post) {
-            return $post;
+        if ($is) {
+            return $is;
         }
 
-        return false;
+        $is = $this->isPut($post);
+
+        if ($is) {
+            return $is;
+        }
+
+        $is = $this->isDelete($post);
+
+        return $is;
     }
 
     /**
@@ -185,12 +183,12 @@ class Request
         $this->FILES       = new stdClass();
     }
 
-    public static function has($key, &$value = null)
+    public function has($key, &$value = null)
     {
-        $is = property_exists(static::obj()->R, $key);
+        $is = property_exists($this->R, $key);
 
         if ($is) {
-            $value = static::obj()->R->{$key};
+            $value = $this->R->{$key};
         }
 
         return $is;

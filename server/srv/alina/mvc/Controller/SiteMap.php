@@ -60,7 +60,7 @@ class SiteMap
             $paginationVersa = true;
 
             #####
-            if (Request::has('expand', $expand)) {
+            if (Request::obj()->has('expand', $expand)) {
                 $expand = trim($expand);
 
                 if (! empty($expand) && is_numeric($expand)) {
@@ -77,7 +77,7 @@ class SiteMap
         else {
             ####################
             #region POSTS
-            if (Request::has('txt', $txt)) {
+            if (Request::obj()->has('txt', $txt)) {
                 $txt = trim($txt);
 
                 if (! empty($txt)) {
@@ -96,7 +96,7 @@ class SiteMap
             array_unshift($sort, ["tale.is_sticked", 'DESC']);
 
             #####
-            if (Request::has('owner', $owner)) {
+            if (Request::obj()->has('owner', $owner)) {
                 $owner = trim($owner);
 
                 if (! empty($owner) && is_numeric($owner)) {

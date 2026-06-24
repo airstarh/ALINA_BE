@@ -35,7 +35,6 @@ class Tale
             'is_submitted' => 0,
         ];
         $attrs  = (object)[];
-        $isGet  = Request::isGet($get);
         $isPost = Request::obj()->isPostPutDelete($post);
 
         ##################################################
@@ -333,7 +332,7 @@ class Tale
             $paginationVersa = true;
 
             #####
-            if (Request::has('expand', $expand)) {
+            if (Request::obj()->has('expand', $expand)) {
                 $expand = trim($expand);
 
                 if (! empty($expand) && is_numeric($expand)) {
@@ -350,7 +349,7 @@ class Tale
         else {
             ####################
             #region POSTS
-            if (Request::has('txt', $txt)) {
+            if (Request::obj()->has('txt', $txt)) {
                 $txt = trim($txt);
 
                 if (! empty($txt)) {
@@ -369,7 +368,7 @@ class Tale
             array_unshift($sort, ["tale.is_sticked", 'DESC']);
 
             #####
-            if (Request::has('owner', $owner)) {
+            if (Request::obj()->has('owner', $owner)) {
                 $owner = trim($owner);
 
                 if (! empty($owner) && is_numeric($owner)) {

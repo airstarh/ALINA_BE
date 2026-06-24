@@ -106,7 +106,7 @@ class Auth
         $CU = CurrentUser::obj();
 
         ##################################################
-        if (Request::isPost()) {
+        if (Request::obj()->isPost()) {
             $p  = Data::deleteEmptyProps(Request::obj()->POST);
             $vd = Data::mergeObjects($vd, $p);
 
@@ -212,7 +212,7 @@ class Auth
         ];
 
         ##################################################
-        if (Request::isPost($post)) {
+        if (Request::obj()->isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
 
             if (! empty($vd->mail)) {
@@ -264,7 +264,7 @@ class Auth
         $vd = Data::mergeObjects($vd, $rd);
 
         ##################################################
-        if (Request::isPost($post)) {
+        if (Request::obj()->isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
 
             if (! empty($vd->mail) && ! empty($vd->reset_code)) {
@@ -324,7 +324,7 @@ class Auth
             'route_plan_b'     => '/auth/ChangePassword',
         ];
 
-        if (Request::isPost($post)) {
+        if (Request::obj()->isPost($post)) {
             $vd = Data::mergeObjects($vd, $post);
             #####
             Data::validateObject($vd, [
