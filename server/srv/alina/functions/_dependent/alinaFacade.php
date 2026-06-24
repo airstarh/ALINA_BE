@@ -61,7 +61,7 @@ function AlinaResponseSuccess($success = 1)
     static $flagAlreadySet = 0;
 
     if ($success != 1 && $flagAlreadySet === 0) {
-        Message::setDanger(___('Response is not success'));
+        Message::setDanger('Response is not success');
         $flagAlreadySet = 1;
     }
     GlobalRequestStorage::set('alina_response_success', $success);

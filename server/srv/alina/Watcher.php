@@ -278,7 +278,7 @@ final class Watcher
         $this->mVISIT->si('ban_point', $points);
     }
 
-    public function getBanPointsLastSeconds(int $seconds = 10)
+    private function getBanPointsLastSeconds(int $seconds = 10)
     {
         $res = $this->mVISIT
             ->q()
@@ -296,6 +296,10 @@ final class Watcher
         ;
 
         return (int) ($res->total_ban_point ?? 0);
+    }
+
+    public function id(){
+        return $this->mVISIT->id;
     }
     #endregion Utils
     ##################################################

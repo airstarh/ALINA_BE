@@ -256,7 +256,7 @@ class AdminDbManager
             $m->getOneWithReferences([["$m->alias.$m->pkName", '=', $id]]);
 
             $newId = $m->id;
-            Message::setSuccess(___('Updated'));
+            Message::setSuccess('Updated');
         }
         #endregion POST
         ##################################################

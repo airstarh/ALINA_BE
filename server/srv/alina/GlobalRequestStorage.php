@@ -16,6 +16,7 @@ class GlobalRequestStorage
     #endregion Singleton
     #region CRUD
     protected $memory = [
+        'loc'                    => 'ru_RU',
         'alina_response_success' => 1,
         'BaseModelQueries'       => 0,
         'TemplateQueries'        => 0,

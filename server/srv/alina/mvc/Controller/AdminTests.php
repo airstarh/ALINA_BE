@@ -133,9 +133,8 @@ class AdminTests
      */
     public function actionTestPost()
     {
-        Message::setSuccess('AdminTest Response');
-        Message::setSuccess('Message for User');
-        MessageAdmin::setSuccess('Message for Admin');
+        Message::setSuccess('Message for %s', ['User']);
+        MessageAdmin::setSuccess('Message for %s', ['Admin']);
         AlinaEcho((new htmlAlias())->page(Request::obj()));
     }
 

@@ -583,7 +583,7 @@ class Pm
 
             foreach ($res as $idx => $r) {
                 if (in_array($r->wd_id, $idxControl)) {
-                    Message::setDanger(___('WD_ID`s are repeated!!!') . ' ' . $r->wd_id);
+                    Message::setDanger('WD_ID`s are repeated!!!');
                 }
                 $idxControl[] = $r->wd_id;
                 ##############################

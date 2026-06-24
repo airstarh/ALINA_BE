@@ -192,8 +192,6 @@ trait Msg
     }
     #endregion Facade (Collection)
     ##################################################
-    ##################################################
-    ##################################################
     #region Message Object
     public $id;
     public $templateString = '';
@@ -219,7 +217,7 @@ trait Msg
         }
 
         try {
-            $this->messageRawText = vsprintf($this->templateString, $this->params);
+            $this->messageRawText = vsprintf(___($this->templateString), $this->params);
         }
         catch (Exception $e) {
             $this->messageRawText = '';
