@@ -174,8 +174,8 @@ class FileUpload
                     $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
                     $this->left    = $left;
                     Message::setSuccess("Uploaded!");
-                    Message::setInfo("Already uploaded: %s.", [$currentAmount]);
-                    Message::setInfo("Left to upload: %s.", [$left]);
+                    Message::setInfo("Already uploaded: %s.", [(string) $currentAmount]);
+                    Message::setInfo("Left to upload: %s.", [(string) $left]);
                 }
                 #####
             }
