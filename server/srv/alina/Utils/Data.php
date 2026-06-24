@@ -869,7 +869,7 @@ class Data
                         $validator = [$validator];
                     }
                     else {
-                        Message::setDanger("Undefined validator for {$fName}");
+                        Message::setDanger("Undefined validator for %s", [$fName]);
 
                         continue;
                     }
@@ -880,7 +880,7 @@ class Data
                         : [false, 0, '', null];
                     $msg = (! empty($validator['msg']))
                         ? $validator['msg']
-                        : "Validation failed. Field:{$fName}. Value: {$fValue}";
+                        : "Doublecheck field value.";
 
                     #####
                     if (is_bool($CHECKER)) {
@@ -905,10 +905,9 @@ class Data
 
                     // Validation Result process.
                     if (in_array($VALIDATION_RESULT, $errorIf, true)) {
-                        $message = "{$msg} (field:{$fName})";
-                        Message::setDanger($message);
+                        Message::setDanger("Error in field: %s. %s", [$fName, $msg]);
 
-                        throw new AppExceptionValidation($message);
+                        throw new AppExceptionValidation('Validation Error.');
                     }
                 }
             }

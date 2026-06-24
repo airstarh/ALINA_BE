@@ -149,7 +149,6 @@ class FileUpload
                             }
                             #####
                             $webPath = $this->webPath($targetFile);
-                            //Message::set("Uploaded: $webPath");
                             $this->resp->url[]    = $webPath;
                             $this->resp->uploaded = ++$counterUploadedFiles;
                             #####

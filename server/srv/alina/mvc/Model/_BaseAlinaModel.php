@@ -384,10 +384,10 @@ class _BaseAlinaModel
 
         if (empty($pkValue)) {
             $table   = $this->table;
-            $message = "Cannot UPDATE row in table {$table}. Primary Key is not set.";
-            Message::setDanger($message);
+            $message = "Cannot UPDATE row in table %s. Primary Key is not set.";
+            Message::setDanger($message, [$table]);
 
-            throw new AppExceptionValidation($message);
+            throw new AppExceptionValidation('Update by id failed.');
         }
         $conditions = [$pkName => $pkValue];
         $this->update($data, $conditions);
@@ -768,10 +768,9 @@ class _BaseAlinaModel
         if ($this->getModelByUniqueKeys($data)) {
             $fields  = strtoupper(implode(', ', $this->matchedUniqueFields));
             $table   = strtoupper($this->table);
-            $message = ___("{$table} with such {$fields} already exists");
-            Message::setDanger($message);
+            Message::setDanger("Table %s with such %s already exists.", [$table, $fields]);
 
-            throw new AppExceptionValidation($message);
+            throw new AppExceptionValidation('Validation Error. Check unique keys.');
         }
 
         return $this;

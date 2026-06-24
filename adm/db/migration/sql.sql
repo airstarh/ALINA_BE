@@ -1,11 +1,13 @@
-ALTER TABLE watch_visit ADD error_class varchar(500) NULL;
-ALTER TABLE watch_visit ADD error_severity VARCHAR(100);
-ALTER TABLE watch_visit ADD error_code INTEGER NULL;
-ALTER TABLE watch_visit ADD error_file varchar(500) NULL;
-ALTER TABLE watch_visit ADD error_line INTEGER NULL;
-ALTER TABLE watch_visit ADD error_trace LONGTEXT NULL;
-ALTER TABLE watch_visit ADD error_text TEXT NULL;
-ALTER TABLE watch_visit ADD referal varchar(500) NULL;
-ALTER TABLE watch_visit ADD ban_point TINYINT NULL;
-DROP TABLE error_log;
-CREATE INDEX watch_visit_ip_IDX USING BTREE ON watch_visit (ip, browser_enc, user_id);
+DELETE FROM voc
+WHERE id NOT IN (
+  SELECT min_id
+  FROM (
+    SELECT MAX(id) AS min_id
+    FROM voc
+    GROUP BY `from`
+  ) AS subquery
+);
+ALTER TABLE voc MODIFY COLUMN `from` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL;
+ALTER TABLE voc MODIFY COLUMN en_US VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE voc MODIFY COLUMN ru_RU VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE voc ADD CONSTRAINT cns_voc_from UNIQUE KEY (`from`);

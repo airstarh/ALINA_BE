@@ -93,12 +93,12 @@ class Admin
 
         if ($vd && $vd->users == 1) {
             Message::setSuccess('Deleted');
-            Message::setSuccess("Users: {$vd->users}");
-            Message::setSuccess("notifications: {$vd->notifications}");
-            Message::setSuccess("likes: {$vd->likes}");
-            Message::setSuccess("tales: {$vd->tales}");
-            Message::setSuccess("rbac_roles: {$vd->rbac_roles}");
-            Message::setSuccess("login: {$vd->login}");
+            Message::setSuccess("Users: %s", [$vd->users]);
+            Message::setSuccess("notifications: %s", [$vd->notifications]);
+            Message::setSuccess("likes: %s", [$vd->likes]);
+            Message::setSuccess("tales: %s", [$vd->tales]);
+            Message::setSuccess("rbac_roles: %s", [$vd->rbac_roles]);
+            Message::setSuccess("login: %s", $vd->login);
         }
         else {
             AlinaResponseSuccess(0);

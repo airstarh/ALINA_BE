@@ -33,7 +33,7 @@ class Mailer
             $mail->addAddress($to, $to);     // Add a recipient
             // Content
             $subject = "Reset Password. Verification code.";
-            $message = "Your verification code is {$code}. You know, what to do :-)";
+            $message = ___p("Your verification code is %s. You know, what to do ", [(string) $code]);
             $mail->isHTML(true);                                  // Set email format to HTML
             $mail->Subject = $subject;
             $mail->Body    = $message;
@@ -41,7 +41,7 @@ class Mailer
             $sendRes       = $mail->send();
 
             if ($sendRes) {
-                Message::setInfo("Message has been sent");
+                Message::setInfo("E-mail has been sent.");
             }
             else {
                 Message::setDanger("Failed");

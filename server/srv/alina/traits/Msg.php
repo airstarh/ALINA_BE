@@ -47,7 +47,7 @@ trait Msg
             $text = var_export($text, 1);
         }
         $_this                 = new static();
-        $_this->templateString = $text;
+        $_this->templateString = ___($text);
         $_this->params         = $params;
         $_this->status         = $status;
         $_this->isShown        = false;
@@ -217,7 +217,7 @@ trait Msg
         }
 
         try {
-            $this->messageRawText = vsprintf(___($this->templateString), $this->params);
+            $this->messageRawText = vsprintf($this->templateString, $this->params);
         }
         catch (Exception $e) {
             $this->messageRawText = '';

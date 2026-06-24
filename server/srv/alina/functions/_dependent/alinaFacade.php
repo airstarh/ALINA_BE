@@ -258,6 +258,16 @@ function ___($str, $loc = 'ru_RU')
     }
 }
 
+function ___p(string $str, array $params, ?string $loc = 'ru_RU')
+{
+    try {
+        return vsprintf(___($str, $loc), $params);
+    }
+    catch (Exception $e) {
+        return $str;
+    }
+}
+
 ##################################################
 
 function AlinaEchoDraft($data)
