@@ -155,13 +155,14 @@ final class Watcher
             ->q()
             ->where([
                 'ip'          => Request::obj()->IP,
+                'user_id'     => CurrentUser::obj()->id(),
                 'browser_enc' => Request::obj()->BROWSER_enc,
             ])
             ->first()
         ;
 
         if ($res) {
-            $msg = 'You are completely banned.';
+            $msg = 'You are banned.';
             AlinaReject(null, 403, $msg);
         }
     }
@@ -313,6 +314,7 @@ final class Watcher
         }
 
         $ip = $ip ?? Request::obj()->IP;
+
         (new watch_banned_ip())->upsertByUniqueFields([
             'ip'     => $ip,
             'reason' => $reason,
@@ -326,13 +328,14 @@ final class Watcher
         }
 
         $browser_enc = $browser_enc ?? Request::obj()->BROWSER_enc;
+
         (new watch_banned_browser())->upsertByUniqueFields([
             'enc'    => $browser_enc,
             'reason' => $reason,
         ]);
     }
 
-    public function banVisit($ip = null, $browser_enc = null, $reason = 'spam')
+    public function banVisit($ip = null, $browser_enc = null, $user_id = null, $reason = 'spam')
     {
         if (! self::$ENABLED) {
             return;
@@ -340,10 +343,12 @@ final class Watcher
 
         $ip          = $ip          ?? Request::obj()->IP;
         $browser_enc = $browser_enc ?? Request::obj()->BROWSER_enc;
+        $user_id     = $user_id     ?? CurrentUser::obj()->id();
 
         (new watch_banned_visit())->upsertByUniqueFields([
             'ip'          => $ip,
             'browser_enc' => $browser_enc,
+            'user_id'     => $user_id,
             'reason'      => $reason,
         ]);
     }

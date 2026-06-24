@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Model;
 
+use alina\Utils\Request;
+
 class watch_banned_browser extends _BaseAlinaModel
 {
     public $table = 'watch_banned_browser';
@@ -9,8 +11,10 @@ class watch_banned_browser extends _BaseAlinaModel
     public function fields()
     {
         return [
-            'id'     => [],
-            'enc'    => [],
+            'id'  => [],
+            'enc' => [
+                'default' => Request::obj()->BROWSER_enc,
+            ],
             'reason' => [
                 'default' => 'spam',
             ],
