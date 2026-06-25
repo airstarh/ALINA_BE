@@ -40,7 +40,7 @@ class tale extends _BaseAlinaModel
                             return true;
                         },
                         'errorIf' => ['', false, null],
-                        'msg'     => ___('Tale Body is required!'),
+                        'msg'     => 'Tale Body is required!',
                     ],
                 ],
             ],
