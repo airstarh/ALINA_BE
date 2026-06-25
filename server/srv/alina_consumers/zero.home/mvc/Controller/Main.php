@@ -15,7 +15,7 @@ class Main
 
     public function action404()
     {
-        Message::setDanger('<h1>404</h1>Такой страницы нет на сайте');
+        Message::setDanger('404 error. Page not found.');
         AlinaResponseSuccess(0);
         http_response_code(404);
         AlinaEcho((new \alina\mvc\View\html())->page());
