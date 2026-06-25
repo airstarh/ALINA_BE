@@ -41,7 +41,7 @@ class Tale
         $isPostMethod = Request::obj()->isPostPutDelete($post);
 
         ##################################################
-        if (empty($vd->id) || is_numeric($vd->id)) {
+        if (empty($vd->id) || ! is_numeric($vd->id)) {
             AlinaRejectIfNotLoggedIn();
             $vd->id           = null;
             $vd->is_submitted = 0;
