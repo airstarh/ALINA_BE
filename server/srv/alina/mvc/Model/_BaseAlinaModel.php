@@ -114,12 +114,12 @@ class _BaseAlinaModel
     public function getOne($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
-        $attributes                        = $this->q()->where($conditions)->first();
-        $this->setPkValue($attributes->{$this->pkName} ?? null);
-        $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
+        $dbResult                          = $this->q()->where($conditions)->first() ?? new stdClass();
+        $this->setPkValue($dbResult->{$this->pkName} ?? null);
+        $this->attributes                  = Data::mergeObjects($this->attributes, $dbResult);
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $attributes ?? new stdClass();
+        return $dbResult;
     }
 
     public function getAll($conditions = [], $backendSortArray = null, $limit = null, $offset = null)
@@ -281,12 +281,12 @@ class _BaseAlinaModel
     public function getOneWithReferences($conditions = [])
     {
         $this->state_EXCLUDE_COUNT_REQUEST = true;
-        $attributes                        = $this->getAllWithReferences($conditions, [], 1, 0)->first();
-        $this->setPkValue($attributes->{$this->pkName} ?? null);
-        $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
+        $dbResult                          = $this->getAllWithReferences($conditions, [], 1, 0)->first() ?? new stdClass();
+        $this->setPkValue($dbResult->{$this->pkName} ?? null);
+        $this->attributes                  = Data::mergeObjects($this->attributes, $dbResult);
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $attributes ?? new stdClass();
+        return $dbResult;
     }
     #rendegion Get With References
     ###############
