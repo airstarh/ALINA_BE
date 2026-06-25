@@ -26,193 +26,180 @@ class Tale
     public function actionUpsert($id = null)
     {
         $mTale = new taleAlias();
-        $vd    = (object)[
-            'id'           => null,
+        $vd    = Data::mergeObjects(
+            [
+            'id'           => $id,
             'form_id'      => __FUNCTION__,
             'header'       => '***',
             'body'         => '',
             'publish_at'   => 0,
             'is_submitted' => 0,
-        ];
-        $attrs  = (object)[];
-        $isPost = Request::obj()->isPostPutDelete($post);
+        ],
+            Request::obj()->POST
+        );
+        $dbResult     = (object)[];
+        $isPostMethod = Request::obj()->isPostPutDelete($post);
 
         ##################################################
-        if (empty($id)) {
+        if (empty($vd->id) || is_numeric($vd->id)) {
             AlinaRejectIfNotLoggedIn();
-
-            if ($isPost) {
-                if (isset($post->id)) {
-                    $id = $post->id;
-                    Sys::redirect("/tale/upsert/{$id}", 307);
-                }
-            }
+            $vd->id           = null;
+            $vd->is_submitted = 0;
+            $vd->owner_id     = CurrentUser::obj()->id();
+            $mTale->upsertByUniqueFields($vd, [['is_submitted', 'owner_id']]);
+            Sys::redirect("/tale/upsert/{$mTale->id}", 307);
         }
 
-        ########################################
-        if ($id) {
-            $attrs = $mTale->getById($id);
-            $id    = $attrs->id ?? null;
-        }
+        $dbResult = $mTale->getById($vd->id);
 
-        if (empty($id)) {
-            AlinaRejectIfNotLoggedIn();
-            $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id(),]);
-
-            if (empty($attrs->id)) {
-                AlinaRejectIfNotLoggedIn();
-                $attrs = $mTale->insert($vd);
-            }
-            $id = $attrs->id;
-            Sys::redirect("/tale/upsert/{$id}", 307);
+        if (empty($mTale->id)) {
+            AlinaReject();
         }
 
         ########################################
         ########################################
         ########################################
         # region POST
-        if ($isPost) {
+        if ($isPostMethod) {
             AlinaRejectIfNotLoggedIn();
             $vd = Data::mergeObjects(
                 $vd,
-                $attrs,
+                $dbResult,
                 $post
             );
 
-            if (AlinaAccessIfAdminOrModeratorOrOwner($vd->owner_id)) {
-                Transaction::begin(__FUNCTION__);
-                #####
-                #region CHECK iF UPDATE or INSERT
-                $isNew     = $vd->is_submitted == 0 || empty($vd->is_submitted);
-                $isComment = ! empty($vd->answer_to_tale_id);
-                $isPost    = ! $isComment;
+            AlinaRejectIfNotAdminOrModeratorOrOwner($vd->owner_id);
 
+            Transaction::begin(__FUNCTION__);
+            #####
+            #region CHECK iF UPDATE or INSERT
+            $isNew     = $vd->is_submitted == 0 || empty($vd->is_submitted);
+            $isComment = ! empty($vd->answer_to_tale_id);
+
+            /**
+             * NEW
+             */
+            if ($isNew) {
                 /**
-                 * NEW
+                 * new Comment
                  */
-                if ($isNew) {
-                    /**
-                     * new Comment
-                     */
-                    if ($isComment) {
-                        $vd->created_at = ALINA_TIME;
-                        $vd->publish_at = ALINA_TIME;
-                    }
-                    /**
-                     * new Tale
-                     */ else {
-                        ##################################################
-                        #region WATCH quantity
-                        $wmp = $this->watchMaxPosts();
-
-                        if ($wmp->isDenied) {
-                            AlinaReject(null, 302, "In the  last 24 hours\nPosted: %s\nMax posts allowed: %s.", [(string)$wmp->done, (string) $wmp->max]);
-                        }
-                        #endregion WATCH quantity
-                        ##################################################
-                    }
-                    // $vd->created_at = ALINA_TIME;
-                    // $vd->publish_at = ALINA_TIME;
+                if ($isComment) {
+                    $vd->created_at = ALINA_TIME;
+                    $vd->publish_at = ALINA_TIME;
                 }
                 /**
-                 * UPDATE
-                 */ else {
-                    /**
-                     * UPDATE Comment
-                     */
-                    if ($isComment) {
-                    }
-                    /**
-                     * UPDATE Tale
-                     */ else {
-                    }
-                }
-                #endregion CHECK iF UPDATE or INSERT
-                #####
-                $vd->is_submitted = 1;
-                ##################################################
-                $attrs = $mTale->updateById($vd);
-                ##################################################
-                #region Custom route-alias processing
-                //ToDo: ROLES!!!
-                $mRouterAlias = new router_alias();
-
-                if (! empty($attrs->router_alias)) {
-                    $raId   = $attrs->router_alias_id ?? null;
-                    $raData = (object)[
-                        'id'       => $raId,
-                        'alias'    => $attrs->router_alias,
-                        'url'      => "tale/upsert/{$attrs->id}",
-                        'table'    => 'tale',
-                        'table_id' => $attrs->id,
-                    ];
-                    $mRouterAlias->upsert($raData);
-                }
+                 * new Tale
+                 */ #
                 else {
-                    $mRouterAlias->delete(['table' => 'tale', 'table_id' => $attrs->id]);
-                }
+                    ##################################################
+                    #region WATCH quantity
+                    $wmp = $this->watchMaxPosts();
 
-                #emdregion Custom route-alias processing
-                ##################################################
-                #region Notification
-                if ($isComment) {
-                    $allCommenters = (new taleAlias())
-                        ->q('commenters')
-                        ->where(['root_tale_id' => $attrs->root_tale_id,])
-                        ->orWhere(['answer_to_tale_id' => $attrs->answer_to_tale_id,])
-                        ->orWhere(['root_tale_id' => $attrs->id,])
-                        ->orWhere(['answer_to_tale_id' => $attrs->id,])
-                        ->orWhere(['id' => $attrs->root_tale_id,])
-                        ->distinct()
-                        ->pluck('owner_id')
-                    ;
-                    $url  = "/tale/upsert/{$attrs->root_tale_id}?highlight={$attrs->id}&expand={$attrs->answer_to_tale_id}";
-                    $text = "Comment! Tale ID# {$attrs->root_tale_id}";
-                    $tag  = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
-                    $text = "You are commented!";
-
-                    foreach ($allCommenters as $humanId) {
-                        if ($humanId == CurrentUser::obj()->id()) {
-                            continue;
-                        }
-                        (new notification())->insert((object)[
-                            'to_id'        => $humanId,
-                            'from_id'      => CurrentUser::obj()->id(),
-                            'txt'          => $text,
-                            'link'         => $url,
-                            'id_root'      => $attrs->root_tale_id,
-                            'id_answer'    => $attrs->answer_to_tale_id,
-                            'id_highlight' => $attrs->id,
-                            'tbl'          => 'tale',
-                        ]);
+                    if ($wmp->isDenied) {
+                        AlinaReject(null, 302, "In the  last 24 hours\nPosted: %s\nMax posts allowed: %s.", [(string)$wmp->done, (string) $wmp->max]);
                     }
+                    #endregion WATCH quantity
+                    ##################################################
                 }
-                #endregion Notification
-                ##################################################
-                Transaction::commit(__FUNCTION__);
+                // $vd->created_at = ALINA_TIME;
+                // $vd->publish_at = ALINA_TIME;
+            }
+            /**
+             * UPDATE
+             */ #
+            else {
+                /**
+                 * UPDATE Comment
+                 */
+                if ($isComment) {
+                }
+                /**
+                 * UPDATE Tale
+                 */ #
+                else {
+                }
+            }
+            #endregion CHECK iF UPDATE or INSERT
+            #####
+            $vd->is_submitted = 1;
+            ##################################################
+            $dbResult = $mTale->updateById($vd);
+            ##################################################
+            #region Custom route-alias processing
+            //ToDo: ROLES!!!
+            $mRouterAlias = new router_alias();
+
+            if (! empty($dbResult->router_alias)) {
+                $raId   = $dbResult->router_alias_id ?? null;
+                $raData = (object)[
+                    'id'       => $raId,
+                    'alias'    => $dbResult->router_alias,
+                    'url'      => "tale/upsert/{$dbResult->id}",
+                    'table'    => 'tale',
+                    'table_id' => $dbResult->id,
+                ];
+                $mRouterAlias->upsert($raData);
             }
             else {
-                AlinaResponseSuccess(0);
-                Message::setDanger('Forbidden');
+                $mRouterAlias->delete(['table' => 'tale', 'table_id' => $dbResult->id]);
             }
+
+            #emdregion Custom route-alias processing
+            ##################################################
+            #region Notification
+            if ($isComment) {
+                $allCommenters = (new taleAlias())
+                    ->q('commenters')
+                    ->where(['root_tale_id' => $dbResult->root_tale_id,])
+                    ->orWhere(['answer_to_tale_id' => $dbResult->answer_to_tale_id,])
+                    ->orWhere(['root_tale_id' => $dbResult->id,])
+                    ->orWhere(['answer_to_tale_id' => $dbResult->id,])
+                    ->orWhere(['id' => $dbResult->root_tale_id,])
+                    ->distinct()
+                    ->pluck('owner_id')
+                ;
+                $url  = "/tale/upsert/{$dbResult->root_tale_id}?highlight={$dbResult->id}&expand={$dbResult->answer_to_tale_id}";
+                $text = "Comment! Tale ID# {$dbResult->root_tale_id}";
+                $tag  = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
+                $text = "You are commented!";
+
+                foreach ($allCommenters as $humanId) {
+                    if ($humanId == CurrentUser::obj()->id()) {
+                        continue;
+                    }
+                    (new notification())->insert((object)[
+                        'to_id'        => $humanId,
+                        'from_id'      => CurrentUser::obj()->id(),
+                        'txt'          => $text,
+                        'link'         => $url,
+                        'id_root'      => $dbResult->root_tale_id,
+                        'id_answer'    => $dbResult->answer_to_tale_id,
+                        'id_highlight' => $dbResult->id,
+                        'tbl'          => 'tale',
+                    ]);
+                }
+            }
+            #endregion Notification
+            ##################################################
+            Transaction::commit(__FUNCTION__);
         }
         # endregion POST
         ########################################
         ########################################
         ########################################
-        $attrs = $mTale->getOneWithReferences([["{$mTale->alias}.{$mTale->pkName}", $attrs->id]]);
+        $dbResult = $mTale->getOneWithReferences([["{$mTale->alias}.{$mTale->pkName}", $dbResult->id]]);
 
         ########################################
-        if ($attrs->is_for_registered) {
+        if ($dbResult->is_for_registered) {
             if (! CurrentUser::obj()->isLoggedIn()) {
                 AlinaResponseSuccess(0);
                 AlinaRejectIfNotLoggedIn();
             }
         }
         ########################################
-        $vd = Data::mergeObjects($vd, $attrs);
-        GlobalRequestStorage::set('pageTitle', $attrs->header);
-        GlobalRequestStorage::set('pageDescription', mb_substr($attrs->body_txt, 0, 100));
+        $vd = Data::mergeObjects($vd, $dbResult);
+        GlobalRequestStorage::set('pageTitle', $dbResult->header);
+        GlobalRequestStorage::set('pageDescription', mb_substr($dbResult->body_txt, 0, 100));
         GlobalRequestStorage::set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         GlobalRequestStorage::set('tagRelCanonicalUrl', AlinaDefineTagRelCanonicalUrl());
         AlinaEcho((new htmlAlias())->page($vd));
