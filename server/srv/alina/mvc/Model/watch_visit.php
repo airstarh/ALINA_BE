@@ -2,6 +2,7 @@
 
 namespace alina\mvc\Model;
 
+use alina\Utils\Data;
 use alina\Utils\Request;
 
 class watch_visit extends _BaseAlinaModel
@@ -38,7 +39,11 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $Request->METHOD,
             ],
             'data' => [
-                'default' => json_encode($Request, JSON_UNESCAPED_UNICODE),
+                'default' => Data::hlpGetBeautifulJsonString([
+                    'POST'    => Request::obj()->POST,
+                    'FILES'   => Request::obj()->FILES,
+                    'REFERAL' => Request::obj()->REFERAL,
+                ]),
             ],
             'controller' => [
 

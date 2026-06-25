@@ -77,7 +77,7 @@ class Data
             $ohjJsonDecoded = json_decode((string) $string, false, 512);
 
             return (json_last_error() === JSON_ERROR_NONE);
-        } // Executed only in PHP 7, will not match in PHP 5
+        }
         catch (Throwable $e) {
             return false;
         }
@@ -412,7 +412,7 @@ class Data
      * Designed to completely remove WordPress problem
      * https://stackoverflow.com/questions/3148712/regex-code-to-fix-corrupt-serialized-php-data/55074706#55074706
      * @param string $str
-     * @param NULL | string $resultOfUnserialization
+     * @param null | string $resultOfUnserialization
      * @return bool|array
      */
     public static function megaUnserialize($str, &$resultOfUnserialization = null)
