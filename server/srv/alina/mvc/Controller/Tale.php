@@ -52,13 +52,15 @@ class Tale
         ########################################
         if ($id) {
             $attrs = $mTale->getById($id);
-            $id    = $attrs->id;
+            $id    = $attrs->id ?? null;
         }
 
         if (empty($id)) {
+            AlinaRejectIfNotLoggedIn();
             $attrs = $mTale->getOne(['is_submitted' => 0, 'owner_id' => CurrentUser::obj()->id(),]);
 
             if (empty($attrs->id)) {
+                AlinaRejectIfNotLoggedIn();
                 $attrs = $mTale->insert($vd);
             }
             $id = $attrs->id;
@@ -68,6 +70,7 @@ class Tale
         ########################################
         ########################################
         ########################################
+        # region POST
         if ($isPost) {
             AlinaRejectIfNotLoggedIn();
             $vd = Data::mergeObjects(
@@ -193,6 +196,9 @@ class Tale
                 Message::setDanger('Forbidden');
             }
         }
+        # endregion POST
+        ########################################
+        ########################################
         ########################################
         $attrs = $mTale->getOneWithReferences([["{$mTale->alias}.{$mTale->pkName}", $attrs->id]]);
 

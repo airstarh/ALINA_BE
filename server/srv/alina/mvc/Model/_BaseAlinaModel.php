@@ -119,7 +119,7 @@ class _BaseAlinaModel
         $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $attributes;
+        return $attributes ?? new stdClass();
     }
 
     public function getAll($conditions = [], $backendSortArray = null, $limit = null, $offset = null)
@@ -286,7 +286,7 @@ class _BaseAlinaModel
         $this->attributes                  = Data::mergeObjects($this->attributes, $attributes ?? new stdClass());
         $this->state_EXCLUDE_COUNT_REQUEST = false;
 
-        return $attributes;
+        return $attributes ?? new stdClass();
     }
     #rendegion Get With References
     ###############
