@@ -69,7 +69,7 @@ use alina\Utils\Data as DataAlias;
 
     </form>
     <div class="mt-5"></div>
-    <div class="display-4">Total Changes: <?= $data->tCount ?></div>
+    <div class="display-4"><?= ___('Total Changes') ?>: <?= $data->tCount ?></div>
     <div class="mt-3">
         <?= (new htmlAlias())->piece('_system/html/tag/bootstrapBadge.php', (object)[
             'title' => 'RESULT',
