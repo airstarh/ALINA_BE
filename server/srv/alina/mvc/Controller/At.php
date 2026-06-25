@@ -21,7 +21,7 @@ use alina\Utils\Sys;
 use DOMXpath;
 use stdClass;
 
-class AdminTests
+class At
 {
     public function __construct()
     {
@@ -37,10 +37,6 @@ class AdminTests
             "___('ADMIN')"   => ___('ADMIN'),
             "___('admin')"   => ___('admin'),
         ];
-
-        // $x = 10 / 0;
-        AlinaDebug($vd);
-        AlinaDebug(static::class);
 
         AlinaEcho((new htmlAlias())->page($vd));
     }

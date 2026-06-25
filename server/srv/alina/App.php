@@ -19,8 +19,8 @@ final class App
     #endregion Officials
     ####################################################################################################
     #region MVC
-    public $controller;
-    public $action;
+    private $controller;
+    private $action;
     public $actionParams        = [];
     public $currentController   = '';
     public $currentAction       = '';
