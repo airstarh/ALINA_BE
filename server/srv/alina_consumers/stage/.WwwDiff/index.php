@@ -22,5 +22,4 @@ register_shutdown_function(static function () {
 require_once './index-env.php';
 require_once ALINA_PATH_TO_FRAMEWORK . DIRECTORY_SEPARATOR . 'App.php';
 $config = require(ALINA_PATH_TO_APP_CONFIG);
-
-$app = alina\App::set($config)->defineRoute()->mvcGo();
+alina\App::set($config)->defineRoute()->mvcGo();
