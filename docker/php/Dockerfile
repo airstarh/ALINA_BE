@@ -42,9 +42,9 @@ RUN apt-get update && \
 
 ##################################################
 # XDEBUG (условно)
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
-      pecl install xdebug-2.9.8 && \
-      docker-php-ext-enable xdebug; \
+      pecl install xdebug-2.9.8; \
     fi
 
 ##################################################
@@ -57,7 +57,6 @@ RUN usermod -u 33 www-data && \
 
 ##################################################
 # COPY ENTRYPOINT SCRIPT
-COPY xdebug.dev.ini /usr/local/etc/php/conf.d/xdebug.dev.ini
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chown www-data:www-data /usr/local/bin/entrypoint.sh
