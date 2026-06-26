@@ -21,11 +21,11 @@ final class App
     #region MVC
     private $controller;
     private $action;
-    public $actionParams        = [];
+    private $actionParams        = [];
+    private const ACTION_PREFIX  = 'action';
     public $currentController   = '';
     public $currentAction       = '';
     public $currentActionParams = [];
-    public const ACTION_PREFIX  = 'action';
     #region MVC
     ####################################################################################################
     #region Initiation
@@ -242,7 +242,7 @@ final class App
     ####################################################################################################
     #region MVC
 
-    private function mvcControllerAction($controllerName, $action, $params = [])
+    private function mvcControllerAction(string $controllerName, string $action, $params = [])
     {
         if (! class_exists($controllerName, true)) {
             throw new AppException("Controller does not exist");
