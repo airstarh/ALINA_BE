@@ -1,11 +1,54 @@
+version: '3.8'
+
 services:
   nginx:
     ports:
       - "50080:80"
       - "50443:443"
+
   mysql:
     ports:
       - "53306:3306"
+
+  php:
+    build:
+      context: ./docker/php
+      args:
+        INSTALL_XDEBUG: "true"
+    restart: unless-stopped
+    container_name: alina_php_dev
+    env_file: _GITOUT/env/.env
+    environment:
+      XDEBUG_MODE: "develop"
+      XDEBUG_CLIENT_HOST: "host.docker.internal"
+      XDEBUG_CLIENT_PORT: "9003"
+      XDEBUG_START_WITH_REQUEST: "yes"
+    links:
+      - mysql
+    expose:
+      - "9000"
+    volumes:
+      # Основной php.ini
+      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+      # Логи (должны быть writable)
+      - ./server/var/log/php/:/var/log/php/:rw
+      # Веб и фреймворк (должны быть writable для Xdebug-логов/кэшей)
+      - ./server/var/www/:/var/www/:rw
+      - ./server/srv/:/srv/:rw
+    working_dir: /srv/alina
+    read_only: false
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   php-cs-fixer:
     image: ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.2
@@ -19,4 +62,3 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-

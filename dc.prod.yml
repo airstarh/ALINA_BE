@@ -1,7 +1,45 @@
+version: '3.8'
+
 services:
   nginx:
     ports:
       - "80:80"
       - "443:443"
+
   mysql:
     ports: []
+
+  php:
+    build:
+      context: ./docker/php
+      args:
+        INSTALL_XDEBUG: "false"
+    restart: unless-stopped
+    container_name: alina_php_prod
+    env_file: _GITOUT/env/.env
+    links:
+      - mysql
+    expose:
+      - "9000"
+    volumes:
+      # Основной php.ini
+      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+      # Логи должны быть writable
+      - ./server/var/log/php/:/var/log/php/:rw
+      # Веб и код — только чтение (read-only), это экономит RAM и CPU
+      - ./server/var/www/:/var/www/:rw
+      - ./server/srv/:/srv/:ro
+    working_dir: /srv/alina
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    depends_on:
+      mysql:
+        condition: service_healthy
