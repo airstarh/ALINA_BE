@@ -16,21 +16,17 @@ services:
       args:
         INSTALL_XDEBUG: "true"
     restart: unless-stopped
-    container_name: alina_php_dev
+    container_name: alina_php
     env_file: _GITOUT/env/.env
-    environment:
-      XDEBUG_MODE: "develop"
-      XDEBUG_CLIENT_HOST: "host.docker.internal"
-      XDEBUG_CLIENT_PORT: "9003"
-      XDEBUG_START_WITH_REQUEST: "yes"
     links:
       - mysql
+    extra_hosts:
+      host.docker.internal: host-gateway
     expose:
       - "9000"
     volumes:
       # Основной php.ini
       - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
-      - ./server/usr/local/etc/php/conf.d/:/usr/local/etc/php/conf.d/:ro
       # Логи (должны быть writable)
       - ./server/var/log/php/:/var/log/php/:rw
       # Веб и фреймворк (должны быть writable для Xdebug-логов/кэшей)
@@ -40,8 +36,6 @@ services:
     read_only: false
     tmpfs:
       - /tmp
-    security_opt:
-      - no-new-privileges:true
     cap_drop:
       - ALL
     cap_add:
