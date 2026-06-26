@@ -1,5 +1,7 @@
 FROM php:7.4-fpm
 
+ARG INSTALL_XDEBUG=false
+
 RUN ln -sf /bin/bash /bin/sh
 
 ##################################################
@@ -7,7 +9,7 @@ RUN ln -sf /bin/bash /bin/sh
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ##################################################
-# ESSENTIAL TOOLS (including rsync)
+# ESSENTIAL TOOLS
 RUN apt-get update && \
     apt-get install -y \
         rsync \
@@ -39,7 +41,14 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ##################################################
-# CREATE PHP USER/GROUP WITH HOST-COMPATIBLE IDS (www-data = uid/gid 33)
+# XDEBUG (условно)
+RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
+      pecl install xdebug-3.3.1 && \
+      docker-php-ext-enable xdebug; \
+    fi
+
+##################################################
+# CREATE PHP USER/GROUP
 RUN usermod -u 33 www-data && \
     groupmod -g 33 www-data && \
     mkdir -p /var/www && \
@@ -52,11 +61,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chown www-data:www-data /usr/local/bin/entrypoint.sh
 
-##################################################
-# SWITCH TO PHP USER
 USER www-data
 
-##################################################
-# SET ENTRYPOINT
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
