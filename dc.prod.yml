@@ -15,7 +15,7 @@ services:
       args:
         INSTALL_XDEBUG: "false"
     restart: unless-stopped
-    container_name: alina_php_prod
+    container_name: alina_php
     env_file: _GITOUT/env/.env
     links:
       - mysql
@@ -33,8 +33,6 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-    security_opt:
-      - no-new-privileges:true
     cap_drop:
       - ALL
     cap_add:
