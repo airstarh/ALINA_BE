@@ -42,11 +42,10 @@ RUN apt-get update && \
 
 ##################################################
 # XDEBUG (условно)
-COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       pecl install xdebug-2.9.8; \
     fi
-
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 ##################################################
 # CREATE PHP USER/GROUP
 RUN usermod -u 33 www-data && \
