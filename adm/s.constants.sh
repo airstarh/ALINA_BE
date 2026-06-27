@@ -50,6 +50,13 @@ export A_LIST_PROJECTS=(
 export ALINA_DEFAULT_PROJECT="zero.home"
 # endregion CODE
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# region INFRASTRUCTURE
+
+export MAX_EXECUTION_TIME_SECS="33"
+export MAX_EXECUTION_TIME_MSECS="33000"
+
+# endregion INFRASTRUCTURE
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region XXX
 echo ''
 echo 'CONSTANTS RETRIEVED'

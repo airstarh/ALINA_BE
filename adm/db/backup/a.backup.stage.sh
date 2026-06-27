@@ -35,8 +35,8 @@ docker exec alina_mysql sh -c "
 
 docker exec alina_mysql sh -c "
     MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -e \"
-        SET PERSIST max_execution_time = 33000;
-        SELECT 'Global max_execution_time restored to 33 seconds';
+        SET PERSIST max_execution_time = $MAX_EXECUTION_TIME_MSECS;
+        SELECT 'Global max_execution_time restored to $MAX_EXECUTION_TIME_MSECS mSecs';
     \" 2>/dev/null
 "
 
