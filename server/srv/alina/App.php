@@ -21,8 +21,8 @@ final class App
     #region MVC
     private $controller;
     private $action;
-    private $actionParams        = [];
-    private const ACTION_PREFIX  = 'action';
+    private $actionParams       = [];
+    private const ACTION_PREFIX = 'action';
     public $currentController   = '';
     public $currentAction       = '';
     public $currentActionParams = [];
