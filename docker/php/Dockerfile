@@ -45,7 +45,13 @@ RUN apt-get update && \
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       pecl install xdebug-2.9.8; \
     fi
-COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+COPY xdebug.ini /tmp/xdebug.ini
+
+RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
+      mkdir -p /usr/local/etc/php/conf.d && \
+      cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini; \
+    fi
 ##################################################
 # CREATE PHP USER/GROUP
 RUN usermod -u 33 www-data && \
