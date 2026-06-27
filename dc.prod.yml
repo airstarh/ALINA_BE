@@ -13,29 +13,30 @@ services:
       args:
         INSTALL_XDEBUG: "false"
     restart: unless-stopped
-    container_name: alina_php
     env_file: _GITOUT/env/.env
+    container_name: alina_php
     links:
       - mysql
     expose:
       - "9000"
+      - "9001"
     volumes:
-      # Основной php.ini
+      # php.ini
       - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
-      # Логи должны быть writable
       - ./server/var/log/php/:/var/log/php/:rw
-      # Веб и код — только чтение (read-only), это экономит RAM и CPU
+      # /var/www
       - ./server/var/www/:/var/www/:rw
+      # ALINA framework
       - ./server/srv/:/srv/:ro
     working_dir: /srv/alina
-    read_only: true
-    tmpfs:
-      - /tmp
     cap_drop:
       - ALL
     cap_add:
       - SETUID
       - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       mysql:
         condition: service_healthy
