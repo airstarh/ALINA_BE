@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ./adm/s.includes.sh
-db="stage"
+db="m45a"
 echo "Running..."
 
 echo ""

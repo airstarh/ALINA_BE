@@ -12,7 +12,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # ESSENTIAL TOOLS
 RUN apt-get update && \
     apt-get install -y \
-        rsync \
         zlib1g-dev \
         libzip-dev \
         unzip && \
