@@ -3,7 +3,6 @@ database/
 server/var/log/
 server/var/www/chat/
 .idea/
-.vscode/
 **/DEBUG.*
 **/uploads/
 nbproject/
