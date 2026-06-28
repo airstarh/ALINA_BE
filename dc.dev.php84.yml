@@ -1,0 +1,42 @@
+services:
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+
+  mysql:
+    ports: []
+
+  php:
+    build:
+      context: ./docker/php
+      args:
+        INSTALL_XDEBUG: "false"
+    restart: unless-stopped
+    env_file: _GITOUT/env/.env
+    container_name: alina_php
+    links:
+      - mysql
+    expose:
+      - "9000"
+      - "9001"
+    volumes:
+      # php.ini
+      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./server/var/log/php/:/var/log/php/:rw
+      # /var/www
+      - ./server/var/www/:/var/www/:rw
+      # ALINA framework
+      - ./server/srv/:/srv/:ro
+    working_dir: /srv/alina
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      mysql:
+        condition: service_healthy
