@@ -1,0 +1,7 @@
+date.timezone = Europe/Moscow
+memory_limit = 256M
+upload_max_filesize = 5000M
+post_max_size = 5000M
+error_reporting = E_ALL
+display_errors = Off
+upload_tmp_dir = /tmp
