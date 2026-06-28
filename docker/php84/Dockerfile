@@ -27,12 +27,12 @@ RUN docker-php-ext-install pdo pdo_mysql mysqli
 # Mongo DB
 RUN apt-get update && \
     apt-get install -y libssl-dev libcurl4-openssl-dev && \
-    pecl install mongodb-1.14.2 && \
+    pecl install mongodb-2.4.0 && \
     docker-php-ext-enable mongodb && \
     rm -rf /var/lib/apt/lists/*
 
 ##################################################
-# IMAGE MAGIK
+# IMAGE MAGICK
 RUN apt-get update && \
     apt-get install -y libmagickwand-dev --no-install-recommends && \
     printf "\n" | pecl install imagick && \
@@ -42,7 +42,7 @@ RUN apt-get update && \
 ##################################################
 # XDEBUG (условно)
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
-      pecl install xdebug-2.9.8; \
+      pecl install xdebug-3.5.0; \
     fi
 
 COPY xdebug.ini /tmp/xdebug.ini
