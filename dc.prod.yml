@@ -22,7 +22,7 @@ services:
       - "9001"
     volumes:
       # php.ini
-      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./server/usr/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
       - ./server/var/log/php/:/var/log/php/:rw
       # /var/www
       - ./server/var/www/:/var/www/:rw

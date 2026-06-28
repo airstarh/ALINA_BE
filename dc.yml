@@ -49,15 +49,6 @@ services:
     expose:
       - "9000"
       - "9001"
-    volumes:
-      # php.ini
-      - ./server/usr/local/etc/php/php.ini:/usr/local/etc/php/php.ini:ro
-      - ./server/var/log/php/:/var/log/php/:rw
-      ###- ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
-      # /var/www
-      - ./server/var/www/:/var/www/:rw
-      # ALINA framework
-      - ./server/srv/:/srv/:rw
     working_dir: /srv/alina
     security_opt:
       - no-new-privileges:true
