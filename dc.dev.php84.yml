@@ -1,20 +1,13 @@
 services:
-  nginx:
-    ports:
-      - "80:80"
-      - "443:443"
-
-  mysql:
-    ports: []
 
   php:
     build:
-      context: ./docker/php
+      context: ./docker/php84
       args:
-        INSTALL_XDEBUG: "false"
+        INSTALL_XDEBUG: "true"
     restart: unless-stopped
     env_file: _GITOUT/env/.env
-    container_name: alina_php
+    container_name: alina_php84
     links:
       - mysql
     expose:
@@ -34,7 +27,7 @@ services:
     cap_add:
       - SETUID
       - SETGID
-    read_only: true
+    read_only: false
     tmpfs:
       - /tmp
     depends_on:
