@@ -22,17 +22,11 @@ location ~ \.php$ {
     # Check if file exists, otherwise return 404
     try_files $uri =404;
 
-    fastcgi_split_path_info ^(.+\.php)(/.+)$;
     fastcgi_pass php:9000;
-    fastcgi_index index.php;
 
     # Use fastcgi.conf which usually includes SCRIPT_FILENAME
     include /etc/nginx/fastcgi.conf;
 
-    # Ensure SCRIPT_FILENAME is set correctly if fastcgi.conf is missing it
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    fastcgi_param PATH_INFO $fastcgi_path_info;
-    #
     fastcgi_param HTTP_X_FORWARDED_FOR $proxy_add_x_forwarded_for;
     fastcgi_param HTTP_X_REAL_IP $remote_addr;
     fastcgi_param HTTP_X_FORWARDED_PROTO $scheme;
