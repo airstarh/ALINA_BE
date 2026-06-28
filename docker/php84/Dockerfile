@@ -51,19 +51,15 @@ RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       mkdir -p /usr/local/etc/php/conf.d && \
       cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini; \
     fi
-##################################################
-# CREATE PHP USER/GROUP
-RUN usermod -u 33 www-data && \
-    groupmod -g 33 www-data && \
-    mkdir -p /var/www && \
-    chown -R www-data:www-data /var/www && \
-    chmod -R 755 /var/www
 
-##################################################
-# COPY ENTRYPOINT SCRIPT
+# Права пользователя www-data (uid/gid 33)
+RUN usermod -u 33 www-data && \
+    groupmod -g 33 www-data
+
+# Копируем entrypoint и делаем исполняемым
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
-    chown www-data:www-data /usr/local/bin/entrypoint.sh
+    chown root:root /usr/local/bin/entrypoint.sh
 
 USER www-data
 
