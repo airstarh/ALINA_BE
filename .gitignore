@@ -15,3 +15,4 @@ server/etc/letsencrypt/
 _DEV_DOCS/
 _GITOUT/
 server/var/www/.bash_history
+server/var/www/.composer/
