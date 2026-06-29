@@ -39,27 +39,6 @@ services:
       - FOWNER
       - KILL
 
-  php1:
-    restart: unless-stopped
-    env_file: _GITOUT/env/.env
-    container_name: alina_php
-    expose:
-      - "9000"
-    working_dir: /srv/alina
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - SETUID
-      - SETGID
-    read_only: true
-    tmpfs:
-      - /tmp
-    depends_on:
-      mysql:
-        condition: service_healthy
-
   mysql:
     restart: unless-stopped
     env_file: _GITOUT/env/.env

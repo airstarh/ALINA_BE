@@ -8,6 +8,7 @@ services:
     ports:
       - "53306:3306"
 
+  # region PHP74
   php:
     build:
       context: ./docker/php
@@ -16,8 +17,6 @@ services:
     restart: unless-stopped
     env_file: _GITOUT/env/.env
     container_name: alina_php
-    links:
-      - mysql
     extra_hosts:
       host.docker.internal: host-gateway
     expose:
@@ -31,6 +30,8 @@ services:
       # ALINA framework
       - ./server/srv/:/srv/:rw
     working_dir: /srv/alina
+    security_opt:
+      - no-new-privileges:false
     cap_drop:
       - ALL
     cap_add:
@@ -39,10 +40,7 @@ services:
     read_only: false
     tmpfs:
       - /tmp
-    depends_on:
-      mysql:
-        condition: service_healthy
-
+  # endregion PHP74
   php-cs-fixer:
     image: ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.2
     container_name: alina_php_cs_fixer
