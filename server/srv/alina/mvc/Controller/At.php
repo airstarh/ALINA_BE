@@ -44,6 +44,7 @@ class At
     {
         $zzz = ['a','b','c'];
         $vd  = Data::toObject($zzz);
+        $vd = $vd->{'1'};
 
         AlinaEchoDraft($vd);
     }
