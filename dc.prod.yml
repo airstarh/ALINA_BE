@@ -15,8 +15,6 @@ services:
     restart: unless-stopped
     env_file: _GITOUT/env/.env
     container_name: alina_php
-    links:
-      - mysql
     expose:
       - "9000"
     volumes:
@@ -28,6 +26,8 @@ services:
       # ALINA framework
       - ./server/srv/:/srv/:ro
     working_dir: /srv/alina
+    security_opt:
+      - no-new-privileges:true
     cap_drop:
       - ALL
     cap_add:

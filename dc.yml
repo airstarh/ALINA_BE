@@ -39,16 +39,12 @@ services:
       - FOWNER
       - KILL
 
-  php:
+  php1:
     restart: unless-stopped
     env_file: _GITOUT/env/.env
     container_name: alina_php
-    build: ./docker/php
-    links:
-      - mysql
     expose:
       - "9000"
-      - "9001"
     working_dir: /srv/alina
     security_opt:
       - no-new-privileges:true
