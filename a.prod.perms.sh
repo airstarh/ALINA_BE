@@ -51,6 +51,3 @@ ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/var/log/letse
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/etc/nginx"
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/etc/letsencrypt"
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/srv/sewa/cert003"
-
-# === Защита конфигов ===
-chmod "$ALINA_FILE" "$BASE_DIR/server/usr/local/etc/php/php.ini"

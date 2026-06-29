@@ -14,3 +14,5 @@ chown -R www-data:www-data /srv/alina/vendor || true
 
 composer install --no-interaction --optimize-autoloader
 
+echo "composer install was" >> /var/log/php/entrypoint.log
+date +"%Y-%m-%d %H:%M:%S" >> /var/log/php/entrypoint.log
