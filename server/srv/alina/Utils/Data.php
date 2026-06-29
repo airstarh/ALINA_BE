@@ -74,12 +74,14 @@ class Data
 
         if (is_string($v)) {
             if (static::isStringValidJson($v, $res)) {
-                return $res;
+                return static::toObject($res);
             }
         }
 
-        //throw new \Exception('Unable to convert to object');
-        return new stdClass();
+        $res        = new stdClass();
+        $res->value = $v;
+
+        return $res;
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281
