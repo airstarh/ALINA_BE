@@ -2,7 +2,7 @@
 
 # Если не DEV — просто выходим, обёртка сама запустит "$@"
 if [ "$ALINA_MODE" != "DEV" ]; then
-  exec "$@"
+    return 0
 fi
 
 cd /srv/alina || { echo "ERROR: /srv/alina does not exist"; exit 1; }
