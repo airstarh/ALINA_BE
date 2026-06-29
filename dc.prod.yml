@@ -19,7 +19,6 @@ services:
       - mysql
     expose:
       - "9000"
-      - "9001"
     volumes:
       # php.ini
       - ./server/usr/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
