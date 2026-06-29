@@ -56,8 +56,20 @@ class Data
         }
 
         if (is_array($v)) {
-            // ToDo: Make less heavy
-            return json_decode(json_encode($v), false);
+            $tmp = json_decode(json_encode($v), false);
+            $res = $tmp;
+
+            if (is_array($tmp)) {
+                $obj = new stdClass();
+
+                foreach ($tmp as $key => $value) {
+                    $obj->{$key} = $value;
+                }
+
+                $res = $obj;
+            }
+
+            return $res;
         }
 
         if (is_string($v)) {

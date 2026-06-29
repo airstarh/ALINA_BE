@@ -263,7 +263,7 @@ class Sys
 
     public static function resolveGetDataAsObject()
     {
-        $get = $_GET;
+        $get = $_GET ?? [];
         $res = DataAlias::toObject($get);
 
         return $res;

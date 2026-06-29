@@ -7,7 +7,6 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\_BaseAlinaModel;
 use alina\mvc\Model\CurrentUser;
-use alina\mvc\Model\pm_subtask;
 use alina\mvc\Model\user;
 use alina\mvc\View\html;
 use alina\mvc\View\html as htmlAlias;
@@ -41,16 +40,12 @@ class At
         AlinaEcho((new htmlAlias())->page($vd));
     }
 
-    public function actionFast_1()
+    public function actionFast2()
     {
-        $vd = [];
-        ##################################################
-        $pm_subtask = new pm_subtask();
-        $pm_subtask->getOneWithReferences([["$pm_subtask->alias.id", '=', 1]]);
-        $pm_subtask->getParents();
-        ##################################################
-        $vd = $pm_subtask->attributes;
-        AlinaEcho((new htmlAlias())->page($vd));
+        $zzz = ['a','b','c'];
+        $vd  = Data::toObject($zzz);
+
+        AlinaEchoDraft($vd);
     }
 
     ##############################################
@@ -67,7 +62,7 @@ class At
     }
 
     /**
-     * @route /AdminTests/Errors
+     * @route /at/Errors
      */
     public function actionErrors(...$args)
     {
@@ -83,7 +78,7 @@ class At
     ##############################################
 
     /**
-     * @route /AdminTests/Serialization
+     * @route /at/Serialization
      */
     public function actionSerialization()
     {
@@ -95,7 +90,7 @@ class At
     ##############################################
 
     /**
-     * @route /AdminTests/JsonEncode
+     * @route /at/JsonEncode
      */
     public function actionJsonEncode()
     {
@@ -107,7 +102,7 @@ class At
     ##############################################
 
     /**
-     * @route /AdminTests/ListTableColumns?table=user
+     * @route /at/ListTableColumns?table=user
      */
     public function actionListTableColumns()
     {
@@ -125,7 +120,7 @@ class At
 
     /**
      * Test POST Request
-     * @route /admintests/testpost
+     * @route /at/testpost
      */
     public function actionTestPost()
     {
@@ -174,7 +169,7 @@ class At
     ##############################################
 
     /**
-     * /AdminTests/Mailer
+     * /at/Mailer
      */
     public function actionMailer()
     {
@@ -229,7 +224,7 @@ class At
     }
 
     ##############################################
-    // /AdminTests/DomDocument
+    // /at/DomDocument
     public function actionDomDocument()
     {
         $vd = (object) [
@@ -278,7 +273,7 @@ class At
         Message::setSuccess('Проверка руссских букаф');
         //Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK.'/_MISC_CONTENT/_TEST_FILES_CONTENT/001_text_more_2000_chars.txt'));
         Message::setSuccess(file_get_contents(ALINA_PATH_TO_FRAMEWORK . '/_MISC_CONTENT/_TEST_FILES_CONTENT/002.txt'));
-        Sys::redirect('admintests/redirect2');
+        Sys::redirect('at/redirect2');
     }
 
     public function actionRedirect2()
@@ -303,7 +298,7 @@ class At
     #####
 
     /**
-     * /admintests/HtmlPageFlex
+     * /at/HtmlPageFlex
      */
     public function actionHtmlPageFlex()
     {
