@@ -40,6 +40,7 @@ class watch_visit extends _BaseAlinaModel
             ],
             'data' => [
                 'default' => Data::hlpGetBeautifulJsonString([
+                    'GET'     => Request::obj()->GET,
                     'POST'    => Request::obj()->POST,
                     'FILES'   => Request::obj()->FILES,
                     'REFERAL' => Request::obj()->REFERAL,
