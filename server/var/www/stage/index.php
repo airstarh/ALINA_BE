@@ -14,9 +14,9 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 ##################################################
 #region SHUTDOWN
-register_shutdown_function(static function () {
-    error_log(alina\Utils\Sys::reportSpentTime(['FINAL'], []), 0);
-});
+// register_shutdown_function(static function () {
+//     error_log(alina\Utils\Sys::reportSpentTime(['FINAL'], []), 0);
+// });
 #endregion SHUTDOWN
 ##################################################
 require_once './index-env.php';
