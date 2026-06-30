@@ -42,9 +42,11 @@ class At
 
     public function actionFast2()
     {
-        $zzz = ['a','b','c'];
-        $vd  = Data::toObject($zzz);
-        $vd  = $vd->{'1'};
+        $vd[] = json_decode('"asd"');
+        $vd[] = json_decode(null);
+        $vd[] = json_decode(true);
+        $vd[] = json_decode(false);
+        $vd[] = json_decode(1234);
 
         AlinaEchoDraft($vd);
     }

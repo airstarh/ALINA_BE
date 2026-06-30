@@ -3,13 +3,10 @@
 namespace alina\mvc\Controller;
 
 use alina\GlobalRequestStorage;
-use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\file;
-use alina\mvc\Model\watch_visit;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
-use alina\Utils\Sys;
 use stdClass;
 
 class Tools
@@ -91,33 +88,4 @@ class Tools
     }
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-    public function actionRouteWhiteList()
-    {
-        // $res = Sys::getWhiteListController();
-        // $a = 4 / 0;
-
-        $maxPossible = 10;
-        $ip          = '172.18.0.1';
-        $seconds     = (60 * 60 * 500);
-        $mVISIT      = new watch_visit();
-        $res         = $mVISIT
-            ->q()
-            ->where([
-                ['ban_point','>', 1],
-                'browser_enc' => Request::obj()->BROWSER_enc,
-                'ip'          => $ip,
-                // 'user_id'     => CurrentUser::obj()::id(),
-                // ['method', '!=', 'GET'],
-                ['visited_at', '>', ALINA_TIME - $seconds],
-            ])
-            ->selectRaw('ip, user_id, browser_enc, SUM(ban_point) as total_ban_point')
-            ->groupBy('ip', 'user_id', 'browser_enc')
-            ->limit($maxPossible + 100)
-            ->first()
-        ;
-
-
-        \AlinaEchoDraft($res);
-    }
 }
