@@ -36,29 +36,4 @@ class Str
     {
         return mb_strlen($str) < $number;
     }
-
-    public static function anyToString($data): string
-    {
-        if ($data === null) {
-            return 'null';
-        }
-
-        if (is_bool($data)) {
-            return $data ? 'true' : 'false';
-        }
-
-        if (is_array($data)) {
-            return Data::hlpGetBeautifulJsonString($data);
-        }
-
-        if (is_object($data)) {
-            return Data::hlpGetBeautifulJsonString($data);
-        }
-
-        if (is_resource($data)) {
-            return 'resource(' . get_resource_type($data) . ')';
-        }
-
-        return (string) $data;
-    }
 }

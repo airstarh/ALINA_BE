@@ -42,11 +42,19 @@ class At
 
     public function actionFast2()
     {
-        $vd[] = json_decode('"asd"');
-        $vd[] = json_decode(null);
-        $vd[] = json_decode(true);
-        $vd[] = json_decode(false);
-        $vd[] = json_decode(1234);
+        $vd[] = json_encode('asd');
+        $vd[] = json_encode("null");
+        $vd[] = json_encode(null);
+        $vd[] = json_encode(true);
+        $vd[] = json_encode(false);
+        $vd[] = json_encode(1234);
+
+        $vd[] = Data::hlpGetBeautifulJsonString('asd');
+        $vd[] = Data::hlpGetBeautifulJsonString("null");
+        $vd[] = Data::hlpGetBeautifulJsonString(null);
+        $vd[] = Data::hlpGetBeautifulJsonString(true);
+        $vd[] = Data::hlpGetBeautifulJsonString(false);
+        $vd[] = Data::hlpGetBeautifulJsonString(1234);
 
         AlinaEchoDraft($vd);
     }

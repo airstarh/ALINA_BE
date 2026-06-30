@@ -273,7 +273,7 @@ function ___p(string $str, array $params, ?string $loc = 'ru_RU')
 function AlinaEchoDraft($data)
 {
     echo '<pre>';
-    print_r($data);
+    var_export($data, false);
     echo '</pre>';
     echo '<br>';
 
@@ -305,7 +305,7 @@ function AlinaExit($data = null)
                 $dataString = $data;
             }
         }
-        $answer[]     = is_string($data) ? $dataString : alina\Utils\Str::anyToString($data);
+        $answer[]     = alina\Utils\Data::hlpGetBeautifulJsonString($data);
         $answerString = implode(PHP_EOL, $answer);
 
         alina\Watcher::obj()->answer([

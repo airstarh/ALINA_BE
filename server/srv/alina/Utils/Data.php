@@ -85,10 +85,10 @@ class Data
     }
 
     //@link https://stackoverflow.com/a/6041773/3142281
-    public static function isStringValidJson($string, &$ohjJsonDecoded = null)
+    public static function isStringValidJson($string, &$objDecoded = null)
     {
         try {
-            $ohjJsonDecoded = json_decode((string) $string, false, 512);
+            $objDecoded = json_decode((string) $string, false, 512);
 
             return (json_last_error() === JSON_ERROR_NONE);
         }
@@ -97,22 +97,13 @@ class Data
         }
     }
 
-    public static function isJsonEncodedObject($v, &$ohjJsonDecoded = null)
+    public static function isJsonEncodedObject($v, &$objDecoded = null)
     {
-        if (is_numeric($v)) {
-            return false;
-        }
-
-        if (is_string($v)) {
-            if (
-                Str::ifContains($v, '{')
-                || Str::ifContains($v, '[')
-            ) {
-                return static::isStringValidJson($v, $ohjJsonDecoded);
-            }
-        }
-
-        return false;
+        return is_string($v)
+               && Str::ifContains($v, '{')
+               && Str::ifContains($v, '[')
+               && static::isStringValidJson($v, $objDecoded)
+        ;
     }
 
     ##################################################
@@ -583,15 +574,23 @@ class Data
     {
         $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
 
-        if (is_array($s) || is_object($s)) {
+        if (is_resource($s)) {
+            $s = 'resource(' . get_resource_type($data) . ')';
+
             return json_encode($s, $flags);
         }
 
-        if (static::isJsonEncodedObject($s, $res)) {
+        if (static::isStringValidJson($s, $res)) {
             return json_encode($res, $flags);
         }
-        else {
-            return $s;
+
+        try {
+            return json_encode($s, $flags);
+        }
+        catch (Throwable $e) {
+            error_log('Alina cannot convert to JSON.');
+
+            return '';
         }
     }
 
