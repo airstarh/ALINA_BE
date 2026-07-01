@@ -1,27 +1,29 @@
 services:
 
-  php:
+  php82:
     build:
-      context: ./docker/php84
+      context: ./docker/php82
       args:
         INSTALL_XDEBUG: "true"
     restart: unless-stopped
     env_file: _GITOUT/env/.env
-    container_name: alina_php84
-    links:
-      - mysql
+    container_name: alina_php
+    extra_hosts:
+      host.docker.internal: host-gateway
     expose:
       - "9000"
-      - "9001"
     volumes:
       # php.ini
       - ./server/usr/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
+      - ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
       - ./server/var/log/php/:/var/log/php/:rw
       # /var/www
       - ./server/var/www/:/var/www/:rw
       # ALINA framework
-      - ./server/srv/:/srv/:ro
+      - ./server/srv/:/srv/:rw
     working_dir: /srv/alina
+    security_opt:
+      - no-new-privileges:false
     cap_drop:
       - ALL
     cap_add:
@@ -30,6 +32,3 @@ services:
     read_only: false
     tmpfs:
       - /tmp
-    depends_on:
-      mysql:
-        condition: service_healthy
