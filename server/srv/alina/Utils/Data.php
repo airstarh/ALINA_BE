@@ -837,29 +837,29 @@ class Data
 
     public static function filterVarStrHtml($v)
     {
-        #####
+        #
         if (empty($v)) {
             return '';
         }
-        #####
+        #
         $forbidden = [
             '//style',
             '//script',
         ];
-        #####
+        #
         $html = $v;
-        ##################################################
+        #
         $HTML5DOMDocument                     = new \IvoPetkov\HTML5DOMDocument();
         $HTML5DOMDocument->preserveWhiteSpace = true;
         $HTML5DOMDocument->formatOutput       = false;
         $HTML5DOMDocument->loadHTML($html);
-        ##################################################
+        #
         $DOMXpath = new DOMXpath($HTML5DOMDocument);
 
         foreach ($DOMXpath->query(implode('|', $forbidden)) as $node) {
             $node->parentNode->removeChild($node);
         }
-        ##################################################
+        #
         $body     = $HTML5DOMDocument->getElementsByTagName('body')->item(0);
         $bodyHTML = $body->innerHTML;
 
