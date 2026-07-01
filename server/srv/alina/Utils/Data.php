@@ -73,8 +73,8 @@ class Data
         }
 
         if (is_string($v)) {
-            if (static::isStringValidJson($v, $res)) {
-                return static::toObject($res);
+            if (static::isStringValidJson($v, $decoded)) {
+                return static::toObject($decoded);
             }
         }
 
@@ -100,8 +100,10 @@ class Data
     public static function isJsonEncodedObject($v, &$objDecoded = null)
     {
         return is_string($v)
-               && Str::ifContains($v, '{')
-               && Str::ifContains($v, '[')
+               && (
+                   Str::ifContains($v, '{')
+                   || Str::ifContains($v, '[')
+               )
                && static::isStringValidJson($v, $objDecoded)
         ;
     }
