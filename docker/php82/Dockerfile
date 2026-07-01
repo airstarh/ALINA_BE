@@ -2,7 +2,7 @@ FROM php:8.2-fpm
 
 ARG INSTALL_XDEBUG=false
 
-# Bash как дефолтная оболочка (опционально)
+# Optional: set bash as default shell
 RUN ln -sf /bin/bash /bin/sh
 
 ##################################################
@@ -10,7 +10,7 @@ RUN ln -sf /bin/bash /bin/sh
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ##################################################
-# ESSENTIAL TOOLS & BUILD DEPS
+# Build dependencies for PECL extensions
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         zlib1g-dev \
@@ -22,7 +22,9 @@ RUN apt-get update && \
         autoconf \
         build-essential \
         libmagickwand-dev \
-        imagemagick && \
+        imagemagick \
+        libpango1.0-dev \
+        libglib2.0-dev && \
     rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install zip
@@ -32,18 +34,13 @@ RUN docker-php-ext-install zip
 RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 ##################################################
-# MongoDB: НЕ через pecl, а через Composer (стабильно для PHP 8.2)
-# PECL-версия часто ломается при сборке образа; драйвер mongodb ставится как PHP-пакет.
-# В composer.json добавь: "mongodb/mongodb": "^1.20"
-# Это даёт и нативный драйвер, и ODM-обёртку.
-
-##################################################
-# ImageMagick
-RUN printf "\n" | pecl install imagick && \
+# ImageMagick via PECL (reliable with the deps above)
+RUN pecl channel-update pecl.php.net && \
+    pecl install imagick && \
     docker-php-ext-enable imagick
 
 ##################################################
-# XDEBUG (условно)
+# XDEBUG (conditional)
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       pecl install xdebug; \
     fi
@@ -55,7 +52,7 @@ RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       cp /tmp/xdebug82.ini /usr/local/etc/php/conf.d/xdebug.ini; \
     fi
 
-# Права пользователя www-data (uid/gid 33)
+# Adjust UID/GID for www-data (33)
 RUN usermod -u 33 www-data && \
     groupmod -g 33 www-data
 
