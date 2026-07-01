@@ -23,12 +23,12 @@ services:
       - ./server/srv/:/srv/:rw
     working_dir: /srv/alina
     security_opt:
-      - no-new-privileges:false
+      - no-new-privileges:true
     cap_drop:
       - ALL
     cap_add:
       - SETUID
       - SETGID
-    read_only: false
+    read_only: true
     tmpfs:
       - /tmp
