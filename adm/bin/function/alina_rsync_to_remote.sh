@@ -42,6 +42,8 @@ alina_rsync_to_remote() {
         --filter='P **/letsencrypt/' \
         --filter='- **/node_modules/' \
         --filter='P **/node_modules/' \
+        --filter='- **/_GITOUT/' \
+        --filter='P **/_GITOUT/' \
         -e "ssh" \
         --rsync-path="sudo rsync" \
         --force \
