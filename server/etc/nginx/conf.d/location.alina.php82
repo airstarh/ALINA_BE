@@ -1,0 +1,87 @@
+add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+# ALLOW IFREMING FROM ANY ORIGIN (key change)
+add_header Content-Security-Policy "frame-ancestors *;" always;
+add_header X-Content-Type-Options nosniff always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+charset UTF-8;
+index index.html index.php;
+
+location / {
+    try_files $uri $uri/ /index.php?alinapath=$uri&$args;
+}
+
+##################################################
+# region PHP
+# pass PHP scripts to FastCGI server
+# https://stackoverflow.com/questions/15423500/nginx-showing-blank-php-pages/31905948#31905948
+location ~ \.php$ {
+    try_files $uri =404;
+    fastcgi_pass php82:9000;
+    include /etc/nginx/fastcgi.conf;
+
+    fastcgi_param HTTP_X_FORWARDED_FOR      $proxy_add_x_forwarded_for;
+    fastcgi_param HTTP_X_REAL_IP            $remote_addr;
+    fastcgi_param HTTP_X_FORWARDED_PROTO    $scheme;
+
+    fastcgi_intercept_errors on;
+}
+# region PHP
+##################################################
+
+# I REMOVED:
+# proc
+# boot
+location ~ /(\.|bin|dev|etc|lib|run|sbin|sys|usr|var) {
+    deny all;
+}
+
+location = /favicon.ico {
+    log_not_found off;
+    access_log off;
+}
+
+location ~* \.(png|jpg|jpeg|gif|ico|svg|webp)$ {
+    add_header Access-Control-Allow-Origin "*";
+    expires 1M;
+    access_log off;
+    add_header Cache-Control "public, immutable, max-age=2592000, no-transform" always;
+    add_header Vary "Accept";
+    gzip_static on;
+    try_files $uri /noimage.png;
+}
+
+location ~* \.(js|css|html|woff2|ttf|eot|otf|map)$ {
+    add_header Access-Control-Allow-Origin "*";
+    expires 1M;
+    access_log off;
+    add_header Cache-Control "public, immutable, max-age=2592000" always;
+    gzip_static on;
+    try_files $uri @notfound;
+}
+
+location ~* \.(mp3|mp4|wav|flac|avi)$ {
+    add_header Accept-Ranges bytes;
+    add_header Content-Disposition "inline";
+    add_header X-Content-Type-Options nosniff always;
+
+    aio threads;
+    sendfile on;
+    sendfile_max_chunk 512k;
+    directio 1m;
+
+    expires 1y;
+    add_header Cache-Control "public, immutable, max-age=31536000";
+
+    gzip off;
+
+    limit_rate 1m;
+    limit_rate_after 512k;
+}
+
+location @notfound {
+    return 404;
+    error_page 404 /notext.txt;
+    add_header Cache-Control "no-store, no-cache, must-revalidate";
+}

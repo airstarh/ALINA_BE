@@ -7,7 +7,7 @@ services:
         INSTALL_XDEBUG: "true"
     restart: unless-stopped
     env_file: _GITOUT/env/.env
-    container_name: alina_php
+    container_name: alina_php82
     extra_hosts:
       host.docker.internal: host-gateway
     expose:
