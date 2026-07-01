@@ -24,30 +24,32 @@ ALINA_PERMISSIONS() {
     local U=$1
     local G=$2
     local P="$BASE_DIR/$3"
+    local PERM_DIR="${4:-$ALINA_DIR}"
+    local PERM_FIL="${5:-$ALINA_FILE}"
 
     if [[ ! -d "$P" ]]; then
-        echo "Предупреждение: путь '$P' не найден, пропускаем." >&2
+        echo "WARNING: '$P' not found, skipped." >&2
         return 0
     fi
 
     chown -R "$U:$G" "$P"
-    find "$P" -type d -exec chmod "$ALINA_DIR" {} \;
-    find "$P" -type f -exec chmod "$ALINA_FILE" {} \;
+    find "$P" -type d -exec chmod "$PERM_DIR" {} \;
+    find "$P" -type f -exec chmod "$PERM_FIL" {} \;
 }
 
 # === MySQL ===
 chown -R "$ALINA_USER_MYSQL:$ALINA_GROUP_MYSQL" "$BASE_DIR/database/mysql"
-chown -R "$ALINA_USER_MYSQL:$ALINA_GROUP_MYSQL" "$BASE_DIR/server/var/log/mysql"
+ALINA_PERMISSIONS "$ALINA_USER_MYSQL" "$ALINA_GROUP_MYSQL" "server/var/log/mysql" 755 664
 
 # === PHP ===
-ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/var/log/php"
+ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/var/log/php" 755 664
 ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/var/www"
 ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/srv/alina"
 ALINA_PERMISSIONS "$ALINA_USER_PHP" "$ALINA_GROUP_PHP" "server/srv/alina_consumers"
 
 # === NGINX ===
-ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/var/log/nginx"
-ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/var/log/letsencrypt"
+ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/var/log/nginx" 755 664
+ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/var/log/letsencrypt" 755 664
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/etc/nginx"
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/etc/letsencrypt"
 ALINA_PERMISSIONS "$ALINA_USER_NGINX" "$ALINA_GROUP_NGINX" "server/srv/sewa/cert003"
