@@ -577,13 +577,13 @@ class Data
         $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
 
         if (is_resource($s)) {
-            $s = 'resource(' . get_resource_type($data) . ')';
+            $s = 'resource(' . get_resource_type($s) . ')';
 
             return json_encode($s, $flags);
         }
 
-        if (static::isStringValidJson($s, $res)) {
-            return json_encode($res, $flags);
+        if (static::isStringValidJson($s, $decoded)) {
+            return json_encode($decoded, $flags);
         }
 
         try {
