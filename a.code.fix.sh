@@ -1,3 +1,3 @@
 #! /bin/bash
 
-source ./adm/phpcsfixer/a.fix.sh
+. ./adm/phpcsfixer/a.fix.sh

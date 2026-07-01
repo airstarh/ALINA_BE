@@ -24,6 +24,7 @@ services:
     volumes:
       # php.ini
       - ./server/usr/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
+      - ./server/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
       - ./server/var/log/php/:/var/log/php/:rw
       # /var/www
       - ./server/var/www/:/var/www/:rw

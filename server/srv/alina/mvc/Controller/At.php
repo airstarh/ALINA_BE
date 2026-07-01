@@ -322,14 +322,13 @@ class At
     }
 
     #####
-    public function actionTestTimeout()
+    public function actionPhpSettings()
     {
-        $max_execution_time = ini_get('max_execution_time');
-        //sleep($max_execution_time + 1);
-        http_response_code(403);
+        error_log(123);
         $vd = (object) [
-            'max_execution_time' => $max_execution_time,
-        ];
+                'max_execution_time' => ini_get('max_execution_time'),
+                'error_log'          => ini_get('error_log'),
+            ];
         AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
     }
     #####
