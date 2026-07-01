@@ -301,7 +301,7 @@ function AlinaExit($data = null)
         #
         $dataString = alina\Utils\Data::hlpGetBeautifulJsonString($data);
 
-        if (mb_strlen($dataString) >= 2222) {
+        if (mb_strlen($dataString) >= 500) {
             $dataString = 'Ok';
         }
         $answer[] = $dataString;
