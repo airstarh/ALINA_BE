@@ -16,4 +16,4 @@ _DEV_DOCS/
 _GITOUT/
 server/var/www/.bash_history
 server/var/www/.composer/
-server/var/www/.cache/
+**/var/www/.cache/
