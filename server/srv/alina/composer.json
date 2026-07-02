@@ -1,5 +1,16 @@
 {
+    "config": {
+        "allow-plugins": {
+            "robloach/component-installer": true
+        }
+    },
     "scripts": {},
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://mirror.docker.ru/packagist/"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "illuminate/database": "^12",
@@ -12,11 +23,6 @@
         "intervention/image": "^3",
         "lcobucci/jwt": "^5",
         "guzzlehttp/guzzle": "^7"
-    },
-    "config": {
-        "allow-plugins": {
-            "robloach/component-installer": true
-        }
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6"
