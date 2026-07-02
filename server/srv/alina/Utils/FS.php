@@ -198,8 +198,7 @@ class FS
         $fileSize = filesize($realPath);
         $ext      = $pathInfo['extension'];
         $baseName = $pathInfo['basename'];
-        $mimeObj  = new \Mimey\MimeTypes();
-        $mimeType = $mimeObj->getMimeType($ext);
+        $mimeType = 'application/octet-stream';
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $mimeType);
         header('Content-Disposition: attachment; filename="' . $baseName . '"');
