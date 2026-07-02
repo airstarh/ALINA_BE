@@ -5,18 +5,11 @@
         }
     },
     "scripts": {},
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://mirror.docker.ru/packagist/"
-        }
-    ],
     "require": {
         "php": "^8.2",
         "illuminate/database": "^12",
         "illuminate/events": "^12",
         "cboden/ratchet": "^0.4",
-        "ralouphie/mimey": "^2.1",
         "phpmailer/phpmailer": "^7",
         "ezyang/htmlpurifier": "^4",
         "ivopetkov/html5-dom-document-php": "^2",
