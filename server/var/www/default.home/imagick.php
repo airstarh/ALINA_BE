@@ -1,6 +1,6 @@
 <?php
 
-if (!extension_loaded('imagick')) {
+if (! extension_loaded('imagick')) {
     http_response_code(500);
     die('ERROR: Imagick extension is NOT loaded.');
 }
@@ -18,9 +18,9 @@ try {
     $draw->setFillColor('white');
     $draw->setFontSize(24);
     $draw->setTextAlignment(Imagick::ALIGN_CENTER);
-    
+
     // Попробуй Liberation-Sans, если DejaVu-Sans нет в образе
-    $draw->setFont('DejaVu-Sans'); 
+    $draw->setFont('DejaVu-Sans');
 
     $image->annotateImage($draw, 100, 110, 0, 'Reload me!');
 
@@ -33,12 +33,13 @@ try {
     // 6. Отправляем заголовок и бинарные данные
     header('Content-Type: image/png');
     echo $image->getImageBlob();
-
-} catch (ImagickException $e) {
+}
+catch (ImagickException $e) {
     error_log('Imagick error: ' . $e->getMessage());
     http_response_code(500);
     die('Image generation failed. Check logs.');
-} catch (Throwable $e) {
+}
+catch (Throwable $e) {
     error_log('Unexpected error: ' . $e->getMessage());
     http_response_code(500);
     die('Unexpected error.');

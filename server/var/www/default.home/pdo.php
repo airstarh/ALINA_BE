@@ -22,16 +22,17 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     $stmt = $pdo->query('SELECT * FROM `user` LIMIT 1');
-    $row = $stmt->fetch();
+    $row  = $stmt->fetch();
 
     http_response_code(200);
     echo '<pre>' . htmlspecialchars(json_encode($row, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) . '</pre>';
-
-} catch (PDOException $e) {
+}
+catch (PDOException $e) {
     http_response_code(500);
     error_log('PDO Error: ' . $e->getMessage());
     echo '<pre>Database error: ' . htmlspecialchars($e->getMessage()) . '</pre>';
-} catch (Throwable $e) {
+}
+catch (Throwable $e) {
     http_response_code(500);
     error_log('Unexpected error: ' . $e->getMessage());
     echo '<pre>Unexpected error: ' . htmlspecialchars($e->getMessage()) . '</pre>';
