@@ -21,11 +21,7 @@ services:
     container_name: alina_nginx
     build: ./docker/nginx
     command: nginx -g "daemon off;"
-    links:
-      - php82
     volumes: *vol-nginx
-    depends_on:
-      - php82
     security_opt:
       - no-new-privileges:true
     cap_drop:
