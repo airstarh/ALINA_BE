@@ -10,6 +10,7 @@ use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\FS;
 use alina\Utils\Request;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 
 class FileUpload
@@ -261,17 +262,17 @@ class FileUpload
 
     protected function processImageCompression($realPath)
     {
-        $manager = new ImageManager(['driver' => 'imagick']);
-        $image   = $manager
-            ->make($realPath)
-        ;
+        $manager = new ImageManager(new ImagickDriver());
+        $image   = $manager->read($realPath);
 
         if ($image->width() > 1500) {
-            $image->widen(1500);
+            $image->resize(1500, null, static function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize(false);
+            });
         }
-        $image
-            ->save($realPath, 100)
-        ;
+
+        $image->save($realPath, 100);
 
         return $realPath;
     }
