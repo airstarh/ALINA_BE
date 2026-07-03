@@ -3,7 +3,7 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH    = __DIR__;
-const ALINA_MODE        = 'PROD';
+const ALINA_MODE        = getenv('ALINA_MODE');
 const ALINA_BACKEND     = '/srv';
 const ALINA_PATH_TO_APP = ALINA_BACKEND . '/alina_consumers/saysimsim.ru';
 #endregion HOST SPECIFIC

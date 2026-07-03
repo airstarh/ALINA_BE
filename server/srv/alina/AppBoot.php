@@ -24,7 +24,7 @@ final class AppBoot
         ##################################################
         #region HOST SPECIFIC
         define('ALINA_WEB_PATH', realpath($_SERVER['DOCUMENT_ROOT']));
-        define('ALINA_MODE', 'DEV');
+        define('ALINA_MODE', getenv('ALINA_MODE'));
         #####
         define("ALINA_BACKEND", '/srv');
         define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina');
