@@ -321,17 +321,20 @@ class At
         AlinaEcho((new htmlAlias())->page($vd, html::$htmLayoutCleanBody));
     }
 
-    #####
     public function actionPhpSettings()
     {
-        error_log(123);
+        Message::setInfo('Info');
+        Message::setWarning('Warnung');
+        Message::setDanger('Danger');
+        error_log(__METHOD__);
         $vd = (object) [
                 'max_execution_time' => ini_get('max_execution_time'),
                 'error_log'          => ini_get('error_log'),
+                'ALINA_MODE(env)'    => getenv('ALINA_MODE'),
+                'ALINA_MODE(app)'    => ALINA_MODE,
             ];
         AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutWide));
     }
-    #####
 
     public function actionUniqModel()
     {
