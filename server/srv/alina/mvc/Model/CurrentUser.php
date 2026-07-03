@@ -169,7 +169,7 @@ final class CurrentUser
             $token = Request::obj()->tryHeader(static::KEY_USER_TOKEN);
         }
 
-        if (strlen($token) < 10) {
+        if (strlen((string) $token) < 10) {
             $token = null;
         }
 

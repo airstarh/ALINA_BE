@@ -46,7 +46,7 @@ class AppCookie
             return setcookie($name, $value, $expire, "$path; samesite=None", $domain, $secure, $httponly);
         }
         else {
-            return setcookie($name, $value, [
+            return setcookie($name, (string) $value, [
                 'expires'  => $expire,
                 'path'     => $path,
                 'domain'   => $domain,
