@@ -328,7 +328,7 @@ class At
         Message::setDanger('Danger');
         error_log(__METHOD__);
         $vd = (object) [
-                'display_errors' => ini_get('display_errors'),
+                'display_errors'     => ini_get('display_errors'),
                 'max_execution_time' => ini_get('max_execution_time'),
                 'error_log'          => ini_get('error_log'),
                 'ALINA_MODE(env)'    => getenv('ALINA_MODE'),

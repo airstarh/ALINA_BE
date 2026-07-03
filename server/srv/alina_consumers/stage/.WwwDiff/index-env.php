@@ -3,7 +3,7 @@
 ##################################################
 #region HOST SPECIFIC
 const ALINA_WEB_PATH = __DIR__;
-const ALINA_MODE     = getenv('ALINA_MODE');
+define('ALINA_MODE', getenv('ALINA_MODE'));
 define("ALINA_BACKEND", '/srv');
 define('ALINA_PATH_TO_APP', ALINA_BACKEND . '/alina_consumers/stage');
 #endregion HOST SPECIFIC
