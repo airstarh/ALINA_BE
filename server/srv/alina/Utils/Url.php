@@ -8,7 +8,7 @@ class Url
     #region URL's, Aliases, Routes
     public static function routeAccordance($url, array $vocabulary = [], $aliasToSystemRoute = true)
     {
-        $parsedUrlSource = parse_url($url);
+        $parsedUrlSource = parse_url((string) $url);
         $pathSource      = $parsedUrlSource['path'];
         $pathSource      = trim($pathSource, '/');
         $pathRes         = '';

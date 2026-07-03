@@ -753,7 +753,7 @@ class Data
     ##################################################
     ##################################################
     #region Filter_Var
-    public static function smartTrim(string $v)
+    public static function smartTrim(?string $v)
     {
         $v = trim((string) $v);
 
