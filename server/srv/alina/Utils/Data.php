@@ -830,7 +830,7 @@ class Data
 
     public static function filterVarStripTags($v)
     {
-        $v = strip_tags($v);
+        $v = strip_tags((string) $v);
 
         return $v;
     }
