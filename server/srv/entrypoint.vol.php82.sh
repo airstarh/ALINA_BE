@@ -5,12 +5,12 @@ if [ "$ALINA_MODE" != "DEV" ]; then
     return 0
 fi
 
-cd /srv/alina || { echo "ERROR: /srv/alina does not exist"; exit 1; }
+cd /srv/alina || { echo "ERROR: /srv/alina does not exist"; return 0; }
 
-mkdir -p /srv/alina/vendor
-mkdir -p storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+mkdir -p vendor
 chown -R www-data:www-data /srv/alina/vendor || true
+# mkdir -p storage bootstrap/cache
+# chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
 composer install --no-interaction --optimize-autoloader >> /var/log/php/entrypoint.php82.log 2>&1
 

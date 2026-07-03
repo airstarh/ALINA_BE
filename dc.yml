@@ -22,10 +22,10 @@ services:
     build: ./docker/nginx
     command: nginx -g "daemon off;"
     links:
-      - php
+      - php82
     volumes: *vol-nginx
     depends_on:
-      - php
+      - php82
     security_opt:
       - no-new-privileges:true
     cap_drop:
