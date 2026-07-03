@@ -501,7 +501,7 @@ class Sys
         // see http://tools.ietf.org/html/rfc6265#section-4.1.1
         foreach ($headers as $header) {
             if (strpos($header, 'Set-Cookie: ') === 0) {
-                $value = str_replace('&', urlencode('&'), substr($header, 12));
+                $value = str_replace('&', urlencode('&'), substr((string) $header, 12));
                 parse_str(current(explode(';', $value, 1)), $pair);
                 $cookies = array_merge_recursive($cookies, $pair);
             }
@@ -575,7 +575,7 @@ class Sys
         $lang = 'en';
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+            $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
         }
 
         return $lang;

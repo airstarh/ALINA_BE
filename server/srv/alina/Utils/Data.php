@@ -619,19 +619,13 @@ class Data
             array_walk_recursive($res, static function ($a) use (&$flattened_array) {
                 $flattened_array[] = $a;
             });
-            //$res = (array)$res;
+
             $res = array_values($flattened_array);
             $res = array_filter($res);
             $res = implode(' ', $res);
         }
 
-        //$res = str_replace('"', '', $res);
-        //$res = str_replace(',', ' | ', $res);
-        //$res = str_replace('{', '', $res);
-        //$res = str_replace('}', '', $res);
-        //$res = str_replace(':', ': ', $res);
-
-        return $res;
+        return (string) $res;
     }
     #####
 
@@ -692,7 +686,7 @@ class Data
             'dir',
         ];
 
-    public static function sanitizeOutputObj(&$object, $arrOutputDoNotTouch = null, $arrOutputDoUnset = null)
+    public static function sanitizeOutputObj(object $object, $arrOutputDoNotTouch = null, $arrOutputDoUnset = null)
     {
         #####
         $arrOutputDoNotTouch = ($arrOutputDoNotTouch === null) ? static::$arrOutputDoNotTouch : $arrOutputDoNotTouch;
