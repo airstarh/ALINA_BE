@@ -20,6 +20,8 @@ class Auth
      */
     public function actionLogin()
     {
+        $CU = CurrentUser::obj();
+
         ##################################################
         if (AlinaAccessIfLoggedIn()) {
             Sys::redirect('/');
@@ -50,7 +52,6 @@ class Auth
                 AlinaEcho((new htmlAlias())->page($vd, htmlAlias::$htmLayoutMiddled));
             }
             ##################################################
-            $CU           = CurrentUser::obj();
             $LogIn        = $CU->LogInByPass($vd->mail, $vd->password);
             $vd->password = '';
 
