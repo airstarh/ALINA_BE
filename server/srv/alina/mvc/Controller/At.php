@@ -29,14 +29,13 @@ class At
 
     public function actionFast()
     {
-        $a  = Data::XXX();
+        // $c = 2/0;
+        $a  = Data::toObject(1234);
         $vd = [
-                "___('project')" => ___('project'),
-                "___('Alina')"   => ___('Alina'),
-                "___('Admin')"   => ___('Admin'),
-                "___('ADMIN')"   => ___('ADMIN'),
-                "___('admin')"   => ___('admin'),
-            ];
+            Data::isStringValidJson('asd'),
+            $a,
+            "___('project')" => ___('project'),
+        ];
 
         AlinaEcho((new htmlAlias())->page($vd));
     }

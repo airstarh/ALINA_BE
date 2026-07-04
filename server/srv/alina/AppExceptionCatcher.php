@@ -114,9 +114,11 @@ class AppExceptionCatcher
         $eMsg = $this->strMessage();
 
         #region PHP ERROR LOG
-        error_log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', 0);
+        error_log(PHP_EOL, 0);
+        error_log('START ##################################################', 0);
         error_log($eMsg, 0);
-        error_log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 0);
+        error_log('END ##################################################', 0);
+        error_log(PHP_EOL, 0);
         #endregion PHP ERROR LOG
 
         $dbgCfg = AlinaCfg('debug');
