@@ -1008,4 +1008,9 @@ class Data
     }
     #endregion Pagination
     ##################################################
+    public static function XXX(): object
+    {
+        return null;
+    }
+    ##################################################
 }

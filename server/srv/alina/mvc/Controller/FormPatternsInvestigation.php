@@ -3,6 +3,7 @@
 namespace alina\mvc\Controller;
 
 use alina\mvc\View\html as htmlAlias;
+use alina\Utils\Request;
 
 class FormPatternsInvestigation
 {
@@ -16,10 +17,9 @@ class FormPatternsInvestigation
      */
     public function actionIndex()
     {
-        $post = \alina\Utils\Sys::resolvePostDataAsObject();
-        $get  = \alina\Utils\Sys::resolveGetDataAsObject();
-        /////////////////////////////////////
-        /////////////////////////////////////
+        $post = Request::obj()->POST;
+        $get  = Request::obj()->GET;
+
         $data = (object)[
             'post' => $post,
             'get'  => $get,

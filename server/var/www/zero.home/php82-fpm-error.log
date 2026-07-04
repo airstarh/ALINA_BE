@@ -1,0 +1,24 @@
+[04-Jul-2026 16:50:39 Europe/Moscow] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[04-Jul-2026 16:50:39 Europe/Moscow] IP...........172.18.0.1
+DOMAIN.......zero.home:50443
+URL_PATH...../at/fast
+CLASS........TypeError
+SEVERITY.....TRUE
+CODE.........0
+FILE........./srv/alina/Utils/Data.php
+LINE.........1012
+
+TEXT.........:
+alina\Utils\Data::XXX(): Return value must be of type object, null returned
+
+
+TRACE........:
+#0 /srv/alina/mvc/Controller/At.php(32): alina\Utils\Data::XXX()
+#1 [internal function]: alina\mvc\Controller\At->actionFast()
+#2 /srv/alina/App.php(263): call_user_func_array(Array, Array)
+#3 /srv/alina/App.php(312): alina\App->mvcControllerAction('\\alina\\mvc\\Cont...', 'actionFast', Array)
+#4 /var/www/zero.home/index.php(25): alina\App->mvcGo()
+#5 {main}
+
+
+[04-Jul-2026 16:50:39 Europe/Moscow] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

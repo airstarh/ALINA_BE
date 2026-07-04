@@ -249,7 +249,7 @@ class Sys
 
     public static function resolvePostDataAsObject()
     {
-        $post = $_POST;
+        $post = $_POST ?? [];
 
         if (empty($post)) {
             $post = file_get_contents('php://input');

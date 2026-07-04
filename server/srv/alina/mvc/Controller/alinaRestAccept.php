@@ -16,6 +16,7 @@ use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\View\json as jsonView;
+use alina\Utils\Request;
 use alina\Utils\Sys;
 use ErrorException;
 use Exception;
@@ -45,7 +46,7 @@ class alinaRestAccept
         switch ($method) {
             //INSERT
             case 'POST':
-                $post = Sys::resolvePostDataAsObject();
+                $post = Request::obj()->POST;
 
                 if ($command === 'Model') {
                     $modelName = $_GET['m'];
@@ -58,7 +59,7 @@ class alinaRestAccept
                 break;
                 //UPDATE
             case 'PUT':
-                $post = Sys::resolvePostDataAsObject();
+                $post = Request::obj()->POST;
 
                 if ($command === 'Model') {
                     $modelName = $_GET['m'];

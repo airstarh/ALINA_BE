@@ -29,13 +29,14 @@ class At
 
     public function actionFast()
     {
+        $a  = Data::XXX();
         $vd = [
-            "___('project')" => ___('project'),
-            "___('Alina')"   => ___('Alina'),
-            "___('Admin')"   => ___('Admin'),
-            "___('ADMIN')"   => ___('ADMIN'),
-            "___('admin')"   => ___('admin'),
-        ];
+                "___('project')" => ___('project'),
+                "___('Alina')"   => ___('Alina'),
+                "___('Admin')"   => ___('Admin'),
+                "___('ADMIN')"   => ___('ADMIN'),
+                "___('admin')"   => ___('admin'),
+            ];
 
         AlinaEcho((new htmlAlias())->page($vd));
     }
