@@ -5,7 +5,7 @@
 *Blogs • Profiles • Business cards • Data tools • Presentations • Technical docs & brochures*
 
 ### Built with
-- 🐳 Docker | Nginx | PHP 7+ | MySQL 8+
+- 🐳 Docker | Nginx | PHP 8+ | MySQL 8+
 - 🖖 Vue 2/3 *(SPA frontend — [ALINA_FE](https://github.com/airstarh/ALINA_FE))*
 - 🧩 MVC architecture
 
@@ -21,7 +21,7 @@
 *Блоги • Анкеты • Визитки • Инструменты работы с данными • Презентации • Техническая документация и проспекты*
 
 ### Использованные технологии и подходы
-- 🐳 Docker | Nginx | PHP 7+ | MySQL 8+
+- 🐳 Docker | Nginx | PHP 8+ | MySQL 8+
 - 🖖 Vue 2/3 *(отдельный репозиторий для SPA — [ALINA_FE](https://github.com/airstarh/ALINA_FE))*
 - 🧩 MVC
 
