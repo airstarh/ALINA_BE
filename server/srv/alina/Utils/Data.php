@@ -69,8 +69,8 @@ class Data
             }
         }
 
-        $obj        = new stdClass();
-        $obj->value = $v;
+        $obj                        = new stdClass();
+        $obj->artificialScalarValue = $v;
 
         return $obj;
     }

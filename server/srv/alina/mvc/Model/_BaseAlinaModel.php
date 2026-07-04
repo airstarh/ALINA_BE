@@ -478,7 +478,7 @@ class _BaseAlinaModel
             // due to $this->bindModel functionality.
             $data->is_deleted = 1;
             $data->{$pkName}  = $id;
-            // When $data contains Primary Key, there is ni necessity to set it as the second parameter.
+            // When $data contains Primary Key, there is no necessity to set it as the second parameter.
             $this->updateById($data);
 
             return true;
