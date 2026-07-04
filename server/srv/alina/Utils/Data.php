@@ -47,7 +47,8 @@ class Data
      */
     public static function toObject($v): object
     {
-        if (empty($v)) {
+        // empty() для null, '', [], false, 0 и т.п.
+        if ($v === null || $v === '') {
             return new stdClass();
         }
 
@@ -57,7 +58,10 @@ class Data
 
         if (is_array($v)) {
             $tmp = json_decode(json_encode($v), false);
-            $res = $tmp;
+
+            if (is_object($tmp)) {
+                return $tmp;
+            }
 
             if (is_array($tmp)) {
                 $obj = new stdClass();
@@ -66,15 +70,20 @@ class Data
                     $obj->{$key} = $value;
                 }
 
-                $res = $obj;
+                return $obj;
             }
+
+            $res        = new stdClass();
+            $res->value = $v;
 
             return $res;
         }
 
         if (is_string($v)) {
+            $decoded = null;
+
             if (static::isStringValidJson($v, $decoded)) {
-                return static::toObject($decoded);
+                return Data::toObject($decoded);
             }
         }
 
