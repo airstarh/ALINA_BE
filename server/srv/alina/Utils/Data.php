@@ -47,51 +47,34 @@ class Data
      */
     public static function toObject($v): object
     {
-        // empty() для null, '', [], false, 0 и т.п.
-        if ($v === null || $v === '') {
-            return new stdClass();
-        }
-
         if (is_object($v)) {
             return $v;
         }
 
         if (is_array($v)) {
-            $tmp = json_decode(json_encode($v), false);
+            $obj = new stdClass();
 
-            if (is_object($tmp)) {
-                return $tmp;
+            foreach ($v as $key => $value) {
+                $obj->{$key} = $value;
             }
 
-            if (is_array($tmp)) {
-                $obj = new stdClass();
-
-                foreach ($tmp as $key => $value) {
-                    $obj->{$key} = $value;
-                }
-
-                return $obj;
-            }
-
-            $res        = new stdClass();
-            $res->value = $v;
-
-            return $res;
+            return $obj;
         }
 
         if (is_string($v)) {
-            $decoded = null;
+            $decoded = json_decode($v, false);
 
-            if (static::isStringValidJson($v, $decoded)) {
-                return Data::toObject($decoded);
+            if (json_last_error() === JSON_ERROR_NONE && $decoded !== null) {
+                return static::toObject($decoded);
             }
         }
 
-        $res        = new stdClass();
-        $res->value = $v;
+        $obj        = new stdClass();
+        $obj->value = $v;
 
-        return $res;
+        return $obj;
     }
+
 
     //@link https://stackoverflow.com/a/6041773/3142281
     public static function isStringValidJson($string, &$objDecoded = null)
