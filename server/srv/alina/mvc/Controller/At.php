@@ -32,6 +32,7 @@ class At
         // $c = 2/0;
         $a  = Data::toObject(1234);
         $vd = [
+            'Hello',
             Data::isStringValidJson('asd'),
             $a,
             "___('project')" => ___('project'),
