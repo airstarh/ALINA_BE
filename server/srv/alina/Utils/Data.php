@@ -62,10 +62,10 @@ class Data
         }
 
         if (is_string($v)) {
-            $decoded = json_decode($v, false);
+            $decoded = null;
 
-            if (json_last_error() === JSON_ERROR_NONE && $decoded !== null) {
-                return static::toObject($decoded);
+            if (Data::isStringValidJson($v, $decoded)) {
+                return Data::toObject($decoded);
             }
         }
 
