@@ -20,7 +20,10 @@ class ChatServer implements MessageComponentInterface
     public function onOpen(ConnectionInterface $conn)
     {
         $this->clients->attach($conn);
+        /** @var \Ratchet\WebSocket\WsConnection|\Ratchet\Server\IoConnection $conn */
         echo "Новое подключение: {$conn->resourceId}\n";
+
+        $conn->send("Привет! Сервер готов принимать сообщения.");
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
@@ -36,6 +39,7 @@ class ChatServer implements MessageComponentInterface
     public function onClose(ConnectionInterface $conn)
     {
         $this->clients->detach($conn);
+        /** @var \Ratchet\WebSocket\WsConnection|\Ratchet\Server\IoConnection $conn */
         echo "Подключение {$conn->resourceId} закрыто\n";
     }
 
