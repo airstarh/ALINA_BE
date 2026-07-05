@@ -1,6 +1,6 @@
 <h2>Chat Test</h2>
 <!-- Блок сообщений -->
-<div id="messages" style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto; font-family:Arial,sans-serif; background:#f9f9f9;"></div>
+<div id="messages" style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto; font-family:Arial,sans-serif; background:#000000; color: #fff;"></div>
 
 <!-- Поля ввода -->
 <input type="text" id="input" autocomplete="off" placeholder="Введите сообщение..." style="padding:8px; width:300px;" />
