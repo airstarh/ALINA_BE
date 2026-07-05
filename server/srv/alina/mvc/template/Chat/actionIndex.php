@@ -1,6 +1,8 @@
-<h2>Chat Test</h2>
+<h2><?= ___('Чят') ?></h2>
 <!-- Блок сообщений -->
-<div id="messages" style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto; font-family:Arial,sans-serif; background:#aaaaaa; color: #fff;"></div>
+<div
+    id="messages"
+    style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto; font-family:Arial,sans-serif; background:#aaaaaa; color: #fff;"></div>
 
 <!-- Поля ввода -->
 <input type="text" id="input" autocomplete="off" placeholder="Введите сообщение..." style="padding:8px; width:300px;" />
@@ -14,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Попытка подключения к:', wsUrl);
 
     let conn;
-    
+
     try {
         conn = new WebSocket(wsUrl);
     } catch (e) {
