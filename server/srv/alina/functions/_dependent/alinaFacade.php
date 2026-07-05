@@ -273,9 +273,20 @@ function ___p(string $str, array $params, ?string $loc = 'ru_RU')
 function AlinaEchoDraft($data)
 {
     echo '<pre>';
-    var_export($data, false);
+    echo PHP_EOL;
+    echo PHP_EOL;
+
+    try {
+        var_export($data, false);
+    }
+    catch (Throwable $e) {
+        print_r($data);
+    }
+    echo PHP_EOL;
+    echo PHP_EOL;
     echo '</pre>';
     echo '<br>';
+    echo PHP_EOL;
 
     AlinaExit($data);
 }
