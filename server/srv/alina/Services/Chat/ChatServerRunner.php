@@ -15,8 +15,8 @@ class ChatServerRunner
     private int $port;
     private string $host;
 
-    public function __construct(
-        string $pidFile = '/var/run/chat-server.pid',
+    private function __construct(
+        string $pidFile = '/tmp/chat-server.pid',
         string $host = '0.0.0.0',
         int $port = 8080
     ) {
@@ -28,7 +28,7 @@ class ChatServerRunner
     /**
      * Entry point: run the WebSocket server with safety checks.
      */
-    public function run(): never
+    private function run(): never
     {
         // 1. Check for existing instance via PID file
         if ($this->isAnotherInstanceRunning()) {
@@ -98,7 +98,7 @@ class ChatServerRunner
      * Quick probe to see if something is listening on the given host/port.
      * This is a best-effort check; the real authority is the bind attempt.
      */
-    public static function isPortInUse(string $host, int $port, float $timeout = 1.0): bool
+    private static function isPortInUse(string $host, int $port, float $timeout = 1.0): bool
     {
         $sock = @fsockopen($host, $port, $errno, $errstr, $timeout);
 
