@@ -4,7 +4,7 @@ namespace alina\mvc\Controller;
 
 use alina\mvc\View\html as html;
 
-class Generic
+class Chat
 {
     public function __construct()
     {
