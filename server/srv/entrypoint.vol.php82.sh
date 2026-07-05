@@ -16,3 +16,6 @@ composer install --no-interaction --optimize-autoloader >> /var/log/php/entrypoi
 
 echo "composer install was on php 8.2" >> /var/log/php/entrypoint.php82.log
 date +"%Y-%m-%d %H:%M:%S" >> /var/log/php/entrypoint.php82.log
+echo "" >> /var/log/php/entrypoint.php82.log
+echo "" >> /var/log/php/entrypoint.php82.log
+echo "" >> /var/log/php/entrypoint.php82.log
