@@ -9,7 +9,6 @@ use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use Throwable;
 
-
 class ChatServerRunner
 {
     private string $pidFile;
@@ -76,14 +75,13 @@ class ChatServerRunner
         $existingPid = (int) file_get_contents($this->pidFile);
 
         if ($existingPid <= 0) {
-            // Stale file with invalid PID; clean it up
             $this->removePidFile();
 
             return false;
         }
 
-        // posix_kill with signal 0 only checks existence, does not send a signal
-        if (posix_kill($existingPid, 0)) {
+        // Check if /proc/<pid> exists → process is alive
+        if (is_dir("/proc/{$existingPid}")) {
             echo "Another instance is already running (PID: {$existingPid}). Exiting.\n";
 
             return true;
@@ -94,6 +92,7 @@ class ChatServerRunner
 
         return false;
     }
+
 
     /**
      * Quick probe to see if something is listening on the given host/port.
@@ -135,5 +134,16 @@ class ChatServerRunner
         if (file_exists($this->pidFile)) {
             @unlink($this->pidFile);
         }
+    }
+
+    public static function go()
+    {
+        $runner = new static(
+            pidFile: '/var/run/chat-server.pid', // works well in Debian-based containers
+            host: '0.0.0.0',
+            port: 8080
+        );
+
+        $runner->run();
     }
 }

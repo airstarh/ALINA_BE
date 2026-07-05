@@ -12,8 +12,7 @@ class Chat
     }
 
     /**
-     * @route /Generic/index
-     * @route /Generic/index/test/path/parameters
+     * @route /Chat/index
      */
     public function actionIndex(...$arg)
     {
