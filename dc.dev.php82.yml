@@ -1,5 +1,4 @@
 services:
-
   php82:
     build:
       context: ./docker/php82
@@ -12,6 +11,8 @@ services:
       host.docker.internal: host-gateway
     expose:
       - "9000"
+    ports:
+      - "8080:8080"
     volumes:
       # php.ini
       - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
