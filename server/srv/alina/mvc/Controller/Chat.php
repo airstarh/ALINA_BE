@@ -8,7 +8,7 @@ class Chat
 {
     public function __construct()
     {
-        AlinaRejectIfNotAdmin();
+        // AlinaRejectIfNotAdmin();
     }
 
     /**
