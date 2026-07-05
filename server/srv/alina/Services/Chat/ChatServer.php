@@ -2,8 +2,10 @@
 
 namespace alina\Services\Chat;
 
-use Ratchet\MessageComponentInterface;
+use Exception;
 use Ratchet\ConnectionInterface;
+use Ratchet\MessageComponentInterface;
+use SplObjectStorage;
 
 class ChatServer implements MessageComponentInterface
 {
@@ -11,7 +13,7 @@ class ChatServer implements MessageComponentInterface
 
     public function __construct()
     {
-        $this->clients = new \SplObjectStorage; // Храним подключённые клиенты
+        $this->clients = new SplObjectStorage(); // Храним подключённые клиенты
         echo "Сервер запущен!\n";
     }
 
@@ -37,7 +39,7 @@ class ChatServer implements MessageComponentInterface
         echo "Подключение {$conn->resourceId} закрыто\n";
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, Exception $e)
     {
         echo "Ошибка: {$e->getMessage()}\n";
         $conn->close();
