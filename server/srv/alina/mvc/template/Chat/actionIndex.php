@@ -1,16 +1,6 @@
 <style>
-.alina-flex-vertical-content {
-    /* border: 5px solid #00ff00; */
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end
-}
-
 .wrapper {
-    /* border: 11px solid #ff0000; */
-    flex: 1 0 100%;
-    height: 100%;
+    height: 100vh;
     min-height: 0;
     overflow: hidden;
     display: flex;
@@ -21,21 +11,20 @@
     align-items: stretch;
 
     & #messages {
-        flex: 0 0 60vh;
-        min-height: 0;
-        /* max-height:60vh; */
+        flex: 0 0 90vh;
+        height: 90vh;
         white-space: pre-wrap;
         word-break: break-word;
         border: 1px solid #ccc;
         padding: 10px;
         overflow-y: auto;
-        background: #aaaaaa;
-        color: #ddd;
+        background-color: #222222;
+        color: #dddddd;
     }
 
     & .user-input {
-        flex: 0 1 5ch;
-
+        flex: 0 0 10vh;
+        height: 10vh;
         display: flex;
 
         & textarea {
@@ -47,8 +36,6 @@
             padding: 8px 16px;
             cursor: pointer;
         }
-
-        & .user-input-item {}
     }
 }
 </style>
@@ -83,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     conn.onmessage = function(event) {
         console.log('📩 Received:', event.data);
-        appendMessage(event.data, 'black');
+        appendMessage(event.data, '#dddddd');
     };
 
     conn.onerror = function(error) {

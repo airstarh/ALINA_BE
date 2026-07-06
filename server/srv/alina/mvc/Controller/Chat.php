@@ -17,7 +17,7 @@ class Chat
      */
     public function actionIndex(...$arg)
     {
-        Message::setDanger('Test');
+        // Message::setDanger('Test');
         $vd = [
             'args' => $arg,
         ];
