@@ -160,8 +160,8 @@ class AppExceptionCatcher
         $arrMessage                  = [];
         $strMessage                  = '';
         $arrMessage['IP...........'] = Sys::getUserIp();
-        $arrMessage['DOMAIN.......'] = $_SERVER['HTTP_HOST'] ?? 'CLI_DOMAIN';
-        $arrMessage['URL_PATH.....'] = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
+        $arrMessage['DOMAIN.......'] = $_SERVER['HTTP_HOST'] ?? 'CLI';
+        $arrMessage['URL_PATH.....'] = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $arrMessage['CLASS........'] = $this->expClassName;
         $arrMessage['SEVERITY.....'] = $this->getSeverityStr();
         $arrMessage['CODE.........'] = $this->eCode;

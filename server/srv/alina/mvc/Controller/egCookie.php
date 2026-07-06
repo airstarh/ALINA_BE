@@ -24,7 +24,7 @@ class egCookie
 
         AlinaEchoDraft([
             '$_COOKIE'           => $_COOKIE,
-            'SERVER_HTTP_COOKIE' => $_SERVER['HTTP_COOKIE'] ?? 'CLI_HTTP_COOKIE',
+            'SERVER_HTTP_COOKIE' => $_SERVER['HTTP_COOKIE'] ?? 'CLI',
         ]);
     }
 }

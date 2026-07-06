@@ -200,8 +200,8 @@ function Alina_file_exists($fileName, $caseSensitive = false)
 
 function AlinaGetCurrentDomainUrl()
 {
-    $protocol   = $_SERVER['REQUEST_SCHEME'] ?? 'CLI_REQUEST_SCHEME';
-    $domainName = $_SERVER['HTTP_HOST']      ?? 'CLI_HTTP_HOST';
+    $protocol   = $_SERVER['REQUEST_SCHEME'] ?? 'CLI';
+    $domainName = $_SERVER['HTTP_HOST']      ?? 'CLI';
     $parts      = [
         $protocol,
         '://',

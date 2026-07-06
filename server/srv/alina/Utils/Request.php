@@ -29,10 +29,10 @@ class Request
 
     protected function __construct()
     {
-        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI_HTTP_HOST';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI');
+        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI';
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
-        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI_QUERY_STRING');
+        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
         $this->METHOD       = Sys::getReqMethod();
         $this->AJAX         = Sys::isAjax();
         $this->HEADERS      = Data::toObject(getallheaders());
@@ -196,7 +196,7 @@ class Request
 
     public function server(string $key): string
     {
-        return $this->SERVER->{$key} ?? "CLI_{$key}";
+        return $this->SERVER->{$key} ?? "CLI";
     }
     #endregion Facade
     ##################################################

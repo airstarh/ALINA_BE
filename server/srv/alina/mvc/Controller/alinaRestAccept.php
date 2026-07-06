@@ -41,7 +41,7 @@ class alinaRestAccept
         MessageAdmin::setSuccess('Hello, Admin!!!');
         Message::setSuccess('Hello, User!!!');
         \alina\AppCookie::setPath('serverCookie', 'Hello from server Alina');
-        $method  = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI_REQUEST_METHOD');
+        $method  = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI');
         $command = $_GET['cmd'];
         switch ($method) {
             //INSERT

@@ -156,10 +156,10 @@ class Sys
                     $method = static::getReqMethod();
                     $ip     = static::getUserIp();
                     $from   = $_SERVER['HTTP_REFERER']    ?? $ip;
-                    $agent  = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI_HTTP_USER_AGENT';
+                    $agent  = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI';
 
                     $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? getcwd();
-                    $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? 'CLI_REQUEST_URI';
+                    $REQUEST_URI = $_SERVER['REQUEST_URI'] ?? 'CLI';
 
                     $prefix = [
                         'LOG STARTED ##########################################################################################',
@@ -466,7 +466,7 @@ class Sys
             number_format(static::getMicroTimeDifferenceFromNow(\ALINA_MICROTIME), 10, '.', ' '),
             "SPENT",
             $_SERVER['SERVER_ADDR'],
-            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI_REQUEST_URI',
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI',
         ];
         $res = array_merge($prepend, $main, $append);
 
@@ -479,7 +479,7 @@ class Sys
             number_format(memory_get_usage(), 10, '.', ' '),
             "USED",
             $_SERVER['SERVER_ADDR'],
-            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI_REQUEST_URI',
+            isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI',
         ];
         $res = array_merge($prepend, $main, $append);
 
@@ -534,12 +534,12 @@ class Sys
 
     public static function getReqMethod()
     {
-        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI_REQUEST_METHOD');
+        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI');
     }
 
     public static function getUserBrowser()
     {
-        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : 'CLI_HTTP_USER_AGENT';
+        $browser = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : 'CLI';
 
         return $browser;
     }
