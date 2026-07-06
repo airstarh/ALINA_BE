@@ -17,7 +17,6 @@ services:
       # php.ini
       - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
       - ./server/usr82/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
-      - ./server/etc/supervisor/conf.d/chat.conf:/etc/supervisor/conf.d/chat.conf:ro
       - ./server/var/log/php/:/var/log/php/:rw
       # /var/www
       - ./server/var/www/:/var/www/:rw

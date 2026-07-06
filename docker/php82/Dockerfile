@@ -15,7 +15,6 @@ RUN chmod +x /usr/local/bin/composer
 # Убрали libmagickwand-7.q16-6 и libzip5 — они не находятся в репозиториях Debian 12
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        supervisor \
         zlib1g-dev \
         libzip-dev \
         unzip \
