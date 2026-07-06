@@ -1,13 +1,43 @@
-<h2><?= ___('Чят') ?></h2>
-<!-- Блок сообщений -->
-<div
-    id="messages"
-    style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto; font-family:Arial,sans-serif; background:#aaaaaa; color: #fff;"></div>
+<style>
+.wrapper {
+    & #messages {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: Arial, sans-serif;
+        background: #aaaaaa;
+        color: #fff;
+    }
 
-<!-- Поля ввода -->
-<input type="text" id="input" autocomplete="off" placeholder="Введите сообщение..." style="padding:8px; width:300px;" />
-<button id="send-btn" style="padding:8px 16px; cursor:pointer;">Отправить</button>
+    & .user-input {
+        display: flex;
 
+        & textarea {
+            flex: 1 0;
+            padding: 3px;
+        }
+
+        & button {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        & .user-input-item {
+            height: 11ch;
+        }
+    }
+}
+</style>
+<div class="wrapper">
+    <h2><?= ___('ЧRТ') ?></h2>
+    <div id="messages"></div>
+
+    <div class="user-input">
+        <textarea class="user-input-item" id="input" autocomplete="off" placeholder=""></textarea>
+        <button class="user-input-item" id="send-btn"><?= ___('Send') ?></button>
+    </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const host = window.location.host;
@@ -26,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     conn.onopen = function() {
-        console.log('✅ СОЕДИНЕНИЕ УСТАНОВЛЕНО!');
-        appendMessage('Подключено к серверу (WSS)', 'green');
+        console.log('Connected');
+        appendMessage('WSS available', 'green');
     };
 
     conn.onmessage = function(event) {

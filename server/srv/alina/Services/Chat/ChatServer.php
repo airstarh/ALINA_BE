@@ -23,7 +23,7 @@ class ChatServer implements MessageComponentInterface
         /** @var \Ratchet\WebSocket\WsConnection|\Ratchet\Server\IoConnection $conn */
         echo "Новое подключение: {$conn->resourceId}\n";
 
-        $conn->send("Привет! Сервер готов принимать сообщения.");
+        $conn->send(___('"Connection established."'));
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
