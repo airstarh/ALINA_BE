@@ -11,8 +11,7 @@
     align-items: stretch;
 
     & #messages {
-        flex: 0 0 90vh;
-        height: 90vh;
+        flex: 0 1 90vh;
         white-space: pre-wrap;
         word-break: break-word;
         border: 1px solid #ccc;
