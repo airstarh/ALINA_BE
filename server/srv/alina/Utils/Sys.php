@@ -558,7 +558,7 @@ class Sys
         }
         // Или REMOTE_ADDR (по умолчанию, если нет прокси)
         else {
-            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
         }
 
         // Валидация IP
@@ -567,7 +567,7 @@ class Sys
         }
 
         // Если IP внутренний (например, 172.19.0.4), возвращаем хотя бы его
-        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'unknown';
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'CLI';
     }
 
     public static function getUserLanguage()
