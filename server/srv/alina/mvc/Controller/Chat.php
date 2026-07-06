@@ -2,6 +2,7 @@
 
 namespace alina\mvc\Controller;
 
+use alina\Message;
 use alina\mvc\View\html as html;
 
 class Chat
@@ -16,11 +17,12 @@ class Chat
      */
     public function actionIndex(...$arg)
     {
+        Message::setDanger('Test');
         $vd = [
             'args' => $arg,
         ];
         #####
-        AlinaEcho((new html())->page($vd, html::$htmLayoutWide));
+        AlinaEcho((new html())->page($vd, html::$htmlLayoutVirgin));
 
         return $this;
     }

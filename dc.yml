@@ -34,8 +34,6 @@ services:
       - SETGID
       - FOWNER
       - KILL
-    depends_on:
-      - php82
 
   mysql:
     restart: unless-stopped

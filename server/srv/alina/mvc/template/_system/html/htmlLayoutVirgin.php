@@ -10,17 +10,22 @@ use alina\mvc\View\html;
     <? require_once '_commonHead.php' ?>
 </head>
 <body id="alina-real-body" class="alina-main-bg alina-main-txt">
-
 <div class="alina-flex-vertical-container alina-vh-100">
     <div class="alina-flex-vertical-header">
-        <?= (new html())->piece(html::$htmlMenu) ?>
+
     </div>
-    <div class="alina-flex-vertical-content">
+    <div class="alina-flex-vertical-content alina-flex-item-wide">
+        &nbsp;
+    </div>
+    <div class="alina-flex-vertical-content alina-flex-item-shrink container">
         <?= $data->messages(); ?>
         <?= $data->content(); ?>
     </div>
-    <div class="alina-flex-vertical-footer" v-if="!fullScreen">
-        <?= (new html())->piece(html::$htmlFooter) ?>
+    <div class="alina-flex-vertical-content alina-flex-item-wide">
+        &nbsp;
+    </div>
+    <div class="alina-flex-vertical-footer">
+
     </div>
 </div>
 <? require_once '_commonFooter2.php' ?>

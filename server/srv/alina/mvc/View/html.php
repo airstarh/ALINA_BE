@@ -19,6 +19,7 @@ class html
     public static $htmLayoutMiddled      = '_system/html/htmlLayoutMiddled.php';
     public static $htmLayoutCleanBody    = '_system/html/htmlLayoutCleanBody.php';
     public static $htmLayoutErrorCatcher = '_system/html/htmlLayoutErrorCatcher.php';
+    public static $htmlLayoutVirgin      = '_system/html/htmlLayoutVirgin.php';
     #####
     public static $htmlMenu   = '/_system/html/menu.php';
     public static $htmlFooter = '/_system/html/_commonFooter.php';
