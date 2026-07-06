@@ -31,6 +31,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    depends_on:
+      - mysql
 
   php82chat:
     build:
@@ -52,4 +54,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    depends_on:
+      - php82
+      - mysql
     command: php /srv/alina/program/chat/p.chat.run.php
