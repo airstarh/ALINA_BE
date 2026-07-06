@@ -33,3 +33,23 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+
+  php82chat:
+    build:
+      context: ./docker/php82
+      dockerfile: Dockerfile
+      args:
+        INSTALL_XDEBUG: "false"
+    container_name: alina-chat-daemon
+    restart: unless-stopped
+    environment:
+      - ALINA_MODE=prod                 # Skips composer install & heavy setup
+    volumes:
+      - ./server/srv/:/srv/:ro           # Code + chat logic
+      - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
+      - ./server/var/log/php/:/var/log/php/:rw
+    working_dir: /srv/alina
+    read_only: true
+    tmpfs:
+      - /tmp
+    command: php /srv/alina/program/chat/p.chat.run.php
