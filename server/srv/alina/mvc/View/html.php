@@ -6,6 +6,7 @@ use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\View\json as jsonView;
+use alina\Utils\Request;
 use alina\Utils\Sys;
 use ErrorException;
 use Exception;
@@ -54,7 +55,7 @@ class html
     public function page($data = null, $htmlLayout = false)
     {
         //GlobalRequestStorage::set('viewData', $data);
-        if (Sys::isAjax()) {
+        if (Sys::isAjax() || Request::obj()->METHOD === 'CLI' || Request::obj()->DOMAIN === 'CLI') {
             return (new jsonView())->standardRestApiResponse($data);
         }
 

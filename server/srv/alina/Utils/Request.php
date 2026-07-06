@@ -33,7 +33,7 @@ class Request
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
-        $this->METHOD       = Sys::getReqMethod();
+        $this->METHOD       = Sys::getReqMethod() ?? 'CLI';
         $this->AJAX         = Sys::isAjax();
         $this->HEADERS      = Data::toObject(getallheaders());
         $this->GET          = Sys::resolveGetDataAsObject();
