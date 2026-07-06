@@ -39,8 +39,8 @@ services:
         INSTALL_XDEBUG: "false"
     container_name: alina_php82chat
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     env_file: _GITOUT/env/.env
     environment:
       - ALINA_MODE=PROD
