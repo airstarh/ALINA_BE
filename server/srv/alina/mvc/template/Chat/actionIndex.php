@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         conn = new WebSocket(wsUrl);
     } catch (e) {
-        console.error('Ошибка создания WebSocket:', e);
-        appendMessage('Ошибка инициализации WebSocket', 'red');
+        console.error('WebSocket creation error', e);
+        appendMessage('WebSocket creation error', 'red');
         return;
     }
 
