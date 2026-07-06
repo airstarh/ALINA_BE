@@ -11,8 +11,6 @@ services:
       host.docker.internal: host-gateway
     expose:
       - "9000"
-    ports:
-      - "8080:8080"
     volumes:
       # php.ini
       - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
@@ -37,13 +35,15 @@ services:
   php82chat:
     build:
       context: ./docker/php82
-      dockerfile: Dockerfile
       args:
         INSTALL_XDEBUG: "false"
-    container_name: alina-chat-daemon
+    container_name: alina_php82chat
     restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file: _GITOUT/env/.env
     environment:
-      - ALINA_MODE=prod                 # Skips composer install & heavy setup
+      - ALINA_MODE=PROD
     volumes:
       - ./server/srv/:/srv/:ro           # Code + chat logic
       - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro

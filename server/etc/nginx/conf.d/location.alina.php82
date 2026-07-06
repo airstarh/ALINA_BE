@@ -9,7 +9,7 @@ charset UTF-8;
 index index.html index.php;
 
 location /ws {
-    proxy_pass http://php82:8080;
+    proxy_pass http://php82chat:8080;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
