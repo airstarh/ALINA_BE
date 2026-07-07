@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "lib": ["es2017", "dom"],
+    "paths": {
+      "jquery": ["./server/srv/alina_consumers/zero.home/.WwwDiff/kiss/their.bootstrap/jquery.js"]
+    }
+  },
+  "include": [
+    "./server/srv/alina_consumers/zero.home/.WwwDiff/kiss/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
