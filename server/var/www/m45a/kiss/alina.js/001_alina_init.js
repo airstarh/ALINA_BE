@@ -1,15 +1,14 @@
-$(document).ready(function () {
-  window.ALINA       = window.ALINA || {};
-  window.ALINA.body  = ALINA.body || $("body");
-  window.ALINA.Utils = {
+const ALINA = {
+  body:  $("body"),
+  Utils: {
     Date: {
       toUnixTimeStampInSeconds: function (d) {
         var v = new Date(d).getTime() / 1000;
         return v;
       },
     },
-  };
-  window.ALINA.applyUI = function () {
+  },
+  applyUI: function () {
     //////////////////////////////////////////////////
     //region jQuery UI
     var $datepicker = $(".js-datepicker");
@@ -33,11 +32,11 @@ $(document).ready(function () {
         showButtonPanel: true,
         yearRange:       "1900:2100",
         onSelect:        function (val, ctx) {
-          $altfield.val(window.ALINA.Utils.Date.toUnixTimeStampInSeconds(val));
+          $altfield.val(ALINA.Utils.Date.toUnixTimeStampInSeconds(val));
         },
       });
       $dp.datepicker("setDate", v);
-      $altfield.val(window.ALINA.Utils.Date.toUnixTimeStampInSeconds(v));
+      $altfield.val(ALINA.Utils.Date.toUnixTimeStampInSeconds(v));
       //$el.datepicker( "option", "altFormat", "yy-mm-dd" );
     });
     //endregion jQuery UI
@@ -55,5 +54,10 @@ $(document).ready(function () {
     });
     //endregion HashTags
     //////////////////////////////////////////////////
-  };
+    console.log('ALINA online');
+    //////////////////////////////////////////////////
+  },
+};
+$(document).ready(function () {
+  window.ALINA = ALINA;
 });

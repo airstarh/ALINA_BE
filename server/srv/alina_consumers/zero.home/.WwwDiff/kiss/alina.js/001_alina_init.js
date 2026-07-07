@@ -54,6 +54,8 @@ const ALINA = {
     });
     //endregion HashTags
     //////////////////////////////////////////////////
+    console.log('ALINA online');
+    //////////////////////////////////////////////////
   },
 };
 $(document).ready(function () {
