@@ -23,7 +23,7 @@ final class AppBoot
         #endregion COMMON FOR ALL
         ##################################################
         #region HOST SPECIFIC
-        define('ALINA_WEB_PATH', realpath($_SERVER['DOCUMENT_ROOT']));
+        define('ALINA_WEB_PATH', realpath(__DIR__));
         define('ALINA_MODE', getenv('ALINA_MODE'));
         #####
         define("ALINA_BACKEND", '/srv');
