@@ -10,6 +10,7 @@ class Request
     use Singleton;
 
     public $DOMAIN;
+    public $URL_NATIVE;
     public $URL_PATH;
     public $METHOD;
     public $AJAX = false;
@@ -29,7 +30,8 @@ class Request
 
     protected function __construct()
     {
-        $this->DOMAIN       = $_SERVER['HTTP_HOST'] ?? 'CLI';
+        $this->DOMAIN       = $_SERVER['HTTP_HOST']   ?? 'CLI';
+        $this->URL_NATIVE   = $_SERVER['REQUEST_URI'] ?? 'CLI';
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');

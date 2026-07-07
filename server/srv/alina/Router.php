@@ -12,7 +12,6 @@ class Router
 
     use Singleton;
 
-    public $initialUrl        = null;
     public $initialUrlDecoded = null;
     public $pathAlias         = null;
     public $pathSys           = null;
@@ -44,13 +43,9 @@ class Router
 
     private function processUrl()
     {
-        $this->initialUrl        = $_SERVER['REQUEST_URI'];
-        $this->initialUrlDecoded = Request::obj()->URL_PATH;
+        $this->initialUrlDecoded = Request::obj()->URL_NATIVE;
         $parsedUrl               = parse_url($this->initialUrlDecoded);
-
-        if (isset($parsedUrl['query'])) {
-            $this->strGetQuery = $parsedUrl['query'];
-        }
+        $this->strGetQuery       = $parsedUrl['query'] ?? '';
 
         if (isset($parsedUrl['fragment'])) {
             $this->fragment = $parsedUrl['fragment'];

@@ -154,13 +154,12 @@ class Url
         return $res;
     }
 
-    public static function cleanPath($url)
+    public static function cleanPath($url): string
     {
         $res = $url;
         $res = parse_url($res, PHP_URL_PATH);
         $res = urldecode($res);
 
-        //$res = mb_strtolower($res);
         return $res;
     }
     #endregion PARSE_URL
