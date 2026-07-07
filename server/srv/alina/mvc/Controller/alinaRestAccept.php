@@ -11,13 +11,13 @@
 
 namespace alina\mvc\Controller;
 
+use alina\AppCookie;
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\modelNamesResolver;
 use alina\mvc\View\json as jsonView;
 use alina\Utils\Request;
-use alina\Utils\Sys;
 use ErrorException;
 use Exception;
 
@@ -37,19 +37,18 @@ class alinaRestAccept
      */
     public function actionIndex()
     {
-        Sys::setCrossDomainHeaders();
         MessageAdmin::setSuccess('Hello, Admin!!!');
         Message::setSuccess('Hello, User!!!');
-        \alina\AppCookie::setPath('serverCookie', 'Hello from server Alina');
-        $method  = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'CLI');
-        $command = $_GET['cmd'];
+        AppCookie::setPath('serverCookie', 'Hello from server Alina');
+        $method  = Request::obj()->METHOD;
+        $command = Request::obj()->GET->cmd;
         switch ($method) {
             //INSERT
             case 'POST':
                 $post = Request::obj()->POST;
 
                 if ($command === 'Model') {
-                    $modelName = $_GET['m'];
+                    $modelName = Request::obj()->GET->m;
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $m->insert($post);
                     $data = $m->getAllWithReferences(["{$m->alias}.{$m->pkName}" => $m->{$m->pkName}])[0];
@@ -62,7 +61,7 @@ class alinaRestAccept
                 $post = Request::obj()->POST;
 
                 if ($command === 'Model') {
-                    $modelName = $_GET['m'];
+                    $modelName = Request::obj()->GET->m;
                     $m         = modelNamesResolver::getModelObject($modelName);
                     $id        = $post->{$m->pkName};
                     $m->updateById($post);
@@ -82,7 +81,7 @@ class alinaRestAccept
                  */
                 if ($command && ! empty($command)) {
                     if ($command === 'collection') {
-                        $modelName = $_GET['m'];
+                        $modelName = Request::obj()->GET->m;
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $data      = $m->getAllWithReferences();
                         GlobalRequestStorage::set('modelMetaInfo', $m->getFieldsMetaInfo());
@@ -93,8 +92,10 @@ class alinaRestAccept
                     }
 
                     if ($command === 'Model') {
-                        $modelName = $_GET['m'];
-                        $mId       = $_GET['mId'];
+
+
+                        $modelName = Request::obj()->GET->m;
+                        $mId       = Request::obj()->GET->mid;
                         $m         = modelNamesResolver::getModelObject($modelName);
                         $cond      = ["{$m->alias}.{$m->pkName}" => $mId];
                         $data      = $m->getAllWithReferences($cond);
@@ -127,14 +128,12 @@ class alinaRestAccept
      */
     public function actionTestGet()
     {
-        Sys::setCrossDomainHeaders();
         AlinaEcho((new jsonView())->standardRestApiResponse($_GET));
     }
 
     public function actionTestCors()
     {
-        Sys::setCrossDomainHeaders();
-        \alina\AppCookie::setPath('AlinaCookie', 'Hello, cookie');
+        AppCookie::setPath('AlinaCookie', 'Hello, cookie');
         //$vd = Request::obj()->all();
         $vd = 'Привет';
         ############################################
