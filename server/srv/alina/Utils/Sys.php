@@ -27,7 +27,20 @@ class Sys
 
     protected static function initLogFilePath(?string $fPath = null, $transform = null)
     {
-        $fPath = $fPath ?? \ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'DEBUG.html';
+        $hostName = $_SERVER['HTTP_HOST'] ?? 'CLI';
+        $fileName = "DEBUG.$hostName.html";
+
+        if (empty($fPath)) {
+            $tmp = ini_get('error_log');
+
+            if ($tmp) {
+                $tmp   = dirname($tmp);
+                $fPath = $tmp . DIRECTORY_SEPARATOR . $fileName;
+            }
+            else {
+                $fPath = '/var/log/php/' . $fileName;
+            }
+        }
 
         switch ($transform) {
             case 'php':
@@ -217,6 +230,9 @@ class Sys
             return true;
         }
         catch (Throwable $e) {
+            error_log($e->getMessage());
+            error_log("Cannot write file debug: $fPath");
+
             return false;
         }
     }

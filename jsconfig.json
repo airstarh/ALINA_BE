@@ -6,9 +6,14 @@
     "allowJs": true,
     "checkJs": false,
     "noEmit": true,
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "paths": {
-      "jquery": ["./server/srv/alina_consumers/zero.home/.WwwDiff/kiss/their.bootstrap/jquery.js"]
+      "jquery": [
+        "./server/srv/alina_consumers/zero.home/.WwwDiff/kiss/their.bootstrap/jquery.js"
+      ]
     }
   },
   "include": [
@@ -16,6 +21,17 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
-  ]
+    "_GITOUT",
+    "archive",
+    "adm",
+    "docker",
+    "server/var",
+    "server/etc",
+    "server/usr82",
+    "dist",
+    "dist-stage",
+    ".vscode",
+    "nbproject",
+    "_DEV_DOCS"
+  ],
 }
