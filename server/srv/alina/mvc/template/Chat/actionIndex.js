@@ -140,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const name = userName(obj.CurrentUser);
         const time = currentDateTIme();
         const message = obj?.msg || "[unrecognized]";
+        const messageWeb = messageToWeb(message);
         const msgClassName = id === ALINA.CurrentUser?.id ? "this-user" : "";
 
         const html = `
@@ -154,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <span class="user-time">${time}</span>
      </span>
     </span>
-    <div class="user-message">${message}</div>
+    <div class="user-message">${messageWeb}</div>
     </div>
   `;
         return html.trim().replace(/\s+/g, " ").replace(/> </g, "><");
@@ -173,5 +174,69 @@ document.addEventListener("DOMContentLoaded", () => {
         const pad = (n) => String(n).padStart(2, "0");
         const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         return dateStr;
+    }
+
+    function messageToWeb(message) {
+        if (typeof message !== "string" || message.trim() === "") {
+            return "";
+        }
+
+        // Regex to match URLs (http/https) with basic validation
+        const urlRegex = /(https?:\/\/[^\s"'<>()]+)/gi;
+
+        const imageExtensions = /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i;
+        const videoExtensions = /\.(mp4|webm|mov|avi|m4v)$/i;
+
+        function escapeHtml(str) {
+            if (typeof str !== "string") return "";
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        return message.replace(urlRegex, (match) => {
+            const safeUrl = escapeHtml(match);
+
+            if (imageExtensions.test(match)) {
+                // Image: <a><img></a> + copy button
+                return `
+        <div style="display:inline-block; margin:5px 0; vertical-align:top;">
+          <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="display:block; max-width:500px;">
+            <img src="${safeUrl}" style="max-width:100%; height:auto; display:block;" alt="image" />
+          </a>
+          <button type="button" onclick="copyToClipboard('${safeUrl.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')"
+            style="margin-top:4px; padding:4px 8px; font-size:12px; cursor:pointer;">
+            🗎
+          </button>
+        </div>
+      `.trim();
+            }
+
+            if (videoExtensions.test(match)) {
+                // Video: <video> + copy button
+                return `
+        <div style="display:inline-block; margin:5px 0; vertical-align:top;">
+          <video controls playsinline style="max-width:500px; height:auto; display:block;">
+            <source src="${safeUrl}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <button type="button" onclick="copyToClipboard('${safeUrl.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')"
+            style="margin-top:4px; padding:4px 8px; font-size:12px; cursor:pointer;">
+            🗎
+          </button>
+        </div>
+      `.trim();
+            }
+
+            // Plain link for other URLs
+            return `
+      <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">
+        ${safeUrl}
+      </a>
+    `.trim();
+        });
     }
 });
