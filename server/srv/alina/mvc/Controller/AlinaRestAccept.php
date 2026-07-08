@@ -21,7 +21,7 @@ use alina\Utils\Request;
 use ErrorException;
 use Exception;
 
-class alinaRestAccept
+class AlinaRestAccept
 {
     public function __construct()
     {
