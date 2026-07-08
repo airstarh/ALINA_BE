@@ -142,6 +142,7 @@ html {
 .user-name {
     font-weight: bold;
     font-size: 1.1em;
+    line-height: 1.1em;
     white-space: nowrap;
     display: inline-block;
     /* or inline, depending on your layout needs */
@@ -149,6 +150,7 @@ html {
 
 .user-time {
     font-size: 0.8em;
+    line-height: 0.8em;
     font-style: oblique;
     white-space: nowrap;
     display: inline-block;
@@ -156,6 +158,10 @@ html {
 
 .user-message {
     margin-top: 15px;
+}
+
+.this-user {
+    background-color: rgb(1, 28, 111);
 }
 
 /* 1. On mobiles - message block stays above keyboard automatically

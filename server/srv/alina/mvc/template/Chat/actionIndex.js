@@ -107,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function appendMessage(text, color) {
-        console.log(text);
         if (isValidJsonString(text)) {
             const obj = JSON.parse(text);
             text = objToString(obj);
@@ -136,12 +135,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function objToString(obj) {
+        const id = obj.CurrentUser?.id || -1;
         const emblem = obj.CurrentUser?.emblem || "/noimage.png";
         const name = userName(obj.CurrentUser);
         const time = currentDateTIme();
         const message = obj?.msg || "[unrecognized]";
+        const msgClassName = id === ALINA.CurrentUser?.id ? "this-user" : "";
 
         const html = `
+    <div class="p-2 rounded ${msgClassName}">
     <span class="user-data d-flex">
      <span class="mr-3">
       <img src="${emblem}" class="user-avatar" alt="avatar" />
@@ -153,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
      </span>
     </span>
     <div class="user-message">${message}</div>
+    </div>
   `;
         return html.trim().replace(/\s+/g, " ").replace(/> </g, "><");
     }
