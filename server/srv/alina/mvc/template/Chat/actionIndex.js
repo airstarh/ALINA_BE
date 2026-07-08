@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message && conn && conn.readyState === WebSocket.OPEN) {
             conn.send(payload);
             input.value = "";
+            input.focus();
         } else if (conn && conn.readyState !== WebSocket.OPEN) {
             alert("No active connection. Waiting for reconnect...");
         } else {
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!messagesDiv) return;
 
         const div = document.createElement("div");
-        div.className = "user-message-wrapper";
+        div.className = "chat-message-wrapper";
         div.style.color = color;
         div.style.marginBottom = "22px";
         div.innerHTML = text;
@@ -138,12 +139,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const emblem = obj.CurrentUser?.emblem || "/noimage.png";
         const name = userName(obj.CurrentUser);
         const res = [
-            "<span>",
-            `<img src='${emblem}' style="max-height:50px;max-width:50px;" class="user-avatar" />`,
+            "<span class=user-data>",
+            `<img src='${emblem}' class="user-avatar" />`,
+            "<span class='user-name'>",
             name,
+            "</span>",
+            "&nbsp;",
+            "<span class='user-time'>",
+            currentDateTIme(),
+            "</span>",
             ": ",
             "</span>",
-            "<div>",
+            "<div class='user-message'>",
             obj?.msg || "[unrecognized]",
             "</div>",
         ];
@@ -156,5 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const parts = [firstname, lastname];
 
         return parts.filter((part) => part != null && part !== "").join(" ");
+    }
+
+    function currentDateTIme() {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        return dateStr;
     }
 });

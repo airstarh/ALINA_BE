@@ -139,6 +139,22 @@ html {
     /* Fallback color if image fails */
 }
 
+.user-name {
+    margin-left: 11px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.user-time {
+    margin-left: 11px;
+    font-size: 0.8em;
+    font-style: oblique;
+}
+
+.user-message {
+    margin-top: 5px;
+}
+
 /* 1. On mobiles - message block stays above keyboard automatically
      because:
        - body/html have 100% height + overflow hidden
