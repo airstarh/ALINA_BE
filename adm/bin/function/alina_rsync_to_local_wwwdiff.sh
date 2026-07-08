@@ -26,7 +26,7 @@ alina_rsync_to_local_wwwdiff() {
         return 1
     fi
 
-    rsync \
+    sudo rsync \
         -rltDv \
         --no-perms --no-owner --no-group \
         --itemize-changes \

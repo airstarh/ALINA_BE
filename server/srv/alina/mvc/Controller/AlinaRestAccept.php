@@ -92,8 +92,6 @@ class AlinaRestAccept
                     }
 
                     if ($command === 'Model') {
-
-
                         $modelName = Request::obj()->GET->m;
                         $mId       = Request::obj()->GET->mid;
                         $m         = modelNamesResolver::getModelObject($modelName);

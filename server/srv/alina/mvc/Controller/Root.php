@@ -88,4 +88,9 @@ class Root
         http_response_code($code);
         AlinaEcho((new html())->page(null, html::$htmLayoutErrorCatcher));
     }
+
+    public function actionStatus()
+    {
+        AlinaEcho((new html())->page(['ok']));
+    }
 }
