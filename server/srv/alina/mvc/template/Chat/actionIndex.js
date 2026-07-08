@@ -94,9 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function objTostring(obj) {
+        const emblem = obj.CurrentUser.emblem ? obj.CurrentUser.emblem : '/noimage.png';
         const res = [
             "<span>",
-            `<img src='${obj.CurrentUser.emblem}' style="max-height:50px;max-width:50px;" />`,
+            `<img src='${emblem}' style="max-height:50px;max-width:50px;" />`,
             "</span>",
             "<span>",
             obj.msg,
