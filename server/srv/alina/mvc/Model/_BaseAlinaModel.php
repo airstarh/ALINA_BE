@@ -848,6 +848,8 @@ class _BaseAlinaModel
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
             }
+            // NEVER uncomment this.
+            // Only those fields which are really matter!!!
             // else {
             //     $defaultRawObj->{$f} = null;
             // }
