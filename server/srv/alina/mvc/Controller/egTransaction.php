@@ -42,7 +42,8 @@ class egTransaction
             AlinaEchoDraft($res);
         }
         catch (\alina\AppException $e) {
-            AlinaEchoDraft('+++++ CATCH +++++');
+            error_log($e->getMessage());
+            AlinaEchoDraft($e);
         }
     }
 }

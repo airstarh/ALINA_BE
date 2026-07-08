@@ -30,7 +30,7 @@ class ChatServer implements MessageComponentInterface
     {
         // Отправляем сообщение всем, кроме отправителя
         foreach ($this->clients as $client) {
-            AlinaDebug($msg);
+            //VA: Message
             $client->send($msg);
             // if ($from !== $client) {
             //     $client->send($msg);

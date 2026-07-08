@@ -103,6 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "</span>",
         ];
 
-        return res;
+        return res.join(' ');
     }
 });
