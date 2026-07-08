@@ -1,5 +1,5 @@
 const ALINA = {
-    body: $("body"),
+    body:  $("body"),
     Utils: {
         Date: {
             toUnixTimeStampInSeconds: function (d) {
@@ -15,23 +15,23 @@ const ALINA = {
         $.each($datepicker, function (i, el) {
             //var $el = $(this); // This works too
             var $el = $(el);
-            var v = $el.val();
-            v = new Date(v * 1000);
+            var v   = $el.val();
+                v   = new Date(v * 1000);
             //##########
-            var altfield = $el.data("altfield");
-            altfield = "#" + altfield;
+            var altfield  = $el.data("altfield");
+                altfield  = "#" + altfield;
             var $altfield = $(altfield);
-            var $dp = $el.datepicker({
-                altFormat: "@",
-                altField: altfield,
-                dateFormat: "yy-mm-dd",
-                changeMonth: true,
-                changeYear: true,
-                showWeek: true,
-                firstDay: 1,
+            var $dp       = $el.datepicker({
+                altFormat:       "@",
+                altField:        altfield,
+                dateFormat:      "yy-mm-dd",
+                changeMonth:     true,
+                changeYear:      true,
+                showWeek:        true,
+                firstDay:        1,
                 showButtonPanel: true,
-                yearRange: "1900:2100",
-                onSelect: function (val, ctx) {
+                yearRange:       "1900:2100",
+                onSelect:        function (val, ctx) {
                     $altfield.val(
                         ALINA.Utils.Date.toUnixTimeStampInSeconds(val),
                     );
@@ -45,13 +45,13 @@ const ALINA = {
         //////////////////////////////////////////////////
         //region HashTags
         const regexHashTagList = /(^|\W)#([a-zA-Zа-яА-Я_]+[0-9\w-]*)/gim;
-        const txt = `$1<a href="/#/?txt=%23$2">#$2</a>`;
-        const allContentClass = ".ck-content";
-        const $allContent = $(allContentClass);
+        const txt              = `$1<a href="/#/?txt=%23$2">#$2</a>`;
+        const allContentClass  = ".ck-content";
+        const $allContent      = $(allContentClass);
         $.each($allContent, function (i, el) {
-            const $el = $(el);
-            let html = $el.html();
-            html = html.replace(regexHashTagList, txt);
+            const $el  = $(el);
+            let   html = $el.html();
+                  html = html.replace(regexHashTagList, txt);
             $el.html(html);
         });
         //endregion HashTags
@@ -59,16 +59,16 @@ const ALINA = {
         console.log("ALINA online");
         //////////////////////////////////////////////////
     },
-    currentUser: {
-        id: null,
-        mail: null,
+    CurrentUser: {
+        id:        null,
+        mail:      null,
         firstname: null,
-        lastname: null,
-        emblem: null,
+        lastname:  null,
+        emblem:    null,
     },
     getCurrentUser: async function (
-        url = "root/status",
-        payload = {},
+        url        = "root/status",
+        payload    = {},
         cookieName = "token",
     ) {
         const baseUrl = window.location.origin;
@@ -80,7 +80,7 @@ const ALINA = {
         fullUrl.searchParams.set("isAjax", 1);
 
         const cookies = document.cookie.split("; ");
-        const token = cookies
+        const token   = cookies
             .find((c) => c.startsWith(`${cookieName}=`))
             ?.split("=")[1];
 
@@ -89,17 +89,17 @@ const ALINA = {
         }
 
         const res = await fetch(fullUrl.toString(), {
-            method: "GET",
+            method:  "GET",
             headers: {
                 token: token,
-                fgp: navigator.userAgent,
+                fgp:   navigator.userAgent,
             },
         });
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const data = await res.json();
-        ALINA.currentUser = data.CurrentUser;
+        const data              = await res.json();
+              ALINA.CurrentUser = data.CurrentUser;
         return data;
     },
 };
