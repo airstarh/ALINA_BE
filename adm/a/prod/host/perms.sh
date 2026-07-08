@@ -8,7 +8,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Базовая директория
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR="."
 
 ALINA_USER_PHP=33
 ALINA_GROUP_PHP=33

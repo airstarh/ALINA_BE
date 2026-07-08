@@ -12,8 +12,6 @@ services:
       host.docker.internal: host-gateway
     expose:
       - "9000"
-    ports:
-      - "8080:8080"
     volumes:
       # php.ini
       - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
@@ -34,3 +32,30 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    depends_on:
+      - mysql
+
+  php82chat:
+    build:
+      context: ./docker/php82
+      args:
+        INSTALL_XDEBUG: "false"
+    container_name: alina_php82chat
+    restart: unless-stopped
+    expose:
+      - "8080"
+    env_file: _GITOUT/env/.env
+    environment:
+      - ALINA_MODE=PROD
+    volumes:
+      - ./server/srv/:/srv/:ro           # Code + chat logic
+      - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
+      - ./server/var/log/php/:/var/log/php/:rw
+    working_dir: /srv/alina
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      - php82
+      - mysql
+    command: php /srv/alina/program/chat/p.chat.run.php
