@@ -1,149 +1,27 @@
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body, html {
-    height: 100%;
-    overflow: hidden; /* 3. Whole page never scrolls */
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  }
-
-  .wrapper {
-    height: 100vh;
-    min-height: 0; /* Ensures inner flex items can shrink properly */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  /* 4. Small header with site name on the very top */
-  .chat-header {
-    flex: 0 0 auto;
-    height: 48px;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-bottom: 1px solid #333;
-    position: relative;
-    gap: 10px;
-  }
-
-  .chat-header h1 {
-    font-size: 16px;
-    font-weight: 500;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 90vw;
-    margin: 0;
-  }
-
-  /* Main content area: messages + input */
-  .main-content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* Critical: allows overflow to work inside flex */
-    width: 100%;
-  }
-
-  /* 2. Message block is always fully shown with scrollbar */
-  #messages {
-    flex: 1 1 auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    border: none;
-    padding: 12px;
-    overflow-y: auto;
-    background-color: #222222;
-    color: #dddddd;
-    min-height: 0; /* Required for scroll inside flex container */
-    width: 100%;
-  }
-
-  /* Scrollbar styling (optional, keeps it subtle) */
-  #messages::-webkit-scrollbar {
-    width: 6px;
-  }
-  #messages::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 3px;
-  }
-
-  /* Input area */
-  .user-input {
-    flex: 0 0 auto;
-    height: auto;
-    min-height: 56px; /* Mobile-friendly minimum height */
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    padding: 8px 12px;
-    background-color: #1a1a1a;
-    border-top: 1px solid #333;
-  }
-
-  .user-input textarea {
-    flex: 1 1 auto;
-    padding: 8px 12px;
-    border: 1px solid #444;
-    border-radius: 6px;
-    background-color: #333;
-    color: #fff;
-    resize: none;
-    min-height: 40px;
-    outline: none;
-  }
-
-  .user-input button {
-    padding: 8px 16px;
-    background-color: #0084ff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .user-input button:hover {
-    background-color: #006ad6;
-  }
-
-  /* 1. On mobiles - message block stays above keyboard automatically
-     because:
-       - body/html have 100% height + overflow hidden
-       - .wrapper is 100vh flex column
-       - input is at bottom; when keyboard opens, browser pushes input up,
-         but messages stay visible with their own internal scroll */
+    <? require __DIR__ . '/actionIndex.css' ?>
 </style>
 
 <div class="wrapper">
-  <!-- 4. Header with site name -->
-  <header class="chat-header">
-    <div><a href="/" class="home">🏚</a></div>
-    <h1><?= AlinaCfg('title') ?></h1>
-    <div><a href="" class="reload">⟳</a></div>
-  </header>
+    <!-- 4. Header with site name -->
+    <header class="chat-header">
+        <div><a href="/" class="home">🏚</a></div>
+        <h1><?= AlinaCfg('title') ?></h1>
+        <div><a href="" class="reload">⟳</a></div>
+    </header>
 
-  <div class="main-content">
-    <!-- 2 & 3. Messages container with its own scroll; IDs preserved for JS binding -->
-    <div id="messages"></div>
+    <div class="main-content">
+        <!-- 2 & 3. Messages container with its own scroll; IDs preserved for JS binding -->
+        <div id="messages"></div>
 
-    <!-- Input area (stays at bottom, pushed by keyboard on mobile) -->
-    <div class="user-input">
-      <textarea class="user-input-item" id="input" autocomplete="off" placeholder="Type a message..."></textarea>
-      <button class="user-input-item" id="send-btn"><?= ___('Send') ?></button>
+        <!-- Input area (stays at bottom, pushed by keyboard on mobile) -->
+        <div class="user-input">
+            <textarea class="user-input-item" id="input" autocomplete="off" placeholder="Type a message..."></textarea>
+            <button class="user-input-item" id="send-btn"><?= ___('Send') ?></button>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  <? require(__DIR__ . '/actionIndex.js') ?>
+<? require __DIR__ . '/actionIndex.js' ?>
 </script>

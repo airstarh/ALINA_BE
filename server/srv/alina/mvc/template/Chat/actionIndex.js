@@ -116,8 +116,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!messagesDiv) return;
 
         const div = document.createElement("div");
+        div.className = "user-message-wrapper";
         div.style.color = color;
-        div.style.marginBottom = "4px";
+        div.style.marginBottom = "22px";
         div.innerHTML = text;
         messagesDiv.appendChild(div);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
