@@ -3,37 +3,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const host = window.location.host;
     const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
     const wsUrl = `${protocol}//${host}/ws`;
-    console.log("Connecting...:", wsUrl);
+    console.log("Initializing WebSocket connection:", wsUrl);
 
-    let conn;
+    let conn = null;
+    let retryCount = 0;
+    const maxRetries = 3;
+    const retryDelayMs = 11000; // 11 seconds
 
-    try {
-        conn = new WebSocket(wsUrl);
-    } catch (e) {
-        console.error("WebSocket creation error", e);
-        appendMessage("WebSocket creation error", "red");
-        return;
+    function createConnection() {
+        try {
+            conn = new WebSocket(wsUrl);
+        } catch (e) {
+            console.error("WebSocket creation error", e);
+            appendMessage("WebSocket creation error", "red");
+            scheduleRetry();
+            return;
+        }
+
+        conn.onopen = function () {
+            console.log("WSS available");
+            retryCount = 0; // Reset retries on successful connect
+            appendMessage("WSS available", "green");
+        };
+
+        conn.onmessage = function (event) {
+            console.log("📩 Received:", event.data);
+            appendMessage(event.data, "#dddddd");
+        };
+
+        conn.onerror = function (error) {
+            console.error("❌ WebSocket error:", error);
+            // Do not treat error as immediate disconnect; onclose will handle reconnection
+        };
+
+        conn.onclose = function () {
+            console.warn("⚠️ Connection closed");
+            appendMessage("⚠️ Connection closed", "orange");
+            scheduleRetry();
+        };
     }
 
-    conn.onopen = function () {
-        console.log("WSS available");
-        appendMessage("WSS available", "green");
-    };
+    function scheduleRetry() {
+        if (retryCount >= maxRetries) {
+            console.error("Max retries reached. Please reload the page.");
+            appendMessage(
+                "❌ Max retries reached. Please <b>reload the page</b>.",
+                "red",
+            );
+            return;
+        }
 
-    conn.onmessage = function (event) {
-        console.log("📩 Received:", event.data);
-        appendMessage(event.data, "#dddddd");
-    };
+        retryCount++;
+        const timeLeft = ((maxRetries - retryCount + 1) * retryDelayMs) / 1000;
+        console.log(
+            `Retry attempt ${retryCount} of ${maxRetries} in ${retryDelayMs / 1000}s`,
+        );
+        appendMessage(
+            `⏳ Reconnecting in ${retryDelayMs / 1000}s (attempt ${retryCount}/${maxRetries})`,
+            "orange",
+        );
 
-    conn.onerror = function (error) {
-        console.error("❌ WebSocket error:", error);
-        appendMessage("❌ WebSocket error:", "red");
-    };
+        setTimeout(() => {
+            createConnection();
+        }, retryDelayMs);
+    }
 
-    conn.onclose = function () {
-        console.warn("⚠️ Connection closed");
-        appendMessage("⚠️ Connection closed", "orange");
-    };
+    // Start first connection
+    createConnection();
 
     const sendBtn = document.getElementById("send-btn");
     const input = document.getElementById("input");
@@ -46,12 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sendMessage() {
         const message = input.value.trim();
-        xxx = JSON.stringify({ msg: message, CurrentUser: ALINA.CurrentUser });
+        const payload = JSON.stringify({
+            msg: message,
+            CurrentUser: ALINA.CurrentUser,
+        });
+
         if (message && conn && conn.readyState === WebSocket.OPEN) {
-            conn.send(xxx);
+            conn.send(payload);
             input.value = "";
         } else if (conn && conn.readyState !== WebSocket.OPEN) {
-            alert("No connection. Check console.");
+            alert("No active connection. Waiting for reconnect...");
         } else {
             console.warn("WebSocket is not initialized");
         }
@@ -73,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const messagesDiv = document.getElementById("messages");
-        if (!messagesDiv) return; // Защита от null
+        if (!messagesDiv) return;
 
         const div = document.createElement("div");
         div.style.color = color;
@@ -94,16 +134,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function objTostring(obj) {
-        const emblem = obj.CurrentUser.emblem ? obj.CurrentUser.emblem : '/noimage.png';
+        const emblem = obj.CurrentUser?.emblem || "/noimage.png";
+        const name = userName(obj.CurrentUser);
         const res = [
             "<span>",
-            `<img src='${emblem}' style="max-height:50px;max-width:50px;" />`,
+            `<img src='${emblem}' style="max-height:50px;max-width:50px;" class="user-avatar" />`,
+            name,
+            ": ",
             "</span>",
-            "<span>",
-            obj.msg,
-            "</span>",
+            "<div>",
+            obj?.msg || "[unrecognized]",
+            "</div>",
         ];
+        return res.join("");
+    }
 
-        return res.join(' ');
+    function userName(CurrentUser) {
+        const firstname = CurrentUser?.firstname || "XXX";
+        const lastname = CurrentUser?.lastname || "";
+        const parts = [firstname, lastname];
+
+        return parts.filter((part) => part != null && part !== "").join(" ");
     }
 });
