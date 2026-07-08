@@ -97,9 +97,10 @@ const ALINA = {
         });
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const done = await res.json();
-        console.log(done);
-        return done;
+
+        const data = await res.json();
+        ALINA.currentUser = data.CurrentUser;
+        return data;
     },
 };
 $(document).ready(function () {
