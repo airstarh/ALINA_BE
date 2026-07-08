@@ -38,7 +38,7 @@ function messageToWeb(message) {
         return `
             <button type="button"
                 onclick="copyToClipboard('${jsSafeUrl}')"
-                style="margin-top:4px; padding:4px 8px; font-size:11px; cursor:pointer; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; vertical-align:middle;"
+                style="margin-top:4px; padding:4px 8px; font-size:11px; cursor:pointer; border:1px solid #ccc; border-radius:4px; vertical-align:middle;"
                 title="Copy URL">
                 🗎
             </button>
