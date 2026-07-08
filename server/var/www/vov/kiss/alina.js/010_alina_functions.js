@@ -18,8 +18,8 @@ function messageToWeb(message) {
 
     // Ищем URL. Регулярка простая, но рабочая для большинства случаев
     const urlRegex = /(https?:\/\/[^\s"'<>()]+)/gi;
-    const imageExtensions = /\.(png|jpg|jpeg|gif|webp|svg|bmp)\$/i;
-    const videoExtensions = /\.(mp4|webm|mov|avi|m4v)\$/i;
+    const imageExtensions = /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i;
+    const videoExtensions = /\.(mp4|webm|mov|avi|m4v)$/i;
 
     function escapeHtml(str) {
         if (typeof str !== "string") return "";
@@ -37,7 +37,7 @@ function messageToWeb(message) {
         const jsSafeUrl = safeUrl.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
         return `
             <button type="button"
-                onclick="copyToClipboard('\${jsSafeUrl}')"
+                onclick="copyToClipboard('${jsSafeUrl}')"
                 style="margin-top:4px; padding:4px 8px; font-size:11px; cursor:pointer; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; vertical-align:middle;"
                 title="Copy URL">
                 🗎
@@ -56,10 +56,10 @@ function messageToWeb(message) {
         if (imageExtensions.test(match)) {
             return `
                 <div style="display:inline-block; margin:5px 0; vertical-align:top;">
-                    <a href="\${safeUrl}" target="_blank" rel="noopener noreferrer" style="display:block; max-width:500px;">
-                        <img src="\${safeUrl}" style="max-width:100%; height:auto; display:block; border-radius:4px;" alt="image" />
+                    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="display:block; max-width:500px;">
+                        <img src="${safeUrl}" style="max-width:100%; height:auto; display:block; border-radius:4px;" alt="image" />
                     </a>
-                    \${getCopyButton(match)}
+                    ${getCopyButton(match)}
                 </div>
             `.trim();
         }
@@ -68,10 +68,10 @@ function messageToWeb(message) {
             return `
                 <div style="display:inline-block; margin:5px 0; vertical-align:top;">
                     <video controls playsinline style="max-width:500px; height:auto; display:block; border-radius:4px;">
-                        <source src="\${safeUrl}" type="video/mp4" />
+                        <source src="${safeUrl}" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
-                    \${getCopyButton(match)}
+                    ${getCopyButton(match)}
                 </div>
             `.trim();
         }
@@ -79,10 +79,10 @@ function messageToWeb(message) {
         // Обычная ссылка
         return `
             <div style="display:inline-block; margin:5px 0; vertical-align:top;">
-                <a href="\${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:#007bff; text-decoration:underline; word-break:break-all;">
-                    \${safeUrl}
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:#007bff; text-decoration:underline; word-break:break-all;">
+                    ${safeUrl}
                 </a>
-                \${getCopyButton(match)}
+                ${getCopyButton(match)}
             </div>
         `.trim();
     });
