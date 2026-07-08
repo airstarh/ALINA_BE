@@ -32,6 +32,7 @@
     z-index: 10;
     border-bottom: 1px solid #333;
     position: relative;
+    gap: 10px;
   }
 
   .chat-header h1 {
@@ -41,6 +42,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 90vw;
+    margin: 0;
   }
 
   /* Main content area: messages + input */
@@ -125,7 +127,9 @@
 <div class="wrapper">
   <!-- 4. Header with site name -->
   <header class="chat-header">
-    <h1>ALINA Chat</h1>
+    <div><a href="/" class="home">🏚</a></div>
+    <h1><?= AlinaCfg('title') ?></h1>
+    <div><a href="" class="reload">⟳</a></div>
   </header>
 
   <div class="main-content">
