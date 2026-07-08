@@ -24,16 +24,6 @@
 					"label": ""
 				}
 			]
-		},
-		{
-			"path": "server/srv/alina/mvc/template/Chat/actionIndex.js",
-			"bookmarks": [
-				{
-					"line": 178,
-					"column": 10,
-					"label": ""
-				}
-			]
 		}
 	]
 }

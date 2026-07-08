@@ -104,15 +104,6 @@ const ALINA = {
     },
 };
 
-window.copyToClipboard = async function (text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        // Optionally show a small toast instead of alert
-    } catch (e) {
-        console.error("Copy failed:", e);
-    }
-};
-
 $(document).ready(function () {
     window.ALINA = ALINA;
 });
