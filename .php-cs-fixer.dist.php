@@ -12,7 +12,7 @@ return (new PhpCsFixer\Config())
         'full_opening_tag' => false,
         'array_syntax' => ['syntax' => 'short'],
         'ordered_imports' => ['sort_algorithm' => 'alpha'],
-        'no_unused_imports' => true,
+        // 'no_unused_imports' => true,  // removed: rule does not exist
         'fully_qualified_strict_types' => true,
         'not_operator_with_successor_space' => true,
         'trailing_comma_in_multiline' => ['elements' => ['arrays']],
@@ -25,9 +25,6 @@ return (new PhpCsFixer\Config())
         'blank_line_before_statement' => [
             'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try', 'for', 'foreach', 'while', 'do'],
         ],
-        // 'blank_line_after_statement' => [
-        //     'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try', 'for', 'foreach', 'while', 'do'],
-        // ],
         'blank_line_after_opening_tag' => true,
         'no_extra_blank_lines' => false,
         'single_blank_line_at_eof' => true,
@@ -51,5 +48,4 @@ return (new PhpCsFixer\Config())
             'import_functions' => false,
         ],
     ])
-    ->setFinder($finder)
-    ;
+    ->setFinder($finder);

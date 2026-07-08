@@ -4,7 +4,6 @@ namespace alina\mvc\Model;
 
 use alina\AppCookie;
 use alina\Message;
-use alina\mvc\Model\user;
 use alina\traits\Singleton;
 use alina\Utils\Obj;
 use alina\Utils\Request;
