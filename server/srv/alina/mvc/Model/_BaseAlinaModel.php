@@ -848,9 +848,9 @@ class _BaseAlinaModel
             if (array_key_exists('default', $props)) {
                 $defaultRawObj->{$f} = $props['default'];
             }
-            else {
-                $defaultRawObj->{$f} = null;
-            }
+            // else {
+            //     $defaultRawObj->{$f} = null;
+            // }
         }
         $this->attributes = $defaultRawObj;
 
