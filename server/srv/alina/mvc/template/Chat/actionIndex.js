@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(text);
         if (isValidJsonString(text)) {
             const obj = JSON.parse(text);
-            text = objTostring(obj);
+            text = objToString(obj);
         }
 
         const messagesDiv = document.getElementById("messages");
@@ -135,26 +135,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function objTostring(obj) {
+    function objToString(obj) {
         const emblem = obj.CurrentUser?.emblem || "/noimage.png";
         const name = userName(obj.CurrentUser);
-        const res = [
-            "<span class=user-data>",
-            `<img src='${emblem}' class="user-avatar" />`,
-            "<span class='user-name'>",
-            name,
-            "</span>",
-            "&nbsp;",
-            "<span class='user-time'>",
-            currentDateTIme(),
-            "</span>",
-            ": ",
-            "</span>",
-            "<div class='user-message'>",
-            obj?.msg || "[unrecognized]",
-            "</div>",
-        ];
-        return res.join("");
+        const time = currentDateTIme();
+        const message = obj?.msg || "[unrecognized]";
+
+        const html = `
+    <span class="user-data d-flex">
+     <span class="mr-3">
+      <img src="${emblem}" class="user-avatar" alt="avatar" />
+     </span>
+     <span>
+      <span class="user-name">${name}</span>
+      &nbsp;
+      <span class="user-time">${time}</span>
+     </span>
+    </span>
+    <div class="user-message">${message}</div>
+  `;
+        return html.trim().replace(/\s+/g, " ").replace(/> </g, "><");
     }
 
     function userName(CurrentUser) {
