@@ -4,8 +4,8 @@ namespace alina\mvc\Model;
 
 use alina\AppCookie;
 use alina\Message;
+use alina\mvc\Model\user;
 use alina\traits\Singleton;
-use alina\Utils\Data;
 use alina\Utils\Obj;
 use alina\Utils\Request;
 
@@ -317,7 +317,7 @@ final class CurrentUser
 
     public function name()
     {
-        $res = static::$USER->attributes->mail;
+        $res = static::$USER->attributes->mail ?? '';
 
         if (empty($res)) {
             $res = ___('Not Logged-in');
