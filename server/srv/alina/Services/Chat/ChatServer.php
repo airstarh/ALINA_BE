@@ -29,29 +29,25 @@ class ChatServer implements MessageComponentInterface
         $conn->send(___('Connection established.'));
     }
 
-    public function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(ConnectionInterface $from, $msg): void
     {
         $this->lastMessagesStorage($msg);
 
-        // Отправляем сообщение всем, кроме отправителя
         foreach ($this->clients as $client) {
             if ($from === $client) {
                 $doShowLastMessages = false;
 
                 if (Data::isStringValidJson($msg, $objMessage)) {
-                    $doShowLastMessages = $objMessage?->stateChatJustOpened == 1;
+                    $doShowLastMessages = (int) ($objMessage?->stateChatJustOpened ?? 0) === 1;
                 }
 
-                if ($doShowLastMessages) {
-                    $msg = json_encode($this->lastMessages);
-                    $client->send($msg);
-                } else {
-                    $client->send($msg);
-                }
+                $payload = $doShowLastMessages ? json_encode($this->lastMessages) : $msg;
+                $client->send($payload);
+
+                continue;
             }
-            else {
-                $client->send($msg);
-            }
+
+            $client->send($msg);
         }
     }
 
@@ -72,7 +68,7 @@ class ChatServer implements MessageComponentInterface
     {
         $this->lastMessages[] = $msg;
 
-        if (count($this->lastMessages) > 5) {
+        if (count($this->lastMessages) > 50) {
             array_shift($this->lastMessages);
         }
 
