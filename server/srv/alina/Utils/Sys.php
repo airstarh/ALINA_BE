@@ -17,8 +17,6 @@ use Throwable;
 
 class Sys
 {
-    ##################################################
-
     private static array $flagStarted  = [];
     private static array $counterCalls = [];
     public static int $countSome1      = 0;
@@ -58,8 +56,6 @@ class Sys
 
         return $fPath;
     }
-
-    ##################################################
 
     private static string $fPath;
 
@@ -261,8 +257,6 @@ class Sys
         return $output;
     }
 
-    ##################################################
-
     public static function resolvePostDataAsObject()
     {
         $post = $_POST ?? [];
@@ -332,8 +326,6 @@ class Sys
 
         return false;
     }
-
-    ##################################################
 
     public static function setCrossDomainHeaders()
     {
@@ -409,7 +401,6 @@ class Sys
                         AlinaExit(__FUNCTION__);
                     }
 
-                    ##################################################
                     break;
             }
         }
@@ -469,8 +460,6 @@ class Sys
         AlinaExit('complex redirect');
     }
 
-    ##################################################
-
     public static function getMicroTimeDifferenceFromNow($microtime)
     {
         return microtime(true) - $microtime;
@@ -502,8 +491,6 @@ class Sys
         return implode(' | ', $res);
     }
 
-    ##################################################
-
     /**
      * !!! Requires rework!!!
      * Retrieve Cookies, which are set before page update.
@@ -530,8 +517,6 @@ class Sys
         return $cookies;
     }
 
-    ##################################################
-
     public static function template($fileFullPath, $data = null)
     {
         GlobalRequestStorage::setPlus1('TemplateQueries');
@@ -543,10 +528,6 @@ class Sys
 
         return $output;
     }
-
-    ##################################################
-    ##################################################
-    ##################################################
 
     public static function getReqMethod()
     {
@@ -597,8 +578,6 @@ class Sys
         return $lang;
     }
 
-    ##################################################
-
     /**
      * @return array
      */
@@ -610,8 +589,6 @@ class Sys
             'META' => GlobalRequestStorage::getAll(),
         ];
     }
-
-    ##################################################
 
     public static function dump($data, $depth = 5)
     {
@@ -672,8 +649,6 @@ class Sys
         return $output;
     }
 
-    ##################################################
-
     public static function getWhiteListController(): array
     {
         $res = [];
@@ -702,11 +677,4 @@ class Sys
 
         return $res;
     }
-
-
-
-    ##################################################
-    ##################################################
-    ##################################################
-    ##################################################
 }

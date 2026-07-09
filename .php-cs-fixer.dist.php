@@ -26,7 +26,7 @@ return (new PhpCsFixer\Config())
             'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try', 'for', 'foreach', 'while', 'do'],
         ],
         'blank_line_after_opening_tag' => true,
-        'no_extra_blank_lines' => false,
+        'no_extra_blank_lines' => true,
         'single_blank_line_at_eof' => true,
         'static_lambda' => true,
         'control_structure_continuation_position' => [
