@@ -21,13 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         conn.onopen = function () {
-            console.log("WSS available");
+            console.log("onopen:WSS available");
             retryCount = 0; // Reset retries on successful connect
             appendMessage("WSS available", "green");
         };
 
         conn.onmessage = function (event) {
-            console.log("📩 Received:", event.data);
+            console.log("onmessage");
             appendMessage(event.data, "#dddddd");
         };
 
