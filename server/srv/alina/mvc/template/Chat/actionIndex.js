@@ -33,34 +33,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         conn.onmessage = function (event) {
             console.log("onmessage");
-            text = event.data;
-            if (isValidJsonString(text)) {
-                const obj = JSON.parse(text);
-                // []
-                if (Array.isArray(obj)) {
-                    for (const [key, str] of obj.entries()) {
-                        if (isValidJsonString(str)) {
-                            ooo = JSON.parse(str);
-                            text = objToString(ooo);
-                        } else {
-                            text = str;
-                        }
-
-                        appendMessage(text, "#dddddd");
-                    }
-                    return;
-                }
-                // {}
-                else {
-                    text = objToString(obj);
-                    appendMessage(text, "#dddddd");
-                    return;
-                }
-            }
+            const text = event.data;
 
             // string
-            appendMessage(text, "#dddddd");
-            return;
+            if (!isValidJsonString(text)) {
+                appendMessage(text, "#dddddd");
+                return;
+            }
+
+            const data = JSON.parse(text);
+
+            // []
+            if (Array.isArray(data)) {
+                for (const [key, item] of data.entries()) {
+                    const msg = isValidJsonString(item)
+                        ? objToString(JSON.parse(item))
+                        : String(item);
+
+                    appendMessage(msg, "#dddddd");
+                }
+                return;
+            }
+            // {}
+            appendMessage(objToString(data), "#dddddd");
         };
 
         conn.onerror = function (error) {
