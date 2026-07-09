@@ -42,7 +42,6 @@ class pm_organization extends _BaseAlinaModel
         );
     }
 
-
     public function hookRightAfterSave($data)
     {
         //ToDo: Security

@@ -313,7 +313,6 @@ final class CurrentUser
         return $res;
     }
 
-
     public function name()
     {
         $res = static::$USER->attributes->mail ?? '';
@@ -386,7 +385,6 @@ final class CurrentUser
     ##################################################
     #region Utils
 
-
     protected function buildToken()
     {
         //return $this->LOGIN->attributes->token;
@@ -425,7 +423,6 @@ final class CurrentUser
 
         return $data;
     }
-
 
     public function messages()
     {

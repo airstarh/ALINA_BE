@@ -102,8 +102,6 @@ final class App
         return null;
     }
 
-
-
     private function setConfig(array $config = [])
     {
         $defaultConfigPath   = Utils\FS::normalizePath(ALINA_PATH_TO_FRAMEWORK_CONFIG);
@@ -317,7 +315,6 @@ final class App
             }
         }
     }
-
 
     private function mvcDefaultPage()
     {

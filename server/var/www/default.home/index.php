@@ -9,7 +9,6 @@ ini_set('display_startup_errors', 1);
 $v   = ['a','b','c'];
 $res = json_decode(json_encode($v), false);
 
-
 ####################################################################################################
 echo '<pre>';
 echo PHP_EOL;

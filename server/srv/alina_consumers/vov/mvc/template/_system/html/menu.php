@@ -1,6 +1,5 @@
 <?php
 
-
 $cu = alina\mvc\Model\CurrentUser::obj();
 $ua = $cu->attributes();
 ?>

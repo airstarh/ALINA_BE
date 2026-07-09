@@ -9,7 +9,6 @@ class pm_project extends _BaseAlinaModel
     public $table        = 'pm_project';
     public $addAuditInfo = true;
 
-
     public function fields()
     {
         return [

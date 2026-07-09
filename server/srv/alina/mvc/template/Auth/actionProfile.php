@@ -1,7 +1,6 @@
 <?php
 /** @var $data stdClass */
 
-
 $m = $data->user;
 //$sources = $data->sources;
 ?>

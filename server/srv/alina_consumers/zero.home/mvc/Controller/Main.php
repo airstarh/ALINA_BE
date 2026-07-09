@@ -21,7 +21,6 @@ class Main
         AlinaEcho((new \alina\mvc\View\html())->page());
     }
 
-
     public function actionTest()
     {
         Message::setInfo('Информационное сообщение');

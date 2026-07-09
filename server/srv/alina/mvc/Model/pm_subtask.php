@@ -59,7 +59,6 @@ class pm_subtask extends _BaseAlinaModel
         return $this;
     }
 
-
     #####
     public function pmWorkBulkUpdate($idSubtask = null)
     {
@@ -111,7 +110,6 @@ class pm_subtask extends _BaseAlinaModel
             'pm_subtask_id'      => $this->attributes->id,
             'flag_archived'      => 0,
         ];
-
 
         $mWork->upsertByUniqueFields($dataWork, [
             [

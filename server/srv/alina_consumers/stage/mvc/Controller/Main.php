@@ -23,7 +23,6 @@ class Main
         ]));
     }
 
-
     public function actionTest()
     {
         Message::setInfo('Информационное сообщение');

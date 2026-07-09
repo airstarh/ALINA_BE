@@ -75,7 +75,6 @@ class Data
         return $obj;
     }
 
-
     //@link https://stackoverflow.com/a/6041773/3142281
     public static function isStringValidJson($string, &$objDecoded = null)
     {

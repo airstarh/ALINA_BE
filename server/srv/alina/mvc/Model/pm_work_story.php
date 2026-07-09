@@ -212,7 +212,6 @@ class pm_work_story extends _BaseAlinaModel
         return $this->monkeyVar;
     }
 
-
     public function doArchiveWorkDone($idWorkDone)
     {
         $models = $this->boundModelsByWorkDoneId($idWorkDone);
@@ -246,7 +245,6 @@ class pm_work_story extends _BaseAlinaModel
 
         return $this;
     }
-
 
     public function hookRightBeforeSave(&$dataArray)
     {
