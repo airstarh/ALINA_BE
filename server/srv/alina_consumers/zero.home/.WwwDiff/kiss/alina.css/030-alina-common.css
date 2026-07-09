@@ -232,7 +232,7 @@ figure.alina-figure-content
 /*region UTILS*/
 
 .alina-vh-100
-{min-height: 100vh;}
+{min-height: 100dvh;}
 
 .alina-main-bg
 {background-color: var(--alina-main-bg) !important;}
