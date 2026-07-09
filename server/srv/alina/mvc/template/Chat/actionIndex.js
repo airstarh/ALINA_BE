@@ -149,16 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    function isValidJsonString(str) {
-        if (typeof str !== "string") return false;
-        try {
-            const parsed = JSON.parse(str);
-            return typeof parsed === "object" && parsed !== null;
-        } catch (e) {
-            return false;
-        }
-    }
-
     function objToString(obj) {
         const id = obj.CurrentUser?.id || -1;
         const emblem = obj.CurrentUser?.emblem || "/noimage.png";
