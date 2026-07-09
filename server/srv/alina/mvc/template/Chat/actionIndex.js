@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxRetries = 3;
     const retryDelayMs = 11000; // 11 seconds
 
+    // States
+    let stateChatJustOpened = 1;
+
     function createConnection() {
         try {
             conn = new WebSocket(wsUrl);
@@ -20,15 +23,44 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        conn.onopen = function () {
+        conn.onopen = async function () {
             console.log("onopen:WSS available");
             retryCount = 0; // Reset retries on successful connect
             appendMessage("WSS available", "green");
+            await ALINA.getCurrentUser();
+            sendMessage("Online!");
         };
 
         conn.onmessage = function (event) {
             console.log("onmessage");
-            appendMessage(event.data, "#dddddd");
+            text = event.data;
+            if (isValidJsonString(text)) {
+                const obj = JSON.parse(text);
+                // []
+                if (Array.isArray(obj)) {
+                    for (const [key, str] of obj.entries()) {
+                        if (isValidJsonString(str)) {
+                            ooo = JSON.parse(str);
+                            text = objToString(ooo);
+                        } else {
+                            text = str;
+                        }
+
+                        appendMessage(text, "#dddddd");
+                    }
+                    return;
+                }
+                // {}
+                else {
+                    text = objToString(obj);
+                    appendMessage(text, "#dddddd");
+                    return;
+                }
+            }
+
+            // string
+            appendMessage(text, "#dddddd");
+            return;
         };
 
         conn.onerror = function (error) {
@@ -80,17 +112,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    function sendMessage() {
-        const message = input.value.trim();
+    function sendMessage(aPromise) {
+        const message =
+            typeof aPromise === "string" ? aPromise : input.value.trim();
         const payload = JSON.stringify({
             msg: message,
             CurrentUser: ALINA.CurrentUser,
+            stateChatJustOpened: stateChatJustOpened,
         });
 
         if (message && conn && conn.readyState === WebSocket.OPEN) {
             conn.send(payload);
             input.value = "";
             input.focus();
+            stateChatJustOpened = 0;
         } else if (conn && conn.readyState !== WebSocket.OPEN) {
             alert("No active connection. Waiting for reconnect...");
         } else {
@@ -107,11 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function appendMessage(text, color) {
-        if (isValidJsonString(text)) {
-            const obj = JSON.parse(text);
-            text = objToString(obj);
-        }
-
         const messagesDiv = document.getElementById("messages");
         if (!messagesDiv) return;
 
@@ -175,6 +205,4 @@ document.addEventListener("DOMContentLoaded", () => {
         const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         return dateStr;
     }
-
-
 });

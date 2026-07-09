@@ -100,7 +100,7 @@ const ALINA = {
 
         const data = await res.json();
         ALINA.CurrentUser = data.CurrentUser;
-        return data;
+        return ALINA.CurrentUser;
     },
 };
 
