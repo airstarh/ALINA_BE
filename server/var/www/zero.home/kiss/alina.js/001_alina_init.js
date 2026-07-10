@@ -60,16 +60,18 @@ const ALINA = {
         //////////////////////////////////////////////////
     },
     CurrentUser: {
-        id: null,
-        mail: null,
-        firstname: null,
-        lastname: null,
-        emblem: null,
+        id: -1,
+        mail: "xxx@xxx.xxx",
+        firstname: "Anonym",
+        lastname: "Anonym",
+        emblem: "/noimage.png",
     },
+
     getCurrentUser: async function (
         url = "root/status",
         payload = {},
-        cookieName = "token",
+        cookieNameToken = "token",
+        cookieNameUid = "uid",
     ) {
         const baseUrl = window.location.origin;
         const fullUrl = new URL(baseUrl + "/" + url.replace(/^\//, ""));
@@ -81,16 +83,25 @@ const ALINA = {
 
         const cookies = document.cookie.split("; ");
         const token = cookies
-            .find((c) => c.startsWith(`${cookieName}=`))
+            .find((c) => c.startsWith(`${cookieNameToken}=`))
             ?.split("=")[1];
 
         if (!token) {
-            throw new Error("Token not found in cookies");
+            return ALINA.CurrentUser;
+        }
+
+        const uid = cookies
+            .find((c) => c.startsWith(`${cookieNameUid}=`))
+            ?.split("=")[1];
+
+        if (!uid) {
+            return ALINA.CurrentUser;
         }
 
         const res = await fetch(fullUrl.toString(), {
             method: "GET",
             headers: {
+                uid: uid,
                 token: token,
                 fgp: navigator.userAgent,
             },
