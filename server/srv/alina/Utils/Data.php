@@ -602,6 +602,10 @@ class Data
     #####
     public static function stringify($data)
     {
+        if ($data === null) {
+            return '';
+        }
+
         $res = json_encode($data, JSON_UNESCAPED_UNICODE);
         $res = json_decode($res, true);
 

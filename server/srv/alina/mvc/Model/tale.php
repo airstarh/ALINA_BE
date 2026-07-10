@@ -27,6 +27,7 @@ class tale extends _BaseAlinaModel
             ],
             'body' => [
                 'filters' => [
+                    ['\alina\utils\Data', 'stringify'],
                     ['\alina\utils\Data', 'filterVarStrHtml'],
                 ],
                 'validators' => [
@@ -34,18 +35,19 @@ class tale extends _BaseAlinaModel
                         // 'f' - Could be a closure, string with function name or an array
                         'f' => static function ($v, $data = null) {
                             if ($data->is_submitted == 1) {
-                                return trim(strip_tags($v));
+                                return trim(strip_tags((string)$v));
                             }
 
                             return true;
                         },
                         'errorIf' => ['', false, null],
-                        'msg'     => 'Tale Body is required!',
+                        'msg'     => 'Field is required.',
                     ],
                 ],
             ],
             'body_txt' => [
                 'filters' => [
+                    ['\alina\utils\Data', 'stringify'],
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
             ],
@@ -214,11 +216,11 @@ class tale extends _BaseAlinaModel
         $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale1 WHERE tale1.answer_to_tale_id = {$this->alias}.{$this->pkName} AND tale1.created_at > {$this->alias}.created_at) AS count_answer_to_tale_id"));
         $q->addSelect(Dal::raw("(SELECT COUNT(*) FROM tale AS tale2 WHERE tale2.root_tale_id = {$this->alias}.{$this->pkName} AND tale2.created_at > {$this->alias}.created_at) AS count_root_tale_id"));
         $q->addSelect(Dal::raw("
-            (SELECT COUNT(*) 
-                FROM lk AS lk 
-                WHERE 
+            (SELECT COUNT(*)
+                FROM lk AS lk
+                WHERE
                         lk.ref_id = {$this->alias}.{$this->pkName}
-                    AND lk.ref_table = 'tale' 
+                    AND lk.ref_table = 'tale'
                     AND lk.created_at > {$this->alias}.created_at
             ) AS count_like
         "));
