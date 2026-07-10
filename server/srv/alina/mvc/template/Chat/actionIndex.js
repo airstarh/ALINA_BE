@@ -2,8 +2,18 @@
 document.addEventListener("DOMContentLoaded", () => {
     const host = window.location.host;
     const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
+
+    // Channel logic: default '1', override from ?channel=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentChannel = urlParams.get("channel") || "1";
+
     const wsUrl = `${protocol}//${host}/ws`;
-    console.log("Initializing WebSocket connection:", wsUrl);
+    console.log(
+        "Initializing WebSocket connection:",
+        wsUrl,
+        "channel:",
+        currentChannel,
+    );
 
     let conn = null;
     let retryCount = 0;
@@ -28,22 +38,22 @@ document.addEventListener("DOMContentLoaded", () => {
             retryCount = 0; // Reset retries on successful connect
             appendMessage("WSS available", "green");
             await ALINA.getCurrentUser();
-            sendMessage("Online!");
+            // Send initial join with channel and state
+            sendMessage(`JOIN:${currentChannel}`);
         };
 
         conn.onmessage = function (event) {
             console.log("onmessage");
             const text = event.data;
 
-            // string
             if (!isValidJsonString(text)) {
+                // Handle non-JSON (could be legacy single-string messages)
                 appendMessage(text, "#dddddd");
                 return;
             }
 
             const data = JSON.parse(text);
 
-            // []
             if (Array.isArray(data)) {
                 for (const [key, item] of data.entries()) {
                     const msg = isValidJsonString(item)
@@ -60,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         conn.onerror = function (error) {
             console.error("❌ WebSocket error:", error);
-            // Do not treat error as immediate disconnect; onclose will handle reconnection
         };
 
         conn.onclose = function () {
@@ -107,20 +116,39 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    function sendMessage(aPromise) {
-        const message =
-            typeof aPromise === "string" ? aPromise : input.value.trim();
-        const payload = JSON.stringify({
+    function sendMessage(rawInput) {
+        let message = "";
+        let isJoinCommand = false;
+
+        if (typeof rawInput === "string" && rawInput.startsWith("JOIN:")) {
+            isJoinCommand = true;
+            message = rawInput;
+        } else {
+            message =
+                typeof rawInput === "string" ? rawInput : input.value.trim();
+        }
+
+        const payloadObj = {
             msg: message,
             CurrentUser: ALINA.CurrentUser,
             stateChatJustOpened: stateChatJustOpened,
-        });
+            channel: currentChannel, // Attach channel to every message
+        };
 
-        if (message && conn && conn.readyState === WebSocket.OPEN) {
+        // For JOIN command, we still send JSON but keep the msg field as the JOIN token
+        const payload = JSON.stringify(payloadObj);
+
+        if (
+            (message || isJoinCommand) &&
+            conn &&
+            conn.readyState === WebSocket.OPEN
+        ) {
             conn.send(payload);
-            input.value = "";
-            input.focus();
-            stateChatJustOpened = 0;
+            if (!isJoinCommand) {
+                input.value = "";
+                input.focus();
+                stateChatJustOpened = 0;
+            }
         } else if (conn && conn.readyState !== WebSocket.OPEN) {
             alert("No active connection. Waiting for reconnect...");
         } else {
@@ -150,6 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function objToString(obj) {
+        // Legacy compat: if old single-string format arrives, handle gracefully
+        if (typeof obj === "string") {
+            return `<div class="p-2 rounded">${obj}</div>`;
+        }
+
         const id = obj.CurrentUser?.id || -1;
         const emblem = obj.CurrentUser?.emblem || "/noimage.png";
         const name = userName(obj.CurrentUser);
