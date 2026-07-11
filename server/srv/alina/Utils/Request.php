@@ -30,21 +30,13 @@ class Request
 
     protected function __construct()
     {
-        $this->HEADERS      = Data::toObject(getallheaders());
-        $this->GET          = Sys::resolveGetDataAsObject();
-        $this->POST         = Sys::resolvePostDataAsObject();
-        $this->COOKIE       = Data::toObject($_COOKIE ?? []);
-        $this->FILES        = Data::toObject($_FILES ?? []);
-        $this->SERVER       = Data::toObject($_SERVER ?? []);
-        $this->R            = Data::toObject($_REQUEST ?? []);
-        $this->METHOD       = Sys::getReqMethod()      ?? 'CLI';
-        $this->IP           = Sys::getUserIp();
-        $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
-        $this->DOMAIN       = $_SERVER['HTTP_HOST']   ?? 'CLI';
-        $this->BROWSER      = Sys::getUserBrowser();
-        $this->URL_NATIVE   = $_SERVER['REQUEST_URI'] ?? 'CLI';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
-        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
+        $this->HEADERS = Data::toObject(getallheaders());
+        $this->GET     = Sys::resolveGetDataAsObject();
+        $this->POST    = Sys::resolvePostDataAsObject();
+        $this->COOKIE  = Data::toObject($_COOKIE ?? []);
+        $this->FILES   = Data::toObject($_FILES ?? []);
+        $this->SERVER  = Data::toObject($_SERVER ?? []);
+        $this->R       = Data::toObject($_REQUEST ?? []);
         /**
          * ATTENTION: cannot be defined here since USER constructor is referred to this constructor. RECURSION!!!
          */
@@ -53,49 +45,20 @@ class Request
 
     public function firstStep()
     {
-        $this->AJAX     = Sys::isAjax();
-        $this->LANGUAGE = $this->getUserLanguage();
-        $this->processBrowserData();
-
-        return $this;
-    }
-
-    protected function processBrowserData()
-    {
-        $this->BROWSER_enc = Browser::hash($this->BROWSER);
+        $this->AJAX         = Sys::isAjax();
+        $this->METHOD       = Sys::getReqMethod() ?? 'CLI';
+        $this->IP           = Sys::getUserIp();
+        $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
+        $this->DOMAIN       = $_SERVER['HTTP_HOST']    ?? 'CLI';
+        $this->URL_NATIVE   = $_SERVER['REQUEST_URI']  ?? 'CLI';
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
+        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
+        $this->LANGUAGE     = $this->getUserLanguage();
+        $this->BROWSER      = Sys::getUserBrowser();
+        $this->BROWSER_enc  = Browser::hash($this->BROWSER);
 
         //ToDO: invoke get_browser()
         return $this;
-    }
-
-    public function TOTAL_DEBUG_DATA()
-    {
-        $res = [
-            'DOMAIN'       => $this->DOMAIN,
-            'URL_PATH'     => $this->URL_PATH,
-            'QUERY_STRING' => $this->QUERY_STRING,
-            'METHOD'       => $this->METHOD,
-            'AJAX'         => $this->AJAX,
-            'IP'           => $this->IP,
-            'BROWSER'      => $this->BROWSER,
-            'LANGUAGE'     => $this->LANGUAGE,
-            'HEADERS'      => $this->HEADERS,
-            'COOKIE'       => $this->COOKIE,
-            'GET'          => $this->GET,
-            'POST'         => $this->POST,
-            'FILES'        => $this->FILES,
-            'SERVER'       => $this->SERVER,
-        ];
-
-        return $res;
-    }
-
-    public function tryHeader($prop, &$val = null, $default = null)
-    {
-        $tmp = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
-        $val = $tmp ?? $default;
-
-        return $val;
     }
 
     protected function getUserLanguage()
@@ -114,6 +77,15 @@ class Request
 
     ##################################################
     #region Facade
+
+    public function tryHeader($prop, &$val = null, $default = null)
+    {
+        $tmp = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
+        $val = $tmp ?? $default;
+
+        return $val;
+    }
+
     public function isPost(&$post = null)
     {
         $is = $this->METHOD === 'POST';

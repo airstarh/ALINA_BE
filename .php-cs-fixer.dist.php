@@ -25,7 +25,7 @@ return (new PhpCsFixer\Config())
             'statements' => ['if', 'return', 'break', 'continue', 'throw', 'try', 'for', 'foreach', 'while', 'do'],
         ],
         'blank_line_after_opening_tag' => true,
-        // 'no_extra_blank_lines' => true,  <-- лучше убрать: будет удалять лишние пустые строки, в т.ч. нужные
+        // Важно: НЕ включаем no_extra_blank_lines — он конфликтует с требованием одной пустой строки
         'single_blank_line_at_eof'                => true,
         'static_lambda'                           => true,
         'control_structure_continuation_position' => [
@@ -46,13 +46,13 @@ return (new PhpCsFixer\Config())
             'import_constants' => false,
             'import_functions' => false,
         ],
-        // Главное правило для разделения методов пустыми строками:
+        // Гарантирует ровно одну пустую строку между методами
         'class_attributes_separation' => [
             'elements' => [
                 'method' => 'one',
-                // при желании можно аналогично настроить property/const:
+                // Если хочешь так же для свойств и констант — раскомментируй:
                 // 'property' => 'one',
-                // 'const' => 'one',
+                // 'const'    => 'one',
             ],
         ],
     ])
