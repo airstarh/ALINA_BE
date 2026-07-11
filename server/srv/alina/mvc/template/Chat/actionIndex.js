@@ -118,15 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sendMessage(rawInput) {
         let message = "";
-        let isJoinCommand = false;
 
-        if (typeof rawInput === "string" && rawInput.startsWith("JOIN:")) {
-            isJoinCommand = true;
-            message = rawInput;
-        } else {
-            message =
-                typeof rawInput === "string" ? rawInput : input.value.trim();
-        }
+        message = typeof rawInput === "string" ? rawInput : input.value.trim();
 
         const payloadObj = {
             msg: message,
@@ -138,17 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // For JOIN command, we still send JSON but keep the msg field as the JOIN token
         const payload = JSON.stringify(payloadObj);
 
-        if (
-            (message || isJoinCommand) &&
-            conn &&
-            conn.readyState === WebSocket.OPEN
-        ) {
+        if (message && conn && conn.readyState === WebSocket.OPEN) {
             conn.send(payload);
-            if (!isJoinCommand) {
-                input.value = "";
-                input.focus();
-                stateChatJustOpened = 0;
-            }
+            input.value = "";
+            input.focus();
+            stateChatJustOpened = 0;
         } else if (conn && conn.readyState !== WebSocket.OPEN) {
             alert("No active connection. Waiting for reconnect...");
         } else {

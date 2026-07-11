@@ -74,7 +74,7 @@ class ChatServer implements MessageComponentInterface
 
         foreach ($roomClients as $client) {
             try {
-                if ($from === $client && $doShowLastMessages) {
+                if ($doShowLastMessages) {
                     // Send full history to this client
                     $client->send(json_encode($this->lastMessages[$channel]));
                 }
@@ -84,7 +84,7 @@ class ChatServer implements MessageComponentInterface
                 }
             }
             catch (Throwable $e) {
-                // Handle send errors (client may be dead); cleanup will happen in onClose
+                $client->send($e->getMessage());
             }
         }
     }
