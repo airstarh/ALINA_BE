@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let conn = null;
     let retryCount = 0;
-    const maxRetries = 3;
+    const maxRetries = 10;
     const retryDelayMs = 11000; // 11 seconds
 
     // States
