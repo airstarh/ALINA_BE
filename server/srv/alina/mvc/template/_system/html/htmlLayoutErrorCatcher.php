@@ -25,6 +25,5 @@ use alina\mvc\View\html;
         <?= (new html())->piece(html::$htmlFooter) ?>
     </div>
 </div>
-<? require_once '_commonFooter2.php' ?>
 </body>
 </html>

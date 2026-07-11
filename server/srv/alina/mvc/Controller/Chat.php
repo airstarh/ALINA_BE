@@ -4,6 +4,7 @@ namespace alina\mvc\Controller;
 
 use alina\Message;
 use alina\mvc\View\html as html;
+use alina\Utils\Request;
 
 class Chat
 {
@@ -19,7 +20,8 @@ class Chat
     {
         // Message::setDanger('Test');
         $vd = [
-            'args' => $arg,
+            'args'    => $arg,
+            'channel' => (string) (Request::obj()->GET->channel ?? '1'),
         ];
         #####
         AlinaEcho((new html())->page($vd, html::$htmlLayoutVirgin));

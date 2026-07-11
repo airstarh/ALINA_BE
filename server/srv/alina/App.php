@@ -41,7 +41,7 @@ final class App
         set_exception_handler([AppExceptionCatcher::obj(), 'exception']);
         set_error_handler([AppExceptionCatcher::obj(), 'error']);
         #####
-        Request::obj();
+        Request::obj()->firstStep();
         CurrentUser::obj();
         Watcher::obj()->firstStep();
         #####

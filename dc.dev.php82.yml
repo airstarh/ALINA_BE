@@ -5,6 +5,7 @@ services:
       args:
         INSTALL_XDEBUG: "true"
     restart: unless-stopped
+    mem_limit: 128M
     env_file: _GITOUT/env/.env
     container_name: alina_php82
     extra_hosts:
@@ -41,6 +42,7 @@ services:
         INSTALL_XDEBUG: "false"
     container_name: alina_php82chat
     restart: unless-stopped
+    mem_limit: 128M
     expose:
       - "8080"
     env_file: _GITOUT/env/.env

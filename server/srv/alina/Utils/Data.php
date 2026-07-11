@@ -177,7 +177,8 @@ class Data
 
     public static function itrCastToHealth(&$itr)
     {
-        /*
+        AlinaDebug($itr);
+    /*
          * $itr is iterable value
          * */
         if (static::isIterable($itr)) {
@@ -592,6 +593,11 @@ class Data
         $r = array_filter((array) $d);
 
         return is_array($d) ? (array) $r : (object) $r;
+    }
+
+    public static function getFirstNonEmpty(array $array, $default = null)
+    {
+        return array_values(array_filter($array))[0] ?? $default;
     }
 
     public static function isValidMd5($md5)
@@ -1011,7 +1017,7 @@ class Data
     }
     #endregion Pagination
     ##################################################
-    public static function XXX(): object
+    public static function XXX(): null
     {
         return null;
     }

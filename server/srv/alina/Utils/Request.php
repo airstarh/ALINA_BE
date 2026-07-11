@@ -30,35 +30,42 @@ class Request
 
     protected function __construct()
     {
-        $this->DOMAIN       = $_SERVER['HTTP_HOST']   ?? 'CLI';
-        $this->URL_NATIVE   = $_SERVER['REQUEST_URI'] ?? 'CLI';
-        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
-        $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
-        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
-        $this->METHOD       = Sys::getReqMethod() ?? 'CLI';
-        $this->AJAX         = Sys::isAjax();
         $this->HEADERS      = Data::toObject(getallheaders());
         $this->GET          = Sys::resolveGetDataAsObject();
         $this->POST         = Sys::resolvePostDataAsObject();
-        $this->IP           = Sys::getUserIp();
-        $this->BROWSER      = Sys::getUserBrowser();
-        $this->LANGUAGE     = Sys::getUserLanguage();
         $this->COOKIE       = Data::toObject($_COOKIE ?? []);
         $this->FILES        = Data::toObject($_FILES ?? []);
         $this->SERVER       = Data::toObject($_SERVER ?? []);
         $this->R            = Data::toObject($_REQUEST ?? []);
-        #####
-        $this->processBrowserData();
+        $this->METHOD       = Sys::getReqMethod()      ?? 'CLI';
+        $this->IP           = Sys::getUserIp();
+        $this->REFERAL      = $_SERVER['HTTP_REFERER'] ?? '';
+        $this->DOMAIN       = $_SERVER['HTTP_HOST']   ?? 'CLI';
+        $this->BROWSER      = Sys::getUserBrowser();
+        $this->URL_NATIVE   = $_SERVER['REQUEST_URI'] ?? 'CLI';
+        $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
+        $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
         /**
          * ATTENTION: cannot be defined here since USER constructor is referred to this constructor. RECURSION!!!
          */
         //$this->USER     = CurrentUser::obj()->attributes();
     }
 
+    public function firstStep()
+    {
+        $this->AJAX     = Sys::isAjax();
+        $this->LANGUAGE = $this->getUserLanguage();
+        $this->processBrowserData();
+
+        return $this;
+    }
+
     protected function processBrowserData()
     {
         $this->BROWSER_enc = Browser::hash($this->BROWSER);
+
         //ToDO: invoke get_browser()
+        return $this;
     }
 
     public function TOTAL_DEBUG_DATA()
@@ -83,9 +90,26 @@ class Request
         return $res;
     }
 
-    public function tryHeader($prop, &$val = null)
+    public function tryHeader($prop, &$val = null, $default = null)
     {
-        return Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
+        $tmp = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
+        $val = $tmp ?? $default;
+
+        return $val;
+    }
+
+    protected function getUserLanguage()
+    {
+        $lang = 'ru_RU';
+
+        return Data::getFirstNonEmpty(
+            [
+            $this->R->LANGUAGE ?? null, // GIT POST COOKIE
+            $this->tryHeader('LANGUAGE'),
+            substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2),
+            $lang,
+        ]
+        );
     }
 
     ##################################################

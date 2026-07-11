@@ -28,6 +28,5 @@ use alina\mvc\View\html;
 
     </div>
 </div>
-<? require_once '_commonFooter2.php' ?>
 </body>
 </html>

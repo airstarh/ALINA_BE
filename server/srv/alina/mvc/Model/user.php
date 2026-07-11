@@ -5,6 +5,7 @@ namespace alina\mvc\Model;
 use alina\mvc\Model\tale as taleAlias;
 use alina\Utils\Data;
 use alina\Utils\DateTime;
+use alina\Utils\Request;
 use alina\Utils\Str;
 use alina\Utils\Sys;
 use ErrorException;
@@ -110,9 +111,10 @@ class user extends _BaseAlinaModel
             ],
             'language' => [
                 'filters' => [
+                    ['\alina\utils\Data', 'stringify'],
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
-                'default' => Sys::getUserLanguage(),
+                'default' => Request::obj()->LANGUAGE,
             ],
             'about_myself' => [
                 'type'    => 'textarea',

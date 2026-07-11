@@ -8,7 +8,7 @@ use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
 use alina\mvc\Model\CurrentUser;
-use alina\Utils\Data as DataAlias;
+use alina\Utils\Data as Data;
 
 use function GuzzleHttp\json_encode;
 
@@ -117,7 +117,7 @@ class Sys
                     break;
 
                 case 'json':
-                    $output = DataAlias::hlpGetBeautifulJsonString($data);
+                    $output = Data::hlpGetBeautifulJsonString($data);
 
                     break;
                 case 'flat':
@@ -265,8 +265,8 @@ class Sys
             $post = file_get_contents('php://input');
         }
 
-        $res = DataAlias::toObject($post);
-        DataAlias::itrCastToHealth($res);
+        $res = Data::toObject($post);
+        Data::itrCastToHealth($res);
 
         return $res;
     }
@@ -274,50 +274,29 @@ class Sys
     public static function resolveGetDataAsObject()
     {
         $get = $_GET ?? [];
-        $res = DataAlias::toObject($get);
+        $res = Data::toObject($get);
 
         return $res;
     }
 
-    public static function isAjax()
+    public static function isAjax(): bool
     {
-        if (! empty($_GET['isAjax']) && $_GET['isAjax'] == 1) {
+        if (isset($_GET['isAjax']) && $_GET['isAjax'] === '1') {
             return true;
         }
 
-        if (! empty($_POST['isAjax']) && $_POST['isAjax'] == 1) {
+        if (isset($_POST['isAjax']) && $_POST['isAjax'] === '1') {
             return true;
         }
 
-        // Cross Domain AJAX request.
-        if (! empty($_SERVER['HTTP_HOST'])) {
-            $h = Url::cleanDomain($_SERVER['HTTP_HOST']);
+        $xRequestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? null;
 
-            if (! empty($_SERVER['HTTP_ORIGIN'])) {
-                $o = Url::cleanDomain($_SERVER['HTTP_ORIGIN']);
-
-                if ($o !== $h) {
-                    return true;
-                }
-            }
-
-            // if (!empty($_SERVER['HTTP_REFERER'])) {
-            //     $r = Url::cleanDomain($_SERVER['HTTP_REFERER']);
-            //     if ($r !== $h) {
-            //         return TRUE;
-            //     }
-            // }
+        if ($xRequestedWith === 'AlinaFetchApi') {
+            return true;
         }
 
-        if (! empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            // if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest') {
-            //     return TRUE;
-            // }
-            if (
-                isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'AlinaFetchApi'
-            ) {
-                return true;
-            }
+        if (strtolower((string)$xRequestedWith) === 'xmlhttprequest') {
+            return true;
         }
 
         if (! empty($_SERVER['HTTP_REQUESTED_WITH'])) {
@@ -565,29 +544,6 @@ class Sys
 
         // Если IP внутренний (например, 172.19.0.4), возвращаем хотя бы его
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'CLI';
-    }
-
-    public static function getUserLanguage()
-    {
-        $lang = 'en';
-
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
-        }
-
-        return $lang;
-    }
-
-    /**
-     * @return array
-     */
-    public static function SUPER_DEBUG_INFO()
-    {
-        return [
-            'REQUEST' => Request::obj()->TOTAL_DEBUG_DATA(),
-            //VA: ATTAENTION 'ROUTER'  => Alina()->router,
-            'META' => GlobalRequestStorage::getAll(),
-        ];
     }
 
     public static function dump($data, $depth = 5)
