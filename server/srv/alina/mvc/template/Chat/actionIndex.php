@@ -1,3 +1,6 @@
+<?php
+/** @var \stdClass $data */
+?>
 <style>
     <? require __DIR__ . '/actionIndex.css' ?>
 </style>
@@ -19,6 +22,9 @@
     </div>
 </div>
 
+<script>
+    const chatChannel = '<?= $data->channel ?>'
+</script>
 <script>
 <? require __DIR__ . '/actionIndex.js' ?>
 </script>

@@ -19,7 +19,7 @@ class Chat
     public function actionIndex(...$arg)
     {
         // Message::setDanger('Test');
-        $vd = [
+        $vd = (object)[
             'args'    => $arg,
             'channel' => (string) (Request::obj()->GET->channel ?? '1'),
         ];
