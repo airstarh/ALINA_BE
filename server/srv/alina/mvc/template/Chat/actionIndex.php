@@ -1,5 +1,5 @@
 <?php
-/** @var \stdClass $data */
+/** @var stdClass $data */
 ?>
 <style>
     <? require __DIR__ . '/actionIndex.css' ?>
