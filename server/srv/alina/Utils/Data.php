@@ -177,10 +177,9 @@ class Data
 
     public static function itrCastToHealth(&$itr)
     {
-        AlinaDebug($itr);
-    /*
-         * $itr is iterable value
-         * */
+        /*
+        * $itr is iterable value
+      * */
         if (static::isIterable($itr)) {
             foreach ($itr as $k => &$v) {
                 #####
@@ -860,6 +859,7 @@ class Data
 
         return $bodyHTML;
     }
+
     #rendegion Filter_Var
     ##################################################
     #region Validate
@@ -1015,6 +1015,7 @@ class Data
         ##############################
         return $pg;
     }
+
     #endregion Pagination
     ##################################################
     public static function XXX(): null
