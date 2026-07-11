@@ -53,7 +53,7 @@ class Request
         $this->URL_NATIVE   = $_SERVER['REQUEST_URI']  ?? 'CLI';
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
-        $this->LANGUAGE     = $this->getUserLanguage();
+        $this->LANGUAGE     = $this->discoverLanguage();
         $this->BROWSER      = Sys::getUserBrowser();
         $this->BROWSER_enc  = Browser::hash($this->BROWSER);
 
@@ -61,7 +61,7 @@ class Request
         return $this;
     }
 
-    protected function getUserLanguage()
+    protected function discoverLanguage()
     {
         $lang = 'ru_RU';
 
