@@ -301,6 +301,7 @@ class tale extends _BaseAlinaModel
         #####
         return $this;
     }
+
     ##################################################
     #region Helpers
     public function getChainOfParents($id)

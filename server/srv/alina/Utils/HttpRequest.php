@@ -68,6 +68,7 @@ class HttpRequest
     private array   $respHeaders             = [];
     private array   $respHeadersStructurized = [];
     private int     $amountLocationsVisited  = 0;
+
     #endregion Response/Results
     ##########################################
     #region INIT
@@ -115,6 +116,7 @@ class HttpRequest
 
         return $this;
     }
+
     #endregion INIT
     ##########################################
     #region SELF CHECK
@@ -128,6 +130,7 @@ class HttpRequest
             'report' => $http->report(),
         ];
     }
+
     #endregion SELF CHECK
     ##########################################
     #region Facade Stuff

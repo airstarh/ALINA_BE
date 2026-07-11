@@ -14,6 +14,7 @@ class GenericCRUD
     {
         $this->model = new _BaseAlinaModel();
     }
+
     #####
     #region SELECT
     public function actionSelectList(...$params)
@@ -44,6 +45,7 @@ class GenericCRUD
         }
         AlinaEcho((new htmlAlias())->page($data));
     }
+
     #endregion INSERT
     #####
     #region UPDATE

@@ -15,6 +15,7 @@ class SendRestApiQueries
     {
         AlinaRejectIfNotAdmin();
     }
+
     // public $arrDefault = [
     //     'opt1' => 10.5,
     //     'opt2' => 'Hello, world',

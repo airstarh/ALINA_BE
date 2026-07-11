@@ -41,6 +41,7 @@ class html
         $this->defineCurrentControllerDir();
         $this->defineCurrentActionFile();
     }
+
     #endregion Init
     #region Blocks Generation
     public function defineCurrentControllerDir()
@@ -135,6 +136,7 @@ class html
 
         return $p;
     }
+
     #endregion Blocks Generation
     ##################################################
     #region HTML page specials (css, js, etc.)
@@ -225,6 +227,7 @@ class html
     {
         return $this->content;
     }
+
     #endregion HTML page specials (css, js, etc.)
     ##################################################
     #region Elements

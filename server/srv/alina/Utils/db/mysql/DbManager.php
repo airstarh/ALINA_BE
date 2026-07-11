@@ -183,6 +183,7 @@ class DbManager
 
         return $data;
     }
+
     #endregion Generic Execution
     #region Special Queries
     public function qsGetDbTables()

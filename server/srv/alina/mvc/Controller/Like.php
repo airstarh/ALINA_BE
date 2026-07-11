@@ -88,7 +88,7 @@ class Like
             AlinaEcho((new htmlAlias())->page($vd));
         }
     }
-    #####
+
     #region SELECT
     public function actionSelectList($pageSze = 10, $page = 1, $ref_table = 'tale', $ref_id = null)
     {

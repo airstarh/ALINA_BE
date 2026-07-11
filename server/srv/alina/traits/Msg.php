@@ -85,6 +85,7 @@ trait Msg
 
         return static::set($text, $params, $status);
     }
+
     #rendegion Set
     ###############
     public static function fromRequest()

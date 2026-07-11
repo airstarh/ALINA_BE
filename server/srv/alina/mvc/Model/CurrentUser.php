@@ -260,6 +260,7 @@ final class CurrentUser
 
         return $this;
     }
+
     #endregion Register
     ##################################################
     #region RESET
@@ -296,6 +297,7 @@ final class CurrentUser
 
         return $this;
     }
+
     #endregion RESET
     ##################################################
     #region States

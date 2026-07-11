@@ -50,6 +50,7 @@ final class Watcher
 
         return $this;
     }
+
     #endregion Singleton
     ##################################################
     #region Watch
@@ -70,6 +71,7 @@ final class Watcher
 
         return $this;
     }
+
     #endregion Watch
     ##################################################
     #region Firewall
@@ -232,6 +234,7 @@ final class Watcher
             AlinaReject(null, 403, $msg);
         }
     }
+
     #endregion Firewall
     ##################################################
     #region Utils
@@ -304,6 +307,7 @@ final class Watcher
     {
         return $this->mVISIT->id ?? 0;
     }
+
     #endregion Utils
     ##################################################
     #region Ban

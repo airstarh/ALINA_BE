@@ -84,6 +84,7 @@ class _BaseAlinaModel
     public $sortAsc           = 'ASC';
     public $pageCurrentNumber = 0;
     public $pageSize          = 500;
+
     #endregion Search Parameters
     ##################################################
     #region Constructor
@@ -103,6 +104,7 @@ class _BaseAlinaModel
         $this->alias = $this->table;
         $this->buildDefaultData();
     }
+
     #endregion Constructor
     ##################################################
     #region SELECT
@@ -288,6 +290,7 @@ class _BaseAlinaModel
 
         return $dbResult;
     }
+
     #rendegion Get With References
     ###############
     #endregion SELECT
@@ -322,6 +325,7 @@ class _BaseAlinaModel
 
         return $this;
     }
+
     #endregion UPSERT
     ##################################################
     #region INSERT
@@ -352,6 +356,7 @@ class _BaseAlinaModel
 
         return $this->attributes;
     }
+
     #endregion INSERT
     ##################################################
     #region UPDATE
@@ -432,6 +437,7 @@ class _BaseAlinaModel
 
         return $this;
     }
+
     #endregion UPDATE
     ##################################################
     #region DELETE
@@ -491,6 +497,7 @@ class _BaseAlinaModel
             return true;
         }
     }
+
     #endregion DELETE
     ##################################################
     #region API, LIMIT, ORDER
@@ -689,6 +696,7 @@ class _BaseAlinaModel
 
         return $this->o_GET;
     }
+
     #endregion API, LIMIT, ORDER
     ##################################################
     #region FILTER, VALIDATE
@@ -923,6 +931,7 @@ class _BaseAlinaModel
 
         return null;
     }
+
     #endregion OLD AuditInfo approach
     ##############################
     #region NEW AuditInfo approach
@@ -1244,6 +1253,7 @@ class _BaseAlinaModel
             call_user_func_array([$q, $method], $operation);
         }
     }
+
     #endregion Helpers
     ##################################################
     #region relations
@@ -1320,6 +1330,7 @@ class _BaseAlinaModel
     {
         return [];
     }
+
     #endregion relations
     ##################################################
     #region Examples

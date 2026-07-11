@@ -24,6 +24,7 @@ class AppCookie
     {
         $this->expire = ALINA_AUTH_EXPIRES;
     }
+
     #endregion Init
     ##################################################
     #region SET
@@ -84,6 +85,7 @@ class AppCookie
 
         return static::set($name, $value, $expire, $path, $domain, $secure, $httponly);
     }
+
     #endregion SET
     ##################################################
     #region GET
@@ -91,6 +93,7 @@ class AppCookie
     {
         return Arr::getArrayValue($stringPath, $_COOKIE, $delimiter);
     }
+
     #endregion GET
     ##################################################
     #region Delete
@@ -138,6 +141,7 @@ class AppCookie
 
         return $apply;
     }
+
     #endregion Delete
     ##################################################
     #region Utils

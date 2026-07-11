@@ -146,6 +146,7 @@ final class App
 
         return $_this;
     }
+
     #endregion Instantiation
     ####################################################################################################
     #region Config manipulations
@@ -186,6 +187,7 @@ final class App
 
         return false;
     }
+
     #endregion Namespace Resolver
     ####################################################################################################
     #region Paths Resolver
