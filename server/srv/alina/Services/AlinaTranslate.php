@@ -14,8 +14,12 @@ class AlinaTranslate
     use Singleton;
 
     private string $LANGUAGE = 'ru_RU';
-    public voc $voc;
-    public $dict;
+    private $dict;
+    private voc $voc;
+    private array $vocLocales = [
+        'en' => 'en_US',
+        'ru' => 'ru_RU',
+    ];
 
     public function __construct()
     {
@@ -24,7 +28,7 @@ class AlinaTranslate
         $this->dict     = $this->voc->q()->get()->keyBy('from');
     }
 
-    public function t(?string $str, ?string $language = 'ru_RU')
+    public function t(?string $str, ?string $language = null)
     {
         if (empty($str)) {
             return '';
@@ -54,15 +58,22 @@ class AlinaTranslate
 
     private function discoverLanguage()
     {
-        $default = 'ru_RU';
+        $default = $this->LANGUAGE;
 
-        return Data::getFirstNonEmpty(
+        $tmp = Data::getFirstNonEmpty(
             [
             Request::obj()->R->LANGUAGE ?? null, // GIT POST COOKIE
             Request::obj()->tryHeader('LANGUAGE'),
-            substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2),
+            //ToDo: Translations from browser locale are not robust.
+            // substr(Request::obj()->SERVER->HTTP_ACCEPT_LANGUAGE ?? '', 0, 2),
             $default,
         ]
         );
+
+        if (strlen((string)($tmp ?? '')) === 2) {
+            $tmp = $this->vocLocales[$tmp] ?? $this->LANGUAGE;
+        }
+
+        return $tmp;
     }
 }
