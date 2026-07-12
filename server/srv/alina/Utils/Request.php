@@ -19,7 +19,6 @@ class Request
     public $IP;
     public $BROWSER;
     public $BROWSER_enc;
-    public $LANGUAGE;
     public $GET;
     public $POST;
     public $HEADERS;
@@ -53,7 +52,6 @@ class Request
         $this->URL_NATIVE   = $_SERVER['REQUEST_URI']  ?? 'CLI';
         $this->URL_PATH     = Url::cleanPath($_SERVER['REQUEST_URI'] ?? 'CLI');
         $this->QUERY_STRING = urldecode($_SERVER['QUERY_STRING'] ?? 'CLI');
-        $this->LANGUAGE     = $this->discoverLanguage();
         $this->BROWSER      = Sys::getUserBrowser();
         $this->BROWSER_enc  = Browser::hash($this->BROWSER);
 
@@ -61,24 +59,10 @@ class Request
         return $this;
     }
 
-    protected function discoverLanguage()
-    {
-        $default = 'ru_RU';
-
-        return Data::getFirstNonEmpty(
-            [
-            $this->R->LANGUAGE ?? null, // GIT POST COOKIE
-            $this->tryHeader('LANGUAGE'),
-            substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2),
-            $default,
-        ]
-        );
-    }
-
     ##################################################
     #region Facade
 
-    public function tryHeader($headerName, &$val = null, $default = null)
+    public function tryHeader($headerName, $default = null, &$val = null)
     {
         $val = Obj::getValByPropNameCaseInsensitive($headerName, $this->HEADERS, $default);
 

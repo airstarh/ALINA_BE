@@ -5,6 +5,7 @@ namespace alina\Services;
 use alina\GlobalRequestStorage;
 use alina\mvc\Model\voc;
 use alina\traits\Singleton;
+use alina\Utils\Data;
 use alina\Utils\Request;
 use Throwable;
 
@@ -18,7 +19,7 @@ class AlinaTranslate
 
     public function __construct()
     {
-        $this->LANGUAGE = Request::obj()->LANGUAGE;
+        $this->LANGUAGE = $this->discoverLanguage();
         $this->voc      = new voc();
         $this->dict     = $this->voc->q()->get()->keyBy('from');
     }
@@ -49,5 +50,19 @@ class AlinaTranslate
         }
 
         return $str;
+    }
+
+    private function discoverLanguage()
+    {
+        $default = 'ru_RU';
+
+        return Data::getFirstNonEmpty(
+            [
+            Request::obj()->R->LANGUAGE ?? null, // GIT POST COOKIE
+            Request::obj()->tryHeader('LANGUAGE'),
+            substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2),
+            $default,
+        ]
+        );
     }
 }
