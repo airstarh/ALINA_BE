@@ -4,7 +4,7 @@ namespace alina\Utils;
 
 class Obj
 {
-    public static function getValByPropNameCaseInsensitive($pName, $obj)
+    public static function getValByPropNameCaseInsensitive($pName, $obj, $default = null)
     {
         $arr          = (array)$obj;
         $arrPropNames = array_keys($arr);
@@ -15,7 +15,7 @@ class Obj
             }
         }
 
-        return null;
+        return $default;
     }
 
     public static function deepClone($obj)

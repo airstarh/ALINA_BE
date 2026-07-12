@@ -114,7 +114,7 @@ class user extends _BaseAlinaModel
                     ['\alina\utils\Data', 'stringify'],
                     ['\alina\utils\Data', 'filterVarStripTags'],
                 ],
-                'default' => Request::obj()->LANGUAGE,
+                'default' => 'ru_RU',
             ],
             'about_myself' => [
                 'type'    => 'textarea',

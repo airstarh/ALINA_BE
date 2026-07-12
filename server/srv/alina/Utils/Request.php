@@ -63,14 +63,14 @@ class Request
 
     protected function discoverLanguage()
     {
-        $lang = 'ru_RU';
+        $default = 'ru_RU';
 
         return Data::getFirstNonEmpty(
             [
             $this->R->LANGUAGE ?? null, // GIT POST COOKIE
             $this->tryHeader('LANGUAGE'),
             substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2),
-            $lang,
+            $default,
         ]
         );
     }
@@ -78,10 +78,9 @@ class Request
     ##################################################
     #region Facade
 
-    public function tryHeader($prop, &$val = null, $default = null)
+    public function tryHeader($headerName, &$val = null, $default = null)
     {
-        $tmp = Obj::getValByPropNameCaseInsensitive($prop, $this->HEADERS);
-        $val = $tmp ?? $default;
+        $val = Obj::getValByPropNameCaseInsensitive($headerName, $this->HEADERS, $default);
 
         return $val;
     }

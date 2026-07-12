@@ -248,20 +248,20 @@ function AlinaFePath($routeName)
 
 ##################################################
 
-function ___($str, $language = 'ru_RU')
+function ___($str)
 {
     try {
-        return alina\Services\AlinaTranslate::obj()->t($str, $language);
+        return alina\Services\AlinaTranslate::obj()->t($str);
     }
     catch (Exception $e) {
         return $str;
     }
 }
 
-function ___p(string $str, array $params, ?string $language = 'ru_RU')
+function ___p(string $str, array $params)
 {
     try {
-        return vsprintf(___($str, $language), $params);
+        return vsprintf(___($str), $params);
     }
     catch (Exception $e) {
         return $str;
