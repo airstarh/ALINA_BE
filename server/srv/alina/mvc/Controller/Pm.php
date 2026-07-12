@@ -305,7 +305,7 @@ class Pm
                     if (Request::obj()->POST->for_date) {
                         $for_date = DateTime::dateToUnixTime(Request::obj()->POST->for_date);
                     }
-                    $assignee_id = CurrentUser::id();
+                    $assignee_id = CurrentUser::obj()->id();
 
                     if (Request::obj()->POST->assignee_id) {
                         $assignee_id = Request::obj()->POST->assignee_id;

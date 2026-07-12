@@ -908,7 +908,7 @@ class _BaseAlinaModel
     protected function addAuditInfo(stdClass $data, string $saveMode = null)
     {
         $saveMode = $saveMode ?? $this->mode;
-        $userId   = CurrentUser::id();
+        $userId   = CurrentUser::obj()->id();
         $now      = ALINA_TIME;
 
         if ($this->tableHasField('modified_at')) {

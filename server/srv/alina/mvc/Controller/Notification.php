@@ -34,8 +34,7 @@ class Notification
 
     public function actionMarkAsShownEarlierThan($timestamp)
     {
-        $CU   = CurrentUser::obj();
-        $cuId = CurrentUser::id();
+        $cuId = CurrentUser::obj()->id();
         $data = (object)[
             'is_shown' => '1',
         ];

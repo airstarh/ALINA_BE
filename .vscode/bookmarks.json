@@ -19,6 +19,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "server/srv/alina/Services/AlinaTranslate.php",
+			"bookmarks": [
+				{
+					"line": 65,
+					"column": 12,
+					"label": ""
+				}
+			]
 		}
 	]
 }

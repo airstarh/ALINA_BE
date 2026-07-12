@@ -17,7 +17,7 @@ class pm_work_done extends _BaseAlinaModel
             'id'          => [],
             'pm_work_id'  => [],
             'assignee_id' => [
-                'default' => CurrentUser::id(),
+                'default' => CurrentUser::obj()->id(),
             ],
             'amount' => [
                 'required' => true,

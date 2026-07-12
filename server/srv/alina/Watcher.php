@@ -248,7 +248,7 @@ final class Watcher
             ->where([
                 'browser_enc' => Request::obj()->BROWSER_enc,
                 'ip'          => Request::obj()->IP,
-                'user_id'     => CurrentUser::obj()::id(),
+                'user_id'     => CurrentUser::obj()->id(),
                 ['method', '!=', 'GET'],
                 ['visited_at', '>', ALINA_TIME - $seconds],
             ])
@@ -291,7 +291,7 @@ final class Watcher
                 ['ban_point','>', 0],
                 'browser_enc' => Request::obj()->BROWSER_enc,
                 'ip'          => Request::obj()->IP,
-                'user_id'     => CurrentUser::obj()::id(),
+                'user_id'     => CurrentUser::obj()->id(),
                 ['visited_at', '>=', ALINA_TIME - $seconds],
             ])
             ->selectRaw('ip, user_id, browser_enc, SUM(ban_point) as total_ban_point')

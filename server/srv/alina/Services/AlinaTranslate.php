@@ -3,6 +3,7 @@
 namespace alina\Services;
 
 use alina\GlobalRequestStorage;
+use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\voc;
 use alina\traits\Singleton;
 use alina\Utils\Data;
@@ -62,6 +63,7 @@ class AlinaTranslate
 
         $tmp = Data::getFirstNonEmpty(
             [
+            //  CurrentUser::obj()->language(),
             Request::obj()->R->LANGUAGE ?? null, // GIT POST COOKIE
             Request::obj()->tryHeader('LANGUAGE'),
             //ToDo: Translations from browser locale are not robust.

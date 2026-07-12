@@ -16,7 +16,7 @@ final class CurrentUser
 
     public const KEY_USER_ID    = 'uid';
     public const KEY_USER_TOKEN = 'token';
-    protected static user $USER;
+    protected user $USER;
     protected login       $LOGIN;
     protected string      $device_ip;
     protected string      $device_browser_enc;
@@ -32,7 +32,7 @@ final class CurrentUser
         $this->authorize();
 
         if (static::$state_AUTHORIZATION_SUCCESS) {
-            $this->upsertLogin(static::$USER->id);
+            $this->upsertLogin($this->USER->id);
         }
     }
     #endregion SingleTon
@@ -61,12 +61,12 @@ final class CurrentUser
     public function LogInByPass($mail, $password)
     {
         if ($this->discoverLogin()) {
-            $this->msg[] = ___('You are already Logged-in');
+            $this->msg[] = 'You are already Logged-in';
 
             return false;
         }
 
-        $password = static::$USER::encrypt($password);
+        $password = $this->USER::encrypt($password);
 
         $conditions = [
             'mail'     => $mail,
@@ -83,16 +83,16 @@ final class CurrentUser
     protected function loginProcess($conditions)
     {
         $this->reset();
-        static::$USER->getOneWithReferences($conditions);
+        $this->USER->getOneWithReferences($conditions);
 
-        if (static::$USER->id) {
-            $this->upsertLogin(static::$USER->id);
+        if ($this->USER->id) {
+            $this->upsertLogin($this->USER->id);
 
             return true;
         }
 
         # validate
-        if (empty(static::$USER->id)) {
+        if (empty($this->USER->id)) {
             $this->msg[] = 'Incorrect credentials';
         }
 
@@ -115,13 +115,13 @@ final class CurrentUser
         ]);
 
         if ($this->LOGIN->id) {
-            $uId = static::$USER->alias;
-            $uPk = static::$USER->pkName;
-            static::$USER->getOneWithReferences([
+            $uId = $this->USER->alias;
+            $uPk = $this->USER->pkName;
+            $this->USER->getOneWithReferences([
                 "{$uId}.{$uPk}" => $userId,
             ]);
 
-            if (static::$USER->id) {
+            if ($this->USER->id) {
                 return true;
             }
         }
@@ -134,7 +134,7 @@ final class CurrentUser
         $id = null;
 
         if (empty($id)) {
-            $id = static::$USER->id;
+            $id = $this->USER->id;
         }
 
         if (empty($id)) {
@@ -179,7 +179,7 @@ final class CurrentUser
     {
         $data = $this->buildLoginData($uid);
         $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
-        $this->setTokenOnClient(static::$USER->id, $this->LOGIN->attributes->token);
+        $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
     }
 
     protected function setTokenOnClient($uid, $token)
@@ -239,7 +239,7 @@ final class CurrentUser
     public function Register($vd)
     {
         $this->resetMsg();
-        $u               = static::$USER;
+        $u               = $this->USER;
         $vd->created_at  = ALINA_TIME;
         $vd->is_verified = 0;
         $vd->is_deleted  = 0;
@@ -277,7 +277,7 @@ final class CurrentUser
 
     public function resetDiscoveredData()
     {
-        static::$USER = new user();
+        $this->USER = new user();
         $this->LOGIN  = new login();
 
         return $this;
@@ -303,12 +303,16 @@ final class CurrentUser
     #region States
     public static function id()
     {
-        return static::$USER->id;
+        return static::obj()->USER->id;
+    }
+
+    public function language(){
+        return $this->attributes()->language ?? null;
     }
 
     public function attributes()
     {
-        $res        = Obj::deepClone(static::$USER->attributes);
+        $res        = Obj::deepClone($this->USER->attributes);
         $res->token = $this->LOGIN->attributes->token;
         unset($res->password);
 
@@ -317,10 +321,10 @@ final class CurrentUser
 
     public function name()
     {
-        $res = static::$USER->attributes->mail ?? '';
+        $res = $this->USER->attributes->mail ?? '';
 
         if (empty($res)) {
-            $res = ___('Not Logged-in');
+            $res = 'Sign In';
         }
 
         return $res;
@@ -329,7 +333,7 @@ final class CurrentUser
     public function hasRole($role)
     {
         if ($this->isLoggedIn()) {
-            return static::$USER->hasRole($role);
+            return $this->USER->hasRole($role);
         }
 
         return false;
@@ -338,7 +342,7 @@ final class CurrentUser
     public function hasPerm($perm)
     {
         if ($this->isLoggedIn()) {
-            return static::$USER->hasPerm($perm);
+            return $this->USER->hasPerm($perm);
         }
 
         return false;
@@ -397,7 +401,7 @@ final class CurrentUser
         ) {
             return $this->LOGIN->attributes->token;
         }
-        $u           = static::$USER;
+        $u           = $this->USER;
         $ua          = $u->attributes;
         $tokenSource = [
             $ua->id,

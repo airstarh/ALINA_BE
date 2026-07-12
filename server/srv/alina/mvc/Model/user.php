@@ -39,7 +39,7 @@ class user extends _BaseAlinaModel
                     [
                         'f'       => 'strlen',
                         'errorIf' => [false, 0],
-                        'msg'     => ___('Email is required!'),
+                        'msg'     => 'Email is required!',
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
@@ -47,7 +47,7 @@ class user extends _BaseAlinaModel
                             return filter_var($v, FILTER_VALIDATE_EMAIL);
                         },
                         'errorIf' => [false, 0],
-                        'msg'     => ___('Invalid Email Address!'),
+                        'msg'     => 'Invalid Email Address!',
                     ],
                 ],
             ],
@@ -62,7 +62,7 @@ class user extends _BaseAlinaModel
                         // 'f' - Could be a closure, string with function name or an array
                         'f'       => 'strlen',
                         'errorIf' => [false, 0],
-                        'msg'     => ___('Password cannot be empty'),
+                        'msg'     => 'Password cannot be empty',
                     ],
                     [
                         // 'f' - Could be a closure, string with function name or an array
@@ -70,7 +70,7 @@ class user extends _BaseAlinaModel
                             return Str::lessThan($v, 8);
                         },
                         'errorIf' => [true],
-                        'msg'     => ___('Password length cannot be less than 8 symbols'),
+                        'msg'     => 'Password length cannot be less than 8 symbols',
                     ],
                 ],
             ],
@@ -449,7 +449,7 @@ class user extends _BaseAlinaModel
     public static function encrypt($v)
     {
         if (empty($v)) {
-            throw new ErrorException(___('Attempt to encrypt empty value!'));
+            throw new ErrorException('Attempt to encrypt empty value!');
         }
 
         if (! Data::isValidMd5($v)) {
