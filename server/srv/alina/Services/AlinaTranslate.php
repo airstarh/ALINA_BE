@@ -60,10 +60,10 @@ class AlinaTranslate
     private function discoverLanguage()
     {
         $default = $this->LANGUAGE;
-
+        AlinaDebug(12345);
         $tmp = Data::getFirstNonEmpty(
             [
-            //  CurrentUser::obj()->language(),
+            CurrentUser::obj()->language(),
             Request::obj()->R->LANGUAGE ?? null, // GIT POST COOKIE
             Request::obj()->tryHeader('LANGUAGE'),
             //ToDo: Translations from browser locale are not robust.

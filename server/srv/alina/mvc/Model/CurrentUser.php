@@ -277,8 +277,8 @@ final class CurrentUser
 
     public function resetDiscoveredData()
     {
-        $this->USER = new user();
-        $this->LOGIN  = new login();
+        $this->USER  = new user();
+        $this->LOGIN = new login();
 
         return $this;
     }
@@ -306,7 +306,8 @@ final class CurrentUser
         return static::obj()->USER->id;
     }
 
-    public function language(){
+    public function language()
+    {
         return $this->attributes()->language ?? null;
     }
 
