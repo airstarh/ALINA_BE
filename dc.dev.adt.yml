@@ -2,7 +2,7 @@ services:
     pihole:
         container_name: pihole
         image: pihole/pihole:latest
-        mac_address: "02:42:ac:11:00:02"
+        mac_address: "aa:bb:cc:dd:ee:01"
         ports:
             - "5053:53/tcp"
             - "5053:53/udp"
