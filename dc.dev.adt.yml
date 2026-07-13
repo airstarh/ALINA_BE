@@ -1,15 +1,10 @@
-
 services:
     dnsmasq:
-        image: jpillora/dnsmasq:latest
+        image: andyshinn/dnsmasq:latest
         container_name: dnsmasq
-        ports:
-            - "53:53/tcp"
-            - "53:53/udp"
-        # Map your local domains directly via environment variables
-        environment:
-            - USER=root
-            - PASS=root
-        volumes:
-            - "./server_adt/etc/dnsmasq.conf:/etc/dnsmasq.conf"
         restart: unless-stopped
+        ports:
+            - "5053:53/tcp"
+            - "5053:53/udp"
+        volumes:
+            - ./server_adt/etc/dnsmasq.conf:/etc/dnsmasq.conf:ro
