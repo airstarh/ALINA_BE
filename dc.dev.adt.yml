@@ -1,10 +1,29 @@
 services:
-    dnsmasq:
-        image: andyshinn/dnsmasq:latest
-        container_name: dnsmasq
-        restart: unless-stopped
+    pihole:
+        container_name: pihole
+        image: pihole/pihole:latest
+        mac_address: "02:42:ac:11:00:02"
         ports:
             - "5053:53/tcp"
             - "5053:53/udp"
+        environment:
+            TZ: "Europe/Moscow"
+            WEBPASSWORD: "admin"
+            FTLCONF_misc_etc_dnsmasq_d: "true"
         volumes:
-            - ./server_adt/etc/dnsmasq.conf:/etc/dnsmasq.conf:ro
+            - ./server_adt/etc/pihole/99-custom.conf:/etc/dnsmasq.d/99-custom.conf:ro
+        restart: unless-stopped
+        networks:
+            local_network:
+                ipv4_address: 192.168.1.200
+
+networks:
+    local_network:
+        driver: macvlan
+        driver_opts:
+            parent: enp4s0
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.1.0/24
+                  gateway: 192.168.1.254
