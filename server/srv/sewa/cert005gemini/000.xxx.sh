@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+# //VA: ATTENTION: untested!!!
+# //VA: ATTENTION: needs ../cert/ folder see code!!!
 
 # 1. Generate a brand new, permanent Server Private Key if it doesn't exist
 # 030.byrobot.privkey.pem - Created dynamically so the script requires no external dependencies
