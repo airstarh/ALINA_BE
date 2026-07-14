@@ -1,7 +1,50 @@
 #!/bin/bash
 set -e
 
-# 1. Generate the Local Root CA Private Key and Public Certificate
+# 1. Generate a brand new, permanent Server Private Key if it doesn't exist
+# 030.byrobot.privkey.pem - Created dynamically so the script requires no external dependencies
+if [ ! -f "../cert/030.byrobot.privkey.pem" ]; then
+  mkdir -p ../cert
+  openssl genrsa -out ../cert/030.byrobot.privkey.pem 2048
+fi
+
+# 2. Dynamically build the SAN configuration profile inline
+# ../cert/010.san.conf - Created automatically to keep the script self-sufficient
+cat << 'EOF' > ../cert/010.san.conf
+[req]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+prompt             = no
+
+[req_distinguished_name]
+countryName            = RU
+stateOrProvinceName    = Moscow
+localityName           = Moscow
+organizationName       = Home
+organizationalUnitName = Local Network
+commonName             = zero.home
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = borg.home
+DNS.2 = default.org
+DNS.3 = default.home
+DNS.4 = zero.home
+DNS.5 = localhost
+IP.1  = 127.0.0.1
+IP.2  = 192.168.1.86
+
+[extensions]
+basicConstraints       = CA:FALSE
+keyUsage               = digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth
+subjectAltName         = @alt_names
+EOF
+
+# 3. Generate the Local Root CA Private Key and Public Certificate
 # 300.android_root.key - The private key for the Certificate Authority
 # 310.android_root.crt - The public Certificate Authority file
 openssl req -x509 -new -nodes \
@@ -10,14 +53,14 @@ openssl req -x509 -new -nodes \
   -sha256 -days 1825 \
   -subj "/CN=ByRobot Mobile Root CA"
 
-# 2. Create the Server Certificate Signing Request (CSR)
-# 320.android_server.csr - The signing request built from your existing key and SAN layout
+# 4. Create the Server Certificate Signing Request (CSR)
+# 320.android_server.csr - The signing request built from the inline configurations
 openssl req -new \
   -key ../cert/030.byrobot.privkey.pem \
   -config ../cert/010.san.conf \
   -out 320.android_server.csr
 
-# 3. Sign the Server Certificate using the fresh Root CA files
+# 5. Sign the Server Certificate using the fresh Root CA files
 # 330.android_server.crt - The public server leaf certificate
 openssl x509 -req \
   -in 320.android_server.csr \
@@ -29,11 +72,11 @@ openssl x509 -req \
   -extfile ../cert/010.san.conf \
   -extensions extensions
 
-# 4. Overwrite the existing fullchain bundle file for Nginx
+# 6. Overwrite the target fullchain bundle file for Nginx
 # ../cert/040.byrobot.fullchain.pem - Combines server leaf and root CA into the target path
 cat 330.android_server.crt 310.android_root.crt > ../cert/040.byrobot.fullchain.pem
 
-# 5. Export the Root CA to DER format for Android compatibility
+# 7. Export the Root CA to DER format for Android compatibility
 # 340.mobile_trust.crt - The binary file specifically structured for mobile installations
 openssl x509 -in 310.android_root.crt -outform DER -out 340.mobile_trust.crt
 
