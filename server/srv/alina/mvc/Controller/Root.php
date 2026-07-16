@@ -17,6 +17,12 @@ class Root
         AlinaExit('frontend');
     }
 
+    public function actionVideo()
+    {
+        require_once ALINA_WEB_PATH . '/apps/vue3video/index.html';
+        AlinaExit('video');
+    }
+
     public function actionFrontend()
     {
         require_once ALINA_WEB_PATH . '/apps/vue/index.html';
