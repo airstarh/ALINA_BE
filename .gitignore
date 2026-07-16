@@ -9,6 +9,7 @@ nbproject/
 **/*.code-workspace
 **/vendor/
 **/apps/vue/
+**/apps/vue3video/
 **/apps/vue3/
 server/var/www/a.borg.home/BorgToolKit/
 server/etc/letsencrypt/
