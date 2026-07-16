@@ -23,7 +23,7 @@ class Chat
             'args'    => $arg,
             'channel' => (string) (Request::obj()->GET->channel ?? '1'),
         ];
-        #####
+
         AlinaEcho((new html())->page($vd, html::$htmlLayoutVirgin));
 
         return $this;
