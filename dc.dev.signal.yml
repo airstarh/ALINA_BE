@@ -1,4 +1,4 @@
-saadm/a/dev/host/docker.main.build.php.shysimsim.ruservices:
+services:
 
   signaling:
     container_name: alina_signaling
