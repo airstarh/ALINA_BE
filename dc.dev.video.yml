@@ -1,4 +1,4 @@
-services:
+saadm/a/dev/host/docker.main.build.php.shysimsim.ruservices:
 
   signaling:
     container_name: alina_signaling
@@ -8,12 +8,10 @@ services:
     environment:
       PORT: 3000
       NODE_ENV: production
-    # Mount only your signaling workspace directory
     volumes:
       - type: bind
-        source: ../ALINA_V/010.d
+        source: ./server_signal
         target: /app
-    # Run the production signaling server without internal SSL certificates
     command: sh -c "npm install && node signaling.prod.js"
     expose:
       - "3000"

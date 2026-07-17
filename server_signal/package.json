@@ -1,0 +1,15 @@
+{
+    "name": "alina-signaling-backend",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "start": "node signaling.prod.js"
+    },
+    "dependencies": {
+        "socket.io": "^4.8.3"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}
