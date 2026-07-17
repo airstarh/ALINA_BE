@@ -3,16 +3,22 @@ import { Server } from "socket.io";
 
 const PORT = process.env.PORT || 3000;
 
-// Spin up a plain HTTP server (Nginx handles the external SSL/HTTPS layers)
 const server = http.createServer((req, res) => {
     res.writeHead(200);
     res.end("Signaling server running internally over HTTP\n");
 });
 
+// FIXED: Added precise port mapping and disabled the node client version validator check
 const io = new Server(server, {
+    allowEIO3: true, // Force backward compatibility with the older vue-webrtc client engine
     cors: {
-        origin: "*",
+        origin: [
+            "https://zero.home:56443",
+            "https://192.168.1.86:56443",
+            "https://localhost:8083",
+        ],
         methods: ["GET", "POST"],
+        credentials: true,
     },
 });
 
