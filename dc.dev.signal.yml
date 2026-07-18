@@ -10,8 +10,8 @@ services:
       NODE_ENV: production
     volumes:
       - type: bind
-        source: ./server_signal
+        source: ../ALINA_V/020.d/
         target: /app
-    command: sh -c "npm install && node signaling.prod.js"
+    command: sh -c "npm install && npm run start"
     expose:
       - "3000"
