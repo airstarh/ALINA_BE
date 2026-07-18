@@ -4,12 +4,12 @@ import { Server } from "socket.io";
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end("SimplePeer Fixed Signaling Server running\n");
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Signaling server OK");
 });
 
 const io = new Server(server, {
-    allowEIO3: true,
+    // allowEIO3: true,  <-- ЭТО СТРОКУ УДАЛИТЬ ОБЯЗАТЕЛЬНО
     transports: ["websocket", "polling"],
     cors: {
         origin: [
@@ -23,41 +23,52 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-    console.log("Device connected:", socket.id);
+    console.log("Client connected:", socket.id);
 
+    // Обрабатываем событие точно так, как его шлет твой Vue компонент
     socket.on("simple-signal[discover]", (payload) => {
+        // 1. Определяем roomId из payload (поддерживаем разные форматы, которые может слать клиент)
         let roomId = "channel_1";
         if (typeof payload === "string" && payload.length > 0) {
             roomId = payload;
         } else if (Array.isArray(payload) && payload.length > 0) {
-            roomId = payload[0];
+            roomId = payload;
         } else if (payload && typeof payload === "object") {
             roomId = payload.roomId || payload.id || "channel_1";
         }
 
+        // 2. Присоединяем сокет к комнате
         socket.join(roomId);
-        console.log(
-            `🎯 MATCH SUCCESS: Device ${socket.id} joined room: ${roomId}`,
-        );
+        console.log(`[${socket.id}] Joined room: ${roomId}`);
 
-        const clientsInRoom = Array.from(
-            io.sockets.adapter.rooms.get(roomId) || [],
-        );
+        // 3. Получаем актуальный список всех участников комнаты
+        // adapter.rooms.get(roomId) возвращает Set с ID всех сокетов в комнате
+        const roomSet = io.sockets.adapter.rooms.get(roomId);
+        const clientsInRoom = roomSet ? Array.from(roomSet) : [];
+
+        // Фильтруем себя из списка пиров (чтобы не пытаться соединиться сам с собой)
         const existingPeers = clientsInRoom.filter((id) => id !== socket.id);
 
-        // THE EXACT FIX: The library reads a dictionary object where peers is an array
-        const responseData = {
+        // 4. Формируем ответ для самого себя (нового пользователя)
+        // Для первого пользователя peers будет [] (пустой массив) — это нормально и безопасно для Vue-компонента
+        const myResponse = {
             id: socket.id,
             roomId: roomId,
             peers: existingPeers,
         };
+        socket.emit("simple-signal[discover]", myResponse);
 
-        // Emit dictionary object format directly to self
-        socket.emit("simple-signal[discover]", responseData);
+        // 5. Формируем ответ для всех остальных (чтобы они узнали о новом участнике)
+        // ВАЖНО: Мы отправляем им ОБНОВЛЕННЫЙ список всех пиров, включая нового пользователя
+        const othersResponse = {
+            id: socket.id,
+            roomId: roomId,
+            peers: [...existingPeers, socket.id],
+        };
 
-        // Notify existing peers inside the room about the new device footprint signature
+        // Рассылаем остальным
         existingPeers.forEach((peerId) => {
-            io.to(peerId).emit("simple-signal[discover]", responseData);
+            io.to(peerId).emit("simple-signal[discover]", othersResponse);
         });
     });
 
@@ -69,21 +80,11 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on("disconnecting", () => {
-        socket.rooms.forEach((roomId) => {
-            if (roomId !== socket.id) {
-                socket
-                    .to(roomId)
-                    .emit("simple-signal[left]", { id: socket.id });
-            }
-        });
-    });
-
     socket.on("disconnect", () => {
-        console.log("Device disconnected:", socket.id);
+        console.log("Client disconnected:", socket.id);
     });
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 SimplePeer Signaling Server active on port ${PORT}`);
+    console.log(`Server listening on port ${PORT}`);
 });
