@@ -30,6 +30,7 @@ export A_L_VAR_WWW="server/var/www"
 export A_L_GITOUT="_GITOUT"
 
 export A_R_BE="/home/sewa/_A001/rep/ALINA_BE"
+export A_R_VI="/home/sewa/_A001/rep/ALINA_V"
 export A_R_SRV="server/srv"
 export A_R_VAR_WWW="server/var/www"
 export A_R_GITOUT="_GITOUT"

@@ -9,6 +9,8 @@ alina_rsync_to_remote() {
     echo "📌 Destination: ${ALINA_REMOTE_URL}:${TARGET}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+    ssh "${ALINA_REMOTE_URL%%:*}" "mkdir -p \"${TARGET}\""
+
     local changes
     changes=$(rsync \
         -rltLv \

@@ -41,4 +41,4 @@ alina_rsync_to_local_wwwdiff() {
         "$TARGET/"
 }
 
-export -f alina_rsync_to_local_wwwdiff
+export alina_rsync_to_local_wwwdiff

@@ -34,4 +34,4 @@ alina_rsync_local() {
         "$TARGET/"
 }
 
-export -f alina_rsync_local
+export alina_rsync_local
