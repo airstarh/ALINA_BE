@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Image Grid Example</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #000;
+            }
+            .video-container {
+                outline: 1px solid red;
+                background: #0a0a0a;
+                border-radius: 8px;
+                position: relative;
+
+                .video-list {
+                    min-height: 70dvh;
+                    outline: 1px solid green;
+                    display: flex !important;
+                    flex-direction: row;
+                    flex-wrap: wrap !important;
+                    gap: 11px !important;
+                    justify-content: flex-start !important;
+                    align-content: flex-start !important;
+                    align-items: flex-start !important;
+
+                    .video-item {
+                        outline: 1px solid yellow;
+                        flex: 0 1 10vw;
+                        border-radius: 8px !important;
+                        background-color: #222;
+                        display: block;
+
+                        img,
+                        video {
+                            display: block;
+                            width: auto;
+                            max-width: 500px;
+                            max-height: 300px;
+                            outline: 1px solid blue;
+                            object-fit: scale-down;
+                        }
+                    }
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="video-container">
+            <div class="video-list">
+                <div class="video-item"><img src="/img/x640y480.png" /></div>
+                <div class="video-item"><img src="/img/x100y1000.png" /></div>
+                <div class="video-item"><img src="/img/x720y1280.png" /></div>
+                <div class="video-item"><img src="/img/x720y480.png" /></div>
+                <div class="video-item"><img src="/img/x1000y250.png" /></div>
+                <div class="video-item"><img src="/img/x500y100.png" /></div>
+                <div class="video-item"><img src="/img/x1920y1080.png" /></div>
+                <div class="video-item"><img src="/img/x100y1000.png" /></div>
+
+            </div>
+        </div>
+    </body>
+</html>
