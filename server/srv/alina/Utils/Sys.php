@@ -319,8 +319,8 @@ class Sys
             header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
             header("Access-Control-Allow-Credentials: true");
             header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-            header("Access-Control-Allow-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token");
-            header("Access-Control-Expose-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token");
+            header("Access-Control-Allow-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token, uid, token");
+            header("Access-Control-Expose-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token, uid, token");
             header('Access-Control-Max-Age: 666');
 
             // Handle preflight
