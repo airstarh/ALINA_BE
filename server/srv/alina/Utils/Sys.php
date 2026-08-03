@@ -314,75 +314,28 @@ class Sys
             return true;
         }
 
-        //@link https://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
-        //ToDo: PROD! Security!
-        #####
-        $allowedHeaders = [
-            'Accept-Encoding'                => '',
-            'Accept-Language'                => '',
-            'Access-Control-Request-Headers' => '',
-            'Access-Control-Request-Method'  => '',
-            'Connection'                     => '',
-            'Host'                           => '',
-            'Origin'                         => '',
-            'Referer'                        => '',
-            'User-Agent'                     => '',
-            'Cache-Control'                  => '',
-            'Access-Control-Allow-Origin'    => '',
-            #####
-            'Accept'           => '',
-            'X-Requested-With' => '',
-            'Content-Type'     => '',
-            'Vary'             => '',
-            #####
-            'fgp'                       => '',
-            'Alina-Server-Header'       => '',
-            CurrentUser::KEY_USER_ID    => '',
-            CurrentUser::KEY_USER_TOKEN => '',
-        ];
-        $allowedHeaders = array_keys($allowedHeaders);
-        $allowedHeaders = implode(', ', $allowedHeaders);
-        header("Access-Control-Allow-Headers: {$allowedHeaders}");
-        header("Access-Control-Expose-Headers: {$allowedHeaders}");
-
-        #####
-        #region Custom headers for tests
-        header('Alina-Server-Header: Hello, from Alina');
-
-        #endregion Custom headers for tests
-        #####
-        #region Fix for Chrome Back button
-        //header('Vary: X-Requested-With');
-        header('Vary:Content-Type');
-
-        //header('Vary: Accept, X-Requested-With');
-        //header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
-        header('Cache-Control: private, max-age=0, s-max-age=0, no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-
-        //header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-        #region Fix for Chrome Back button
-        #####
+        // Always set CORS headers for all responses
         if (! empty($_SERVER['HTTP_ORIGIN'])) {
-            switch ($_SERVER['HTTP_ORIGIN']) {
-                default:
-                    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-                    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-                    header("Access-Control-Allow-Credentials: true");
-                    header('Access-Control-Max-Age: 666');
+            header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+            header("Access-Control-Allow-Credentials: true");
+            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+            header("Access-Control-Allow-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token");
+            header("Access-Control-Expose-Headers: Accept, X-Requested-With, Content-Type, Origin, Authorization, fgp, Alina-Server-Header, user_id, user_token");
+            header('Access-Control-Max-Age: 666');
 
-                    #####
-                    ##################################################
-                    $method = strtoupper($_SERVER['REQUEST_METHOD']);
-
-                    if ($method === 'OPTIONS') {
-                        echo 'ok';
-                        AlinaExit(__FUNCTION__);
-                    }
-
-                    break;
+            // Handle preflight
+            if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                http_response_code(200);
+                echo 'ok';
+                AlinaExit(__FUNCTION__);
             }
         }
+
+        // Other headers
+        header('Alina-Server-Header: Hello, from Alina');
+        header('Vary: Content-Type');
+        header('Cache-Control: private, max-age=0, s-max-age=0, no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
 
         $state_ALREADY_SET = true;
 
