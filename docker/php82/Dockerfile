@@ -44,9 +44,11 @@ RUN git clone https://github.com/Imagick/imagick /tmp/imagick && \
     rm -rf /tmp/imagick
 
 ##################################################
-# XDEBUG
+# XDEBUG - FIXED
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
-      pecl install xdebug; \
+      pecl channel-update pecl.php.net && \
+      pecl install xdebug-3.3.2 && \
+      docker-php-ext-enable xdebug; \
     fi
 
 COPY xdebug82.ini /tmp/xdebug82.ini
