@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     env_file: _GITOUT/env/.env
     container_name: alina_nginx
-    build: ./docker/nginx
+    image: nginx:1.20
     command: nginx -g "daemon off;"
     volumes: *vol-nginx
     security_opt:
