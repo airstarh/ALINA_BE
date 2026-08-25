@@ -4,17 +4,18 @@ alina_rsync_to_remote() {
     local SOURCE="$1"
     local TARGET="$2"
 
-    echo "🔍 Checking for changes (dry-run)..."
-    echo "📌 Source: $SOURCE"
-    echo "📌 Destination: ${ALINA_REMOTE_URL}:${TARGET}"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "RSYNC..."
+    echo "📌 FROM---$SOURCE"
+    echo "📌 TO-----${ALINA_REMOTE_URL}:${TARGET}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     ssh "${ALINA_REMOTE_URL%%:*}" "mkdir -p \"${TARGET}\""
 
     local changes
     changes=$(rsync \
-        -rltLv \
-        -z \
+        -rltLvz \
         --itemize-changes \
         --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf \
         --delete-after \
@@ -47,6 +48,7 @@ alina_rsync_to_remote() {
         --filter='- **/_GITOUT/' \
         --filter='P **/_GITOUT/' \
         -e "ssh" \
+        --log-file=/tmp/rsync_errors.log \
         --rsync-path="sudo rsync" \
         --force \
         --whole-file \
@@ -104,12 +106,18 @@ alina_rsync_to_remote() {
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "${ALINA_REMOTE_URL}:${TARGET}"
-    echo "📊 Statistics (dry-run):"
-    [[ $upload_count -gt 0 ]]     && echo "📤 Will upload: $upload_count file(s)"
-    [[ $update_count -gt 0 ]]     && echo "🔄 Will update: $update_count file(s)"
-    [[ $create_dir_count -gt 0 ]] && echo "📁 Will create: $create_dir_count directory(ies)"
-    [[ $delete_count -gt 0 ]]     && echo "🗑️  Will delete: $delete_count file(s)"
-    [[ $upload_count -eq 0 && $update_count -eq 0 && $delete_count -eq 0 ]] && echo "✅ No changes to sync"
+    echo "TOTALS"
+    [[ $upload_count -gt 0 ]]     && echo "Upload: $upload_count file(s)"
+    [[ $update_count -gt 0 ]]     && echo "Update: $update_count file(s)"
+    [[ $create_dir_count -gt 0 ]] && echo "Create: $create_dir_count directory(ies)"
+    [[ $delete_count -gt 0 ]]     && echo "Delete: $delete_count file(s)"
+    [[ $upload_count -eq 0 && $update_count -eq 0 && $delete_count -eq 0 ]] && echo "No changes to sync"
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Files that failed/were skipped (from log) ==="
+    grep -E "failed|skipped|error" /tmp/rsync_errors.log || echo "No errors found"
+    rm -f /tmp/rsync_errors.log
 
     return $rsync_status
 }

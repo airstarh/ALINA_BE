@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./adm/s.includes.sh
+. ./adm/s.includes.sh
 
 . ./adm/code/a.to.local.wwwdiff.sh
 . ./adm/code/a.to.local.vue2.sh
