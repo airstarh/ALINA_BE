@@ -1,3 +1,0 @@
-User-Agent: *
-Deny: /
-Sitemap: https://stage.saysimsim.ru/sitemap

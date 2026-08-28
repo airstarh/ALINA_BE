@@ -298,8 +298,8 @@ class At
     #####
     public function actionFileCount()
     {
-        $f1 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25';
-        $f2 = '/var/www/www-root/data/www/saysimsim.ru/uploads/25AAA';
+        $f1 = '/var/www/www-root/data/www/ospl1942.ru/uploads/25';
+        $f2 = '/var/www/www-root/data/www/ospl1942.ru/uploads/25AAA';
         $vd = (object) [
             __DIR__ => FS::countFilesInDir(__DIR__),
             $f1     => FS::countFilesInDir($f1),

@@ -30,7 +30,7 @@ class SendRestApiQueries
     {
         ############################################
         #region Defaults
-        $reqUrl = 'https://saysimsim.ru/tale/feed';
+        $reqUrl = 'https://ospl1942.ru/tale/feed';
         $reqUrl = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css';
         $reqUrl = 'https://local.host:7002/php-reply-what-received.php?data_in_url=YO';
         $reqUrl = 'https://local.host:7002/http-response-xxx.php?httpCode=400';

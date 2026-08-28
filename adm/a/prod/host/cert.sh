@@ -11,14 +11,9 @@ docker compose \
   --email vsevolod.azovsky@gmail.com \
   --agree-tos \
   --no-eff-email \
-  -d saysimsim.ru \
-  -d www.saysimsim.ru \
-  -d mironova45a.ru \
-  -d www.mironova45a.ru \
   -d ospl1942.ru \
-  -d stage.saysimsim.ru \
-  -d chat.saysimsim.ru \
-  --cert-name saysimsim.ru \
+  -d www.ospl1942.ru \
+  --cert-name ospl1942.ru \
   --force-renewal
 
 

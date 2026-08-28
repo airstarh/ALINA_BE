@@ -2,7 +2,7 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region SERVER
-export ALINA_REMOTE_HOST="saysimsim.ru"
+export ALINA_REMOTE_HOST="ospl1942.ru"
 export ALINA_REMOTE_USER="sewa"
 export ALINA_REMOTE_URL="${ALINA_REMOTE_USER}@${ALINA_REMOTE_HOST}"
 export ALINA_REMOTE_SSH="/home/qqq/.ssh/001"
@@ -44,9 +44,6 @@ export A_LIST_CORE=(
 
 export A_LIST_PROJECTS=(
     "zero.home"
-    "stage"
-    "saysimsim.ru"
-    "m45a"
     "vov"
 )
 export ALINA_DEFAULT_PROJECT="zero.home"
