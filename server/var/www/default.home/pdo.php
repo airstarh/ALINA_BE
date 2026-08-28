@@ -1,7 +1,7 @@
 <?php
 
 $host = getenv('MYSQL_HOST') ?: 'mysql';
-$db   = 'stage';
+$db   = 'zero';
 $user = 'root';
 $pass = getenv('MYSQL_ROOT_PASSWORD') ?: '';
 $port = getenv('MYSQL_PORT') ?: 3306;
