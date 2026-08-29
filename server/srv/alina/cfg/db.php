@@ -3,7 +3,7 @@
 return [
     'driver'    => 'mysql',
     'host'      => getenv('MYSQL_HOST_1'),
-    'database'  => 'zero',
+    'database'  => 'vov',
     'username'  => 'root',
     'password'  => getenv('MYSQL_ROOT_PASSWORD'),
     'charset'   => 'utf8mb4',

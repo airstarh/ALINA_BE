@@ -9,7 +9,7 @@ final class VanyaControllerTest extends TestCase
 {
     public function testIndexOutputsCurrentTime(): void
     {
-        $controller = new Vanya();
+        $controller  = new Vanya();
         $currentTime = $controller->currentTime();
 
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $currentTime);

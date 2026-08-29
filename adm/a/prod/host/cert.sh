@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 docker compose \
   -f dc.yml \
@@ -15,6 +15,6 @@ docker compose \
   --cert-name ospl1942.ru \
   --force-renewal
 
-
+# Uncomment these lines if needed
 # bash ./a.prod.perms.sh
 # docker compose -f dc.yml -f dc.prod.yml exec nginx nginx -s reload
