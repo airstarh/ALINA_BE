@@ -1,7 +1,8 @@
 services:
     php82:
-        args:
-            INSTALL_XDEBUG: "true"
+        build:
+            args:
+                INSTALL_XDEBUG: "true"
 
     nginx:
         ports:
