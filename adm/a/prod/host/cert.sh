@@ -12,7 +12,6 @@ docker compose \
   --agree-tos \
   --no-eff-email \
   -d ospl1942.ru \
-  -d www.ospl1942.ru \
   --cert-name ospl1942.ru \
   --force-renewal
 
