@@ -1,3 +1,0 @@
-User-Agent: *
-Allow: /
-Sitemap: https://mironova45a.ru/sitemap

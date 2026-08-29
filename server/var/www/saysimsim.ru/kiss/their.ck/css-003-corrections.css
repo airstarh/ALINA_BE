@@ -1,7 +1,0 @@
-.ck.ck-content {
-  & p,
-  & td
-  {
-    white-space: pre-wrap;
-  }
-}
