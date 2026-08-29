@@ -326,7 +326,7 @@ class At
     public function actionPhpSettings()
     {
         Message::setInfo('Info');
-        Message::setWarning('Warnung');
+        Message::setWarning('Warning');
         Message::setDanger('Danger');
         error_log(__METHOD__);
         $vd = (object) [
