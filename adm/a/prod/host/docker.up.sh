@@ -1,3 +1,8 @@
 #! /bin/bash
 
-docker compose -f dc.yml -f dc.prod.yml -f dc.prod.php82.yml -f dc.prod.signal.yml up -d
+docker compose \
+    -f dc.yml \
+    -f dc.php82.yml \
+    -f dc.prod.signal.yml \
+    -f dc.prod.yml \
+    up -d

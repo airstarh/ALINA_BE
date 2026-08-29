@@ -1,8 +1,12 @@
 services:
-  nginx:
-    ports:
-      - "80:80"
-      - "443:443"
+    php82:
+        args:
+            INSTALL_XDEBUG: "false"
 
-  mysql:
-    ports: []
+    nginx:
+        ports:
+            - "80:80"
+            - "443:443"
+
+    mysql:
+        ports: []

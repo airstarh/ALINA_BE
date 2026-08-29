@@ -1,22 +1,26 @@
 services:
-  nginx:
-    ports:
-      - "50080:80"
-      - "50443:443"
+    php82:
+        args:
+            INSTALL_XDEBUG: "true"
 
-  mysql:
-    ports:
-      - "53306:3306"
+    nginx:
+        ports:
+            - "50080:80"
+            - "50443:443"
 
-  php-cs-fixer:
-    image: ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.2
-    container_name: alina_php_cs_fixer
-    volumes:
-      - ./server/var/www/:/apps/server/var/www/:rw
-      - ./server/srv/:/apps/server/srv/:rw
-      - ./.php-cs-fixer.dist.php:/apps/.php-cs-fixer.dist.php:ro
-    working_dir: /apps
-    user: "${UID:-33}:${GID:-33}"
-    read_only: true
-    tmpfs:
-      - /tmp
+    mysql:
+        ports:
+            - "53306:3306"
+
+    php-cs-fixer:
+        image: ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.2
+        container_name: alina_php_cs_fixer
+        volumes:
+            - ./server/var/www/:/apps/server/var/www/:rw
+            - ./server/srv/:/apps/server/srv/:rw
+            - ./.php-cs-fixer.dist.php:/apps/.php-cs-fixer.dist.php:ro
+        working_dir: /apps
+        user: "${UID:-33}:${GID:-33}"
+        read_only: true
+        tmpfs:
+            - /tmp

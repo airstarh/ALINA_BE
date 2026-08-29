@@ -1,9 +1,8 @@
 services:
+
   php82:
     build:
       context: ./docker/php82
-      args:
-        INSTALL_XDEBUG: "true"
     restart: unless-stopped
     mem_limit: 128M
     env_file: _GITOUT/env/.env
