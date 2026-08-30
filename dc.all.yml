@@ -95,6 +95,4 @@ services:
   certbot:
     image: certbot/certbot:latest
     container_name: alina_certbot
-    depends_on:
-      - nginx
     volumes: *vol-nginx
