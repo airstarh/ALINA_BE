@@ -10,13 +10,14 @@ COPY transfer/composer.phar /usr/local/bin/composer
 RUN chmod +x /usr/local/bin/composer
 
 ##################################################
-# ESSENTIAL TOOLS + BUILD DEPS
+# ESSENTIAL TOOLS + BUILD DEPS (всё, что нужно для сборки)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         zlib1g-dev \
         libzip-dev \
         unzip \
         autoconf \
+        automake \
         build-essential \
         libmagickwand-dev \
         imagemagick \
@@ -26,28 +27,32 @@ RUN apt-get update && \
         libssl-dev \
         libcurl4-openssl-dev \
         git \
+        curl \
+        libtool \
+        bison \
+        flex \
+        re2c \
         && rm -rf /var/lib/apt/lists/*
 
 ##################################################
-# PHP EXTENSIONS
+# PHP EXTENSIONS (базовые)
 RUN docker-php-ext-install zip pdo pdo_mysql mysqli
 
 ##################################################
-# IMAGE MAGICK - INSTALL FROM SOURCE
-RUN git clone https://github.com/Imagick/imagick /tmp/imagick && \
-    cd /tmp/imagick && \
-    phpize && \
-    ./configure && \
-    make && \
-    make install && \
-    docker-php-ext-enable imagick && \
-    rm -rf /tmp/imagick
+# INSTALL PIE FROM GITHUB
+RUN curl -fL --output /tmp/pie.phar https://github.com/php/pie/releases/latest/download/pie.phar && \
+    mv /tmp/pie.phar /usr/local/bin/pie && \
+    chmod +x /usr/local/bin/pie
 
 ##################################################
-# XDEBUG - FIXED
+# IMAGE MAGICK PHP EXTENSION VIA PIE (правильное имя: imagick/imagick)
+RUN pie install --auto-install-build-tools imagick/imagick && \
+    docker-php-ext-enable imagick
+
+##################################################
+# XDEBUG VIA PIE (правильное имя: xdebug/xdebug)
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
-      pecl channel-update pecl.php.net && \
-      pecl install xdebug-3.3.2 && \
+      pie install --auto-install-build-tools xdebug/xdebug && \
       docker-php-ext-enable xdebug; \
     fi
 
