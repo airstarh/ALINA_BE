@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker compose \
-  -f dc.yml \
+  -f dc.all.yml \
   -f dc.prod.yml \
   run --rm \
   certbot \
@@ -17,4 +17,4 @@ docker compose \
 
 # Uncomment these lines if needed
 # bash ./a.prod.perms.sh
-# docker compose -f dc.yml -f dc.prod.yml exec nginx nginx -s reload
+# docker compose -f dc.all.yml -f dc.prod.yml exec nginx nginx -s reload
