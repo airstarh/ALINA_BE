@@ -6,7 +6,7 @@ RUN ln -sf /bin/bash /bin/sh
 
 ##################################################
 # COMPOSER
-COPY soft/composer.phar /usr/local/bin/composer
+COPY transfer/composer.phar /usr/local/bin/composer
 RUN chmod +x /usr/local/bin/composer
 
 ##################################################
@@ -51,19 +51,19 @@ RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       docker-php-ext-enable xdebug; \
     fi
 
-COPY xdebug82.ini /tmp/xdebug82.ini
+COPY transfer/xdebug.ini /tmp/xdebug.ini
 
 RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
       mkdir -p /usr/local/etc/php/conf.d && \
-      cp /tmp/xdebug82.ini /usr/local/etc/php/conf.d/xdebug.ini; \
+      cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini; \
     fi
 
 RUN usermod -u 33 www-data && \
     groupmod -g 33 www-data
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY transfer/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
-    chown root:root /usr/local/bin/entrypoint.sh
+    chown 33:33 /usr/local/bin/entrypoint.sh
 
 USER www-data
 

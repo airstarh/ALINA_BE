@@ -13,8 +13,8 @@ services:
       - "9000"
     volumes:
       # php.ini
-      - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
-      - ./server/usr82/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
+      - ./server_specific/php82/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
       - ./server/var/log/php/:/var/log/php/:rw
       # /var/www
       - ./server/var/www/:/var/www/:rw
@@ -47,7 +47,7 @@ services:
       - ALINA_MODE=PROD
     volumes:
       - ./server/srv/:/srv/:ro           # Code + chat logic
-      - ./server/usr82/local/etc/php/conf.d/alina.php.ini:/usr/local/etc/php/conf.d/alina.php.ini:ro
+      - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
       - ./server/var/log/php/:/var/log/php/:rw
     working_dir: /srv/alina
     read_only: true
