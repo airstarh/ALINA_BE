@@ -1,98 +1,120 @@
-x-vol-nginx: &vol-nginx
-  # PHP FAST CGI
-  - ./server/etc/nginx/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
-  # NGINX CONF
-  - ./server/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  - ./server/etc/nginx/conf.d/:/etc/nginx/conf.d/:rw
-  # LETSECTYPT, CERTS
-  - ./server/etc/letsencrypt/:/etc/letsencrypt/
-  - ./server/srv/sewa/:/srv/sewa/:ro
-  # LOG
-  - ./server/var/log/nginx/:/var/log/nginx/:rw
-  - ./server/var/log/letsencrypt/:/var/log/letsencrypt/:rw
-  # WEB
-  - ./server/var/www/:/var/www/:rw
-  - ./server/var/www/certbot/:/var/www/certbot/:rw
+networks:
+    alina_network:
+        driver: bridge
+        enable_ipv6: false
+
+x-vol-nginx: &vol-nginx # PHP FAST CGI
+    - ./server/etc/nginx/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
+    # NGINX CONF
+    - ./server/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./server/etc/nginx/conf.d/:/etc/nginx/conf.d/:rw
+    # LETSECTYPT, CERTS
+    - ./server/etc/letsencrypt/:/etc/letsencrypt/
+    - ./server/srv/sewa/:/srv/sewa/:ro
+    # LOG
+    - ./server/var/log/nginx/:/var/log/nginx/:rw
+    - ./server/var/log/letsencrypt/:/var/log/letsencrypt/:rw
+    # WEB
+    - ./server/var/www/:/var/www/:rw
+    - ./server/var/www/certbot/:/var/www/certbot/:rw
 
 services:
-  nginx:
-    restart: unless-stopped
-    env_file: _GITOUT/env/.env
-    container_name: alina_nginx
-    image: nginx:1.20
-    command: nginx -g "daemon off;"
-    volumes: *vol-nginx
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETUID
-      - SETGID
-      - FOWNER
-      - KILL
+    nginx:
+        restart: unless-stopped
+        env_file: _GITOUT/env/.env
+        container_name: alina_nginx
+        image: nginx:1.20
+        command: nginx -g "daemon off;"
+        volumes: *vol-nginx
+        networks:
+            - alina_network
 
-  mysql:
-    restart: unless-stopped
-    env_file: _GITOUT/env/.env
-    image: mysql:8.0.27
-    container_name: alina_mysql
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-          cpus: '2.0'
-    command:
-      - --innodb-buffer-pool-size=1G
-      - --innodb-log-file-size=512M
-      - --innodb-flush-log-at-trx-commit=2
-      - --max-allowed-packet=64M
-      - --skip-log-bin
-      - --skip-name-resolve
-      - --table-open-cache=2000
-      - --tmp-table-size=64M
-      - --max-heap-table-size=64M
-      - --innodb-flush-neighbors=0
-      - --performance-schema=ON
-      - --log-error=/var/log/mysql/error.log
-      - --slow-query-log=1
-      - --slow-query-log-file=/var/log/mysql/slow.log
-      - --long-query-time=2
-      - --tls-version=TLSv1.2,TLSv1.3
-      - --max-execution-time=30000
-      - --connect-timeout=30
-      - --net-read-timeout=60
-      - --net-write-timeout=60
-      - --max-connections=100
-    expose:
-      - "3306"
-    volumes:
-      - ./database/mysql/:/var/lib/mysql/:rw
-      - ./database/mysql-tmp/:/tmp/:rw
-      - ./server/var/log/mysql/:/var/log/mysql/:rw
-    tmpfs:
-      - /var/run/mysqld
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      timeout: 20s
-      retries: 10
-      interval: 10s
-      start_period: 40s
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETUID
-      - SETGID
-    init: true
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        cap_add:
+            - NET_BIND_SERVICE
+            - CHOWN
+            - DAC_OVERRIDE
+            - SETUID
+            - SETGID
+            - FOWNER
+            - KILL
 
-  certbot:
-    image: certbot/certbot:latest
-    container_name: alina_certbot
-    volumes: *vol-nginx
+    mysql:
+        restart: unless-stopped
+        env_file: _GITOUT/env/.env
+        image: mysql:8.0.27
+        container_name: alina_mysql
+        networks:
+            - alina_network
+
+        deploy:
+            resources:
+                limits:
+                    memory: 2G
+                    cpus: "2.0"
+        command:
+            - --innodb-buffer-pool-size=1G
+            - --innodb-log-file-size=512M
+            - --innodb-flush-log-at-trx-commit=2
+            - --max-allowed-packet=64M
+            - --skip-log-bin
+            - --skip-name-resolve
+            - --table-open-cache=2000
+            - --tmp-table-size=64M
+            - --max-heap-table-size=64M
+            - --innodb-flush-neighbors=0
+            - --performance-schema=ON
+            - --log-error=/var/log/mysql/error.log
+            - --slow-query-log=1
+            - --slow-query-log-file=/var/log/mysql/slow.log
+            - --long-query-time=2
+            - --tls-version=TLSv1.2,TLSv1.3
+            - --max-execution-time=30000
+            - --connect-timeout=30
+            - --net-read-timeout=60
+            - --net-write-timeout=60
+            - --max-connections=100
+        expose:
+            - "3306"
+        volumes:
+            - ./database/mysql/:/var/lib/mysql/:rw
+            - ./database/mysql-tmp/:/tmp/:rw
+            - ./server/var/log/mysql/:/var/log/mysql/:rw
+        tmpfs:
+            - /var/run/mysqld
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "mysqladmin",
+                    "ping",
+                    "-h",
+                    "localhost",
+                    "-u",
+                    "root",
+                    "-p$$MYSQL_ROOT_PASSWORD",
+                ]
+            timeout: 20s
+            retries: 10
+            interval: 10s
+            start_period: 40s
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        cap_add:
+            - CHOWN
+            - DAC_OVERRIDE
+            - SETUID
+            - SETGID
+        init: true
+
+    certbot:
+        image: certbot/certbot:latest
+        container_name: alina_certbot
+        volumes: *vol-nginx
+        networks:
+            - alina_network

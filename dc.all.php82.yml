@@ -1,56 +1,60 @@
 services:
+    php82:
+        build:
+            context: ./Dockerfile.d/php82
+        restart: unless-stopped
+        mem_limit: 128M
+        env_file: _GITOUT/env/.env
+        container_name: alina_php82
+        extra_hosts:
+            host.docker.internal: host-gateway
+        expose:
+            - "9000"
+        volumes:
+            # php.ini
+            - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
+            - ./server_specific/php82/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+            - ./server/var/log/php/:/var/log/php/:rw
+            # /var/www
+            - ./server/var/www/:/var/www/:rw
+            # ALINA framework
+            - ./server/srv/:/srv/:rw
+        networks:
+            - alina_network
 
-  php82:
-    build:
-      context: ./Dockerfile.d/php82
-    restart: unless-stopped
-    mem_limit: 128M
-    env_file: _GITOUT/env/.env
-    container_name: alina_php82
-    extra_hosts:
-      host.docker.internal: host-gateway
-    expose:
-      - "9000"
-    volumes:
-      # php.ini
-      - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
-      - ./server_specific/php82/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
-      - ./server/var/log/php/:/var/log/php/:rw
-      # /var/www
-      - ./server/var/www/:/var/www/:rw
-      # ALINA framework
-      - ./server/srv/:/srv/:rw
-    working_dir: /srv/alina
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - SETUID
-      - SETGID
-    read_only: true
-    tmpfs:
-      - /tmp
+        working_dir: /srv/alina
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        cap_add:
+            - SETUID
+            - SETGID
+        read_only: true
+        tmpfs:
+            - /tmp
 
-  php82chat:
-    build:
-      context: ./Dockerfile.d/php82
-      args:
-        INSTALL_XDEBUG: "false"
-    container_name: alina_php82chat
-    restart: unless-stopped
-    mem_limit: 128M
-    expose:
-      - "8080"
-    env_file: _GITOUT/env/.env
-    environment:
-      - ALINA_MODE=PROD
-    volumes:
-      - ./server/srv/:/srv/:ro           # Code + chat logic
-      - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
-      - ./server/var/log/php/:/var/log/php/:rw
-    working_dir: /srv/alina
-    read_only: true
-    tmpfs:
-      - /tmp
-    command: php /srv/alina/program/chat/p.chat.run.php
+    php82chat:
+        build:
+            context: ./Dockerfile.d/php82
+            args:
+                INSTALL_XDEBUG: "false"
+        container_name: alina_php82chat
+        restart: unless-stopped
+        mem_limit: 128M
+        expose:
+            - "8080"
+        env_file: _GITOUT/env/.env
+        environment:
+            - ALINA_MODE=PROD
+        volumes:
+            - ./server/srv/:/srv/:ro # Code + chat logic
+            - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
+            - ./server/var/log/php/:/var/log/php/:rw
+        working_dir: /srv/alina
+        read_only: true
+        tmpfs:
+            - /tmp
+        command: php /srv/alina/program/chat/p.chat.run.php
+        networks:
+            - alina_network
