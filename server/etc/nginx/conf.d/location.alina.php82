@@ -41,7 +41,10 @@ location / {
         return 204;
     }
 
-    try_files $uri $uri/ /index.php?alinapath=$uri&$args;
+    # Serve an application's index directly when its directory URL omits "/".
+    # This avoids a cacheable redirect whose absolute host may be rewritten by
+    # an upstream reverse proxy (Keenetic in development).
+    try_files $uri/index.html $uri $uri/ /index.php?alinapath=$uri&$args;
 }
 
 ##################################################
