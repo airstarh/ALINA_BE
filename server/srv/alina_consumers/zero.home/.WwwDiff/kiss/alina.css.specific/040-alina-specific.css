@@ -24,8 +24,8 @@
 .corporate-bg-and-text ul,
 .corporate-bg-and-text a,
 .corporate-bg-and-text a:hover {
-    background-color: var(--corporate-bg);
-    color: rgba(var(--corporate-txt));
+    background-color: var(--corporate-bg) !important;
+    color: rgba(var(--corporate-txt)) !important;
 }
 
 .corporate-border-color,
