@@ -310,6 +310,14 @@ a.no-decoration:active
     color: rgba(var(--corporate-txt));
 }
 
+img.a-circle {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
 /*endregion UTILS*/
 /*##################################################*/
 /*region Messages*/
