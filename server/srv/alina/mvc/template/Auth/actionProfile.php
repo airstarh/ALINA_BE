@@ -11,7 +11,7 @@ $m = $data->user;
         </div><!---->
         <div class="text-break">
             <div class="row">
-                <div class="col-4"><a href="<?= $m->emblem ?>" target="_blank"><img src="<?= $m->emblem ?>" width="100%"></a></div>
+                <div class="col-4"><a href="<?= $m->emblem ?>" target="_blank"><img src="<?= $m->emblem ?>" width="100%" clas="a-circle"></a></div>
                 <div class="col">
                     <div class="row mb-1 justify-content-center align-items-center">
                         <div class="notranslate col font-weight-bold">

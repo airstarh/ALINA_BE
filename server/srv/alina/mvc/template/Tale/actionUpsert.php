@@ -33,7 +33,7 @@
                         <a
                             href="<?= AlinaFePath('profile') ?>/<?= $data->owner_id ?>"
                             class="fixed-height-150px"
-                        ><img src="<?= $data->owner_emblem ?>" width="100px" class="rounded-circle">
+                        ><img src="<?= $data->owner_emblem ?>" width="100px" class="a-circle">
                         </a>
                         <a
                             href="<?= AlinaFePath('profile') ?>/<?= $data->owner_id ?>"

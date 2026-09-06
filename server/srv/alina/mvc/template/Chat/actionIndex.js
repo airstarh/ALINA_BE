@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="p-2 rounded ${msgClassName}">
     <span class="user-data d-flex">
      <span class="mr-3">
-      <img src="${emblem}" class="user-avatar" alt="avatar" />
+      <img src="${emblem}" class="user-avatar a-circle" alt="avatar" />
      </span>
      <span>
       <span class="user-name">${name}</span>

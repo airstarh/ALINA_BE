@@ -36,10 +36,10 @@ $i = 0;
                 <td>
                     <a href="/auth/profile/<?= $mUser->id ?>">
                         <?php if ($mUser->emblem) { ?>
-                            <img src="<?= $mUser->emblem ?>" alt="" width="100">
+                            <img src="<?= $mUser->emblem ?>" alt="" width="100" class="a-circle">
                         <?php }
                         else { ?>
-                            <img src="undefined.png" alt="NO AVATAR" width="100">
+                            <img src="undefined.png" alt="NO AVATAR" width="100" class="a-circle">
                         <?php } ?>
                     </a>
                 </td>
