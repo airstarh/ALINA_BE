@@ -1,7 +1,5 @@
 #! /bin/bash
 
-#! /bin/bash
-
 docker compose \
     -f dc.all.yml \
     -f dc.dev.yml \
