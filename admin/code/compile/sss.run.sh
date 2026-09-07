@@ -2,4 +2,5 @@
 
 . ./admin/sss.inc.sh
 
-# build wwwdiff
+. "$(ALINA_ADMIN)"/bin/script/code/010.wwwdiff.build.sh
+### . script/code/a.to.local.vue2.sh
