@@ -56,8 +56,7 @@ export MAX_EXECUTION_TIME_MSECS="33000"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region XXX
 echo ''
-echo 'CONSTANTS RETRIEVED'
-echo $ALINA_ROOT
+echo "CONSTANTS RETRIEVED AT ::: $(asd)" "$(dsa)"
 echo ''
 # endregion XXX
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -1,5 +1,8 @@
 #! /bin/bash
 
+set -euo pipefail
+IFS=$'\n\t'
+
 # var
 ALINA_ADMIN="${BASH_SOURCE[0]%/*}"
 
