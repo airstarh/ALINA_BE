@@ -2,7 +2,7 @@
 
 . ./admin/sss.inc.sh
 
-# perms
-# php fixer
-. "$(ALINA_ADMIN)"/bin/script/code/010.wwwdiff.build.sh
-# . script/code/a.to.local.vue2.sh
+. $ALINA_ADMIN/bin/script/code/compile.phpfixer.sh
+. $ALINA_ADMIN/bin/script/code/compile.wwwdiff.sh
+# . $ALINA_ADMIN/bin/script/code/compile.vue2.sh
+# . $ALINA_ADMIN/bin/script/code/compile.vue3.sh
