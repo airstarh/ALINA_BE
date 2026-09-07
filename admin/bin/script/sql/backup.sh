@@ -1,7 +1,5 @@
 #!/bin/bash
-# sewa
-source ./adm/s.includes.sh
-db="alina"
+
 echo "Running..."
 
 echo ""
