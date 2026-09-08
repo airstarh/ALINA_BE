@@ -1,6 +1,11 @@
 #! /bin/bash
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# region COMMON
+export A_L_STORAGE="/home/qqq/_A001/rep/STORAGE/"
+export A_R_STORAGE="/home/sewa/_A001/rep/STORAGE/"
+# endregion COMMON
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region SERVER
 export ALINA_REMOTE_HOST="ospl1942.ru"
 export ALINA_REMOTE_USER="sewa"

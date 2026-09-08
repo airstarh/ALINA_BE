@@ -4,5 +4,5 @@
 
 LOC_DB="vov"
 
-source "${ALINA_ADMIN}"/bin/script/sql/restore.sh
+. "${ALINA_ADMIN}"/bin/script/sql/restore.sh
 
