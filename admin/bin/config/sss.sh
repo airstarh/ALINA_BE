@@ -2,7 +2,7 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region COMMON
-export SUFFIX="$(date "+%Y-%m-%d---%H.%M:%S")"
+# export SUFFIX="$(date "+%Y-%m-%d---%H.%M:%S")"
 export A_STORAGE="../STORAGE"
 export SUB_SQL="backup/sql"
 export SUB_DYN="backup/dyn"
