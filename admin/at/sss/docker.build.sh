@@ -1,6 +1,8 @@
 #! /bin/bash
 
-sudo bash ./adm/a/dev/perms.sh
+. ./admin/sss.inc.sh
+
+sudo bash "${ALINA_ADMIN}"/at/local/perms.sh
 
 docker compose \
     -f dc.all.yml \
@@ -9,4 +11,4 @@ docker compose \
     -f dc.prod.yml \
     build --no-cache
 
-sudo bash ./adm/a/prod/perms.sh
+sudo bash "$(asd)"/perms.sh
