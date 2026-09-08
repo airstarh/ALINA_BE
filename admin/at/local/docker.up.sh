@@ -1,6 +1,8 @@
 #! /bin/bash
 
-sudo bash ./adm/a/dev/perms.sh
+. ./admin/sss.inc.sh
+
+sudo bash "$(asd)"/perms.sh
 
 docker compose \
     -f dc.all.yml \
@@ -9,4 +11,4 @@ docker compose \
     -f dc.dev.yml \
     up -d
 
-sudo bash ./adm/a/dev/perms.sh
+sudo bash "$(asd)"/perms.sh

@@ -1,5 +1,8 @@
 #! /bin/bash
 
-. ./adm/a/dev/docker.down.sh
+. ./admin/sss.inc.sh
+
+
+. "$(asd)"/docker.down.sh
 sleep 3
-. ./adm/a/dev/docker.up.sh
+. "$(asd)"/docker.up.sh
