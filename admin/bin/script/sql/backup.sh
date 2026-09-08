@@ -5,7 +5,7 @@ echo "Running..."
 echo ""
 echo ">> $db"
 LOC_STORAGE="${A_STORAGE}/${SUB_SQL}"
-mkdir -p "./${LOC_STORAGE}/db"
+mkdir -p "./${LOC_STORAGE}"
 
 # Increase timeout and buffer settings for large DB
 docker exec alina_mysql sh -c "
@@ -15,9 +15,8 @@ docker exec alina_mysql sh -c "
         SET GLOBAL net_write_timeout = 3600;
         SET GLOBAL wait_timeout = 28800;
         SET GLOBAL interactive_timeout = 28800;
-        SET SESSION max_allowed_packet = 1073741824;
         SELECT 'Global timeouts increased for backup';
-    \" 2>/dev/null
+    \"
 "
 
 sleep 2
@@ -27,6 +26,11 @@ DB_SIZE_BYTES="$(
         "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$db\"'"
 )"
 BACKUP_FILE="./${LOC_STORAGE}/${db}.sql.gz"
+if command -v pv >/dev/null 2>&1; then
+    PROGRESS_COMMAND=(pv -pterb -s "${DB_SIZE_BYTES}")
+else
+    PROGRESS_COMMAND=(cat)
+fi
 
 # Dump in chunks with row-based streaming to avoid memory exhaustion
 docker exec alina_mysql sh -c "
@@ -52,7 +56,7 @@ docker exec alina_mysql sh -c "
         --hex-blob
 " \
     | gzip -c \
-    | pv -pterb -s "${DB_SIZE_BYTES}" \
+    | "${PROGRESS_COMMAND[@]}" \
     > "${BACKUP_FILE}" 2>/dev/null
 
 # Check if dump succeeded
