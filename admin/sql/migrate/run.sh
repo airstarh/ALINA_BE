@@ -1,11 +1,11 @@
 #!/bin/bash
 
-source ./adm/s.includes.sh
+. ./admin/sss.inc.sh
 
 DATABASES=("${ALINA_BASES[@]}")
 PASSWORD=$MYSQL_ROOT_PASSWORD
 
-SQL_DIR="./adm/db/migration"
+SQL_DIR="$(asd)"
 ONCE_SQL_PATH="$SQL_DIR/sql.sql"
 
 for DB in "${DATABASES[@]}"; do
