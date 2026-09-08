@@ -2,7 +2,7 @@
 
 . ./admin/sss.inc.sh
 
-sudo bash "$(ALINA_ADMIN)"/at/local/perms.sh
+sudo bash "${ALINA_ADMIN}"/at/local/perms.sh
 
 docker compose \
     -f dc.all.yml \
