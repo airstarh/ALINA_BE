@@ -14,7 +14,6 @@ alina_rsync_from_remote() {
         -rltLv
         -z
         --itemize-changes
-        --skip-compress=jpg,jpeg,png,gif,mp4,mp3,zip,gz,pdf
         --delete-after
         --no-perms
         --no-owner

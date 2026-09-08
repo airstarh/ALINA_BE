@@ -56,7 +56,7 @@ docker exec alina_mysql sh -c "
     > "${BACKUP_FILE}" 2>/dev/null
 
 # Check if dump succeeded
-if [ ${PIPESTATUS[0]} -eq 0 ]; then
+if [ "${PIPESTATUS[0]}" -eq 0 ]; then
     echo "<< $db"
 else
     echo "❌ Failed to dump $db"
