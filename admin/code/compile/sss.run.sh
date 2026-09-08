@@ -1,4 +1,4 @@
-#!node_modules /bin/bash
+#! /bin/bash
 
 . ./admin/sss.inc.sh
 
