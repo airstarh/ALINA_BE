@@ -472,6 +472,7 @@ body {border: gray solid 10px;}
 .AlinaIframe {border: yellow solid 1px;}
 */
 
+.db-all,
 .db-all * {
     outline: 1px solid white;
 }
@@ -509,6 +510,10 @@ body {border: gray solid 10px;}
 .db-6
 {
     outline: purple solid 5px
+}
+
+.db-100 {
+    background-color: green !important;
 }
 
 /*endregion DEVELOPER BLOCK*/
