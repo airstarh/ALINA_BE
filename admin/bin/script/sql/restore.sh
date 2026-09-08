@@ -1,6 +1,6 @@
 #! /bin/bash
 
-zcat ${A_L_STORAGE}/backup/sql/${LOC_DB}.sql.gz | docker exec -i alina_mysql mysql \
+zcat ${A_STORAGE}/${SUB_SQL}/${LOC_DB}.sql.gz | docker exec -i alina_mysql mysql \
   --binary-mode \
   -u root \
   -p"${MYSQL_ROOT_PASSWORD}" \

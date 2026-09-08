@@ -2,8 +2,10 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region COMMON
-export A_L_STORAGE="/home/qqq/_A001/rep/STORAGE"
-export A_R_STORAGE="/home/sewa/_A001/rep/STORAGE"
+export SUFFIX="$(date "+%Y-%m-%d---%H.%M:%S")"
+export A_STORAGE="../STORAGE"
+export SUB_SQL="backup/sql"
+export SUB_DYN="backup/dyn"
 # endregion COMMON
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # region SERVER
@@ -31,12 +33,14 @@ export A_L_VI="/home/qqq/_A001/rep/ALINA_V"
 export A_L_SRV="server/srv"
 export A_L_VAR_WWW="server/var/www"
 export A_L_GITOUT="_GITOUT"
+export A_L_STORAGE="${A_L_BE}/${A_STORAGE}"
 
 export A_R_BE="/home/sewa/_A001/rep/ALINA_BE"
 export A_R_VI="/home/sewa/_A001/rep/ALINA_V"
 export A_R_SRV="server/srv"
 export A_R_VAR_WWW="server/var/www"
 export A_R_GITOUT="_GITOUT"
+export A_R_STORAGE="${A_R_BE}/${A_STORAGE}"
 
 export A_FRAMEWORK="alina"
 export A_CONSUMERS="alina_consumers"

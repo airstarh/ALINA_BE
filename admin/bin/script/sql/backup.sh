@@ -4,8 +4,8 @@ echo "Running..."
 
 echo ""
 echo ">> $db"
-
-mkdir -p "./${A_R_GITOUT}/db"
+LOC_R_STORE="${A_R_STORAGE}/${SUB_SQL}"
+mkdir -p "./${LOC_R_STORE}/db"
 
 # Increase timeout and buffer settings for large DB
 docker exec alina_mysql sh -c "
@@ -21,6 +21,12 @@ docker exec alina_mysql sh -c "
 "
 
 sleep 2
+
+DB_SIZE_BYTES="$(
+    docker exec alina_mysql sh -c \
+        "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$db\"'"
+)"
+BACKUP_FILE="./${LOC_R_STORE}/${db}.sql.gz"
 
 # Dump in chunks with row-based streaming to avoid memory exhaustion
 docker exec alina_mysql sh -c "
@@ -44,7 +50,10 @@ docker exec alina_mysql sh -c "
         --skip-add-locks \
         --order-by-primary \
         --hex-blob
-" | gzip -c | pv -pterb -s $(docker exec alina_mysql sh -c "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$db\"'") > "./${A_R_GITOUT}/db/${db}.sql.gz" 2>/dev/null
+" \
+    | gzip -c \
+    | pv -pterb -s "${DB_SIZE_BYTES}" \
+    > "${BACKUP_FILE}" 2>/dev/null
 
 # Check if dump succeeded
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
