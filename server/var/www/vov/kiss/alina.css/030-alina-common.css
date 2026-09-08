@@ -472,9 +472,9 @@ body {border: gray solid 10px;}
 .AlinaIframe {border: yellow solid 1px;}
 */
 
-/** {
-    outline: 1px solid red;
-}*/
+.db-all * {
+    outline: 1px solid white;
+}
 
 .db-0
 {
