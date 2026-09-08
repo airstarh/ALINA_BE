@@ -1,6 +1,6 @@
 #! /bin/bash
 
-. ./adm/s.includes.sh
+. ./admin/sss.inc.sh
 
 for LOC_PROJECT in "${A_LIST_PROJECTS[@]}"; do
 
