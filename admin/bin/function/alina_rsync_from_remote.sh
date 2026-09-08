@@ -45,6 +45,8 @@ alina_rsync_from_remote() {
         --filter='P **/letsencrypt/'
         --filter='- **/node_modules/'
         --filter='P **/node_modules/'
+        --filter='- **/vendor/'
+        --filter='P **/vendor/'
         -e "ssh -i ${ALINA_REMOTE_SSH} -o StrictHostKeyChecking=no"
         --rsync-path="rsync"
         --force
