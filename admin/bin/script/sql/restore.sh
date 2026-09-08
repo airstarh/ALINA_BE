@@ -1,7 +1,7 @@
 #! /bin/bash
 
-LOC_L_STORE="${A_STORAGE}/${SUB_SQL}"
-BACKUP_FILE="${LOC_L_STORE}/${LOC_DB}.sql.gz"
+LOC_STORAGE="${A_STORAGE}/${SUB_SQL}"
+BACKUP_FILE="${LOC_STORAGE}/${LOC_DB}.sql.gz"
 
 zcat "${BACKUP_FILE}" \
     | docker exec -i alina_mysql mysql \

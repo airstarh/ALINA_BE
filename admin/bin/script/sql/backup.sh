@@ -4,8 +4,8 @@ echo "Running..."
 
 echo ""
 echo ">> $db"
-LOC_R_STORE="${A_R_STORAGE}/${SUB_SQL}"
-mkdir -p "./${LOC_R_STORE}/db"
+LOC_STORAGE="${A_STORAGE}/${SUB_SQL}"
+mkdir -p "./${LOC_STORAGE}/db"
 
 # Increase timeout and buffer settings for large DB
 docker exec alina_mysql sh -c "
@@ -26,7 +26,7 @@ DB_SIZE_BYTES="$(
     docker exec alina_mysql sh -c \
         "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$db\"'"
 )"
-BACKUP_FILE="./${LOC_R_STORE}/${db}.sql.gz"
+BACKUP_FILE="./${LOC_STORAGE}/${db}.sql.gz"
 
 # Dump in chunks with row-based streaming to avoid memory exhaustion
 docker exec alina_mysql sh -c "
