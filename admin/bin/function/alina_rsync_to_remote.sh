@@ -27,8 +27,8 @@ alina_rsync_to_remote() {
         --filter='- **/cfg/db.php' \
         --filter='- **/cfg/mailer.php' \
         --filter='- **/*code-workspace' \
-        --filter='- **/database/' \
-        --filter='P **/database/' \
+        --filter='- /database/' \
+        --filter='P /database/' \
         --filter='- **/log/' \
         --filter='P **/log/' \
         --filter='- **/uploads/' \
