@@ -66,6 +66,29 @@ export A_LIST_PROJECTS=(
     "example-admin.home"
 )
 ```
+The profile must define the required values, particularly:
+
+  ALINA_REMOTE_HOST
+  ALINA_REMOTE_USER
+  ALINA_REMOTE_URL
+  ALINA_REMOTE_SSH
+
+  A_R_BE
+  A_R_VI
+  A_R_SRV
+  A_R_VAR_WWW
+  A_R_GITOUT
+  A_R_STORAGE
+
+  ALINA_BASES
+  A_LIST_PROJECTS
+  ALINA_DEFAULT_PROJECT
+
+  One exception remains: Docker commands require matching files under:
+
+  admin/at/newhost/
+
+  For ordinary deploy, SQL, and dynamic-file operations, the single host configuration file is sufficient.
 
 ## 3. Confirm automatic discovery
 
@@ -85,7 +108,7 @@ scripts and profile variables.
 
 Docker commands currently support only `local` and `sss`. If `ccc` needs
 Docker commands through the dispatcher, add suitable scripts under
-`admin/at/ccc/` and update Docker validation in `admin/run.sh`.
+`admin/at/ccc/` and invoke those scripts by their relative paths.
 
 Do not point a new profile at `admin/at/sss/` blindly: production hosts may
 require different Docker Compose files, permissions, ports, or services.
@@ -106,15 +129,15 @@ shellcheck admin/bin/config/host/ccc.sh
 Dry dispatch validates resolution without running the action:
 
 ```bash
-ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc code deploy
-ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc sql backup example
+ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc bin/script/code/deploy.sh
+ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc bin/script/sql/backup.sh example
 ```
 
 Expected output:
 
 ```text
-profile=ccc action=code/deploy target=-
-profile=ccc action=sql/backup target=example
+profile=ccc script=bin/script/code/deploy.sh arguments=-
+profile=ccc script=bin/script/sql/backup.sh arguments=example
 ```
 
 ## 6. Run a real operation only after review
@@ -123,7 +146,7 @@ After reviewing the profile and dry-dispatch output, run the required
 operation explicitly. For example:
 
 ```bash
-bash admin/run.sh ccc code deploy
+bash admin/run.sh ccc bin/script/code/deploy.sh
 ```
 
 Real deploy, rsync, SQL backup, SQL restore, and Docker commands can modify

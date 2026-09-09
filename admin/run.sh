@@ -1,22 +1,21 @@
 #!/bin/bash
-# shellcheck disable=SC2034,SC1090
+# shellcheck disable=SC1090
 
 set -euo pipefail
 
 ADMIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$ADMIN_DIR/.." && pwd)"
 ALINA_PROFILE_DIR="${ALINA_PROFILE_DIR:-$ADMIN_DIR/bin/config/host}"
 export ALINA_PROFILE_DIR
 
 usage() {
     cat <<'USAGE'
 Usage:
-  bash admin/run.sh <profile> code <compile|deploy>
-  bash admin/run.sh <profile> sql <backup|restore> <database>
-  bash admin/run.sh <profile> sql <download|migrate>
-  bash admin/run.sh <profile> dyn <backup|restore>
-  bash admin/run.sh local docker <build|config|up|down|restart>
-  bash admin/run.sh sss docker <build|up|down|restart>
+  bash admin/run.sh <profile> <script-relative-to-admin> [script arguments]
+
+Examples:
+  bash admin/run.sh sss at/sss/docker.up.sh
+  bash admin/run.sh bbb bin/script/code/deploy.sh
+  bash admin/run.sh sss bin/script/sql/backup.sh zero
 
 Set ALINA_DRY_DISPATCH=1 to validate and print a command without running it.
 USAGE
@@ -36,15 +35,16 @@ fail() {
     exit 2
 }
 
-contains_database() {
-    local requested="$1"
-    local configured
+format_arguments() {
+    local formatted
 
-    for configured in "${ALINA_BASES[@]}"; do
-        [[ "$configured" == "$requested" ]] && return 0
-    done
+    if (( $# == 0 )); then
+        printf '%s' '-'
+        return
+    fi
 
-    return 1
+    printf -v formatted '%q ' "$@"
+    printf '%s' "${formatted% }"
 }
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
@@ -52,83 +52,32 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
     exit 0
 fi
 
-(( $# >= 3 )) || fail "profile, area, and action are required"
-(( $# <= 4 )) || fail "too many command arguments"
+(( $# >= 2 )) || fail "profile and script path are required"
 
 PROFILE="$1"
-AREA="$2"
-ACTION="$3"
-TARGET="${4:-}"
+SCRIPT_PATH="$2"
+shift 2
 
 PROFILE_FILE="$ALINA_PROFILE_DIR/$PROFILE.sh"
 [[ "$PROFILE" != */* && -f "$PROFILE_FILE" ]] || fail "unknown profile: $PROFILE"
 
-case "$AREA/$ACTION" in
-    code/compile)
-        [[ -z "$TARGET" ]] || fail "code compile does not accept a target"
-        ACTION_FILE="bin/script/code/compile.sh"
-        ;;
-    code/deploy)
-        [[ "$PROFILE" != "local" ]] || fail "code deploy requires a remote profile"
-        [[ -z "$TARGET" ]] || fail "code deploy does not accept a target"
-        ACTION_FILE="bin/script/code/deploy.sh"
-        ;;
-    sql/backup|sql/restore)
-        [[ -n "$TARGET" ]] || fail "$AREA $ACTION requires a database"
-        ACTION_FILE="bin/script/sql/$ACTION.sh"
-        ;;
-    sql/download)
-        [[ "$PROFILE" != "local" ]] || fail "SQL download requires a remote profile"
-        [[ -z "$TARGET" ]] || fail "SQL download does not accept a target"
-        ACTION_FILE="bin/script/sql/dwl.sh"
-        ;;
-    sql/migrate)
-        [[ -z "$TARGET" ]] || fail "SQL migrate does not accept a target"
-        ACTION_FILE="bin/script/sql/migrate.sh"
-        ;;
-    dyn/backup|dyn/restore)
-        [[ "$PROFILE" != "local" ]] || fail "dynamic-file transfer requires a remote profile"
-        [[ -z "$TARGET" ]] || fail "dynamic-file transfer does not accept a target"
-        ACTION_FILE="bin/script/dyn/$ACTION.sh"
-        ;;
-    docker/config)
-        [[ "$PROFILE" == "local" ]] || fail "Docker config is only configured for local"
-        [[ -z "$TARGET" ]] || fail "Docker commands do not accept a target"
-        ACTION_FILE="at/local/docker.config.sh"
-        ;;
-    docker/build|docker/up|docker/down|docker/restart)
-        [[ -z "$TARGET" ]] || fail "Docker commands do not accept a target"
-        ACTION_FILE="at/$PROFILE/docker.$ACTION.sh"
-        ;;
-    *) fail "unknown command: $AREA/$ACTION" ;;
-esac
+[[ "$SCRIPT_PATH" != /* ]] || fail "script path must be relative to admin/"
+SCRIPT_FILE="$(realpath -e -- "$ADMIN_DIR/$SCRIPT_PATH")" \
+    || fail "script file not found: $SCRIPT_PATH"
 
-[[ -f "$ADMIN_DIR/$ACTION_FILE" ]] || fail "action file not found: $ACTION_FILE"
-cd "$ROOT_DIR"
+case "$SCRIPT_FILE" in
+    "$ADMIN_DIR"/*.sh) ;;
+    *) fail "script must be a .sh file inside admin/: $SCRIPT_PATH" ;;
+esac
 
 source "$ADMIN_DIR/bin/bootstrap.sh"
 alina_bootstrap "$PROFILE"
 
-if [[ "$AREA/$ACTION" == "sql/backup" || "$AREA/$ACTION" == "sql/restore" ]]; then
-    contains_database "$TARGET" || fail "database '$TARGET' is not configured for profile '$PROFILE'"
-fi
-
 if [[ "${ALINA_DRY_DISPATCH:-0}" == "1" ]]; then
-    printf 'profile=%s action=%s/%s target=%s\n' \
-        "$PROFILE" "$AREA" "$ACTION" "${TARGET:--}"
+    printf 'profile=%s script=%s arguments=%s\n' \
+        "$PROFILE" "$SCRIPT_PATH" "$(format_arguments "$@")"
     exit 0
 fi
 
-case "$AREA/$ACTION" in
-    sql/backup)
-        db="$TARGET"
-        source "$ADMIN_DIR/$ACTION_FILE"
-        ;;
-    sql/restore)
-        LOC_DB="$TARGET"
-        source "$ADMIN_DIR/$ACTION_FILE"
-        ;;
-    *)
-        source "$ADMIN_DIR/$ACTION_FILE"
-        ;;
-esac
+cd "$ALINA_ROOT"
+source "$SCRIPT_FILE" "$@"

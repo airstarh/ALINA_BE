@@ -1,5 +1,7 @@
 #!/bin/bash
 
+db="${1:?Database name is required}"
+
 echo "Running..."
 
 echo ""

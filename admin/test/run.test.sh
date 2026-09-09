@@ -19,51 +19,34 @@ trap 'rm -r -- "$TEMP_PROFILE_DIR"' EXIT
 cp "$ROOT_DIR/admin/bin/config/host/bbb.sh" "$TEMP_PROFILE_DIR/future.sh"
 
 FUTURE_HELP="$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" --help)"
-grep -q '^  future$' <<< "$FUTURE_HELP" \
-    || fail "new profile was not discovered in help"
+grep -q '^  future$' <<< "$FUTURE_HELP" || fail "new profile was not discovered"
 
-[[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" dry_run future code deploy)" == \
-    "profile=future action=code/deploy target=-" ]] \
-    || fail "new profile required a dispatcher code change"
-
-HELP_OUTPUT="$(bash "$RUN_SCRIPT" --help)"
-grep -q "Usage:" <<< "$HELP_OUTPUT" || fail "help text is missing"
-
-if dry_run unknown code compile >/dev/null 2>&1; then
+if dry_run unknown bin/script/code/deploy.sh >/dev/null 2>&1; then
     fail "unknown profile was accepted"
 fi
 
-if dry_run sss sql backup >/dev/null 2>&1; then
-    fail "SQL backup without a database was accepted"
+if dry_run sss >/dev/null 2>&1; then
+    fail "missing script path was accepted"
 fi
 
-[[ "$(dry_run sss code deploy)" == "profile=sss action=code/deploy target=-" ]] \
-    || fail "sss deploy did not resolve"
-
-[[ "$(dry_run bbb sql backup borg)" == "profile=bbb action=sql/backup target=borg" ]] \
-    || fail "bbb SQL backup did not resolve"
-
-[[ "$(dry_run local sql restore zero)" == "profile=local action=sql/restore target=zero" ]] \
-    || fail "local SQL restore did not resolve"
-
-if dry_run sss sql backup borg >/dev/null 2>&1; then
-    fail "database outside the selected profile was accepted"
+if dry_run sss does/not/exist.sh >/dev/null 2>&1; then
+    fail "missing script file was accepted"
 fi
 
-if dry_run bbb docker up >/dev/null 2>&1; then
-    fail "unsupported bbb Docker command was accepted"
-fi
+[[ "$(dry_run sss bin/script/code/deploy.sh)" == \
+    "profile=sss script=bin/script/code/deploy.sh arguments=-" ]] \
+    || fail "sss deploy path did not resolve"
 
-if dry_run sss docker config >/dev/null 2>&1; then
-    fail "missing sss Docker config action was accepted"
-fi
+[[ "$(dry_run bbb bin/script/sql/backup.sh borg)" == \
+    "profile=bbb script=bin/script/sql/backup.sh arguments=borg" ]] \
+    || fail "SQL backup argument did not resolve"
 
-if dry_run sss sql backup zero extra >/dev/null 2>&1; then
-    fail "extra command arguments were accepted"
-fi
+[[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" bbb bin/script/code/deploy.sh)" == \
+    "profile=bbb script=bin/script/code/deploy.sh arguments=-" ]] \
+    || fail "runner depends on the current directory"
 
-[[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" bbb code deploy)" == \
-    "profile=bbb action=code/deploy target=-" ]] \
-    || fail "dispatcher depends on the current directory"
+[[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh one two)" == \
+    "future|bbb|one|two" ]] \
+    || fail "profile or script arguments were not passed to the action"
 
-echo "PASS: command dispatcher"
+echo "PASS: profile-aware script runner"

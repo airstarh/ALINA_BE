@@ -1,5 +1,7 @@
 #! /bin/bash
 
+LOC_DB="${1:?Database name is required}"
+
 LOC_STORAGE="${A_STORAGE}/${SUB_SQL}"
 BACKUP_FILE="${LOC_STORAGE}/${LOC_DB}.sql.gz"
 

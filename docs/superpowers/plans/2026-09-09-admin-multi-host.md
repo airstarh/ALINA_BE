@@ -4,7 +4,7 @@
 
 **Goal:** Add a profile-aware admin dispatcher for local, sss, and bbb operations without combining existing function or action files.
 
-**Architecture:** admin/run.sh is the only entry point. It parses and validates a command before admin/bin/bootstrap.sh loads common configuration, one profile, and shared functions; action files never select profiles.
+**Architecture:** admin/run.sh is the only entry point. It validates a profile and relative script path, loads common configuration and shared functions, then sources that script with its remaining arguments; action files never select profiles.
 
 **Tech Stack:** Bash, ShellCheck
 
@@ -50,7 +50,7 @@
 - Test: admin/test/run.test.sh
 
 **Interfaces:**
-- Command: bash admin/run.sh PROFILE AREA ACTION TARGET.
+- Command: bash admin/run.sh PROFILE SCRIPT_PATH [SCRIPT_ARGUMENTS].
 - ALINA_DRY_DISPATCH=1 validates and prints the resolved action without sourcing it.
 - Supported actions: code compile/deploy; sql backup/restore/download/migrate; dyn backup/restore; docker build/config/up/down/restart.
 
