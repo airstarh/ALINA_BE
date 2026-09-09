@@ -32,6 +32,7 @@ RUN apt-get update && \
         bison \
         flex \
         re2c \
+        iputils-ping \
         && rm -rf /var/lib/apt/lists/*
 
 ##################################################
