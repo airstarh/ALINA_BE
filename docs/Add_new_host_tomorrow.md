@@ -67,16 +67,16 @@ export A_LIST_PROJECTS=(
 )
 ```
 
-## 3. Allow the profile in the dispatcher
+## 3. Confirm automatic discovery
 
-In `admin/run.sh`, add `ccc` to the allowed profile list:
+No dispatcher or test file needs to be edited. Every `*.sh` file in
+`admin/bin/config/host/` is discovered automatically.
+
+Confirm that the new profile appears:
 
 ```bash
-case "$PROFILE" in
-    local|sss|bbb|ccc) ;;
+bash admin/run.sh --help
 ```
-
-Also add `ccc` to the `Profiles` section of the help text.
 
 ## 4. Decide which commands the host supports
 
@@ -90,32 +90,17 @@ Docker commands through the dispatcher, add suitable scripts under
 Do not point a new profile at `admin/at/sss/` blindly: production hosts may
 require different Docker Compose files, permissions, ports, or services.
 
-## 5. Add profile tests
+## 5. Run safe checks
 
-Add a snapshot assertion to `admin/test/config.test.sh`:
-
-```bash
-[[ "$(profile_snapshot ccc)" == \
-    "ccc|ccc|example|example.home|example.home" ]] \
-    || fail "ccc profile values are incorrect"
-```
-
-Add a dry-dispatch assertion to `admin/test/run.test.sh`:
-
-```bash
-[[ "$(dry_run ccc code deploy)" == \
-    "profile=ccc action=code/deploy target=-" ]] \
-    || fail "ccc deploy did not resolve"
-```
-
-## 6. Run safe checks
+No test or dispatcher edits are required. The existing test suite includes
+a temporary future profile and proves automatic discovery.
 
 These commands do not deploy, synchronize, back up, or restore anything:
 
 ```bash
 bash admin/test/config.test.sh
 bash admin/test/run.test.sh
-shellcheck admin/run.sh admin/bin/bootstrap.sh admin/bin/config/host/ccc.sh
+shellcheck admin/bin/config/host/ccc.sh
 ```
 
 Dry dispatch validates resolution without running the action:
@@ -132,7 +117,7 @@ profile=ccc action=code/deploy target=-
 profile=ccc action=sql/backup target=example
 ```
 
-## 7. Run a real operation only after review
+## 6. Run a real operation only after review
 
 After reviewing the profile and dry-dispatch output, run the required
 operation explicitly. For example:

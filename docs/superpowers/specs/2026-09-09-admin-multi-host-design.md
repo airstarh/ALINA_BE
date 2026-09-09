@@ -11,6 +11,7 @@ Commands use `bash admin/run.sh <profile> <area> <action> [target]`.
 Examples include `bash admin/run.sh sss code deploy`, `bash admin/run.sh bbb code deploy`, `bash admin/run.sh sss sql backup zero`, and `bash admin/run.sh local sql restore zero`.
 
 The dispatcher validates the profile, command, and required target before loading an action. It is the only supported entry point.
+Host profiles are discovered from `admin/bin/config/host/*.sh`; adding a profile does not require a dispatcher change.
 
 ## Configuration
 

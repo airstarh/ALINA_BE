@@ -3,6 +3,11 @@
 
 set -euo pipefail
 
+ADMIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$ADMIN_DIR/.." && pwd)"
+ALINA_PROFILE_DIR="${ALINA_PROFILE_DIR:-$ADMIN_DIR/bin/config/host}"
+export ALINA_PROFILE_DIR
+
 usage() {
     cat <<'USAGE'
 Usage:
@@ -13,13 +18,15 @@ Usage:
   bash admin/run.sh local docker <build|config|up|down|restart>
   bash admin/run.sh sss docker <build|up|down|restart>
 
-Profiles:
-  local  Local development configuration
-  sss    Existing production host
-  bbb    borg.home production host (SSH alias: bbb)
-
 Set ALINA_DRY_DISPATCH=1 to validate and print a command without running it.
 USAGE
+
+    echo ""
+    echo "Profiles:"
+    find "$ALINA_PROFILE_DIR" -maxdepth 1 -type f -name '*.sh' -printf '%f\n' \
+        | sed 's/\.sh$//' \
+        | sort \
+        | sed 's/^/  /'
 }
 
 fail() {
@@ -53,10 +60,8 @@ AREA="$2"
 ACTION="$3"
 TARGET="${4:-}"
 
-case "$PROFILE" in
-    local|sss|bbb) ;;
-    *) fail "unknown profile: $PROFILE" ;;
-esac
+PROFILE_FILE="$ALINA_PROFILE_DIR/$PROFILE.sh"
+[[ "$PROFILE" != */* && -f "$PROFILE_FILE" ]] || fail "unknown profile: $PROFILE"
 
 case "$AREA/$ACTION" in
     code/compile)
@@ -92,15 +97,12 @@ case "$AREA/$ACTION" in
         ACTION_FILE="at/local/docker.config.sh"
         ;;
     docker/build|docker/up|docker/down|docker/restart)
-        [[ "$PROFILE" != "bbb" ]] || fail "Docker commands are not configured for bbb"
         [[ -z "$TARGET" ]] || fail "Docker commands do not accept a target"
         ACTION_FILE="at/$PROFILE/docker.$ACTION.sh"
         ;;
     *) fail "unknown command: $AREA/$ACTION" ;;
 esac
 
-ADMIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$ADMIN_DIR/.." && pwd)"
 [[ -f "$ADMIN_DIR/$ACTION_FILE" ]] || fail "action file not found: $ACTION_FILE"
 cd "$ROOT_DIR"
 

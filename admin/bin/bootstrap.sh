@@ -9,7 +9,8 @@ alina_bootstrap() {
 
     ALINA_ADMIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     ALINA_ROOT="$(cd "$ALINA_ADMIN/.." && pwd)"
-    profile_file="$ALINA_ADMIN/bin/config/host/$profile.sh"
+    ALINA_PROFILE_DIR="${ALINA_PROFILE_DIR:-$ALINA_ADMIN/bin/config/host}"
+    profile_file="$ALINA_PROFILE_DIR/$profile.sh"
 
     if [[ -z "$profile" || ! -f "$profile_file" ]]; then
         echo "Unknown admin profile: ${profile:-<empty>}" >&2
@@ -18,6 +19,7 @@ alina_bootstrap() {
 
     export ALINA_ADMIN
     export ALINA_ROOT
+    export ALINA_PROFILE_DIR
     export ALINA_PROFILE="$profile"
 
     source "$ALINA_ADMIN/../_GITOUT/env/.env"

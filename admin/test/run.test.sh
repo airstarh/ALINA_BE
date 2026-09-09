@@ -14,8 +14,20 @@ dry_run() {
     ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" "$@"
 }
 
-bash "$RUN_SCRIPT" --help | grep -q "Usage:" \
-    || fail "help text is missing"
+TEMP_PROFILE_DIR="$(mktemp -d)"
+trap 'rm -r -- "$TEMP_PROFILE_DIR"' EXIT
+cp "$ROOT_DIR/admin/bin/config/host/bbb.sh" "$TEMP_PROFILE_DIR/future.sh"
+
+FUTURE_HELP="$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" --help)"
+grep -q '^  future$' <<< "$FUTURE_HELP" \
+    || fail "new profile was not discovered in help"
+
+[[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" dry_run future code deploy)" == \
+    "profile=future action=code/deploy target=-" ]] \
+    || fail "new profile required a dispatcher code change"
+
+HELP_OUTPUT="$(bash "$RUN_SCRIPT" --help)"
+grep -q "Usage:" <<< "$HELP_OUTPUT" || fail "help text is missing"
 
 if dry_run unknown code compile >/dev/null 2>&1; then
     fail "unknown profile was accepted"
