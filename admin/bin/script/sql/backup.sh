@@ -1,11 +1,11 @@
 #!/bin/bash
 
-db="${1:?Database name is required}"
+LOC_DB="${1:?Database name is required}"
 
 echo "Running..."
 
 echo ""
-echo ">> $db"
+echo ">> $LOC_DB"
 LOC_STORAGE="${A_STORAGE}/${SUB_SQL}"
 mkdir -p "./${LOC_STORAGE}"
 
@@ -25,9 +25,9 @@ sleep 2
 
 DB_SIZE_BYTES="$(
     docker exec alina_mysql sh -c \
-        "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$db\"'"
+        "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -N -e 'SELECT SUM(data_length+index_length) FROM information_schema.tables WHERE table_schema=\"$LOC_DB\"'"
 )"
-BACKUP_FILE="./${LOC_STORAGE}/${db}.sql.gz"
+BACKUP_FILE="./${LOC_STORAGE}/${LOC_DB}.sql.gz"
 if command -v pv >/dev/null 2>&1; then
     PROGRESS_COMMAND=(pv -pterb -s "${DB_SIZE_BYTES}")
 else
@@ -38,7 +38,7 @@ fi
 docker exec alina_mysql sh -c "
     MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysqldump \
         -u root \
-        --databases '$db' \
+        --databases '$LOC_DB' \
         --add-drop-database \
         --add-drop-table \
         --complete-insert \
@@ -63,9 +63,9 @@ docker exec alina_mysql sh -c "
 
 # Check if dump succeeded
 if [ "${PIPESTATUS[0]}" -eq 0 ]; then
-    echo "<< $db"
+    echo "<< $LOC_DB"
 else
-    echo "❌ Failed to dump $db"
+    echo "❌ Failed to dump $LOC_DB"
     # Restore settings before exit
     docker exec alina_mysql sh -c "
         MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root -e \"
