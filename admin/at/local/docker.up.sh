@@ -1,7 +1,5 @@
 #! /bin/bash
 
-. ./admin/sss.inc.sh
-
 sudo bash "$(asd)"/perms.sh
 
 docker compose \

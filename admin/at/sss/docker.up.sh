@@ -1,7 +1,5 @@
 #! /bin/bash
 
-. ./admin/sss.inc.sh
-
 sudo bash "${ALINA_ADMIN}"/at/local/perms.sh
 
 docker compose \

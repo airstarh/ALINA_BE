@@ -87,8 +87,8 @@ Docker commands currently support only `local` and `sss`. If `ccc` needs
 Docker commands through the dispatcher, add suitable scripts under
 `admin/at/ccc/` and update Docker validation in `admin/run.sh`.
 
-Do not point a new profile at `admin/at/sss/` blindly: some legacy scripts
-there load the `sss` profile themselves.
+Do not point a new profile at `admin/at/sss/` blindly: production hosts may
+require different Docker Compose files, permissions, ports, or services.
 
 ## 5. Add profile tests
 

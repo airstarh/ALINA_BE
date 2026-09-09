@@ -10,7 +10,7 @@ Commands use `bash admin/run.sh <profile> <area> <action> [target]`.
 
 Examples include `bash admin/run.sh sss code deploy`, `bash admin/run.sh bbb code deploy`, `bash admin/run.sh sss sql backup zero`, and `bash admin/run.sh local sql restore zero`.
 
-The dispatcher validates the profile, command, and required target before loading an action. Existing launchers remain available as compatibility wrappers.
+The dispatcher validates the profile, command, and required target before loading an action. It is the only supported entry point.
 
 ## Configuration
 
@@ -18,7 +18,7 @@ The dispatcher validates the profile, command, and required target before loadin
 - `admin/bin/config/host/sss.sh` contains the existing sss remote host, projects, and databases.
 - `admin/bin/config/host/bbb.sh` uses SSH alias `bbb`, project `borg.home`, and database `borg`.
 - `admin/bin/bootstrap.sh` loads strict Bash settings, environment secrets, common configuration, the selected profile, and shared functions.
-- `admin/sss.inc.sh` delegates to the bootstrap with profile `sss`, preserving current entry scripts.
+- Operational scripts receive their selected profile from `admin/run.sh` and never load a profile themselves.
 
 The real address for `bbb` stays in the user's SSH configuration. Repository scripts refer only to the stable alias.
 
@@ -32,7 +32,7 @@ The first implementation covers code compile/deploy; SQL backup/restore/download
 
 ## Compatibility and safety
 
-- Existing `bash admin/path/script.sh` commands continue to work.
+- Operational commands run only through `bash admin/run.sh ...`.
 - Scripts do not need executable bits.
 - The dispatcher changes to the repository root before loading helpers.
 - Invalid profiles and commands fail before any operational script runs.
@@ -40,4 +40,4 @@ The first implementation covers code compile/deploy; SQL backup/restore/download
 
 ## Verification
 
-Run `bash -n` and ShellCheck over non-empty admin shell files. Exercise help, invalid-command handling, and configuration loading in a mode that stops before dispatch. Confirm legacy launchers resolve the sss configuration without running their actions.
+Run `bash -n` and ShellCheck over non-empty admin shell files. Exercise help, invalid-command handling, configuration loading, and the absence of compatibility launchers without running operational actions.

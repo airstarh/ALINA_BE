@@ -38,10 +38,4 @@ if profile_snapshot unknown >/dev/null 2>&1; then
     fail "unknown profile was accepted"
 fi
 
-bash -c '
-    set -euo pipefail
-    source "$1/admin/bin/config/sss.sh"
-    [[ "$ALINA_REMOTE_HOST" == "ospl1942.ru" ]]
-' bash "$ROOT_DIR" || fail "legacy sss config cannot be sourced directly"
-
 echo "PASS: configuration profiles"

@@ -4,7 +4,7 @@
 
 **Goal:** Add a profile-aware admin dispatcher for local, sss, and bbb operations without combining existing function or action files.
 
-**Architecture:** admin/run.sh parses and validates a command before admin/bin/bootstrap.sh loads common configuration, one profile, and shared functions. Existing action files keep their current variable interfaces, and admin/sss.inc.sh becomes a compatibility adapter for old launchers.
+**Architecture:** admin/run.sh is the only entry point. It parses and validates a command before admin/bin/bootstrap.sh loads common configuration, one profile, and shared functions; action files never select profiles.
 
 **Tech Stack:** Bash, ShellCheck
 
@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Existing bash admin/path/script.sh commands continue to work.
+- Operational commands run only through bash admin/run.sh.
 - Scripts do not need executable bits.
 - Function and action implementations remain separate files.
 - Invalid profiles and commands fail before operational scripts run.
@@ -29,18 +29,18 @@
 - Create: admin/bin/config/host/sss.sh
 - Create: admin/bin/config/host/bbb.sh
 - Create: admin/bin/bootstrap.sh
-- Modify: admin/sss.inc.sh
-- Modify: admin/bin/config/sss.sh
+- Delete: admin/sss.inc.sh
+- Delete: admin/bin/config/sss.sh
 - Test: admin/test/config.test.sh
 
 **Interfaces:**
 - alina_bootstrap PROFILE loads environment, common config, one profile, and shared functions.
 - Profile files define remote values, ALINA_BASES, A_LIST_PROJECTS, and ALINA_DEFAULT_PROJECT.
-- admin/bin/config/sss.sh remains compatible and delegates to common plus host/sss configuration.
+- Operational action files depend on configuration already loaded by admin/run.sh.
 
 - [ ] Write a config test that sources each profile in a clean Bash process, asserts profile/project/database values, and fails because bootstrap does not exist.
 - [ ] Run bash admin/test/config.test.sh and confirm the missing-bootstrap failure.
-- [ ] Split current configuration, implement alina_bootstrap, and adapt legacy sss loading.
+- [ ] Split current configuration, implement alina_bootstrap, and remove legacy sss loading.
 - [ ] Run the config test, Bash parser, and ShellCheck.
 
 ### Task 2: Safe dispatcher and command mapping
@@ -59,13 +59,13 @@
 - [ ] Implement validation, target variables, and action dispatch.
 - [ ] Run dispatcher/config tests, Bash parser, and ShellCheck.
 
-### Task 3: Repository-wide compatibility verification
+### Task 3: Repository-wide single-entry verification
 
 **Files:**
 - Verify: every non-empty shell file under admin.
 
 **Interfaces:**
-- Legacy launchers load sss through admin/sss.inc.sh.
+- Legacy launchers and compatibility configuration are absent.
 - New commands resolve paths without invoking actions when ALINA_DRY_DISPATCH=1.
 
 - [ ] Run both admin test scripts.
