@@ -45,8 +45,8 @@ fi
     "profile=bbb script=bin/script/code/deploy.sh arguments=-" ]] \
     || fail "runner depends on the current directory"
 
-[[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh one two)" == \
-    "future|bbb|one|two" ]] \
+[[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh XXX YYY N)" == \
+    "future|bbb|XXX|YYY|N" ]] \
     || fail "profile or script arguments were not passed to the action"
 
 echo "PASS: profile-aware script runner"
