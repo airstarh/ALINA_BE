@@ -52,7 +52,7 @@ location / {
 # pass PHP scripts to FastCGI server
 # https://stackoverflow.com/questions/15423500/nginx-showing-blank-php-pages/31905948#31905948
 location ~ \.php$ {
-    try_files $uri =404;
+    try_files $uri @phpfallback;
     fastcgi_pass php82:9000;
     include /etc/nginx/fastcgi.conf;
 
@@ -61,6 +61,10 @@ location ~ \.php$ {
     fastcgi_param HTTP_X_FORWARDED_PROTO    $scheme;
 
     fastcgi_intercept_errors on;
+}
+
+location @phpfallback {
+    rewrite ^ /index.php?alinapath=$uri&$args last;
 }
 # region PHP
 ##################################################
