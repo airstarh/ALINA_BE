@@ -26,8 +26,12 @@ DNS.2 = default.org
 DNS.3 = default.home
 DNS.4 = zero.home
 DNS.5 = localhost
+DNS.6 = az.zero
 IP.1  = 127.0.0.1
 IP.2  = 192.168.1.86
+IP.3  = 192.168.1.120
+IP.4  = 192.168.1.68
+IP.5  = 192.168.1.254
 
 [extensions]
 basicConstraints       = CA:FALSE
