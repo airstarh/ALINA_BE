@@ -129,15 +129,15 @@ shellcheck admin/bin/config/host/ccc.sh
 Dry dispatch validates resolution without running the action:
 
 ```bash
-ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc bin/script/code/deploy.sh
-ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc bin/script/sql/backup.sh example
+ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc do/code/deploy.sh
+ALINA_DRY_DISPATCH=1 bash admin/run.sh ccc do/sql/backup.sh example
 ```
 
 Expected output:
 
 ```text
-profile=ccc script=bin/script/code/deploy.sh arguments=-
-profile=ccc script=bin/script/sql/backup.sh arguments=example
+profile=ccc script=do/code/deploy.sh arguments=-
+profile=ccc script=do/sql/backup.sh arguments=example
 ```
 
 ## 6. Run a real operation only after review
@@ -146,7 +146,7 @@ After reviewing the profile and dry-dispatch output, run the required
 operation explicitly. For example:
 
 ```bash
-bash admin/run.sh ccc bin/script/code/deploy.sh
+bash admin/run.sh ccc do/code/deploy.sh
 ```
 
 Real deploy, rsync, SQL backup, SQL restore, and Docker commands can modify

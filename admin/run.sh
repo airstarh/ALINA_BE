@@ -14,8 +14,8 @@ Usage:
 
 Examples:
   bash admin/run.sh sss at/sss/docker.up.sh
-  bash admin/run.sh bbb bin/script/code/deploy.sh
-  bash admin/run.sh sss bin/script/sql/backup.sh zero
+  bash admin/run.sh bbb do/code/deploy.sh
+  bash admin/run.sh sss do/sql/backup.sh zero
 
 Set ALINA_DRY_DISPATCH=1 to validate and print a command without running it.
 USAGE

@@ -9,6 +9,20 @@ fail() {
     exit 1
 }
 
+[[ ! -d "$ROOT_DIR/admin/bin/script" ]] \
+    || fail "legacy admin/bin/script directory still exists"
+
+for action_file in \
+    do/code/compile.sh \
+    do/code/deploy.sh \
+    do/dyn/backup.sh \
+    do/dyn/restore.sh \
+    do/sql/backup.sh \
+    do/sql/restore.sh
+do
+    [[ -f "$ROOT_DIR/admin/$action_file" ]] || fail "$action_file is missing"
+done
+
 for removed_file in \
     admin/sss.inc.sh \
     admin/bin/config/sss.sh \

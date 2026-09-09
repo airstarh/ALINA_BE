@@ -21,7 +21,7 @@ cp "$ROOT_DIR/admin/bin/config/host/bbb.sh" "$TEMP_PROFILE_DIR/future.sh"
 FUTURE_HELP="$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" --help)"
 grep -q '^  future$' <<< "$FUTURE_HELP" || fail "new profile was not discovered"
 
-if dry_run unknown bin/script/code/deploy.sh >/dev/null 2>&1; then
+if dry_run unknown do/code/deploy.sh >/dev/null 2>&1; then
     fail "unknown profile was accepted"
 fi
 
@@ -33,16 +33,16 @@ if dry_run sss does/not/exist.sh >/dev/null 2>&1; then
     fail "missing script file was accepted"
 fi
 
-[[ "$(dry_run sss bin/script/code/deploy.sh)" == \
-    "profile=sss script=bin/script/code/deploy.sh arguments=-" ]] \
+[[ "$(dry_run sss do/code/deploy.sh)" == \
+    "profile=sss script=do/code/deploy.sh arguments=-" ]] \
     || fail "sss deploy path did not resolve"
 
-[[ "$(dry_run bbb bin/script/sql/backup.sh borg)" == \
-    "profile=bbb script=bin/script/sql/backup.sh arguments=borg" ]] \
+[[ "$(dry_run bbb do/sql/backup.sh borg)" == \
+    "profile=bbb script=do/sql/backup.sh arguments=borg" ]] \
     || fail "SQL backup argument did not resolve"
 
-[[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" bbb bin/script/code/deploy.sh)" == \
-    "profile=bbb script=bin/script/code/deploy.sh arguments=-" ]] \
+[[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" bbb do/code/deploy.sh)" == \
+    "profile=bbb script=do/code/deploy.sh arguments=-" ]] \
     || fail "runner depends on the current directory"
 
 [[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh XXX YYY N)" == \

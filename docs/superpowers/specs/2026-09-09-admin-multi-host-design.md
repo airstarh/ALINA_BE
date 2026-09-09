@@ -8,7 +8,7 @@ Provide one consistent admin entry point for local work and multiple production 
 
 Commands use `bash admin/run.sh <profile> <script-relative-to-admin> [script arguments]`.
 
-Examples include `bash admin/run.sh sss at/sss/docker.up.sh`, `bash admin/run.sh bbb bin/script/code/deploy.sh`, and `bash admin/run.sh sss bin/script/sql/backup.sh zero`.
+Examples include `bash admin/run.sh sss at/sss/docker.up.sh`, `bash admin/run.sh bbb do/code/deploy.sh`, and `bash admin/run.sh sss do/sql/backup.sh zero`.
 
 The runner validates the profile and script path, loads configuration, then sources the selected script with its remaining arguments. It is the only supported entry point.
 Host profiles are discovered from `admin/bin/config/host/*.sh`; adding a profile does not require a dispatcher change.
@@ -25,7 +25,7 @@ The real address for `bbb` stays in the user's SSH configuration. Repository scr
 
 ## Code organization
 
-Files in `admin/bin/function/` and `admin/bin/script/` remain separate. `admin/run.sh` has no command routing table: it bootstraps a profile and sources the requested script path. Profile files use the current variable names so existing actions can be reused.
+Files in `admin/bin/function/` and `admin/do/` remain separate. `admin/run.sh` has no command routing table: it bootstraps a profile and sources the requested script path. Profile files use the current variable names so existing actions can be reused.
 
 ## Dispatch scope
 
