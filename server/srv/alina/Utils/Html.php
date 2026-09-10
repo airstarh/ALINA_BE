@@ -35,7 +35,7 @@ class Html
         }
         $url = ltrim($url, '/');
 
-        return "//{$_SERVER['HTTP_HOST']}/{$url}";
+        return "/{$url}";
     }
 
     public static function l($ref, $text = '', $configuration = [])
@@ -99,7 +99,7 @@ class Html
         $url           = ltrim($url, '/');
         $url           = ltrim($url, '\\');
 
-        return "//{$_SERVER['HTTP_HOST']}/{$url}";
+        return "/{$url}";
     }
 
     public static function aL($ref, $text = '', $configuration = [])

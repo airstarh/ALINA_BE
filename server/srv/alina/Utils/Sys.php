@@ -345,29 +345,17 @@ class Sys
     public static function redirect($page, $code = 307, $isToOrigin = false)
     {
         if (
-            Str::startsWith($page, 'http://') || Str::startsWith($page, 'https://')
+            Str::startsWith($page, 'http://')
+            || Str::startsWith($page, 'https://')
         ) {
             header("Location: $page", true, $code);
             AlinaExit('raw redirect');
         }
 
         ##########
-        $get = new stdClass();
+        $page = Html::ref($page);
+        $get  = new stdClass();
 
-        if (
-            $isToOrigin && ! empty($_SERVER['HTTP_REFERER'])
-        ) {
-            $url  = Url::cleanDomainWithProtocolAndPort($_SERVER['HTTP_REFERER']);
-            $page = implode('/', [
-                trim($url, '/'),
-                ltrim($page, '/'),
-            ]);
-        }
-        else {
-            $page = Html::ref($page);
-        }
-
-        #####
         $messages = Message::returnAllMessages();
 
         if (count($messages) > 0) {
