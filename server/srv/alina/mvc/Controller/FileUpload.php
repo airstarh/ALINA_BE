@@ -309,10 +309,11 @@ class FileUpload
         $webPath  = FS::normalizePath(ALINA_WEB_PATH);
         $relPath  = str_replace($webPath, '', $filePath);
         $blocks   = [
-            Request::obj()->DOMAIN,
+            // Request::obj()->DOMAIN,
             $relPath,
         ];
-        $res = '//' . FS::buildPathFromBlocks($blocks);
+        // $res = '//' . FS::buildPathFromBlocks($blocks);
+        $res = FS::buildPathFromBlocks($blocks);
         $res = str_replace('\\', '/', $res);
 
         return $res;
