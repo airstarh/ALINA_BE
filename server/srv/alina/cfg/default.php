@@ -6,6 +6,10 @@ return [
     'fileUploadDir' => ALINA_WEB_PATH . DIRECTORY_SEPARATOR . 'uploads',
     'logVisitsToDb' => true,
     'db'            => require_once(__DIR__ . DIRECTORY_SEPARATOR . 'db.php'),
+    'dbRetry'       => [
+        'timeoutSeconds'  => 150,
+        'intervalSeconds' => 10,
+    ],
     'mvc'           => [
         'defaultController'       => 'Root',
         'defaultAction'           => 'Index',

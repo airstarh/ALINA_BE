@@ -56,5 +56,17 @@ services:
         tmpfs:
             - /tmp
         command: php /srv/alina/program/chat/p.chat.run.php
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "php",
+                    "-r",
+                    'exit(@fsockopen("127.0.0.1", 8080) ? 0 : 1);',
+                ]
+            timeout: 5s
+            retries: 3
+            interval: 10s
+            start_period: 10s
         networks:
             - alina_network

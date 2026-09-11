@@ -12,6 +12,7 @@ namespace alina\vendorExtend\illuminate;
 use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Events\Dispatcher;
+use RuntimeException;
 use Throwable;
 
 class alinaLaravelCapsuleLoader
@@ -24,46 +25,91 @@ class alinaLaravelCapsuleLoader
      */
     public static function init()
     {
-        $res = false;
-
         if (isset(static::$objIlluminate) && is_object(static::$objIlluminate)) {
-            $res = true;
-
             return static::$objIlluminate;
         }
 
-        try {
-            $config = AlinaCfg('db');
+        $config = AlinaCfg('db');
 
-            if (! is_array($config)) {
-                $config = AlinaCfgDefault('db');
-            }
+        if (! is_array($config)) {
+            $config = AlinaCfgDefault('db');
+        }
 
-            $capsule = new Manager();
-            $capsule->addConnection($config);
+        $retryConfig = AlinaCfg('dbRetry');
 
-            $capsule->setEventDispatcher(new Dispatcher(new Container()));
+        if (! is_array($retryConfig)) {
+            $retryConfig = AlinaCfgDefault('dbRetry');
+        }
 
-            $capsule->setAsGlobal();
-            $capsule->bootEloquent();
+        $timeoutSeconds  = max(0, (int) ($retryConfig['timeoutSeconds'] ?? 0));
+        $intervalSeconds = max(0, (int) ($retryConfig['intervalSeconds'] ?? 10));
+        $startedAt       = hrtime(true);
+        $attempts        = 0;
+        $lastError       = null;
+
+        do {
+            $attempts++;
 
             try {
+                $capsule = new Manager();
+                $capsule->addConnection($config);
+                $capsule->setEventDispatcher(new Dispatcher(new Container()));
+                $capsule->setAsGlobal();
+                $capsule->bootEloquent();
+
                 $result = $capsule->connection()->getPdo()->query('SELECT 1')->fetch();
 
                 if ($result) {
-                    $res                   = true;
                     static::$objIlluminate = $capsule;
 
                     return static::$objIlluminate;
                 }
             }
             catch (Throwable $e) {
-                $res = false;
+                $lastError = $e;
+            }
+
+            $elapsedSeconds = (hrtime(true) - $startedAt) / 1_000_000_000;
+
+            if ($elapsedSeconds >= $timeoutSeconds) {
+                break;
+            }
+
+            $sleepSeconds = min($intervalSeconds, (int) ceil($timeoutSeconds - $elapsedSeconds));
+
+            if (PHP_SAPI === 'cli') {
+                fwrite(
+                    STDERR,
+                    sprintf(
+                        'Database unavailable (attempt %d); retrying in %d seconds...' . PHP_EOL,
+                        $attempts,
+                        $sleepSeconds,
+                    ),
+                );
+            }
+
+            if ($sleepSeconds > 0) {
+                sleep($sleepSeconds);
             }
         }
-        catch (Throwable $e) {
-            $res = false;
+        while (true);
+
+        $message = sprintf(
+            'Database unavailable after %d seconds (%d %s)',
+            $timeoutSeconds,
+            $attempts,
+            $attempts === 1 ? 'attempt' : 'attempts',
+        );
+
+        if ($lastError) {
+            $message .= ': ' . $lastError->getMessage();
         }
-        exit('No db');
+
+        if (PHP_SAPI === 'cli') {
+            fwrite(STDERR, $message . PHP_EOL);
+            exit(69);
+        }
+
+        throw new RuntimeException($message, 0, $lastError);
     }
 }

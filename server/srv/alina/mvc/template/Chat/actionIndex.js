@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let conn = null;
     let retryCount = 0;
-    const maxRetries = 10;
-    const retryDelayMs = 11000; // 11 seconds
+    const initialRetryDelayMs = 11000;
+    const maxRetryDelayMs = 60000;
 
     // States
     let stateChatJustOpened = 1;
@@ -80,22 +80,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function scheduleRetry() {
-        if (retryCount >= maxRetries) {
-            console.error("Max retries reached. Please reload the page.");
-            appendMessage(
-                "❌ Max retries reached. Please <b>reload the page</b>.",
-                "red",
-            );
-            return;
-        }
-
         retryCount++;
-        const timeLeft = ((maxRetries - retryCount + 1) * retryDelayMs) / 1000;
+        const retryDelayMs = Math.min(
+            initialRetryDelayMs * 2 ** Math.min(retryCount - 1, 3),
+            maxRetryDelayMs,
+        );
         console.log(
-            `Retry attempt ${retryCount} of ${maxRetries} in ${retryDelayMs / 1000}s`,
+            `Retry attempt ${retryCount} in ${retryDelayMs / 1000}s`,
         );
         appendMessage(
-            `⏳ Reconnecting in ${retryDelayMs / 1000}s (attempt ${retryCount}/${maxRetries})`,
+            `⏳ Reconnecting in ${retryDelayMs / 1000}s (attempt ${retryCount})`,
             "orange",
         );
 
