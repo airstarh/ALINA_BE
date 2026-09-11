@@ -62,7 +62,7 @@ services:
                     "CMD",
                     "php",
                     "-r",
-                    'exit(@fsockopen("127.0.0.1", 8080) ? 0 : 1);',
+                    '$$found = false; foreach (["/proc/net/tcp", "/proc/net/tcp6"] as $$file) { foreach (@file($$file) ?: [] as $$line) { $$fields = preg_split("/\\s+/", trim($$line)); if (($$fields[3] ?? "") === "0A" && str_ends_with($$fields[1] ?? "", ":1F90")) { $$found = true; break 2; } } } exit($$found ? 0 : 1);',
                 ]
             timeout: 5s
             retries: 3
