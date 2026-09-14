@@ -267,10 +267,7 @@ class FileUpload
         $image   = $manager->read($realPath);
 
         if ($image->width() > 1500) {
-            $image->resize(1500, null, static function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize(false);
-            });
+            $image->scaleDown(width: 1500);
         }
 
         $image->save($realPath, 100);
