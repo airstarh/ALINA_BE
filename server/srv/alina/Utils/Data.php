@@ -30,7 +30,6 @@ class Data
         }
 
         if (static::isIterable($v)) {
-            // ToDo: Make less heavy
             $array = json_decode(json_encode($v), true);
         }
         else {

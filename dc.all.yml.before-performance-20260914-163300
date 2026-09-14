@@ -53,13 +53,12 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 1G
+                    memory: 2G
                     cpus: "2.0"
         command:
-            - --innodb-buffer-pool-size=384M
+            - --innodb-buffer-pool-size=1G
             - --innodb-log-file-size=512M
             - --innodb-flush-log-at-trx-commit=2
-            - --sync-binlog=0
             - --max-allowed-packet=64M
             - --skip-log-bin
             - --skip-name-resolve
@@ -67,9 +66,9 @@ services:
             - --tmp-table-size=64M
             - --max-heap-table-size=64M
             - --innodb-flush-neighbors=0
-            - --performance-schema=OFF
+            - --performance-schema=ON
             - --log-error=/var/log/mysql/error.log
-            - --slow-query-log=0
+            - --slow-query-log=1
             - --slow-query-log-file=/var/log/mysql/slow.log
             - --long-query-time=2
             - --tls-version=TLSv1.2,TLSv1.3
@@ -78,7 +77,6 @@ services:
             - --net-read-timeout=60
             - --net-write-timeout=60
             - --max-connections=100
-            - --thread-cache-size=32
         expose:
             - "3306"
         volumes:

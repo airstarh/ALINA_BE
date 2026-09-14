@@ -246,11 +246,11 @@ final class CurrentUser
         $u->insert($vd);
 
         if (isset($u->id)) {
+            $id = (new rbeeac_role())->getOne([['name','=', 'registered']])->id;
             $mUserRole = new rbac_user_role();
             $mUserRole->insert([
                 'user_id' => $u->id,
-                //ToDo: Hardcoded, 5-servants
-                'role_id' => 5,
+                'role_id' => $id,
             ]);
 
             if (isset($mUserRole->id)) {

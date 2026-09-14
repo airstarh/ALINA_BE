@@ -48,7 +48,7 @@ trait Msg
         }
         $_this                 = new static();
         $_this->templateString = ___($text);
-        $_this->params         = $params;
+        $_this->params         = Data::toArray($params);
         $_this->status         = $status;
         $_this->isShown        = false;
         $_this->addToCollection();
@@ -220,7 +220,7 @@ trait Msg
         try {
             $this->messageRawText = vsprintf($this->templateString, $this->params);
         }
-        catch (Exception $e) {
+        catch (\Throwable $e) {
             $this->messageRawText = '';
             $this->messageRawText .= PHP_EOL;
             $this->messageRawText .= '>>>';
