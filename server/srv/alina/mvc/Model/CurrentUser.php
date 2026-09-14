@@ -4,6 +4,7 @@ namespace alina\mvc\Model;
 
 use alina\AppCookie;
 use alina\Message;
+use alina\mvc\Model\user;
 use alina\traits\Singleton;
 use alina\Utils\Obj;
 use alina\Utils\Request;
@@ -16,7 +17,7 @@ final class CurrentUser
 
     public const KEY_USER_ID    = 'uid';
     public const KEY_USER_TOKEN = 'token';
-    protected user $USER;
+    protected user        $USER;
     protected login       $LOGIN;
     protected string      $device_ip;
     protected string      $device_browser_enc;
@@ -246,7 +247,7 @@ final class CurrentUser
         $u->insert($vd);
 
         if (isset($u->id)) {
-            $id = (new rbac_role())->getOne([['name','=', 'registered']])->id;
+            $id        = (new rbac_role())->getOne([['name','=', 'registered']])->id;
             $mUserRole = new rbac_user_role();
             $mUserRole->insert([
                 'user_id' => $u->id,
