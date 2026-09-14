@@ -17,8 +17,8 @@ final class CurrentUser
 
     public const KEY_USER_ID    = 'uid';
     public const KEY_USER_TOKEN = 'token';
-    protected user        $USER;
-    protected login       $LOGIN;
+    protected user        $mUser;
+    protected login       $mLogin;
     protected string      $device_ip;
     protected string      $device_browser_enc;
     ##################################################
@@ -33,7 +33,7 @@ final class CurrentUser
         $this->authorize();
 
         if (static::$state_AUTHORIZATION_SUCCESS) {
-            $this->upsertLogin($this->USER->id);
+            $this->upsertLogin($this->mUser->id);
         }
     }
     #endregion SingleTon
@@ -67,7 +67,7 @@ final class CurrentUser
             return false;
         }
 
-        $password = $this->USER::encrypt($password);
+        $password = $this->mUser::encrypt($password);
 
         $conditions = [
             'mail'     => $mail,
@@ -84,16 +84,16 @@ final class CurrentUser
     protected function loginProcess($conditions)
     {
         $this->reset();
-        $this->USER->getOneWithReferences($conditions);
+        $this->mUser->getOneWithReferences($conditions);
 
-        if ($this->USER->id) {
-            $this->upsertLogin($this->USER->id);
+        if ($this->mUser->id) {
+            $this->upsertLogin($this->mUser->id);
 
             return true;
         }
 
         # validate
-        if (empty($this->USER->id)) {
+        if (empty($this->mUser->id)) {
             $this->msg[] = 'Incorrect credentials';
         }
 
@@ -109,20 +109,20 @@ final class CurrentUser
         $userId   = $this->discoverUserId();
         $oldToken = $this->discoverToken();
         #####
-        $this->LOGIN->getOne([
+        $this->mLogin->getOne([
             ['user_id', '=', $userId],
             ['token', '=', $oldToken],
             ['expires_at', '>', ALINA_TIME],
         ]);
 
-        if ($this->LOGIN->id) {
-            $uId = $this->USER->alias;
-            $uPk = $this->USER->pkName;
-            $this->USER->getOneWithReferences([
+        if ($this->mLogin->id) {
+            $uId = $this->mUser->alias;
+            $uPk = $this->mUser->pkName;
+            $this->mUser->getOneWithReferences([
                 "{$uId}.{$uPk}" => $userId,
             ]);
 
-            if ($this->USER->id) {
+            if ($this->mUser->id) {
                 return true;
             }
         }
@@ -135,7 +135,7 @@ final class CurrentUser
         $id = null;
 
         if (empty($id)) {
-            $id = $this->USER->id;
+            $id = $this->mUser->id;
         }
 
         if (empty($id)) {
@@ -158,7 +158,7 @@ final class CurrentUser
         $token = null;
 
         if (empty($token)) {
-            $token = $this->LOGIN->attributes->token;
+            $token = $this->mLogin->attributes->token;
         }
 
         if (empty($token)) {
@@ -179,8 +179,8 @@ final class CurrentUser
     protected function upsertLogin($uid)
     {
         $data = $this->buildLoginData($uid);
-        $this->LOGIN->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
-        $this->setTokenOnClient($this->USER->id, $this->LOGIN->attributes->token);
+        $this->mLogin->upsertByUniqueFields($data, [['user_id', 'browser_enc']]);
+        $this->setTokenOnClient($this->mUser->id, $this->mLogin->attributes->token);
     }
 
     protected function setTokenOnClient($uid, $token)
@@ -219,7 +219,7 @@ final class CurrentUser
     protected function forgetAuthInfo()
     {
         #####
-        $this->LOGIN->deleteById($this->LOGIN->id);
+        $this->mLogin->deleteById($this->mLogin->id);
         #####
         AppCookie::delete(static::KEY_USER_TOKEN);
         AppCookie::delete(static::KEY_USER_ID);
@@ -240,7 +240,7 @@ final class CurrentUser
     public function Register($vd)
     {
         $this->resetMsg();
-        $u               = $this->USER;
+        $u               = $this->mUser;
         $vd->created_at  = ALINA_TIME;
         $vd->is_verified = 0;
         $vd->is_deleted  = 0;
@@ -278,8 +278,8 @@ final class CurrentUser
 
     public function resetDiscoveredData()
     {
-        $this->USER  = new user();
-        $this->LOGIN = new login();
+        $this->mUser  = new user();
+        $this->mLogin = new login();
 
         return $this;
     }
@@ -304,7 +304,7 @@ final class CurrentUser
     #region States
     public static function id()
     {
-        return static::obj()->USER->id;
+        return static::obj()->mUser->id;
     }
 
     public function language()
@@ -314,8 +314,8 @@ final class CurrentUser
 
     public function attributes()
     {
-        $res        = Obj::deepClone($this->USER->attributes);
-        $res->token = $this->LOGIN->attributes->token;
+        $res        = Obj::deepClone($this->mUser->attributes);
+        $res->token = $this->mLogin->attributes->token;
         unset($res->password);
 
         return $res;
@@ -323,7 +323,7 @@ final class CurrentUser
 
     public function name()
     {
-        $res = $this->USER->attributes->mail ?? '';
+        $res = $this->mUser->attributes->mail ?? '';
 
         if (empty($res)) {
             $res = 'Sign In';
@@ -335,7 +335,7 @@ final class CurrentUser
     public function hasRole($role)
     {
         if ($this->isLoggedIn()) {
-            return $this->USER->hasRole($role);
+            return $this->mUser->hasRole($role);
         }
 
         return false;
@@ -344,7 +344,7 @@ final class CurrentUser
     public function hasPerm($perm)
     {
         if ($this->isLoggedIn()) {
-            return $this->USER->hasPerm($perm);
+            return $this->mUser->hasPerm($perm);
         }
 
         return false;
@@ -399,11 +399,11 @@ final class CurrentUser
         if (
             //Request::obj()->AJAX
             //&&
-            ! empty($this->LOGIN->attributes->token)
+            ! empty($this->mLogin->attributes->token)
         ) {
-            return $this->LOGIN->attributes->token;
+            return $this->mLogin->attributes->token;
         }
-        $u           = $this->USER;
+        $u           = $this->mUser;
         $ua          = $u->attributes;
         $tokenSource = [
             $ua->id,
