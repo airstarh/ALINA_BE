@@ -1,5 +1,5 @@
 <?php
-/** @var $data stdClass */
+/** @var stdClass $data */
 
 $m = $data->user;
 //$sources = $data->sources;
