@@ -239,6 +239,7 @@ final class CurrentUser
     #region Register
     public function Register($vd)
     {
+        _baseAlinaEloquentTransaction::begin();
         $this->resetMsg();
         $u               = $this->mUser;
         $vd->created_at  = ALINA_TIME;
@@ -258,7 +259,7 @@ final class CurrentUser
                 $this->msg[] = 'Registration has passed successfully!';
             }
         }
-
+        _baseAlinaEloquentTransaction::commit();
         return $this;
     }
 

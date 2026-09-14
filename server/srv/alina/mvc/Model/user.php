@@ -285,7 +285,6 @@ class user extends _BaseAlinaModel
     #####
     public function hookRightAfterSave($data)
     {
-        //ToDo: Security
         if (! AlinaAccessIfAdmin()) {
             return $this;
         }

@@ -13,30 +13,31 @@ class egTransaction
 
     public function actionIndex()
     {
-        Transaction::begin(__FUNCTION__);
-
         try {
-            $eg1    = new \alina\mvc\Model\eg1();
-            $eg2    = new \alina\mvc\Model\eg2();
-            $stdEg1 = $eg1->insert([
-                'val' => 'DELETEME',
+            Transaction::begin(__FUNCTION__);
+            $asd   = new \alina\mvc\Model\asd();
+            $asd_j = new \alina\mvc\Model\asd();
+            $asd1  = $asd->insert([
+                'price' => '222',
+                'txt'   => 'DELETEME',
             ]);
-            $stdEg2 = $eg2->insert([
-                'val'    => 'DELETEME',
-                'eg1_id' => $stdEg1->id,
+            $asd2 = $asd_j->insert([
+                'price' => '111',
+                'txt'   => $asd1->id,
             ]);
             //throw new \alina\exceptionValidation('EXCEPTION');
             Transaction::commit(__FUNCTION__);
-            $res = (new \alina\mvc\Model\eg2())
-                    ->q('eg2')
+            $res = (new \alina\mvc\Model\asd())
+                    ->q('asd')
                     ->select([
-                        'eg1.id AS eg1_id',
-                        'eg1.val AS eg1_val',
-                        'eg2.id AS eg2_id',
-                        'eg2.val AS eg2_val',
-                        'eg2.eg1_id AS ref_eg1_id',
+                        'asd.id AS asd_id',
+                        'asd.price AS asd_price',
+                        'asd.txt AS asd_txt',
+                        'asd_j.id AS asd_j_id',
+                        'asd_j.price AS asd_j_price',
+                        'asd_j.txt AS asd_j_txt',
                     ])
-                    ->leftJoin('eg1 AS eg1', 'eg2.eg1_id', '=', 'eg1.id')
+                    ->leftJoin('asd AS asd_j', 'asd_j.txt', '=', 'asd.id')
                     ->get();
 
             AlinaEchoDraft($res);
