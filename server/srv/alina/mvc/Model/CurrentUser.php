@@ -246,7 +246,7 @@ final class CurrentUser
         $u->insert($vd);
 
         if (isset($u->id)) {
-            $id = (new rbeeac_role())->getOne([['name','=', 'registered']])->id;
+            $id = (new rbac_role())->getOne([['name','=', 'registered']])->id;
             $mUserRole = new rbac_user_role();
             $mUserRole->insert([
                 'user_id' => $u->id,
