@@ -34,6 +34,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "server/srv/alina/mvc/Model/_BaseAlinaModel.php",
+			"bookmarks": [
+				{
+					"line": 443,
+					"column": 10,
+					"label": ""
+				}
+			]
 		}
 	]
 }

@@ -438,6 +438,7 @@ class user extends _BaseAlinaModel
             $vd->tales      = (new taleAlias())->delete(['owner_id' => $id,]);
             $vd->rbac_roles = (new rbac_user_role())->delete(['user_id' => $id,]);
             $vd->login      = (new login())->delete(['user_id' => $id,]);
+            $vd->files      = (new file())->delete(['owner_id' => $id,]);
             $vd->users      = (new user())->deleteById($id);
             _baseAlinaEloquentTransaction::commit();
         }

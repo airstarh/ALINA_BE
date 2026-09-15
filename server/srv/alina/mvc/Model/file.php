@@ -2,6 +2,8 @@
 
 namespace alina\mvc\Model;
 
+use alina\GlobalRequestStorage;
+
 class file extends _BaseAlinaModel
 {
     public $table       = 'file';
@@ -50,13 +52,45 @@ class file extends _BaseAlinaModel
     }
 
     #####
+    public function delete(array $conditions)
+    {
+        $this->mode = self::MODE_DELETE;
+
+        $list = $this
+            ->q()
+            ->where($conditions)
+            ->get()
+        ;
+
+        foreach ($list as $f) {
+            $path = $f->dir;
+
+            if (file_exists($path)) {
+                if (is_file($path)) {
+                    unlink($path);
+                }
+            }
+
+            (new static())->q()->where([['id', '=', $f->id]])->delete();
+            $this->state_AFFECTED_ROWS++;
+        }
+
+        $this->resetFlags();
+
+        return $this->state_AFFECTED_ROWS;
+    }
+
     public function bizDelete($id)
     {
         $this->getById($id);
 
+        if (! AlinaAccessIfAdminOrModeratorOrOwner($this->attributes->owner_id)) {
+            return 0;
+        }
+
         $fList = (new static())->getAll(
             [
-                ['name_human', '=', $this->attributes->name_human],
+                ['name_fs', '=', $this->attributes->name_fs],
                 ['owner_id', '=', $this->attributes->owner_id],
             ],
             null,
@@ -65,25 +99,20 @@ class file extends _BaseAlinaModel
 
         $countLinksToThisFile = count($fList);
 
-        if ($this->attributes->name_fs) {
-            if (AlinaAccessIfAdminOrModeratorOrOwner($this->attributes->owner_id)) {
-                $path = $this->attributes->dir;
+        $path = $this->attributes->dir;
 
-                if (file_exists($path)) {
-                    if (is_file($path)) {
-                        if ($countLinksToThisFile === 1) {
-                            unlink($path);
-                        }
-                    }
+        if ($countLinksToThisFile === 1) {
+            if (file_exists($path)) {
+                if (is_file($path)) {
+                    unlink($path);
                 }
-
-                $this->deleteById($id);
-
-                return true;
             }
         }
 
-        return false;
+        (new static())->q()->where([['id','=', $id]])->delete();
+        $this->state_AFFECTED_ROWS++;
+
+        return true;
     }
     #####
 }

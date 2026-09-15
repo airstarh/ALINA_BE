@@ -4,6 +4,7 @@ namespace alina\Utils;
 
 use ErrorException;
 use Exception;
+use FilesystemIterator;
 use Throwable;
 
 class FS
@@ -62,22 +63,34 @@ class FS
      * Remove even not empty directories.
      * PHP rmdir() cannot delete not empty directory.
      */
-    public static function rmDirCompletely($path)
+    public static function rmDirCompletely(string $path): void
     {
-        foreach (scandir($path) as $file) {
-            if ('.' === $file || '..' === $file) {
-                continue;
+        if (! is_dir($path) || is_link($path)) {
+            if (! @unlink($path)) {
+                throw new ErrorException("Cannot delete: $path");
             }
-            $curPath = $path . DIRECTORY_SEPARATOR . $file;
 
-            if (is_dir($curPath)) {
-                static::rmDirCompletely($curPath);
+            return;
+        }
+
+        $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+
+        foreach ($items as $item) {
+            $itemPath = $item->getPathname();
+
+            if ($item->isDir() && ! $item->isLink()) {
+                static::rmDirCompletely($itemPath);
             }
             else {
-                unlink($curPath);
+                if (! @unlink($itemPath)) {
+                    throw new ErrorException("Cannot delete: $itemPath");
+                }
             }
         }
-        rmdir($path);
+
+        if (! @rmdir($path)) {
+            throw new ErrorException("Cannot remove directory: $path");
+        }
     }
 
     /**

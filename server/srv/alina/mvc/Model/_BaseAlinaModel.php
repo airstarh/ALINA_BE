@@ -62,7 +62,7 @@ class _BaseAlinaModel
     #endregion Response
     ##################################################
     #region Flags, CHeck-Points
-    private $mode                          = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
+    protected $mode                        = 'SELECT';// Could be 'SELECT', 'UPDATE', 'INSERT', 'DELETE'
     protected $state_DATA_FILTERED         = false;
     protected $state_DATA_VALIDATED        = false;
     public $state_AFFECTED_ROWS            = null;
@@ -449,8 +449,6 @@ class _BaseAlinaModel
             ->where($conditions)
             ->delete()
         ;
-        #####
-        $log = $this->flagAuditInfoLog ? $this->addAuditInfoEventLog($conditions, $this->mode, $this->table, $this->id) : null;
         #####
         $this->state_AFFECTED_ROWS = $affectedRowsCount;
         $this->resetFlags();
