@@ -80,7 +80,7 @@ class file extends _BaseAlinaModel
         return $this->state_AFFECTED_ROWS;
     }
 
-    public function bizDelete($id)
+    public function deleteOneAndUnlinkIfNoOtherLinks($id)
     {
         $this->getById($id);
 
@@ -88,7 +88,7 @@ class file extends _BaseAlinaModel
             return 0;
         }
 
-        $fList = (new static())->getAll(
+        $list = (new static())->getAll(
             [
                 ['name_fs', '=', $this->attributes->name_fs],
                 ['owner_id', '=', $this->attributes->owner_id],
@@ -97,7 +97,7 @@ class file extends _BaseAlinaModel
             2
         );
 
-        $countLinksToThisFile = count($fList);
+        $countLinksToThisFile = count($list);
 
         $path = $this->attributes->dir;
 
@@ -114,5 +114,4 @@ class file extends _BaseAlinaModel
 
         return true;
     }
-    #####
 }

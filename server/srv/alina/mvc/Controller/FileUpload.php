@@ -69,7 +69,7 @@ class FileUpload
 
         if (Request::obj()->isPostPutDelete()) {
             $m        = new file();
-            $deletion = $m->bizDelete($id);
+            $deletion = $m->deleteOneAndUnlinkIfNoOtherLinks($id);
 
             if ($deletion) {
                 $res = true;
