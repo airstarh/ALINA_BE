@@ -99,6 +99,7 @@ class Admin
             Message::setSuccess("tales: %s", [$vd->tales]);
             Message::setSuccess("rbac_roles: %s", [$vd->rbac_roles]);
             Message::setSuccess("login: %s", $vd->login);
+            Message::setSuccess("files: %s", $vd->files);
         }
         else {
             AlinaResponseSuccess(0);
