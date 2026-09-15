@@ -5,6 +5,7 @@ namespace alina\mvc\Model;
 use alina\mvc\Model\tale as taleAlias;
 use alina\Utils\Data;
 use alina\Utils\DateTime;
+use alina\Utils\FS;
 use alina\Utils\Request;
 use alina\Utils\Str;
 use alina\Utils\Sys;
@@ -441,6 +442,11 @@ class user extends _BaseAlinaModel
             $vd->files      = (new file())->delete(['owner_id' => $id,]);
             $vd->users      = (new user())->deleteById($id);
             _baseAlinaEloquentTransaction::commit();
+            FS::rmDirCompletely(FS::buildPathFromBlocks(
+                ALINA_WEB_PATH,
+                'uploads',
+                $id
+            ));
         }
 
         return $vd;
