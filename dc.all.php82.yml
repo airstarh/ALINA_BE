@@ -3,7 +3,7 @@ services:
         build:
             context: ./Dockerfile.d/php82
         restart: unless-stopped
-        mem_limit: 128M
+        mem_limit: 768M
         env_file: _GITOUT/env/.env
         container_name: alina_php82
         extra_hosts:
@@ -15,6 +15,7 @@ services:
             - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
             - ./server_specific/php82/usr/local/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
             - ./server/var/log/php/:/var/log/php/:rw
+            - ./server/var/tmp/php-upload/:/var/tmp/php-upload/:rw
             # /var/www
             - ./server/var/www/:/var/www/:rw
             # ALINA framework
