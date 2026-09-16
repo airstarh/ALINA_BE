@@ -1,5 +1,5 @@
 <?php
-/** @var $data stdClass */
+/** @var stdClass $data  */
 ?>
 <div class="container p-0">
     <?php if ($data->is_header_hidden != 1) { ?>
