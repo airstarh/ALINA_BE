@@ -39,6 +39,8 @@ assert_line "$NGINX_CONF" "    client_body_timeout 14400s;"
 assert_line "$NGINX_LOCATION" "    fastcgi_request_buffering off;"
 assert_line "$NGINX_LOCATION" "    fastcgi_send_timeout 14400s;"
 assert_line "$NGINX_LOCATION" "    fastcgi_read_timeout 14400s;"
+assert_line "$NGINX_LOCATION" "    limit_rate_after 2m;"
+assert_line "$NGINX_LOCATION" "    limit_rate 10m;"
 assert_line "$COMPOSE_CONF" "        mem_limit: 768M"
 assert_line "$COMPOSE_CONF" "            - ./server/var/tmp/php-upload/:/var/tmp/php-upload/:rw"
 

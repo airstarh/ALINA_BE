@@ -118,8 +118,8 @@ location ~* \.(mp3|mp4|wav|flac|avi)$ {
 
     gzip off;
 
-    limit_rate 1m;
-    limit_rate_after 512k;
+    limit_rate 10m;
+    limit_rate_after 2m;
 }
 
 location @notfound {
