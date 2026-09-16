@@ -77,6 +77,7 @@ class Root
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
+        Watcher::obj()->mVisitAddBanPoints(1);
         AlinaEcho((new html())->page());
     }
 

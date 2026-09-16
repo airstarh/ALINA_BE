@@ -3,6 +3,7 @@
 namespace zero\mvc\Controller;
 
 use alina\Message;
+use alina\Watcher;
 use zero\CustomZeroFolder\CustomZeroClass;
 
 class Main
@@ -18,6 +19,7 @@ class Main
         Message::setDanger('404 error. Page not found.');
         AlinaResponseSuccess(0);
         http_response_code(404);
+        Watcher::obj()->mVisitAddBanPoints(1);
         AlinaEcho((new \alina\mvc\View\html())->page());
     }
 

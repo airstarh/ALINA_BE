@@ -3,6 +3,7 @@
 namespace vov\mvc\Controller;
 
 use alina\mvc\View\html;
+use alina\Watcher;
 
 class Main
 {
@@ -16,6 +17,7 @@ class Main
     {
         AlinaResponseSuccess(0);
         http_response_code(404);
+        Watcher::obj()->mVisitAddBanPoints(1);
         AlinaEcho((new html())->page((object) [
             'pageNotFound' => ___('Page not found'),
         ]));
