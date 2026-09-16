@@ -213,11 +213,12 @@ function AlinaGetCurrentDomainUrl()
 
 function AlinaDefineTagRelAlternateUrl()
 {
-    $domain = AlinaGetCurrentDomainUrl();
+    // $domain = AlinaGetCurrentDomainUrl();
+    $domain = '';
     $parts  = [
         $domain,
         AlinaCfg('frontend/path'),
-        '/#/',
+        // '/#/',
         Router::obj()->pathSys,
     ];
 
