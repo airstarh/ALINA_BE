@@ -8,6 +8,7 @@ use alina\Utils\Data;
 use alina\Utils\Request;
 use ErrorException;
 use Exception;
+use Throwable;
 
 trait Msg
 {
@@ -220,7 +221,7 @@ trait Msg
         try {
             $this->messageRawText = vsprintf($this->templateString, $this->params);
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             $this->messageRawText = '';
             $this->messageRawText .= PHP_EOL;
             $this->messageRawText .= '>>>';

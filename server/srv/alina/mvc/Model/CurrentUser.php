@@ -260,6 +260,7 @@ final class CurrentUser
             }
         }
         _baseAlinaEloquentTransaction::commit();
+
         return $this;
     }
 

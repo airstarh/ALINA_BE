@@ -10,7 +10,7 @@ return [
         'timeoutSeconds'  => 150,
         'intervalSeconds' => 10,
     ],
-    'mvc'           => [
+    'mvc' => [
         'defaultController'       => 'Root',
         'defaultAction'           => 'Index',
         'pageNotFoundController'  => 'Root',
