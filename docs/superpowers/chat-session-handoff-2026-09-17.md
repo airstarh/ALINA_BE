@@ -1,5 +1,15 @@
 # Chat session handoff — 2026-09-17
 
+## Attachment implementation update
+
+User approved the simple existing-web-upload flow: ALINA-WEB stores files and returns relative paths; the sender adds `window.location.origin` and sends ordinary URL text through chat. Socket code and CLI database configuration are unchanged.
+
+Implemented a multi-file paperclip picker in Chat using the existing AjaxAlina `/FileUpload` flow, authentication and watcher processing. Returned URLs are inserted into the draft (caption preserved); the user presses Send. Uploading blocks sending; errors preserve the draft. Upload results follow the originating channel if the user switches channels. Image/video previews continue to use native tags; audio previews now use native audio controls. Ordinary-user upload extensions now also include WAV, OGG/OGA, M4A, AAC, FLAC, MP4, WEBM, MOV and M4V. Existing storage, retention and image compression remain unchanged. Vite now proxies `/uploads` to the configured web API in development so window-origin URLs return actual files.
+
+Verification: Vue SFC/CSS syntax and PHP lint passed; URL/audio classification checks passed; real browser web upload of a valid tiny PNG and WAV passed with caption and sender-origin URLs preserved, image/audio/video tags rendered, reconnect history available and no JS exceptions. Actual files were downloaded successfully through the dev origin; WAV bytes were unchanged. A malformed initial PNG fixture was rejected by existing image processing and correctly surfaced an upload error. Samples were uploaded under the Codex account and messages sent only in `codex-file-review`. No build, commit or container restart. User edits in `.vscode/bookmarks.json` and `server/srv/alina/cfg/db.php` were left intact.
+
+The earlier proposal below is historical: drag/drop, paste, percentage progress, cancellation and automatic retention were not added to this first version.
+
 ## Resume here
 
 User paused because of daily limits. Next topic is chat file attachments. User will decide how files should be stored and retained before implementation. No attachment implementation has started. Do not infer approval of a retention policy from the suggestions below.

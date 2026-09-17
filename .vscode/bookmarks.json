@@ -44,6 +44,26 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "docs/superpowers/chat-session-handoff-2026-09-17.md",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 5,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "server/srv/alina/mvc/Controller/FileUpload.php",
+			"bookmarks": [
+				{
+					"line": 152,
+					"column": 63,
+					"label": ""
+				}
+			]
 		}
 	]
 }

@@ -333,6 +333,16 @@ class FileUpload
         $arr = [
             'pdf',
             'mp3',
+            'wav',
+            'ogg',
+            'oga',
+            'm4a',
+            'aac',
+            'flac',
+            'mp4',
+            'webm',
+            'mov',
+            'm4v',
             'doc',
             'docx',
         ];
