@@ -33,3 +33,26 @@ No verified KeenDNS cloud WebSocket timeout control was found. The documented `c
 If disconnects persist during idle periods, the next targeted change is protocol-level server pings using Ratchet WsServer's existing `enableKeepAlive($loop, 30)` method. TCP keepalive in this nginx patch is not a WebSocket ping and cannot guarantee that a cloud proxy keeps its application tunnel open. Enabling pings requires deploying the runner and restarting the chat worker; its in-memory history would be lost on restart.
 
 References: https://nginx.org/en/docs/http/websocket.html and https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_socket_keepalive.
+
+## Second pass: whole-site availability
+
+User deployed the first pass and restarted the stack, then clarified that ordinary site availability also fails periodically. Read-only checks on `bbb` found the following:
+
+- Direct HTTPS at 127.0.0.1:50443 with the azo Host header returned 200 in 0.108 seconds.
+- A public KeenDNS request from bbb returned 200 in 0.918 seconds. A prior probe from the development machine timed out, so network vantage matters.
+- Nginx reported OOMKilled=false. Historical upstream unreachable errors concern /ws; they do not establish current whole-site failure.
+- New chat log entries after deployment show successful upgrades ending at 30.055, 30.078 and 30.410 seconds, despite the new 3600-second nginx idle timeout. This suggests a different layer or client closes these sessions, but is not definitive attribution to KeenDNS.
+- Cloud traffic arrives with Host 192.168.1.120, suggesting the router rewrites the Host header. Default-server selection currently still serves the site. Future virtual-host routing should account for this.
+- PHP pool configuration has seven workers and four-hour termination limits. Slow requests can exhaust workers; no worker exhaustion was established in this inspection. Do not arbitrarily increase worker counts without checking memory and request behavior.
+
+Second-pass local changes add `/_alina/health` returning `nginx alive` without invoking PHP, and `/var/log/nginx/alina.timing.log` for ordinary page/dynamic requests. Existing access-log destinations are preserved. Static asset locations with access_log off still do not generate these timings. Query strings, credentials and bodies are omitted.
+
+Deploy these THREE files together: nginx.conf, conf.d/default.conf, and conf.d/location.alina.php82. Local `nginx -t` passed; no remote configuration changes/reloads/restarts were performed by Codex.
+
+When the site next fails, compare:
+
+1. Public `https://azo.zadobro.crazedns.ru/_alina/health`.
+2. Public `https://azo.zadobro.crazedns.ru/apps/vue/chat`.
+3. On bbb, the same paths through `https://127.0.0.1:50443` with `Host: azo.zadobro.crazedns.ru`.
+
+Public health failure with healthy direct-LAN health points toward the cloud/router/network path. Healthy public health with failed app/API requests narrows investigation to routing/PHP/application/dependencies; inspect timing entries and PHP slow logs. Failed direct health calls require container/process/resource/network investigation. These are diagnostic branches, not automatic proof of a single cause.
