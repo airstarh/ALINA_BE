@@ -107,7 +107,7 @@ class ChatServer implements MessageComponentInterface
         $state['channel'] = $channel;
         $state['version'] = $version;
         $state['user'] = $this->publicUser($data['CurrentUser'] ?? null, $from->resourceId);
-        $state['participantId'] = $state['user']['id'] !== null ? 'user:' . $state['user']['id'] : 'guest:' . $from->resourceId;
+        $state['participantId'] = $state['user']['id'] !== null ? 'user:' . $state['user']['id'] : 'guest:' . ($state['user']['guestId'] ?? $from->resourceId);
         $state['typingUntil'] = 0;
         $this->clients[$from] = $state;
 
@@ -147,6 +147,13 @@ class ChatServer implements MessageComponentInterface
             $fields[$field] = is_string($user[$field] ?? null) ? substr($user[$field], 0, $field === 'emblem' ? 2048 : 160) : '';
         }
         $fields['name'] = trim($fields['nickname']) ?: (trim($fields['firstname'] . ' ' . $fields['lastname']) ?: 'Guest ' . $connectionId);
+        $guestId = $user['guestId'] ?? null;
+        if ($id === null && is_string($guestId) && preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iD', $guestId)) {
+            $fields['guestId'] = strtolower($guestId);
+            $base = 'Guest ' . substr($fields['guestId'], 0, 8);
+            $nickname = trim($fields['nickname']);
+            $fields['name'] = $nickname !== '' && $nickname !== $base ? $nickname . ' (' . $base . ')' : $base;
+        }
         return $fields;
     }
 
