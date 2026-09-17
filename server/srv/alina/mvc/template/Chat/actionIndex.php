@@ -9,6 +9,7 @@
     <header class="chat-header">
         <div><a href="/" class="home">🏚</a></div>
         <h1><?= AlinaCfg('title') ?></h1>
+        <span id="connection-status" role="status"></span>
         <div><a href="" class="reload">⟳</a></div>
     </header>
 
@@ -22,9 +23,6 @@
     </div>
 </div>
 
-<script>
-    const chatChannel = '<?= $data->channel ?>'
-</script>
 <script>
 <? require __DIR__ . '/actionIndex.js' ?>
 </script>

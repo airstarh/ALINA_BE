@@ -47,12 +47,12 @@ class ChatServerRunner
             // Создаём цикл событий
             $loop = Factory::create();
 
-            $chatHandler = new ChatServer();
+            $chatHandler = new ChatServer($loop);
             $webSocket   = new WsServer($chatHandler);
             $httpServer  = new HttpServer($webSocket);
 
-            // В ReactPHP v1: НЕ передаём $loop вторым аргументом в SocketServer
-            $socket = new SocketServer("{$this->host}:{$this->port}");
+            // SocketServer takes the context second and the event loop third.
+            $socket = new SocketServer("{$this->host}:{$this->port}", [], $loop);
 
             // Передаём $loop третьим аргументом в IoServer — это обязательно
             $server = new IoServer($httpServer, $socket, $loop);

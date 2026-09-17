@@ -154,3 +154,12 @@ html {
 .this-user {
     background-color: rgb(34, 81, 223);
 }
+
+#connection-status { font-size: 11px; max-width: 40%; }
+.chat-message-wrapper { margin-bottom: 22px; }
+.user-data { align-items: center; gap: 10px; flex-wrap: wrap; }
+.user-name { white-space: normal; overflow-wrap: anywhere; }
+.chat-shared-media { display: block; max-width: 100%; max-height: 420px; height: auto; margin: 8px 0; }
+.user-message a { color: #a4ceff; }
+.user-message button { margin: 0 4px; padding: 1px 6px; }
+.user-input button:disabled { opacity: .5; cursor: default; }
