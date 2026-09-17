@@ -1,5 +1,17 @@
 # KeenDNS chat: first configuration pass
 
+## Latest pass after Firefox timeout at 18:48
+
+Read-only review of deployed files under `/mnt/sshfs/bbb/mnt/d1001/_docker/az/ALINA_BE/` and SSH bbb at 18:54 found direct health 200 in 0.0085 seconds and cloud health 200 in 0.657 seconds. PHP responses around 18:48:10–11 completed with 200 in 0.105 and 0.040 seconds. These do not identify which browser produced them; static requests are excluded from timing logs. The later screenshot timeout is not conclusively attributed.
+
+Concrete separate failure: deployed nginx error.log recorded `host not found in upstream "php82chat"` at 18:03:13 during stack startup. Backend names were resolved at config load, so an absent chat service could prevent the entire nginx process from starting. Embedded Docker DNS was confirmed as 127.0.0.11 in the container.
+
+Local-only fix in `server/etc/nginx/conf.d/location.alina.php82`: configure resolver 127.0.0.11 with 10-second validity and 5-second resolution timeout; use variable destinations for chat, signaling and FastCGI PHP so resolution happens at request time. No URI suffix is supplied to proxy_pass, preserving incoming request paths and query strings. The patch is intended for this Docker network; deployments outside Docker need their own resolver. A missing backend still makes its requests fail, but no longer blocks nginx configuration loading. Address refresh can have a short cache delay.
+
+Local nginx 1.20.2 syntax check and git diff check passed. Runtime routing after this change has not been exercised because no reload/restart was performed. Deploy the updated shared location, validate configuration, then reload/restart as desired and check health, page/API, /ws and signaling. Remote files remain unchanged by Codex.
+
+Chat logs still show many upgraded sessions ending at roughly 30 seconds with retries about 42 seconds apart. A green connected indicator in a screenshot cannot establish uninterrupted connectivity. This remains a separate investigation from ordinary page-loading failures; nginx's 3600-second idle setting does not explain 30-second closures.
+
 Target: `https://azo.zadobro.crazedns.ru/apps/vue/chat` through KeenDNS cloud access, HTTPS upstream on LAN port 50443.
 
 ## Findings and limits
