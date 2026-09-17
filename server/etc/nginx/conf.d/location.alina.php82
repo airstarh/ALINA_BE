@@ -16,6 +16,16 @@ location /ws {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    # Keep WebSocket idle limits identical on HTTP and HTTPS virtual hosts.
+    # These are inactivity limits, not a maximum connection lifetime.
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    proxy_socket_keepalive on;
+    proxy_buffering off;
+    proxy_cache off;
+
+    access_log /var/log/nginx/chat.access.log chat;
 }
 
 location /socket.io/ {
