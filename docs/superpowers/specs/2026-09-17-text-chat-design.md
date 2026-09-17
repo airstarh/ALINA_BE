@@ -19,6 +19,11 @@ actual messages (50 per active channel, in memory). Message timestamps and IDs
 come from the server. Presence aggregates connections; typing expires after six
 seconds and stops on sending. Connections belong to one channel at a time.
 
+An empty channel retains its last 50 messages for a two-minute reconnect grace
+period. Rejoining cancels its cleanup timer. History clears when the channel
+stays empty for the entire grace period. This includes page-refresh and network
+disconnect gaps; socket closure alone cannot distinguish a refresh from leaving.
+
 Legacy PHP clients continue using the existing JSON message shape and receive
 history and live messages without v2 presence events. Outbound identities contain
 only public fields. Existing client-supplied identity semantics are retained;

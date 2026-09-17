@@ -7,6 +7,7 @@ namespace alina\Services\Chat;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use SplObjectStorage;
 use Throwable;
@@ -16,6 +17,8 @@ class ChatServer implements MessageComponentInterface
     private SplObjectStorage $clients;
     private array $channels = [];
     private array $lastMessages = [];
+    private array $roomCleanupTimers = [];
+    private LoopInterface $loop;
     private int $messageSequence = 0;
     private string $instanceId;
 
@@ -23,7 +26,8 @@ class ChatServer implements MessageComponentInterface
     {
         $this->clients = new SplObjectStorage();
         $this->instanceId = bin2hex(random_bytes(8));
-        $loop?->addPeriodicTimer(2, fn () => $this->expireTyping());
+        $this->loop = $loop ?? Loop::get();
+        $this->loop->addPeriodicTimer(2, fn () => $this->expireTyping());
     }
 
     public function onOpen(ConnectionInterface $conn): void
@@ -95,6 +99,10 @@ class ChatServer implements MessageComponentInterface
         }
         $this->channels[$channel] ??= new SplObjectStorage();
         $this->lastMessages[$channel] ??= [];
+        if (isset($this->roomCleanupTimers[$channel])) {
+            $this->loop->cancelTimer($this->roomCleanupTimers[$channel]);
+            unset($this->roomCleanupTimers[$channel]);
+        }
         $this->channels[$channel]->attach($from);
         $state['channel'] = $channel;
         $state['version'] = $version;
@@ -200,8 +208,14 @@ class ChatServer implements MessageComponentInterface
         }
         $this->channels[$channel]->detach($client);
         if ($this->channels[$channel]->count() === 0) {
-            // Preserve the existing active-room, in-memory history lifecycle.
-            unset($this->channels[$channel], $this->lastMessages[$channel]);
+            // Refreshes and reconnects briefly close the last socket too.
+            // Retain history beyond the client's maximum 60-second retry delay.
+            $this->roomCleanupTimers[$channel] = $this->loop->addTimer(120, function () use ($channel): void {
+                unset($this->roomCleanupTimers[$channel]);
+                if (isset($this->channels[$channel]) && $this->channels[$channel]->count() === 0) {
+                    unset($this->channels[$channel], $this->lastMessages[$channel]);
+                }
+            });
         } else {
             $this->broadcastPresence($channel);
         }
