@@ -68,3 +68,37 @@ When the site next fails, compare:
 3. On bbb, the same paths through `https://127.0.0.1:50443` with `Host: azo.zadobro.crazedns.ru`.
 
 Public health failure with healthy direct-LAN health points toward the cloud/router/network path. Healthy public health with failed app/API requests narrows investigation to routing/PHP/application/dependencies; inspect timing entries and PHP slow logs. Failed direct health calls require container/process/resource/network investigation. These are diagnostic branches, not automatic proof of a single cause.
+
+## Keenetic support confirmation — recorded 2026-09-18
+
+Support ticket: **293982139**. The user submitted the report and subsequently supplied the technical response below. Its receipt date was not specified; this section records the date it was added to the handoff.
+
+Keenetic support confirms current difficulties with its cloud servers. Developers are aware and working on recovery. Support expects a fix soon but gives no definite completion time. This confirms an upstream service problem relevant to the intermittent public availability; do not assume a local ALINA configuration change will fix the cloud outage.
+
+Earlier read-only tests found HTTP and HTTPS working through `87.228.71.67` and `178.250.154.58`, while `185.162.93.96`, `95.213.212.50`, and `5.35.2.42` timed out. The first four were tested from the LAN and the independent external server `sss`; `5.35.2.42` was tested from `sss`. Public DNS continued advertising failing addresses. These are historical observations, not permanently reliable endpoint lists.
+
+The router DNS at `192.168.1.254` returned `198.51.100.11` for `azo.zadobro.crazedns.ru`; HTTP and certificate-verified HTTPS succeeded using that answer inside the LAN. Pi-hole on `bbb` uses Google upstreams and returned cloud addresses, including stale cached answers. A domain-specific forwarding rule to the router was proposed but **not applied**. No hosts-file override, Pi-hole/router configuration change, or ALINA change was made for this KeenDNS issue.
+
+### Support response supplied by the user
+
+```text
+Здравствуйте.
+
+Сейчас наблюдаются трудности в работе облачных серверов, в логе вы можете видеть следующие записи >
+
+[E] Sep 11 21:35:12 ndm: Cloud::Tunnel::Actions: "NDNS/1ecc75b786": failed to connect to 5.35.2.42:80 (SSL): operation timeout.
+
+[E] Sep 11 21:35:17 ndm: Io::TcpSocket: failed to connect: operation in progress.
+
+[E] Sep 11 21:35:17 ndm: Cloud::Tunnel::Actions: "NDNS/dce811004c": failed to connect to 5.35.2.42:80 (SSL): operation timeout.
+
+[E] Sep 11 21:35:34 ndm: Io::TcpSocket: failed to connect: operation in progress.
+
+Разработчики в курсе данной ситуации, занимаются восстановлением.
+
+Ожидаем исправление в ближайшее время.
+
+T_I_C_K_E_T_I_D_293982139
+```
+
+Next session: check for further support replies, then retest current DNS answers and ordinary public HTTP/HTTPS access from the LAN and `sss` read-only. Compare with direct LAN health to distinguish cloud recovery from application behavior. Preserve the user's requirement for explicit approval before configuration changes or service/container restarts. No automatic follow-up or notifications were scheduled.

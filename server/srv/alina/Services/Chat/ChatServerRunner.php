@@ -49,6 +49,9 @@ class ChatServerRunner
 
             $chatHandler = new ChatServer($loop);
             $webSocket   = new WsServer($chatHandler);
+            // Protocol ping/pong keeps idle proxy tunnels active; browsers reply
+            // automatically, including when the chat tab has no new messages.
+            $webSocket->enableKeepAlive($loop, 20);
             $httpServer  = new HttpServer($webSocket);
 
             // SocketServer takes the context second and the event loop third.
