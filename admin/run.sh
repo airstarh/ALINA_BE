@@ -73,6 +73,16 @@ esac
 source "$ADMIN_DIR/bin/bootstrap.sh"
 alina_bootstrap "$PROFILE"
 
+# Make the core project-local Bash helpers available when an admin script
+# starts another non-interactive Bash process through sudo.
+export BASH_ENV="$ALINA_ADMIN/bin/sudo.bash_env.sh"
+
+sudo() {
+    command sudo \
+        --preserve-env=ALINA_ADMIN,ALINA_PROFILE,BASH_ENV \
+        "$@"
+}
+
 if [[ "${ALINA_DRY_DISPATCH:-0}" == "1" ]]; then
     printf 'profile=%s script=%s arguments=%s\n' \
         "$PROFILE" "$SCRIPT_PATH" "$(format_arguments "$@")"
