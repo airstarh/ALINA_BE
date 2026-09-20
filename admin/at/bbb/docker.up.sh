@@ -1,6 +1,6 @@
 #! /bin/bash
 
-alina_sudo "$(asd)"/perms.sh
+alina_sudo "${ALINA_ADMIN}"/at/local/perms.sh
 
 docker compose \
     -f dc.all.yml \
@@ -9,4 +9,4 @@ docker compose \
     -f dc.dev.yml \
     up -d
 
-alina_sudo "$(asd)"/perms.sh
+alina_sudo "${ALINA_ADMIN}"/at/sss/perms.sh
