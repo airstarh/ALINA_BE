@@ -15,8 +15,12 @@ dry_run() {
 }
 
 TEMP_PROFILE_DIR="$(mktemp -d)"
-trap 'rm -r -- "$TEMP_PROFILE_DIR"' EXIT
+MOCK_BIN="$(mktemp -d)"
+trap 'rm -r -- "$TEMP_PROFILE_DIR" "$MOCK_BIN"' EXIT
 cp "$ROOT_DIR/admin/bin/config/host/bbb.sh" "$TEMP_PROFILE_DIR/future.sh"
+
+printf '#!/bin/bash\nexec "$@"\n' > "$MOCK_BIN/sudo"
+chmod +x "$MOCK_BIN/sudo"
 
 FUTURE_HELP="$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" --help)"
 grep -q '^  future$' <<< "$FUTURE_HELP" || fail "new profile was not discovered"
@@ -46,7 +50,11 @@ fi
     || fail "runner depends on the current directory"
 
 [[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh XXX YYY N)" == \
-    "future|bbb|XXX|YYY|N" ]] \
+    "future|XXX|YYY|N" ]] \
     || fail "profile or script arguments were not passed to the action"
+
+[[ "$(PATH="$MOCK_BIN:$PATH" bash "$RUN_SCRIPT" sss test/support/alina-sudo.capture.sh XXX YYY)" == \
+    "sss|remote-set|arrays-set|function|XXX|YYY" ]] \
+    || fail "alina_sudo did not reconstruct the project context"
 
 echo "PASS: profile-aware script runner"

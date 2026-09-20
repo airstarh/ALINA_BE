@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ALINA_REMOTE_HOST="192.168.1.120"
+export ALINA_REMOTE_HOST="bbb"
 export ALINA_REMOTE_USER="qqq"
 export ALINA_REMOTE_URL="${ALINA_REMOTE_USER}@${ALINA_REMOTE_HOST}"
 export ALINA_REMOTE_SSH="${BBB_REMOTE_SSH:-/home/qqq/.ssh/001}"

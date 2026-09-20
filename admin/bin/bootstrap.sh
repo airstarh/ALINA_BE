@@ -29,6 +29,7 @@ alina_bootstrap() {
     source "$profile_file"
 
     source "$ALINA_ADMIN/bin/function/asd.sh"
+    source "$ALINA_ADMIN/bin/function/alina_sudo.sh"
     source "$ALINA_ADMIN/bin/function/alina_rsync_from_remote.sh"
     source "$ALINA_ADMIN/bin/function/alina_rsync_local.sh"
     source "$ALINA_ADMIN/bin/function/alina_rsync_to_local_wwwdiff.sh"
