@@ -3,6 +3,9 @@
 alina_rsync_to_remote() {
     local SOURCE="$1"
     local TARGET="$2"
+    local log_file
+
+    log_file="$(mktemp /tmp/alina_rsync_errors.XXXXXX.log)" || return
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -44,7 +47,7 @@ alina_rsync_to_remote() {
         --filter='- **/letsencrypt/' \
         --filter='P **/letsencrypt/' \
         -e "ssh" \
-        --log-file=/tmp/rsync_errors.log \
+        --log-file="$log_file" \
         --rsync-path="sudo rsync" \
         --force \
         --whole-file \
@@ -54,6 +57,7 @@ alina_rsync_to_remote() {
     local rsync_status=$?
     if [[ $rsync_status -ne 0 ]] && [[ $rsync_status -ne 24 ]]; then
         echo "❌ Error: rsync failed (exit: $rsync_status)" >&2
+        rm -f -- "$log_file"
         return $rsync_status
     fi
 
@@ -112,8 +116,8 @@ alina_rsync_to_remote() {
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Files that failed/were skipped (from log) ==="
-    grep -E "failed|skipped|error" /tmp/rsync_errors.log || echo "No errors found"
-    rm -f /tmp/rsync_errors.log
+    grep -E "failed|skipped|error" "$log_file" || echo "No errors found"
+    rm -f -- "$log_file"
 
     return $rsync_status
 }
