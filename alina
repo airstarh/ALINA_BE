@@ -1,3 +1,11 @@
 #!/bin/bash
 
-exec bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/admin/run.sh" "$@"
+ALINA_COMMAND_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    source "$ALINA_COMMAND_DIR/admin/bin/alina.completion.sh"
+    unset ALINA_COMMAND_DIR
+    return 0
+fi
+
+exec bash "$ALINA_COMMAND_DIR/admin/run.sh" "$@"
