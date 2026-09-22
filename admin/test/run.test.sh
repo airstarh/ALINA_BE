@@ -4,6 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUN_SCRIPT="$ROOT_DIR/admin/run.sh"
+ALINA_COMMAND="$ROOT_DIR/alina"
 
 fail() {
     echo "FAIL: $*" >&2
@@ -48,6 +49,10 @@ fi
 [[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 bash "$RUN_SCRIPT" bbb do/code/deploy.sh)" == \
     "profile=bbb script=do/code/deploy.sh arguments=-" ]] \
     || fail "runner depends on the current directory"
+
+[[ "$(cd /tmp && ALINA_DRY_DISPATCH=1 "$ALINA_COMMAND" bbb do/code/deploy.sh 'two words')" == \
+    "profile=bbb script=do/code/deploy.sh arguments=two\\ words" ]] \
+    || fail "alina command did not forward arguments from outside the repository"
 
 [[ "$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" future test/support/capture.sh XXX YYY N)" == \
     "future|XXX|YYY|N" ]] \
