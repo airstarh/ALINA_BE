@@ -19,7 +19,7 @@ MOCK_BIN="$(mktemp -d)"
 trap 'rm -r -- "$TEMP_PROFILE_DIR" "$MOCK_BIN"' EXIT
 cp "$ROOT_DIR/admin/bin/config/host/bbb.sh" "$TEMP_PROFILE_DIR/future.sh"
 
-printf '#!/bin/bash\nexec "$@"\n' > "$MOCK_BIN/sudo"
+printf '#!/bin/bash\nexec env "$@"\n' > "$MOCK_BIN/sudo"
 chmod +x "$MOCK_BIN/sudo"
 
 FUTURE_HELP="$(ALINA_PROFILE_DIR="$TEMP_PROFILE_DIR" bash "$RUN_SCRIPT" --help)"
@@ -53,8 +53,8 @@ fi
     "future|XXX|YYY|N" ]] \
     || fail "profile or script arguments were not passed to the action"
 
-[[ "$(PATH="$MOCK_BIN:$PATH" bash "$RUN_SCRIPT" sss test/support/alina-sudo.capture.sh XXX YYY)" == \
-    "sss|remote-set|arrays-set|function|XXX|YYY" ]] \
-    || fail "alina_sudo did not reconstruct the project context"
+[[ "$(HOME=/tmp/alina-home PATH="$MOCK_BIN:$PATH" bash "$RUN_SCRIPT" sss test/support/alina-sudo.capture.sh XXX YYY)" == \
+    "sss|remote-set|arrays-set|function|/tmp/alina-home|XXX|YYY" ]] \
+    || fail "alina_sudo did not recreate the current admin context"
 
 echo "PASS: profile-aware script runner"

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-alina_sudo "$(asd)/sudo-context.capture.sh" "$@"
+alina_sudo source "$(asd)/sudo-context.capture.sh" "$@"
