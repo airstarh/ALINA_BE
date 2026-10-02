@@ -461,30 +461,110 @@ class Sys
         return $browser;
     }
 
-    public static function getUserIp()
+    public static function getUserIp(): string
     {
-        // Проверяем X-Forwarded-For (может содержать цепочку IP)
+        if (PHP_SAPI === 'cli') {
+            return $_SERVER['REMOTE_ADDR'] ?? 'CLI';
+        }
+
+        $candidates = [];
+
+        // 1. X-Forwarded-For (chain, leftmost = client)
         if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = array_map('trim', explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
-            // Берём первый IP — это и есть клиент
-            $ip = $ips[0];
-        }
-        // Или X-Real-IP
-        elseif (! empty($_SERVER['HTTP_X_REAL_IP'])) {
-            $ip = $_SERVER['HTTP_X_REAL_IP'];
-        }
-        // Или REMOTE_ADDR (по умолчанию, если нет прокси)
-        else {
-            $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
+            foreach (explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']) as $ip) {
+                $candidates[] = trim($ip);
+            }
         }
 
-        // Валидация IP
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return $ip;
+        // 2. Forwarded: for=1.2.3.4;proto=...
+        if (! empty($_SERVER['HTTP_FORWARDED'])) {
+            if (preg_match_all('/for=(?:"?\[?)([0-9a-fA-F:\.]+)/', $_SERVER['HTTP_FORWARDED'], $m)) {
+                foreach ($m[1] as $ip) {
+                    $candidates[] = $ip;
+                }
+            }
         }
 
-        // Если IP внутренний (например, 172.19.0.4), возвращаем хотя бы его
-        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'CLI';
+        // 3. All other proxy/CDN headers (from the first answer)
+        foreach ([
+            'HTTP_CF_CONNECTING_IP',        // Cloudflare
+            'HTTP_TRUE_CLIENT_IP',          // Akamai
+            'HTTP_X_REAL_IP',
+            'HTTP_X_CLIENT_IP',
+            'HTTP_X_CLUSTER_CLIENT_IP',
+            'HTTP_CLIENT_IP',
+            'HTTP_X_ORIG_CLIENT_IP',
+            'HTTP_X_ORIGINAL_FORWARDED_FOR',
+            'HTTP_X_REAL_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_X_PROXY_ID',
+            'HTTP_VIA',
+            'HTTP_PROXY_CONNECTION',
+        ] as $k) {
+            if (! empty($_SERVER[$k])) {
+                foreach (explode(',', $_SERVER[$k]) as $ip) {
+                    $candidates[] = trim($ip);
+                }
+            }
+        }
+
+        // 4. getenv() fallbacks (some SAPIs don't populate $_SERVER)
+        foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP'] as $k) {
+            $v = getenv($k);
+
+            if ($v !== false && $v !== '') {
+                foreach (explode(',', $v) as $ip) {
+                    $candidates[] = trim($ip);
+                }
+            }
+        }
+
+        // 5. apache_request_headers() (case-insensitive, some setups hide $_SERVER)
+        if (function_exists('apache_request_headers')) {
+            $h = array_change_key_case(apache_request_headers(), CASE_LOWER);
+
+            foreach (['x-forwarded-for', 'x-real-ip', 'true-client-ip', 'cf-connecting-ip'] as $k) {
+                if (! empty($h[$k])) {
+                    foreach (explode(',', $h[$k]) as $ip) {
+                        $candidates[] = trim($ip);
+                    }
+                }
+            }
+        }
+
+        // 6. REMOTE_ADDR — last resort
+        if (! empty($_SERVER['REMOTE_ADDR'])) {
+            $candidates[] = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // Public first, private/docker fallback second
+        $fallback = null;
+
+        foreach ($candidates as $ip) {
+            $ip = trim($ip, " \t\n\r\0\x0B[]\"");
+
+            if (! filter_var($ip, FILTER_VALIDATE_IP)) {
+                continue;
+            }
+
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $ip;
+            }
+
+            if ($fallback === null && ! self::isLocal($ip)) {
+                $fallback = $ip;
+            }
+        }
+
+        return $fallback ?? ($candidates[0] ?? 'CLI');
+    }
+
+    private static function isLocal(string $ip): bool
+    {
+        return $ip === '127.0.0.1'
+            || $ip === '::1'
+            || str_starts_with($ip, '127.')
+            || str_starts_with($ip, '169.254.');
     }
 
     public static function dump($data, $depth = 5)
