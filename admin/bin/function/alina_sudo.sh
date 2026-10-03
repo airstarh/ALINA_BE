@@ -10,6 +10,10 @@ alina_sudo() {
         bash -c '
             source "$ALINA_ADMIN/bin/bootstrap.sh"
             alina_bootstrap "$ALINA_PROFILE"
-            "$@"
+            if [[ -n "${1:-}" && -f "$1" ]]; then
+                source "$@"
+            else
+                "$@"
+            fi
         ' bash "$@"
 }

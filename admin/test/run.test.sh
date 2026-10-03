@@ -62,4 +62,8 @@ fi
     "sss|remote-set|arrays-set|function|/tmp/alina-home|XXX|YYY" ]] \
     || fail "alina_sudo did not recreate the current admin context"
 
+[[ "$(HOME=/tmp/alina-home PATH="$MOCK_BIN:$PATH" bash "$RUN_SCRIPT" sss test/support/alina-sudo-direct.capture.sh XXX YYY)" == \
+    "function|$ROOT_DIR/admin/test/support|XXX|YYY" ]] \
+    || fail "alina_sudo did not retain admin functions in a directly invoked script"
+
 echo "PASS: profile-aware script runner"
