@@ -2,8 +2,6 @@
 
 namespace alina\Utils;
 
-use function Alina;
-
 use alina\GlobalRequestStorage;
 use alina\Message;
 use alina\MessageAdmin;
