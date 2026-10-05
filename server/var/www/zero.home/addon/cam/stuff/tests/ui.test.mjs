@@ -106,6 +106,15 @@ test('section menu marks exactly one item as current', async () => {
     assert.equal(buttons[1].attributes.get('aria-current'), 'page');
 });
 
+test('section menu buttons follow camera request busy state', async () => {
+    const {setSectionButtonsBusy} = await import(await moduleUrl('state.js'));
+    const buttons = [{disabled: false}, {disabled: false}];
+    setSectionButtonsBusy(buttons, true);
+    assert.deepEqual(buttons.map((button) => button.disabled), [true, true]);
+    setSectionButtonsBusy(buttons, false);
+    assert.deepEqual(buttons.map((button) => button.disabled), [false, false]);
+});
+
 test('camera API URL-encodes camera and section', async () => {
     const {CameraApi} = await import(await moduleUrl('api.js'));
     let requestedUrl = '';

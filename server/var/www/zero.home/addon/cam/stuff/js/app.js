@@ -1,5 +1,10 @@
 import {CameraApi, CameraApiError} from './api.js';
-import {chooseDefaultCamera, markActiveSection, SelectionGuard} from './state.js';
+import {
+    chooseDefaultCamera,
+    markActiveSection,
+    SelectionGuard,
+    setSectionButtonsBusy,
+} from './state.js';
 import {renderTree} from './tree.js';
 
 const api = new CameraApi('./stuff/php/api.php');
@@ -32,6 +37,7 @@ const setBusy = (busy) => {
     elements.select.disabled = busy;
     elements.refresh.disabled = busy || !activeSection;
     elements.loadAll.disabled = busy || !activeCamera;
+    setSectionButtonsBusy(elements.sections.querySelectorAll('.section-button'), busy);
     document.body.classList.toggle('is-loading', busy);
 };
 

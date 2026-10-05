@@ -141,10 +141,39 @@ test('api_dispatches_status_sections_single_and_all_config', function (): void {
         assertSameValue(14, count($sections['body']['data']));
         assertSameValue('General', $single['body']['data']['Command']);
         assertSameValue(true, $all['body']['data']['general']['ok']);
-        assertSameValue(4, $calls);
+        assertSameValue(3, $calls);
         assertTrueValue($reader->closed, 'reader must close after each API operation');
     } finally {
         unlink($path);
+    }
+});
+
+test('api_lists_static_sections_without_connecting_to_camera', function (): void {
+    [$api, $path] = fixtureApi($calls);
+    try {
+        $response = $api->handle(['action' => 'sections', 'camera' => 'balcon']);
+        assertSameValue(200, $response['status']);
+        assertSameValue(14, count($response['body']['data']));
+        assertSameValue(0, $calls);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('camera_request_lock_is_exclusive_for_same_camera', function (): void {
+    loadApiClasses();
+    $directory = sys_get_temp_dir() . '/cam-lock-test-' . bin2hex(random_bytes(5));
+    mkdir($directory);
+    $lockPath = null;
+    try {
+        Cam\withCameraRequestLock('balcon', function (string $path) use (&$lockPath): void {
+            $lockPath = $path;
+            assertTrueValue(is_dir($path), 'lock directory must exist while held');
+            assertSameValue(false, @mkdir($path));
+        }, $directory);
+        assertSameValue(false, is_dir($lockPath));
+    } finally {
+        rmdir($directory);
     }
 });
 

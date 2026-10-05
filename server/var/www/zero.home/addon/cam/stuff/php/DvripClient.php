@@ -96,10 +96,14 @@ final class DvripClient implements DvripReader
             if (isset($response['Name']) && $response['Name'] !== $command) {
                 throw new DvripException('protocol_identity', 'DVRIP response name does not match.');
             }
-            if (isset($response['SessionID'])
-                && $response['SessionID'] !== sprintf('0x%08X', $this->session)
-            ) {
-                throw new DvripException('protocol_identity', 'DVRIP response session does not match.');
+            if (isset($response['SessionID'])) {
+                $responseSession = $response['SessionID'];
+                if (!is_string($responseSession)
+                    || preg_match('/^0x[0-9a-fA-F]{1,8}$/D', $responseSession) !== 1
+                    || (int) hexdec(substr($responseSession, 2)) !== $this->session
+                ) {
+                    throw new DvripException('protocol_identity', 'DVRIP response session does not match.');
+                }
             }
             if (!array_key_exists($command, $response)) {
                 throw new DvripException('protocol_command', 'DVRIP response does not match the request.');

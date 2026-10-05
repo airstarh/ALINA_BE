@@ -139,6 +139,20 @@ test('dvrip_login_parses_session_for_generic_getter', function (): void {
     assertSameValue('0x0000001A', $payload['SessionID']);
 });
 
+test('dvrip_accepts_lowercase_hex_session_in_camera_payload', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 173);
+    $transport->queue(responsePacket(173, 1043, [
+        'Ret' => 100,
+        'Name' => 'NetWork.NetEmail',
+        'SessionID' => '0x000000ad',
+        'NetWork.NetEmail' => ['Enable' => false],
+    ], 1));
+
+    assertSameValue(['Enable' => false], $client->getConfig('NetWork.NetEmail'));
+});
+
 test('dvrip_system_getters_use_fixed_message_ids', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

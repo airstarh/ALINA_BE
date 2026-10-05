@@ -35,6 +35,11 @@ final class CameraService
 
     public function sections(): array
     {
+        return self::sectionList();
+    }
+
+    public static function sectionList(): array
+    {
         $sections = [];
         foreach (self::SECTIONS as $id => $definition) {
             $sections[] = ['id' => $id, 'name' => $definition['label']];

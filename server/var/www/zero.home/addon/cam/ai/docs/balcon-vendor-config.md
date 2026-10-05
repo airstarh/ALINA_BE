@@ -175,7 +175,31 @@ PHP. Balcon accepts PHP-generated DVRIP login and getter packets, and all 14
 allow-listed configuration families returned successfully in the live
 verification. An important protocol detail discovered during implementation is
 that Balcon replies with header version 1 even though compatible requests are
-sent with header version 0; the decoder accepts both response versions.
+sent with header version 0; the decoder accepts both response versions. Balcon
+also formats payload session IDs with lowercase hexadecimal letters (for
+example, `0x000000ad`). Session identity must therefore be compared numerically
+rather than with case-sensitive text; the earlier comparison caused apparently
+intermittent reconnect failures whenever the session ID contained `a`–`f`.
+
+### Verified write operation
+
+On 2026-10-05, write support was tested against Balcon with the narrow
+`NetWork.NetEmail` configuration object. The existing object was read, its
+global `Enable` field was explicitly set to `false`, and the complete object
+was submitted with DVRIP configuration-set command 1040. The camera returned
+success code `Ret = 100` and identified the response as
+`NetWork.NetEmail`. An immediate DVRIP read-back exactly matched the submitted
+object, and an independent read through the PHP application also returned
+`NetEmail.Enable = false`. To prove that the camera persisted an actual value
+change rather than merely accepting an idempotent write, the SMTP title was
+changed from `BALCON` to `SMTP DISABLED`; both direct and PHP read-back returned
+the new title.
+
+This proves that Balcon accepts authenticated DVRIP configuration writes. SMTP
+is globally disabled. Apart from the harmless SMTP title marker, no server,
+account, recipient, schedule, alarm-routing, or unrelated network fields were
+changed during this probe. The current web application remains read-only until
+a validated write interface is added.
 
 Before exposing setters:
 

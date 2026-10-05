@@ -13,6 +13,10 @@ export function markActiveSection(buttons, activeSection) {
     }
 }
 
+export function setSectionButtonsBusy(buttons, busy) {
+    for (const button of buttons) button.disabled = busy;
+}
+
 export class SelectionGuard {
     #generation = 0;
 

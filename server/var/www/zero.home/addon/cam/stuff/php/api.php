@@ -56,6 +56,10 @@ final class Api
                 return $this->error(404, 'camera_not_found', 'Camera is not configured.');
             }
 
+            if ($action === 'sections') {
+                return $this->success(CameraService::sectionList());
+            }
+
             $service = ($this->serviceFactory)($cameraId, $camera);
             if (!$service instanceof CameraService) {
                 throw new DvripException('service_error', 'Camera service factory returned an invalid service.');
@@ -167,10 +171,49 @@ function createProductionApi(?string $configPath = null): Api
     );
 }
 
+function withCameraRequestLock(
+    string $cameraId,
+    callable $callback,
+    ?string $lockRoot = null,
+): mixed {
+    $lockRoot ??= '/var/tmp/php-upload';
+    $lockPath = rtrim($lockRoot, DIRECTORY_SEPARATOR)
+        . DIRECTORY_SEPARATOR
+        . 'alina-cam-'
+        . hash('sha256', $cameraId)
+        . '.lock';
+    $deadline = hrtime(true) + 30_000_000_000;
+
+    while (!@mkdir($lockPath, 0700)) {
+        if (hrtime(true) >= $deadline) {
+            throw new DvripException('transport_timeout', 'Timed out waiting for camera request lock.');
+        }
+        usleep(25_000);
+    }
+
+    try {
+        return $callback($lockPath);
+    } finally {
+        @rmdir($lockPath);
+    }
+}
+
 function runProductionApi(array $query, ?string $configPath = null): array
 {
     try {
-        return createProductionApi($configPath)->handle($query);
+        $run = static fn (): array => createProductionApi($configPath)->handle($query);
+        $action = $query['action'] ?? null;
+        $cameraId = $query['camera'] ?? null;
+        if (in_array($action, ['status', 'config'], true)
+            && is_string($cameraId)
+            && $cameraId !== ''
+        ) {
+            return withCameraRequestLock(
+                $cameraId,
+                static fn (): array => $run()
+            );
+        }
+        return $run();
     } catch (Throwable) {
         return [
             'status' => 500,
