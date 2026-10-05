@@ -8,14 +8,14 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Camera Configuration</title>
-    <link rel="stylesheet" href="./stuff/css/app.css">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261005-2">
 </head>
 <body>
 <header class="app-header">
     <div>
         <p class="eyebrow">ALINA · local camera tools</p>
         <h1>Camera configuration</h1>
-        <p class="subtitle">Read-only DVRIP explorer</p>
+        <p class="subtitle">DVRIP configuration explorer</p>
     </div>
     <form id="camera-form" class="camera-picker">
         <label for="camera-select">Camera</label>
@@ -57,6 +57,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js"></script>
+<script type="module" src="./stuff/js/app.js?v=20261005-2"></script>
 </body>
 </html>

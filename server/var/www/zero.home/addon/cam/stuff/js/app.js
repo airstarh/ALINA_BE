@@ -1,11 +1,13 @@
-import {CameraApi, CameraApiError} from './api.js';
+import {CameraApi, CameraApiError} from './api.js?v=20261005-2';
 import {
     chooseDefaultCamera,
     markActiveSection,
     SelectionGuard,
     setSectionButtonsBusy,
-} from './state.js';
-import {renderTree} from './tree.js';
+} from './state.js?v=20261005-2';
+import {renderTree} from './tree.js?v=20261005-2';
+import {renderSmtpForm} from './smtp-form.js?v=20261005-2';
+import {renderServiceForm} from './service-form.js?v=20261005-2';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -77,8 +79,101 @@ const loadSection = async (sectionId, sectionName, token) => {
     }
 };
 
-const renderSections = (sections) => {
+const loadSmtp = async (token) => {
+    setActiveSection('smtp');
+    elements.title.textContent = 'Email / SMTP';
+    elements.content.textContent = 'Loading SMTP configuration…';
+    setBusy(true);
+    try {
+        const data = await api.smtp(activeCamera);
+        if (!guard.isCurrent(token)) return;
+        const render = (model) => renderSmtpForm(model, {
+            onReload: () => loadSmtp(guard.begin(activeCamera)),
+            onSave: async (payload) => {
+                const saveToken = guard.begin(activeCamera);
+                setBusy(true);
+                showStatus('Saving SMTP configuration…');
+                try {
+                    const saved = await api.saveSmtp(activeCamera, payload);
+                    if (!guard.isCurrent(saveToken)) return;
+                    elements.content.replaceChildren(render(saved));
+                    showStatus('SMTP configuration saved and verified.', 'ok');
+                } catch (error) {
+                    if (guard.isCurrent(saveToken)) showError(error);
+                } finally {
+                    if (guard.isCurrent(saveToken)) setBusy(false);
+                }
+            },
+        });
+        elements.content.replaceChildren(render(data));
+        showStatus('SMTP configuration loaded.', 'ok');
+    } catch (error) {
+        if (guard.isCurrent(token)) showError(error);
+    } finally {
+        if (guard.isCurrent(token)) setBusy(false);
+    }
+};
+
+const loadEditor = async (editorId, editorName, token) => {
+    const sectionId = `editor:${editorId}`;
+    setActiveSection(sectionId);
+    elements.title.textContent = editorName;
+    elements.content.textContent = `Loading ${editorName} configuration…`;
+    setBusy(true);
+    try {
+        const data = await api.editor(activeCamera, editorId);
+        if (!guard.isCurrent(token)) return;
+        const render = (model) => renderServiceForm(model, {
+            onReload: () => loadEditor(editorId, editorName, guard.begin(activeCamera)),
+            onSave: async (payload) => {
+                const saveToken = guard.begin(activeCamera);
+                setBusy(true);
+                showStatus(`Saving ${editorName} configuration…`);
+                try {
+                    const saved = await api.saveEditor(activeCamera, editorId, payload);
+                    if (!guard.isCurrent(saveToken)) return;
+                    elements.content.replaceChildren(render(saved));
+                    showStatus(`${editorName} configuration saved and verified.`, 'ok');
+                } catch (error) {
+                    if (guard.isCurrent(saveToken)) showError(error);
+                } finally {
+                    if (guard.isCurrent(saveToken)) setBusy(false);
+                }
+            },
+        });
+        elements.content.replaceChildren(render(data));
+        showStatus(`${editorName} configuration loaded.`, 'ok');
+    } catch (error) {
+        if (guard.isCurrent(token)) showError(error);
+    } finally {
+        if (guard.isCurrent(token)) setBusy(false);
+    }
+};
+
+const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
+    const smtpButton = document.createElement('button');
+    smtpButton.type = 'button';
+    smtpButton.className = 'section-button section-button-editor';
+    smtpButton.dataset.sectionId = 'smtp';
+    smtpButton.textContent = 'Email / SMTP';
+    smtpButton.addEventListener('click', () => loadSmtp(guard.begin(activeCamera)));
+    elements.sections.append(smtpButton);
+    for (const editor of editors) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'section-button section-button-editor';
+        button.dataset.sectionId = `editor:${editor.id}`;
+        button.textContent = editor.name;
+        button.addEventListener('click', () => {
+            loadEditor(editor.id, editor.name, guard.begin(activeCamera));
+        });
+        elements.sections.append(button);
+    }
+    const divider = document.createElement('div');
+    divider.className = 'section-divider';
+    divider.textContent = 'Read-only configuration';
+    elements.sections.append(divider);
     for (const section of sections) {
         const button = document.createElement('button');
         button.type = 'button';
@@ -106,9 +201,11 @@ const connect = async () => {
         const status = await api.status(cameraId);
         if (!guard.isCurrent(token)) return;
         renderIdentity(status);
+        const editors = await api.editors(cameraId);
+        if (!guard.isCurrent(token)) return;
         const sections = await api.sections(cameraId);
         if (!guard.isCurrent(token)) return;
-        renderSections(sections);
+        renderSections(editors, sections);
         elements.dashboard.hidden = false;
         showStatus('Connected. Choose a configuration section.', 'ok');
     } catch (error) {
@@ -124,6 +221,20 @@ elements.form.addEventListener('submit', (event) => {
 });
 
 elements.refresh.addEventListener('click', () => {
+    if (activeSection === 'smtp') {
+        loadSmtp(guard.begin(activeCamera));
+        return;
+    }
+    if (activeSection.startsWith('editor:')) {
+        const selected = [...elements.sections.querySelectorAll('.section-button')]
+            .find((button) => button.dataset.sectionId === activeSection);
+        loadEditor(
+            activeSection.slice('editor:'.length),
+            selected?.textContent || activeSection,
+            guard.begin(activeCamera)
+        );
+        return;
+    }
     const selected = [...elements.sections.querySelectorAll('.section-button')]
         .find((button) => button.dataset.sectionId === activeSection);
     loadSection(activeSection, selected?.textContent || activeSection, guard.begin(activeCamera));

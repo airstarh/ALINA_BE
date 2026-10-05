@@ -23,9 +23,9 @@ body {
         #11151a;
 }
 
-button, select { font: inherit; }
+button, select, input { font: inherit; }
 
-button:focus-visible, select:focus-visible, summary:focus-visible {
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
 }
@@ -93,7 +93,27 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .section-button { min-height: 2.35rem; padding: 0 .7rem; border-color: transparent; background: transparent; text-align: left; font-weight: 500; }
 .section-button:hover { background: var(--surface-raised); }
 .section-button.is-active { border-color: #4ba990; background: var(--accent-dark); color: #d9fff5; box-shadow: inset .2rem 0 0 var(--accent); }
+.section-button-editor { color: #d9fff5; }
+.section-divider { margin: .5rem -.45rem .25rem; padding: .65rem 1.15rem .35rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .section-content { min-width: 0; min-height: 24rem; overflow-x: auto; overflow-wrap: anywhere; }
+
+.smtp-editor, .service-editor { max-width: 52rem; }
+.smtp-form h3 { margin: 1.5rem 0 .75rem; font-size: .92rem; }
+.smtp-toggle { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-radius: .65rem; background: var(--surface-raised); }
+.smtp-toggle span { display: grid; gap: .2rem; }
+.smtp-toggle small { color: var(--muted); }
+.smtp-toggle input { width: 1.3rem; height: 1.3rem; accent-color: var(--accent); }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem 1rem; }
+.form-field { display: grid; gap: .38rem; min-width: 0; }
+.form-field-full { grid-column: 1 / -1; }
+.form-label { color: #aebbc7; font-size: .8rem; }
+.form-input { width: 100%; min-height: 2.6rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface-raised); color: inherit; }
+.form-note { margin: 1.25rem 0 0; padding: .85rem 1rem; border-left: .2rem solid var(--accent); background: var(--surface-raised); color: var(--muted); font-size: .84rem; line-height: 1.5; }
+.form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.primary-button { border-color: #4ba990; background: var(--accent-dark); }
+.smtp-review { margin-top: 1.25rem; padding: 1rem; border: 1px solid #4ba990; border-radius: .65rem; background: #14241f; }
+.smtp-review h3 { margin-top: 0; }
+.smtp-review ul { margin: 0; padding-left: 1.25rem; color: #c6d2d9; line-height: 1.7; }
 
 .tree-list { display: grid; width: 100%; min-width: 0; grid-template-columns: minmax(8rem, 32%) minmax(0, 1fr); gap: .3rem .8rem; margin: 0; }
 .tree-list dt { min-width: 0; color: #aebbc7; font-size: .84rem; overflow-wrap: anywhere; }
@@ -116,4 +136,6 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
     .sidebar { position: static; }
     .tree-list { grid-template-columns: 1fr; }
     .tree-list dd { margin: 0 0 .55rem .65rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-field-full { grid-column: auto; }
 }

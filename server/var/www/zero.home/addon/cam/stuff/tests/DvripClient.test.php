@@ -153,6 +153,41 @@ test('dvrip_accepts_lowercase_hex_session_in_camera_payload', function (): void 
     assertSameValue(['Enable' => false], $client->getConfig('NetWork.NetEmail'));
 });
 
+test('dvrip_set_config_sends_complete_named_value_with_message_1040', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $value = ['Enable' => false, 'ServerName' => 'smtp.example.test', 'Port' => 25];
+    $transport->queue(responsePacket(26, 1041, [
+        'Ret' => 100,
+        'Name' => 'NetWork.NetEmail',
+        'SessionID' => '0x0000001A',
+    ], 1));
+
+    assertSameValue(true, $client->setConfig('NetWork.NetEmail', $value));
+    [$header, $payload] = decodedPacket($transport->writes[1]);
+    assertSameValue(1040, $header['message']);
+    assertSameValue('NetWork.NetEmail', $payload['Name']);
+    assertSameValue('0x0000001A', $payload['SessionID']);
+    assertSameValue($value, $payload['NetWork.NetEmail']);
+});
+
+test('dvrip_set_config_surfaces_camera_rejection', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $transport->queue(responsePacket(26, 1041, [
+        'Ret' => 101,
+        'Name' => 'NetWork.NetEmail',
+    ], 1));
+
+    $exception = assertThrows(
+        static fn () => $client->setConfig('NetWork.NetEmail', ['Enable' => false]),
+        DvripException::class
+    );
+    assertSameValue('device_error', $exception->publicCode());
+});
+
 test('dvrip_system_getters_use_fixed_message_ids', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

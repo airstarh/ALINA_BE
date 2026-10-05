@@ -47,6 +47,21 @@ final class CameraService
         return $sections;
     }
 
+    public static function editorList(): array
+    {
+        return NetworkServiceEditor::list();
+    }
+
+    public function editor(string $id): array
+    {
+        return (new NetworkServiceEditor($this->reader))->get($id);
+    }
+
+    public function updateEditor(string $id, array $input): array
+    {
+        return (new NetworkServiceEditor($this->reader))->update($id, $input);
+    }
+
     public function status(): array
     {
         return [
@@ -98,9 +113,121 @@ final class CameraService
         return $results;
     }
 
+    public function smtp(): array
+    {
+        return $this->smtpModel($this->smtpBranch());
+    }
+
+    public function updateSmtp(array $input): array
+    {
+        $clean = $this->validateSmtpInput($input);
+        $current = $this->smtpBranch();
+        $updated = $current;
+        $updated['Enable'] = $clean['enable'];
+        $updated['MailServer']['Name'] = $clean['server'];
+        $updated['MailServer']['Port'] = $clean['port'];
+        $updated['MailServer']['UserName'] = $clean['username'];
+        if ($clean['password'] !== '') {
+            $updated['MailServer']['Password'] = $clean['password'];
+        }
+        $updated['UseSSL'] = $clean['useSsl'];
+        $updated['SendAddr'] = $clean['sendAddress'];
+        $updated['Recievers'] = array_pad($clean['recipients'], 5, 'none');
+        $updated['Title'] = $clean['title'];
+
+        $this->reader->setConfig('NetWork.NetEmail', $updated);
+        $verified = $this->smtpBranch();
+        if ($verified !== $updated) {
+            throw new DvripException(
+                'write_verification_failed',
+                'SMTP configuration read-back did not match the submitted object.'
+            );
+        }
+        return $this->smtpModel($verified);
+    }
+
     public function close(): void
     {
         $this->reader->close();
+    }
+
+    private function smtpBranch(): array
+    {
+        $value = $this->reader->getConfig('NetWork.NetEmail');
+        if (!is_array($value)
+            || !isset($value['MailServer'])
+            || !is_array($value['MailServer'])
+            || !array_key_exists('Password', $value['MailServer'])
+            || !isset($value['Recievers'])
+            || !is_array($value['Recievers'])
+        ) {
+            throw new DvripException(
+                'device_config_missing',
+                'Camera returned an incomplete SMTP configuration object.'
+            );
+        }
+        return $value;
+    }
+
+    private function smtpModel(array $value): array
+    {
+        $server = $value['MailServer'];
+        return [
+            'enable' => (bool) ($value['Enable'] ?? false),
+            'server' => (string) ($server['Name'] ?? ''),
+            'port' => (int) ($server['Port'] ?? 0),
+            'username' => (string) ($server['UserName'] ?? ''),
+            'passwordConfigured' => (string) $server['Password'] !== '',
+            'useSsl' => (int) ($value['UseSSL'] ?? 0),
+            'sendAddress' => (string) ($value['SendAddr'] ?? ''),
+            'recipients' => array_values(array_map('strval', $value['Recievers'])),
+            'title' => (string) ($value['Title'] ?? ''),
+        ];
+    }
+
+    private function validateSmtpInput(array $input): array
+    {
+        $required = [
+            'enable', 'server', 'port', 'username', 'password',
+            'useSsl', 'sendAddress', 'recipients', 'title',
+        ];
+        foreach ($required as $key) {
+            if (!array_key_exists($key, $input)) {
+                throw new InvalidArgumentException("SMTP field {$key} is required.");
+            }
+        }
+        if (!is_bool($input['enable'])
+            || !is_int($input['port'])
+            || $input['port'] < 1
+            || $input['port'] > 65535
+            || !is_int($input['useSsl'])
+            || !in_array($input['useSsl'], [0, 1], true)
+            || !is_array($input['recipients'])
+            || count($input['recipients']) > 5
+        ) {
+            throw new InvalidArgumentException('SMTP field types or ranges are invalid.');
+        }
+        foreach (['server', 'username', 'password', 'sendAddress', 'title'] as $key) {
+            if (!is_string($input[$key]) || strlen($input[$key]) > 255) {
+                throw new InvalidArgumentException("SMTP field {$key} is invalid.");
+            }
+        }
+        if (trim($input['server']) === '') {
+            throw new InvalidArgumentException('SMTP server is required.');
+        }
+        foreach ($input['recipients'] as $recipient) {
+            if (!is_string($recipient) || strlen($recipient) > 255) {
+                throw new InvalidArgumentException('SMTP recipient is invalid.');
+            }
+        }
+        return [
+            ...$input,
+            'server' => trim($input['server']),
+            'username' => trim($input['username']),
+            'sendAddress' => trim($input['sendAddress']),
+            'recipients' => array_values(array_map('trim', $input['recipients'])),
+            'title' => trim($input['title']),
+        ];
     }
 
     private function sanitize(mixed $value, ?string $key = null): mixed

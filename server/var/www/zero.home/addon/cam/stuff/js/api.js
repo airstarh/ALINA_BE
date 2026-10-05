@@ -33,12 +33,38 @@ export class CameraApi {
         return this.#request({action: 'config', camera: cameraId, section});
     }
 
+    smtp(cameraId) {
+        return this.#request({action: 'smtp', camera: cameraId});
+    }
+
+    saveSmtp(cameraId, smtp) {
+        return this.#request(
+            {action: 'smtp-save', camera: cameraId},
+            {method: 'POST', body: smtp}
+        );
+    }
+
+    editors(cameraId) {
+        return this.#request({action: 'editors', camera: cameraId});
+    }
+
+    editor(cameraId, editorId) {
+        return this.#request({action: 'editor', camera: cameraId, editor: editorId});
+    }
+
+    saveEditor(cameraId, editorId, values) {
+        return this.#request(
+            {action: 'editor-save', camera: cameraId, editor: editorId},
+            {method: 'POST', body: values}
+        );
+    }
+
     abortActive() {
         this.#controller?.abort();
         this.#controller = null;
     }
 
-    async #request(parameters) {
+    async #request(parameters, options = {}) {
         this.abortActive();
         const controller = new AbortController();
         this.#controller = controller;
@@ -47,8 +73,12 @@ export class CameraApi {
         let response;
         try {
             response = await this.#fetch(`${this.#baseUrl}?${query}`, {
-                method: 'GET',
-                headers: {'Accept': 'application/json'},
+                method: options.method || 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    ...(options.body === undefined ? {} : {'Content-Type': 'application/json'}),
+                },
+                ...(options.body === undefined ? {} : {body: JSON.stringify(options.body)}),
                 cache: 'no-store',
                 signal: controller.signal,
             });

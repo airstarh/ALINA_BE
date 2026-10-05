@@ -15,6 +15,7 @@ require_once __DIR__ . '/StreamDvripTransport.php';
 require_once __DIR__ . '/DvripPacketCodec.php';
 require_once __DIR__ . '/DvripReader.php';
 require_once __DIR__ . '/DvripClient.php';
+require_once __DIR__ . '/NetworkServiceEditor.php';
 require_once __DIR__ . '/CameraService.php';
 
 final class Api
@@ -30,11 +31,14 @@ final class Api
     ) {
     }
 
-    public function handle(array $query): array
+    public function handle(array $query, ?array $body = null, string $method = 'GET'): array
     {
         try {
             $action = $query['action'] ?? null;
-            if (!is_string($action) || !in_array($action, ['cameras', 'status', 'sections', 'config'], true)) {
+            if (!is_string($action) || !in_array($action, [
+                'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save',
+                'editors', 'editor', 'editor-save',
+            ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
 
@@ -60,6 +64,16 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
+            if ($action === 'editors') {
+                return $this->success(CameraService::editorList());
+            }
+
+            if (in_array($action, ['smtp-save', 'editor-save'], true)
+                && strtoupper($method) !== 'POST'
+            ) {
+                return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
+            }
+
             $service = ($this->serviceFactory)($cameraId, $camera);
             if (!$service instanceof CameraService) {
                 throw new DvripException('service_error', 'Camera service factory returned an invalid service.');
@@ -70,6 +84,10 @@ final class Api
                     'status' => $service->status(),
                     'sections' => $service->sections(),
                     'config' => $this->handleConfig($service, $query),
+                    'smtp' => $service->smtp(),
+                    'smtp-save' => $service->updateSmtp($body ?? []),
+                    'editor' => $service->editor($this->editorId($query)),
+                    'editor-save' => $service->updateEditor($this->editorId($query), $body ?? []),
                 };
                 return $this->success($data);
             } finally {
@@ -95,6 +113,15 @@ final class Api
             throw new InvalidArgumentException('Configuration section is required.');
         }
         return $section === 'all' ? $service->all() : $service->config($section);
+    }
+
+    private function editorId(array $query): string
+    {
+        $editor = $query['editor'] ?? null;
+        if (!is_string($editor) || $editor === '') {
+            throw new InvalidArgumentException('Editor is required.');
+        }
+        return $editor;
     }
 
     private function success(mixed $data): array
@@ -198,13 +225,20 @@ function withCameraRequestLock(
     }
 }
 
-function runProductionApi(array $query, ?string $configPath = null): array
+function runProductionApi(
+    array $query,
+    ?string $configPath = null,
+    ?array $body = null,
+    string $method = 'GET',
+): array
 {
     try {
-        $run = static fn (): array => createProductionApi($configPath)->handle($query);
+        $run = static fn (): array => createProductionApi($configPath)->handle($query, $body, $method);
         $action = $query['action'] ?? null;
         $cameraId = $query['camera'] ?? null;
-        if (in_array($action, ['status', 'config'], true)
+        if (in_array($action, [
+            'status', 'config', 'smtp', 'smtp-save', 'editor', 'editor-save',
+        ], true)
             && is_string($cameraId)
             && $cameraId !== ''
         ) {
@@ -234,7 +268,17 @@ function runProductionApi(array $query, ?string $configPath = null): array
 }
 
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
-    $response = runProductionApi($_GET);
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    $body = null;
+    if ($method === 'POST') {
+        try {
+            $decoded = json_decode(file_get_contents('php://input'), true, flags: JSON_THROW_ON_ERROR);
+            $body = is_array($decoded) ? $decoded : null;
+        } catch (Throwable) {
+            $body = null;
+        }
+    }
+    $response = runProductionApi($_GET, null, $body, $method);
     http_response_code($response['status']);
     foreach ($response['headers'] as $name => $value) {
         header("{$name}: {$value}");

@@ -11,7 +11,7 @@ use Cam\DvripReader;
 function loadApiClasses(): void
 {
     $directory = dirname(__DIR__) . '/php';
-    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'CameraService.php', 'api.php'] as $file) {
+    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'NetworkServiceEditor.php', 'CameraService.php', 'api.php'] as $file) {
         $path = $directory . '/' . $file;
         if (!is_file($path)) {
             throw new RuntimeException("API class {$file} does not exist");
@@ -51,10 +51,40 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
     $factoryCalls = 0;
     $reader = new class implements DvripReader {
         public bool $closed = false;
+        public array $configValues = [];
+        public array $smtp = [
+            'Enable' => false,
+            'MailServer' => [
+                'Address' => '0x00000000', 'Anonymity' => false,
+                'Name' => 'smtp.example.test', 'Password' => 'keep-me',
+                'Port' => 25, 'UserName' => 'camera@example.test',
+            ],
+            'Recievers' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
+            'Schedule' => ['schedule-fixture'],
+            'SendAddr' => 'camera@example.test',
+            'Title' => 'Camera alert',
+            'UseSSL' => 0,
+        ];
 
         public function getConfig(string $command): mixed
         {
+            if ($command === 'NetWork.NetEmail') {
+                return $this->smtp;
+            }
+            if (array_key_exists($command, $this->configValues)) {
+                return $this->configValues[$command];
+            }
             return ['Command' => $command, 'Password' => 'fixture-secret'];
+        }
+
+        public function setConfig(string $command, mixed $value): bool
+        {
+            if ($command === 'NetWork.NetEmail') {
+                $this->smtp = $value;
+            } else {
+                $this->configValues[$command] = $value;
+            }
+            return true;
         }
 
         public function getSystemInfo(): array
@@ -201,6 +231,94 @@ test('api_encoded_response_contains_no_private_credentials', function (): void {
             assertTrueValue(!str_contains($json, 'fixture-user'));
             assertTrueValue(!str_contains($json, '192.0.2.10'));
         }
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_reads_smtp_without_exposing_password', function (): void {
+    [$api, $path] = fixtureApi();
+    try {
+        $response = $api->handle(['action' => 'smtp', 'camera' => 'balcon']);
+        assertSameValue(200, $response['status']);
+        assertSameValue('smtp.example.test', $response['body']['data']['server']);
+        assertSameValue(true, $response['body']['data']['passwordConfigured']);
+        assertTrueValue(!str_contains(json_encode($response['body']), 'keep-me'));
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_saves_smtp_only_from_posted_json_body', function (): void {
+    [$api, $path] = fixtureApi();
+    $body = [
+        'enable' => true,
+        'server' => 'mail.example.test',
+        'port' => 587,
+        'username' => 'mailer',
+        'password' => '',
+        'useSsl' => 1,
+        'sendAddress' => 'camera@example.test',
+        'recipients' => ['alerts@example.test'],
+        'title' => 'Balcon alert',
+    ];
+    try {
+        assertSameValue(405, $api->handle(
+            ['action' => 'smtp-save', 'camera' => 'balcon'],
+            $body,
+            'GET'
+        )['status']);
+        $response = $api->handle(
+            ['action' => 'smtp-save', 'camera' => 'balcon'],
+            $body,
+            'POST'
+        );
+        assertSameValue(200, $response['status']);
+        assertSameValue('mail.example.test', $response['body']['data']['server']);
+        assertSameValue(587, $response['body']['data']['port']);
+        assertTrueValue(!str_contains(json_encode($response['body']), 'keep-me'));
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_lists_five_network_editors_without_connecting', function (): void {
+    [$api, $path] = fixtureApi($calls);
+    try {
+        $response = $api->handle(['action' => 'editors', 'camera' => 'balcon']);
+        assertSameValue(200, $response['status']);
+        assertSameValue(['ftp', 'ntp', 'upnp', 'pms', 'das'], array_column($response['body']['data'], 'id'));
+        assertSameValue(0, $calls);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_reads_and_posts_allowlisted_network_editor', function (): void {
+    [$api, $path] = fixtureApi($calls, $reader);
+    $reader->configValues['NetWork.NetFTP'] = [
+        'Directory' => '', 'Enable' => false, 'MaxFileLen' => 128,
+        'Server' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'ftp.example.test', 'Password' => 'keep-me',
+            'Port' => 21, 'UserName' => 'camera',
+        ],
+    ];
+    try {
+        $get = $api->handle(['action' => 'editor', 'camera' => 'balcon', 'editor' => 'ftp']);
+        assertSameValue(200, $get['status']);
+        assertSameValue('NetWork.NetFTP', $get['body']['data']['branch']);
+
+        $body = $get['body']['data']['values'];
+        $body['directory'] = '/camera';
+        $save = $api->handle(
+            ['action' => 'editor-save', 'camera' => 'balcon', 'editor' => 'ftp'],
+            $body,
+            'POST'
+        );
+        assertSameValue(200, $save['status']);
+        assertSameValue('/camera', $save['body']['data']['values']['directory']);
+        assertTrueValue(!str_contains(json_encode($save['body']), 'keep-me'));
     } finally {
         unlink($path);
     }

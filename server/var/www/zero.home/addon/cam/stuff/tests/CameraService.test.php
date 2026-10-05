@@ -26,6 +26,7 @@ function fixtureCameraService(?object &$reader = null): CameraService
         public array $configErrors = [];
         public array $systemInfo = [];
         public array $systemFunction = [];
+        public bool $persistWrites = true;
 
         public function getConfig(string $command): mixed
         {
@@ -34,6 +35,15 @@ function fixtureCameraService(?object &$reader = null): CameraService
                 throw $this->configErrors[$command];
             }
             return $this->configValues[$command] ?? [];
+        }
+
+        public function setConfig(string $command, mixed $value): bool
+        {
+            $this->calls[] = ['set', $command, $value];
+            if ($this->persistWrites) {
+                $this->configValues[$command] = $value;
+            }
+            return true;
         }
 
         public function getSystemInfo(): array
@@ -168,3 +178,110 @@ test('camera_service_all_isolates_unsupported_and_timeout_sections', function ()
     assertSameValue('transport_timeout', $all['camera']['error']['code']);
     assertSameValue(true, $all['detection']['ok']);
 });
+
+test('camera_service_returns_typed_smtp_model_without_password', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->configValues['NetWork.NetEmail'] = smtpFixture();
+
+    assertSameValue([
+        'enable' => false,
+        'server' => 'smtp.example.test',
+        'port' => 25,
+        'username' => 'camera@example.test',
+        'passwordConfigured' => true,
+        'useSsl' => 0,
+        'sendAddress' => 'camera@example.test',
+        'recipients' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
+        'title' => 'Camera alert',
+    ], $service->smtp());
+});
+
+test('camera_service_smtp_update_preserves_password_and_unedited_fields', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->configValues['NetWork.NetEmail'] = smtpFixture();
+
+    $result = $service->updateSmtp([
+        'enable' => true,
+        'server' => 'mail.example.test',
+        'port' => 587,
+        'username' => 'mailer',
+        'password' => '',
+        'useSsl' => 1,
+        'sendAddress' => 'camera@example.test',
+        'recipients' => ['one@example.test', 'two@example.test'],
+        'title' => 'Balcon alert',
+    ]);
+
+    $write = $reader->calls[1];
+    assertSameValue('set', $write[0]);
+    assertSameValue('NetWork.NetEmail', $write[1]);
+    assertSameValue('keep-me', $write[2]['MailServer']['Password']);
+    assertSameValue('0x00000000', $write[2]['MailServer']['Address']);
+    assertSameValue(['schedule-fixture'], $write[2]['Schedule']);
+    assertSameValue(['one@example.test', 'two@example.test', 'none', 'none', 'none'], $write[2]['Recievers']);
+    assertSameValue(true, $result['enable']);
+    assertSameValue(587, $result['port']);
+    assertSameValue(true, $result['passwordConfigured']);
+    assertSameValue(['NetWork.NetEmail', $reader->calls[1], 'NetWork.NetEmail'], $reader->calls);
+});
+
+test('camera_service_smtp_update_rejects_invalid_input_before_write', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->configValues['NetWork.NetEmail'] = smtpFixture();
+
+    assertThrows(static fn () => $service->updateSmtp([
+        'enable' => true,
+        'server' => '',
+        'port' => 70000,
+        'username' => '',
+        'password' => '',
+        'useSsl' => 0,
+        'sendAddress' => '',
+        'recipients' => [],
+        'title' => '',
+    ]), InvalidArgumentException::class);
+    assertSameValue([], $reader->calls);
+});
+
+test('camera_service_smtp_update_rejects_readback_mismatch', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->configValues['NetWork.NetEmail'] = smtpFixture();
+    $reader->persistWrites = false;
+
+    $exception = assertThrows(static fn () => $service->updateSmtp([
+        'enable' => false,
+        'server' => 'other.example.test',
+        'port' => 25,
+        'username' => 'camera@example.test',
+        'password' => '',
+        'useSsl' => 0,
+        'sendAddress' => 'camera@example.test',
+        'recipients' => ['alerts@example.test'],
+        'title' => 'Camera alert',
+    ]), DvripException::class);
+    assertSameValue('write_verification_failed', $exception->publicCode());
+});
+
+function smtpFixture(): array
+{
+    return [
+        'Enable' => false,
+        'MailServer' => [
+            'Address' => '0x00000000',
+            'Anonymity' => false,
+            'Name' => 'smtp.example.test',
+            'Password' => 'keep-me',
+            'Port' => 25,
+            'UserName' => 'camera@example.test',
+        ],
+        'Recievers' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
+        'Schedule' => ['schedule-fixture'],
+        'SendAddr' => 'camera@example.test',
+        'Title' => 'Camera alert',
+        'UseSSL' => 0,
+    ];
+}

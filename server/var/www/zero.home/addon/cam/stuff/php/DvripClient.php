@@ -57,6 +57,27 @@ final class DvripClient implements DvripReader
         return $this->getNamed(1042, $command);
     }
 
+    public function setConfig(string $command, mixed $value): bool
+    {
+        $this->ensureLoggedIn();
+
+        try {
+            $response = $this->request(1040, [
+                'Name' => $command,
+                'SessionID' => sprintf('0x%08X', $this->session),
+                $command => $value,
+            ]);
+            $this->assertSuccess($response);
+            if (isset($response['Name']) && $response['Name'] !== $command) {
+                throw new DvripException('protocol_identity', 'DVRIP response name does not match.');
+            }
+            return true;
+        } catch (Throwable $exception) {
+            $this->close();
+            throw $exception;
+        }
+    }
+
     public function getSystemInfo(): array
     {
         $value = $this->getNamed(1020, 'SystemInfo');

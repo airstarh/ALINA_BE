@@ -157,6 +157,93 @@ test('camera API aborts a superseded request', async () => {
     assert.equal(signals[1].aborted, false);
 });
 
+test('camera API posts SMTP changes as JSON', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let request;
+    const api = new CameraApi('/api.php', async (url, options) => {
+        request = {url, options};
+        return response({server: 'mail.example.test'});
+    });
+    const smtp = {enable: false, server: 'mail.example.test', port: 25};
+
+    await api.saveSmtp('balcon', smtp);
+
+    assert.equal(request.url, '/api.php?action=smtp-save&camera=balcon');
+    assert.equal(request.options.method, 'POST');
+    assert.equal(request.options.headers['Content-Type'], 'application/json');
+    assert.deepEqual(JSON.parse(request.options.body), smtp);
+});
+
+test('SMTP form payload keeps blank password and removes empty recipients', async () => {
+    const {smtpPayloadFromFormData} = await import(await moduleUrl('smtp-form.js'));
+    const fields = new FormData();
+    fields.set('enable', 'on');
+    fields.set('server', ' mail.example.test ');
+    fields.set('port', '587');
+    fields.set('username', 'mailer');
+    fields.set('password', '');
+    fields.set('useSsl', '1');
+    fields.set('sendAddress', 'camera@example.test');
+    fields.append('recipients', 'one@example.test');
+    fields.append('recipients', '   ');
+    fields.append('recipients', 'two@example.test');
+    fields.set('title', 'Balcon alert');
+
+    assert.deepEqual(smtpPayloadFromFormData(fields), {
+        enable: true,
+        server: 'mail.example.test',
+        port: 587,
+        username: 'mailer',
+        password: '',
+        useSsl: 1,
+        sendAddress: 'camera@example.test',
+        recipients: ['one@example.test', 'two@example.test'],
+        title: 'Balcon alert',
+    });
+});
+
+test('camera API reads and posts a named network editor', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    const requests = [];
+    const api = new CameraApi('/api.php', async (url, options) => {
+        requests.push({url, options});
+        return response({id: 'ftp'});
+    });
+
+    await api.editor('balcon', 'ftp');
+    await api.saveEditor('balcon', 'ftp', {enable: false});
+
+    assert.equal(requests[0].url, '/api.php?action=editor&camera=balcon&editor=ftp');
+    assert.equal(requests[0].options.method, 'GET');
+    assert.equal(requests[1].url, '/api.php?action=editor-save&camera=balcon&editor=ftp');
+    assert.equal(requests[1].options.method, 'POST');
+    assert.deepEqual(JSON.parse(requests[1].options.body), {enable: false});
+});
+
+test('network service form payload preserves schema types and blank password', async () => {
+    const {servicePayloadFromFormData} = await import(await moduleUrl('service-form.js'));
+    const model = {
+        fields: {
+            enable: {type: 'boolean'},
+            server: {type: 'string'},
+            port: {type: 'integer'},
+            password: {type: 'password'},
+        },
+    };
+    const fields = new FormData();
+    fields.set('enable', 'on');
+    fields.set('server', ' ftp.example.test ');
+    fields.set('port', '2121');
+    fields.set('password', '');
+
+    assert.deepEqual(servicePayloadFromFormData(model, fields), {
+        enable: true,
+        server: 'ftp.example.test',
+        port: 2121,
+        password: '',
+    });
+});
+
 test('tree renderer recursively uses text nodes for camera values', async () => {
     const {renderTree} = await import(await moduleUrl('tree.js'));
     const malicious = '<img src=x onerror=alert(1)>';
