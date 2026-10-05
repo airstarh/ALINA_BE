@@ -1,0 +1,79 @@
+export class CameraApiError extends Error {
+    constructor(code, message, status = 0) {
+        super(message);
+        this.name = 'CameraApiError';
+        this.code = code;
+        this.status = status;
+    }
+}
+
+export class CameraApi {
+    #baseUrl;
+    #fetch;
+    #controller = null;
+
+    constructor(baseUrl, fetchImpl = globalThis.fetch.bind(globalThis)) {
+        this.#baseUrl = baseUrl;
+        this.#fetch = fetchImpl;
+    }
+
+    listCameras() {
+        return this.#request({action: 'cameras'});
+    }
+
+    status(cameraId) {
+        return this.#request({action: 'status', camera: cameraId});
+    }
+
+    sections(cameraId) {
+        return this.#request({action: 'sections', camera: cameraId});
+    }
+
+    config(cameraId, section) {
+        return this.#request({action: 'config', camera: cameraId, section});
+    }
+
+    abortActive() {
+        this.#controller?.abort();
+        this.#controller = null;
+    }
+
+    async #request(parameters) {
+        this.abortActive();
+        const controller = new AbortController();
+        this.#controller = controller;
+        const query = new URLSearchParams(parameters);
+
+        let response;
+        try {
+            response = await this.#fetch(`${this.#baseUrl}?${query}`, {
+                method: 'GET',
+                headers: {'Accept': 'application/json'},
+                cache: 'no-store',
+                signal: controller.signal,
+            });
+        } catch (error) {
+            if (error?.name === 'AbortError') {
+                throw error;
+            }
+            throw new CameraApiError('network_error', 'Could not reach the camera API.');
+        }
+
+        let payload;
+        try {
+            payload = await response.json();
+        } catch {
+            throw new CameraApiError('invalid_response', 'Camera API returned invalid JSON.', response.status);
+        }
+
+        if (!response.ok || payload?.ok !== true) {
+            throw new CameraApiError(
+                payload?.error?.code || 'request_failed',
+                payload?.error?.message || 'Camera request failed.',
+                response.status
+            );
+        }
+
+        return payload.data;
+    }
+}

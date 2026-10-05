@@ -170,6 +170,13 @@ The server-side adapter can use DVRIP while the browser receives a sanitized,
 typed model. ONVIF should remain a secondary source for standardized discovery
 and cross-checking, not the primary configuration backend.
 
+The first getter-only implementation now confirms this architecture in native
+PHP. Balcon accepts PHP-generated DVRIP login and getter packets, and all 14
+allow-listed configuration families returned successfully in the live
+verification. An important protocol detail discovered during implementation is
+that Balcon replies with header version 1 even though compatible requests are
+sent with header version 0; the decoder accepts both response versions.
+
 Before exposing setters:
 
 1. Save a complete redacted current snapshot (default queries are unreliable).

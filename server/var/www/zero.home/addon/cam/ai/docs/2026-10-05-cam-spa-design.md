@@ -1,7 +1,7 @@
 # Balcon camera configuration SPA design
 
 Date: 2026-10-05
-Status: approved design, pending implementation plan
+Status: implemented and verified read-only
 
 ## Purpose
 
@@ -52,6 +52,11 @@ server/var/www/zero.home/addon/cam/
         ├── api.php
         ├── Config.php
         ├── DvripClient.php
+        ├── DvripException.php
+        ├── DvripPacketCodec.php
+        ├── DvripReader.php
+        ├── DvripTransport.php
+        ├── StreamDvripTransport.php
         └── CameraService.php
 
 _GITOUT/addon/cam/
@@ -60,6 +65,11 @@ _GITOUT/addon/cam/
 
 The existing empty `index.html` will be replaced by `index.php` so the
 directory has one unambiguous entry point.
+
+Implementation adds `stuff/js/state.js` for request-generation tracking and a
+dependency-free test suite under `stuff/tests`. The additional small PHP files
+separate packet encoding, transport I/O, and typed failures so no raw command
+sender needs to be public.
 
 ## Private configuration
 

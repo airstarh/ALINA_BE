@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Cam;
+
+interface DvripReader
+{
+    public function getConfig(string $command): mixed;
+
+    public function getSystemInfo(): array;
+
+    public function getSystemFunction(): array;
+
+    public function close(): void;
+}
