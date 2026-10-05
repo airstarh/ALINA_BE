@@ -282,13 +282,17 @@ test('api_saves_smtp_only_from_posted_json_body', function (): void {
     }
 });
 
-test('api_lists_ten_network_editors_without_connecting', function (): void {
+test('api_lists_twenty_network_editors_without_connecting', function (): void {
     [$api, $path] = fixtureApi($calls);
     try {
         $response = $api->handle(['action' => 'editors', 'camera' => 'balcon']);
         assertSameValue(200, $response['status']);
         assertSameValue(
-            ['ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat'],
+            [
+                'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
+                'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
+                'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
+            ],
             array_column($response['body']['data'], 'id')
         );
         assertSameValue(0, $calls);

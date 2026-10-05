@@ -112,6 +112,131 @@ final class NetworkServiceEditor
                 'mtu' => ['label' => 'XMEye MTU', 'type' => 'integer', 'min' => 576, 'max' => 1500, 'path' => ['XMeyeMTU']],
             ],
         ],
+        'dhcp' => [
+            'label' => 'DHCP interfaces', 'branch' => 'NetWork.NetDHCP',
+            'warning' => 'Disabling DHCP on eth0 can make the camera unreachable if no usable static address is configured.',
+            'fields' => [
+                'eth0' => ['label' => 'DHCP on eth0', 'type' => 'boolean', 'path' => [0, 'Enable']],
+                'eth1' => ['label' => 'DHCP on eth1', 'type' => 'boolean', 'path' => [1, 'Enable']],
+                'eth2' => ['label' => 'DHCP on eth2', 'type' => 'boolean', 'path' => [2, 'Enable']],
+                'eth3' => ['label' => 'DHCP on eth3', 'type' => 'boolean', 'path' => [3, 'Enable']],
+            ],
+        ],
+        'wifi' => [
+            'label' => 'Wi-Fi', 'branch' => 'NetWork.Wifi',
+            'warning' => 'Changing Wi-Fi settings can expose credentials or interrupt the wireless connection.',
+            'fields' => [
+                'enable' => ['label' => 'Wi-Fi', 'type' => 'boolean', 'path' => ['Enable']],
+                'ssid' => ['label' => 'SSID', 'type' => 'string', 'path' => ['SSID']],
+                'auth' => ['label' => 'Authentication mode', 'type' => 'string', 'path' => ['Auth']],
+                'encryption' => ['label' => 'Encryption type', 'type' => 'string', 'path' => ['EncrypType']],
+                'key' => ['label' => 'Wi-Fi key', 'type' => 'password', 'path' => ['Keys']],
+                'channel' => ['label' => 'Channel code', 'type' => 'integer', 'min' => 0, 'max' => 196, 'path' => ['Channel']],
+                'networkType' => ['label' => 'Network type', 'type' => 'string', 'path' => ['NetType']],
+                'keyType' => ['label' => 'Key type code', 'type' => 'integer', 'min' => 0, 'max' => 8, 'path' => ['KeyType']],
+            ],
+        ],
+        'wifi_signal' => [
+            'label' => 'Wi-Fi signal thresholds', 'branch' => 'NetWork.WifiStrengthLevel',
+            'fields' => [
+                'excellent' => ['label' => 'Excellent threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['Excellent']],
+                'veryGood' => ['label' => 'Very good threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['VeryGood']],
+                'good' => ['label' => 'Good threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['Good']],
+                'low' => ['label' => 'Low threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['Low']],
+                'veryLow' => ['label' => 'Very low threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['VeryLow']],
+                'noSignal' => ['label' => 'No signal threshold', 'type' => 'integer', 'min' => -120, 'max' => 0, 'path' => ['NoSingnal']],
+            ],
+        ],
+        'vendor_connections' => [
+            'label' => 'Vendor connection controls', 'branch' => 'NetWork.DisableXmServerConn',
+            'warning' => 'These switches disable vendor services. Changing them can affect cloud applications and remote access.',
+            'fields' => [
+                'disableAll' => ['label' => 'Disable all vendor connections', 'type' => 'boolean', 'path' => ['DisableAll']],
+                'disableDss' => ['label' => 'Disable DSS', 'type' => 'boolean', 'path' => ['DisableDSS']],
+                'disableNat' => ['label' => 'Disable NAT service', 'type' => 'boolean', 'path' => ['DisableNAT']],
+                'disableRps' => ['label' => 'Disable RPS', 'type' => 'boolean', 'path' => ['DisableRPS']],
+            ],
+        ],
+        'online_upgrade' => [
+            'label' => 'Online upgrade policy', 'branch' => 'NetWork.OnlineUpgrade',
+            'warning' => 'This page controls automatic firmware checks and upgrades. Incorrect settings can trigger an unwanted firmware change.',
+            'fields' => [
+                'enable' => ['label' => 'Online upgrade service', 'type' => 'boolean-integer', 'path' => ['Enable']],
+                'autoCheck' => ['label' => 'Automatically check', 'type' => 'boolean-integer', 'path' => ['AutoCheck']],
+                'autoUpgradeImportant' => ['label' => 'Automatically install important upgrades', 'type' => 'boolean-integer', 'path' => ['AutoUpgradeImp']],
+                'importantOnly' => ['label' => 'Important versions only', 'type' => 'boolean-integer', 'path' => ['JustImpVersion']],
+                'ignoreAllVersion' => ['label' => 'Ignore all version checks', 'type' => 'boolean-integer', 'path' => ['IgnoreAllVersion']],
+                'ignoreCurrentVersion' => ['label' => 'Ignore current version', 'type' => 'boolean-integer', 'path' => ['IgnoreCurVersion']],
+                'ignoreCurrentTime' => ['label' => 'Ignore current time restriction', 'type' => 'boolean-integer', 'path' => ['IgnoreCurTime']],
+                'server' => ['label' => 'Upgrade server', 'type' => 'string', 'path' => ['ServerAddr']],
+                'port' => ['label' => 'Upgrade server port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['ServerPort']],
+            ],
+        ],
+        'ddns_1' => [
+            'label' => 'DDNS provider 1', 'branch' => 'NetWork.NetDDNS',
+            'warning' => 'Enabling DDNS sends the camera hostname and credentials to the configured provider.',
+            'fields' => [
+                'enable' => ['label' => 'DDNS provider 1', 'type' => 'boolean', 'path' => [0, 'Enable']],
+                'hostName' => ['label' => 'Public hostname', 'type' => 'string', 'path' => [0, 'HostName']],
+                'serviceKey' => ['label' => 'DDNS key', 'type' => 'password', 'path' => [0, 'DDNSKey']],
+                'server' => ['label' => 'Provider server', 'type' => 'string', 'path' => [0, 'Server', 'Name']],
+                'port' => ['label' => 'Provider port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => [0, 'Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => [0, 'Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => [0, 'Server', 'Password']],
+            ],
+        ],
+        'ddns_2' => [
+            'label' => 'DDNS provider 2', 'branch' => 'NetWork.NetDDNS',
+            'warning' => 'Enabling DDNS sends the camera hostname and credentials to the configured provider.',
+            'fields' => [
+                'enable' => ['label' => 'DDNS provider 2', 'type' => 'boolean', 'path' => [1, 'Enable']],
+                'hostName' => ['label' => 'Public hostname', 'type' => 'string', 'path' => [1, 'HostName']],
+                'serviceKey' => ['label' => 'DDNS key', 'type' => 'password', 'path' => [1, 'DDNSKey']],
+                'server' => ['label' => 'Provider server', 'type' => 'string', 'path' => [1, 'Server', 'Name']],
+                'port' => ['label' => 'Provider port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => [1, 'Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => [1, 'Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => [1, 'Server', 'Password']],
+            ],
+        ],
+        'ddns_3' => [
+            'label' => 'DDNS provider 3', 'branch' => 'NetWork.NetDDNS',
+            'warning' => 'Enabling DDNS sends the camera hostname and credentials to the configured provider.',
+            'fields' => [
+                'enable' => ['label' => 'DDNS provider 3', 'type' => 'boolean', 'path' => [2, 'Enable']],
+                'hostName' => ['label' => 'Public hostname', 'type' => 'string', 'path' => [2, 'HostName']],
+                'serviceKey' => ['label' => 'DDNS key', 'type' => 'password', 'path' => [2, 'DDNSKey']],
+                'server' => ['label' => 'Provider server', 'type' => 'string', 'path' => [2, 'Server', 'Name']],
+                'port' => ['label' => 'Provider port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => [2, 'Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => [2, 'Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => [2, 'Server', 'Password']],
+            ],
+        ],
+        'ddns_4' => [
+            'label' => 'DDNS provider 4', 'branch' => 'NetWork.NetDDNS',
+            'warning' => 'Enabling DDNS sends the camera hostname and credentials to the configured provider.',
+            'fields' => [
+                'enable' => ['label' => 'DDNS provider 4', 'type' => 'boolean', 'path' => [3, 'Enable']],
+                'hostName' => ['label' => 'Public hostname', 'type' => 'string', 'path' => [3, 'HostName']],
+                'serviceKey' => ['label' => 'DDNS key', 'type' => 'password', 'path' => [3, 'DDNSKey']],
+                'server' => ['label' => 'Provider server', 'type' => 'string', 'path' => [3, 'Server', 'Name']],
+                'port' => ['label' => 'Provider port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => [3, 'Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => [3, 'Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => [3, 'Server', 'Password']],
+            ],
+        ],
+        'ddns_5' => [
+            'label' => 'DDNS provider 5', 'branch' => 'NetWork.NetDDNS',
+            'warning' => 'Enabling DDNS sends the camera hostname and credentials to the configured provider.',
+            'fields' => [
+                'enable' => ['label' => 'DDNS provider 5', 'type' => 'boolean', 'path' => [4, 'Enable']],
+                'hostName' => ['label' => 'Public hostname', 'type' => 'string', 'path' => [4, 'HostName']],
+                'serviceKey' => ['label' => 'DDNS key', 'type' => 'password', 'path' => [4, 'DDNSKey']],
+                'server' => ['label' => 'Provider server', 'type' => 'string', 'path' => [4, 'Server', 'Name']],
+                'port' => ['label' => 'Provider port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => [4, 'Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => [4, 'Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => [4, 'Server', 'Password']],
+            ],
+        ],
     ];
 
     public function __construct(private DvripReader $reader)
@@ -217,6 +342,13 @@ final class NetworkServiceEditor
             $value = $input[$name];
             if ($field['type'] === 'boolean') {
                 if (!is_bool($value)) throw new InvalidArgumentException("Field {$name} must be boolean.");
+                $clean[$name] = $value;
+                continue;
+            }
+            if ($field['type'] === 'boolean-integer') {
+                if (!is_int($value) || !in_array($value, [0, 1], true)) {
+                    throw new InvalidArgumentException("Field {$name} must be zero or one.");
+                }
                 $clean[$name] = $value;
                 continue;
             }

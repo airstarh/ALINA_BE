@@ -2,6 +2,7 @@ export function servicePayloadFromFormData(model, formData) {
     const values = {};
     for (const [name, field] of Object.entries(model.fields)) {
         if (field.type === 'boolean') values[name] = formData.has(name);
+        else if (field.type === 'boolean-integer') values[name] = formData.has(name) ? 1 : 0;
         else if (field.type === 'integer') values[name] = Number(formData.get(name));
         else if (field.type === 'password') values[name] = String(formData.get(name) || '');
         else values[name] = String(formData.get(name) || '').trim();
@@ -25,7 +26,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     root.className = 'service-editor';
     const form = append(root, 'form', {className: 'service-form'});
     const entries = Object.entries(model.fields);
-    const enableEntry = entries.find(([, field]) => field.type === 'boolean');
+    const isSwitch = (field) => field.type === 'boolean' || field.type === 'boolean-integer';
+    const enableEntry = entries.find(([name, field]) => name === 'enable' && isSwitch(field))
+        || entries.find(([, field]) => isSwitch(field));
 
     if (model.warning) {
         const warning = append(form, 'p', {className: 'form-warning', text: model.warning});
@@ -45,7 +48,14 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     append(form, 'h3', {text: 'Settings'});
     const grid = append(form, 'div', {className: 'form-grid'});
     for (const [name, field] of entries) {
-        if (field.type === 'boolean') continue;
+        if (enableEntry?.[0] === name) continue;
+        if (isSwitch(field)) {
+            const label = append(grid, 'label', {className: 'form-switch-field'});
+            const input = append(label, 'input', {attributes: {type: 'checkbox', name}});
+            input.checked = Boolean(model.values[name]);
+            append(label, 'span', {text: field.label});
+            continue;
+        }
         const label = append(grid, 'label', {className: 'form-field'});
         append(label, 'span', {className: 'form-label', text: field.label});
         const attributes = {
@@ -88,7 +98,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         list.replaceChildren();
         for (const [name, field] of entries) {
             let display = pending[name];
-            if (field.type === 'boolean') display = display ? 'Enabled' : 'Disabled';
+            if (isSwitch(field)) display = display ? 'Enabled' : 'Disabled';
             if (field.type === 'password') display = display ? 'Replace current password' : 'Keep current password';
             if (display === '') display = '(empty)';
             append(list, 'li', {text: `${field.label}: ${display}`});

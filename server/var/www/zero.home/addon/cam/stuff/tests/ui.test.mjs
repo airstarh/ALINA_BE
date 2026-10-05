@@ -244,6 +244,20 @@ test('network service form payload preserves schema types and blank password', a
     });
 });
 
+test('network service form payload converts integer-backed switches', async () => {
+    const {servicePayloadFromFormData} = await import(await moduleUrl('service-form.js'));
+    const model = {fields: {
+        enabled: {type: 'boolean-integer'},
+        autoCheck: {type: 'boolean-integer'},
+    }};
+    const fields = new FormData();
+    fields.set('enabled', 'on');
+    assert.deepEqual(servicePayloadFromFormData(model, fields), {
+        enabled: 1,
+        autoCheck: 0,
+    });
+});
+
 test('tree renderer recursively uses text nodes for camera values', async () => {
     const {renderTree} = await import(await moduleUrl('tree.js'));
     const malicious = '<img src=x onerror=alert(1)>';

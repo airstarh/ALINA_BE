@@ -279,6 +279,14 @@ cloud/NAT were disabled. No values were written. The UI warns that RTSP changes
 can interrupt MotionEye and that PPPoE or vendor-cloud enablement can affect
 connectivity or external communication.
 
+The third batch adds `NetWork.NetDHCP`, `NetWork.Wifi`,
+`NetWork.WifiStrengthLevel`, `NetWork.DisableXmServerConn`,
+`NetWork.OnlineUpgrade`, and five provider-specific pages backed by the shared
+`NetWork.NetDDNS` array. Live read-only verification matched all ten schemas.
+At that time Wi-Fi and all five DDNS providers were disabled; DHCP was enabled
+on `eth0`; online-upgrade service was enabled but its automatic check and
+automatic important-upgrade flags were off. No camera setting was written.
+
 Before exposing setters:
 
 1. Save a complete redacted current snapshot (default queries are unreliable).

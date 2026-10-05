@@ -26,6 +26,7 @@ into this directory, application source, command examples, or browser-side code.
 - [SMTP editor implementation plan](2026-10-05-smtp-editor-implementation-plan.md)
 - [Five safe network editors plan](2026-10-05-five-network-editors-plan.md)
 - [Second network-editor batch](2026-10-05-second-five-network-editors.md)
+- [Ten-page network-editor batch](2026-10-05-ten-network-editors.md)
 
 ## PHP DVRIP request machinery
 
@@ -92,3 +93,8 @@ A second five-form batch adds Multicast, PPPoE, RTSP server, serial network
 bridge, and vendor cloud/NAT. Forms that can affect connectivity or existing
 video clients show a prominent warning. The RTSP editor owns only the server
 sub-branch and preserves the separate RTSP client configuration.
+
+The third batch adds ten pages: DHCP, Wi-Fi, Wi-Fi signal thresholds, vendor
+connection controls, online-upgrade policy, and five DDNS providers. Multiple
+pages may safely target one array branch: each save starts from the camera's
+latest complete array and changes only the selected provider's owned fields.

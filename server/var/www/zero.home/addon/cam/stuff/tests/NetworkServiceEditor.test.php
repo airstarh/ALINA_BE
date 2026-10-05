@@ -42,10 +42,14 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
     return new NetworkServiceEditor($reader);
 }
 
-test('network_editor_lists_exact_ten_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_twenty_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
-        ['ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat'],
+        [
+            'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
+            'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
+            'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
+        ],
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
@@ -92,7 +96,7 @@ test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', fun
     ], $reader->calls);
 });
 
-test('network_editor_maps_all_ten_forms_to_their_exact_branches', function (): void {
+test('network_editor_maps_all_twenty_forms_to_their_exact_branches', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values = networkBranchFixtures();
 
@@ -107,6 +111,16 @@ test('network_editor_maps_all_ten_forms_to_their_exact_branches', function (): v
         'rtsp' => 'NetWork.RTSP',
         'serial_bridge' => 'NetWork.TranCommData',
         'nat' => 'NetWork.Nat',
+        'dhcp' => 'NetWork.NetDHCP',
+        'wifi' => 'NetWork.Wifi',
+        'wifi_signal' => 'NetWork.WifiStrengthLevel',
+        'vendor_connections' => 'NetWork.DisableXmServerConn',
+        'online_upgrade' => 'NetWork.OnlineUpgrade',
+        'ddns_1' => 'NetWork.NetDDNS',
+        'ddns_2' => 'NetWork.NetDDNS',
+        'ddns_3' => 'NetWork.NetDDNS',
+        'ddns_4' => 'NetWork.NetDDNS',
+        'ddns_5' => 'NetWork.NetDDNS',
     ] as $id => $branch) {
         assertSameValue($branch, $editor->get($id)['branch']);
     }
@@ -182,5 +196,18 @@ function networkBranchFixtures(): array
         'NetWork.RTSP' => ['Client' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => '', 'Password' => 'keep-client', 'Port' => 554, 'UserName' => ''], 'IsClient' => false, 'IsServer' => true, 'Server' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => '', 'Password' => 'keep-rtsp', 'Port' => 554, 'UserName' => '']],
         'NetWork.TranCommData' => ['SerialType' => 1, 'ServerAddr' => ' ', 'ServerPort' => 9530, 'ServerType' => 0, 'bEnable' => false],
         'NetWork.Nat' => ['Addr' => 'secu100.net', 'DnsServer1' => '0xBC007C70', 'DnsServer2' => '0xEC845436', 'NatEnable' => false, 'Port' => 8765, 'XMeyeMTU' => 1280],
+        'NetWork.NetDHCP' => [
+            ['Enable' => true, 'Interface' => 'eth0'], ['Enable' => false, 'Interface' => 'eth1'],
+            ['Enable' => false, 'Interface' => 'eth2'], ['Enable' => false, 'Interface' => 'eth3'],
+            ['Enable' => false, 'Interface' => ''],
+        ],
+        'NetWork.Wifi' => ['Auth' => 'WPAPSK', 'Channel' => 0, 'Enable' => false, 'EncrypType' => 'TKIP', 'GateWay' => '0xFE01A8C0', 'HostIP' => '0x7001A8C0', 'KeyType' => 1, 'Keys' => 'keep-wifi', 'NetType' => 'Infra', 'SSID' => 'fixture', 'Submask' => '0x00FFFFFF'],
+        'NetWork.WifiStrengthLevel' => ['Excellent' => 0, 'Good' => -67, 'Low' => -71, 'NoSingnal' => -90, 'VeryGood' => -57, 'VeryLow' => -81],
+        'NetWork.DisableXmServerConn' => ['DisableAll' => false, 'DisableDSS' => false, 'DisableNAT' => false, 'DisableRPS' => false],
+        'NetWork.OnlineUpgrade' => ['AutoCheck' => 0, 'AutoUpgradeImp' => 0, 'Enable' => 1, 'IgnoreAllVersion' => 0, 'IgnoreCurTime' => 1, 'IgnoreCurVersion' => 0, 'JustImpVersion' => 0, 'ServerAddr' => 'upgrade.example.test', 'ServerPort' => 8083],
+        'NetWork.NetDDNS' => array_map(static fn (int $index): array => [
+            'DDNSKey' => "keep-key-{$index}", 'Enable' => false, 'HostName' => "host-{$index}.example.test",
+            'Server' => ['Address' => '0x0100060A', 'Anonymity' => false, 'Name' => "provider-{$index}.example.test", 'Password' => "keep-password-{$index}", 'Port' => 80, 'UserName' => ''],
+        ], range(1, 5)),
     ];
 }
