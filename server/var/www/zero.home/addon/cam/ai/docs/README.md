@@ -25,6 +25,7 @@ into this directory, application source, command examples, or browser-side code.
 - [Camera SPA verification](cam-spa-verification.md)
 - [SMTP editor implementation plan](2026-10-05-smtp-editor-implementation-plan.md)
 - [Five safe network editors plan](2026-10-05-five-network-editors-plan.md)
+- [Second network-editor batch](2026-10-05-second-five-network-editors.md)
 
 ## PHP DVRIP request machinery
 
@@ -86,3 +87,8 @@ These five were selected as the first batch because they avoid the camera's
 address, login, video encoding, recording, firmware, reboot, and factory-reset
 settings. Loading a form is read-only. A camera mutation occurs only after the
 user opens Review changes and presses Save changes.
+
+A second five-form batch adds Multicast, PPPoE, RTSP server, serial network
+bridge, and vendor cloud/NAT. Forms that can affect connectivity or existing
+video clients show a prominent warning. The RTSP editor owns only the server
+sub-branch and preserves the separate RTSP client configuration.

@@ -61,6 +61,57 @@ final class NetworkServiceEditor
                 'password' => ['label' => 'Password', 'type' => 'password', 'path' => ['Password']],
             ],
         ],
+        'multicast' => [
+            'label' => 'Multicast', 'branch' => 'NetWork.Multicast',
+            'fields' => [
+                'enable' => ['label' => 'Multicast streaming', 'type' => 'boolean', 'path' => ['Enable']],
+                'address' => ['label' => 'Multicast address', 'type' => 'string', 'path' => ['Addr']],
+                'port' => ['label' => 'Port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['Port']],
+            ],
+        ],
+        'pppoe' => [
+            'label' => 'PPPoE', 'branch' => 'NetWork.NetPPPoE',
+            'warning' => 'Enabling PPPoE can change how the camera reaches the network.',
+            'fields' => [
+                'enable' => ['label' => 'PPPoE connection', 'type' => 'boolean', 'path' => ['Enable']],
+                'service' => ['label' => 'Service name', 'type' => 'string', 'path' => ['Server', 'Name']],
+                'port' => ['label' => 'Service port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => ['Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => ['Server', 'Password']],
+            ],
+        ],
+        'rtsp' => [
+            'label' => 'RTSP server', 'branch' => 'NetWork.RTSP',
+            'warning' => 'Changing or disabling RTSP can interrupt MotionEye and other video clients.',
+            'fields' => [
+                'enable' => ['label' => 'RTSP server', 'type' => 'boolean', 'path' => ['IsServer']],
+                'server' => ['label' => 'Server name', 'type' => 'string', 'path' => ['Server', 'Name']],
+                'port' => ['label' => 'RTSP port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['Server', 'Port']],
+                'username' => ['label' => 'Username', 'type' => 'string', 'path' => ['Server', 'UserName']],
+                'password' => ['label' => 'Password', 'type' => 'password', 'path' => ['Server', 'Password']],
+            ],
+        ],
+        'serial_bridge' => [
+            'label' => 'Serial network bridge', 'branch' => 'NetWork.TranCommData',
+            'warning' => 'Enable this only when a serial-to-network integration is intentionally configured.',
+            'fields' => [
+                'enable' => ['label' => 'Serial network bridge', 'type' => 'boolean', 'path' => ['bEnable']],
+                'server' => ['label' => 'Server address', 'type' => 'string', 'path' => ['ServerAddr']],
+                'port' => ['label' => 'Server port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['ServerPort']],
+                'serialType' => ['label' => 'Serial type code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => ['SerialType']],
+                'serverType' => ['label' => 'Server type code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => ['ServerType']],
+            ],
+        ],
+        'nat' => [
+            'label' => 'Vendor cloud / NAT', 'branch' => 'NetWork.Nat',
+            'warning' => 'Enabling this allows the camera to contact its configured vendor cloud service.',
+            'fields' => [
+                'enable' => ['label' => 'Vendor cloud / NAT', 'type' => 'boolean', 'path' => ['NatEnable']],
+                'server' => ['label' => 'Service address', 'type' => 'string', 'path' => ['Addr']],
+                'port' => ['label' => 'Service port', 'type' => 'integer', 'min' => 1, 'max' => 65535, 'path' => ['Port']],
+                'mtu' => ['label' => 'XMEye MTU', 'type' => 'integer', 'min' => 576, 'max' => 1500, 'path' => ['XMeyeMTU']],
+            ],
+        ],
     ];
 
     public function __construct(private DvripReader $reader)
@@ -150,6 +201,7 @@ final class NetworkServiceEditor
             'id' => $id,
             'label' => $definition['label'],
             'branch' => $definition['branch'],
+            'warning' => $definition['warning'] ?? null,
             'fields' => $fields,
             'values' => $values,
         ];

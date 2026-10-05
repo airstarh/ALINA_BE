@@ -27,6 +27,11 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     const entries = Object.entries(model.fields);
     const enableEntry = entries.find(([, field]) => field.type === 'boolean');
 
+    if (model.warning) {
+        const warning = append(form, 'p', {className: 'form-warning', text: model.warning});
+        warning.setAttribute('role', 'note');
+    }
+
     if (enableEntry) {
         const [name, field] = enableEntry;
         const toggle = append(form, 'label', {className: 'smtp-toggle'});

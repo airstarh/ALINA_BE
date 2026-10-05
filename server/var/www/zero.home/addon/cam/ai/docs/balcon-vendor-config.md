@@ -271,6 +271,14 @@ schemas. No write was performed during that verification. FTP, UPnP, PMS, and
 DAS were disabled; NTP was enabled. As with SMTP, password fields are never
 returned to the browser and a blank password means preserve the current value.
 
+The second form batch covers `NetWork.Multicast`, `NetWork.NetPPPoE`, the server
+portion of `NetWork.RTSP`, `NetWork.TranCommData`, and `NetWork.Nat`. Live
+read-only verification confirmed all five structures. At verification time,
+Multicast and the RTSP server were enabled; PPPoE, serial bridging, and vendor
+cloud/NAT were disabled. No values were written. The UI warns that RTSP changes
+can interrupt MotionEye and that PPPoE or vendor-cloud enablement can affect
+connectivity or external communication.
+
 Before exposing setters:
 
 1. Save a complete redacted current snapshot (default queries are unreliable).

@@ -1,13 +1,13 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261005-2';
+import {CameraApi, CameraApiError} from './api.js?v=20261005-3';
 import {
     chooseDefaultCamera,
     markActiveSection,
     SelectionGuard,
     setSectionButtonsBusy,
-} from './state.js?v=20261005-2';
-import {renderTree} from './tree.js?v=20261005-2';
-import {renderSmtpForm} from './smtp-form.js?v=20261005-2';
-import {renderServiceForm} from './service-form.js?v=20261005-2';
+} from './state.js?v=20261005-3';
+import {renderTree} from './tree.js?v=20261005-3';
+import {renderSmtpForm} from './smtp-form.js?v=20261005-3';
+import {renderServiceForm} from './service-form.js?v=20261005-3';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();

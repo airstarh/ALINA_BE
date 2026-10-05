@@ -42,10 +42,10 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
     return new NetworkServiceEditor($reader);
 }
 
-test('network_editor_lists_exact_five_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_ten_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
-        ['ftp', 'ntp', 'upnp', 'pms', 'das'],
+        ['ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat'],
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
@@ -92,7 +92,7 @@ test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', fun
     ], $reader->calls);
 });
 
-test('network_editor_maps_all_five_forms_to_their_exact_branches', function (): void {
+test('network_editor_maps_all_ten_forms_to_their_exact_branches', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values = networkBranchFixtures();
 
@@ -102,9 +102,21 @@ test('network_editor_maps_all_five_forms_to_their_exact_branches', function (): 
         'upnp' => 'NetWork.Upnp',
         'pms' => 'NetWork.PMS',
         'das' => 'NetWork.DAS',
+        'multicast' => 'NetWork.Multicast',
+        'pppoe' => 'NetWork.NetPPPoE',
+        'rtsp' => 'NetWork.RTSP',
+        'serial_bridge' => 'NetWork.TranCommData',
+        'nat' => 'NetWork.Nat',
     ] as $id => $branch) {
         assertSameValue($branch, $editor->get($id)['branch']);
     }
+});
+
+test('network_editor_marks_connectivity_sensitive_forms_with_warnings', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values = networkBranchFixtures();
+    assertTrueValue(str_contains($editor->get('rtsp')['warning'], 'MotionEye'));
+    assertTrueValue(str_contains($editor->get('pppoe')['warning'], 'network'));
 });
 
 test('network_editor_rejects_invalid_values_before_camera_read', function (): void {
@@ -165,5 +177,10 @@ function networkBranchFixtures(): array
         'NetWork.Upnp' => ['Enable' => false, 'HTTPPort' => 80, 'MediaPort' => 34567, 'MobilePort' => 34599, 'State' => false],
         'NetWork.PMS' => ['BoxID' => '', 'Enable' => false, 'Port' => 80, 'PushInterval' => 10, 'ServName' => 'push.example.test'],
         'NetWork.DAS' => ['DeviceID' => '123456', 'Enable' => false, 'Password' => 'keep-das', 'Port' => 9400, 'ServerAddr' => '192.0.2.50', 'UserName' => 'admin'],
+        'NetWork.Multicast' => ['Addr' => '239.0.1.0', 'Enable' => true, 'Port' => 32002],
+        'NetWork.NetPPPoE' => ['Enable' => false, 'HostIP' => '0x00000000', 'Server' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => 'PPPoE', 'Password' => 'keep-pppoe', 'Port' => 1900, 'UserName' => '']],
+        'NetWork.RTSP' => ['Client' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => '', 'Password' => 'keep-client', 'Port' => 554, 'UserName' => ''], 'IsClient' => false, 'IsServer' => true, 'Server' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => '', 'Password' => 'keep-rtsp', 'Port' => 554, 'UserName' => '']],
+        'NetWork.TranCommData' => ['SerialType' => 1, 'ServerAddr' => ' ', 'ServerPort' => 9530, 'ServerType' => 0, 'bEnable' => false],
+        'NetWork.Nat' => ['Addr' => 'secu100.net', 'DnsServer1' => '0xBC007C70', 'DnsServer2' => '0xEC845436', 'NatEnable' => false, 'Port' => 8765, 'XMeyeMTU' => 1280],
     ];
 }
