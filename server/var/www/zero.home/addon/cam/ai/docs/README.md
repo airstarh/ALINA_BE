@@ -21,3 +21,4 @@ into this directory, application source, command examples, or browser-side code.
 - [Balcon camera](balcon-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)
 - [Balcon configuration SPA design](2026-10-05-cam-spa-design.md)
+- [Balcon configuration SPA implementation plan](2026-10-05-cam-spa-implementation-plan.md)
