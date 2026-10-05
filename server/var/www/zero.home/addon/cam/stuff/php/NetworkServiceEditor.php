@@ -237,6 +237,115 @@ final class NetworkServiceEditor
                 'password' => ['label' => 'Password', 'type' => 'password', 'path' => [4, 'Server', 'Password']],
             ],
         ],
+        'general_preferences' => [
+            'label' => 'General preferences', 'branch' => 'General.General',
+            'fields' => [
+                'machineName' => ['label' => 'Machine name', 'type' => 'string', 'path' => ['MachineName']],
+                'fontSize' => ['label' => 'Interface font size', 'type' => 'integer', 'min' => 8, 'max' => 72, 'path' => ['FontSize']],
+                'autoLogout' => ['label' => 'Auto logout (minutes)', 'type' => 'integer', 'min' => 0, 'max' => 1440, 'path' => ['AutoLogout']],
+                'screenSaveTime' => ['label' => 'Screen saver delay', 'type' => 'integer', 'min' => 0, 'max' => 1440, 'path' => ['ScreenSaveTime']],
+                'screenAutoShutdown' => ['label' => 'Screen shutdown delay', 'type' => 'integer', 'min' => 0, 'max' => 1440, 'path' => ['ScreenAutoShutdown']],
+                'overwriteMode' => ['label' => 'Overwrite mode', 'type' => 'string', 'path' => ['OverWrite']],
+                'videoOutput' => ['label' => 'Video output mode', 'type' => 'string', 'path' => ['VideoOutPut']],
+            ],
+        ],
+        'locale_formats' => [
+            'label' => 'Locale and display formats', 'branch' => 'General.Location',
+            'fields' => [
+                'language' => ['label' => 'Language', 'type' => 'string', 'path' => ['Language']],
+                'dateFormat' => ['label' => 'Date format', 'type' => 'string', 'path' => ['DateFormat']],
+                'dateSeparator' => ['label' => 'Date separator', 'type' => 'string', 'path' => ['DateSeparator']],
+                'timeFormat' => ['label' => 'Time format', 'type' => 'string', 'path' => ['TimeFormat']],
+                'videoFormat' => ['label' => 'Video standard', 'type' => 'string', 'path' => ['VideoFormat']],
+                'dstRule' => ['label' => 'Daylight-saving rule', 'type' => 'string', 'path' => ['DSTRule']],
+                'iranCalendar' => ['label' => 'Iranian calendar', 'type' => 'boolean-integer', 'path' => ['IranCalendar']],
+                'workDaysMask' => ['label' => 'Work-days mask', 'type' => 'integer', 'min' => 0, 'max' => 127, 'path' => ['WorkDay']],
+            ],
+        ],
+        'defog' => [
+            'label' => 'Defog', 'branch' => 'Camera.ClearFog',
+            'warning' => 'Changing image processing may temporarily alter the live picture.',
+            'fields' => [
+                'enable' => ['label' => 'Defog processing', 'type' => 'boolean', 'path' => [0, 'enable']],
+                'level' => ['label' => 'Defog level', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => [0, 'level']],
+            ],
+        ],
+        'white_light' => [
+            'label' => 'White-light control', 'branch' => 'Camera.WhiteLight',
+            'warning' => 'These settings control the camera illuminator and can produce visible light.',
+            'fields' => [
+                'brightness' => ['label' => 'Brightness', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => ['Brightness']],
+                'workMode' => ['label' => 'Work mode', 'type' => 'string', 'path' => ['WorkMode']],
+                'motionDuration' => ['label' => 'Motion-trigger duration (seconds)', 'type' => 'integer', 'min' => 0, 'max' => 3600, 'path' => ['MoveTrigLight', 'Duration']],
+                'motionLevel' => ['label' => 'Motion-trigger level', 'type' => 'integer', 'min' => 0, 'max' => 10, 'path' => ['MoveTrigLight', 'Level']],
+                'scheduleEnable' => ['label' => 'Scheduled work period', 'type' => 'boolean-integer', 'path' => ['WorkPeriod', 'Enable']],
+                'startHour' => ['label' => 'Start hour', 'type' => 'integer', 'min' => 0, 'max' => 23, 'path' => ['WorkPeriod', 'SHour']],
+                'startMinute' => ['label' => 'Start minute', 'type' => 'integer', 'min' => 0, 'max' => 59, 'path' => ['WorkPeriod', 'SMinute']],
+                'endHour' => ['label' => 'End hour', 'type' => 'integer', 'min' => 0, 'max' => 23, 'path' => ['WorkPeriod', 'EHour']],
+                'endMinute' => ['label' => 'End minute', 'type' => 'integer', 'min' => 0, 'max' => 59, 'path' => ['WorkPeriod', 'EMinute']],
+            ],
+        ],
+        'overlay_indicators' => [
+            'label' => 'Overlay indicators', 'branch' => 'fVideo.GUISet',
+            'fields' => [
+                'alarmState' => ['label' => 'Alarm state', 'type' => 'boolean', 'path' => ['AlarmStateEnable']],
+                'bitRate' => ['label' => 'Bit-rate state', 'type' => 'boolean', 'path' => ['ChanStateBitRateEnable']],
+                'locked' => ['label' => 'Lock state', 'type' => 'boolean', 'path' => ['ChanStateLckEnable']],
+                'motion' => ['label' => 'Motion state', 'type' => 'boolean', 'path' => ['ChanStateMtdEnable']],
+                'recording' => ['label' => 'Channel recording state', 'type' => 'boolean', 'path' => ['ChanStateRecEnable']],
+                'videoLoss' => ['label' => 'Video-loss state', 'type' => 'boolean', 'path' => ['ChanStateVlsEnable']],
+                'channelTitle' => ['label' => 'Channel title', 'type' => 'boolean', 'path' => ['ChannelTitleEnable']],
+                'recordState' => ['label' => 'Record state', 'type' => 'boolean', 'path' => ['RecordStateEnable']],
+                'timeTitle' => ['label' => 'Time title', 'type' => 'boolean', 'path' => ['TimeTitleEnable']],
+                'windowAlpha' => ['label' => 'Window opacity', 'type' => 'integer', 'min' => 0, 'max' => 255, 'path' => ['WindowAlpha']],
+            ],
+        ],
+        'osd_logo' => [
+            'label' => 'OSD logo', 'branch' => 'fVideo.OsdLogo',
+            'fields' => [
+                'enable' => ['label' => 'OSD logo', 'type' => 'boolean', 'path' => ['Enable']],
+                'left' => ['label' => 'Left position', 'type' => 'integer', 'min' => 0, 'max' => 8192, 'path' => ['Left']],
+                'top' => ['label' => 'Top position', 'type' => 'integer', 'min' => 0, 'max' => 8192, 'path' => ['Top']],
+                'foregroundTransparency' => ['label' => 'Foreground transparency', 'type' => 'integer', 'min' => 0, 'max' => 255, 'path' => ['FgTrans']],
+                'backgroundTransparency' => ['label' => 'Background transparency', 'type' => 'integer', 'min' => 0, 'max' => 255, 'path' => ['BgTrans']],
+            ],
+        ],
+        'output_volume' => [
+            'label' => 'Output volume', 'branch' => 'fVideo.Volume',
+            'warning' => 'High output-volume values may produce loud audio at connected equipment.',
+            'fields' => [
+                'audioMode' => ['label' => 'Audio mode', 'type' => 'string', 'path' => [0, 'AudioMode']],
+                'leftVolume' => ['label' => 'Left volume', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => [0, 'LeftVolume']],
+                'rightVolume' => ['label' => 'Right volume', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => [0, 'RightVolume']],
+            ],
+        ],
+        'input_volume' => [
+            'label' => 'Input volume', 'branch' => 'fVideo.VolumeIn',
+            'fields' => [
+                'audioMode' => ['label' => 'Audio mode', 'type' => 'string', 'path' => [0, 'AudioMode']],
+                'leftVolume' => ['label' => 'Left input volume', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => [0, 'LeftVolume']],
+                'rightVolume' => ['label' => 'Right input volume', 'type' => 'integer', 'min' => 0, 'max' => 100, 'path' => [0, 'RightVolume']],
+            ],
+        ],
+        'detection_tracking' => [
+            'label' => 'Detection tracking', 'branch' => 'Detect.DetectTrack',
+            'fields' => [
+                'sensitivity' => ['label' => 'Tracking sensitivity', 'type' => 'integer', 'min' => 0, 'max' => 10, 'path' => ['Sensitivity']],
+            ],
+        ],
+        'human_detection' => [
+            'label' => 'Human detection', 'branch' => 'Detect.HumanDetection',
+            'warning' => 'This page changes basic human-detection behavior. Detection regions, rules, schedules, and alarm actions are preserved.',
+            'fields' => [
+                'enable' => ['label' => 'Human detection', 'type' => 'boolean', 'path' => [0, 'Enable']],
+                'sensitivity' => ['label' => 'Sensitivity', 'type' => 'integer', 'min' => 0, 'max' => 10, 'path' => [0, 'Sensitivity']],
+                'pushInterval' => ['label' => 'Push interval', 'type' => 'integer', 'min' => 0, 'max' => 3600000, 'path' => [0, 'PushInterval']],
+                'showRule' => ['label' => 'Show detection rule', 'type' => 'boolean-integer', 'path' => [0, 'ShowRule']],
+                'showTrack' => ['label' => 'Show tracking overlay', 'type' => 'boolean-integer', 'path' => [0, 'ShowTrack']],
+                'objectType' => ['label' => 'Object type code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => [0, 'ObjectType']],
+                'algorithm' => ['label' => 'Detection algorithm code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => [0, 'PedFdrAlg']],
+            ],
+        ],
     ];
 
     public function __construct(private DvripReader $reader)

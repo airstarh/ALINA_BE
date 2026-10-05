@@ -282,7 +282,7 @@ test('api_saves_smtp_only_from_posted_json_body', function (): void {
     }
 });
 
-test('api_lists_twenty_network_editors_without_connecting', function (): void {
+test('api_lists_thirty_editors_without_connecting', function (): void {
     [$api, $path] = fixtureApi($calls);
     try {
         $response = $api->handle(['action' => 'editors', 'camera' => 'balcon']);
@@ -292,6 +292,8 @@ test('api_lists_twenty_network_editors_without_connecting', function (): void {
                 'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
                 'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
                 'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
+                'general_preferences', 'locale_formats', 'defog', 'white_light', 'overlay_indicators',
+                'osd_logo', 'output_volume', 'input_volume', 'detection_tracking', 'human_detection',
             ],
             array_column($response['body']['data'], 'id')
         );

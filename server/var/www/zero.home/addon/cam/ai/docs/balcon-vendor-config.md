@@ -287,6 +287,14 @@ At that time Wi-Fi and all five DDNS providers were disabled; DHCP was enabled
 on `eth0`; online-upgrade service was enabled but its automatic check and
 automatic important-upgrade flags were off. No camera setting was written.
 
+The fourth batch adds `General.General`, `General.Location`,
+`Camera.ClearFog`, `Camera.WhiteLight`, `fVideo.GUISet`, `fVideo.OsdLogo`,
+`fVideo.Volume`, `fVideo.VolumeIn`, `Detect.DetectTrack`, and the basic scalar
+controls from `Detect.HumanDetection`. Live read-only verification confirmed
+all ten dotted DVRIP getters. Human-detection regions, rules, schedules, and
+event actions are intentionally not editable in this batch and remain preserved
+during a save. No camera setting was written.
+
 Before exposing setters:
 
 1. Save a complete redacted current snapshot (default queries are unreliable).

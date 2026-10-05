@@ -27,6 +27,7 @@ into this directory, application source, command examples, or browser-side code.
 - [Five safe network editors plan](2026-10-05-five-network-editors-plan.md)
 - [Second network-editor batch](2026-10-05-second-five-network-editors.md)
 - [Ten-page network-editor batch](2026-10-05-ten-network-editors.md)
+- [Ten general/camera/detection editors](2026-10-05-ten-general-camera-editors.md)
 
 ## PHP DVRIP request machinery
 
@@ -98,3 +99,9 @@ The third batch adds ten pages: DHCP, Wi-Fi, Wi-Fi signal thresholds, vendor
 connection controls, online-upgrade policy, and five DDNS providers. Multiple
 pages may safely target one array branch: each save starts from the camera's
 latest complete array and changes only the selected provider's owned fields.
+
+The fourth ten-page batch moves beyond networking: general preferences, locale
+formats, defog, white-light control, overlay indicators, OSD logo, audio input
+and output volume, tracking sensitivity, and basic human detection. Complex
+detection regions, schedules, and event-routing structures remain preserved
+but read-only.

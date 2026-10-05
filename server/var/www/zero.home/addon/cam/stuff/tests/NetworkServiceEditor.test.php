@@ -42,13 +42,15 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
     return new NetworkServiceEditor($reader);
 }
 
-test('network_editor_lists_exact_twenty_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_thirty_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
         [
             'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
             'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
             'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
+            'general_preferences', 'locale_formats', 'defog', 'white_light', 'overlay_indicators',
+            'osd_logo', 'output_volume', 'input_volume', 'detection_tracking', 'human_detection',
         ],
         array_column($editor->list(), 'id')
     );
@@ -96,7 +98,7 @@ test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', fun
     ], $reader->calls);
 });
 
-test('network_editor_maps_all_twenty_forms_to_their_exact_branches', function (): void {
+test('network_editor_maps_all_thirty_forms_to_their_exact_branches', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values = networkBranchFixtures();
 
@@ -121,6 +123,16 @@ test('network_editor_maps_all_twenty_forms_to_their_exact_branches', function ()
         'ddns_3' => 'NetWork.NetDDNS',
         'ddns_4' => 'NetWork.NetDDNS',
         'ddns_5' => 'NetWork.NetDDNS',
+        'general_preferences' => 'General.General',
+        'locale_formats' => 'General.Location',
+        'defog' => 'Camera.ClearFog',
+        'white_light' => 'Camera.WhiteLight',
+        'overlay_indicators' => 'fVideo.GUISet',
+        'osd_logo' => 'fVideo.OsdLogo',
+        'output_volume' => 'fVideo.Volume',
+        'input_volume' => 'fVideo.VolumeIn',
+        'detection_tracking' => 'Detect.DetectTrack',
+        'human_detection' => 'Detect.HumanDetection',
     ] as $id => $branch) {
         assertSameValue($branch, $editor->get($id)['branch']);
     }
@@ -209,5 +221,15 @@ function networkBranchFixtures(): array
             'DDNSKey' => "keep-key-{$index}", 'Enable' => false, 'HostName' => "host-{$index}.example.test",
             'Server' => ['Address' => '0x0100060A', 'Anonymity' => false, 'Name' => "provider-{$index}.example.test", 'Password' => "keep-password-{$index}", 'Port' => 80, 'UserName' => ''],
         ], range(1, 5)),
+        'General.General' => ['AutoLogout' => 0, 'FontSize' => 24, 'IranCalendarEnable' => 0, 'LocalNo' => 0, 'MachineName' => 'LocalHost', 'OverWrite' => 'OverWrite', 'ScreenAutoShutdown' => 0, 'ScreenSaveTime' => 0, 'VideoOutPut' => 'Auto'],
+        'General.Location' => ['DSTEnd' => ['Day' => 1], 'DSTRule' => 'Off', 'DSTStart' => ['Day' => 1], 'DateFormat' => 'YYMMDD', 'DateSeparator' => '-', 'IranCalendar' => 0, 'Language' => 'English', 'TimeFormat' => '24', 'VideoFormat' => 'PAL', 'Week' => null, 'WorkDay' => 62],
+        'Camera.ClearFog' => [['enable' => false, 'level' => 50]],
+        'Camera.WhiteLight' => ['Brightness' => 50, 'MoveTrigLight' => ['Duration' => 60, 'Level' => 3], 'WorkMode' => 'Intelligent', 'WorkPeriod' => ['EHour' => 6, 'EMinute' => 0, 'Enable' => 1, 'SHour' => 18, 'SMinute' => 0]],
+        'fVideo.GUISet' => ['AlarmStateEnable' => true, 'CarInfo' => false, 'ChanStateBitRateEnable' => true, 'ChanStateLckEnable' => true, 'ChanStateMtdEnable' => true, 'ChanStateRecEnable' => false, 'ChanStateVlsEnable' => true, 'ChannelTitleEnable' => true, 'Deflick' => true, 'GPSInfo' => true, 'RecordStateEnable' => true, 'RemoteEnable' => true, 'TimeTitleEnable' => true, 'WindowAlpha' => 128],
+        'fVideo.OsdLogo' => ['BgTrans' => 16, 'Enable' => true, 'FgTrans' => 96, 'Left' => 80, 'Top' => 80],
+        'fVideo.Volume' => [['AudioMode' => 'Single', 'LeftVolume' => 100, 'RightVolume' => 100]],
+        'fVideo.VolumeIn' => [['AudioMode' => 'Single', 'LeftVolume' => 50, 'RightVolume' => 50]],
+        'Detect.DetectTrack' => ['Sensitivity' => 1],
+        'Detect.HumanDetection' => [['Enable' => true, 'ObjectType' => 0, 'PedFdrAlg' => 0, 'PedRule' => [['Enable' => true]], 'PushInterval' => 3000, 'Sensitivity' => 1, 'ShowRule' => 0, 'ShowTrack' => 1]],
     ];
 }
