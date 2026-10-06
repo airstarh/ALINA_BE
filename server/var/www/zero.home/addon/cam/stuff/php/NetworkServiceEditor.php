@@ -457,10 +457,85 @@ final class NetworkServiceEditor
     {
         $definition = $this->definition($id);
         $model = $this->model($id, $definition, $this->readBranch($definition));
+        if (in_array($id, ['main_stream', 'extra_stream'], true)) {
+            $model = $this->withCodecOptions($model);
+        }
         $dhcpIndex = $this->dhcpIndex($id);
         return $dhcpIndex === null
             ? $model
             : $this->withDhcp($model, $this->readDhcpInterface($dhcpIndex), $dhcpIndex);
+    }
+
+    private function withCodecOptions(array $model): array
+    {
+        if (!isset($model['fields']['compression'])
+            || !method_exists($this->reader, 'getEncodeCapability')
+        ) {
+            return $model;
+        }
+
+        try {
+            $capability = $this->reader->getEncodeCapability();
+        } catch (DvripException $exception) {
+            if (in_array($exception->publicCode(), [
+                'device_unsupported', 'device_config_missing', 'device_error',
+            ], true)) {
+                return $model;
+            }
+            throw $exception;
+        }
+
+        $streamType = $model['id'] === 'main_stream' ? 'MainStream' : 'ExtraStream2';
+        $codecs = self::codecNames($capability, $streamType);
+        if ($codecs === []) {
+            return $model;
+        }
+
+        $current = (string) ($model['values']['compression'] ?? '');
+        if ($current !== '' && !array_key_exists($current, $codecs)) {
+            $codecs[$current] = 'Current camera value (not listed as supported)';
+        }
+        $model['fields']['compression']['options'] = array_keys($codecs);
+        $model['fields']['compression']['optionLabels'] = $codecs;
+        return $model;
+    }
+
+    private static function codecNames(mixed $capability, string $streamType): array
+    {
+        if (!is_array($capability) || !isset($capability['EncodeInfo']) || !is_array($capability['EncodeInfo'])) {
+            return [];
+        }
+        $stream = null;
+        foreach ($capability['EncodeInfo'] as $item) {
+            if (is_array($item) && ($item['StreamType'] ?? null) === $streamType) {
+                $stream = $item;
+                break;
+            }
+        }
+        $maskText = is_array($stream) ? ($stream['CompressionMask'] ?? null) : null;
+        if (!is_string($maskText) || preg_match('/^0x[0-9a-f]+$/iD', $maskText) !== 1) {
+            return [];
+        }
+
+        $mask = hexdec(substr($maskText, 2));
+        $supported = [
+            0 => ['DIVX MPEG4', 'DivX MPEG-4'],
+            1 => ['MS MPEG4', 'Microsoft MPEG-4'],
+            2 => ['MPEG2', 'MPEG-2'],
+            3 => ['MPEG1', 'MPEG-1'],
+            4 => ['H.263', 'H.263'],
+            5 => ['MJPEG', 'Motion JPEG (MJPEG)'],
+            6 => ['FCCMPEG4', 'FCC MPEG-4'],
+            7 => ['H.264', 'H.264 / AVC'],
+            8 => ['H.265', 'H.265 / HEVC'],
+        ];
+        $options = [];
+        foreach ($supported as $bit => [$wireValue, $label]) {
+            if (($mask & (1 << $bit)) !== 0) {
+                $options[$wireValue] = $label;
+            }
+        }
+        return $options;
     }
 
     public function update(string $id, array $input): array

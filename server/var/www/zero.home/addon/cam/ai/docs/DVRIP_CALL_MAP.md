@@ -97,6 +97,14 @@ Expected response message: 1041
 | `CameraApi.editor(camera, editorId)` | `CameraService::editor()` -> `NetworkServiceEditor::get()` -> `readBranch()` -> `getConfig(branch)` | Message **1042**, `Name = <allow-listed branch>`. Wi-Fi also reads `NetWork.NetDHCP`. |
 | `CameraApi.saveEditor(camera, editorId, values)` | `CameraService::updateEditor()` -> `NetworkServiceEditor::update()` | Normally: **1042 get branch** -> **1040 set complete merged branch** -> **1042 read-back**. Wi-Fi may additionally get/set/read `NetWork.NetDHCP` for `eth1.Enable`. |
 
+For `main_stream` and `extra_stream`, opening the editor additionally requests
+the camera's encoding capability so the Codec select only offers formats
+advertised for that stream:
+
+| JavaScript call | PHP method/function | Raw DVRIP command |
+|---|---|---|
+| `CameraApi.editor(camera, 'main_stream' or 'extra_stream')` | `NetworkServiceEditor::get()` -> `DvripClient::getEncodeCapability()` -> `getNamed()` | Message **1360**, `Name = EncodeCapability`; the matching `EncodeInfo[].CompressionMask` is decoded to the camera's codec wire strings. |
+
 Every generic configuration write has this exact shape:
 
 ```text

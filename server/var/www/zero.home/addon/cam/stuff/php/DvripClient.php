@@ -104,6 +104,11 @@ final class DvripClient implements DvripReader
         return $value;
     }
 
+    public function getEncodeCapability(): mixed
+    {
+        return $this->getNamed(1360, 'EncodeCapability');
+    }
+
     public function reboot(): bool
     {
         $this->ensureLoggedIn();

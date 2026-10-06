@@ -65,6 +65,11 @@ directly open this arbitrary TCP protocol from a normal browser.
 - Header reboot button with confirmation and a POST-only backend action.
 - Automatic per-camera editor discovery: only getters are used, required
   fields are validated, and irrelevant/unsupported forms are omitted.
+- Main/extra stream Codec controls use selects populated from the camera's
+  per-stream `EncodeCapability` compression mask. Door's Main stream currently
+  reports mask `0x00000180`, which advertises H.264 and H.265; its current codec
+  is H.264. The UI labels these clearly while submitting the camera's exact
+  existing wire strings (`H.264` / `H.265`).
 - A Wired network editor combines `NetWork.NetCommon` with DHCP on `eth0` and
   exposes static IP, subnet, gateway, and hostname. MAC is read-only.
 
