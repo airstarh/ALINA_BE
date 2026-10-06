@@ -28,6 +28,7 @@ function fixtureCameraService(?object &$reader = null): CameraService
         public array $systemFunction = [];
         public array $infoValues = [];
         public bool $persistWrites = true;
+        public array $testMailCalls = [];
 
         public function getConfig(string $command): mixed
         {
@@ -63,6 +64,13 @@ function fixtureCameraService(?object &$reader = null): CameraService
         {
             $this->calls[] = 'SystemFunction';
             return $this->systemFunction;
+        }
+
+        public function testMail(array $settings): bool
+        {
+            $this->calls[] = 'OPMailTest';
+            $this->testMailCalls[] = $settings;
+            return true;
         }
 
         public function reboot(): bool
@@ -236,6 +244,36 @@ test('camera_service_returns_current_smtp_password_in_editable_model', function 
         'recipients' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
         'title' => 'Camera alert',
     ], $service->smtp());
+});
+
+test('camera_service_tests_current_smtp_settings_without_saving_them', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->configValues['NetWork.NetEmail'] = smtpFixture();
+    $reader->systemFunction = ['OtherFunction' => ['SupportMailTest' => true]];
+
+    assertSameValue(['accepted' => true], $service->testSmtp());
+    assertSameValue(['SystemFunction', 'NetWork.NetEmail', 'OPMailTest'], $reader->calls);
+    assertSameValue([[
+        'Enable' => false,
+        'MailServer' => smtpFixture()['MailServer'],
+        'UseSSL' => 0,
+        'SendAddr' => 'camera@example.test',
+        'Recievers' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
+        'Schedule' => ['schedule-fixture'],
+        'Title' => 'Camera alert',
+    ]], $reader->testMailCalls);
+    assertSameValue([], array_filter($reader->calls, 'is_array'));
+});
+
+test('camera_service_refuses_smtp_test_when_camera_does_not_advertise_support', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->systemFunction = ['OtherFunction' => ['SupportMailTest' => false]];
+
+    $exception = assertThrows(static fn () => $service->testSmtp(), DvripException::class);
+    assertSameValue('device_unsupported', $exception->publicCode());
+    assertSameValue(['SystemFunction'], $reader->calls);
 });
 
 test('camera_service_smtp_update_clears_empty_password_and_preserves_unedited_fields', function (): void {

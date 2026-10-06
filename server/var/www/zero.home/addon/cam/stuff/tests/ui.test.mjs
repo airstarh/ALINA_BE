@@ -174,6 +174,20 @@ test('camera API posts SMTP changes as JSON', async () => {
     assert.deepEqual(JSON.parse(request.options.body), smtp);
 });
 
+test('camera API posts a separate SMTP test request without configuration values', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let request;
+    const api = new CameraApi('/api.php', async (url, options) => {
+        request = {url, options};
+        return response({accepted: true});
+    });
+
+    assert.deepEqual(await api.testSmtp('door'), {accepted: true});
+    assert.equal(request.url, '/api.php?action=smtp-test&camera=door');
+    assert.equal(request.options.method, 'POST');
+    assert.deepEqual(JSON.parse(request.options.body), {});
+});
+
 test('SMTP form payload submits blank password to clear it and removes empty recipients', async () => {
     const {smtpPayloadFromFormData} = await import(await moduleUrl('smtp-form.js'));
     const fields = new FormData();
@@ -315,6 +329,21 @@ test('service select labels hide backend values from humans', async () => {
     assert.equal(serviceOptionLabel(field, 'WPA2PSK'), 'WPA2 Personal (password)');
     assert.equal(serviceOptionLabel(field, 'Code 9'), 'Unknown authentication value reported by camera');
     assert.equal(serviceOptionLabel({}, 'AES'), 'AES');
+});
+
+test('human detection rule mode labels map verified DVRIP values to readable options', async () => {
+    const {serviceOptionLabel, servicePayloadFromFormData} = await import(await moduleUrl('service-form.js'));
+    const model = {fields: {
+        ruleType: {
+            type: 'integer', options: ['0', '1'],
+            optionLabels: {'0': 'Tripwire', '1': 'Intrusion area'},
+        },
+    }};
+    assert.equal(serviceOptionLabel(model.fields.ruleType, '0'), 'Tripwire');
+    assert.equal(serviceOptionLabel(model.fields.ruleType, '1'), 'Intrusion area');
+    const formData = new FormData();
+    formData.set('ruleType', '0');
+    assert.deepEqual(servicePayloadFromFormData(model, formData), {ruleType: 0});
 });
 
 test('editable password controls are visible text fields', async () => {

@@ -118,6 +118,19 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .form-switch-field input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); }
 .form-label { color: #aebbc7; font-size: .8rem; }
 .form-input { width: 100%; min-height: 2.6rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface-raised); color: inherit; }
+.period-section { margin-top: 1.5rem; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface); }
+.period-summary { padding: 1rem; color: var(--accent); cursor: pointer; font-weight: 700; }
+.period-section[open] .period-summary { border-bottom: 1px solid var(--line); }
+.period-intro { margin: 1rem 1rem .75rem; color: var(--muted); font-size: .84rem; line-height: 1.5; }
+.period-days { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 1rem 1rem; }
+.period-day-button { min-width: 3.5rem; padding: .45rem .6rem; }
+.period-day-button.is-active { border-color: var(--accent); background: var(--accent-dark); color: #d9fff5; }
+.period-pages { padding: 0 1rem 1rem; }
+.period-day-page h4 { margin: 0 0 .7rem; }
+.period-slot { display: grid; grid-template-columns: minmax(6rem, 1fr) minmax(7rem, 1.3fr) auto minmax(7rem, 1.3fr); align-items: center; gap: .5rem; margin: .4rem 0; }
+.period-slot-toggle { display: flex; align-items: center; gap: .45rem; }
+.period-slot-toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+.period-arrow { color: var(--muted); text-align: center; }
 input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
     background: #c7ccd1;
     border-color: #aeb5bd;
@@ -156,4 +169,5 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
     .tree-list dd { margin: 0 0 .55rem .65rem; }
     .form-grid { grid-template-columns: 1fr; }
     .form-field-full { grid-column: auto; }
+    .period-slot { grid-template-columns: minmax(5.5rem, 1fr) minmax(0, 1fr) auto minmax(0, 1fr); }
 }

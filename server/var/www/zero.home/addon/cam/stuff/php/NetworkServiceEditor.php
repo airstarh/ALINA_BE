@@ -392,15 +392,41 @@ final class NetworkServiceEditor
         ],
         'human_detection' => [
             'label' => 'Human detection', 'branch' => 'Detect.HumanDetection',
-            'warning' => 'This page changes basic human-detection behavior. Detection regions, rules, schedules, and alarm actions are preserved.',
+            'warning' => 'Send Email, App Push, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Send Email uses the separate SMTP configuration. Alarm Sound is shown only when additional voice-tip control is advertised. Rule drawing and PTZ activation are not yet mapped; their existing values are preserved.',
             'fields' => [
                 'enable' => ['label' => 'Human detection', 'type' => 'boolean', 'path' => [0, 'Enable']],
-                'sensitivity' => ['label' => 'Sensitivity', 'type' => 'integer', 'min' => 0, 'max' => 10, 'path' => [0, 'Sensitivity']],
                 'pushInterval' => ['label' => 'Push interval', 'type' => 'integer', 'min' => 0, 'max' => 3600000, 'path' => [0, 'PushInterval']],
                 'showRule' => ['label' => 'Show detection rule', 'type' => 'boolean-integer', 'path' => [0, 'ShowRule']],
                 'showTrack' => ['label' => 'Show tracking overlay', 'type' => 'boolean-integer', 'path' => [0, 'ShowTrack']],
-                'objectType' => ['label' => 'Object type code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => [0, 'ObjectType']],
-                'algorithm' => ['label' => 'Detection algorithm code', 'type' => 'integer', 'min' => 0, 'max' => 16, 'path' => [0, 'PedFdrAlg']],
+                'ruleEnabled' => ['label' => 'Intrusion / tripwire rule', 'type' => 'boolean', 'path' => [0, 'PedRule', 0, 'Enable']],
+                'ruleType' => [
+                    'label' => 'Rule type', 'type' => 'integer', 'min' => 0, 'max' => 1,
+                    'options' => ['0', '1'],
+                    'optionLabels' => ['0' => 'Tripwire', '1' => 'Intrusion area'],
+                    'path' => [0, 'PedRule', 0, 'RuleType'],
+                ],
+            ],
+        ],
+    ];
+
+    private const HUMAN_ACTION_DEFINITION = [
+        'label' => 'Human detection actions',
+        'branch' => 'Detect.MotionDetect.[0]',
+        'fields' => [
+            'appPush' => [
+                'label' => 'App Push (shared alert action)',
+                'type' => 'boolean',
+                'path' => ['EventHandler', 'MessageEnable'],
+            ],
+            'sendEmail' => [
+                'label' => 'Send Email (shared alert action)',
+                'type' => 'boolean',
+                'path' => ['EventHandler', 'MailEnable'],
+            ],
+            'alarmSound' => [
+                'label' => 'Alarm Sound (camera voice)',
+                'type' => 'boolean',
+                'path' => ['EventHandler', 'VoiceEnable'],
             ],
         ],
     ];
@@ -457,6 +483,10 @@ final class NetworkServiceEditor
     {
         $definition = $this->definition($id);
         $model = $this->model($id, $definition, $this->readBranch($definition));
+        if ($id === 'human_detection') {
+            $actions = $this->readHumanActions();
+            return $actions === null ? $model : $this->withHumanActions($model, $actions);
+        }
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
             $model = $this->withStreamOptions($model);
         }
@@ -606,11 +636,43 @@ final class NetworkServiceEditor
         }
         $clean = $this->validate($definition, $input);
         $current = $this->readBranch($definition);
+        $humanActions = $id === 'human_detection' ? $this->readHumanActions() : null;
+        if ($id === 'human_detection') {
+            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'alarmSound', 'periodChanges'], array_keys($input)) !== []) {
+                throw new DvripException('device_config_missing', 'Camera does not expose alert action settings.');
+            }
+            if ($humanActions !== null) {
+                foreach (['appPush', 'sendEmail'] as $name) {
+                    if (!array_key_exists($name, $input) || !is_bool($input[$name])) {
+                        throw new InvalidArgumentException("Field {$name} must be boolean.");
+                    }
+                }
+                if ($this->supportsHumanAlarmSound()) {
+                    if (!array_key_exists('alarmSound', $input) || !is_bool($input['alarmSound'])) {
+                        throw new InvalidArgumentException('Field alarmSound must be boolean.');
+                    }
+                } elseif (array_key_exists('alarmSound', $input)) {
+                    throw new InvalidArgumentException('Alarm Sound is not supported by this camera.');
+                }
+            }
+        }
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
             $this->validateStreamOptions($id, $definition, $current, $clean);
         }
         $dhcp = $dhcpIndex === null ? null : $this->readDhcpInterface($dhcpIndex);
         $updated = $current;
+        $updatedActions = $humanActions;
+
+        if ($humanActions !== null) {
+            foreach (self::HUMAN_ACTION_DEFINITION['fields'] as $name => $field) {
+                if (array_key_exists($name, $input)) {
+                    $this->setPath($updatedActions, $field['path'], $input[$name]);
+                }
+            }
+            if (array_key_exists('periodChanges', $input)) {
+                $this->applyHumanPeriodChanges($updatedActions, $input['periodChanges']);
+            }
+        }
 
         foreach ($definition['fields'] as $name => $field) {
             if (($field['writable'] ?? true) !== true) {
@@ -620,8 +682,12 @@ final class NetworkServiceEditor
             $this->setPath($updated, $field['path'], $wireValue);
         }
 
-        $this->reader->setConfig($definition['branch'], $updated);
-        $verified = $this->readBranch($definition);
+        if ($id === 'human_detection' && $updated === $current) {
+            $verified = $current;
+        } else {
+            $this->reader->setConfig($definition['branch'], $updated);
+            $verified = $this->readBranch($definition);
+        }
         $model = $this->model($id, $definition, $verified);
         if ($id === 'wifi'
             ? !$this->wifiMatchesInput($definition, $model, $input, $clean)
@@ -631,6 +697,21 @@ final class NetworkServiceEditor
                 'write_verification_failed',
                 'Configuration read-back did not match the submitted object.'
             );
+        }
+        if ($humanActions !== null) {
+            if ($updatedActions !== $humanActions) {
+                $this->reader->setConfig(self::HUMAN_ACTION_DEFINITION['branch'], $updatedActions);
+                $verifiedActions = $this->readBranch(self::HUMAN_ACTION_DEFINITION);
+                if ($verifiedActions !== $updatedActions) {
+                    throw new DvripException(
+                        'write_verification_failed',
+                        'Alert action read-back did not match the submitted object.'
+                    );
+                }
+            } else {
+                $verifiedActions = $humanActions;
+            }
+            return $this->withHumanActions($model, $verifiedActions);
         }
         if ($dhcpIndex === null) return $model;
 
@@ -790,6 +871,138 @@ final class NetworkServiceEditor
             $this->getPath($branch, $field['path']);
         }
         return $branch;
+    }
+
+    private function readHumanActions(): ?array
+    {
+        try {
+            return $this->readBranch(self::HUMAN_ACTION_DEFINITION);
+        } catch (DvripException $exception) {
+            if (in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) {
+                return null;
+            }
+            throw $exception;
+        }
+    }
+
+    private function withHumanActions(array $model, array $branch): array
+    {
+        $actions = $this->model('human_detection', self::HUMAN_ACTION_DEFINITION, $branch);
+        if (!$this->supportsHumanAlarmSound()) {
+            unset($actions['fields']['alarmSound'], $actions['values']['alarmSound']);
+        }
+        $model['fields'] += $actions['fields'];
+        $model['values'] += $actions['values'];
+        $periods = $this->humanPeriods($branch);
+        if ($periods !== null) {
+            $model['periods'] = $periods;
+        }
+        return $model;
+    }
+
+    private function humanPeriods(array $branch): ?array
+    {
+        $matrix = $branch['EventHandler']['TimeSection'] ?? null;
+        if (!is_array($matrix) || !array_is_list($matrix) || count($matrix) !== 7) {
+            return null;
+        }
+        $result = [];
+        $slotCount = null;
+        foreach ($matrix as $row) {
+            if (!is_array($row) || !array_is_list($row)
+                || count($row) < 1 || count($row) > 6
+                || ($slotCount !== null && count($row) !== $slotCount)
+            ) {
+                return null;
+            }
+            $slotCount = count($row);
+            $day = [];
+            foreach ($row as $raw) {
+                if (!is_string($raw) || preg_match(
+                    '/^([01]) ((?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])-((?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|24:00:00)$/D',
+                    $raw,
+                    $match
+                ) !== 1) {
+                    return null;
+                }
+                $day[] = [
+                    'enabled' => $match[1] === '1',
+                    'start' => self::displayPeriodTime($match[2]),
+                    'end' => self::displayPeriodTime($match[3]),
+                    'raw' => $raw,
+                ];
+            }
+            $result[] = $day;
+        }
+        return $result;
+    }
+
+    private static function displayPeriodTime(string $time): string
+    {
+        return str_ends_with($time, ':00') ? substr($time, 0, -3) : $time;
+    }
+
+    private function applyHumanPeriodChanges(array &$actions, mixed $changes): void
+    {
+        $periods = $this->humanPeriods($actions);
+        if ($periods === null) {
+            throw new DvripException('device_config_missing', 'Camera does not expose a supported weekly period schedule.');
+        }
+        if (!is_array($changes) || !array_is_list($changes) || count($changes) > 42) {
+            throw new InvalidArgumentException('Period changes must be a list of camera slots.');
+        }
+        $seen = [];
+        foreach ($changes as $change) {
+            if (!is_array($change)
+                || !isset($change['day'], $change['slot'], $change['expected'], $change['enabled'], $change['start'], $change['end'])
+                || !is_int($change['day']) || !is_int($change['slot'])
+                || !is_string($change['expected']) || !is_bool($change['enabled'])
+                || !is_string($change['start']) || !is_string($change['end'])
+            ) {
+                throw new InvalidArgumentException('Period change has invalid fields.');
+            }
+            $day = $change['day'];
+            $slot = $change['slot'];
+            $key = "{$day}:{$slot}";
+            if (!isset($periods[$day][$slot]) || isset($seen[$key])) {
+                throw new InvalidArgumentException('Period change targets an invalid or duplicate slot.');
+            }
+            $seen[$key] = true;
+            if ($periods[$day][$slot]['raw'] !== $change['expected']) {
+                throw new InvalidArgumentException('A camera period changed since this page was loaded. Reload before saving.');
+            }
+            $start = self::normalizePeriodTime($change['start'], false);
+            $end = self::normalizePeriodTime($change['end'], true);
+            if (self::periodSeconds($start) >= self::periodSeconds($end)) {
+                throw new InvalidArgumentException('Period end must be later than its start.');
+            }
+            $actions['EventHandler']['TimeSection'][$day][$slot] =
+                ($change['enabled'] ? '1 ' : '0 ') . $start . '-' . $end;
+        }
+    }
+
+    private static function normalizePeriodTime(string $time, bool $allowEndOfDay): string
+    {
+        if ($allowEndOfDay && ($time === '24:00' || $time === '24:00:00')) {
+            return '24:00:00';
+        }
+        if (preg_match('/^((?:[01][0-9]|2[0-3]):[0-5][0-9])(?::([0-5][0-9]))?$/D', $time, $match) !== 1) {
+            throw new InvalidArgumentException('Period time must be HH:MM, with 24:00 allowed only as an end time.');
+        }
+        return $match[1] . ':' . ($match[2] ?? '00');
+    }
+
+    private static function periodSeconds(string $time): int
+    {
+        [$hours, $minutes, $seconds] = array_map('intval', explode(':', $time));
+        return $hours * 3600 + $minutes * 60 + $seconds;
+    }
+
+    private function supportsHumanAlarmSound(): bool
+    {
+        // These cameras both advertise generic voice-tip menus; only Balcon
+        // advertises the additional voice-control capability and has a speaker.
+        return ($this->reader->getSystemFunction()['OtherFunction']['SupportCloseVoiceTip'] ?? false) === true;
     }
 
     private function model(string $id, array $definition, array $branch): array

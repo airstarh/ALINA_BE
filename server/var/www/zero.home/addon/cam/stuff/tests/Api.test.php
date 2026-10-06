@@ -52,6 +52,7 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
     $reader = new class implements DvripReader {
         public bool $closed = false;
         public bool $rebooted = false;
+        public int $mailTests = 0;
         public array $configValues = [];
         public array $smtp = [
             'Enable' => false,
@@ -106,7 +107,13 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
 
         public function getSystemFunction(): array
         {
-            return ['NetServerFunction' => []];
+            return ['NetServerFunction' => [], 'OtherFunction' => ['SupportMailTest' => true]];
+        }
+
+        public function testMail(array $settings): bool
+        {
+            $this->mailTests++;
+            return true;
         }
 
         public function reboot(): bool
@@ -164,6 +171,27 @@ test('api_reboots_camera_only_via_post', function (): void {
         assertSameValue(true, $reader->rebooted);
     } finally {
         @unlink($path);
+    }
+});
+
+test('api_tests_smtp_only_via_post_and_does_not_save_configuration', function (): void {
+    [$api, $path] = fixtureApi($factoryCalls, $reader);
+    try {
+        assertSameValue(405, $api->handle(
+            ['action' => 'smtp-test', 'camera' => 'balcon'], null, 'GET'
+        )['status']);
+        assertSameValue(0, $factoryCalls);
+
+        $response = $api->handle(
+            ['action' => 'smtp-test', 'camera' => 'balcon'], [], 'POST'
+        );
+        assertSameValue(200, $response['status']);
+        assertSameValue(['accepted' => true], $response['body']['data']);
+        assertSameValue(1, $reader->mailTests);
+        assertSameValue([], $reader->configValues);
+        assertSameValue(true, $reader->closed);
+    } finally {
+        unlink($path);
     }
 });
 

@@ -44,6 +44,13 @@ export class CameraApi {
         );
     }
 
+    testSmtp(cameraId) {
+        return this.#request(
+            {action: 'smtp-test', camera: cameraId},
+            {method: 'POST', body: {}}
+        );
+    }
+
     editors(cameraId) {
         return this.#request({action: 'editors', camera: cameraId});
     }

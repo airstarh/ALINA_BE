@@ -16,6 +16,8 @@ interface DvripReader
 
     public function getSystemFunction(): array;
 
+    public function testMail(array $settings): bool;
+
     public function reboot(): bool;
 
     public function close(): void;

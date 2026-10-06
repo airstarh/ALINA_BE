@@ -189,6 +189,34 @@ final class CameraService
         return $this->smtpModel($verified);
     }
 
+    public function testSmtp(): array
+    {
+        $capabilities = $this->reader->getSystemFunction();
+        if (($capabilities['OtherFunction']['SupportMailTest'] ?? false) !== true) {
+            throw new DvripException('device_unsupported', 'Camera does not advertise email testing support.');
+        }
+
+        $email = $this->smtpBranch();
+        foreach (['Enable', 'UseSSL', 'SendAddr', 'Recievers', 'Schedule', 'Title'] as $field) {
+            if (!array_key_exists($field, $email)) {
+                throw new DvripException('device_config_missing', 'Camera returned an incomplete SMTP configuration object.');
+            }
+        }
+        $settings = [
+            'Enable' => $email['Enable'],
+            'MailServer' => $email['MailServer'],
+            'UseSSL' => $email['UseSSL'],
+            'SendAddr' => $email['SendAddr'],
+            'Recievers' => $email['Recievers'],
+            'Schedule' => $email['Schedule'],
+            'Title' => $email['Title'],
+        ];
+        if (!$this->reader->testMail($settings)) {
+            throw new DvripException('device_error', 'Camera rejected the SMTP test request.');
+        }
+        return ['accepted' => true];
+    }
+
     public function close(): void
     {
         $this->reader->close();

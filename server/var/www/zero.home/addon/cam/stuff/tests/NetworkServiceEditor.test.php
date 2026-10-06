@@ -24,6 +24,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public array $calls = [];
         public bool $persistWrites = true;
         public bool $normalizeBalconWifiWrites = false;
+        public array $systemFunction = [];
 
         public function getConfig(string $command): mixed
         {
@@ -49,7 +50,8 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
 
         public function getSystemInfo(): array { return []; }
         public function getInfo(string $command): mixed { return null; }
-        public function getSystemFunction(): array { return []; }
+        public function getSystemFunction(): array { return $this->systemFunction; }
+        public function testMail(array $settings): bool { return true; }
         public function reboot(): bool { return true; }
         public function close(): void {}
     };
@@ -245,6 +247,88 @@ test('network_editor_gives_unknown_wifi_codes_human_readable_fallback_labels', f
     $model = $editor->get('wifi');
     assertSameValue('Unknown authentication value reported by camera', $model['fields']['auth']['optionLabels']['Code 9']);
     assertSameValue('Unknown encryption value reported by camera', $model['fields']['encryption']['optionLabels']['Code 7']);
+});
+
+test('network_editor_human_detection_uses_native_readable_rule_modes_and_preserves_geometry', function (): void {
+    $editor = networkEditorFixture($reader);
+    $branch = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.HumanDetection'] = $branch;
+
+    $model = $editor->get('human_detection');
+    assertSameValue('Intrusion area', $model['fields']['ruleType']['optionLabels']['1']);
+    assertSameValue('Tripwire', $model['fields']['ruleType']['optionLabels']['0']);
+    assertSameValue(1, $model['values']['ruleType']);
+    assertSameValue(true, $model['values']['ruleEnabled']);
+    assertSameValue(false, array_key_exists('algorithm', $model['values']));
+    assertSameValue(false, array_key_exists('objectType', $model['values']));
+
+    $input = [
+        'enable' => true,
+        'pushInterval' => 3000,
+        'showRule' => 0,
+        'showTrack' => 1,
+        'ruleEnabled' => true,
+        'ruleType' => 0,
+    ];
+    $saved = $editor->update('human_detection', $input);
+    $written = $reader->calls[array_key_last($reader->calls) - 1][2];
+
+    assertSameValue(0, $written[0]['PedRule'][0]['RuleType']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleRegion'], $written[0]['PedRule'][0]['RuleRegion']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleLine'], $written[0]['PedRule'][0]['RuleLine']);
+    assertSameValue($branch[0]['PedRule'][1], $written[0]['PedRule'][1]);
+    assertSameValue(0, $saved['values']['ruleType']);
+});
+
+test('network_editor_human_detection_reads_and_writes_native_alert_actions', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $events = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false,
+        'VoiceEnable' => false, 'BeepEnable' => false,
+        'VoiceType' => 520,
+    ], 'Unrelated' => ['preserve' => true]];
+    $reader->values['Detect.MotionDetect.[0]'] = $events;
+    $reader->systemFunction = ['OtherFunction' => ['SupportCloseVoiceTip' => true]];
+
+    $model = $editor->get('human_detection');
+    assertSameValue(false, $model['values']['appPush']);
+    assertSameValue(false, $model['values']['sendEmail']);
+    assertSameValue(false, $model['values']['alarmSound']);
+    assertSameValue('boolean', $model['fields']['appPush']['type']);
+    assertSameValue('boolean', $model['fields']['sendEmail']['type']);
+    assertSameValue('boolean', $model['fields']['alarmSound']['type']);
+
+    $input = $model['values'];
+    $input['appPush'] = true;
+    $input['sendEmail'] = true;
+    $input['alarmSound'] = true;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(true, $saved['values']['appPush']);
+    assertSameValue(true, $saved['values']['sendEmail']);
+    assertSameValue(true, $saved['values']['alarmSound']);
+    assertSameValue(true, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['MessageEnable']);
+    assertSameValue(true, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['MailEnable']);
+    assertSameValue(true, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['VoiceEnable']);
+    assertSameValue(false, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['BeepEnable']);
+    assertSameValue(520, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['VoiceType']);
+    assertSameValue($events['Unrelated'], $reader->values['Detect.MotionDetect.[0]']['Unrelated']);
+    assertSameValue(true, in_array(['get', 'Detect.MotionDetect.[0]'], $reader->calls, true));
+    assertSameValue(false, in_array(['get', 'NetWork.NetMail'], $reader->calls, true));
+});
+
+test('network_editor_hides_alarm_sound_without_confirmed_voice_output', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = [
+        'EventHandler' => ['MessageEnable' => false, 'MailEnable' => false, 'VoiceEnable' => false],
+    ];
+    $reader->systemFunction = ['OtherFunction' => ['SupportAlarmVoiceTips' => true]];
+
+    $model = $editor->get('human_detection');
+    assertSameValue(false, array_key_exists('alarmSound', $model['fields']));
+    assertSameValue(false, $model['values']['appPush']);
+    assertSameValue(false, $model['values']['sendEmail']);
 });
 
 test('network_editor_maps_both_balcon_aes_control_bytes_to_aes', function (): void {
@@ -464,7 +548,16 @@ function networkBranchFixtures(): array
         'fVideo.Volume' => [['AudioMode' => 'Single', 'LeftVolume' => 100, 'RightVolume' => 100]],
         'fVideo.VolumeIn' => [['AudioMode' => 'Single', 'LeftVolume' => 50, 'RightVolume' => 50]],
         'Detect.DetectTrack' => ['Sensitivity' => 1],
-        'Detect.HumanDetection' => [['Enable' => true, 'ObjectType' => 0, 'PedFdrAlg' => 0, 'PedRule' => [['Enable' => true]], 'PushInterval' => 3000, 'Sensitivity' => 1, 'ShowRule' => 0, 'ShowTrack' => 1]],
+        'Detect.HumanDetection' => [[
+            'Enable' => true, 'ObjectType' => 0, 'PedFdrAlg' => 0,
+            'PedRule' => [
+                ['Enable' => true, 'RuleLine' => ['AlarmDirect' => 2, 'Pts' => ['StartX' => 100, 'StartY' => 100, 'StopX' => 8100, 'StopY' => 8100]], 'RuleRegion' => ['AlarmDirect' => 2, 'Pts' => [['X' => 100, 'Y' => 100], ['X' => 8100, 'Y' => 100], ['X' => 8100, 'Y' => 8100], ['X' => 100, 'Y' => 8100]], 'PtsNum' => 4], 'RuleType' => 1],
+                ['Enable' => false, 'RuleLine' => ['AlarmDirect' => 2, 'Pts' => ['StartX' => 100, 'StartY' => 100, 'StopX' => 8100, 'StopY' => 8100]], 'RuleRegion' => ['AlarmDirect' => 2, 'Pts' => [['X' => 100, 'Y' => 100], ['X' => 8100, 'Y' => 100], ['X' => 8100, 'Y' => 8100], ['X' => 100, 'Y' => 8100]], 'PtsNum' => 4], 'RuleType' => 1],
+                ['Enable' => false, 'RuleLine' => ['AlarmDirect' => 2, 'Pts' => ['StartX' => 100, 'StartY' => 100, 'StopX' => 8100, 'StopY' => 8100]], 'RuleRegion' => ['AlarmDirect' => 2, 'Pts' => [['X' => 100, 'Y' => 100], ['X' => 8100, 'Y' => 100], ['X' => 8100, 'Y' => 8100], ['X' => 100, 'Y' => 8100]], 'PtsNum' => 4], 'RuleType' => 1],
+                ['Enable' => false, 'RuleLine' => ['AlarmDirect' => 2, 'Pts' => ['StartX' => 100, 'StartY' => 100, 'StopX' => 8100, 'StopY' => 8100]], 'RuleRegion' => ['AlarmDirect' => 2, 'Pts' => [['X' => 100, 'Y' => 100], ['X' => 8100, 'Y' => 100], ['X' => 8100, 'Y' => 8100], ['X' => 100, 'Y' => 8100]], 'PtsNum' => 4], 'RuleType' => 1],
+            ],
+            'PushInterval' => 3000, 'Sensitivity' => 1, 'ShowRule' => 0, 'ShowTrack' => 1,
+        ]],
     ];
 }
 

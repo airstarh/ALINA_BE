@@ -109,6 +109,27 @@ final class DvripClient implements DvripReader
         return $this->getNamed(1360, 'EncodeCapability');
     }
 
+    public function testMail(array $settings): bool
+    {
+        $this->ensureLoggedIn();
+
+        try {
+            $response = $this->request(1636, [
+                'Name' => 'OPMailTest',
+                'SessionID' => sprintf('0x%08X', $this->session),
+                'OPMailTest' => $settings,
+            ]);
+            $this->assertSuccess($response);
+            if (isset($response['Name']) && $response['Name'] !== 'OPMailTest') {
+                throw new DvripException('protocol_identity', 'DVRIP email-test response does not match.');
+            }
+            return true;
+        } catch (Throwable $exception) {
+            $this->close();
+            throw $exception;
+        }
+    }
+
     public function reboot(): bool
     {
         $this->ensureLoggedIn();

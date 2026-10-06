@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261006-3';
+import {CameraApi, CameraApiError} from './api.js?v=20261006-4';
 import {
     chooseDefaultCamera,
     markActiveSection,
@@ -6,8 +6,8 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderSmtpForm} from './smtp-form.js?v=20261005-6';
-import {renderServiceForm} from './service-form.js?v=20261006-2';
+import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
+import {renderServiceForm} from './service-form.js?v=20261006-3';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -104,6 +104,21 @@ const loadSmtp = async (token) => {
                     if (guard.isCurrent(saveToken)) showError(error);
                 } finally {
                     if (guard.isCurrent(saveToken)) setBusy(false);
+                }
+            },
+            onTest: async () => {
+                const testToken = guard.begin(activeCamera);
+                setBusy(true);
+                showStatus('Asking the camera to send a test email…');
+                try {
+                    await api.testSmtp(activeCamera);
+                    if (guard.isCurrent(testToken)) {
+                        showStatus('Camera accepted the SMTP test request. Check the configured recipient inbox.', 'ok');
+                    }
+                } catch (error) {
+                    if (guard.isCurrent(testToken)) showError(error);
+                } finally {
+                    if (guard.isCurrent(testToken)) setBusy(false);
                 }
             },
         });

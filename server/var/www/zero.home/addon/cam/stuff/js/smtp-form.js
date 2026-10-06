@@ -108,11 +108,25 @@ export function renderSmtpForm(model, handlers, documentRef = document) {
 
     const actions = add(form, 'div', {className: 'form-actions'});
     const reload = add(actions, 'button', {text: 'Reload', attributes: {type: 'button'}});
+    const test = add(actions, 'button', {text: 'Test email', attributes: {type: 'button'}});
     add(actions, 'button', {
         className: 'primary-button',
         text: 'Review changes',
         attributes: {type: 'submit'},
     });
+    test.addEventListener('click', async () => {
+        test.disabled = true;
+        try {
+            await handlers.onTest();
+        } finally {
+            test.disabled = false;
+        }
+    });
+    const testNote = add(form, 'p', {
+        className: 'form-note',
+        text: 'Sends a test using the camera’s currently saved SMTP settings and configured recipients. Unsaved edits are not used or saved; camera acceptance does not guarantee delivery.',
+    });
+    testNote.setAttribute('role', 'note');
 
     let pending = null;
     form.addEventListener('submit', (event) => {

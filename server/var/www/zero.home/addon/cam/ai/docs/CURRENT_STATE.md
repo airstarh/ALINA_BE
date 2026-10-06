@@ -49,6 +49,9 @@ directly open this arbitrary TCP protocol from a normal browser.
   Simplify.Encode, AVEnc, Record, Storage, Alarm, Uart, fVideo,
   SystemFunction, SystemInfo, and Ability.
 - A dedicated Email / SMTP editor.
+- A **Test email** action which checks the camera's `SupportMailTest` capability,
+  freshly reads its saved `NetWork.NetEmail` branch, and issues DVRIP
+  `OPMailTest` (message 1636) without saving or changing camera configuration.
 - 68 allow-listed schema-driven editor pages covering network services,
   general settings, image controls, detection, streams, recording/storage,
   alarms, audio/OSD, and UART/PTZ configuration.
@@ -81,6 +84,30 @@ directly open this arbitrary TCP protocol from a normal browser.
 - A Wired network editor combines `NetWork.NetCommon` with DHCP on `eth0` and
   exposes static IP, subnet, gateway, and hostname. MAC is read-only.
 
+## Human Detection feature status
+
+The Human detection form edits the allow-listed top-level settings plus the
+first rule's enabled state and verified type (`0 = Tripwire`, `1 = Intrusion
+area`) in `Detect.HumanDetection`. It also reads App Push from
+`Detect.MotionDetect.[0].EventHandler.MessageEnable`, the exact field changed
+by a captured native-CMS App Push toggle. Door's captured Send Email toggle
+changes `Detect.MotionDetect.[0].EventHandler.MailEnable` and uses the
+separately configured SMTP server. Balcon's captured Alarm Sound toggle
+changes `Detect.MotionDetect.[0].EventHandler.VoiceEnable`; this control is
+offered only when `OtherFunction.SupportCloseVoiceTip` is true. That flag is a
+conservative observed distinction between Balcon and physically silent Door,
+not a universal speaker-detection guarantee. Each changed branch is freshly
+read, written in full, and verified by read-back. Geometry and the other rule
+slots are preserved. The Period section edits the camera's seven-day,
+six-slot `EventHandler.TimeSection` on the same page. It submits only changed
+slots, rejects stale slots, and preserves every other slot during the
+fresh-read merge. PTZ activation and rule geometry are not yet mapped. No probe
+endpoint remains in the app. See
+[`human-detection-discovery.md`](human-detection-discovery.md) for exact
+observations. PTZ activation is not part of this editor; Door's PTZ must remain
+hidden because it does not advertise PTZ capabilities and is physically static.
+Future PTZ activation should appear only when actual device support is verified.
+
 ## Save semantics
 
 No form submits an arbitrary branch name. The server chooses an allow-listed
@@ -95,6 +122,11 @@ branch from the editor ID. A normal save performs:
 SMTP follows the same model with dedicated validation. Wi-Fi also reads the
 `NetWork.NetDHCP` array and, when necessary, writes the full updated array to
 change only `eth1.Enable`.
+
+The SMTP test is a distinct, POST-only operation. It tests the settings
+currently saved on the camera, not unsaved browser edits. A positive DVRIP
+response means the camera accepted the test request; it does not prove the
+message reached the recipient's inbox.
 
 ## Balcon protocol discoveries
 
@@ -121,6 +153,9 @@ change only `eth1.Enable`.
 
 - SMTP write support was proven with exact read-back. SMTP was disabled and
   its title changed to `SMTP DISABLED`; unrelated SMTP fields were preserved.
+- Door's SMTP test was live-tested through `OPMailTest` after confirming the
+  saved settings were enabled and a recipient was configured. The camera
+  accepted the request. No SMTP settings were written or changed by the test.
 - Wi-Fi settings were experimentally written and read back while establishing
   the q001 enum translations.
 - Wi-Fi was disabled. Its former wireless address remained reachable until the

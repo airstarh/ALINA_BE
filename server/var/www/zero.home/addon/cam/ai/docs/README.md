@@ -23,6 +23,7 @@ into this directory, application source, command examples, or browser-side code.
 - [Balcon camera](balcon-discovery.md)
 - [Door camera and automatic editor discovery](door-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)
+- [Human Detection feature discovery](human-detection-discovery.md)
 - [Balcon configuration SPA design](2026-10-05-cam-spa-design.md)
 - [Balcon configuration SPA implementation plan](2026-10-05-cam-spa-implementation-plan.md)
 - [Camera SPA verification](cam-spa-verification.md)
@@ -83,6 +84,12 @@ Saving performs one serialized operation under the existing per-camera lock:
    an empty field explicitly clears that camera value.
 4. Write the complete SMTP branch with DVRIP message 1040.
 5. Read the branch again and require an exact match before reporting success.
+
+The separate **Test email** button checks `SupportMailTest`, reads the camera's
+currently saved SMTP branch, and sends it through the camera's native
+`OPMailTest` DVRIP action (message 1636). It does not save settings; a positive
+camera response means the test was accepted, not that the recipient received
+it. Unsaved form edits are intentionally excluded.
 
 Dedicated editable forms return their current password/key values to JavaScript
 and render them as visible text inputs by explicit homelab design. The raw

@@ -1,3 +1,5 @@
+import {renderPeriodSection} from './period-form.js?v=20261006-1';
+
 export function servicePayloadFromFormData(model, formData) {
     const values = {};
     for (const [name, field] of Object.entries(model.fields)) {
@@ -154,6 +156,10 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         controls.set(name, input);
     }
 
+    const periodSection = model.id === 'human_detection' && model.periods
+        ? renderPeriodSection(form, model.periods)
+        : null;
+
     const refreshDisabledFields = () => {
         const values = {...model.values};
         for (const [name, input] of controls) {
@@ -171,7 +177,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
 
     const note = append(form, 'p', {
         className: 'form-note',
-        text: `Saving reads the latest ${model.branch} object, merges only these fields, writes that complete branch, then reads it back and verifies it.`,
+        text: model.id === 'human_detection'
+            ? 'Saving fresh-reads the detection and shared alert-action branches, merges only changed schedule slots and these controls, then verifies each written branch.'
+            : `Saving reads the latest ${model.branch} object, merges only these fields, writes that complete branch, then reads it back and verifies it.`,
     });
     note.setAttribute('role', 'note');
 
@@ -191,6 +199,11 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         event.preventDefault();
         if (!form.reportValidity()) return;
         pending = servicePayloadFromFormData(model, new FormData(form));
+        if (periodSection) {
+            const changes = periodSection.collectChanges();
+            if (changes === null) return;
+            pending.periodChanges = changes;
+        }
         list.replaceChildren();
         for (const [name, field] of entries) {
             let display = pending[name];
@@ -198,6 +211,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
             else if (field.options) display = serviceOptionLabel(field, String(display));
             if (display === '') display = '(empty)';
             append(list, 'li', {text: `${field.label}: ${display}`});
+        }
+        for (const change of pending.periodChanges || []) {
+            append(list, 'li', {text: periodSection.describe(change)});
         }
         review.hidden = false;
         review.scrollIntoView({behavior: 'smooth', block: 'nearest'});

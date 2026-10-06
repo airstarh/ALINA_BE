@@ -76,6 +76,7 @@ Read-only section-to-command mapping:
 |---|---|---|
 | `CameraApi.smtp(camera)` | `CameraService::smtp()` -> `smtpBranch()` -> `getConfig('NetWork.NetEmail')` | Message **1042**, `{"Name":"NetWork.NetEmail","SessionID":"0x<session>"}`. |
 | `CameraApi.saveSmtp(camera, values)` | `CameraService::updateSmtp()` | Three commands: **1042 get** `NetWork.NetEmail`; **1040 set** payload shown below; **1042 get** the same branch for exact verification. |
+| `CameraApi.testSmtp(camera)` | `CameraService::testSmtp()` -> `getSystemFunction()` -> `smtpBranch()` -> `DvripClient::testMail()` | Check `SupportMailTest`; get **1042** `NetWork.NetEmail`; then send **1636** `Name = OPMailTest` with the saved email settings. No configuration setter is sent. |
 
 The true configuration-set payload shape is:
 
@@ -88,6 +89,28 @@ Payload:
   "NetWork.NetEmail": <complete freshly-read branch with owned fields merged>
 }
 Expected response message: 1041
+```
+
+The test operation uses the camera's saved email settings in this payload shape
+(secret values are represented symbolically):
+
+```text
+DVRIP request message: 1636
+Payload:
+{
+  "Name": "OPMailTest",
+  "SessionID": "0x<session>",
+  "OPMailTest": {
+    "Enable": true,
+    "MailServer": <saved SMTP server object>,
+    "UseSSL": <saved value>,
+    "SendAddr": "<saved sender>",
+    "Recievers": ["<saved recipients>"],
+    "Schedule": <saved schedule>,
+    "Title": "<saved subject>"
+  }
+}
+Expected response message: 1637
 ```
 
 ## Generic dedicated editors
@@ -156,7 +179,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `image_basic` | `Camera.Param` |
 | `image_advanced` | `Camera.ParamEx` |
 | `detection_tracking` | `Detect.DetectTrack` |
-| `human_detection` | `Detect.HumanDetection` |
+| `human_detection` | `Detect.HumanDetection` for detection/rule fields; `Detect.MotionDetect.[0]` for native-CMS Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
 | `motion_detection` | `Detect.MotionDetect` |
 | `blind_detection` | `Detect.BlindDetect` |
 | `video_loss_detection` | `Detect.LossDetect` |

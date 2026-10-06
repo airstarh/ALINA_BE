@@ -206,6 +206,37 @@ test('dvrip_reboot_sends_opmachine_with_message_1450', function (): void {
     assertSameValue(['Action' => 'Reboot'], $payload['OPMachine']);
 });
 
+test('dvrip_mail_test_sends_current_email_config_with_message_1636', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $settings = [
+        'Enable' => true,
+        'MailServer' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'smtp.example.test', 'Password' => 'mail-secret',
+            'Port' => 465, 'UserName' => 'camera@example.test',
+        ],
+        'UseSSL' => true,
+        'SendAddr' => 'camera@example.test',
+        'Recievers' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
+        'Title' => 'Camera test',
+        'Schedule' => ['schedule-fixture'],
+    ];
+    $transport->queue(responsePacket(26, 1637, [
+        'Ret' => 100,
+        'Name' => 'OPMailTest',
+        'SessionID' => '0x0000001A',
+    ], 1));
+
+    assertSameValue(true, $client->testMail($settings));
+    [$header, $payload] = decodedPacket($transport->writes[1]);
+    assertSameValue(1636, $header['message']);
+    assertSameValue('OPMailTest', $payload['Name']);
+    assertSameValue('0x0000001A', $payload['SessionID']);
+    assertSameValue($settings, $payload['OPMailTest']);
+});
+
 test('dvrip_system_getters_use_fixed_message_ids', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();
