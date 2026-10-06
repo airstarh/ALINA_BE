@@ -70,6 +70,14 @@ directly open this arbitrary TCP protocol from a normal browser.
   reports mask `0x00000180`, which advertises H.264 and H.265; its current codec
   is H.264. The UI labels these clearly while submitting the camera's exact
   existing wire strings (`H.264` / `H.265`).
+- Main/extra stream Resolution controls are camera-specific selects populated
+  from the matching `EncodeCapability.EncodeInfo[].ResolutionMask`. Labels are
+  human-readable while option values remain the Xiongmai DVRIP strings (for
+  example `1080P` or `D1`). The live masks decode to Balcon Main `1080P`;
+  Balcon Extra `D1`, `HD1`, `CIF`, `QVGA`; Door Main `720P`, `1080P`, `5M`,
+  `4M`; and Door Extra `D1`, `HD1`, `CIF`, `QVGA`. Stream saves re-check the
+  capability and reject values outside the reported mask, while allowing the
+  exact current value if firmware omits it from the mask.
 - A Wired network editor combines `NetWork.NetCommon` with DHCP on `eth0` and
   exposes static IP, subnet, gateway, and hostname. MAC is read-only.
 

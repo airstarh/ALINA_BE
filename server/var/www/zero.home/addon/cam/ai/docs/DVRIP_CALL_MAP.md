@@ -98,12 +98,14 @@ Expected response message: 1041
 | `CameraApi.saveEditor(camera, editorId, values)` | `CameraService::updateEditor()` -> `NetworkServiceEditor::update()` | Normally: **1042 get branch** -> **1040 set complete merged branch** -> **1042 read-back**. Wi-Fi may additionally get/set/read `NetWork.NetDHCP` for `eth1.Enable`. |
 
 For `main_stream` and `extra_stream`, opening the editor additionally requests
-the camera's encoding capability so the Codec select only offers formats
-advertised for that stream:
+the camera's encoding capability so the Codec and Resolution selects only
+offer values advertised for that stream. Saving re-reads this capability and
+rejects unsupported changed values before issuing a setter:
 
 | JavaScript call | PHP method/function | Raw DVRIP command |
 |---|---|---|
-| `CameraApi.editor(camera, 'main_stream' or 'extra_stream')` | `NetworkServiceEditor::get()` -> `DvripClient::getEncodeCapability()` -> `getNamed()` | Message **1360**, `Name = EncodeCapability`; the matching `EncodeInfo[].CompressionMask` is decoded to the camera's codec wire strings. |
+| `CameraApi.editor(camera, 'main_stream' or 'extra_stream')` | `NetworkServiceEditor::get()` -> `DvripClient::getEncodeCapability()` -> `getNamed()` | Message **1360**, `Name = EncodeCapability`; matching `EncodeInfo[]` `CompressionMask` and `ResolutionMask` are decoded into human-labeled selects with exact DVRIP values. |
+| `CameraApi.saveEditor(camera, 'main_stream' or 'extra_stream', values)` | `NetworkServiceEditor::update()` -> `DvripClient::getEncodeCapability()` before `setConfig()` | Message **1360**, `Name = EncodeCapability`; selected codec/resolution must be in the stream's advertised masks (or equal its current value), otherwise no message **1040** is sent. |
 
 Every generic configuration write has this exact shape:
 

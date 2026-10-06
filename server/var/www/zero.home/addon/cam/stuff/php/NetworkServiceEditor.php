@@ -458,7 +458,7 @@ final class NetworkServiceEditor
         $definition = $this->definition($id);
         $model = $this->model($id, $definition, $this->readBranch($definition));
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
-            $model = $this->withCodecOptions($model);
+            $model = $this->withStreamOptions($model);
         }
         $dhcpIndex = $this->dhcpIndex($id);
         return $dhcpIndex === null
@@ -466,11 +466,9 @@ final class NetworkServiceEditor
             : $this->withDhcp($model, $this->readDhcpInterface($dhcpIndex), $dhcpIndex);
     }
 
-    private function withCodecOptions(array $model): array
+    private function withStreamOptions(array $model): array
     {
-        if (!isset($model['fields']['compression'])
-            || !method_exists($this->reader, 'getEncodeCapability')
-        ) {
+        if (!method_exists($this->reader, 'getEncodeCapability')) {
             return $model;
         }
 
@@ -486,32 +484,40 @@ final class NetworkServiceEditor
         }
 
         $streamType = $model['id'] === 'main_stream' ? 'MainStream' : 'ExtraStream2';
-        $codecs = self::codecNames($capability, $streamType);
-        if ($codecs === []) {
-            return $model;
+        $optionsByField = [
+            'compression' => self::codecNames($capability, $streamType),
+            'resolution' => self::resolutionNames($capability, $streamType),
+        ];
+        foreach ($optionsByField as $field => $options) {
+            if ($options === [] || !isset($model['fields'][$field])) {
+                continue;
+            }
+            $current = (string) ($model['values'][$field] ?? '');
+            if ($current !== '' && !array_key_exists($current, $options)) {
+                $options[$current] = 'Current camera value (not listed as supported)';
+            }
+            $model['fields'][$field]['options'] = array_keys($options);
+            $model['fields'][$field]['optionLabels'] = $options;
         }
-
-        $current = (string) ($model['values']['compression'] ?? '');
-        if ($current !== '' && !array_key_exists($current, $codecs)) {
-            $codecs[$current] = 'Current camera value (not listed as supported)';
-        }
-        $model['fields']['compression']['options'] = array_keys($codecs);
-        $model['fields']['compression']['optionLabels'] = $codecs;
         return $model;
+    }
+
+    private static function encodeInfo(mixed $capability, string $streamType): ?array
+    {
+        if (!is_array($capability) || !isset($capability['EncodeInfo']) || !is_array($capability['EncodeInfo'])) {
+            return null;
+        }
+        foreach ($capability['EncodeInfo'] as $item) {
+            if (is_array($item) && ($item['StreamType'] ?? null) === $streamType) {
+                return $item;
+            }
+        }
+        return null;
     }
 
     private static function codecNames(mixed $capability, string $streamType): array
     {
-        if (!is_array($capability) || !isset($capability['EncodeInfo']) || !is_array($capability['EncodeInfo'])) {
-            return [];
-        }
-        $stream = null;
-        foreach ($capability['EncodeInfo'] as $item) {
-            if (is_array($item) && ($item['StreamType'] ?? null) === $streamType) {
-                $stream = $item;
-                break;
-            }
-        }
+        $stream = self::encodeInfo($capability, $streamType);
         $maskText = is_array($stream) ? ($stream['CompressionMask'] ?? null) : null;
         if (!is_string($maskText) || preg_match('/^0x[0-9a-f]+$/iD', $maskText) !== 1) {
             return [];
@@ -538,6 +544,59 @@ final class NetworkServiceEditor
         return $options;
     }
 
+    private static function resolutionNames(mixed $capability, string $streamType): array
+    {
+        $stream = self::encodeInfo($capability, $streamType);
+        $maskText = is_array($stream) ? ($stream['ResolutionMask'] ?? null) : null;
+        if (!is_string($maskText) || preg_match('/^0x[0-9a-f]+$/iD', $maskText) !== 1) {
+            return [];
+        }
+
+        // ResolutionMask bit positions and values are the Xiongmai resolution enum.
+        $supported = [
+            0 => ['D1', 'D1 (704 × 576 PAL / 704 × 480 NTSC)'],
+            1 => ['HD1', 'HD1 (half-D1)'],
+            2 => ['BCIF', 'BCIF'],
+            3 => ['CIF', 'CIF (352 × 288 PAL / 352 × 240 NTSC)'],
+            4 => ['QCIF', 'QCIF (176 × 144 PAL / 176 × 120 NTSC)'],
+            5 => ['VGA', 'VGA (640 × 480)'],
+            6 => ['QVGA', 'QVGA (320 × 240)'],
+            7 => ['SVCD', 'SVCD'],
+            8 => ['QQVGA', 'QQVGA (160 × 120)'],
+            9 => ['ND1', 'ND1'],
+            10 => ['650TVL', '650 TVL'],
+            11 => ['720P', '720p (1280 × 720)'],
+            12 => ['1_3M', '1.3 megapixel'],
+            13 => ['UXGA', 'UXGA (1600 × 1200)'],
+            14 => ['1080P', '1080p (1920 × 1080)'],
+            15 => ['WUXGA', 'WUXGA (1920 × 1200)'],
+            16 => ['2_5M', '2.5 megapixel'],
+            17 => ['3M', '3 megapixel'],
+            18 => ['5M', '5 megapixel'],
+            19 => ['1080N', '1080N'],
+            20 => ['4M', '4 megapixel'],
+            21 => ['6M', '6 megapixel'],
+            22 => ['8M', '8 megapixel'],
+            23 => ['12M', '12 megapixel'],
+            24 => ['4K', '4K / 8 megapixel'],
+            25 => ['720N', '720N'],
+            26 => ['WSVGA', 'WSVGA'],
+            27 => ['NHD', 'nHD (640 × 360)'],
+            28 => ['3M_N', '3M-N'],
+            29 => ['4M_N', '4M-N'],
+            30 => ['5M_N', '5M-N'],
+            31 => ['4K_N', '4K-N'],
+        ];
+        $mask = (int) hexdec(substr($maskText, 2));
+        $options = [];
+        foreach ($supported as $bit => [$wireValue, $label]) {
+            if (($mask & (1 << $bit)) !== 0) {
+                $options[$wireValue] = $label;
+            }
+        }
+        return $options;
+    }
+
     public function update(string $id, array $input): array
     {
         $definition = $this->definition($id);
@@ -547,6 +606,9 @@ final class NetworkServiceEditor
         }
         $clean = $this->validate($definition, $input);
         $current = $this->readBranch($definition);
+        if (in_array($id, ['main_stream', 'extra_stream'], true)) {
+            $this->validateStreamOptions($id, $definition, $current, $clean);
+        }
         $dhcp = $dhcpIndex === null ? null : $this->readDhcpInterface($dhcpIndex);
         $updated = $current;
 
@@ -583,6 +645,37 @@ final class NetworkServiceEditor
             );
         }
         return $this->withDhcp($model, $verifiedDhcp, $dhcpIndex);
+    }
+
+    private function validateStreamOptions(string $id, array $definition, array $current, array $input): void
+    {
+        if (!method_exists($this->reader, 'getEncodeCapability')) {
+            return;
+        }
+        try {
+            $capability = $this->reader->getEncodeCapability();
+        } catch (DvripException $exception) {
+            if (in_array($exception->publicCode(), [
+                'device_unsupported', 'device_config_missing', 'device_error',
+            ], true)) {
+                return;
+            }
+            throw $exception;
+        }
+        $streamType = $id === 'main_stream' ? 'MainStream' : 'ExtraStream2';
+        $options = [
+            'compression' => self::codecNames($capability, $streamType),
+            'resolution' => self::resolutionNames($capability, $streamType),
+        ];
+        foreach ($options as $name => $supported) {
+            if ($supported === [] || !isset($definition['fields'][$name])) {
+                continue;
+            }
+            $currentValue = $this->getPath($current, $definition['fields'][$name]['path']);
+            if ($input[$name] !== $currentValue && !array_key_exists($input[$name], $supported)) {
+                throw new InvalidArgumentException("Field {$name} is not supported by this camera stream.");
+            }
+        }
     }
 
     private function readDhcpInterface(int $index): array
