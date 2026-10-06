@@ -88,7 +88,7 @@ function loggedInClient(FixtureDvripTransport $transport, int $session = 26): Dv
         'AliveInterval' => 20,
         'DeviceType ' => 'Fixture',
     ]));
-    $client = new DvripClient($transport);
+    $client = new DvripClient($transport, 2_097_152, 0);
     $client->login('fixture-user', '');
     return $client;
 }
@@ -186,6 +186,24 @@ test('dvrip_set_config_surfaces_camera_rejection', function (): void {
         DvripException::class
     );
     assertSameValue('device_error', $exception->publicCode());
+});
+
+test('dvrip_reboot_sends_opmachine_with_message_1450', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $transport->queue(responsePacket(26, 1451, [
+        'Ret' => 100,
+        'Name' => 'OPMachine',
+        'SessionID' => '0x0000001A',
+    ], 1));
+
+    assertSameValue(true, $client->reboot());
+    [$header, $payload] = decodedPacket($transport->writes[1]);
+    assertSameValue(1450, $header['message']);
+    assertSameValue('OPMachine', $payload['Name']);
+    assertSameValue('0x0000001A', $payload['SessionID']);
+    assertSameValue(['Action' => 'Reboot'], $payload['OPMachine']);
 });
 
 test('dvrip_system_getters_use_fixed_message_ids', function (): void {

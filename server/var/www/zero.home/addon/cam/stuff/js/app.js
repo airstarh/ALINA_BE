@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261006-2';
+import {CameraApi, CameraApiError} from './api.js?v=20261006-3';
 import {
     chooseDefaultCamera,
     markActiveSection,
@@ -16,6 +16,7 @@ const elements = {
     form: document.querySelector('#camera-form'),
     select: document.querySelector('#camera-select'),
     connect: document.querySelector('#connect-button'),
+    reboot: document.querySelector('#reboot-button'),
     status: document.querySelector('#connection-status'),
     dashboard: document.querySelector('#dashboard'),
     identity: document.querySelector('#camera-identity'),
@@ -36,6 +37,7 @@ const setActiveSection = (sectionId) => {
 
 const setBusy = (busy) => {
     elements.connect.disabled = busy;
+    elements.reboot.disabled = busy || !activeCamera;
     elements.select.disabled = busy;
     elements.refresh.disabled = busy || !activeSection;
     elements.loadAll.disabled = busy || !activeCamera;
@@ -221,6 +223,25 @@ const connect = async () => {
 elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     connect();
+});
+
+elements.reboot.addEventListener('click', async () => {
+    if (!activeCamera || !window.confirm('Reboot the selected camera now? It will be unavailable temporarily.')) {
+        return;
+    }
+    const token = guard.begin(activeCamera);
+    setBusy(true);
+    showStatus('Sending reboot command…');
+    try {
+        await api.reboot(activeCamera);
+        if (!guard.isCurrent(token)) return;
+        elements.dashboard.hidden = true;
+        showStatus('Reboot accepted. Wait for the camera to start, then click Connect.', 'ok');
+    } catch (error) {
+        if (guard.isCurrent(token)) showError(error);
+    } finally {
+        if (guard.isCurrent(token)) setBusy(false);
+    }
 });
 
 elements.refresh.addEventListener('click', () => {

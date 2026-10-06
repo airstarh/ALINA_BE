@@ -38,7 +38,7 @@ final class Api
             $action = $query['action'] ?? null;
             if (!is_string($action) || !in_array($action, [
                 'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save',
-                'editors', 'editor', 'editor-save', 'wifi-aps',
+                'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
@@ -65,11 +65,7 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
-            if ($action === 'editors') {
-                return $this->success(CameraService::editorList());
-            }
-
-            if (in_array($action, ['smtp-save', 'editor-save'], true)
+            if (in_array($action, ['smtp-save', 'editor-save', 'reboot'], true)
                 && strtoupper($method) !== 'POST'
             ) {
                 return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
@@ -87,9 +83,11 @@ final class Api
                     'config' => $this->handleConfig($service, $query),
                     'smtp' => $service->smtp(),
                     'smtp-save' => $service->updateSmtp($body ?? []),
+                    'editors' => $service->availableEditors(),
                     'editor' => $service->editor($this->editorId($query)),
                     'editor-save' => $service->updateEditor($this->editorId($query), $body ?? []),
                     'wifi-aps' => $service->wifiAccessPoints(),
+                    'reboot' => $service->reboot(),
                 };
                 return $this->success($data);
             } finally {
@@ -239,7 +237,7 @@ function runProductionApi(
         $action = $query['action'] ?? null;
         $cameraId = $query['camera'] ?? null;
         if (in_array($action, [
-            'status', 'config', 'smtp', 'smtp-save', 'editor', 'editor-save',
+            'status', 'config', 'smtp', 'smtp-save', 'editors', 'editor', 'editor-save', 'reboot',
         ], true)
             && is_string($cameraId)
             && $cameraId !== ''

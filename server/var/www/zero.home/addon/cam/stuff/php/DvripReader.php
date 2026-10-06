@@ -16,5 +16,7 @@ interface DvripReader
 
     public function getSystemFunction(): array;
 
+    public function reboot(): bool;
+
     public function close(): void;
 }

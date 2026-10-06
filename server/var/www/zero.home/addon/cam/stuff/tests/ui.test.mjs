@@ -231,6 +231,20 @@ test('camera API requests the Balcon Wi-Fi access-point scan', async () => {
     assert.equal(requestedUrl, '/api.php?action=wifi-aps&camera=balcon');
 });
 
+test('camera API posts the reboot action', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let request = null;
+    const api = new CameraApi('/api.php', async (url, options) => {
+        request = {url, options};
+        return response({accepted: true});
+    });
+
+    await api.reboot('balcon');
+    assert.equal(request.url, '/api.php?action=reboot&camera=balcon');
+    assert.equal(request.options.method, 'POST');
+    assert.deepEqual(JSON.parse(request.options.body), {confirm: true});
+});
+
 test('Wi-Fi access-point selection populates compatible form values', async () => {
     const {wifiValuesFromAccessPoint} = await import(await moduleUrl('service-form.js'));
     assert.deepEqual(wifiValuesFromAccessPoint(

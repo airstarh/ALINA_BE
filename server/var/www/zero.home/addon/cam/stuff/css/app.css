@@ -67,6 +67,8 @@ button { padding: 0 1rem; cursor: pointer; font-weight: 650; }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { cursor: wait; opacity: .48; }
 #connect-button { border-color: #4ba990; background: var(--accent-dark); }
+.danger-button { border-color: #a85555; color: #ffb4b4; }
+.danger-button:hover:not(:disabled) { border-color: #ef7777; background: #552d32; }
 
 main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .connection-status { min-height: 1.5rem; color: var(--muted); }

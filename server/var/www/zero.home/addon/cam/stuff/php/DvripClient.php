@@ -20,6 +20,7 @@ final class DvripClient implements DvripReader
     public function __construct(
         private DvripTransport $transport,
         int $maxPayloadBytes = 2_097_152,
+        private int $rebootHoldMicroseconds = 12_000_000,
     ) {
         $this->codec = new DvripPacketCodec($maxPayloadBytes);
     }
@@ -101,6 +102,30 @@ final class DvripClient implements DvripReader
             throw new DvripException('protocol_command', 'SystemFunction response has an invalid shape.');
         }
         return $value;
+    }
+
+    public function reboot(): bool
+    {
+        $this->ensureLoggedIn();
+
+        try {
+            $response = $this->request(1450, [
+                'Name' => 'OPMachine',
+                'SessionID' => sprintf('0x%08X', $this->session),
+                'OPMachine' => ['Action' => 'Reboot'],
+            ]);
+            $this->assertSuccess($response);
+            if (isset($response['Name']) && $response['Name'] !== 'OPMachine') {
+                throw new DvripException('protocol_identity', 'DVRIP reboot response does not match.');
+            }
+            if ($this->rebootHoldMicroseconds > 0) {
+                usleep($this->rebootHoldMicroseconds);
+            }
+            return true;
+        } catch (Throwable $exception) {
+            $this->close();
+            throw $exception;
+        }
     }
 
     public function close(): void

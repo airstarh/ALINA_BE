@@ -65,6 +65,12 @@ function fixtureCameraService(?object &$reader = null): CameraService
             return $this->systemFunction;
         }
 
+        public function reboot(): bool
+        {
+            $this->calls[] = 'Reboot';
+            return true;
+        }
+
         public function close(): void
         {
         }
@@ -83,6 +89,13 @@ test('camera_service_lists_exact_safe_sections', function (): void {
         ],
         array_column($service->sections(), 'id')
     );
+});
+
+test('camera_service_reboots_camera', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    assertSameValue(['accepted' => true], $service->reboot());
+    assertSameValue(['Reboot'], $reader->calls);
 });
 
 test('camera_service_rejects_arbitrary_section', function (): void {

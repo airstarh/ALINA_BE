@@ -63,6 +63,13 @@ export class CameraApi {
         return this.#request({action: 'wifi-aps', camera: cameraId});
     }
 
+    reboot(cameraId) {
+        return this.#request(
+            {action: 'reboot', camera: cameraId},
+            {method: 'POST', body: {confirm: true}}
+        );
+    }
+
     abortActive() {
         this.#controller?.abort();
         this.#controller = null;

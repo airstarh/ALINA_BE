@@ -52,6 +52,14 @@ final class CameraService
         return NetworkServiceEditor::list();
     }
 
+    public function availableEditors(): array
+    {
+        return (new NetworkServiceEditor($this->reader))->available(
+            $this->reader->getSystemFunction(),
+            $this->reader->getSystemInfo(),
+        );
+    }
+
     public function editor(string $id): array
     {
         return (new NetworkServiceEditor($this->reader))->get($id);
@@ -68,6 +76,12 @@ final class CameraService
             'camera' => ['id' => $this->cameraId, 'name' => $this->cameraName],
             'system' => $this->sanitize($this->reader->getSystemInfo()),
         ];
+    }
+
+    public function reboot(): array
+    {
+        $this->reader->reboot();
+        return ['accepted' => true];
     }
 
     public function wifiAccessPoints(): array

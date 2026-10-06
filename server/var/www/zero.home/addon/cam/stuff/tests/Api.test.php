@@ -51,6 +51,7 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
     $factoryCalls = 0;
     $reader = new class implements DvripReader {
         public bool $closed = false;
+        public bool $rebooted = false;
         public array $configValues = [];
         public array $smtp = [
             'Enable' => false,
@@ -108,6 +109,12 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
             return ['NetServerFunction' => []];
         }
 
+        public function reboot(): bool
+        {
+            $this->rebooted = true;
+            return true;
+        }
+
         public function close(): void
         {
             $this->closed = true;
@@ -140,6 +147,23 @@ test('api_lists_public_cameras_without_connecting', function (): void {
         assertSameValue(0, $calls);
     } finally {
         unlink($path);
+    }
+});
+
+test('api_reboots_camera_only_via_post', function (): void {
+    [$api, $path] = fixtureApi($factoryCalls, $reader);
+    try {
+        assertSameValue(405, $api->handle(
+            ['action' => 'reboot', 'camera' => 'balcon'], null, 'GET'
+        )['status']);
+        $response = $api->handle(
+            ['action' => 'reboot', 'camera' => 'balcon'], [], 'POST'
+        );
+        assertSameValue(200, $response['status']);
+        assertSameValue(['accepted' => true], $response['body']['data']);
+        assertSameValue(true, $reader->rebooted);
+    } finally {
+        @unlink($path);
     }
 });
 
@@ -292,16 +316,26 @@ test('api_saves_smtp_only_from_posted_json_body', function (): void {
     }
 });
 
-test('api_lists_sixty_seven_editors_without_connecting', function (): void {
-    [$api, $path] = fixtureApi($calls);
+test('api_discovers_supported_editors_using_the_selected_camera', function (): void {
+    [$api, $path] = fixtureApi($calls, $reader);
+    $reader->configValues['NetWork.NetFTP'] = [
+        'Directory' => '', 'Enable' => false, 'MaxFileLen' => 128,
+        'Server' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'ftp.example.test', 'Password' => 'keep-me',
+            'Port' => 21, 'UserName' => 'camera',
+        ],
+    ];
+    $reader->configValues['NetWork'] = [
+        'NetFTP' => $reader->configValues['NetWork.NetFTP'],
+    ];
     try {
         $response = $api->handle(['action' => 'editors', 'camera' => 'balcon']);
         assertSameValue(200, $response['status']);
         $ids = array_column($response['body']['data'], 'id');
-        assertSameValue(67, count($ids));
-        assertSameValue('ftp', $ids[0]);
-        assertSameValue('rs485', $ids[66]);
-        assertSameValue(0, $calls);
+        assertSameValue(['ftp'], $ids);
+        assertSameValue(1, $calls);
+        assertSameValue(true, $reader->closed);
     } finally {
         unlink($path);
     }

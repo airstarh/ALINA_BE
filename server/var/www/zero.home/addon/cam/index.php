@@ -8,7 +8,7 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Camera Configuration</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261006-2">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261006-3">
 </head>
 <body>
 <header class="app-header">
@@ -21,6 +21,7 @@ declare(strict_types=1);
         <label for="camera-select">Camera</label>
         <select id="camera-select" name="camera" aria-describedby="connection-status"></select>
         <button id="connect-button" type="submit">Connect</button>
+        <button id="reboot-button" class="danger-button" type="button" disabled>Reboot camera</button>
     </form>
 </header>
 
@@ -57,6 +58,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261006-2"></script>
+<script type="module" src="./stuff/js/app.js?v=20261006-4"></script>
 </body>
 </html>

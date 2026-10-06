@@ -411,6 +411,34 @@ final class NetworkServiceEditor
         );
     }
 
+    public function available(array $capabilities, array $systemInfo): array
+    {
+        $available = [];
+        $families = [];
+        foreach (self::definitions() as $id => $definition) {
+            if ($this->isHardwareInapplicable($id, $capabilities, $systemInfo)) {
+                continue;
+            }
+            try {
+                $branch = $this->discoveryBranch($definition['branch'], $families);
+                $this->model($id, $definition, $branch);
+                if ($id === 'wifi') {
+                    $this->validateWifiDhcp(
+                        $this->discoveryBranch('NetWork.NetDHCP', $families)
+                    );
+                }
+                $available[] = ['id' => $id, 'name' => $definition['label']];
+            } catch (DvripException $exception) {
+                if (!in_array($exception->publicCode(), [
+                    'device_unsupported', 'device_config_missing', 'device_error',
+                ], true)) {
+                    throw $exception;
+                }
+            }
+        }
+        return $available;
+    }
+
     public function get(string $id): array
     {
         $definition = $this->definition($id);
@@ -463,7 +491,11 @@ final class NetworkServiceEditor
 
     private function readWifiDhcp(): array
     {
-        $branch = $this->reader->getConfig('NetWork.NetDHCP');
+        return $this->validateWifiDhcp($this->reader->getConfig('NetWork.NetDHCP'));
+    }
+
+    private function validateWifiDhcp(mixed $branch): array
+    {
         if (!is_array($branch)
             || !isset($branch[1])
             || !is_array($branch[1])
@@ -497,6 +529,53 @@ final class NetworkServiceEditor
     private static function definitions(): array
     {
         return self::DEFINITIONS + ExtendedEditorDefinitions::get();
+    }
+
+    private function isHardwareInapplicable(string $id, array $capabilities, array $systemInfo): bool
+    {
+        $network = $capabilities['NetServerFunction'] ?? [];
+        $other = $capabilities['OtherFunction'] ?? [];
+
+        return match ($id) {
+            'wifi', 'wifi_signal' => ($network['NetWifi'] ?? false) !== true,
+            'white_light' => ($other['SupportCameraWhiteLight'] ?? false) !== true,
+            'snapshot', 'recording' => ($other['NOHDDRECORD'] ?? false) === true,
+            'alarm_output' => ($systemInfo['AlarmOutChannel'] ?? null) === 0,
+            'local_alarm' => ($systemInfo['AlarmInChannel'] ?? null) === 0,
+            default => false,
+        };
+    }
+
+    private function discoveryBranch(string $branch, array &$families): array
+    {
+        $family = $branch === 'Simplify.Encode'
+            ? $branch
+            : explode('.', $branch, 2)[0];
+        if (!array_key_exists($family, $families)) {
+            try {
+                $families[$family] = ['value' => $this->reader->getConfig($family)];
+            } catch (DvripException $exception) {
+                $families[$family] = ['error' => $exception];
+            }
+        }
+        if (isset($families[$family]['error'])) {
+            throw $families[$family]['error'];
+        }
+
+        $value = $families[$family]['value'];
+        if ($branch !== $family) {
+            $value = $this->getPath(
+                is_array($value) ? $value : [],
+                explode('.', substr($branch, strlen($family) + 1))
+            );
+        }
+        if (!is_array($value)) {
+            throw new DvripException(
+                'device_config_missing',
+                'Camera returned an invalid configuration branch.'
+            );
+        }
+        return $value;
     }
 
     private function readBranch(array $definition): array

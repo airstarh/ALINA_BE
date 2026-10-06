@@ -18,7 +18,10 @@ into this directory, application source, command examples, or browser-side code.
 
 ## Investigations
 
+- [Current implementation and hand-off state](CURRENT_STATE.md)
+- [JavaScript → PHP → raw DVRIP call map](DVRIP_CALL_MAP.md)
 - [Balcon camera](balcon-discovery.md)
+- [Door camera and automatic editor discovery](door-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)
 - [Balcon configuration SPA design](2026-10-05-cam-spa-design.md)
 - [Balcon configuration SPA implementation plan](2026-10-05-cam-spa-implementation-plan.md)
@@ -57,6 +60,12 @@ In short: `DvripClient::request()` performs a logical DVRIP request;
 `stream_socket_client()`, `fwrite()`, and `fread()` are the underlying PHP
 network machinery. These are standard PHP stream functions and require no
 additional library or continuously running camera worker.
+
+The header also provides a dedicated **Reboot camera** button after a camera is
+selected. It requires browser confirmation and calls a POST-only API action.
+The backend sends DVRIP message 1450 with `OPMachine.Action = Reboot`, then
+keeps the control connection open briefly because this firmware may cancel a
+reboot when the requesting client disconnects immediately.
 
 ## First writable form: Email / SMTP
 
@@ -134,3 +143,18 @@ editors. Status, capability, definition-table, account, firmware, reboot,
 factory-reset, and other action-oriented nodes remain available only where
 appropriate in the read-only explorer; they are deliberately not generic
 editable forms.
+
+## Per-camera automatic discovery
+
+The editor catalogue is now computed for the selected camera. The backend
+reads capability/system information and probes each required configuration
+family with getters only, then returns only editors whose branches and owned
+field paths are valid. Shared top-level families are read once per discovery,
+so repeated pages such as DDNS providers and alarm servers do not repeat DVRIP
+requests. Missing/unsupported/device-error branches are omitted; transport
+failures remain visible as connection errors.
+
+Hardware capability checks suppress misleading template branches. In
+particular, Door contains an inert `NetWork.Wifi` object but does not advertise
+`NetWifi`, so its Wi-Fi pages are hidden automatically. Balcon continues to
+show them. See [Door camera and automatic editor discovery](door-discovery.md).

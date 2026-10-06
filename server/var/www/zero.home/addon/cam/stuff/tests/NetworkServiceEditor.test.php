@@ -20,6 +20,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
     loadNetworkServiceEditorClass();
     $reader = new class implements DvripReader {
         public array $values = [];
+        public array $errors = [];
         public array $calls = [];
         public bool $persistWrites = true;
         public bool $normalizeBalconWifiWrites = false;
@@ -27,6 +28,9 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public function getConfig(string $command): mixed
         {
             $this->calls[] = ['get', $command];
+            if (isset($this->errors[$command])) {
+                throw $this->errors[$command];
+            }
             return $this->values[$command] ?? null;
         }
 
@@ -46,6 +50,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public function getSystemInfo(): array { return []; }
         public function getInfo(string $command): mixed { return null; }
         public function getSystemFunction(): array { return []; }
+        public function reboot(): bool { return true; }
         public function close(): void {}
     };
     return new NetworkServiceEditor($reader);
@@ -72,6 +77,62 @@ test('network_editor_lists_exact_sixty_seven_allowlisted_forms', function (): vo
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
+});
+
+test('network_editor_discovers_only_supported_forms_and_rejects_dummy_wifi', function (): void {
+    $editor = networkEditorFixture($reader);
+    $fixtures = networkBranchFixtures();
+    $reader->values = $fixtures + rootFamilyFixtures($fixtures);
+    unset($reader->values['Detect']['DetectTrack']);
+
+    $available = $editor->available([
+        'NetServerFunction' => ['WifiRouteSignalLevel' => true],
+        'OtherFunction' => ['NOHDDRECORD' => true],
+    ], [
+        'AlarmInChannel' => 0,
+        'AlarmOutChannel' => 0,
+    ]);
+    $ids = array_column($available, 'id');
+
+    assertTrueValue(in_array('ftp', $ids, true));
+    assertTrueValue(!in_array('wifi', $ids, true));
+    assertTrueValue(!in_array('wifi_signal', $ids, true));
+    assertTrueValue(!in_array('white_light', $ids, true));
+    assertTrueValue(!in_array('detection_tracking', $ids, true));
+    assertTrueValue(!in_array('snapshot', $ids, true));
+    assertTrueValue(!in_array('recording', $ids, true));
+    assertTrueValue(!in_array('alarm_output', $ids, true));
+    assertTrueValue(!in_array('local_alarm', $ids, true));
+});
+
+test('network_editor_discovery_does_not_hide_transport_failures', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values = networkBranchFixtures();
+    $reader->errors['NetWork'] = new DvripException('transport_timeout', 'timeout');
+
+    $exception = assertThrows(
+        static fn () => $editor->available([], []),
+        DvripException::class
+    );
+    assertSameValue('transport_timeout', $exception->publicCode());
+});
+
+test('network_editor_discovery_reads_each_configuration_family_once', function (): void {
+    $editor = networkEditorFixture($reader);
+    $fixtures = networkBranchFixtures();
+    $reader->values = $fixtures + rootFamilyFixtures($fixtures);
+
+    $editor->available([
+        'NetServerFunction' => ['NetWifi' => true],
+        'OtherFunction' => ['SupportCameraWhiteLight' => true],
+    ], []);
+
+    $networkCalls = array_values(array_filter(
+        $reader->calls,
+        static fn (array $call): bool => $call[0] === 'get'
+            && ($call[1] === 'NetWork' || str_starts_with($call[1], 'NetWork.'))
+    ));
+    assertSameValue([['get', 'NetWork']], $networkCalls);
 });
 
 test('network_editor_returns_current_ftp_password_in_editable_model', function (): void {
@@ -354,4 +415,18 @@ function networkBranchFixtures(): array
         'Detect.DetectTrack' => ['Sensitivity' => 1],
         'Detect.HumanDetection' => [['Enable' => true, 'ObjectType' => 0, 'PedFdrAlg' => 0, 'PedRule' => [['Enable' => true]], 'PushInterval' => 3000, 'Sensitivity' => 1, 'ShowRule' => 0, 'ShowTrack' => 1]],
     ];
+}
+
+function rootFamilyFixtures(array $branches): array
+{
+    $roots = [];
+    foreach ($branches as $branch => $value) {
+        if ($branch === 'Simplify.Encode' || !str_contains($branch, '.')) {
+            $roots[$branch] = $value;
+            continue;
+        }
+        [$root, $child] = explode('.', $branch, 2);
+        $roots[$root][$child] = $value;
+    }
+    return $roots;
 }
