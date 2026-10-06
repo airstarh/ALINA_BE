@@ -88,6 +88,11 @@ final class DvripClient implements DvripReader
         return $value;
     }
 
+    public function getInfo(string $command): mixed
+    {
+        return $this->getNamed(1020, $command);
+    }
+
     public function getSystemFunction(): array
     {
         $value = $this->getNamed(1360, 'SystemFunction');

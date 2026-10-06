@@ -26,6 +26,7 @@ function fixtureCameraService(?object &$reader = null): CameraService
         public array $configErrors = [];
         public array $systemInfo = [];
         public array $systemFunction = [];
+        public array $infoValues = [];
         public bool $persistWrites = true;
 
         public function getConfig(string $command): mixed
@@ -50,6 +51,12 @@ function fixtureCameraService(?object &$reader = null): CameraService
         {
             $this->calls[] = 'SystemInfo';
             return $this->systemInfo;
+        }
+
+        public function getInfo(string $command): mixed
+        {
+            $this->calls[] = ['info', $command];
+            return $this->infoValues[$command] ?? null;
         }
 
         public function getSystemFunction(): array
@@ -99,6 +106,25 @@ test('camera_service_maps_section_to_verified_getter', function (): void {
     assertSameValue(['NetWork'], $reader->calls);
 });
 
+test('camera_service_returns_sanitized_wifi_access_points', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->infoValues['WifiAP'] = [
+        'Numbers' => 2,
+        'WifiAP' => [
+            ['SSID' => 'q001', 'Auth' => 'WPA2PSK', 'EncrypType' => 'AES', 'Channel' => 8, 'NetType' => 'Infra', 'RSSI' => 'VeryGood'],
+            ['SSID' => '', 'Auth' => 'WPA2PSK', 'EncrypType' => 'AES', 'Channel' => 9, 'NetType' => 'Infra', 'RSSI' => 'Good'],
+        ],
+    ];
+
+    $result = $service->wifiAccessPoints();
+    assertSameValue(2, $result['count']);
+    assertSameValue('q001', $result['accessPoints'][0]['ssid']);
+    assertSameValue('WPA2PSK', $result['accessPoints'][0]['authentication']);
+    assertSameValue('', $result['accessPoints'][1]['ssid']);
+    assertSameValue([['info', 'WifiAP']], $reader->calls);
+});
+
 test('camera_service_sanitizes_status_and_nested_secrets', function (): void {
     loadCameraServiceClasses();
     $service = fixtureCameraService($reader);
@@ -112,6 +138,7 @@ test('camera_service_sanitizes_status_and_nested_secrets', function (): void {
             'AccessToken' => 'hidden',
             'ClientSecret' => 'hidden',
             'WifiKey' => 'hidden',
+            'Keys' => 'hidden-wifi-key',
             'UserName' => 'operator',
             'ServerAddr' => '192.0.2.25',
             'Email' => 'operator@example.test',
@@ -132,6 +159,7 @@ test('camera_service_sanitizes_status_and_nested_secrets', function (): void {
     assertSameValue('[redacted]', $status['system']['Nested']['AccessToken']);
     assertSameValue('[redacted]', $status['system']['Nested']['ClientSecret']);
     assertSameValue('[redacted]', $status['system']['Nested']['WifiKey']);
+    assertSameValue('[redacted]', $status['system']['Nested']['Keys']);
     assertSameValue('operator', $status['system']['Nested']['UserName']);
     assertSameValue('192.0.2.25', $status['system']['Nested']['ServerAddr']);
     assertSameValue('operator@example.test', $status['system']['Nested']['Email']);
@@ -179,7 +207,7 @@ test('camera_service_all_isolates_unsupported_and_timeout_sections', function ()
     assertSameValue(true, $all['detection']['ok']);
 });
 
-test('camera_service_returns_typed_smtp_model_without_password', function (): void {
+test('camera_service_returns_current_smtp_password_in_editable_model', function (): void {
     loadCameraServiceClasses();
     $service = fixtureCameraService($reader);
     $reader->configValues['NetWork.NetEmail'] = smtpFixture();
@@ -189,7 +217,7 @@ test('camera_service_returns_typed_smtp_model_without_password', function (): vo
         'server' => 'smtp.example.test',
         'port' => 25,
         'username' => 'camera@example.test',
-        'passwordConfigured' => true,
+        'password' => 'keep-me',
         'useSsl' => 0,
         'sendAddress' => 'camera@example.test',
         'recipients' => ['alerts@example.test', 'none', 'none', 'none', 'none'],
@@ -197,7 +225,7 @@ test('camera_service_returns_typed_smtp_model_without_password', function (): vo
     ], $service->smtp());
 });
 
-test('camera_service_smtp_update_preserves_password_and_unedited_fields', function (): void {
+test('camera_service_smtp_update_clears_empty_password_and_preserves_unedited_fields', function (): void {
     loadCameraServiceClasses();
     $service = fixtureCameraService($reader);
     $reader->configValues['NetWork.NetEmail'] = smtpFixture();
@@ -217,13 +245,13 @@ test('camera_service_smtp_update_preserves_password_and_unedited_fields', functi
     $write = $reader->calls[1];
     assertSameValue('set', $write[0]);
     assertSameValue('NetWork.NetEmail', $write[1]);
-    assertSameValue('keep-me', $write[2]['MailServer']['Password']);
+    assertSameValue('', $write[2]['MailServer']['Password']);
     assertSameValue('0x00000000', $write[2]['MailServer']['Address']);
     assertSameValue(['schedule-fixture'], $write[2]['Schedule']);
     assertSameValue(['one@example.test', 'two@example.test', 'none', 'none', 'none'], $write[2]['Recievers']);
     assertSameValue(true, $result['enable']);
     assertSameValue(587, $result['port']);
-    assertSameValue(true, $result['passwordConfigured']);
+    assertSameValue('', $result['password']);
     assertSameValue(['NetWork.NetEmail', $reader->calls[1], 'NetWork.NetEmail'], $reader->calls);
 });
 

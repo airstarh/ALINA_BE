@@ -203,6 +203,24 @@ test('dvrip_system_getters_use_fixed_message_ids', function (): void {
     assertSameValue(1360, $functionHeader['message']);
 });
 
+test('dvrip_info_getter_uses_message_1020_for_wifi_ap_scan', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport);
+    $transport->queue(responsePacket(26, 1021, [
+        'Ret' => 100, 'Name' => 'WifiAP',
+        'WifiAP' => ['Numbers' => 1, 'WifiAP' => [['SSID' => 'fixture']]],
+    ], 1));
+
+    assertSameValue(
+        ['Numbers' => 1, 'WifiAP' => [['SSID' => 'fixture']]],
+        $client->getInfo('WifiAP')
+    );
+    [$header, $payload] = decodedPacket($transport->writes[1]);
+    assertSameValue(1020, $header['message']);
+    assertSameValue('WifiAP', $payload['Name']);
+});
+
 test('dvrip_login_rejects_bad_credentials', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

@@ -174,7 +174,7 @@ test('camera API posts SMTP changes as JSON', async () => {
     assert.deepEqual(JSON.parse(request.options.body), smtp);
 });
 
-test('SMTP form payload keeps blank password and removes empty recipients', async () => {
+test('SMTP form payload submits blank password to clear it and removes empty recipients', async () => {
     const {smtpPayloadFromFormData} = await import(await moduleUrl('smtp-form.js'));
     const fields = new FormData();
     fields.set('enable', 'on');
@@ -220,7 +220,28 @@ test('camera API reads and posts a named network editor', async () => {
     assert.deepEqual(JSON.parse(requests[1].options.body), {enable: false});
 });
 
-test('network service form payload preserves schema types and blank password', async () => {
+test('camera API requests the Balcon Wi-Fi access-point scan', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let requestedUrl = '';
+    const api = new CameraApi('/api.php', async (url) => {
+        requestedUrl = url;
+        return response({count: 0, accessPoints: []});
+    });
+    await api.wifiAccessPoints('balcon');
+    assert.equal(requestedUrl, '/api.php?action=wifi-aps&camera=balcon');
+});
+
+test('Wi-Fi access-point selection populates compatible form values', async () => {
+    const {wifiValuesFromAccessPoint} = await import(await moduleUrl('service-form.js'));
+    assert.deepEqual(wifiValuesFromAccessPoint(
+        {enable: true, ssid: 'old', auth: 'Code 1', encryption: 'Code 6', channel: 0, networkType: 'Infra'},
+        {ssid: 'q001', authentication: 'WPA2PSK', encryption: 'AES', channel: 8, networkType: 'Infra'}
+    ), {
+        enable: true, ssid: 'q001', auth: 'WPA2PSK', encryption: 'AES', channel: 8, networkType: 'Infra',
+    });
+});
+
+test('network service form payload submits blank password to clear it', async () => {
     const {servicePayloadFromFormData} = await import(await moduleUrl('service-form.js'));
     const model = {
         fields: {
@@ -242,6 +263,52 @@ test('network service form payload preserves schema types and blank password', a
         port: 2121,
         password: '',
     });
+});
+
+test('network service payload preserves disabled values omitted by FormData', async () => {
+    const {servicePayloadFromFormData} = await import(await moduleUrl('service-form.js'));
+    const model = {
+        fields: {
+            dhcp: {type: 'boolean'},
+            keyType: {type: 'integer', disabled: true},
+            hostIp: {type: 'ipv4-little-endian', disableWhen: 'dhcp'},
+        },
+        values: {dhcp: true, keyType: 1, hostIp: '192.168.1.112'},
+    };
+    const fields = new FormData();
+    fields.set('dhcp', 'on');
+
+    assert.deepEqual(servicePayloadFromFormData(model, fields), {
+        dhcp: true,
+        keyType: 1,
+        hostIp: '192.168.1.112',
+    });
+});
+
+test('Wi-Fi static fields are disabled by DHCP while key type is always locked', async () => {
+    const {isServiceFieldDisabled} = await import(await moduleUrl('service-form.js'));
+    assert.equal(isServiceFieldDisabled({disabled: true}, {dhcp: false}), true);
+    assert.equal(isServiceFieldDisabled({disableWhen: 'dhcp'}, {dhcp: true}), true);
+    assert.equal(isServiceFieldDisabled({disableWhen: 'dhcp'}, {dhcp: false}), false);
+});
+
+test('service select labels hide backend values from humans', async () => {
+    const {serviceOptionLabel} = await import(await moduleUrl('service-form.js'));
+    const field = {optionLabels: {
+        WPA2PSK: 'WPA2 Personal (password)',
+        'Code 9': 'Unknown authentication value reported by camera',
+    }};
+    assert.equal(serviceOptionLabel(field, 'WPA2PSK'), 'WPA2 Personal (password)');
+    assert.equal(serviceOptionLabel(field, 'Code 9'), 'Unknown authentication value reported by camera');
+    assert.equal(serviceOptionLabel({}, 'AES'), 'AES');
+});
+
+test('editable password controls are visible text fields', async () => {
+    const {inputTypeForServiceField} = await import(await moduleUrl('service-form.js'));
+    const {inputTypeForSmtpField} = await import(await moduleUrl('smtp-form.js'));
+    assert.equal(inputTypeForServiceField({type: 'password'}), 'text');
+    assert.equal(inputTypeForServiceField({type: 'integer'}), 'number');
+    assert.equal(inputTypeForSmtpField('password'), 'text');
 });
 
 test('network service form payload converts integer-backed switches', async () => {

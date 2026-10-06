@@ -12,6 +12,8 @@ interface DvripReader
 
     public function getSystemInfo(): array;
 
+    public function getInfo(string $command): mixed;
+
     public function getSystemFunction(): array;
 
     public function close(): void;

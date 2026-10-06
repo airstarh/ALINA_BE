@@ -11,6 +11,7 @@ require_once dirname(__DIR__) . '/php/DvripReader.php';
 
 function loadNetworkServiceEditorClass(): void
 {
+    require_once dirname(__DIR__) . '/php/ExtendedEditorDefinitions.php';
     require_once dirname(__DIR__) . '/php/NetworkServiceEditor.php';
 }
 
@@ -21,6 +22,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public array $values = [];
         public array $calls = [];
         public bool $persistWrites = true;
+        public bool $normalizeBalconWifiWrites = false;
 
         public function getConfig(string $command): mixed
         {
@@ -31,18 +33,25 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public function setConfig(string $command, mixed $value): bool
         {
             $this->calls[] = ['set', $command, $value];
-            if ($this->persistWrites) $this->values[$command] = $value;
+            if ($this->persistWrites) {
+                if ($command === 'NetWork.Wifi' && $this->normalizeBalconWifiWrites) {
+                    $value['Auth'] = $value['Auth'] === 'WPAPSK' ? "\x01" : $value['Auth'];
+                    $value['EncrypType'] = $value['EncrypType'] === 'TKIP' ? "\x06" : $value['EncrypType'];
+                }
+                $this->values[$command] = $value;
+            }
             return true;
         }
 
         public function getSystemInfo(): array { return []; }
+        public function getInfo(string $command): mixed { return null; }
         public function getSystemFunction(): array { return []; }
         public function close(): void {}
     };
     return new NetworkServiceEditor($reader);
 }
 
-test('network_editor_lists_exact_thirty_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_sixty_seven_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
         [
@@ -51,13 +60,21 @@ test('network_editor_lists_exact_thirty_allowlisted_forms', function (): void {
             'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
             'general_preferences', 'locale_formats', 'defog', 'white_light', 'overlay_indicators',
             'osd_logo', 'output_volume', 'input_volume', 'detection_tracking', 'human_detection',
+            'auto_maintain', 'ptz_resume', 'network_watchdog', 'ip_adaptive', 'network_order',
+            'alarm_server_1', 'alarm_server_2', 'alarm_server_3', 'alarm_server_4', 'alarm_server_5',
+            'distortion', 'fisheye', 'image_basic', 'image_advanced',
+            'motion_detection', 'blind_detection', 'video_loss_detection', 'vehicle_detection',
+            'main_stream', 'extra_stream', 'smart_h264', 'video_color_day', 'video_color_night', 'video_widget',
+            'snapshot', 'recording', 'storage_failure', 'storage_low_space', 'storage_missing',
+            'alarm_output', 'local_alarm', 'network_abort_alarm', 'network_alarm', 'ip_conflict_alarm',
+            'uart_comm_1', 'ptz_serial', 'rs485',
         ],
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
 });
 
-test('network_editor_returns_typed_ftp_model_without_password', function (): void {
+test('network_editor_returns_current_ftp_password_in_editable_model', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values['NetWork.NetFTP'] = ftpBranchFixture();
 
@@ -66,12 +83,116 @@ test('network_editor_returns_typed_ftp_model_without_password', function (): voi
     assertSameValue('NetWork.NetFTP', $model['branch']);
     assertSameValue(false, $model['values']['enable']);
     assertSameValue('ftp.example.test', $model['values']['server']);
-    assertSameValue(true, $model['fields']['password']['configured']);
-    assertSameValue('', $model['values']['password']);
-    assertTrueValue(!str_contains(json_encode($model), 'keep-me'));
+    assertSameValue('keep-me', $model['values']['password']);
+    assertTrueValue(!array_key_exists('configured', $model['fields']['password']));
 });
 
-test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', function (): void {
+test('network_editor_presents_wifi_codes_as_human_readable_selects', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['NetWork.Wifi'] = [
+        'Auth' => "\x01", 'Channel' => 0, 'Enable' => true, 'EncrypType' => "\x06",
+        'GateWay' => '0xFE01A8C0', 'HostIP' => '0x7001A8C0', 'KeyType' => 1,
+        'Keys' => 'keep-wifi', 'NetType' => 'Infra', 'SSID' => 'q001',
+        'Submask' => '0x00FFFFFF',
+    ];
+    $reader->values['NetWork.NetDHCP'] = [
+        ['Enable' => true, 'Interface' => 'eth0'],
+        ['Enable' => false, 'Interface' => 'eth1'],
+    ];
+
+    $model = $editor->get('wifi');
+    assertSameValue('WPA2PSK', $model['values']['auth']);
+    assertSameValue('AES', $model['values']['encryption']);
+    assertSameValue(['OPEN', 'SHARED', 'WEPAUTO', 'WPAPSK', 'WPA2PSK', 'WPANONE', 'WPA', 'WPA2'], $model['fields']['auth']['options']);
+    assertSameValue(['NONE', 'WEP', 'TKIP', 'AES'], $model['fields']['encryption']['options']);
+    assertSameValue('WPA2 Personal (password)', $model['fields']['auth']['optionLabels']['WPA2PSK']);
+    assertSameValue('AES encryption', $model['fields']['encryption']['optionLabels']['AES']);
+    assertSameValue('keep-wifi', $model['values']['key']);
+    assertSameValue(['Infra', 'Adhoc'], $model['fields']['networkType']['options']);
+    assertSameValue('Infrastructure', $model['fields']['networkType']['optionLabels']['Infra']);
+    assertSameValue(array_map('strval', range(0, 13)), $model['fields']['channel']['options']);
+    assertSameValue('Automatic', $model['fields']['channel']['optionLabels']['0']);
+    assertSameValue('Password format', $model['fields']['keyType']['label']);
+    assertSameValue(['0', '1'], $model['fields']['keyType']['options']);
+    assertSameValue('Hexadecimal key', $model['fields']['keyType']['optionLabels']['0']);
+    assertSameValue('Text password (ASCII)', $model['fields']['keyType']['optionLabels']['1']);
+    assertSameValue(true, $model['fields']['keyType']['disabled']);
+    assertSameValue(false, $model['values']['dhcp']);
+    assertSameValue('dhcp', $model['fields']['hostIp']['disableWhen']);
+    assertSameValue('192.168.1.112', $model['values']['hostIp']);
+    assertSameValue('255.255.255.0', $model['values']['subnet']);
+    assertSameValue('192.168.1.254', $model['values']['gateway']);
+
+    $reader->calls = [];
+    $reader->normalizeBalconWifiWrites = true;
+    $editor->update('wifi', [
+        'enable' => true, 'dhcp' => true, 'ssid' => 'q001', 'auth' => 'WPA2PSK',
+        'encryption' => 'AES', 'key' => 'new-wifi', 'channel' => 0,
+        'networkType' => 'Infra', 'keyType' => 1,
+        'hostIp' => '192.168.1.112', 'subnet' => '255.255.255.0',
+        'gateway' => '192.168.1.254',
+    ]);
+    assertSameValue('WPAPSK', $reader->calls[2][2]['Auth']);
+    assertSameValue('TKIP', $reader->calls[2][2]['EncrypType']);
+    assertSameValue('new-wifi', $reader->calls[2][2]['Keys']);
+    assertSameValue('0x7001A8C0', $reader->calls[2][2]['HostIP']);
+    assertSameValue(true, $reader->calls[4][2][1]['Enable']);
+});
+
+test('network_editor_gives_unknown_wifi_codes_human_readable_fallback_labels', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['NetWork.Wifi'] = [
+        'Auth' => "\x09", 'Channel' => 0, 'Enable' => true, 'EncrypType' => "\x07",
+        'GateWay' => '0xFE01A8C0', 'HostIP' => '0x7001A8C0', 'KeyType' => 1,
+        'Keys' => 'keep-wifi', 'NetType' => 'Infra', 'SSID' => 'q001',
+        'Submask' => '0x00FFFFFF',
+    ];
+    $reader->values['NetWork.NetDHCP'] = [
+        ['Enable' => true, 'Interface' => 'eth0'],
+        ['Enable' => false, 'Interface' => 'eth1'],
+    ];
+
+    $model = $editor->get('wifi');
+    assertSameValue('Unknown authentication value reported by camera', $model['fields']['auth']['optionLabels']['Code 9']);
+    assertSameValue('Unknown encryption value reported by camera', $model['fields']['encryption']['optionLabels']['Code 7']);
+});
+
+test('network_editor_maps_both_balcon_aes_control_bytes_to_aes', function (): void {
+    foreach ([5, 6] as $code) {
+        $editor = networkEditorFixture($reader);
+        $reader->values['NetWork.Wifi'] = [
+            'Auth' => "\x01", 'Channel' => 0, 'Enable' => true, 'EncrypType' => chr($code),
+            'GateWay' => '0xFE01A8C0', 'HostIP' => '0x7001A8C0', 'KeyType' => 1,
+            'Keys' => 'keep-wifi', 'NetType' => 'Infra', 'SSID' => 'q001',
+            'Submask' => '0x00FFFFFF',
+        ];
+        $reader->values['NetWork.NetDHCP'] = [
+            ['Enable' => true, 'Interface' => 'eth0'],
+            ['Enable' => false, 'Interface' => 'eth1'],
+        ];
+        assertSameValue('AES', $editor->get('wifi')['values']['encryption']);
+    }
+});
+
+test('network_editor_maps_balcon_settled_wifi_aliases_to_actual_radio_modes', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['NetWork.Wifi'] = [
+        'Auth' => 'WPAPSK', 'Channel' => 0, 'Enable' => true, 'EncrypType' => 'TKIP',
+        'GateWay' => '0xFE01A8C0', 'HostIP' => '0x7001A8C0', 'KeyType' => 1,
+        'Keys' => 'keep-wifi', 'NetType' => 'Infra', 'SSID' => 'q001',
+        'Submask' => '0x00FFFFFF',
+    ];
+    $reader->values['NetWork.NetDHCP'] = [
+        ['Enable' => true, 'Interface' => 'eth0'],
+        ['Enable' => false, 'Interface' => 'eth1'],
+    ];
+
+    $model = $editor->get('wifi');
+    assertSameValue('WPA2PSK', $model['values']['auth']);
+    assertSameValue('AES', $model['values']['encryption']);
+});
+
+test('network_editor_merges_ftp_fields_and_clears_password_when_submitted_empty', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values['NetWork.NetFTP'] = ftpBranchFixture();
 
@@ -86,7 +207,7 @@ test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', fun
     ]);
 
     $written = $reader->calls[1][2];
-    assertSameValue('keep-me', $written['Server']['Password']);
+    assertSameValue('', $written['Server']['Password']);
     assertSameValue('0x00000000', $written['Server']['Address']);
     assertSameValue(false, $written['Server']['Anonymity']);
     assertSameValue('/balcon', $written['Directory']);
@@ -98,7 +219,7 @@ test('network_editor_merges_ftp_fields_and_preserves_password_and_metadata', fun
     ], $reader->calls);
 });
 
-test('network_editor_maps_all_thirty_forms_to_their_exact_branches', function (): void {
+test('network_editor_maps_first_thirty_forms_to_their_exact_branches', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values = networkBranchFixtures();
 
@@ -143,6 +264,7 @@ test('network_editor_marks_connectivity_sensitive_forms_with_warnings', function
     $reader->values = networkBranchFixtures();
     assertTrueValue(str_contains($editor->get('rtsp')['warning'], 'MotionEye'));
     assertTrueValue(str_contains($editor->get('pppoe')['warning'], 'network'));
+    assertTrueValue(str_contains($editor->get('wifi')['warning'], 'AP search'));
 });
 
 test('network_editor_rejects_invalid_values_before_camera_read', function (): void {

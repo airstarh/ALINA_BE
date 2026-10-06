@@ -124,16 +124,62 @@ final class NetworkServiceEditor
         ],
         'wifi' => [
             'label' => 'Wi-Fi', 'branch' => 'NetWork.Wifi',
-            'warning' => 'Changing Wi-Fi settings can expose credentials or interrupt the wireless connection.',
+            'warning' => 'Changing Wi-Fi settings can interrupt the wireless connection. AP search runs from the camera. Wi-Fi DHCP is interface eth1 on the separate DHCP interfaces page.',
             'fields' => [
                 'enable' => ['label' => 'Wi-Fi', 'type' => 'boolean', 'path' => ['Enable']],
                 'ssid' => ['label' => 'SSID', 'type' => 'string', 'path' => ['SSID']],
-                'auth' => ['label' => 'Authentication mode', 'type' => 'string', 'path' => ['Auth']],
-                'encryption' => ['label' => 'Encryption type', 'type' => 'string', 'path' => ['EncrypType']],
+                'auth' => [
+                    'label' => 'Authentication mode', 'type' => 'byte-string', 'path' => ['Auth'],
+                    'options' => ['OPEN', 'SHARED', 'WEPAUTO', 'WPAPSK', 'WPA2PSK', 'WPANONE', 'WPA', 'WPA2'],
+                    'optionLabels' => [
+                        'OPEN' => 'Open network (no authentication)',
+                        'SHARED' => 'WEP shared key',
+                        'WEPAUTO' => 'WEP automatic authentication',
+                        'WPAPSK' => 'WPA Personal (password)',
+                        'WPA2PSK' => 'WPA2 Personal (password)',
+                        'WPANONE' => 'WPA without authentication',
+                        'WPA' => 'WPA Enterprise',
+                        'WPA2' => 'WPA2 Enterprise',
+                    ],
+                    'unknownLabel' => 'Unknown authentication value reported by camera',
+                    'byteMap' => [1 => 'WPA2PSK'],
+                    'readMap' => ['WPAPSK' => 'WPA2PSK'],
+                    'wireMap' => ['WPA2PSK' => 'WPAPSK'],
+                ],
+                'encryption' => [
+                    'label' => 'Encryption type', 'type' => 'byte-string', 'path' => ['EncrypType'],
+                    'options' => ['NONE', 'WEP', 'TKIP', 'AES'],
+                    'optionLabels' => [
+                        'NONE' => 'No encryption',
+                        'WEP' => 'WEP encryption',
+                        'TKIP' => 'TKIP encryption',
+                        'AES' => 'AES encryption',
+                    ],
+                    'unknownLabel' => 'Unknown encryption value reported by camera',
+                    'byteMap' => [5 => 'AES', 6 => 'AES'],
+                    'readMap' => ['TKIP' => 'AES'],
+                    'wireMap' => ['AES' => 'TKIP'],
+                ],
                 'key' => ['label' => 'Wi-Fi key', 'type' => 'password', 'path' => ['Keys']],
-                'channel' => ['label' => 'Channel code', 'type' => 'integer', 'min' => 0, 'max' => 196, 'path' => ['Channel']],
-                'networkType' => ['label' => 'Network type', 'type' => 'string', 'path' => ['NetType']],
-                'keyType' => ['label' => 'Key type code', 'type' => 'integer', 'min' => 0, 'max' => 8, 'path' => ['KeyType']],
+                'channel' => [
+                    'label' => 'Channel', 'type' => 'integer', 'min' => 0, 'max' => 13, 'path' => ['Channel'],
+                    'options' => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'],
+                    'optionLabels' => ['0' => 'Automatic'],
+                ],
+                'networkType' => [
+                    'label' => 'Network type', 'type' => 'string', 'path' => ['NetType'],
+                    'options' => ['Infra', 'Adhoc'],
+                    'optionLabels' => ['Infra' => 'Infrastructure', 'Adhoc' => 'Ad-hoc'],
+                ],
+                'keyType' => [
+                    'label' => 'Password format', 'type' => 'integer', 'min' => 0, 'max' => 1, 'path' => ['KeyType'],
+                    'options' => ['0', '1'],
+                    'optionLabels' => ['0' => 'Hexadecimal key', '1' => 'Text password (ASCII)'],
+                    'disabled' => true,
+                ],
+                'hostIp' => ['label' => 'IP address', 'type' => 'ipv4-little-endian', 'path' => ['HostIP'], 'disableWhen' => 'dhcp'],
+                'subnet' => ['label' => 'Subnet mask', 'type' => 'ipv4-little-endian', 'path' => ['Submask'], 'disableWhen' => 'dhcp'],
+                'gateway' => ['label' => 'Gateway', 'type' => 'ipv4-little-endian', 'path' => ['GateWay'], 'disableWhen' => 'dhcp'],
             ],
         ],
         'wifi_signal' => [
@@ -354,53 +400,103 @@ final class NetworkServiceEditor
 
     public static function list(): array
     {
+        $definitions = self::definitions();
         return array_map(
             static fn (string $id, array $definition): array => [
                 'id' => $id,
                 'name' => $definition['label'],
             ],
-            array_keys(self::DEFINITIONS),
-            array_values(self::DEFINITIONS)
+            array_keys($definitions),
+            array_values($definitions)
         );
     }
 
     public function get(string $id): array
     {
         $definition = $this->definition($id);
-        return $this->model($id, $definition, $this->readBranch($definition));
+        $model = $this->model($id, $definition, $this->readBranch($definition));
+        return $id === 'wifi' ? $this->withWifiDhcp($model, $this->readWifiDhcp()) : $model;
     }
 
     public function update(string $id, array $input): array
     {
         $definition = $this->definition($id);
+        if ($id === 'wifi' && (!array_key_exists('dhcp', $input) || !is_bool($input['dhcp']))) {
+            throw new InvalidArgumentException('Field dhcp must be boolean.');
+        }
         $clean = $this->validate($definition, $input);
         $current = $this->readBranch($definition);
+        $dhcp = $id === 'wifi' ? $this->readWifiDhcp() : null;
         $updated = $current;
 
         foreach ($definition['fields'] as $name => $field) {
-            if ($field['type'] === 'password' && $clean[$name] === '') {
-                continue;
-            }
-            $this->setPath($updated, $field['path'], $clean[$name]);
+            $wireValue = $field['wireMap'][$clean[$name]] ?? $clean[$name];
+            $this->setPath($updated, $field['path'], $wireValue);
         }
 
         $this->reader->setConfig($definition['branch'], $updated);
         $verified = $this->readBranch($definition);
-        if ($verified !== $updated) {
+        $model = $this->model($id, $definition, $verified);
+        if ($id === 'wifi'
+            ? !$this->wifiMatchesInput($definition, $model, $input, $clean)
+            : $verified !== $updated
+        ) {
             throw new DvripException(
                 'write_verification_failed',
                 'Configuration read-back did not match the submitted object.'
             );
         }
-        return $this->model($id, $definition, $verified);
+        if ($id !== 'wifi') return $model;
+
+        $updatedDhcp = $dhcp;
+        $updatedDhcp[1]['Enable'] = $input['dhcp'];
+        $this->reader->setConfig('NetWork.NetDHCP', $updatedDhcp);
+        $verifiedDhcp = $this->readWifiDhcp();
+        if ($verifiedDhcp !== $updatedDhcp) {
+            throw new DvripException(
+                'write_verification_failed',
+                'Wi-Fi DHCP read-back did not match the submitted object.'
+            );
+        }
+        return $this->withWifiDhcp($model, $verifiedDhcp);
+    }
+
+    private function readWifiDhcp(): array
+    {
+        $branch = $this->reader->getConfig('NetWork.NetDHCP');
+        if (!is_array($branch)
+            || !isset($branch[1])
+            || !is_array($branch[1])
+            || !array_key_exists('Enable', $branch[1])
+            || ($branch[1]['Interface'] ?? null) !== 'eth1'
+        ) {
+            throw new DvripException('device_config_missing', 'Camera returned an invalid Wi-Fi DHCP interface.');
+        }
+        return $branch;
+    }
+
+    private function withWifiDhcp(array $model, array $dhcp): array
+    {
+        $model['fields'] = ['dhcp' => [
+            'label' => 'Use DHCP (Wi-Fi / eth1)',
+            'type' => 'boolean',
+        ]] + $model['fields'];
+        $model['values'] = ['dhcp' => (bool) $dhcp[1]['Enable']] + $model['values'];
+        return $model;
     }
 
     private function definition(string $id): array
     {
-        if (!isset(self::DEFINITIONS[$id])) {
+        $definitions = self::definitions();
+        if (!isset($definitions[$id])) {
             throw new InvalidArgumentException('Unknown editable network service.');
         }
-        return self::DEFINITIONS[$id];
+        return $definitions[$id];
+    }
+
+    private static function definitions(): array
+    {
+        return self::DEFINITIONS + ExtendedEditorDefinitions::get();
     }
 
     private function readBranch(array $definition): array
@@ -423,9 +519,28 @@ final class NetworkServiceEditor
             $value = $this->getPath($branch, $field['path']);
             $public = $field;
             unset($public['path']);
-            if ($field['type'] === 'password') {
-                $public['configured'] = is_string($value) && $value !== '';
-                $values[$name] = '';
+            unset($public['byteMap']);
+            unset($public['readMap']);
+            unset($public['wireMap']);
+            if (isset($field['readMap'][$value])) {
+                $values[$name] = $field['readMap'][$value];
+            } elseif ($field['type'] === 'password') {
+                $values[$name] = $value;
+            } elseif ($field['type'] === 'byte-string'
+                && is_string($value)
+                && strlen($value) === 1
+                && ord($value) < 0x20
+            ) {
+                $code = ord($value);
+                $values[$name] = $field['byteMap'][$code] ?? ('Code ' . $code);
+                if (!in_array($values[$name], $public['options'] ?? [], true)) {
+                    $public['options'][] = $values[$name];
+                    if (isset($field['unknownLabel'])) {
+                        $public['optionLabels'][$values[$name]] = $field['unknownLabel'];
+                    }
+                }
+            } elseif ($field['type'] === 'ipv4-little-endian' && is_string($value)) {
+                $values[$name] = self::decodeIpv4($value);
             } else {
                 $values[$name] = $value;
             }
@@ -468,12 +583,46 @@ final class NetworkServiceEditor
                 $clean[$name] = $value;
                 continue;
             }
+            if ($field['type'] === 'byte-string') {
+                if (!is_string($value) || strlen($value) > 255) {
+                    throw new InvalidArgumentException("Field {$name} must be a short string.");
+                }
+                $value = trim($value);
+                if (preg_match('/^Code ([0-9]{1,3})$/D', $value, $match) === 1) {
+                    $code = (int) $match[1];
+                    if ($code < 0 || $code > 31) {
+                        throw new InvalidArgumentException("Field {$name} has an invalid firmware code.");
+                    }
+                    $clean[$name] = chr($code);
+                } else {
+                    $clean[$name] = $value;
+                }
+                continue;
+            }
+            if ($field['type'] === 'ipv4-little-endian') {
+                if (!is_string($value) || filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    throw new InvalidArgumentException("Field {$name} must be an IPv4 address.");
+                }
+                $clean[$name] = self::encodeIpv4($value);
+                continue;
+            }
             if (!is_string($value) || strlen($value) > 255) {
                 throw new InvalidArgumentException("Field {$name} must be a short string.");
             }
             $clean[$name] = $field['type'] === 'password' ? $value : trim($value);
         }
         return $clean;
+    }
+
+    private function wifiMatchesInput(array $definition, array $model, array $input, array $clean): bool
+    {
+        foreach ($definition['fields'] as $name => $field) {
+            $expected = $field['type'] === 'ipv4-little-endian' ? $input[$name] : $clean[$name];
+            if (!array_key_exists($name, $model['values']) || $model['values'][$name] !== $expected) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function getPath(array $branch, array $path): mixed
@@ -495,5 +644,23 @@ final class NetworkServiceEditor
             $target = &$target[$segment];
         }
         $target[$path[array_key_last($path)]] = $value;
+    }
+
+    private static function decodeIpv4(string $value): string
+    {
+        if (preg_match('/^0x[0-9A-Fa-f]{8}$/D', $value) !== 1) {
+            throw new DvripException('device_config_missing', 'Camera returned an invalid IPv4 address.');
+        }
+        $packed = hex2bin(substr($value, 2));
+        return implode('.', array_map('ord', str_split(strrev($packed))));
+    }
+
+    private static function encodeIpv4(string $value): string
+    {
+        $packed = inet_pton($value);
+        if ($packed === false) {
+            throw new InvalidArgumentException('Invalid IPv4 address.');
+        }
+        return '0x' . strtoupper(bin2hex(strrev($packed)));
     }
 }

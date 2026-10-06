@@ -70,6 +70,37 @@ final class CameraService
         ];
     }
 
+    public function wifiAccessPoints(): array
+    {
+        $result = $this->reader->getInfo('WifiAP');
+        $items = is_array($result) ? ($result['WifiAP'] ?? null) : null;
+        if (!is_array($items)) {
+            throw new DvripException('device_config_missing', 'Camera returned an invalid Wi-Fi scan result.');
+        }
+
+        $accessPoints = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                throw new DvripException('device_config_missing', 'Camera returned an invalid Wi-Fi access point.');
+            }
+            foreach (['SSID', 'Auth', 'EncrypType', 'Channel', 'NetType', 'RSSI'] as $key) {
+                if (!array_key_exists($key, $item)) {
+                    throw new DvripException('device_config_missing', 'Camera returned an incomplete Wi-Fi access point.');
+                }
+            }
+            $accessPoints[] = [
+                'ssid' => (string) $item['SSID'],
+                'authentication' => (string) $item['Auth'],
+                'encryption' => (string) $item['EncrypType'],
+                'channel' => (int) $item['Channel'],
+                'networkType' => (string) $item['NetType'],
+                'signal' => (string) $item['RSSI'],
+            ];
+        }
+
+        return ['count' => count($accessPoints), 'accessPoints' => $accessPoints];
+    }
+
     public function config(string $section): mixed
     {
         if (!array_key_exists($section, self::SECTIONS)) {
@@ -127,9 +158,7 @@ final class CameraService
         $updated['MailServer']['Name'] = $clean['server'];
         $updated['MailServer']['Port'] = $clean['port'];
         $updated['MailServer']['UserName'] = $clean['username'];
-        if ($clean['password'] !== '') {
-            $updated['MailServer']['Password'] = $clean['password'];
-        }
+        $updated['MailServer']['Password'] = $clean['password'];
         $updated['UseSSL'] = $clean['useSsl'];
         $updated['SendAddr'] = $clean['sendAddress'];
         $updated['Recievers'] = array_pad($clean['recipients'], 5, 'none');
@@ -177,7 +206,7 @@ final class CameraService
             'server' => (string) ($server['Name'] ?? ''),
             'port' => (int) ($server['Port'] ?? 0),
             'username' => (string) ($server['UserName'] ?? ''),
-            'passwordConfigured' => (string) $server['Password'] !== '',
+            'password' => (string) $server['Password'],
             'useSsl' => (int) ($value['UseSSL'] ?? 0),
             'sendAddress' => (string) ($value['SendAddr'] ?? ''),
             'recipients' => array_values(array_map('strval', $value['Recievers'])),
@@ -262,7 +291,7 @@ final class CameraService
         }
 
         return in_array($normalized, [
-            'key', 'wifikey', 'ddnskey', 'privatekey', 'accesskey',
+            'key', 'keys', 'wifikey', 'ddnskey', 'privatekey', 'accesskey',
             'authkey', 'encryptionkey', 'apikey',
         ], true);
     }

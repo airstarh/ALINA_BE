@@ -70,10 +70,22 @@ final class DvripPacketCodec
             throw new DvripException('protocol_payload', 'DVRIP payload terminator is missing.');
         }
 
+        $json = substr($payload, 0, -2);
         try {
-            $decoded = json_decode(substr($payload, 0, -2), true, flags: JSON_THROW_ON_ERROR);
+            $decoded = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
-            throw new DvripException('protocol_json', 'DVRIP response is not valid JSON.', $exception);
+            if ($exception->getCode() !== JSON_ERROR_CTRL_CHAR) {
+                throw new DvripException('protocol_json', 'DVRIP response is not valid JSON.', $exception);
+            }
+            try {
+                $decoded = json_decode(
+                    self::escapeControlBytesInsideStrings($json),
+                    true,
+                    flags: JSON_THROW_ON_ERROR
+                );
+            } catch (JsonException $retryException) {
+                throw new DvripException('protocol_json', 'DVRIP response is not valid JSON.', $retryException);
+            }
         }
 
         if (!is_array($decoded)) {
@@ -81,5 +93,40 @@ final class DvripPacketCodec
         }
 
         return $decoded;
+    }
+
+    private static function escapeControlBytesInsideStrings(string $json): string
+    {
+        $normalized = '';
+        $insideString = false;
+        $escaped = false;
+
+        for ($index = 0, $length = strlen($json); $index < $length; $index++) {
+            $character = $json[$index];
+            $byte = ord($character);
+
+            if ($insideString && $byte < 0x20) {
+                $normalized .= sprintf('\\u%04X', $byte);
+                $escaped = false;
+                continue;
+            }
+
+            $normalized .= $character;
+            if (!$insideString) {
+                if ($character === '"') {
+                    $insideString = true;
+                }
+                continue;
+            }
+            if ($escaped) {
+                $escaped = false;
+            } elseif ($character === '\\') {
+                $escaped = true;
+            } elseif ($character === '"') {
+                $insideString = false;
+            }
+        }
+
+        return $normalized;
     }
 }

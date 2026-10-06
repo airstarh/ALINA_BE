@@ -59,6 +59,10 @@ export class CameraApi {
         );
     }
 
+    wifiAccessPoints(cameraId) {
+        return this.#request({action: 'wifi-aps', camera: cameraId});
+    }
+
     abortActive() {
         this.#controller?.abort();
         this.#controller = null;

@@ -28,6 +28,7 @@ into this directory, application source, command examples, or browser-side code.
 - [Second network-editor batch](2026-10-05-second-five-network-editors.md)
 - [Ten-page network-editor batch](2026-10-05-ten-network-editors.md)
 - [Ten general/camera/detection editors](2026-10-05-ten-general-camera-editors.md)
+- [Final 37-editor batch and completed scope](2026-10-05-final-thirty-seven-editors.md)
 
 ## PHP DVRIP request machinery
 
@@ -69,12 +70,25 @@ Saving performs one serialized operation under the existing per-camera lock:
 1. Read the latest complete `NetWork.NetEmail` branch from the camera.
 2. Validate and merge the typed browser fields into that fresh object.
 3. Preserve all fields the form does not own, including schedule and server
-   metadata. A blank password preserves the current camera password.
+   metadata. Editable password/key fields show the camera's current value; saving
+   an empty field explicitly clears that camera value.
 4. Write the complete SMTP branch with DVRIP message 1040.
 5. Read the branch again and require an exact match before reporting success.
 
-The password is never returned to JavaScript. The browser receives only the
-boolean `passwordConfigured` indicator.
+Dedicated editable forms return their current password/key values to JavaScript
+and render them as visible text inputs by explicit homelab design. The raw
+read-only explorer remains recursively redacted.
+
+The Wi-Fi editor also mirrors the existing `NetWork.NetDHCP` `eth1` switch as
+`Use DHCP (Wi-Fi / eth1)`. Static IP, subnet, and gateway values remain visible
+but are disabled while DHCP is selected. Network type and channel use readable
+selects, while the firmware-derived key-type code remains visible and locked.
+The standalone DHCP Interfaces editor remains available and unchanged.
+All Wi-Fi choices use human-readable labels; firmware strings, numeric values,
+and control-byte enum codes remain internal. The locked password-format field
+is labelled as either hexadecimal or ASCII rather than exposing its numeric
+code. Disabled inputs and selects use a light-gray background throughout the
+camera application.
 
 ## Additional writable network-service forms
 
@@ -82,8 +96,9 @@ Five more dedicated editors are available above the read-only configuration
 menu: FTP, NTP/time synchronization, UPnP, PMS push service, and DAS service.
 They use a server-side allow-listed schema; the browser cannot choose an
 arbitrary DVRIP branch or field path. Each form validates scalar types and
-ranges, preserves unowned branch fields and blank passwords, writes only its
-named branch, and requires exact read-back before reporting success.
+ranges, preserves unowned branch fields, writes submitted passwords exactly,
+writes only its named branch, and requires exact read-back before reporting
+success.
 
 These five were selected as the first batch because they avoid the camera's
 address, login, video encoding, recording, firmware, reboot, and factory-reset
@@ -99,9 +114,23 @@ The third batch adds ten pages: DHCP, Wi-Fi, Wi-Fi signal thresholds, vendor
 connection controls, online-upgrade policy, and five DDNS providers. Multiple
 pages may safely target one array branch: each save starts from the camera's
 latest complete array and changes only the selected provider's owned fields.
+Balcon's enabled Wi-Fi response alternates between raw control-byte enums and
+misleading legacy strings. The editor normalizes the live-tested `q001` values
+to the actual WPA2 Personal / AES radio modes and applies Balcon's required
+inverse translation when saving. Unknown bytes remain readable `Code N` values.
+A packet capture of the native CMS identified available-network search
+as DVRIP message 1020 with name `WifiAP`; the form now provides Search, shows
+the returned AP table, and can copy a selected AP into the editable fields.
 
 The fourth ten-page batch moves beyond networking: general preferences, locale
 formats, defog, white-light control, overlay indicators, OSD logo, audio input
 and output volume, tracking sensitivity, and basic human detection. Complex
 detection regions, schedules, and event-routing structures remain preserved
 but read-only.
+
+The final 37-page batch completes the planned interface. Together with SMTP
+and the first 30 schema-driven pages, the application exposes 68 dedicated
+editors. Status, capability, definition-table, account, firmware, reboot,
+factory-reset, and other action-oriented nodes remain available only where
+appropriate in the read-only explorer; they are deliberately not generic
+editable forms.

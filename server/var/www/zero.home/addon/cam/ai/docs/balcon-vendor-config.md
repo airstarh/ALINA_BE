@@ -66,8 +66,10 @@ A fresh live inventory on 2026-10-05 returned all 14 allow-listed families and
   should not be ordinary editors;
 - 68 candidate editable configuration branches.
 
-The 68 branches are backend save units, not 68 separate pages. A practical UI
-can organize them into nine main pages with expandable panels:
+The original 68-branch count was a planning estimate of backend save units,
+not a mandatory one-branch-per-page design. The implemented UI now exposes 68
+dedicated editor pages, with repeated array branches split into clearer pages
+(for example, one page per alarm server or DDNS provider):
 
 | Page | Candidate save units |
 |---|---:|
@@ -259,8 +261,9 @@ changed during this probe.
 The web application now includes its first validated setter: a dedicated
 Email / SMTP form. It performs a fresh read, merges only the fields owned by the
 form, submits the complete `NetWork.NetEmail` object, and verifies an immediate
-read-back. Hidden fields and an unchanged password are preserved; the password
-itself is never returned to the browser. On 2026-10-05 the production endpoint
+read-back. Hidden fields are preserved; editable password fields are returned to
+the browser, show and submit the current value, and an empty submitted password
+clears it. On 2026-10-05 the production endpoint
 successfully completed an idempotent save of the current disabled SMTP values,
 including exact read-back verification.
 
@@ -268,8 +271,9 @@ The next validated form batch covers `NetWork.NetFTP`, `NetWork.NetNTP`,
 `NetWork.Upnp`, `NetWork.PMS`, and `NetWork.DAS`. Live read-only requests on
 2026-10-05 confirmed that all five Balcon branches match their typed form
 schemas. No write was performed during that verification. FTP, UPnP, PMS, and
-DAS were disabled; NTP was enabled. As with SMTP, password fields are never
-returned to the browser and a blank password means preserve the current value.
+DAS were disabled; NTP was enabled. Dedicated forms expose password/key values
+as visible text inputs by explicit homelab design. Raw explorer output remains
+redacted, and a blank editable password now means clear the current value.
 
 The second form batch covers `NetWork.Multicast`, `NetWork.NetPPPoE`, the server
 portion of `NetWork.RTSP`, `NetWork.TranCommData`, and `NetWork.Nat`. Live
@@ -287,6 +291,72 @@ At that time Wi-Fi and all five DDNS providers were disabled; DHCP was enabled
 on `eth0`; online-upgrade service was enabled but its automatic check and
 automatic important-upgrade flags were off. No camera setting was written.
 
+When Wi-Fi is enabled, Balcon returns the `Auth` and `EncrypType` values as raw
+control-byte enum strings rather than legal JSON text. The DVRIP decoder now
+escapes control bytes found inside JSON strings. Comparison with the camera's
+own AP scan identifies the active control byte `1` as `WPA2PSK` authentication.
+The camera has returned both bytes `5` and `6` for the same active AES network,
+so both are decoded as `AES` and the form presents readable selects. Any
+unknown future byte is preserved internally but presented as an unknown value
+rather than exposing a raw code. The current live values were read successfully after this correction. The
+camera's AP scan/list is not part of `NetWork.Wifi`. A filtered packet capture
+of the native CMS Search button established the exact request: DVRIP message
+1020 with name `WifiAP`. Its response contains `Numbers` and a `WifiAP` array
+with SSID, authentication, encryption, channel, network type, and RSSI. The web
+form now exposes this read-only scan and can copy a selected AP into the Wi-Fi
+fields. The IP address, subnet mask, and gateway are decoded from the camera's
+little-endian hexadecimal representation. Wi-Fi DHCP remains the `eth1` switch
+in the separate `NetWork.NetDHCP` branch. The Wi-Fi form now mirrors that switch
+without removing it from the dedicated DHCP Interfaces page. When enabled, the
+static address controls remain visible but disabled. Network type and channel
+are readable selects, and the firmware-derived key-type code is locked.
+
+The canonical Xiongmai Wi-Fi types and tokens are documented by the public SDK
+binding `SDK_NetWifiConfig`: `sAuth` is a string with values `OPEN`, `SHARED`,
+`WEPAUTO`, `WPAPSK`, `WPA2PSK`, `WPANONE`, `WPA`, and `WPA2`;
+`sEncrypType` is a string with values `NONE`, `WEP`, `TKIP`, and `AES`;
+`sNetType` is `Infra` or `Adhoc`; and `nKeyType` is numeric with `0 = Hex` and
+`1 = ASCII`. Source:
+<https://github.com/thankyou1996/VideoPlayControl/blob/master/VideoPlayControl/SDKInterface/SDK_XMSDK.cs#L3856-L3929>.
+
+Read-only reverse engineering of the corresponding 32-bit `NetSdk.dll` provides
+stronger evidence about the wire representation: its `SDK_NetWifiConfig` JSON
+exchange routine copies the 32-byte `sEncrypType` and `sAuth` character arrays
+directly to/from the JSON properties `EncrypType` and `Auth`. There is no numeric
+enum conversion table in that path. Consequently, the SDK's normal direct-DVRIP
+wire values are the text tokens above, not integer codes.
+
+Balcon's one-byte enabled-Wi-Fi replies remain a firmware-specific anomaly.
+They are not a documented alternative enum and must not be treated as a general
+code table. Bytes `1`, `5`, and `6` were correlated only by matching the active
+SSID with Balcon's simultaneous `WifiAP` scan: for that current network, byte
+`1` corresponds to the scan's `WPA2PSK`, while bytes `5` and `6` have both been
+observed when the scan says `AES`. This contextual recovery is useful for
+displaying the current form, but it does not establish meanings for other byte
+values. When Wi-Fi is disabled, the same camera has returned the normal text
+tokens `WPAPSK` and `TKIP`.
+
+Live write testing on 2026-10-06 established Balcon's actual setter behavior.
+Submitting the nominal SDK pair `WPA2PSK` / `AES` made this firmware persist
+`WPAPSK` / `TKIP` and temporarily lose Wi-Fi. Submitting literal control bytes
+`1` / `6` was also wrong: the camera interpreted them as `SHARED` / `WEP`.
+
+The working `q001` correspondence is firmware-specific and asymmetric:
+
+| Human / AP-scan value | Setter value required by Balcon | Immediate read-back | Settled read-back |
+|---|---|---|---|
+| `WPA2PSK` | `WPAPSK` | byte `1` | `WPAPSK` |
+| `AES` | `TKIP` | byte `6` | `TKIP` |
+
+Despite those misleading setter and settled values, the camera successfully
+associates with the `q001` AP, whose `WifiAP` scan entry reports
+`WPA2PSK` / `AES`. Its static Wi-Fi address `192.168.1.112` was reachable after
+association. The editor therefore keeps the browser representation truthful
+and human-readable (`WPA2 Personal` / `AES`), translates it to
+`WPAPSK` / `TKIP` only at the Balcon write boundary, and accepts either the
+immediate byte form or settled legacy-string form during read-back validation.
+Unknown modes are not assigned guessed translations.
+
 The fourth batch adds `General.General`, `General.Location`,
 `Camera.ClearFog`, `Camera.WhiteLight`, `fVideo.GUISet`, `fVideo.OsdLogo`,
 `fVideo.Volume`, `fVideo.VolumeIn`, `Detect.DetectTrack`, and the basic scalar
@@ -294,6 +364,22 @@ controls from `Detect.HumanDetection`. Live read-only verification confirmed
 all ten dotted DVRIP getters. Human-detection regions, rules, schedules, and
 event actions are intentionally not editable in this batch and remain preserved
 during a save. No camera setting was written.
+
+The final batch adds 37 pages for maintenance and PTZ resume, network watchdog
+and priority, five alarm servers, distortion/fisheye/basic/advanced imaging,
+four detection families, main/extra/Smart-H.264 encoding, two color profiles,
+video title, snapshots and recording, three storage alarms, five alarm-input
+or output families, and UART/PTZ/RS-485 serial ports. On 2026-10-05 every page
+successfully loaded its complete typed model from the live Balcon camera using
+GET-only application requests. No setting was written during this verification.
+
+This completes the 68-page editor scope: one dedicated SMTP editor plus 67
+allow-listed schema-driven editors. Every schema-driven save still uses the
+same fresh-read, owned-field merge, complete-branch write, and exact read-back
+procedure. Complex schedules, masks, region geometry, PTZ links, firmware
+actions, reboot/reset operations, account management, capabilities, status,
+and internal definition tables are intentionally not exposed as generic
+editable fields.
 
 Before exposing setters:
 

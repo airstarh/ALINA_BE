@@ -15,6 +15,7 @@ require_once __DIR__ . '/StreamDvripTransport.php';
 require_once __DIR__ . '/DvripPacketCodec.php';
 require_once __DIR__ . '/DvripReader.php';
 require_once __DIR__ . '/DvripClient.php';
+require_once __DIR__ . '/ExtendedEditorDefinitions.php';
 require_once __DIR__ . '/NetworkServiceEditor.php';
 require_once __DIR__ . '/CameraService.php';
 
@@ -37,7 +38,7 @@ final class Api
             $action = $query['action'] ?? null;
             if (!is_string($action) || !in_array($action, [
                 'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save',
-                'editors', 'editor', 'editor-save',
+                'editors', 'editor', 'editor-save', 'wifi-aps',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
@@ -88,6 +89,7 @@ final class Api
                     'smtp-save' => $service->updateSmtp($body ?? []),
                     'editor' => $service->editor($this->editorId($query)),
                     'editor-save' => $service->updateEditor($this->editorId($query), $body ?? []),
+                    'wifi-aps' => $service->wifiAccessPoints(),
                 };
                 return $this->success($data);
             } finally {

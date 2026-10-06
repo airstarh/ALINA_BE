@@ -11,7 +11,7 @@ use Cam\DvripReader;
 function loadApiClasses(): void
 {
     $directory = dirname(__DIR__) . '/php';
-    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'NetworkServiceEditor.php', 'CameraService.php', 'api.php'] as $file) {
+    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'ExtendedEditorDefinitions.php', 'NetworkServiceEditor.php', 'CameraService.php', 'api.php'] as $file) {
         $path = $directory . '/' . $file;
         if (!is_file($path)) {
             throw new RuntimeException("API class {$file} does not exist");
@@ -90,6 +90,17 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
         public function getSystemInfo(): array
         {
             return ['SoftWareVersion' => 'fixture-version', 'Password' => 'fixture-secret'];
+        }
+
+        public function getInfo(string $command): mixed
+        {
+            if ($command === 'WifiAP') {
+                return ['Numbers' => 1, 'WifiAP' => [[
+                    'SSID' => 'fixture-ap', 'Auth' => 'WPA2PSK', 'EncrypType' => 'AES',
+                    'Channel' => 8, 'NetType' => 'Infra', 'RSSI' => 'Good',
+                ]]];
+            }
+            return null;
         }
 
         public function getSystemFunction(): array
@@ -236,14 +247,13 @@ test('api_encoded_response_contains_no_private_credentials', function (): void {
     }
 });
 
-test('api_reads_smtp_without_exposing_password', function (): void {
+test('api_reads_smtp_with_current_password_for_editable_form', function (): void {
     [$api, $path] = fixtureApi();
     try {
         $response = $api->handle(['action' => 'smtp', 'camera' => 'balcon']);
         assertSameValue(200, $response['status']);
         assertSameValue('smtp.example.test', $response['body']['data']['server']);
-        assertSameValue(true, $response['body']['data']['passwordConfigured']);
-        assertTrueValue(!str_contains(json_encode($response['body']), 'keep-me'));
+        assertSameValue('keep-me', $response['body']['data']['password']);
     } finally {
         unlink($path);
     }
@@ -276,28 +286,34 @@ test('api_saves_smtp_only_from_posted_json_body', function (): void {
         assertSameValue(200, $response['status']);
         assertSameValue('mail.example.test', $response['body']['data']['server']);
         assertSameValue(587, $response['body']['data']['port']);
-        assertTrueValue(!str_contains(json_encode($response['body']), 'keep-me'));
+        assertSameValue('', $response['body']['data']['password']);
     } finally {
         unlink($path);
     }
 });
 
-test('api_lists_thirty_editors_without_connecting', function (): void {
+test('api_lists_sixty_seven_editors_without_connecting', function (): void {
     [$api, $path] = fixtureApi($calls);
     try {
         $response = $api->handle(['action' => 'editors', 'camera' => 'balcon']);
         assertSameValue(200, $response['status']);
-        assertSameValue(
-            [
-                'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
-                'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
-                'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
-                'general_preferences', 'locale_formats', 'defog', 'white_light', 'overlay_indicators',
-                'osd_logo', 'output_volume', 'input_volume', 'detection_tracking', 'human_detection',
-            ],
-            array_column($response['body']['data'], 'id')
-        );
+        $ids = array_column($response['body']['data'], 'id');
+        assertSameValue(67, count($ids));
+        assertSameValue('ftp', $ids[0]);
+        assertSameValue('rs485', $ids[66]);
         assertSameValue(0, $calls);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_returns_wifi_access_point_scan', function (): void {
+    [$api, $path] = fixtureApi();
+    try {
+        $response = $api->handle(['action' => 'wifi-aps', 'camera' => 'balcon']);
+        assertSameValue(200, $response['status']);
+        assertSameValue(true, $response['body']['ok']);
+        assertSameValue('fixture-ap', $response['body']['data']['accessPoints'][0]['ssid']);
     } finally {
         unlink($path);
     }
@@ -317,9 +333,11 @@ test('api_reads_and_posts_allowlisted_network_editor', function (): void {
         $get = $api->handle(['action' => 'editor', 'camera' => 'balcon', 'editor' => 'ftp']);
         assertSameValue(200, $get['status']);
         assertSameValue('NetWork.NetFTP', $get['body']['data']['branch']);
+        assertSameValue('keep-me', $get['body']['data']['values']['password']);
 
         $body = $get['body']['data']['values'];
         $body['directory'] = '/camera';
+        $body['password'] = '';
         $save = $api->handle(
             ['action' => 'editor-save', 'camera' => 'balcon', 'editor' => 'ftp'],
             $body,
@@ -327,7 +345,7 @@ test('api_reads_and_posts_allowlisted_network_editor', function (): void {
         );
         assertSameValue(200, $save['status']);
         assertSameValue('/camera', $save['body']['data']['values']['directory']);
-        assertTrueValue(!str_contains(json_encode($save['body']), 'keep-me'));
+        assertSameValue('', $save['body']['data']['values']['password']);
     } finally {
         unlink($path);
     }

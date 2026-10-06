@@ -14,6 +14,10 @@ export function smtpPayloadFromFormData(fields) {
     };
 }
 
+export function inputTypeForSmtpField(name) {
+    return name === 'port' ? 'number' : 'text';
+}
+
 const add = (parent, tag, options = {}) => {
     const node = parent.ownerDocument.createElement(tag);
     if (options.className) node.className = options.className;
@@ -58,12 +62,9 @@ export function renderSmtpForm(model, handlers, documentRef = document) {
     add(form, 'h3', {text: 'SMTP server'});
     const serverGrid = add(form, 'div', {className: 'form-grid'});
     field(serverGrid, 'Server', 'server', model.server, {required: true});
-    field(serverGrid, 'Port', 'port', model.port, {type: 'number', min: '1', max: '65535', required: true});
+    field(serverGrid, 'Port', 'port', model.port, {type: inputTypeForSmtpField('port'), min: '1', max: '65535', required: true});
     field(serverGrid, 'Username', 'username', model.username);
-    field(serverGrid, 'Password', 'password', '', {
-        type: 'password',
-        placeholder: model.passwordConfigured ? 'Leave blank to keep current password' : 'No password configured',
-    });
+    field(serverGrid, 'Password', 'password', model.password, {type: inputTypeForSmtpField('password')});
     const sslLabel = add(serverGrid, 'label', {className: 'form-field form-field-full'});
     add(sslLabel, 'span', {className: 'form-label', text: 'Connection security'});
     const ssl = add(sslLabel, 'select', {className: 'form-input', attributes: {name: 'useSsl'}});
@@ -90,7 +91,7 @@ export function renderSmtpForm(model, handlers, documentRef = document) {
 
     const note = add(form, 'p', {
         className: 'form-note',
-        text: 'Saving reads the latest SMTP object, merges these fields, writes only NetWork.NetEmail, then reads it back and verifies it. A blank password keeps the current password.',
+        text: 'Saving reads the latest SMTP object, merges these fields, writes only NetWork.NetEmail, then reads it back and verifies it. An empty password clears the camera password.',
     });
     note.setAttribute('role', 'note');
 
@@ -123,7 +124,7 @@ export function renderSmtpForm(model, handlers, documentRef = document) {
             ['Email sending', pending.enable ? 'Enabled' : 'Disabled'],
             ['Server', `${pending.server}:${pending.port}`],
             ['Username', pending.username || '(none)'],
-            ['Password', pending.password ? 'Replace current password' : 'Keep current password'],
+            ['Password', pending.password || '(empty)'],
             ['Security', pending.useSsl === 1 ? 'SSL / TLS' : 'None'],
             ['From', pending.sendAddress || '(empty)'],
             ['Recipients', pending.recipients.join(', ') || '(none)'],

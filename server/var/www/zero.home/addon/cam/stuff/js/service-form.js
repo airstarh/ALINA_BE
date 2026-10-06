@@ -1,13 +1,39 @@
 export function servicePayloadFromFormData(model, formData) {
     const values = {};
     for (const [name, field] of Object.entries(model.fields)) {
-        if (field.type === 'boolean') values[name] = formData.has(name);
+        if (!formData.has(name) && isServiceFieldDisabled(field, {...model.values, ...values})) {
+            values[name] = model.values[name];
+        }
+        else if (field.type === 'boolean') values[name] = formData.has(name);
         else if (field.type === 'boolean-integer') values[name] = formData.has(name) ? 1 : 0;
         else if (field.type === 'integer') values[name] = Number(formData.get(name));
         else if (field.type === 'password') values[name] = String(formData.get(name) || '');
         else values[name] = String(formData.get(name) || '').trim();
     }
     return values;
+}
+
+export function isServiceFieldDisabled(field, values) {
+    return field.disabled === true || (field.disableWhen && Boolean(values[field.disableWhen]));
+}
+
+export function serviceOptionLabel(field, value) {
+    return field.optionLabels?.[value] || String(value);
+}
+
+export function wifiValuesFromAccessPoint(current, accessPoint) {
+    return {
+        ...current,
+        ssid: accessPoint.ssid,
+        auth: accessPoint.authentication,
+        encryption: accessPoint.encryption,
+        channel: accessPoint.channel,
+        networkType: accessPoint.networkType,
+    };
+}
+
+export function inputTypeForServiceField(field) {
+    return field.type === 'integer' ? 'number' : 'text';
 }
 
 const append = (parent, tag, options = {}) => {
@@ -35,6 +61,54 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         warning.setAttribute('role', 'note');
     }
 
+
+    if (model.id === 'wifi' && handlers.onWifiSearch) {
+        const scan = append(form, 'section', {className: 'wifi-scan'});
+        const scanHeader = append(scan, 'div', {className: 'wifi-scan-header'});
+        append(scanHeader, 'h3', {text: 'Available networks'});
+        const search = append(scanHeader, 'button', {text: 'Search', attributes: {type: 'button'}});
+        const scanStatus = append(scan, 'p', {className: 'form-note', text: 'Press Search to ask the camera to scan for nearby access points.'});
+        const results = append(scan, 'div', {className: 'wifi-scan-results'});
+        search.addEventListener('click', async () => {
+            search.disabled = true;
+            scanStatus.textContent = 'Searching from the camera…';
+            results.replaceChildren();
+            try {
+                const data = await handlers.onWifiSearch();
+                const table = append(results, 'table', {className: 'wifi-table'});
+                const head = append(table, 'thead');
+                const headRow = append(head, 'tr');
+                for (const title of ['SSID', 'Authentication', 'Signal', 'Channel', '']) {
+                    append(headRow, 'th', {text: title});
+                }
+                const body = append(table, 'tbody');
+                for (const accessPoint of data.accessPoints) {
+                    const row = append(body, 'tr');
+                    append(row, 'td', {text: accessPoint.ssid || '(hidden)'});
+                    append(row, 'td', {text: `${accessPoint.authentication} / ${accessPoint.encryption}`});
+                    append(row, 'td', {text: accessPoint.signal});
+                    append(row, 'td', {text: accessPoint.channel});
+                    const action = append(row, 'td');
+                    const use = append(action, 'button', {text: 'Use', attributes: {type: 'button'}});
+                    use.addEventListener('click', () => {
+                        const current = servicePayloadFromFormData(model, new FormData(form));
+                        const selected = wifiValuesFromAccessPoint(current, accessPoint);
+                        for (const name of ['ssid', 'auth', 'encryption', 'channel', 'networkType']) {
+                            const input = form.elements.namedItem(name);
+                            if (input) input.value = selected[name];
+                        }
+                        scanStatus.textContent = `Selected ${accessPoint.ssid || 'hidden network'}. Enter its password if required.`;
+                    });
+                }
+                scanStatus.textContent = `Found ${data.count} network${data.count === 1 ? '' : 's'}.`;
+            } catch (error) {
+                scanStatus.textContent = error?.message || 'Wi-Fi search failed.';
+            } finally {
+                search.disabled = false;
+            }
+        });
+    }
+
     if (enableEntry) {
         const [name, field] = enableEntry;
         const toggle = append(form, 'label', {className: 'smtp-toggle'});
@@ -47,31 +121,53 @@ export function renderServiceForm(model, handlers, documentRef = document) {
 
     append(form, 'h3', {text: 'Settings'});
     const grid = append(form, 'div', {className: 'form-grid'});
+    const controls = new Map();
     for (const [name, field] of entries) {
         if (enableEntry?.[0] === name) continue;
         if (isSwitch(field)) {
             const label = append(grid, 'label', {className: 'form-switch-field'});
             const input = append(label, 'input', {attributes: {type: 'checkbox', name}});
             input.checked = Boolean(model.values[name]);
+            controls.set(name, input);
             append(label, 'span', {text: field.label});
             continue;
         }
         const label = append(grid, 'label', {className: 'form-field'});
         append(label, 'span', {className: 'form-label', text: field.label});
-        const attributes = {
-            name,
-            type: field.type === 'integer' ? 'number' : (field.type === 'password' ? 'password' : 'text'),
-        };
+        if (field.options) {
+            const select = append(label, 'select', {className: 'form-input', attributes: {name}});
+            for (const value of field.options) {
+                const option = append(select, 'option', {
+                    text: serviceOptionLabel(field, value),
+                    attributes: {value},
+                });
+                option.selected = String(value) === String(model.values[name]);
+            }
+            controls.set(name, select);
+            continue;
+        }
+        const attributes = {name, type: inputTypeForServiceField(field)};
         if (field.min !== undefined) attributes.min = String(field.min);
         if (field.max !== undefined) attributes.max = String(field.max);
-        if (field.type === 'password') {
-            attributes.placeholder = field.configured
-                ? 'Leave blank to keep current password'
-                : 'No password configured';
-        }
         const input = append(label, 'input', {className: 'form-input', attributes});
         input.value = model.values[name] ?? '';
+        controls.set(name, input);
     }
+
+    const refreshDisabledFields = () => {
+        const values = {...model.values};
+        for (const [name, input] of controls) {
+            const field = model.fields[name];
+            if (field.type === 'boolean') values[name] = input.checked;
+        }
+        for (const [name, input] of controls) {
+            input.disabled = Boolean(isServiceFieldDisabled(model.fields[name], values));
+        }
+    };
+    for (const [name, input] of controls) {
+        if (model.fields[name].type === 'boolean') input.addEventListener('change', refreshDisabledFields);
+    }
+    refreshDisabledFields();
 
     const note = append(form, 'p', {
         className: 'form-note',
@@ -99,7 +195,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         for (const [name, field] of entries) {
             let display = pending[name];
             if (isSwitch(field)) display = display ? 'Enabled' : 'Disabled';
-            if (field.type === 'password') display = display ? 'Replace current password' : 'Keep current password';
+            else if (field.options) display = serviceOptionLabel(field, String(display));
             if (display === '') display = '(empty)';
             append(list, 'li', {text: `${field.label}: ${display}`});
         }

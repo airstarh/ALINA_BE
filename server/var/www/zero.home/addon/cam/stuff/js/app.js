@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261005-4';
+import {CameraApi, CameraApiError} from './api.js?v=20261006-2';
 import {
     chooseDefaultCamera,
     markActiveSection,
@@ -6,8 +6,8 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderSmtpForm} from './smtp-form.js?v=20261005-4';
-import {renderServiceForm} from './service-form.js?v=20261005-4';
+import {renderSmtpForm} from './smtp-form.js?v=20261005-6';
+import {renderServiceForm} from './service-form.js?v=20261006-2';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -125,6 +125,9 @@ const loadEditor = async (editorId, editorName, token) => {
         if (!guard.isCurrent(token)) return;
         const render = (model) => renderServiceForm(model, {
             onReload: () => loadEditor(editorId, editorName, guard.begin(activeCamera)),
+            onWifiSearch: editorId === 'wifi'
+                ? () => api.wifiAccessPoints(activeCamera)
+                : null,
             onSave: async (payload) => {
                 const saveToken = guard.begin(activeCamera);
                 setBusy(true);

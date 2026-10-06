@@ -9,8 +9,9 @@ The second five dedicated forms are:
 - Vendor cloud / NAT → `NetWork.Nat`
 
 They use the same allow-listed, typed, read/merge/write/read-back mechanism as
-the first batch. Passwords remain server-side and blank password inputs preserve
-the current camera value. Unowned values—including RTSP client configuration,
+the first batch. This behavior was later changed: editable passwords are visible
+and blank password inputs clear the current camera value. Unowned
+values—including RTSP client configuration,
 PPPoE assigned address, NAT DNS fields, and nested server metadata—are preserved.
 
 Live read-only requests confirmed all five structures on Balcon. No camera write

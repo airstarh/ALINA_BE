@@ -200,6 +200,21 @@ test('dvrip_rejects_malformed_json', function (): void {
     assertSameValue('protocol_json', $exception->publicCode());
 });
 
+test('dvrip_accepts_camera_control_byte_enums_inside_json_strings', function (): void {
+    loadDvripFramingClasses();
+    $codec = new DvripPacketCodec();
+    $payload = '{"Name":"NetWork.Wifi","NetWork.Wifi":{"Auth":"'
+        . "\x01"
+        . '","EncrypType":"'
+        . "\x06"
+        . '"},"Ret":100}' . "\n\0";
+
+    $decoded = $codec->decodePayload($payload);
+
+    assertSameValue("\x01", $decoded['NetWork.Wifi']['Auth']);
+    assertSameValue("\x06", $decoded['NetWork.Wifi']['EncrypType']);
+});
+
 test('stream_transport_maps_timeout_to_stable_code', function (): void {
     loadDvripFramingClasses();
     [$transport, $peer] = socketTransportPair();
