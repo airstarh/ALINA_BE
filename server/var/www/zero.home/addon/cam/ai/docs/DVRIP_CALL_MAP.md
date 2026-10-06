@@ -125,6 +125,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `serial_bridge` | `NetWork.TranCommData` |
 | `nat` | `NetWork.Nat` |
 | `dhcp` | `NetWork.NetDHCP` |
+| `wired_network` | `NetWork.NetCommon` (plus `NetWork.NetDHCP` for mirrored `eth0.Enable`) |
 | `wifi` | `NetWork.Wifi` (plus `NetWork.NetDHCP` for mirrored `eth1.Enable`) |
 | `wifi_signal` | `NetWork.WifiStrengthLevel` |
 | `vendor_connections` | `NetWork.DisableXmServerConn` |
@@ -224,4 +225,3 @@ The browser endpoints are all `stuff/php/api.php`:
 
 `api.php` serializes camera-facing actions with a per-camera lock under
 `/var/tmp/php-upload`. This is request serialization, not a background worker.
-

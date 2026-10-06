@@ -112,6 +112,17 @@ final class NetworkServiceEditor
                 'mtu' => ['label' => 'XMEye MTU', 'type' => 'integer', 'min' => 576, 'max' => 1500, 'path' => ['XMeyeMTU']],
             ],
         ],
+        'wired_network' => [
+            'label' => 'Wired network', 'branch' => 'NetWork.NetCommon',
+            'warning' => 'Changing the wired IP or DHCP setting can make the camera unreachable. Confirm the new address before saving.',
+            'fields' => [
+                'hostIp' => ['label' => 'IP address', 'type' => 'ipv4-little-endian', 'path' => ['HostIP'], 'disableWhen' => 'dhcp'],
+                'subnet' => ['label' => 'Subnet mask', 'type' => 'ipv4-little-endian', 'path' => ['Submask'], 'disableWhen' => 'dhcp'],
+                'gateway' => ['label' => 'Gateway', 'type' => 'ipv4-little-endian', 'path' => ['GateWay'], 'disableWhen' => 'dhcp'],
+                'hostName' => ['label' => 'Hostname', 'type' => 'string', 'path' => ['HostName']],
+                'mac' => ['label' => 'MAC address', 'type' => 'string', 'path' => ['MAC'], 'disabled' => true, 'writable' => false],
+            ],
+        ],
         'dhcp' => [
             'label' => 'DHCP interfaces', 'branch' => 'NetWork.NetDHCP',
             'warning' => 'Disabling DHCP on eth0 can make the camera unreachable if no usable static address is configured.',
@@ -422,9 +433,12 @@ final class NetworkServiceEditor
             try {
                 $branch = $this->discoveryBranch($definition['branch'], $families);
                 $this->model($id, $definition, $branch);
-                if ($id === 'wifi') {
-                    $this->validateWifiDhcp(
-                        $this->discoveryBranch('NetWork.NetDHCP', $families)
+                $dhcpIndex = $this->dhcpIndex($id);
+                if ($dhcpIndex !== null) {
+                    $this->validateDhcpInterface(
+                        $this->discoveryBranch('NetWork.NetDHCP', $families),
+                        $dhcpIndex,
+                        'eth' . $dhcpIndex,
                     );
                 }
                 $available[] = ['id' => $id, 'name' => $definition['label']];
@@ -443,21 +457,28 @@ final class NetworkServiceEditor
     {
         $definition = $this->definition($id);
         $model = $this->model($id, $definition, $this->readBranch($definition));
-        return $id === 'wifi' ? $this->withWifiDhcp($model, $this->readWifiDhcp()) : $model;
+        $dhcpIndex = $this->dhcpIndex($id);
+        return $dhcpIndex === null
+            ? $model
+            : $this->withDhcp($model, $this->readDhcpInterface($dhcpIndex), $dhcpIndex);
     }
 
     public function update(string $id, array $input): array
     {
         $definition = $this->definition($id);
-        if ($id === 'wifi' && (!array_key_exists('dhcp', $input) || !is_bool($input['dhcp']))) {
+        $dhcpIndex = $this->dhcpIndex($id);
+        if ($dhcpIndex !== null && (!array_key_exists('dhcp', $input) || !is_bool($input['dhcp']))) {
             throw new InvalidArgumentException('Field dhcp must be boolean.');
         }
         $clean = $this->validate($definition, $input);
         $current = $this->readBranch($definition);
-        $dhcp = $id === 'wifi' ? $this->readWifiDhcp() : null;
+        $dhcp = $dhcpIndex === null ? null : $this->readDhcpInterface($dhcpIndex);
         $updated = $current;
 
         foreach ($definition['fields'] as $name => $field) {
+            if (($field['writable'] ?? true) !== true) {
+                continue;
+            }
             $wireValue = $field['wireMap'][$clean[$name]] ?? $clean[$name];
             $this->setPath($updated, $field['path'], $wireValue);
         }
@@ -474,47 +495,60 @@ final class NetworkServiceEditor
                 'Configuration read-back did not match the submitted object.'
             );
         }
-        if ($id !== 'wifi') return $model;
+        if ($dhcpIndex === null) return $model;
 
         $updatedDhcp = $dhcp;
-        $updatedDhcp[1]['Enable'] = $input['dhcp'];
+        $updatedDhcp[$dhcpIndex]['Enable'] = $input['dhcp'];
         $this->reader->setConfig('NetWork.NetDHCP', $updatedDhcp);
-        $verifiedDhcp = $this->readWifiDhcp();
+        $verifiedDhcp = $this->readDhcpInterface($dhcpIndex);
         if ($verifiedDhcp !== $updatedDhcp) {
             throw new DvripException(
                 'write_verification_failed',
-                'Wi-Fi DHCP read-back did not match the submitted object.'
+                'DHCP read-back did not match the submitted object.'
             );
         }
-        return $this->withWifiDhcp($model, $verifiedDhcp);
+        return $this->withDhcp($model, $verifiedDhcp, $dhcpIndex);
     }
 
-    private function readWifiDhcp(): array
+    private function readDhcpInterface(int $index): array
     {
-        return $this->validateWifiDhcp($this->reader->getConfig('NetWork.NetDHCP'));
+        return $this->validateDhcpInterface(
+            $this->reader->getConfig('NetWork.NetDHCP'),
+            $index,
+            'eth' . $index,
+        );
     }
 
-    private function validateWifiDhcp(mixed $branch): array
+    private function validateDhcpInterface(mixed $branch, int $index, string $interface): array
     {
         if (!is_array($branch)
-            || !isset($branch[1])
-            || !is_array($branch[1])
-            || !array_key_exists('Enable', $branch[1])
-            || ($branch[1]['Interface'] ?? null) !== 'eth1'
+            || !isset($branch[$index])
+            || !is_array($branch[$index])
+            || !array_key_exists('Enable', $branch[$index])
+            || ($branch[$index]['Interface'] ?? null) !== $interface
         ) {
-            throw new DvripException('device_config_missing', 'Camera returned an invalid Wi-Fi DHCP interface.');
+            throw new DvripException('device_config_missing', 'Camera returned an invalid DHCP interface.');
         }
         return $branch;
     }
 
-    private function withWifiDhcp(array $model, array $dhcp): array
+    private function withDhcp(array $model, array $dhcp, int $index): array
     {
         $model['fields'] = ['dhcp' => [
-            'label' => 'Use DHCP (Wi-Fi / eth1)',
+            'label' => $index === 0 ? 'Use DHCP (wired / eth0)' : 'Use DHCP (Wi-Fi / eth1)',
             'type' => 'boolean',
         ]] + $model['fields'];
-        $model['values'] = ['dhcp' => (bool) $dhcp[1]['Enable']] + $model['values'];
+        $model['values'] = ['dhcp' => (bool) $dhcp[$index]['Enable']] + $model['values'];
         return $model;
+    }
+
+    private function dhcpIndex(string $id): ?int
+    {
+        return match ($id) {
+            'wired_network' => 0,
+            'wifi' => 1,
+            default => null,
+        };
     }
 
     private function definition(string $id): array
@@ -598,6 +632,7 @@ final class NetworkServiceEditor
             $value = $this->getPath($branch, $field['path']);
             $public = $field;
             unset($public['path']);
+            unset($public['writable']);
             unset($public['byteMap']);
             unset($public['readMap']);
             unset($public['wireMap']);

@@ -138,8 +138,10 @@ detection regions, schedules, and event-routing structures remain preserved
 but read-only.
 
 The final 37-page batch completes the planned interface. Together with SMTP
-and the first 30 schema-driven pages, the application exposes 68 dedicated
-editors. Status, capability, definition-table, account, firmware, reboot,
+and the first 30 schema-driven pages, the application originally exposed 68
+dedicated editors. The later Wired network editor brings the current total to
+69: one SMTP form plus 68 schema-driven forms. Status, capability,
+definition-table, account, firmware, reboot,
 factory-reset, and other action-oriented nodes remain available only where
 appropriate in the read-only explorer; they are deliberately not generic
 editable forms.
@@ -158,3 +160,8 @@ Hardware capability checks suppress misleading template branches. In
 particular, Door contains an inert `NetWork.Wifi` object but does not advertise
 `NetWifi`, so its Wi-Fi pages are hidden automatically. Balcon continues to
 show them. See [Door camera and automatic editor discovery](door-discovery.md).
+
+The automatically discovered **Wired network** editor combines
+`NetWork.NetCommon` with the `eth0` switch from `NetWork.NetDHCP`. It exposes
+DHCP, static IP, subnet, gateway, and hostname on both Door and Balcon. MAC is
+visible but is preserved server-side and cannot be changed by this form.

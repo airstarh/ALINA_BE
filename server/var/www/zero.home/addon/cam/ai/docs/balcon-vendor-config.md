@@ -67,7 +67,7 @@ A fresh live inventory on 2026-10-05 returned all 14 allow-listed families and
 - 68 candidate editable configuration branches.
 
 The original 68-branch count was a planning estimate of backend save units,
-not a mandatory one-branch-per-page design. The implemented UI now exposes 68
+not a mandatory one-branch-per-page design. The implemented UI now exposes 69
 dedicated editor pages, with repeated array branches split into clearer pages
 (for example, one page per alarm server or DDNS provider):
 
@@ -373,8 +373,10 @@ or output families, and UART/PTZ/RS-485 serial ports. On 2026-10-05 every page
 successfully loaded its complete typed model from the live Balcon camera using
 GET-only application requests. No setting was written during this verification.
 
-This completes the 68-page editor scope: one dedicated SMTP editor plus 67
-allow-listed schema-driven editors. Every schema-driven save still uses the
+The original implementation completed a 68-page editor scope: one dedicated
+SMTP editor plus 67 allow-listed schema-driven editors. The later Wired
+network form brings the current total to 69 pages: SMTP plus 68 schema-driven
+editors. Every schema-driven save still uses the
 same fresh-read, owned-field merge, complete-branch write, and exact read-back
 procedure. Complex schedules, masks, region geometry, PTZ links, firmware
 actions, reboot/reset operations, account management, capabilities, status,

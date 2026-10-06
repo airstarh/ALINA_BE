@@ -56,12 +56,12 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
     return new NetworkServiceEditor($reader);
 }
 
-test('network_editor_lists_exact_sixty_seven_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_sixty_eight_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
         [
             'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast', 'pppoe', 'rtsp', 'serial_bridge', 'nat',
-            'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
+            'wired_network', 'dhcp', 'wifi', 'wifi_signal', 'vendor_connections', 'online_upgrade',
             'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
             'general_preferences', 'locale_formats', 'defog', 'white_light', 'overlay_indicators',
             'osd_logo', 'output_volume', 'input_volume', 'detection_tracking', 'human_detection',
@@ -77,6 +77,35 @@ test('network_editor_lists_exact_sixty_seven_allowlisted_forms', function (): vo
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
+});
+
+test('network_editor_combines_wired_static_address_with_eth0_dhcp', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['NetWork.NetCommon'] = wiredNetworkBranchFixture();
+    $reader->values['NetWork.NetDHCP'] = networkBranchFixtures()['NetWork.NetDHCP'];
+
+    $model = $editor->get('wired_network');
+    assertSameValue(true, $model['values']['dhcp']);
+    assertSameValue('192.168.1.121', $model['values']['hostIp']);
+    assertSameValue('255.255.255.0', $model['values']['subnet']);
+    assertSameValue('192.168.1.254', $model['values']['gateway']);
+    assertSameValue(true, $model['fields']['mac']['disabled']);
+
+    $reader->calls = [];
+    $saved = $editor->update('wired_network', [
+        'dhcp' => false,
+        'hostIp' => '192.168.1.130',
+        'subnet' => '255.255.255.0',
+        'gateway' => '192.168.1.254',
+        'hostName' => 'front-door',
+        'mac' => 'malicious-change',
+    ]);
+
+    assertSameValue('0x8201A8C0', $reader->calls[2][2]['HostIP']);
+    assertSameValue('00:12:33:08:53:78', $reader->calls[2][2]['MAC']);
+    assertSameValue(false, $reader->calls[4][2][0]['Enable']);
+    assertSameValue(false, $saved['values']['dhcp']);
+    assertSameValue('192.168.1.130', $saved['values']['hostIp']);
 });
 
 test('network_editor_discovers_only_supported_forms_and_rejects_dummy_wifi', function (): void {
@@ -295,6 +324,7 @@ test('network_editor_maps_first_thirty_forms_to_their_exact_branches', function 
         'rtsp' => 'NetWork.RTSP',
         'serial_bridge' => 'NetWork.TranCommData',
         'nat' => 'NetWork.Nat',
+        'wired_network' => 'NetWork.NetCommon',
         'dhcp' => 'NetWork.NetDHCP',
         'wifi' => 'NetWork.Wifi',
         'wifi_signal' => 'NetWork.WifiStrengthLevel',
@@ -374,10 +404,31 @@ function ftpBranchFixture(): array
     ];
 }
 
+function wiredNetworkBranchFixture(): array
+{
+    return [
+        'GateWay' => '0xFE01A8C0',
+        'HostIP' => '0x7901A8C0',
+        'HostName' => 'LocalHost',
+        'HttpPort' => 80,
+        'MAC' => '00:12:33:08:53:78',
+        'MaxBps' => 0,
+        'MonMode' => 'TCP',
+        'SSLPort' => 8443,
+        'Submask' => '0x00FFFFFF',
+        'TCPMaxConn' => 10,
+        'TCPPort' => 34567,
+        'TransferPlan' => 'Transmission',
+        'UDPPort' => 34568,
+        'UseHSDownLoad' => true,
+    ];
+}
+
 function networkBranchFixtures(): array
 {
     return [
         'NetWork.NetFTP' => ftpBranchFixture(),
+        'NetWork.NetCommon' => wiredNetworkBranchFixture(),
         'NetWork.NetNTP' => [
             'Enable' => true,
             'Server' => ['Address' => '0x00000000', 'Anonymity' => false, 'Name' => 'time.example.test', 'Password' => '', 'Port' => 123, 'UserName' => ''],

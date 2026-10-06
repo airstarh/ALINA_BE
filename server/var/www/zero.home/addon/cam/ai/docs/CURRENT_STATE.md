@@ -65,6 +65,8 @@ directly open this arbitrary TCP protocol from a normal browser.
 - Header reboot button with confirmation and a POST-only backend action.
 - Automatic per-camera editor discovery: only getters are used, required
   fields are validated, and irrelevant/unsupported forms are omitted.
+- A Wired network editor combines `NetWork.NetCommon` with DHCP on `eth0` and
+  exposes static IP, subnet, gateway, and hostname. MAC is read-only.
 
 ## Save semantics
 
@@ -116,7 +118,7 @@ change only `eth1.Enable`.
   The module versions were bumped and a browser API regression test was added.
 - Door was added as a second configured camera. Its standard reboot command was
   live-verified through temporary network disappearance and recovery.
-- Door exposes 56 applicable schema-driven editors; Balcon exposes all 67.
+- Door exposes 57 applicable schema-driven editors; Balcon exposes all 68.
   Door's dummy Wi-Fi branch is suppressed because it lacks the `NetWifi`
   capability. Discovery reads each top-level family once and takes about two
   seconds on either camera.
