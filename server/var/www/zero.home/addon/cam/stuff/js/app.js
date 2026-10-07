@@ -6,6 +6,7 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
+import {renderEditableMenu} from './menu.js?v=20261007-1';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261007-3';
 
@@ -197,24 +198,10 @@ const loadEditor = async (editorId, editorName, token) => {
 
 const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
-    const smtpButton = document.createElement('button');
-    smtpButton.type = 'button';
-    smtpButton.className = 'section-button section-button-editor';
-    smtpButton.dataset.sectionId = 'smtp';
-    smtpButton.textContent = 'Email / SMTP';
-    smtpButton.addEventListener('click', () => loadSmtp(guard.begin(activeCamera)));
-    elements.sections.append(smtpButton);
-    for (const editor of editors) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'section-button section-button-editor';
-        button.dataset.sectionId = `editor:${editor.id}`;
-        button.textContent = editor.name;
-        button.addEventListener('click', () => {
-            loadEditor(editor.id, editor.name, guard.begin(activeCamera));
-        });
-        elements.sections.append(button);
-    }
+    elements.sections.append(...renderEditableMenu(editors, document, {
+        onSmtp: () => loadSmtp(guard.begin(activeCamera)),
+        onEditor: (id, name) => loadEditor(id, name, guard.begin(activeCamera)),
+    }));
     const divider = document.createElement('div');
     divider.className = 'section-divider';
     divider.textContent = 'Read-only configuration';

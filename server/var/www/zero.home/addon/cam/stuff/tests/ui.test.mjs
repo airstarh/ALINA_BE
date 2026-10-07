@@ -128,6 +128,41 @@ test('section menu buttons follow camera request busy state', async () => {
     assert.deepEqual(buttons.map((button) => button.disabled), [false, false]);
 });
 
+test('editable menu shows supported forms in the requested groups and order', async () => {
+    const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
+    const nodes = renderEditableMenu([
+        {id: 'ftp', name: 'FTP'},
+        {id: 'human_detection', name: 'Human detection'},
+        {id: 'wifi', name: 'Wi-Fi'},
+        {id: 'wired_network', name: 'Wired network'},
+    ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
+
+    assert.deepEqual(nodes.map((node) => [node.type, node.children[0]?.value ?? '']), [
+        ['h3', 'NETWORK'],
+        ['button', 'Wired network'],
+        ['button', 'Wi-Fi'],
+        ['h3', 'DETECTION'],
+        ['button', 'Human detection'],
+        ['h3', 'SERVICES 3rd PART'],
+        ['button', 'Email / SMTP'],
+        ['button', 'FTP'],
+    ]);
+    assert.deepEqual(nodes.filter((node) => node.type === 'button').map((node) => node.dataset.sectionId), [
+        'editor:wired_network', 'editor:wifi', 'editor:human_detection', 'smtp', 'editor:ftp',
+    ]);
+});
+
+test('editable menu keeps newly discovered forms reachable', async () => {
+    const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
+    const nodes = renderEditableMenu([
+        {id: 'future_camera_option', name: 'Future camera option'},
+    ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
+    const buttons = nodes.filter((node) => node.type === 'button');
+    assert.deepEqual(buttons.map((button) => button.dataset.sectionId), [
+        'smtp', 'editor:future_camera_option',
+    ]);
+});
+
 test('camera API URL-encodes camera and section', async () => {
     const {CameraApi} = await import(await moduleUrl('api.js'));
     let requestedUrl = '';
@@ -484,4 +519,10 @@ test('configuration tree is constrained inside the content panel', async () => {
 test('current section has persistent menu styling', async () => {
     const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
     assert.match(css, /\.section-button\.is-active\s*\{/);
+});
+
+test('menu group headers stay static and read-only settings have a larger gap', async () => {
+    const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
+    assert.match(css, /\.section-group-heading\s*\{/);
+    assert.match(css, /\.section-divider\s*\{[^}]*margin:\s*2rem\s+-\.45rem\s+\.25rem/s);
 });
