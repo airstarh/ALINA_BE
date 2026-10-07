@@ -30,6 +30,7 @@ final class CameraService
         private DvripReader $reader,
         private string $cameraId,
         private string $cameraName,
+        private array $cameraSettings = [],
     ) {
     }
 
@@ -54,7 +55,7 @@ final class CameraService
 
     public function availableEditors(): array
     {
-        return (new NetworkServiceEditor($this->reader))->available(
+        return (new NetworkServiceEditor($this->reader, $this->cameraSettings['alarm_sound'] ?? []))->available(
             $this->reader->getSystemFunction(),
             $this->reader->getSystemInfo(),
         );
@@ -62,12 +63,12 @@ final class CameraService
 
     public function editor(string $id): array
     {
-        return (new NetworkServiceEditor($this->reader))->get($id);
+        return (new NetworkServiceEditor($this->reader, $this->cameraSettings['alarm_sound'] ?? []))->get($id);
     }
 
     public function updateEditor(string $id, array $input): array
     {
-        return (new NetworkServiceEditor($this->reader))->update($id, $input);
+        return (new NetworkServiceEditor($this->reader, $this->cameraSettings['alarm_sound'] ?? []))->update($id, $input);
     }
 
     public function status(): array

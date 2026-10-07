@@ -204,6 +204,31 @@ speaker-equipped camera that omits this flag; it is not universal physical
 speaker detection. The capture is kept only under `/tmp` and may contain
 credentials; do not copy the PCAP into tracked docs.
 
+## Alarm sound selection (2026-10-07)
+
+The owner's CMS screenshot shows Balcon's `SoundPlayType` choices: Bell Alarm,
+"You have entered the monitoring area", "Hello welcome", and "The custom".
+Read-only DVRIP reads show that Balcon advertises numeric `VoiceEnum` values
+`24`, `523`, `524`, and `550` under `Ability.VoiceTipType.VoiceTip`. Its current
+`Detect.MotionDetect.[0].EventHandler.VoiceType` is `524`, matching the CMS's
+selected "Bell Alarm". That is the only verified code-to-label pairing; do not
+infer the other three pairings from list order. Door advertises voice codes too
+but is physically silent, so the ability list does not prove a speaker.
+
+The web form now builds the sound selector from the camera-advertised codes,
+shows it only when speaker support is indicated, and rejects any code not in
+that list before writing. It merges only `VoiceType` into the freshly-read
+shared `Detect.MotionDetect.[0]` branch and verifies read-back. A per-camera
+`alarm_sound` entry in the local `config.php` can contain `supported` (Boolean
+override), `labels` (numeric code → confirmed readable name), and `options`
+(numeric code → name used only if the ability query has no list). For Balcon,
+the local config currently labels only `524` as Bell Alarm. Unknown labels are
+shown as unverified rather than guessed. If the camera's current code is not
+in its advertised list, the form retains it as the current value so unrelated
+edits are safe and the owner can switch to an advertised code; it cannot be
+selected as a new value on another camera. No camera setting was changed while
+adding or verifying this selector.
+
 ## Native CMS capture: Door Send Email mapping (2026-10-06)
 
 The owner's first two Door captures contained only DVRIP KeepAlive requests.

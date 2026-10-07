@@ -9,7 +9,7 @@ use Cam\DvripReader;
 function loadCameraServiceClasses(): void
 {
     $directory = dirname(__DIR__) . '/php';
-    foreach (['DvripException.php', 'DvripReader.php', 'CameraService.php'] as $file) {
+    foreach (['DvripException.php', 'DvripReader.php', 'ExtendedEditorDefinitions.php', 'NetworkServiceEditor.php', 'CameraService.php'] as $file) {
         $path = $directory . '/' . $file;
         if (!is_file($path)) {
             throw new RuntimeException("Camera service class {$file} does not exist");
@@ -18,7 +18,7 @@ function loadCameraServiceClasses(): void
     }
 }
 
-function fixtureCameraService(?object &$reader = null): CameraService
+function fixtureCameraService(?object &$reader = null, array $cameraSettings = []): CameraService
 {
     $reader = new class implements DvripReader {
         public array $calls = [];
@@ -92,8 +92,24 @@ function fixtureCameraService(?object &$reader = null): CameraService
         {
         }
     };
-    return new CameraService($reader, 'balcon', 'Balcon');
+    return new CameraService($reader, 'balcon', 'Balcon', $cameraSettings);
 }
+
+test('camera_service_passes_per_camera_sound_fallback_to_human_detection_editor', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader, ['alarm_sound' => [
+        'supported' => true, 'options' => [524 => 'Bell Alarm'],
+    ]]);
+    $reader->configValues['Detect.HumanDetection'] = [[
+        'Enable' => true, 'PushInterval' => 3000, 'ShowRule' => 0, 'ShowTrack' => 0,
+        'PedRule' => [['Enable' => true, 'RuleType' => 1]],
+    ]];
+    $reader->configValues['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => true, 'VoiceType' => 524,
+    ]];
+    $model = $service->editor('human_detection');
+    assertSameValue('Bell Alarm', $model['fields']['soundType']['optionLabels']['524']);
+});
 
 test('camera_service_lists_exact_safe_sections', function (): void {
     loadCameraServiceClasses();

@@ -118,7 +118,15 @@ pending. Balcon's captured Alarm Sound toggle
 changes `Detect.MotionDetect.[0].EventHandler.VoiceEnable`; this control is
 offered only when `OtherFunction.SupportCloseVoiceTip` is true. That flag is a
 conservative observed distinction between Balcon and physically silent Door,
-not a universal speaker-detection guarantee. Each changed branch is freshly
+not a universal speaker-detection guarantee. Balcon's sound selector reads its
+allowed numeric codes from `Ability.VoiceTipType.VoiceTip[].VoiceEnum` and the
+current code from `Detect.MotionDetect.[0].EventHandler.VoiceType`. It never
+offers an unadvertised new code. `config.php` may override speaker support,
+provide code-to-label names, or provide a fallback code-to-label list when
+the ability query is unavailable. Only Balcon code `524 = Bell Alarm` is
+currently confirmed by the owner's CMS screenshot; other codes are labelled
+unverified until their correspondence is captured. Door's selector remains
+hidden despite its generic VoiceTip ability list. Each changed branch is freshly
 read, written in full, and verified by read-back. The collapsed Detection rule
 / area section edits Tripwire endpoints or one four-sided Intrusion area. The
 inactive shape, direction flags, and other rule slots are preserved. Geometry
@@ -139,8 +147,17 @@ native CMS/ActiveX editor, and the overlay stayed aligned after resizing the
 browser window. This is user-reported end-to-end confirmation. Rule coordinates
 are normalized 0–8192 rather than tied to a particular camera image resolution;
 the overlay maps pointer positions using the image's current rendered bounds.
-Changing the camera's actual encoding resolution after a save has not yet been
-separately tested.
+The owner's later resolution-change check found the rule overlay correct.
+
+On 2026-10-07 a
+Balcon walk test activated its light and sound but produced no email or FTP
+JPEG, despite enabled mail/FTP/snapshot action flags and passing standalone
+connection tests. The earlier `ManualSnap` experiment therefore did not solve
+the problem. Balcon is now set to `Storage.Snapshot[0].SnapMode=ConfigSnap`.
+The owner's 19:29 Human DetectStart event produced an email with JPEG
+attachment, and two matching Balcon JPEGs appeared in the FTP destination.
+This verifies both delivery paths for that event; see
+[`storage-options.md`](storage-options.md) for evidence and limits.
 
 ## Save semantics
 

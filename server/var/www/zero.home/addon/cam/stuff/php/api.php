@@ -196,7 +196,7 @@ function createProductionApi(?string $configPath = null): Api
             );
             $client = new DvripClient($transport);
             $client->login($dvrip['username'], $dvrip['password']);
-            return new CameraService($client, $id, $camera['name']);
+            return new CameraService($client, $id, $camera['name'], $camera);
         }
     );
 }

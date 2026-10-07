@@ -15,7 +15,7 @@ function loadNetworkServiceEditorClass(): void
     require_once dirname(__DIR__) . '/php/NetworkServiceEditor.php';
 }
 
-function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
+function networkEditorFixture(?object &$reader = null, array $alarmSound = []): NetworkServiceEditor
 {
     loadNetworkServiceEditorClass();
     $reader = new class implements DvripReader {
@@ -56,7 +56,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public function reboot(): bool { return true; }
         public function close(): void {}
     };
-    return new NetworkServiceEditor($reader);
+    return new NetworkServiceEditor($reader, $alarmSound);
 }
 
 test('network_editor_lists_exact_sixty_eight_allowlisted_forms', function (): void {
@@ -547,6 +547,100 @@ test('network_editor_hides_alarm_sound_without_confirmed_voice_output', function
     assertSameValue(false, array_key_exists('alarmSound', $model['fields']));
     assertSameValue(false, $model['values']['appPush']);
     assertSameValue(false, $model['values']['sendEmail']);
+});
+
+test('human_detection_lists_only_camera_advertised_sound_types_and_writes_selected_code', function (): void {
+    $editor = networkEditorFixture($reader, ['labels' => [524 => 'Bell Alarm']]);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => true,
+        'VoiceType' => 524, 'BeepEnable' => false,
+    ]];
+    $reader->values['Ability.VoiceTipType'] = ['VoiceTip' => [
+        ['VoiceEnum' => 24], ['VoiceEnum' => 523], ['VoiceEnum' => 524], ['VoiceEnum' => 550],
+    ]];
+    $reader->systemFunction = ['OtherFunction' => ['SupportCloseVoiceTip' => true]];
+
+    $model = $editor->get('human_detection');
+    assertSameValue(['24', '523', '524', '550'], $model['fields']['soundType']['options']);
+    assertSameValue('Bell Alarm', $model['fields']['soundType']['optionLabels']['524']);
+    assertSameValue(524, $model['values']['soundType']);
+
+    $input = $model['values'];
+    $input['soundType'] = 523;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(523, $saved['values']['soundType']);
+    assertSameValue(523, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['VoiceType']);
+    assertSameValue(false, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['BeepEnable']);
+});
+
+test('human_detection_rejects_unadvertised_sound_code_before_any_write', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => true, 'VoiceType' => 524,
+    ]];
+    $reader->values['Ability.VoiceTipType'] = ['VoiceTip' => [['VoiceEnum' => 524]]];
+    $reader->systemFunction = ['OtherFunction' => ['SupportCloseVoiceTip' => true]];
+    $input = $editor->get('human_detection')['values'];
+    $input['soundType'] = 550;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    assertSameValue([], array_values(array_filter($reader->calls, fn ($call) => $call[0] === 'set')));
+});
+
+test('human_detection_hides_sound_selector_without_speaker_and_accepts_configured_fallback', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false, 'VoiceType' => 520,
+    ]];
+    $reader->values['Ability.VoiceTipType'] = ['VoiceTip' => [['VoiceEnum' => 520]]];
+    $model = $editor->get('human_detection');
+    assertSameValue(false, array_key_exists('soundType', $model['fields']));
+    $input = $model['values'];
+    $input['soundType'] = 520;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+
+    $editor = new NetworkServiceEditor($reader, [
+        'supported' => true, 'options' => [520 => 'Configured voice'],
+    ]);
+    unset($reader->values['Ability.VoiceTipType']);
+    $model = $editor->get('human_detection');
+    assertSameValue(['520'], $model['fields']['soundType']['options']);
+    assertSameValue('Configured voice', $model['fields']['soundType']['optionLabels']['520']);
+});
+
+test('human_detection_can_replace_unadvertised_current_sound_without_requiring_unrelated_changes', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => true, 'VoiceType' => 999,
+    ]];
+    $reader->values['Ability.VoiceTipType'] = ['VoiceTip' => [['VoiceEnum' => 524]]];
+    $reader->systemFunction = ['OtherFunction' => ['SupportCloseVoiceTip' => true]];
+    $model = $editor->get('human_detection');
+    assertSameValue(999, $model['values']['soundType']);
+    assertSameValue(['524', '999'], $model['fields']['soundType']['options']);
+    assertSameValue('Current sound (not advertised by camera)', $model['fields']['soundType']['optionLabels']['999']);
+
+    $input = $model['values'];
+    $editor->update('human_detection', $input);
+    assertSameValue(999, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['VoiceType']);
+    $input['soundType'] = 524;
+    $editor->update('human_detection', $input);
+    assertSameValue(524, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['VoiceType']);
+});
+
+test('human_detection_does_not_treat_fallback_option_names_as_verified_ability_labels', function (): void {
+    $editor = networkEditorFixture($reader, ['options' => [524 => 'Unverified fallback name']]);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => true, 'VoiceType' => 524,
+    ]];
+    $reader->values['Ability.VoiceTipType'] = ['VoiceTip' => [['VoiceEnum' => 524]]];
+    $reader->systemFunction = ['OtherFunction' => ['SupportCloseVoiceTip' => true]];
+    $model = $editor->get('human_detection');
+    assertSameValue('Camera sound option 524 (label not verified)', $model['fields']['soundType']['optionLabels']['524']);
 });
 
 test('network_editor_maps_both_balcon_aes_control_bytes_to_aes', function (): void {

@@ -41,7 +41,62 @@ put FTP credentials here.
   additionally advertises `OtherFunction.NOHDDRECORD=true`. Automatic editor
   discovery hides Door's local recording form, but now retains Snapshot
   recording because Door exposes `Storage.Snapshot` and sends event snapshots.
-  Its saved mode was `ManualSnap`; Balcon's was `ClosedSnap` when read.
+Its saved mode was `ManualSnap`; Balcon's was `ClosedSnap` when read.
+
+## Balcon missing automatic email images and FTP uploads (2026-10-07)
+
+Read-only comparison after the owner's report found both cameras had
+`NetWork.NetFTP.Enable=true`, `Detect.MotionDetect.[0].EventHandler.FTPEnable=true`,
+`SnapEnable=true`, and the channel-one `SnapShotMask` bit set. Both cameras
+returned a JPEG through the on-demand snapshot endpoint. Door was uploading
+JPEGs to the FTP server; Balcon had no upload directory. The server's current
+`vsftpd` configuration now uses `local_root=/mnt/d500/cam`, and both cameras'
+separate FTP connection tests returned success. Thus the earlier FTP-test
+failure at the `/` login root is no longer the active problem.
+
+The relevant live difference was Balcon `Storage.Snapshot[0].SnapMode=ClosedSnap`
+versus Door `ManualSnap`, which works for event email attachments and FTP
+uploads. Balcon's snapshot schedule already had Detect and Alarm bits enabled
+(`Mask[day][0]=0x00000006`), and `PreSnap=2`. As a single-variable diagnostic,
+Balcon was changed through the app's snapshot editor from `ClosedSnap` to
+`ManualSnap`. Read-back confirmed the new mode and unchanged mask, schedule,
+and pre-snapshot count. This was a hypothesis for the missing automatic image
+generation, not an end-to-end verified fix. The provided CMS
+screenshot appeared to show `Timing` selected before this change, conflicting
+with the live DVRIP `ClosedSnap` read; live read-back is the recorded state.
+
+### Follow-up after the owner's walk test
+
+The owner then walked in view of Balcon. Its light and alarm sound activated,
+but no email arrived and no Balcon JPEG appeared under the FTP destination.
+The mounted FTP folder `/mnt/sshfs/bbb/d500/cam/` showed Door JPEGs from the
+same period and no Balcon directory. Balcon still reported `NetEmail.Enable`,
+`NetFTP.Enable`, `MotionDetect[0].EventHandler.MailEnable`, `FTPEnable`, and
+`SnapEnable` as true, with channel one selected and the event schedule enabled
+all day. The separate SMTP test command returned accepted. These checks do
+**not** prove whether Balcon attempted either delivery during the walk.
+
+The `ManualSnap` hypothesis did not pass this end-to-end test. As the next
+single-variable diagnostic, Balcon's `Storage.Snapshot[0].SnapMode` was changed
+to `ConfigSnap` (the native CMS's configured/timed capture choice). The
+pre-snapshot count stayed `2`; the Detect/Alarm mask stayed `0x00000006` and
+the first time slot stayed enabled `00:00–24:00` on all seven days. The app's
+save and a separate fresh DVRIP read confirmed these values. This state is
+**unverified for an actual detection**; do not call it a fix until an alarm
+produces an email attachment and FTP file. Avoid changing other alarm fields
+before collecting event or server-connection evidence.
+
+### End-to-end confirmation (2026-10-07, 19:29 local)
+
+With Balcon still set to `ConfigSnap`, the owner received a Human DetectStart
+email with a JPEG attachment for the 19:29:53 event. The FTP destination also
+contained two Balcon JPEG files at 19:29:55 and 19:29:58 beneath the camera's
+`192.168.1.121_.../2026-10-07/01/pic/` directory. This confirms the combined
+email-attachment and FTP-upload workflow for that event. The earlier standalone
+FTP and SMTP tests were not sufficient to establish this; the actual alarm
+and resulting files are the verification. The evidence supports `ConfigSnap`
+as the needed mode on Balcon in this configuration, but does not prove that
+every camera firmware has the same requirement.
 
 ## Snapshot recording editor
 

@@ -444,7 +444,7 @@ final class NetworkServiceEditor
         ],
     ];
 
-    public function __construct(private DvripReader $reader)
+    public function __construct(private DvripReader $reader, private array $alarmSoundSettings = [])
     {
     }
 
@@ -655,7 +655,7 @@ final class NetworkServiceEditor
         $humanActions = $id === 'human_detection' ? $this->readHumanActions() : null;
         $optionalHumanActions = $humanActions === null ? [] : $this->availableHumanOptionalActions($humanActions);
         if ($id === 'human_detection') {
-            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'snapshot', 'alarmSound', 'ftpUpload', 'writeLog', 'periodChanges'], array_keys($input)) !== []) {
+            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'snapshot', 'alarmSound', 'soundType', 'ftpUpload', 'writeLog', 'periodChanges'], array_keys($input)) !== []) {
                 throw new DvripException('device_config_missing', 'Camera does not expose alert action settings.');
             }
             if ($humanActions !== null) {
@@ -677,6 +677,15 @@ final class NetworkServiceEditor
                     }
                 } elseif (array_key_exists('alarmSound', $input)) {
                     throw new InvalidArgumentException('Alarm Sound is not supported by this camera.');
+                }
+                $soundOptions = $this->humanSoundOptions($humanActions);
+                if ($soundOptions !== []) {
+                    if (!array_key_exists('soundType', $input) || !is_int($input['soundType'])
+                        || !array_key_exists($input['soundType'], $soundOptions)) {
+                        throw new InvalidArgumentException('Sound type must be one advertised by this camera.');
+                    }
+                } elseif (array_key_exists('soundType', $input)) {
+                    throw new InvalidArgumentException('Sound type is not available on this camera.');
                 }
                 foreach (self::HUMAN_OPTIONAL_ACTION_FIELDS as $name => $field) {
                     if (isset($optionalHumanActions[$name])) {
@@ -701,6 +710,9 @@ final class NetworkServiceEditor
                 if (array_key_exists($name, $input)) {
                     $this->setPath($updatedActions, $field['path'], $input[$name]);
                 }
+            }
+            if ($soundOptions !== []) {
+                $updatedActions['EventHandler']['VoiceType'] = $input['soundType'];
             }
             if (array_key_exists('periodChanges', $input)) {
                 $this->applyHumanPeriodChanges($updatedActions, $input['periodChanges']);
@@ -968,6 +980,16 @@ final class NetworkServiceEditor
         }
         $model['fields'] += $actions['fields'];
         $model['values'] += $actions['values'];
+        $soundOptions = $this->humanSoundOptions($branch);
+        if ($soundOptions !== []) {
+            $model['fields']['soundType'] = [
+                'label' => 'Alarm sound',
+                'type' => 'integer',
+                'options' => array_map('strval', array_keys($soundOptions)),
+                'optionLabels' => $soundOptions,
+            ];
+            $model['values']['soundType'] = $branch['EventHandler']['VoiceType'];
+        }
         $snapshot = $this->humanSnapshotState($branch);
         if ($snapshot !== null) {
             $model['fields']['snapshot'] = [
@@ -1120,9 +1142,54 @@ final class NetworkServiceEditor
 
     private function supportsHumanAlarmSound(): bool
     {
+        if (array_key_exists('supported', $this->alarmSoundSettings)) {
+            return $this->alarmSoundSettings['supported'] === true;
+        }
         // These cameras both advertise generic voice-tip menus; only Balcon
         // advertises the additional voice-control capability and has a speaker.
         return ($this->reader->getSystemFunction()['OtherFunction']['SupportCloseVoiceTip'] ?? false) === true;
+    }
+
+    private function humanSoundOptions(array $branch): array
+    {
+        $current = $branch['EventHandler']['VoiceType'] ?? null;
+        if (!$this->supportsHumanAlarmSound() || !is_int($current)) return [];
+
+        try {
+            $ability = $this->reader->getConfig('Ability.VoiceTipType');
+        } catch (DvripException $exception) {
+            if (!in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) {
+                throw $exception;
+            }
+            $ability = null;
+        }
+        $codes = [];
+        $voiceTips = is_array($ability) ? ($ability['VoiceTip'] ?? null) : null;
+        if (is_array($voiceTips)) {
+            foreach ($voiceTips as $item) {
+                $code = is_array($item) ? ($item['VoiceEnum'] ?? null) : null;
+                if (is_int($code) && $code >= 0 && $code <= 65535) $codes[$code] = true;
+            }
+        }
+        $usedFallback = $codes === [];
+        if ($codes === []) {
+            foreach ($this->alarmSoundSettings['options'] ?? [] as $code => $_label) {
+                $codes[(int) $code] = true;
+            }
+        }
+        if ($codes === []) return [];
+
+        $labels = $this->alarmSoundSettings['labels'] ?? [];
+        $fallback = $usedFallback ? ($this->alarmSoundSettings['options'] ?? []) : [];
+        $options = [];
+        foreach (array_keys($codes) as $code) {
+            $options[$code] = $labels[$code] ?? $fallback[$code]
+                ?? "Camera sound option {$code} (label not verified)";
+        }
+        if (!isset($codes[$current])) {
+            $options[$current] = 'Current sound (not advertised by camera)';
+        }
+        return $options;
     }
 
     private function humanRuleGeometry(array $branch): ?array

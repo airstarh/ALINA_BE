@@ -129,3 +129,38 @@ test('config_accepts_missing_optional_timeout', function (): void {
         unlink($path);
     }
 });
+
+test('config_accepts_per_camera_alarm_sound_labels_without_exposing_them', function (): void {
+    loadConfigClass();
+    $fixture = validConfigFixture();
+    $fixture['cameras']['balcon']['alarm_sound'] = [
+        'supported' => true, 'labels' => [524 => 'Bell Alarm'],
+        'options' => [523 => 'Monitoring area warning'],
+    ];
+    $path = configFixture($fixture);
+    try {
+        $config = Config::load($path);
+        assertSameValue('Bell Alarm', $config->camera('balcon')['alarm_sound']['labels'][524]);
+        assertSameValue(false, str_contains(json_encode($config->publicCameras()), 'Bell Alarm'));
+    } finally {
+        unlink($path);
+    }
+});
+
+test('config_rejects_invalid_alarm_sound_override_or_wire_code', function (): void {
+    loadConfigClass();
+    foreach ([
+        ['supported' => 'yes'],
+        ['options' => [70000 => 'Unverified sound']],
+        ['labels' => [524 => '']],
+    ] as $alarmSound) {
+        $fixture = validConfigFixture();
+        $fixture['cameras']['balcon']['alarm_sound'] = $alarmSound;
+        $path = configFixture($fixture);
+        try {
+            assertThrows(static fn () => Config::load($path), UnexpectedValueException::class);
+        } finally {
+            unlink($path);
+        }
+    }
+});

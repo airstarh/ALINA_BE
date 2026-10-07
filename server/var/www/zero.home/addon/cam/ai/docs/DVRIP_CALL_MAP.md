@@ -195,7 +195,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `image_basic` | `Camera.Param` |
 | `image_advanced` | `Camera.ParamEx` |
 | `detection_tracking` | `Detect.DetectTrack` |
-| `human_detection` | `Detect.HumanDetection` for detection/rule fields, including first-rule `PedRule[0].RuleLine.Pts` (Tripwire) and `PedRule[0].RuleRegion.Pts` (Intrusion); `Detect.MotionDetect.[0]` for Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), FTP upload (`EventHandler.FTPEnable`, only with `NetServerFunction.NetFTP`), Write log (`EventHandler.LogEnable`, only when present as Boolean), event snapshot (`EventHandler.SnapEnable` plus channel-one bit of `SnapShotMask`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
+| `human_detection` | `Detect.HumanDetection` for detection/rule fields, including first-rule `PedRule[0].RuleLine.Pts` (Tripwire) and `PedRule[0].RuleRegion.Pts` (Intrusion); `Detect.MotionDetect.[0]` for Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), FTP upload (`EventHandler.FTPEnable`, only with `NetServerFunction.NetFTP`), Write log (`EventHandler.LogEnable`, only when present as Boolean), event snapshot (`EventHandler.SnapEnable` plus channel-one bit of `SnapShotMask`), Alarm Sound (`EventHandler.VoiceEnable`, only where speaker support is indicated), sound selection (`EventHandler.VoiceType`, choices read from `Ability.VoiceTipType.VoiceTip[].VoiceEnum`), and Period (`EventHandler.TimeSection[day][slot]`) |
 | `motion_detection` | `Detect.MotionDetect` |
 | `blind_detection` | `Detect.BlindDetect` |
 | `video_loss_detection` | `Detect.LossDetect` |

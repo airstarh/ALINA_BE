@@ -104,5 +104,27 @@ final class Config
         ) {
             throw new UnexpectedValueException("Camera {$id} DVRIP timeout is invalid.");
         }
+
+        if (array_key_exists('alarm_sound', $camera)) {
+            $sound = $camera['alarm_sound'];
+            if (!is_array($sound) || array_diff(array_keys($sound), ['supported', 'labels', 'options']) !== []) {
+                throw new UnexpectedValueException("Camera {$id} alarm sound settings are invalid.");
+            }
+            if (array_key_exists('supported', $sound) && !is_bool($sound['supported'])) {
+                throw new UnexpectedValueException("Camera {$id} alarm sound support override must be boolean.");
+            }
+            foreach (['labels', 'options'] as $name) {
+                if (!array_key_exists($name, $sound)) continue;
+                if (!is_array($sound[$name])) {
+                    throw new UnexpectedValueException("Camera {$id} alarm sound {$name} must be a code-to-label map.");
+                }
+                foreach ($sound[$name] as $code => $label) {
+                    if (!is_int($code) || $code < 0 || $code > 65535
+                        || !is_string($label) || trim($label) === '') {
+                        throw new UnexpectedValueException("Camera {$id} alarm sound {$name} entry is invalid.");
+                    }
+                }
+            }
+        }
     }
 }
