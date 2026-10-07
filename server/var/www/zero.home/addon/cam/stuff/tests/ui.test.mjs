@@ -10,7 +10,7 @@ const moduleUrl = async (name) => {
     } catch {
         throw new Error(`browser module ${name} does not exist`);
     }
-    return `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`;
+    return path.href;
 };
 
 class FakeNode {
@@ -344,6 +344,14 @@ test('human detection rule mode labels map verified DVRIP values to readable opt
     const formData = new FormData();
     formData.set('ruleType', '0');
     assert.deepEqual(servicePayloadFromFormData(model, formData), {ruleType: 0});
+});
+
+test('rule coordinates follow actual image bounds, independent of camera resolution', async () => {
+    const {normalizedPoint, moveRegionEdge} = await import(await moduleUrl('rule-geometry.js'));
+    assert.deepEqual(normalizedPoint({clientX: 500, clientY: 274}, {left: 100, top: 50, width: 800, height: 448}), {X: 4096, Y: 4096});
+    assert.deepEqual(normalizedPoint({clientX: 900, clientY: 498}, {left: 100, top: 50, width: 1600, height: 896}), {X: 4096, Y: 4096});
+    const area = [{X: 100, Y: 100}, {X: 8000, Y: 100}, {X: 8000, Y: 8000}, {X: 100, Y: 8000}];
+    assert.deepEqual(moveRegionEdge(area, 0, 0, 200), [{X: 100, Y: 300}, {X: 8000, Y: 300}, area[2], area[3]]);
 });
 
 test('editable password controls are visible text fields', async () => {

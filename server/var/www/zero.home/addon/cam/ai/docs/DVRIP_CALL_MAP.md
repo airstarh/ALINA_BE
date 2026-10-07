@@ -1,6 +1,6 @@
 # DVRIP call map
 
-Last updated: 2026-10-06 (Europe/Moscow)
+Last updated: 2026-10-07 (Europe/Moscow)
 
 This map follows the requested format:
 
@@ -39,7 +39,7 @@ For every normal command, Balcon replies on `request message ID + 1`.
 |---|---|---|
 | `CameraApi.listCameras()` | `Api::handle('cameras')` -> `Config::publicCameras()` | **None.** Reads local `config.php`. |
 | `CameraApi.sections(camera)` | `Api::handle('sections')` -> `CameraService::sectionList()` | **None.** Static PHP catalogue; current API returns before constructing a camera service. |
-| `CameraApi.editors(camera)` | `Api::handle('editors')` -> `CameraService::editorList()` -> `NetworkServiceEditor::list()` | **None.** Static PHP allow-list; current API returns before login. |
+| `CameraApi.editors(camera)` | `Api::handle('editors')` -> `CameraService::availableEditors()` -> `NetworkServiceEditor::available()` | Read-only capability/system-info and configuration getters to filter the PHP allow-list for this device; exact getter commands depend on available branches. |
 
 ## Status and read-only configuration
 
@@ -179,7 +179,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `image_basic` | `Camera.Param` |
 | `image_advanced` | `Camera.ParamEx` |
 | `detection_tracking` | `Detect.DetectTrack` |
-| `human_detection` | `Detect.HumanDetection` for detection/rule fields; `Detect.MotionDetect.[0]` for native-CMS Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
+| `human_detection` | `Detect.HumanDetection` for detection/rule fields, including first-rule `PedRule[0].RuleLine.Pts` (Tripwire) and `PedRule[0].RuleRegion.Pts` (Intrusion); `Detect.MotionDetect.[0]` for native-CMS Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
 | `motion_detection` | `Detect.MotionDetect` |
 | `blind_detection` | `Detect.BlindDetect` |
 | `video_loss_detection` | `Detect.LossDetect` |
@@ -205,6 +205,29 @@ Editor ID to true DVRIP `Name` mapping:
 | `uart_comm_1` | `Uart.Comm` |
 | `ptz_serial` | `Uart.PTZ` |
 | `rs485` | `Uart.RS485` |
+
+## Human Detection shape editor
+
+`renderRuleSection()` in `rule-form.js` -> `renderServiceForm()` ->
+`CameraApi.saveEditor(camera, 'human_detection', payload)` ->
+`Api::handle('editor')` -> `CameraService::saveEditor()` ->
+`NetworkServiceEditor::update('human_detection', payload)` ->
+`DvripClient::getConfig('Detect.HumanDetection')` (**1042**) ->
+`DvripClient::setConfig('Detect.HumanDetection', merged full branch)` (**1040**)
+-> `DvripClient::getConfig('Detect.HumanDetection')` (**1042** for verification).
+The optional `ruleGeometryChanges` payload contains original and edited points.
+PHP rejects stale originals and invalid coordinates before the write. It owns
+only first-rule line/region points; unrelated shape, direction, and rule values
+survive the fresh-read merge.
+
+`rule-form.js` image load/Refresh image -> `stuff/php/snapshot.php?camera=...`
+-> configured camera `GET /webcapture.jpg?command=snap&channel=0` -> JPEG.
+This still-image path is camera HTTP, **not a DVRIP command**, and does not
+write settings. The SVG uses the JPEG's current rendered bounds to map mouse
+positions to camera coordinates `0..8192`.
+
+The owner confirmed on 2026-10-07 that saved Tripwire and Intrusion geometry
+matches the native CMS view and that browser resizing keeps the overlay aligned.
 
 ## Wi-Fi access-point search
 

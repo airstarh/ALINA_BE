@@ -1,6 +1,6 @@
 # Camera application current state
 
-Last updated: 2026-10-06 (Europe/Moscow)
+Last updated: 2026-10-07 (Europe/Moscow)
 
 This is the hand-off document for continuing work on the camera application.
 It describes the implementation and verified Balcon behaviour without storing
@@ -14,8 +14,8 @@ replacement for the legacy Xiongmai ActiveX configuration console. MotionEye
 continues to handle everyday video use. This project focuses on exposing the
 camera's extensive vendor configuration through DVRIP.
 
-The current camera is **Balcon**. Its configured management endpoint is the
-wired interface on DVRIP TCP port 34567. The application intentionally obtains
+The configured cameras include **Balcon** and **Door**. Their management
+endpoints use DVRIP TCP port 34567. The application intentionally obtains
 the host and credentials only from `addon/cam/config.php`; credentials are not
 entered in the browser.
 
@@ -23,6 +23,9 @@ entered in the browser.
 
 - `index.php` renders the shell and camera selector.
 - `stuff/js/app.js` controls connection, navigation, forms, and reboot UI.
+- `stuff/js/rule-form.js` overlays the editable first human-detection rule on a
+  current JPEG from `stuff/php/snapshot.php`. `rule-geometry.js` maps pointer
+  positions to the camera's normalized 0–8192 grid.
 - `stuff/js/api.js` is the browser HTTP/JSON client.
 - `stuff/php/api.php` validates HTTP actions, loads config, serializes requests
   per camera with a directory lock, logs in, dispatches, and closes the socket.
@@ -97,16 +100,28 @@ changes `Detect.MotionDetect.[0].EventHandler.VoiceEnable`; this control is
 offered only when `OtherFunction.SupportCloseVoiceTip` is true. That flag is a
 conservative observed distinction between Balcon and physically silent Door,
 not a universal speaker-detection guarantee. Each changed branch is freshly
-read, written in full, and verified by read-back. Geometry and the other rule
-slots are preserved. The Period section edits the camera's seven-day,
+read, written in full, and verified by read-back. The collapsed Detection rule
+/ area section edits Tripwire endpoints or one four-sided Intrusion area. The
+inactive shape, direction flags, and other rule slots are preserved. Geometry
+edits carry their original points so a concurrent camera change is rejected
+before writing. The Period section edits the camera's seven-day,
 six-slot `EventHandler.TimeSection` on the same page. It submits only changed
 slots, rejects stale slots, and preserves every other slot during the
-fresh-read merge. PTZ activation and rule geometry are not yet mapped. No probe
+fresh-read merge. PTZ activation is not yet mapped. No probe
 endpoint remains in the app. See
 [`human-detection-discovery.md`](human-detection-discovery.md) for exact
 observations. PTZ activation is not part of this editor; Door's PTZ must remain
 hidden because it does not advertise PTZ capabilities and is physically static.
 Future PTZ activation should appear only when actual device support is verified.
+
+On 2026-10-07 the owner tested the polygon and Tripwire editors in the browser:
+mouse manipulation worked, both saved shapes appeared exactly the same in the
+native CMS/ActiveX editor, and the overlay stayed aligned after resizing the
+browser window. This is user-reported end-to-end confirmation. Rule coordinates
+are normalized 0–8192 rather than tied to a particular camera image resolution;
+the overlay maps pointer positions using the image's current rendered bounds.
+Changing the camera's actual encoding resolution after a save has not yet been
+separately tested.
 
 ## Save semantics
 
@@ -173,7 +188,16 @@ message reached the recipient's inbox.
 
 ## Latest verification
 
-After the reboot-button cache fix:
+For the 2026-10-07 rule editor implementation:
+
+- 88 PHP tests and 26 JavaScript tests passed with zero failures;
+- PHP and JavaScript syntax checks and `git diff --check` passed;
+- read-only live JPEG and human-detection model requests worked for both
+  Balcon and Door;
+- the owner subsequently confirmed saved geometry in native CMS and responsive
+  browser resizing.
+
+Earlier, after the reboot-button cache fix:
 
 - 75 PHP tests passed with zero failures;
 - JavaScript UI tests passed;

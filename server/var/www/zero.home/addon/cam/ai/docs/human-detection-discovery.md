@@ -1,6 +1,6 @@
 # Human Detection feature discovery
 
-Updated: 2026-10-06 (Europe/Moscow)
+Updated: 2026-10-07 (Europe/Moscow)
 
 ## Goal
 
@@ -10,20 +10,20 @@ geometry dialog, a weekly period editor, and a PTZ-activation dialog. Door is
 physically static: its generic legacy-CMS PTZ controls must not be treated as
 evidence of motor/PTZ support or exposed as usable controls.
 
-## Existing application behavior
+## Application behavior and discovery history
 
 - The `human_detection` editor exposes top-level detection/display values plus
   the first rule's enable state and verified rule type. After the native CMS
   captures below, it also edits Send Email, App Push, and (where advertised)
-  Alarm Sound and the weekly Period. It does not edit rule geometry or PTZ
-  actions.
+  Alarm Sound and the weekly Period. It now also edits the first rule's
+  Tripwire or Intrusion geometry; PTZ activation remains unimplemented.
 - Existing event editors share a schema for basic event routing, but their
   notes explicitly leave event schedules, masks, PTZ links, and region geometry
   read-only. They do not currently represent Human Detection's full CMS flow.
 - The read-only `Detect` branch contains `HumanDetection.PedRule`, including
   four rule slots with enabled state, line points, region points, direction,
-  and rule type. Do not change these structures until the wire values and
-  coordinate conventions are mapped.
+  and rule type. The first rule's line/region point conventions were mapped
+  by the captures below; the other rule slots remain untouched.
 - The live `Detect.HumanDetection` object includes `EventHandler` and
   `TimeSection` keys, but both values are `null`. The related
   `Detect.HumanDetectionDVR` object also returns `EventHandler=null`, so the
@@ -252,3 +252,85 @@ writes the full branch when changed, and verifies read-back. Time input accepts
 unknown schedule shapes are not exposed for editing. No automated tests or
 live web save were run for this Period addition at the owner's request; PHP
 and JavaScript syntax and `git diff --check` were checked.
+
+## Balcon rule geometry captures (2026-10-07)
+
+The owner captured two separate legacy-CMS saves on Balcon. The first capture,
+`/tmp/balcon-intrusion-20261007-074551.pcap`, contains one successful write
+of `Detect.HumanDetection.[0]` at 07:48:45. Its enabled first `PedRule` had
+`RuleType=1` (Intrusion), `RuleLine.Pts=(54,21)->(8056,8019)`, and
+`RuleRegion.Pts=[(3899,0),(7784,108),(7512,7111),(3735,8083)]`.
+
+The second capture, `/tmp/balcon-intrusion-second-20261007-075454.pcap`,
+contains a later successful write of the same branch. Its first rule has
+`RuleType=0` (Tripwire), `RuleLine.Pts=(3722,86)->(4021,8170)`, and
+`RuleRegion.Pts=[(3885,0),(7770,86),(7499,7089),(3722,8062)]`. Both
+responses returned `Ret=100`; a subsequent read-only web API read-back
+matched the second write exactly. The CMS stores both line and polygon
+geometry even though `RuleType` selects only one active rule kind. The second
+save therefore did **not** leave Intrusion active; ask the owner to check the
+CMS radio selection before assuming the displayed polygon is the active rule.
+
+These captures do not establish a CMS gesture for deleting a saved polygon.
+The PCAPs remain only under `/tmp` and may contain credentials; do not copy
+their raw contents into tracked docs.
+
+## Balcon physical rule test (2026-10-07)
+
+The owner captured a short walk test in
+`/tmp/balcon-rule-test-20261007-082939.pcap`. The CMS successfully saved
+`Detect.HumanDetection.[0]` as Tripwire (`RuleType=0`) at 08:29:58, then as
+Intrusion (`RuleType=1`) at 08:31:54; both replies had `Ret=100`. The camera
+sent `AlarmInfo` / `appEventHumanDetectAlarm` Start/Stop pairs at
+08:31:03/08:31:04 (camera `StartTime=08:31:02`) and
+08:32:28/08:32:37 (camera `StartTime=08:32:27` / `08:32:36`). These events
+occurred while Tripwire and Intrusion respectively were active. A later
+read-only config read confirmed Intrusion remains active. This proves both
+rule kinds can trigger on Balcon, but one walk each does not establish the
+precise position/direction/timing threshold.
+
+The owner's Thunderbird screenshot showed camera message list times of
+03:31/03:32 while the Balcon event body and DVRIP event times showed
+08:31/08:32 local. The owner provided the raw headers for one Balcon message:
+its `Date` was `Wed, 07 Oct 2026 08:31:04 +0800`, while Gmail's `Received`
+timestamp was `Tue, 06 Oct 2026 22:31:06 -0700 (PDT)`. The latter equals
+08:31:06 at the owner's UTC+3 location, matching the event body and packet
+capture. The mail's `Date` instead represents 03:31:04 at UTC+3, exactly the
+time Thunderbird displayed. Thus Gmail receipt and Thunderbird's conversion
+are correct; the camera-originated message labels its 08:31 clock reading
+with the wrong `+0800` offset. Why that offset is generated remains unproven.
+Both cameras currently report `NetWork.NetNTP.TimeZone=14` and NTP enabled;
+do not reinterpret or change that code without evidence. Mail addresses and
+other raw headers are deliberately omitted from this tracked note.
+
+## Integrated rule editor (2026-10-07)
+
+The Human Detection form now has a collapsed `Detection rule / area` section.
+Tripwire is one draggable two-endpoint line. Intrusion is one four-sided region;
+the corners and sides are movable. There is no delete operation: `Discard shape
+edits` resets only the unsaved browser draft. Saving uses the existing Review
+changes flow. It transmits optional `ruleGeometryChanges` with the original
+point arrays; PHP fresh-reads the branch, rejects stale originals, checks point
+range and shape validity, merges only the changed `RuleLine.Pts` or
+`RuleRegion.Pts`, then verifies DVRIP read-back. The inactive shape, direction
+flags, other PedRule slots, and unrelated settings are preserved.
+
+Coordinates are the camera's normalized integer grid `0..8192`, not JPEG
+pixels. The SVG is stretched over the image's current rendered bounds and
+pointer locations are converted from its actual bounding box. Hence a change
+of camera resolution does not require rewriting stored rule coordinates. A
+fresh still image comes from `webcapture.jpg?command=snap&channel=0` through
+the same-origin PHP JPEG endpoint `stuff/php/snapshot.php`; both Balcon and Door
+returned JPEGs in read-only checks. Neither camera's live rule was changed by
+the implementation verification. PTZ activation remains unmapped.
+
+### Owner's end-to-end check
+
+On 2026-10-07 the owner tested both the polygon and Tripwire in our browser
+editor, saved changes, and compared them against the native CMS/ActiveX rule
+page. The shapes appeared exactly the same there. Mouse editing worked, and
+the overlay remained correctly scaled when the browser window changed size.
+This verifies the current image-to-rule coordinate mapping in actual use.
+It does not yet prove behavior after changing the camera's encoding resolution
+itself; keep that as a separate test rather than conflating it with browser
+resize.

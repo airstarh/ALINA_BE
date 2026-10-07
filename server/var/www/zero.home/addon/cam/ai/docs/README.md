@@ -24,6 +24,7 @@ into this directory, application source, command examples, or browser-side code.
 - [Door camera and automatic editor discovery](door-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)
 - [Human Detection feature discovery](human-detection-discovery.md)
+- [Human Detection rule editor implementation plan](2026-10-07-rule-editor-plan.md)
 - [Balcon configuration SPA design](2026-10-05-cam-spa-design.md)
 - [Balcon configuration SPA implementation plan](2026-10-05-cam-spa-implementation-plan.md)
 - [Camera SPA verification](cam-spa-verification.md)
@@ -36,9 +37,10 @@ into this directory, application source, command examples, or browser-side code.
 
 ## PHP DVRIP request machinery
 
-The application does not use cURL, HTTP, AJAX, Composer, or a third-party PHP
-package to communicate with a camera. DVRIP is sent over a native PHP TCP
-stream.
+Configuration requests do not use cURL, HTTP, AJAX, Composer, or a third-party
+PHP package to communicate with a camera. DVRIP is sent over a native PHP TCP
+stream. The separate read-only still-image endpoint uses camera HTTP via PHP
+cURL; browser-to-PHP requests use HTTPS/AJAX.
 
 The exact call chain is:
 
@@ -138,11 +140,12 @@ A packet capture of the native CMS identified available-network search
 as DVRIP message 1020 with name `WifiAP`; the form now provides Search, shows
 the returned AP table, and can copy a selected AP into the editable fields.
 
-The fourth ten-page batch moves beyond networking: general preferences, locale
+The fourth ten-page batch moved beyond networking: general preferences, locale
 formats, defog, white-light control, overlay indicators, OSD logo, audio input
-and output volume, tracking sensitivity, and basic human detection. Complex
-detection regions, schedules, and event-routing structures remain preserved
-but read-only.
+and output volume, tracking sensitivity, and basic human detection. Human
+Detection was subsequently expanded with the period schedule, alert actions,
+and a Tripwire/Intrusion geometry editor. Other detection structures remain
+preserved unless owned by a dedicated form.
 
 The final 37-page batch completes the planned interface. Together with SMTP
 and the first 30 schema-driven pages, the application originally exposed 68

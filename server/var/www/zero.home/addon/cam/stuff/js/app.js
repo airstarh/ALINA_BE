@@ -7,7 +7,7 @@ import {
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
-import {renderServiceForm} from './service-form.js?v=20261006-3';
+import {renderServiceForm} from './service-form.js?v=20261007-1';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -141,6 +141,7 @@ const loadEditor = async (editorId, editorName, token) => {
         const data = await api.editor(activeCamera, editorId);
         if (!guard.isCurrent(token)) return;
         const render = (model) => renderServiceForm(model, {
+            cameraId: activeCamera,
             onReload: () => loadEditor(editorId, editorName, guard.begin(activeCamera)),
             onWifiSearch: editorId === 'wifi'
                 ? () => api.wifiAccessPoints(activeCamera)

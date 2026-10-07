@@ -392,7 +392,7 @@ final class NetworkServiceEditor
         ],
         'human_detection' => [
             'label' => 'Human detection', 'branch' => 'Detect.HumanDetection',
-            'warning' => 'Send Email, App Push, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Send Email uses the separate SMTP configuration. Alarm Sound is shown only when additional voice-tip control is advertised. Rule drawing and PTZ activation are not yet mapped; their existing values are preserved.',
+            'warning' => 'Send Email, App Push, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Send Email uses the separate SMTP configuration. Alarm Sound is shown only when additional voice-tip control is advertised. PTZ activation is not mapped; its existing value is preserved.',
             'fields' => [
                 'enable' => ['label' => 'Human detection', 'type' => 'boolean', 'path' => [0, 'Enable']],
                 'pushInterval' => ['label' => 'Push interval', 'type' => 'integer', 'min' => 0, 'max' => 3600000, 'path' => [0, 'PushInterval']],
@@ -482,8 +482,10 @@ final class NetworkServiceEditor
     public function get(string $id): array
     {
         $definition = $this->definition($id);
-        $model = $this->model($id, $definition, $this->readBranch($definition));
+        $branch = $this->readBranch($definition);
+        $model = $this->model($id, $definition, $branch);
         if ($id === 'human_detection') {
+            $model['ruleGeometry'] = $this->humanRuleGeometry($branch);
             $actions = $this->readHumanActions();
             return $actions === null ? $model : $this->withHumanActions($model, $actions);
         }
@@ -682,6 +684,10 @@ final class NetworkServiceEditor
             $this->setPath($updated, $field['path'], $wireValue);
         }
 
+        if ($id === 'human_detection' && array_key_exists('ruleGeometryChanges', $input)) {
+            $this->applyHumanRuleGeometry($updated, $input['ruleGeometryChanges']);
+        }
+
         if ($id === 'human_detection' && $updated === $current) {
             $verified = $current;
         } else {
@@ -689,6 +695,9 @@ final class NetworkServiceEditor
             $verified = $this->readBranch($definition);
         }
         $model = $this->model($id, $definition, $verified);
+        if ($id === 'human_detection') {
+            $model['ruleGeometry'] = $this->humanRuleGeometry($verified);
+        }
         if ($id === 'wifi'
             ? !$this->wifiMatchesInput($definition, $model, $input, $clean)
             : $verified !== $updated
@@ -1003,6 +1012,69 @@ final class NetworkServiceEditor
         // These cameras both advertise generic voice-tip menus; only Balcon
         // advertises the additional voice-control capability and has a speaker.
         return ($this->reader->getSystemFunction()['OtherFunction']['SupportCloseVoiceTip'] ?? false) === true;
+    }
+
+    private function humanRuleGeometry(array $branch): ?array
+    {
+        $rule = $branch[0]['PedRule'][0] ?? null;
+        $line = $rule['RuleLine']['Pts'] ?? null;
+        $region = $rule['RuleRegion']['Pts'] ?? null;
+        if (!is_array($line) || !is_array($region) || count($region) !== 4) return null;
+        return ['extent' => 8192, 'line' => $line, 'region' => $region];
+    }
+
+    private function applyHumanRuleGeometry(array &$branch, mixed $changes): void
+    {
+        $geometry = $this->humanRuleGeometry($branch);
+        if ($geometry === null || !is_array($changes) || array_diff(array_keys($changes), ['line', 'region']) !== []) {
+            throw new InvalidArgumentException('Camera rule geometry is unavailable or invalid.');
+        }
+        foreach ($changes as $kind => $change) {
+            if (!is_array($change) || !array_key_exists('expected', $change) || !array_key_exists('points', $change)
+                || $change['expected'] !== $geometry[$kind]) {
+                throw new InvalidArgumentException('Rule geometry changed on the camera; reload before saving.');
+            }
+            $points = $change['points'];
+            if ($kind === 'line') {
+                $keys = ['StartX', 'StartY', 'StopX', 'StopY'];
+                if (!is_array($points) || array_keys($points) !== $keys) {
+                    throw new InvalidArgumentException('Tripwire requires two endpoints.');
+                }
+                foreach ($points as $number) $this->validateRuleCoordinate($number);
+                if ($points['StartX'] === $points['StopX'] && $points['StartY'] === $points['StopY']) {
+                    throw new InvalidArgumentException('Tripwire endpoints must differ.');
+                }
+                $branch[0]['PedRule'][0]['RuleLine']['Pts'] = $points;
+                continue;
+            }
+            if (!is_array($points) || count($points) !== 4 || array_keys($points) !== [0, 1, 2, 3]) {
+                throw new InvalidArgumentException('Intrusion area requires four corners.');
+            }
+            foreach ($points as $point) {
+                if (!is_array($point) || array_keys($point) !== ['X', 'Y']) {
+                    throw new InvalidArgumentException('Intrusion corner is invalid.');
+                }
+                $this->validateRuleCoordinate($point['X']);
+                $this->validateRuleCoordinate($point['Y']);
+            }
+            $sign = 0;
+            for ($i = 0; $i < 4; $i++) {
+                $a = $points[$i]; $b = $points[($i + 1) % 4]; $c = $points[($i + 2) % 4];
+                $cross = ($b['X'] - $a['X']) * ($c['Y'] - $b['Y']) - ($b['Y'] - $a['Y']) * ($c['X'] - $b['X']);
+                if ($cross === 0 || ($sign !== 0 && ($cross > 0 ? 1 : -1) !== $sign)) {
+                    throw new InvalidArgumentException('Intrusion area must be a non-crossing four-sided shape.');
+                }
+                $sign = $cross > 0 ? 1 : -1;
+            }
+            $branch[0]['PedRule'][0]['RuleRegion']['Pts'] = $points;
+        }
+    }
+
+    private function validateRuleCoordinate(mixed $number): void
+    {
+        if (!is_int($number) || $number < 0 || $number > 8192) {
+            throw new InvalidArgumentException('Rule coordinate must be an integer from 0 to 8192.');
+        }
     }
 
     private function model(string $id, array $definition, array $branch): array

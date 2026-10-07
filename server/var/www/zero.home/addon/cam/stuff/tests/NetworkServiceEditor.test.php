@@ -280,6 +280,46 @@ test('network_editor_human_detection_uses_native_readable_rule_modes_and_preserv
     assertSameValue(0, $saved['values']['ruleType']);
 });
 
+test('human_rule_geometry_changes_only_selected_points_and_preserves_other_rules', function (): void {
+    $editor = networkEditorFixture($reader);
+    $branch = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.HumanDetection'] = $branch;
+    $model = $editor->get('human_detection');
+    assertSameValue(8192, $model['ruleGeometry']['extent']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleLine']['Pts'], $model['ruleGeometry']['line']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleRegion']['Pts'], $model['ruleGeometry']['region']);
+    $input = $model['values'];
+    $input['ruleGeometryChanges'] = ['line' => [
+        'expected' => $model['ruleGeometry']['line'],
+        'points' => ['StartX' => 200, 'StartY' => 300, 'StopX' => 7000, 'StopY' => 7100],
+    ]];
+    $editor->update('human_detection', $input);
+    $written = $reader->values['Detect.HumanDetection'];
+    assertSameValue($input['ruleGeometryChanges']['line']['points'], $written[0]['PedRule'][0]['RuleLine']['Pts']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleRegion'], $written[0]['PedRule'][0]['RuleRegion']);
+    assertSameValue($branch[0]['PedRule'][1], $written[0]['PedRule'][1]);
+    $region = [['X' => 200, 'Y' => 200], ['X' => 7000, 'Y' => 300], ['X' => 6800, 'Y' => 7000], ['X' => 300, 'Y' => 6800]];
+    $input['ruleGeometryChanges'] = ['region' => [
+        'expected' => $model['ruleGeometry']['region'], 'points' => $region,
+    ]];
+    $editor->update('human_detection', $input);
+    $written = $reader->values['Detect.HumanDetection'];
+    assertSameValue($region, $written[0]['PedRule'][0]['RuleRegion']['Pts']);
+    assertSameValue($branch[0]['PedRule'][0]['RuleRegion']['AlarmDirect'], $written[0]['PedRule'][0]['RuleRegion']['AlarmDirect']);
+});
+
+test('human_rule_geometry_rejects_stale_or_invalid_points_before_write', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $model = $editor->get('human_detection');
+    $input = $model['values'];
+    $input['ruleGeometryChanges'] = ['line' => ['expected' => ['StartX' => 0], 'points' => $model['ruleGeometry']['line']]];
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    assertSameValue([], array_values(array_filter($reader->calls, fn ($call) => $call[0] === 'set')));
+    $input['ruleGeometryChanges'] = ['line' => ['expected' => $model['ruleGeometry']['line'], 'points' => ['StartX' => -1, 'StartY' => 0, 'StopX' => 1, 'StopY' => 1]]];
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+});
+
 test('network_editor_human_detection_reads_and_writes_native_alert_actions', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];

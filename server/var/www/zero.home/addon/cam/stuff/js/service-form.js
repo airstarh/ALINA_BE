@@ -1,4 +1,5 @@
 import {renderPeriodSection} from './period-form.js?v=20261006-1';
+import {renderRuleSection} from './rule-form.js?v=20261007-1';
 
 export function servicePayloadFromFormData(model, formData) {
     const values = {};
@@ -126,6 +127,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     const controls = new Map();
     for (const [name, field] of entries) {
         if (enableEntry?.[0] === name) continue;
+        if (model.id === 'human_detection' && model.ruleGeometry && ['ruleEnabled', 'ruleType'].includes(name)) continue;
         if (isSwitch(field)) {
             const label = append(grid, 'label', {className: 'form-switch-field'});
             const input = append(label, 'input', {attributes: {type: 'checkbox', name}});
@@ -156,6 +158,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         controls.set(name, input);
     }
 
+    const ruleSection = model.id === 'human_detection' && model.ruleGeometry && handlers.cameraId
+        ? renderRuleSection(form, model, handlers.cameraId)
+        : null;
     const periodSection = model.id === 'human_detection' && model.periods
         ? renderPeriodSection(form, model.periods)
         : null;
@@ -199,6 +204,11 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         event.preventDefault();
         if (!form.reportValidity()) return;
         pending = servicePayloadFromFormData(model, new FormData(form));
+        if (ruleSection) {
+            const changes = ruleSection.collectChanges();
+            if (changes === null) return;
+            pending.ruleGeometryChanges = changes;
+        }
         if (periodSection) {
             const changes = periodSection.collectChanges();
             if (changes === null) return;
@@ -214,6 +224,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         }
         for (const change of pending.periodChanges || []) {
             append(list, 'li', {text: periodSection.describe(change)});
+        }
+        if (ruleSection && Object.keys(pending.ruleGeometryChanges).length) {
+            append(list, 'li', {text: ruleSection.describe(pending.ruleGeometryChanges)});
         }
         review.hidden = false;
         review.scrollIntoView({behavior: 'smooth', block: 'nearest'});

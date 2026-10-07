@@ -145,6 +145,19 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
 .smtp-review { margin-top: 1.25rem; padding: 1rem; border: 1px solid #4ba990; border-radius: .65rem; background: #14241f; }
 .smtp-review h3 { margin-top: 0; }
 .smtp-review ul { margin: 0; padding-left: 1.25rem; color: #c6d2d9; line-height: 1.7; }
+.rule-section { margin: 1rem 0; padding: .9rem; border: 1px solid var(--line); border-radius: .6rem; }
+.rule-section > summary { color: var(--accent); cursor: pointer; font-weight: bold; }
+.rule-controls, .rule-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin: .8rem 0; }
+.rule-controls label { display: flex; align-items: center; gap: .4rem; }
+.rule-controls select { padding: .45rem; }
+.rule-surface { position: relative; width: min(100%, 800px); max-width: 100%; line-height: 0; }
+.rule-surface img { display: block; width: 100%; height: auto; }
+.rule-surface svg { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.rule-stroke, .rule-edge-visible { stroke: #1c8cff; stroke-width: 3px; vector-effect: non-scaling-stroke; }
+.rule-edge-hit { stroke: transparent; stroke-width: 22px; vector-effect: non-scaling-stroke; cursor: move; }
+.rule-polygon { fill: #32e35c24; stroke: #32e35c; stroke-width: 3px; vector-effect: non-scaling-stroke; }
+.rule-handle { fill: #32e35c; stroke: #102a17; stroke-width: 2px; vector-effect: non-scaling-stroke; cursor: grab; }
+.rule-handle:active { cursor: grabbing; }
 
 .tree-list { display: grid; width: 100%; min-width: 0; grid-template-columns: minmax(8rem, 32%) minmax(0, 1fr); gap: .3rem .8rem; margin: 0; }
 .tree-list dt { min-width: 0; color: #aebbc7; font-size: .84rem; overflow-wrap: anywhere; }
