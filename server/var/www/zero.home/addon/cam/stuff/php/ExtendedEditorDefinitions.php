@@ -124,7 +124,16 @@ final class ExtendedEditorDefinitions
                 'timePreviewBlend' => self::boolean('Preview time title', [0, 'TimeTitleAttribute', 'PreviewBlend']),
             ]),
             'snapshot' => self::definition('Snapshot recording', 'Storage.Snapshot', [
-                'mode' => self::string('Snapshot mode', [0, 'SnapMode']),
+                'mode' => [
+                    'label' => 'Snapshot mode', 'type' => 'string', 'path' => [0, 'SnapMode'],
+                    'options' => ['ClosedSnap', 'ManualSnap', 'ConfigSnap'],
+                    'optionLabels' => [
+                        'ClosedSnap' => 'Off',
+                        'ManualSnap' => 'Manual snapshots',
+                        'ConfigSnap' => 'Configured / scheduled snapshots',
+                    ],
+                    'strictOptions' => true,
+                ],
                 'preSnapshot' => self::integer('Pre-snapshot count', [0, 'PreSnap'], 0, 100),
                 'redundancy' => self::boolean('Redundant storage', [0, 'Redundancy']),
             ], 'Schedules and masks are preserved but are not editable on this page.'),

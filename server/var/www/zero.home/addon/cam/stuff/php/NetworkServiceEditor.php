@@ -392,7 +392,7 @@ final class NetworkServiceEditor
         ],
         'human_detection' => [
             'label' => 'Human detection', 'branch' => 'Detect.HumanDetection',
-            'warning' => 'Send Email, App Push, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Send Email uses the separate SMTP configuration. Alarm Sound is shown only when additional voice-tip control is advertised. PTZ activation is not mapped; its existing value is preserved.',
+            'warning' => 'Send Email, App Push, FTP upload, Write log, event snapshots, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Email and FTP destinations are configured on their separate pages. Attaching an event snapshot to email also requires Send Email. Alarm Sound is shown only when additional voice-tip control is advertised. PTZ activation is not mapped; its existing value is preserved.',
             'fields' => [
                 'enable' => ['label' => 'Human detection', 'type' => 'boolean', 'path' => [0, 'Enable']],
                 'pushInterval' => ['label' => 'Push interval', 'type' => 'integer', 'min' => 0, 'max' => 3600000, 'path' => [0, 'PushInterval']],
@@ -428,6 +428,19 @@ final class NetworkServiceEditor
                 'type' => 'boolean',
                 'path' => ['EventHandler', 'VoiceEnable'],
             ],
+        ],
+    ];
+
+    private const HUMAN_OPTIONAL_ACTION_FIELDS = [
+        'ftpUpload' => [
+            'label' => 'Upload by FTP (shared alert action)',
+            'type' => 'boolean',
+            'path' => ['EventHandler', 'FTPEnable'],
+        ],
+        'writeLog' => [
+            'label' => 'Write log (shared alert action)',
+            'type' => 'boolean',
+            'path' => ['EventHandler', 'LogEnable'],
         ],
     ];
 
@@ -637,10 +650,12 @@ final class NetworkServiceEditor
             throw new InvalidArgumentException('Field dhcp must be boolean.');
         }
         $clean = $this->validate($definition, $input);
-        $current = $this->readBranch($definition);
+        $parentBranch = null;
+        $current = $this->readBranch($definition, $parentBranch);
         $humanActions = $id === 'human_detection' ? $this->readHumanActions() : null;
+        $optionalHumanActions = $humanActions === null ? [] : $this->availableHumanOptionalActions($humanActions);
         if ($id === 'human_detection') {
-            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'alarmSound', 'periodChanges'], array_keys($input)) !== []) {
+            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'snapshot', 'alarmSound', 'ftpUpload', 'writeLog', 'periodChanges'], array_keys($input)) !== []) {
                 throw new DvripException('device_config_missing', 'Camera does not expose alert action settings.');
             }
             if ($humanActions !== null) {
@@ -649,12 +664,28 @@ final class NetworkServiceEditor
                         throw new InvalidArgumentException("Field {$name} must be boolean.");
                     }
                 }
+                $snapshotCurrent = $this->humanSnapshotState($humanActions);
+                if ($snapshotCurrent !== null && (!array_key_exists('snapshot', $input) || !is_bool($input['snapshot']))) {
+                    throw new InvalidArgumentException('Field snapshot must be boolean.');
+                }
+                if ($snapshotCurrent === null && array_key_exists('snapshot', $input)) {
+                    throw new InvalidArgumentException('Event snapshot is not available on this camera.');
+                }
                 if ($this->supportsHumanAlarmSound()) {
                     if (!array_key_exists('alarmSound', $input) || !is_bool($input['alarmSound'])) {
                         throw new InvalidArgumentException('Field alarmSound must be boolean.');
                     }
                 } elseif (array_key_exists('alarmSound', $input)) {
                     throw new InvalidArgumentException('Alarm Sound is not supported by this camera.');
+                }
+                foreach (self::HUMAN_OPTIONAL_ACTION_FIELDS as $name => $field) {
+                    if (isset($optionalHumanActions[$name])) {
+                        if (!array_key_exists($name, $input) || !is_bool($input[$name])) {
+                            throw new InvalidArgumentException("Field {$name} must be boolean.");
+                        }
+                    } elseif (array_key_exists($name, $input)) {
+                        throw new InvalidArgumentException("Field {$name} is not available on this camera.");
+                    }
                 }
             }
         }
@@ -666,13 +697,16 @@ final class NetworkServiceEditor
         $updatedActions = $humanActions;
 
         if ($humanActions !== null) {
-            foreach (self::HUMAN_ACTION_DEFINITION['fields'] as $name => $field) {
+            foreach (self::HUMAN_ACTION_DEFINITION['fields'] + $optionalHumanActions as $name => $field) {
                 if (array_key_exists($name, $input)) {
                     $this->setPath($updatedActions, $field['path'], $input[$name]);
                 }
             }
             if (array_key_exists('periodChanges', $input)) {
                 $this->applyHumanPeriodChanges($updatedActions, $input['periodChanges']);
+            }
+            if ($snapshotCurrent !== null && $input['snapshot'] !== $snapshotCurrent) {
+                $this->applyHumanSnapshotChange($updatedActions, $input['snapshot']);
             }
         }
 
@@ -688,8 +722,19 @@ final class NetworkServiceEditor
             $this->applyHumanRuleGeometry($updated, $input['ruleGeometryChanges']);
         }
 
-        if ($id === 'human_detection' && $updated === $current) {
+        if (in_array($id, ['human_detection', 'snapshot'], true) && $updated === $current) {
             $verified = $current;
+        } elseif ($id === 'snapshot' && $parentBranch !== null) {
+            $parentBranch['Snapshot'] = $updated;
+            $this->reader->setConfig('Storage', $parentBranch);
+            $verifiedParent = $this->reader->getConfig('Storage');
+            if ($verifiedParent !== $parentBranch) {
+                throw new DvripException(
+                    'write_verification_failed',
+                    'Storage read-back did not match the submitted object.'
+                );
+            }
+            $verified = $verifiedParent['Snapshot'];
         } else {
             $this->reader->setConfig($definition['branch'], $updated);
             $verified = $this->readBranch($definition);
@@ -831,7 +876,7 @@ final class NetworkServiceEditor
         return match ($id) {
             'wifi', 'wifi_signal' => ($network['NetWifi'] ?? false) !== true,
             'white_light' => ($other['SupportCameraWhiteLight'] ?? false) !== true,
-            'snapshot', 'recording' => ($other['NOHDDRECORD'] ?? false) === true,
+            'recording' => ($other['NOHDDRECORD'] ?? false) === true,
             'alarm_output' => ($systemInfo['AlarmOutChannel'] ?? null) === 0,
             'local_alarm' => ($systemInfo['AlarmInChannel'] ?? null) === 0,
             default => false,
@@ -870,9 +915,24 @@ final class NetworkServiceEditor
         return $value;
     }
 
-    private function readBranch(array $definition): array
+    private function readBranch(array $definition, ?array &$parentBranch = null): array
     {
-        $branch = $this->reader->getConfig($definition['branch']);
+        $parentBranch = null;
+        try {
+            $branch = $this->reader->getConfig($definition['branch']);
+        } catch (DvripException $exception) {
+            if ($definition['branch'] !== 'Storage.Snapshot' || !in_array($exception->publicCode(), [
+                'device_unsupported', 'device_config_missing', 'device_error',
+            ], true)) {
+                throw $exception;
+            }
+            $storage = $this->reader->getConfig('Storage');
+            if (!is_array($storage) || !is_array($storage['Snapshot'] ?? null)) {
+                throw new DvripException('device_config_missing', 'Camera returned no snapshot configuration.');
+            }
+            $parentBranch = $storage;
+            $branch = $storage['Snapshot'];
+        }
         if (!is_array($branch)) {
             throw new DvripException('device_config_missing', 'Camera returned an invalid configuration branch.');
         }
@@ -897,16 +957,67 @@ final class NetworkServiceEditor
     private function withHumanActions(array $model, array $branch): array
     {
         $actions = $this->model('human_detection', self::HUMAN_ACTION_DEFINITION, $branch);
+        foreach ($this->availableHumanOptionalActions($branch) as $name => $field) {
+            $public = $field;
+            unset($public['path']);
+            $actions['fields'][$name] = $public;
+            $actions['values'][$name] = $this->getPath($branch, $field['path']);
+        }
         if (!$this->supportsHumanAlarmSound()) {
             unset($actions['fields']['alarmSound'], $actions['values']['alarmSound']);
         }
         $model['fields'] += $actions['fields'];
         $model['values'] += $actions['values'];
+        $snapshot = $this->humanSnapshotState($branch);
+        if ($snapshot !== null) {
+            $model['fields']['snapshot'] = [
+                'label' => 'Include event snapshot (shared alert action)',
+                'type' => 'boolean',
+            ];
+            $model['values']['snapshot'] = $snapshot;
+        }
         $periods = $this->humanPeriods($branch);
         if ($periods !== null) {
             $model['periods'] = $periods;
         }
         return $model;
+    }
+
+    private function availableHumanOptionalActions(array $branch): array
+    {
+        $event = $branch['EventHandler'] ?? null;
+        if (!is_array($event)) return [];
+
+        $available = [];
+        if (is_bool($event['FTPEnable'] ?? null)
+            && ($this->reader->getSystemFunction()['NetServerFunction']['NetFTP'] ?? false) === true) {
+            $available['ftpUpload'] = self::HUMAN_OPTIONAL_ACTION_FIELDS['ftpUpload'];
+        }
+        if (is_bool($event['LogEnable'] ?? null)) {
+            $available['writeLog'] = self::HUMAN_OPTIONAL_ACTION_FIELDS['writeLog'];
+        }
+        return $available;
+    }
+
+    private function humanSnapshotState(array $branch): ?bool
+    {
+        $event = $branch['EventHandler'] ?? null;
+        $mask = $event['SnapShotMask'] ?? null;
+        if (!is_array($event) || !is_bool($event['SnapEnable'] ?? null)
+            || !is_string($mask) || preg_match('/^0x[0-9a-fA-F]{32}$/D', $mask) !== 1) {
+            return null;
+        }
+        return $event['SnapEnable'] && ((hexdec(substr($mask, 2, 8)) & 1) !== 0);
+    }
+
+    private function applyHumanSnapshotChange(array &$branch, bool $enabled): void
+    {
+        $mask = $branch['EventHandler']['SnapShotMask'];
+        $bits = (int) hexdec(substr($mask, 2, 8));
+        $bits = $enabled ? ($bits | 1) : ($bits & ~1);
+        $mask = '0x' . sprintf('%08X', $bits) . substr($mask, 10);
+        $branch['EventHandler']['SnapShotMask'] = $mask;
+        $branch['EventHandler']['SnapEnable'] = preg_match('/[1-9a-fA-F]/', substr($mask, 2)) === 1;
     }
 
     private function humanPeriods(array $branch): ?array
@@ -1089,6 +1200,7 @@ final class NetworkServiceEditor
             unset($public['byteMap']);
             unset($public['readMap']);
             unset($public['wireMap']);
+            unset($public['strictOptions']);
             if (isset($field['readMap'][$value])) {
                 $values[$name] = $field['readMap'][$value];
             } elseif ($field['type'] === 'password') {
@@ -1177,6 +1289,10 @@ final class NetworkServiceEditor
                 throw new InvalidArgumentException("Field {$name} must be a short string.");
             }
             $clean[$name] = $field['type'] === 'password' ? $value : trim($value);
+            if (($field['strictOptions'] ?? false) === true
+                && !in_array($clean[$name], $field['options'] ?? [], true)) {
+                throw new InvalidArgumentException("Field {$name} has an unsupported value.");
+            }
         }
         return $clean;
     }

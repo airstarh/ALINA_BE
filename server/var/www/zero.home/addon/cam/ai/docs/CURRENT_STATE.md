@@ -55,6 +55,15 @@ directly open this arbitrary TCP protocol from a normal browser.
 - A **Test email** action which checks the camera's `SupportMailTest` capability,
   freshly reads its saved `NetWork.NetEmail` branch, and issues DVRIP
   `OPMailTest` (message 1636) without saving or changing camera configuration.
+- A **Test FTP connection** action on the FTP editor. It checks
+  `SupportFTPTest`, reads saved `NetWork.NetFTP`, and issues DVRIP `OPFTPTest`
+  (message 2008). Unsaved form edits are not sent. Balcon's live test on
+  2026-10-07 returned DVRIP code 109 (failure). Packet capture on `bbb`
+  showed successful FTP login but `550` when the camera attempted `MKD Test`
+  at the FTP login root. With `local_root=/`, that root is the host's `/`,
+  which the FTP user cannot write. The app now shows the test result inline
+  beside the button as well as in the page's top status line. No camera or
+  server configuration was changed during diagnosis.
 - 68 allow-listed schema-driven editor pages covering network services,
   general settings, image controls, detection, streams, recording/storage,
   alarms, audio/OSD, and UART/PTZ configuration.
@@ -95,7 +104,17 @@ area`) in `Detect.HumanDetection`. It also reads App Push from
 `Detect.MotionDetect.[0].EventHandler.MessageEnable`, the exact field changed
 by a captured native-CMS App Push toggle. Door's captured Send Email toggle
 changes `Detect.MotionDetect.[0].EventHandler.MailEnable` and uses the
-separately configured SMTP server. Balcon's captured Alarm Sound toggle
+separately configured SMTP server. The FTP and Write log actions now use the
+same shared event-handler branch: `FTPEnable` is offered only when the camera
+also advertises `NetServerFunction.NetFTP`, while `LogEnable` is offered when
+the live field is Boolean. Both are available on Balcon and Door; neither
+requires a per-camera list in `config.php`. Their destination/server settings
+remain on the separate FTP page. The `Include event snapshot` control edits
+the first-channel `SnapShotMask` bit and `SnapEnable` in the same shared action
+branch; SMTP configuration and Send Email remain separate. Its wire mapping is
+supported by the local SDK header, earlier CMS captures, and current read-back,
+but a one-control native capture and resulting email attachment test are still
+pending. Balcon's captured Alarm Sound toggle
 changes `Detect.MotionDetect.[0].EventHandler.VoiceEnable`; this control is
 offered only when `OtherFunction.SupportCloseVoiceTip` is true. That flag is a
 conservative observed distinction between Balcon and physically silent Door,
@@ -190,7 +209,8 @@ message reached the recipient's inbox.
 
 For the 2026-10-07 rule editor implementation:
 
-- 88 PHP tests and 26 JavaScript tests passed with zero failures;
+- 90 PHP tests and 26 JavaScript tests passed with zero failures after the
+  event-snapshot switch was added;
 - PHP and JavaScript syntax checks and `git diff --check` passed;
 - read-only live JPEG and human-detection model requests worked for both
   Balcon and Door;

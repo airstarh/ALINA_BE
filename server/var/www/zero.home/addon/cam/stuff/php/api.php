@@ -37,7 +37,7 @@ final class Api
         try {
             $action = $query['action'] ?? null;
             if (!is_string($action) || !in_array($action, [
-                'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save', 'smtp-test',
+                'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save', 'smtp-test', 'ftp-test',
                 'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
@@ -65,7 +65,7 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
-            if (in_array($action, ['smtp-save', 'smtp-test', 'editor-save', 'reboot'], true)
+            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot'], true)
                 && strtoupper($method) !== 'POST'
             ) {
                 return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
@@ -84,6 +84,7 @@ final class Api
                     'smtp' => $service->smtp(),
                     'smtp-save' => $service->updateSmtp($body ?? []),
                     'smtp-test' => $service->testSmtp(),
+                    'ftp-test' => $service->testFtp(),
                     'editors' => $service->availableEditors(),
                     'editor' => $service->editor($this->editorId($query)),
                     'editor-save' => $service->updateEditor($this->editorId($query), $body ?? []),
@@ -164,6 +165,7 @@ final class Api
             'login_rejected' => 'Camera login was rejected.',
             'device_unsupported' => 'Camera does not support this operation.',
             'device_config_missing' => 'Camera configuration section does not exist.',
+            'ftp_test_failed' => 'Camera reported the FTP test failed.',
             default => 'Camera communication failed.',
         };
     }

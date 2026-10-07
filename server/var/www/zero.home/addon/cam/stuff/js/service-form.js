@@ -197,6 +197,36 @@ export function renderServiceForm(model, handlers, documentRef = document) {
 
     const actions = append(form, 'div', {className: 'form-actions'});
     const reload = append(actions, 'button', {text: 'Reload', attributes: {type: 'button'}});
+    if (model.id === 'ftp' && handlers.onFtpTest) {
+        const testResult = append(form, 'p', {className: 'connection-status ftp-test-result'});
+        testResult.setAttribute('role', 'status');
+        testResult.setAttribute('aria-live', 'polite');
+        const test = append(actions, 'button', {
+            text: 'Test FTP connection', attributes: {type: 'button'},
+        });
+        test.addEventListener('click', async () => {
+            test.disabled = true;
+            testResult.textContent = 'Testing saved FTP settings…';
+            testResult.dataset.kind = 'neutral';
+            try {
+                const outcome = await handlers.onFtpTest();
+                if (outcome) {
+                    testResult.textContent = outcome.message;
+                    testResult.dataset.kind = outcome.ok ? 'ok' : 'error';
+                }
+            } catch (error) {
+                testResult.textContent = error?.message || 'FTP test failed.';
+                testResult.dataset.kind = 'error';
+            } finally {
+                test.disabled = false;
+            }
+        });
+        const testNote = append(form, 'p', {
+            className: 'form-note',
+            text: 'Tests the camera’s saved FTP settings. Unsaved edits are not used or saved; a successful test does not prove that event uploads are enabled.',
+        });
+        testNote.setAttribute('role', 'note');
+    }
     append(actions, 'button', {className: 'primary-button', text: 'Review changes', attributes: {type: 'submit'}});
 
     let pending = null;

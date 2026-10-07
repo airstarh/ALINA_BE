@@ -51,6 +51,13 @@ export class CameraApi {
         );
     }
 
+    testFtp(cameraId) {
+        return this.#request(
+            {action: 'ftp-test', camera: cameraId},
+            {method: 'POST', body: {}}
+        );
+    }
+
     editors(cameraId) {
         return this.#request({action: 'editors', camera: cameraId});
     }

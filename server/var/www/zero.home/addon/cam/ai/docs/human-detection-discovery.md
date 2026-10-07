@@ -334,3 +334,43 @@ This verifies the current image-to-rule coordinate mapping in actual use.
 It does not yet prove behavior after changing the camera's encoding resolution
 itself; keep that as a separate test rather than conflating it with browser
 resize.
+
+## Event snapshot switch (2026-10-07)
+
+The owner identified the native CMS `Snapshot` control as important for
+including a detection image with alert email. The local XM SDK header's
+`SDK_EventHandler` has `bSnapEn` and `dwSnapShot` members. Existing CMS
+captures show `Detect.MotionDetect.[0].EventHandler.SnapEnable=true` paired
+with `SnapShotMask=0x00000001000000000000000000000000`. Fresh read-only
+queries found Balcon `false`/all-zero and Door `true`/channel-one mask. This
+supports, but does not directly prove by a single-control capture, the native
+UI mapping. The screenshot's small `1` is a channel selector/mask rather than
+a plain Boolean checkbox in the observed schema.
+
+Our Human Detection form now exposes `Include event snapshot (shared alert
+action)` when both fields have the recognized shape. It edits the first
+channel bit and `SnapEnable` in the fresh-read shared
+`Detect.MotionDetect.[0]` branch and verifies the complete branch after the
+write. Other channel bits and unrelated alert settings are preserved. SMTP
+destination and `MailEnable` are separate; an image attachment still requires
+Send Email to be enabled. Automated tests cover enable, disable, other-channel
+preservation, and an invalid mask. Live GET-only checks showed the control on
+both cameras, false on Balcon and true on Door. No live camera change or
+received email attachment was tested by this implementation; the owner should
+verify the latter with one real detection event.
+
+## FTP and Write log action switches (2026-10-07)
+
+The native CMS Intelligent Alert screenshot includes FTP and Write log
+checkboxes in addition to Send Email, App Push, and Alarm Sound. Both live
+cameras expose Boolean `Detect.MotionDetect.[0].EventHandler.FTPEnable` and
+`LogEnable`; both advertise `SystemFunction.NetServerFunction.NetFTP=true`.
+The Human Detection form now discovers FTP only when both the Boolean field
+and the FTP capability are present, and discovers Write log when its Boolean
+field is present. It fresh-reads and merges these fields into the complete
+shared action branch, then reads back the write. The FTP server/directory is
+still configured on the separate FTP page. This work was verified with unit
+tests and read-only live form requests for Balcon and Door; neither camera's
+action settings were changed during implementation. The names and shape align
+with the CMS controls, but a one-checkbox CMS packet capture for each field
+has not yet been made.

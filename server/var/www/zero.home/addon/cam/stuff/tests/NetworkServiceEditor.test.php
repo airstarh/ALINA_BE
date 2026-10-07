@@ -52,6 +52,7 @@ function networkEditorFixture(?object &$reader = null): NetworkServiceEditor
         public function getInfo(string $command): mixed { return null; }
         public function getSystemFunction(): array { return $this->systemFunction; }
         public function testMail(array $settings): bool { return true; }
+        public function testFtp(array $settings): bool { return true; }
         public function reboot(): bool { return true; }
         public function close(): void {}
     };
@@ -134,6 +135,79 @@ test('network_editor_discovers_only_supported_forms_and_rejects_dummy_wifi', fun
     assertTrueValue(!in_array('recording', $ids, true));
     assertTrueValue(!in_array('alarm_output', $ids, true));
     assertTrueValue(!in_array('local_alarm', $ids, true));
+});
+
+test('snapshot_editor_remains_available_without_hard_disk_recording_when_camera_exposes_it', function (): void {
+    $editor = networkEditorFixture($reader);
+    $fixtures = networkBranchFixtures();
+    $fixtures['Storage.Snapshot'] = [[
+        'SnapMode' => 'ManualSnap', 'PreSnap' => 2, 'Redundancy' => false,
+        'TimeSection' => ['preserve-schedule'],
+    ]];
+    $reader->values = $fixtures + rootFamilyFixtures($fixtures);
+
+    $ids = array_column($editor->available(['OtherFunction' => ['NOHDDRECORD' => true]], []), 'id');
+    assertTrueValue(in_array('snapshot', $ids, true));
+    assertTrueValue(!in_array('recording', $ids, true));
+
+    unset($reader->values['Storage']['Snapshot']);
+    $ids = array_column($editor->available(['OtherFunction' => ['NOHDDRECORD' => true]], []), 'id');
+    assertTrueValue(!in_array('snapshot', $ids, true));
+});
+
+test('snapshot_mode_has_documented_wire_values_and_rejects_unknown_submissions', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Storage.Snapshot'] = [[
+        'SnapMode' => 'ManualSnap', 'PreSnap' => 2, 'Redundancy' => false,
+        'TimeSection' => ['preserve-schedule'],
+    ]];
+
+    $model = $editor->get('snapshot');
+    assertSameValue(['ClosedSnap', 'ManualSnap', 'ConfigSnap'], $model['fields']['mode']['options']);
+    assertSameValue('Off', $model['fields']['mode']['optionLabels']['ClosedSnap']);
+    assertSameValue('Manual snapshots', $model['fields']['mode']['optionLabels']['ManualSnap']);
+    assertSameValue('Configured / scheduled snapshots', $model['fields']['mode']['optionLabels']['ConfigSnap']);
+    assertSameValue('ManualSnap', $model['values']['mode']);
+
+    $invalid = $model['values'];
+    $invalid['mode'] = 'FakeSnap';
+    assertThrows(static fn () => $editor->update('snapshot', $invalid), InvalidArgumentException::class);
+    assertSameValue(false, in_array('set', array_column($reader->calls, 0), true));
+
+    $valid = $model['values'];
+    $valid['mode'] = 'ConfigSnap';
+    $saved = $editor->update('snapshot', $valid);
+    assertSameValue('ConfigSnap', $saved['values']['mode']);
+    assertSameValue(['preserve-schedule'], $reader->values['Storage.Snapshot'][0]['TimeSection']);
+});
+
+test('snapshot_editor_reads_and_writes_parent_storage_when_direct_branch_is_rejected', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->errors['Storage.Snapshot'] = new DvripException('device_error', 'Door rejects direct snapshot reads.');
+    $reader->values['Storage'] = [
+        'Snapshot' => [[
+            'SnapMode' => 'ManualSnap', 'PreSnap' => 2, 'Redundancy' => false,
+            'TimeSection' => ['preserve-schedule'],
+        ]],
+        'StorageFailure' => ['Enable' => false],
+    ];
+
+    $model = $editor->get('snapshot');
+    assertSameValue('ManualSnap', $model['values']['mode']);
+    $editor->update('snapshot', $model['values']);
+    assertSameValue(false, in_array('set', array_column($reader->calls, 0), true));
+    $input = $model['values'];
+    $input['mode'] = 'ConfigSnap';
+    $saved = $editor->update('snapshot', $input);
+
+    assertSameValue('ConfigSnap', $saved['values']['mode']);
+    assertSameValue('ConfigSnap', $reader->values['Storage']['Snapshot'][0]['SnapMode']);
+    assertSameValue(['preserve-schedule'], $reader->values['Storage']['Snapshot'][0]['TimeSection']);
+    assertSameValue(['Enable' => false], $reader->values['Storage']['StorageFailure']);
+    assertSameValue(false, in_array(['set', 'Storage.Snapshot'], array_map(
+        static fn (array $call): array => array_slice($call, 0, 2),
+        $reader->calls
+    ), true));
 });
 
 test('network_editor_discovery_does_not_hide_transport_failures', function (): void {
@@ -355,6 +429,110 @@ test('network_editor_human_detection_reads_and_writes_native_alert_actions', fun
     assertSameValue($events['Unrelated'], $reader->values['Detect.MotionDetect.[0]']['Unrelated']);
     assertSameValue(true, in_array(['get', 'Detect.MotionDetect.[0]'], $reader->calls, true));
     assertSameValue(false, in_array(['get', 'NetWork.NetMail'], $reader->calls, true));
+});
+
+test('human_detection_discovers_ftp_and_log_actions_and_saves_only_their_shared_flags', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => true, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'FTPEnable' => false, 'LogEnable' => false, 'BeepEnable' => true,
+    ], 'Unrelated' => ['preserve' => true]];
+    $reader->systemFunction = ['NetServerFunction' => ['NetFTP' => true]];
+
+    $model = $editor->get('human_detection');
+    assertSameValue(false, $model['values']['ftpUpload']);
+    assertSameValue(false, $model['values']['writeLog']);
+    assertSameValue('boolean', $model['fields']['ftpUpload']['type']);
+    assertSameValue('boolean', $model['fields']['writeLog']['type']);
+
+    $input = $model['values'];
+    $input['ftpUpload'] = true;
+    $input['writeLog'] = true;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(true, $saved['values']['ftpUpload']);
+    assertSameValue(true, $saved['values']['writeLog']);
+    $written = $reader->values['Detect.MotionDetect.[0]'];
+    assertSameValue(true, $written['EventHandler']['FTPEnable']);
+    assertSameValue(true, $written['EventHandler']['LogEnable']);
+    assertSameValue(true, $written['EventHandler']['BeepEnable']);
+    assertSameValue(['preserve' => true], $written['Unrelated']);
+});
+
+test('human_detection_hides_unavailable_ftp_and_log_actions_and_rejects_forged_flags', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'FTPEnable' => false,
+    ]];
+    $reader->systemFunction = ['NetServerFunction' => ['NetFTP' => false]];
+
+    $model = $editor->get('human_detection');
+    assertSameValue(false, array_key_exists('ftpUpload', $model['fields']));
+    assertSameValue(false, array_key_exists('writeLog', $model['fields']));
+    $input = $model['values'];
+    $input['ftpUpload'] = true;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    assertSameValue([], array_values(array_filter($reader->calls, fn ($call) => $call[0] === 'set')));
+
+    unset($input['ftpUpload']);
+    $input['writeLog'] = true;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    assertSameValue([], array_values(array_filter($reader->calls, fn ($call) => $call[0] === 'set')));
+});
+
+test('human_detection_snapshot_switch_sets_channel_one_mask_without_touching_other_alert_settings', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $events = ['EventHandler' => [
+        'MailEnable' => true, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'SnapEnable' => false, 'SnapShotMask' => '0x00000000000000000000000000000000',
+        'FTPEnable' => false, 'LogEnable' => true,
+    ], 'Unrelated' => ['preserve' => true]];
+    $reader->values['Detect.MotionDetect.[0]'] = $events;
+    $model = $editor->get('human_detection');
+    assertSameValue(false, $model['values']['snapshot']);
+    assertSameValue('boolean', $model['fields']['snapshot']['type']);
+
+    $input = $model['values'];
+    $input['snapshot'] = true;
+    $saved = $editor->update('human_detection', $input);
+    $written = $reader->values['Detect.MotionDetect.[0]'];
+    assertSameValue(true, $saved['values']['snapshot']);
+    assertSameValue(true, $written['EventHandler']['SnapEnable']);
+    assertSameValue('0x00000001000000000000000000000000', $written['EventHandler']['SnapShotMask']);
+    assertSameValue(true, $written['EventHandler']['MailEnable']);
+    assertSameValue(false, $written['EventHandler']['FTPEnable']);
+    assertSameValue(true, $written['EventHandler']['LogEnable']);
+    assertSameValue($events['Unrelated'], $written['Unrelated']);
+
+    $input = $saved['values'];
+    $input['snapshot'] = false;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(false, $saved['values']['snapshot']);
+    assertSameValue(false, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['SnapEnable']);
+    assertSameValue('0x00000000000000000000000000000000', $reader->values['Detect.MotionDetect.[0]']['EventHandler']['SnapShotMask']);
+});
+
+test('human_detection_snapshot_preserves_other_channel_bits_and_hides_malformed_mask', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'SnapEnable' => true, 'SnapShotMask' => '0x00000003000000000000000000000000',
+    ]];
+    $model = $editor->get('human_detection');
+    assertSameValue(true, $model['values']['snapshot']);
+    $input = $model['values'];
+    $input['snapshot'] = false;
+    $editor->update('human_detection', $input);
+    assertSameValue(true, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['SnapEnable']);
+    assertSameValue('0x00000002000000000000000000000000', $reader->values['Detect.MotionDetect.[0]']['EventHandler']['SnapShotMask']);
+
+    $reader->values['Detect.MotionDetect.[0]']['EventHandler']['SnapShotMask'] = 'invalid';
+    $model = $editor->get('human_detection');
+    assertSameValue(false, array_key_exists('snapshot', $model['fields']));
 });
 
 test('network_editor_hides_alarm_sound_without_confirmed_voice_output', function (): void {

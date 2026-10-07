@@ -217,6 +217,47 @@ final class CameraService
         return ['accepted' => true];
     }
 
+    public function testFtp(): array
+    {
+        $capabilities = $this->reader->getSystemFunction();
+        if (($capabilities['OtherFunction']['SupportFTPTest'] ?? false) !== true) {
+            throw new DvripException('device_unsupported', 'Camera does not advertise FTP testing support.');
+        }
+
+        $ftp = $this->reader->getConfig('NetWork.NetFTP');
+        if (!is_array($ftp) || !is_array($ftp['Server'] ?? null)) {
+            throw new DvripException('device_config_missing', 'Camera returned an invalid FTP configuration.');
+        }
+        foreach (['Enable', 'Directory', 'MaxFileLen'] as $field) {
+            if (!array_key_exists($field, $ftp)) {
+                throw new DvripException('device_config_missing', 'Camera returned an incomplete FTP configuration.');
+            }
+        }
+        foreach (['Address', 'Anonymity', 'Name', 'Password', 'Port', 'UserName'] as $field) {
+            if (!array_key_exists($field, $ftp['Server'])) {
+                throw new DvripException('device_config_missing', 'Camera returned an incomplete FTP server.');
+            }
+        }
+        $settings = [
+            'Directory' => $ftp['Directory'],
+            'Enable' => $ftp['Enable'],
+            'MaxFileLen' => $ftp['MaxFileLen'],
+            'Server' => $ftp['Server'],
+        ];
+        try {
+            $accepted = $this->reader->testFtp($settings);
+        } catch (DvripException $exception) {
+            if ($exception->publicCode() !== 'device_error') {
+                throw $exception;
+            }
+            throw new DvripException('ftp_test_failed', 'Camera reported the FTP test failed.', $exception);
+        }
+        if (!$accepted) {
+            throw new DvripException('ftp_test_failed', 'Camera reported the FTP test failed.');
+        }
+        return ['accepted' => true];
+    }
+
     public function close(): void
     {
         $this->reader->close();

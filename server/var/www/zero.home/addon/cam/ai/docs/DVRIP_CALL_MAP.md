@@ -113,6 +113,22 @@ Payload:
 Expected response message: 1637
 ```
 
+## FTP connection test
+
+| JavaScript call | PHP method/function | Raw DVRIP command |
+|---|---|---|
+| `CameraApi.testFtp(camera)` | `Api::handle('ftp-test')` -> `CameraService::testFtp()` -> `DvripClient::testFtp()` | POST-only; check `SystemFunction.OtherFunction.SupportFTPTest`; **1042 get** `NetWork.NetFTP`; **2008** `Name = OPFTPTest`, `OPFTPTest = <saved FTP object>`, current `SessionID`; expect response **2009**. No configuration setter is sent. |
+
+The app displays camera rejection as `ftp_test_failed`; the raw camera code
+is not exposed in the browser. Balcon returned DVRIP `Ret=109` on
+2026-10-07. A server-side capture showed successful FTP login followed by
+`550 Create directory operation failed` when the camera attempted `MKD Test`
+at the FTP login root (`local_root=/` on `bbb`), which the FTP user cannot
+write. The saved upload directory is not used by this test. The FTP test is
+not an event-upload test. Request and
+response message IDs/payload were cross-checked against the
+[DVRIP/Sofia FTP-test capture](https://github.com/KostasEreksonas/DVRIP_Sofia_reference_codes/blob/main/payloads/2008_OPFTPTest_request.json).
+
 ## Generic dedicated editors
 
 | JavaScript call | PHP method/function | Raw DVRIP command |
@@ -179,7 +195,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `image_basic` | `Camera.Param` |
 | `image_advanced` | `Camera.ParamEx` |
 | `detection_tracking` | `Detect.DetectTrack` |
-| `human_detection` | `Detect.HumanDetection` for detection/rule fields, including first-rule `PedRule[0].RuleLine.Pts` (Tripwire) and `PedRule[0].RuleRegion.Pts` (Intrusion); `Detect.MotionDetect.[0]` for native-CMS Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
+| `human_detection` | `Detect.HumanDetection` for detection/rule fields, including first-rule `PedRule[0].RuleLine.Pts` (Tripwire) and `PedRule[0].RuleRegion.Pts` (Intrusion); `Detect.MotionDetect.[0]` for Send Email (`EventHandler.MailEnable`), App Push (`EventHandler.MessageEnable`), FTP upload (`EventHandler.FTPEnable`, only with `NetServerFunction.NetFTP`), Write log (`EventHandler.LogEnable`, only when present as Boolean), event snapshot (`EventHandler.SnapEnable` plus channel-one bit of `SnapShotMask`), Alarm Sound (`EventHandler.VoiceEnable`, only where voice-tip control is advertised), and Period (`EventHandler.TimeSection[day][slot]`) |
 | `motion_detection` | `Detect.MotionDetect` |
 | `blind_detection` | `Detect.BlindDetect` |
 | `video_loss_detection` | `Detect.LossDetect` |
@@ -192,7 +208,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `osd_logo` | `fVideo.OsdLogo` |
 | `output_volume` | `fVideo.Volume` |
 | `input_volume` | `fVideo.VolumeIn` |
-| `snapshot` | `Storage.Snapshot` |
+| `snapshot` | `Storage.Snapshot` (Balcon direct read/write); Door rejects direct read, so use `Storage` parent read, fresh-read/merge/full-parent-write/read-back verification. Door parent-write path is unit-tested but not yet live-write-tested. |
 | `recording` | `Record` |
 | `storage_failure` | `Storage.StorageFailure` |
 | `storage_low_space` | `Storage.StorageLowSpace` |
@@ -277,7 +293,7 @@ The browser endpoints are all `stuff/php/api.php`:
 
 - GET: `cameras`, `status`, `sections`, `config`, `smtp`, `editors`, `editor`,
   `wifi-aps`.
-- POST: `smtp-save`, `editor-save`, `reboot`.
+- POST: `smtp-save`, `smtp-test`, `ftp-test`, `editor-save`, `reboot`.
 
 `api.php` serializes camera-facing actions with a per-camera lock under
 `/var/tmp/php-upload`. This is request serialization, not a background worker.

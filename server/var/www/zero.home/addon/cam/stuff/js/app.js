@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261006-4';
+import {CameraApi, CameraApiError} from './api.js?v=20261007-2';
 import {
     chooseDefaultCamera,
     markActiveSection,
@@ -7,7 +7,7 @@ import {
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
-import {renderServiceForm} from './service-form.js?v=20261007-1';
+import {renderServiceForm} from './service-form.js?v=20261007-3';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -146,6 +146,30 @@ const loadEditor = async (editorId, editorName, token) => {
             onWifiSearch: editorId === 'wifi'
                 ? () => api.wifiAccessPoints(activeCamera)
                 : null,
+            onFtpTest: editorId === 'ftp' ? async () => {
+                const testToken = guard.begin(activeCamera);
+                setBusy(true);
+                showStatus('Asking the camera to test its saved FTP connection…');
+                try {
+                    await api.testFtp(activeCamera);
+                    if (guard.isCurrent(testToken)) {
+                        const message = 'Camera accepted the FTP test request. Event uploads are separate.';
+                        showStatus(message, 'ok');
+                        return {ok: true, message};
+                    }
+                } catch (error) {
+                    if (guard.isCurrent(testToken)) {
+                        showError(error);
+                        return {
+                            ok: false,
+                            message: error instanceof CameraApiError
+                                ? error.message : 'Unexpected camera error.',
+                        };
+                    }
+                } finally {
+                    if (guard.isCurrent(testToken)) setBusy(false);
+                }
+            } : null,
             onSave: async (payload) => {
                 const saveToken = guard.begin(activeCamera);
                 setBusy(true);

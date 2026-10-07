@@ -237,6 +237,30 @@ test('dvrip_mail_test_sends_current_email_config_with_message_1636', function ()
     assertSameValue($settings, $payload['OPMailTest']);
 });
 
+test('dvrip_ftp_test_sends_saved_ftp_config_with_message_2008', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $settings = [
+        'Directory' => '/camera', 'Enable' => true, 'MaxFileLen' => 128,
+        'Server' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'ftp.example.test', 'Password' => 'fixture-secret',
+            'Port' => 21, 'UserName' => 'camera',
+        ],
+    ];
+    $transport->queue(responsePacket(26, 2009, [
+        'Ret' => 100, 'Name' => 'OPFTPTest', 'SessionID' => '0x0000001A',
+    ], 1));
+
+    assertSameValue(true, $client->testFtp($settings));
+    [$header, $payload] = decodedPacket($transport->writes[1]);
+    assertSameValue(2008, $header['message']);
+    assertSameValue('OPFTPTest', $payload['Name']);
+    assertSameValue('0x0000001A', $payload['SessionID']);
+    assertSameValue($settings, $payload['OPFTPTest']);
+});
+
 test('dvrip_system_getters_use_fixed_message_ids', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

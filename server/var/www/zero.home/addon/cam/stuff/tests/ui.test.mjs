@@ -14,18 +14,29 @@ const moduleUrl = async (name) => {
 };
 
 class FakeNode {
-    constructor(type, value = '') {
+    constructor(type, value = '', ownerDocument = null) {
         this.type = type;
         this.value = value;
+        this.ownerDocument = ownerDocument;
         this.children = [];
         this.className = '';
         this.open = false;
         this.dataset = {};
+        this.attributes = {};
+        this.listeners = {};
         this.innerHtmlWasSet = false;
     }
 
     append(...nodes) {
         this.children.push(...nodes);
+    }
+
+    setAttribute(name, value) {
+        this.attributes[name] = value;
+    }
+
+    addEventListener(name, callback) {
+        this.listeners[name] = callback;
     }
 
     set textContent(value) {
@@ -40,13 +51,15 @@ class FakeNode {
 
 class FakeDocument {
     createElement(name) {
-        return new FakeNode(name);
+        return new FakeNode(name, '', this);
     }
 
     createTextNode(value) {
         return new FakeNode('text', String(value));
     }
 }
+
+const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 
 const response = (data, ok = true, status = 200) => ({
     ok,
@@ -186,6 +199,72 @@ test('camera API posts a separate SMTP test request without configuration values
     assert.equal(request.url, '/api.php?action=smtp-test&camera=door');
     assert.equal(request.options.method, 'POST');
     assert.deepEqual(JSON.parse(request.options.body), {});
+});
+
+test('camera API posts a separate FTP test request without configuration values', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let request;
+    const api = new CameraApi('/api.php', async (url, options) => {
+        request = {url, options};
+        return response({accepted: true});
+    });
+
+    assert.deepEqual(await api.testFtp('balcon'), {accepted: true});
+    assert.equal(request.url, '/api.php?action=ftp-test&camera=balcon');
+    assert.equal(request.options.method, 'POST');
+    assert.deepEqual(JSON.parse(request.options.body), {});
+});
+
+test('FTP editor renders a test button that invokes its separate test action', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    let tested = 0;
+    const model = {
+        id: 'ftp', branch: 'NetWork.NetFTP', label: 'FTP', warning: null,
+        fields: {
+            enable: {label: 'FTP uploads', type: 'boolean'},
+            server: {label: 'Server', type: 'string'},
+        },
+        values: {enable: true, server: 'ftp.example.test'},
+    };
+    const handlers = {
+        cameraId: 'balcon', onReload: () => {}, onSave: async () => {},
+        onFtpTest: async () => { tested++; },
+    };
+    const root = renderServiceForm(model, handlers, new FakeDocument());
+    const button = descendants(root).find((node) =>
+        node.type === 'button' && descendants(node).some((child) =>
+            child.type === 'text' && child.value === 'Test FTP connection'
+        )
+    );
+    assert.ok(button);
+    await button.listeners.click();
+    assert.equal(tested, 1);
+});
+
+test('FTP editor shows the camera test outcome beside the button', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    const model = {
+        id: 'ftp', branch: 'NetWork.NetFTP', label: 'FTP', warning: null,
+        fields: {enable: {label: 'FTP uploads', type: 'boolean'}},
+        values: {enable: true},
+    };
+    let outcome = {ok: false, message: 'Camera reported the FTP test failed.'};
+    const root = renderServiceForm(model, {
+        cameraId: 'balcon', onReload: () => {}, onSave: async () => {},
+        onFtpTest: async () => outcome,
+    }, new FakeDocument());
+    const button = descendants(root).find((node) => node.type === 'button'
+        && descendants(node).some((child) => child.value === 'Test FTP connection'));
+    await button.listeners.click();
+    const result = descendants(root).find((node) => node.attributes.role === 'status');
+    assert.ok(result);
+    assert.equal(result.children[0].value, 'Camera reported the FTP test failed.');
+    assert.equal(result.dataset.kind, 'error');
+
+    outcome = {ok: true, message: 'Camera accepted the FTP test request.'};
+    await button.listeners.click();
+    assert.equal(result.children[0].value, 'Camera accepted the FTP test request.');
+    assert.equal(result.dataset.kind, 'ok');
 });
 
 test('SMTP form payload submits blank password to clear it and removes empty recipients', async () => {

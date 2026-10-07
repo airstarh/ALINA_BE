@@ -29,6 +29,8 @@ function fixtureCameraService(?object &$reader = null): CameraService
         public array $infoValues = [];
         public bool $persistWrites = true;
         public array $testMailCalls = [];
+        public array $testFtpCalls = [];
+        public bool $ftpTestAccepted = true;
 
         public function getConfig(string $command): mixed
         {
@@ -71,6 +73,13 @@ function fixtureCameraService(?object &$reader = null): CameraService
             $this->calls[] = 'OPMailTest';
             $this->testMailCalls[] = $settings;
             return true;
+        }
+
+        public function testFtp(array $settings): bool
+        {
+            $this->calls[] = 'OPFTPTest';
+            $this->testFtpCalls[] = $settings;
+            return $this->ftpTestAccepted;
         }
 
         public function reboot(): bool
@@ -274,6 +283,53 @@ test('camera_service_refuses_smtp_test_when_camera_does_not_advertise_support', 
     $exception = assertThrows(static fn () => $service->testSmtp(), DvripException::class);
     assertSameValue('device_unsupported', $exception->publicCode());
     assertSameValue(['SystemFunction'], $reader->calls);
+});
+
+test('camera_service_tests_saved_ftp_settings_without_saving_them', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $settings = [
+        'Directory' => '/camera', 'Enable' => true, 'MaxFileLen' => 128,
+        'Server' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'ftp.example.test', 'Password' => 'fixture-secret',
+            'Port' => 21, 'UserName' => 'camera',
+        ],
+    ];
+    $reader->configValues['NetWork.NetFTP'] = $settings;
+    $reader->systemFunction = ['OtherFunction' => ['SupportFTPTest' => true]];
+
+    assertSameValue(['accepted' => true], $service->testFtp());
+    assertSameValue(['SystemFunction', 'NetWork.NetFTP', 'OPFTPTest'], $reader->calls);
+    assertSameValue([$settings], $reader->testFtpCalls);
+});
+
+test('camera_service_refuses_ftp_test_without_advertised_support', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->systemFunction = ['OtherFunction' => ['SupportFTPTest' => false]];
+
+    $exception = assertThrows(static fn () => $service->testFtp(), DvripException::class);
+    assertSameValue('device_unsupported', $exception->publicCode());
+    assertSameValue(['SystemFunction'], $reader->calls);
+});
+
+test('camera_service_reports_rejected_ftp_test_distinctly', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    $reader->systemFunction = ['OtherFunction' => ['SupportFTPTest' => true]];
+    $reader->configValues['NetWork.NetFTP'] = [
+        'Directory' => '/camera', 'Enable' => true, 'MaxFileLen' => 128,
+        'Server' => [
+            'Address' => '0x00000000', 'Anonymity' => false,
+            'Name' => 'ftp.example.test', 'Password' => 'fixture-secret',
+            'Port' => 21, 'UserName' => 'camera',
+        ],
+    ];
+    $reader->ftpTestAccepted = false;
+
+    $exception = assertThrows(static fn () => $service->testFtp(), DvripException::class);
+    assertSameValue('ftp_test_failed', $exception->publicCode());
 });
 
 test('camera_service_smtp_update_clears_empty_password_and_preserves_unedited_fields', function (): void {

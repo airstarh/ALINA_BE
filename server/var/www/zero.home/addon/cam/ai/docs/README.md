@@ -24,6 +24,8 @@ into this directory, application source, command examples, or browser-side code.
 - [Door camera and automatic editor discovery](door-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)
 - [Human Detection feature discovery](human-detection-discovery.md)
+- [Camera data storage options](storage-options.md)
+- [Xiongmai Alarm Center and alarm-server settings](alarm-center.md)
 - [Human Detection rule editor implementation plan](2026-10-07-rule-editor-plan.md)
 - [Balcon configuration SPA design](2026-10-05-cam-spa-design.md)
 - [Balcon configuration SPA implementation plan](2026-10-05-cam-spa-implementation-plan.md)

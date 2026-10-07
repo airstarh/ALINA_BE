@@ -18,6 +18,8 @@ interface DvripReader
 
     public function testMail(array $settings): bool;
 
+    public function testFtp(array $settings): bool;
+
     public function reboot(): bool;
 
     public function close(): void;

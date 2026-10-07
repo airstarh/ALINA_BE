@@ -53,6 +53,8 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
         public bool $closed = false;
         public bool $rebooted = false;
         public int $mailTests = 0;
+        public int $ftpTests = 0;
+        public bool $ftpTestAccepted = true;
         public array $configValues = [];
         public array $smtp = [
             'Enable' => false,
@@ -107,13 +109,21 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
 
         public function getSystemFunction(): array
         {
-            return ['NetServerFunction' => [], 'OtherFunction' => ['SupportMailTest' => true]];
+            return ['NetServerFunction' => [], 'OtherFunction' => [
+                'SupportMailTest' => true, 'SupportFTPTest' => true,
+            ]];
         }
 
         public function testMail(array $settings): bool
         {
             $this->mailTests++;
             return true;
+        }
+
+        public function testFtp(array $settings): bool
+        {
+            $this->ftpTests++;
+            return $this->ftpTestAccepted;
         }
 
         public function reboot(): bool
@@ -190,6 +200,57 @@ test('api_tests_smtp_only_via_post_and_does_not_save_configuration', function ()
         assertSameValue(1, $reader->mailTests);
         assertSameValue([], $reader->configValues);
         assertSameValue(true, $reader->closed);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_tests_ftp_only_via_post_and_does_not_save_configuration', function (): void {
+    [$api, $path] = fixtureApi($factoryCalls, $reader);
+    try {
+        assertSameValue(405, $api->handle(
+            ['action' => 'ftp-test', 'camera' => 'balcon'], null, 'GET'
+        )['status']);
+        assertSameValue(0, $factoryCalls);
+
+        $reader->configValues['NetWork.NetFTP'] = [
+            'Directory' => '/camera', 'Enable' => true, 'MaxFileLen' => 128,
+            'Server' => [
+                'Address' => '0x00000000', 'Anonymity' => false,
+                'Name' => 'ftp.example.test', 'Password' => 'fixture-secret',
+                'Port' => 21, 'UserName' => 'camera',
+            ],
+        ];
+        $before = $reader->configValues;
+        $response = $api->handle(
+            ['action' => 'ftp-test', 'camera' => 'balcon'], [], 'POST'
+        );
+        assertSameValue(200, $response['status']);
+        assertSameValue(['accepted' => true], $response['body']['data']);
+        assertSameValue(1, $reader->ftpTests);
+        assertSameValue($before, $reader->configValues);
+        assertSameValue(true, $reader->closed);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('api_returns_specific_message_when_ftp_test_fails', function (): void {
+    [$api, $path] = fixtureApi($factoryCalls, $reader);
+    try {
+        $reader->configValues['NetWork.NetFTP'] = [
+            'Directory' => '/camera', 'Enable' => true, 'MaxFileLen' => 128,
+            'Server' => [
+                'Address' => '0x00000000', 'Anonymity' => false,
+                'Name' => 'ftp.example.test', 'Password' => 'fixture-secret',
+                'Port' => 21, 'UserName' => 'camera',
+            ],
+        ];
+        $reader->ftpTestAccepted = false;
+        $response = $api->handle(['action' => 'ftp-test', 'camera' => 'balcon'], [], 'POST');
+        assertSameValue(502, $response['status']);
+        assertSameValue('ftp_test_failed', $response['body']['error']['code']);
+        assertSameValue('Camera reported the FTP test failed.', $response['body']['error']['message']);
     } finally {
         unlink($path);
     }

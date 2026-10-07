@@ -130,6 +130,27 @@ final class DvripClient implements DvripReader
         }
     }
 
+    public function testFtp(array $settings): bool
+    {
+        $this->ensureLoggedIn();
+
+        try {
+            $response = $this->request(2008, [
+                'Name' => 'OPFTPTest',
+                'SessionID' => sprintf('0x%08X', $this->session),
+                'OPFTPTest' => $settings,
+            ]);
+            $this->assertSuccess($response);
+            if (isset($response['Name']) && $response['Name'] !== 'OPFTPTest') {
+                throw new DvripException('protocol_identity', 'DVRIP FTP-test response does not match.');
+            }
+            return true;
+        } catch (Throwable $exception) {
+            $this->close();
+            throw $exception;
+        }
+    }
+
     public function reboot(): bool
     {
         $this->ensureLoggedIn();
