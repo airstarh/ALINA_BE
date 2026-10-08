@@ -8,7 +8,7 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Camera Configuration</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261008-2">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261008-3">
 </head>
 <body>
 <header class="app-header">

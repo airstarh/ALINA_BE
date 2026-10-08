@@ -579,6 +579,13 @@ test('configuration tree is constrained inside the content panel', async () => {
     assert.match(css, /\.tree-list\s*\{[^}]*width:\s*100%/s);
 });
 
+test('expanded device details have an opaque layer above the settings panel', async () => {
+    const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
+    assert.match(css, /\.sidebar\s*\{[^}]*z-index:\s*[1-9]/s);
+    assert.match(css, /\.identity-panel\s+#camera-identity\s*>\s*\.tree-list\s*>\s*dd\s*>\s*\.tree-branch\[open\]\s*\{[^}]*z-index:\s*[1-9][^}]*background:/s);
+    assert.match(css, /\.identity-panel\s+\.tree-list\s+dd\s*\{[^}]*overflow-wrap:\s*anywhere/s);
+});
+
 test('current section has persistent menu styling', async () => {
     const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
     assert.match(css, /\.section-button\.is-active\s*\{/);

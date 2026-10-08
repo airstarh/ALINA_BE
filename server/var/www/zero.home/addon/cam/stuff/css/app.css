@@ -82,9 +82,10 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
     align-items: start;
 }
 
-.sidebar { display: grid; gap: 1rem; position: sticky; top: 1rem; }
+.sidebar { display: grid; gap: 1rem; position: sticky; top: 1rem; z-index: 1; min-width: 0; }
 .panel { border: 1px solid var(--line); border-radius: .8rem; background: rgb(25 32 40 / 92%); box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 20%); }
 .identity-panel, .content-panel { padding: 1rem; }
+.identity-panel { min-width: 0; }
 .content-panel { min-width: 0; }
 .identity-panel h2 { margin-bottom: .8rem; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--line); }
@@ -167,6 +168,18 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
 .tree-list { display: grid; width: 100%; min-width: 0; grid-template-columns: minmax(8rem, 32%) minmax(0, 1fr); gap: .3rem .8rem; margin: 0; }
 .tree-list dt { min-width: 0; color: #aebbc7; font-size: .84rem; overflow-wrap: anywhere; }
 .tree-list dd { min-width: 0; margin: 0; }
+.identity-panel .tree-list dd { overflow-wrap: anywhere; }
+.identity-panel #camera-identity > .tree-list > dd > .tree-branch[open] {
+    position: relative;
+    z-index: 2;
+    width: min(42rem, calc(100vw - 15rem));
+    max-width: none;
+    padding: .7rem;
+    border: 1px solid var(--line);
+    border-radius: .55rem;
+    background: var(--surface);
+    box-shadow: 0 1rem 2rem rgb(0 0 0 / 40%);
+}
 .tree-branch { min-width: 0; max-width: 100%; padding-left: .2rem; }
 .tree-branch > summary { color: var(--accent); cursor: pointer; }
 .tree-branch > .tree-list { width: calc(100% - .8rem); margin: .5rem 0 .65rem .8rem; padding-left: .8rem; border-left: 1px solid var(--line); }
@@ -183,6 +196,7 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
     .camera-picker { grid-template-columns: 1fr; }
     .dashboard { grid-template-columns: 1fr; }
     .sidebar { position: static; }
+    .identity-panel #camera-identity > .tree-list > dd > .tree-branch[open] { width: 100%; }
     .tree-list { grid-template-columns: 1fr; }
     .tree-list dd { margin: 0 0 .55rem .65rem; }
     .form-grid { grid-template-columns: 1fr; }
