@@ -133,6 +133,29 @@ handlers should use shared form components rather than duplicate code.
 This branch covers essentially every item visible on the Windows CMS
 `System -> NetService` page.
 
+#### Adaptive IP: meaning not yet verified
+
+The camera exposes `NetWork.IPAdaptive` with a single Boolean `IPAdaptive`
+field. Our **Adaptive IP** form edits that field; it does not edit the separate
+`NetWork.NetDHCP` per-interface switches or the static address in
+`NetWork.NetCommon`. The [Xiongmai-compatible capability reference](https://docs.jftech.com/?lang=zh&menusId=1&siderid=310dab0dab3a46f2b9a937f1c73a5dcb)
+also lists `IPAdaptive` and `NetDHCP` as separate network capabilities.
+
+The vendor's precise address-selection algorithm is **not established** by
+our DVRIP reads or available documentation. It may help discovery or access
+when the camera and client are on different subnets, but that is an inference,
+not a verified behavior of Balcon or Door. Do not equate it with DHCP,
+standards-based IPv4 AutoIP/link-local addressing, or adaptive video quality.
+A [camera setup guide for an XMeye-compatible device](https://manuals.plus/ae/1005010144290381)
+instructs users to turn off both DHCP and Adaptive IP before entering a fixed
+address; this is supporting guidance, not proof of the implementation on our
+cameras.
+
+Until a controlled network test establishes the behavior, leave this setting
+unchanged on a reachable camera with a deliberate static address. A future UI
+description should explicitly mark the behavior as unverified rather than
+promise that it obtains or retains a particular address.
+
 ### `Camera`
 
 - Defog; lens distortion; fisheye geometry/view/zoom

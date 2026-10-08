@@ -1,6 +1,6 @@
 # Human Detection feature discovery
 
-Updated: 2026-10-07 (Europe/Moscow)
+Updated: 2026-10-08 (Europe/Moscow)
 
 ## Goal
 
@@ -16,7 +16,81 @@ evidence of motor/PTZ support or exposed as usable controls.
   the first rule's enable state and verified rule type. After the native CMS
   captures below, it also edits Send Email, App Push, and (where advertised)
   Alarm Sound and the weekly Period. It now also edits the first rule's
-  Tripwire or Intrusion geometry; PTZ activation remains unimplemented.
+  Tripwire or Intrusion geometry. PTZ activation was added on 2026-10-08 as
+  described in the latest section below; older investigation notes preserve
+  the historical unmapped state.
+
+## PTZ activation implementation and motor check (2026-10-08)
+
+- The live `Detect.MotionDetect.[0].EventHandler` on both cameras contains
+  `PtzEnable` and a 64-entry `PtzLink` array. Channel 1 is `PtzLink[0]`, a
+  `[kind, number]` pair. Both cameras return `['None', 0]` there; the rest of
+  the array must be preserved. This generic config structure is **not** proof
+  of a physical motor: Door has it too.
+- Balcon advertises `OtherFunction.SupportPTZDirectionControl`,
+  `SupportSetPTZPresetAttribute`, and `SupportPTZTour`; Door advertises no PTZ
+  flags. The web form requires direction control and a valid link structure,
+  then offers None, Preset, and Tour from advertised capabilities. Pattern is
+  also offered on Balcon because the native CMS and the vendor DVRIP schema
+  confirm its wire value; this does **not** prove a saved pattern exists or
+  that playback works. Door's PTZ activation is hidden and forged values are
+  rejected.
+- An ONVIF SOAP 1.1 `GetPresets` read returned the same 127 generic presets
+  on **both** cameras. Thus it cannot prove a preset is saved, nor that a
+  camera has a motor. The UI explicitly requires the user to provide the
+  number of an actually saved preset/tour/pattern. The number input is hidden
+  for None and shows action-specific guidance otherwise. No undocumented
+  255 upper bound is imposed. Existing camera-reported Pattern/0 is preserved
+  during unrelated saves, but newly selecting an active action requires a
+  positive saved slot number.
+- With the owner's authorization, short `ContinuousMove` and explicit `Stop`
+  requests were sent to Balcon in right, left, up, and down directions. JPEG
+  frame comparisons confirmed the picture moved in both axes. The image is
+  flipped/mirrored, so visual screen direction was not used as a motor-direction
+  claim. Door was not moved; it is known to be physically static. Balcon was
+  returned close to its original view (frame offset about 8 px horizontal and
+  28 px vertical), but not pixel-perfect; no preset was created or changed.
+- The documented PTZ link action names are `None`, `Preset`, `Tour`, and
+  `Pattern`; the
+  application updates only `PtzLink[0]` and turns `PtzEnable` on when an action
+  is selected. It preserves other channel entries and fresh-reads, writes,
+  then verifies the whole shared branch. The tests cover those conditions.
+  On 2026-10-08, after owner approval, a controlled live PTZ-link write/read-back
+  test was performed on Balcon through the app's locked `editor-save` API.
+  Human detection was temporarily disabled; `Preset/1`, `Tour/1`, and
+  `Pattern/1` were each saved and confirmed by a separate fresh `editor` read.
+  The original editor values were then restored and fresh-read, and the raw
+  `Detect` branch confirmed `HumanDetection[0].Enable=true`,
+  `MotionDetect[0].EventHandler.PtzEnable=true`, and `PtzLink[0]=["None",0]`
+  with all 64 links still present. No motor action was triggered during this
+  test. These results verify that the camera accepts and retains the wire
+  values, **not** that slots numbered 1 exist or that alert-triggered playback
+  works. End-to-end alert-to-PTZ testing requires a known saved action slot
+  and a controlled human-detection event.
+- Later on 2026-10-08 the owner saved Presets 1–5 with the native CMS `+`
+  control. Direct DVRIP `OPPTZControl` (message 1400, `GotoPreset`) calls
+  returned success and live image read-back
+  showed Preset 1 facing the balcony while Presets 2–4 faced the city;
+  Preset 5 appeared close to Preset 1. This establishes that at least two
+  saved positions are distinct and physically recallable. A 100-second
+  event-link test started at Preset 1 with `PtzLink[0]=["Preset",2]` and Human
+  Detection enabled. No transition to Preset 2 was observed. The owner later
+  confirmed they did not walk into view during the test, so the lack of a
+  transition is expected and says nothing about whether the link works. The original
+  alert settings were restored and verified by fresh editor read; the camera
+  was returned to city-facing Preset 4. Follow up with an observed detector
+  event and simultaneous view monitoring. The Balcon FTP snapshot directory
+  had no new file during the test window (its latest file was from 09:57).
+- A second 120-second test on 2026-10-08 used the same Preset 1 (balcony)
+  starting view and Preset 2 (city) target. The form save and restore both
+  succeeded, but no turn toward Preset 2 was observed; no new Balcon FTP
+  snapshot appeared in the surrounding ten-minute period. The owner confirmed
+  they did not walk into the camera view during this test either. The alert
+  link was restored to `None/0`, detection remained enabled, and the camera
+  was returned to city-facing Preset 4. Neither timed test exercised the
+  event-to-PTZ linkage; a deliberate human-detection trigger is still needed.
+- Protocol reference: [ONVIF PTZ Service Specification](https://www.onvif.org/specs/srv/ptz/ONVIF-PTZ-Service-Spec.pdf).
+- PTZ-link wire schema: [Jufeng Configuration Exchange Format V2.0](https://git.pblr-nyk.pro/mirror/python-dvr/raw/commit/81acf8845d7892be5b9ecb1ee92ebbe0a1c3ef5a/doc/%E9%85%8D%E7%BD%AE%E4%BA%A4%E6%8D%A2%E6%A0%BC%E5%BC%8FV2.0.pdf), section `Detect.MotionDetect.EventHandler.PtzLink`.
 - Existing event editors share a schema for basic event routing, but their
   notes explicitly leave event schedules, masks, PTZ links, and region geometry
   read-only. They do not currently represent Human Detection's full CMS flow.

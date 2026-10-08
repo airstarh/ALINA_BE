@@ -226,7 +226,7 @@ Editor ID to true DVRIP `Name` mapping:
 
 `renderRuleSection()` in `rule-form.js` -> `renderServiceForm()` ->
 `CameraApi.saveEditor(camera, 'human_detection', payload)` ->
-`Api::handle('editor')` -> `CameraService::saveEditor()` ->
+`Api::handle('editor-save')` -> `CameraService::updateEditor()` ->
 `NetworkServiceEditor::update('human_detection', payload)` ->
 `DvripClient::getConfig('Detect.HumanDetection')` (**1042**) ->
 `DvripClient::setConfig('Detect.HumanDetection', merged full branch)` (**1040**)
@@ -244,6 +244,32 @@ positions to camera coordinates `0..8192`.
 
 The owner confirmed on 2026-10-07 that saved Tripwire and Intrusion geometry
 matches the native CMS view and that browser resizing keeps the overlay aligned.
+
+## Human Detection PTZ activation
+
+`renderServiceForm()` PTZ subsection -> `CameraApi.saveEditor(camera,
+'human_detection', payload)` -> `Api::handle('editor-save')` ->
+`CameraService::updateEditor()` -> `NetworkServiceEditor::update()` ->
+`DvripClient::getConfig('Detect.MotionDetect.[0]')` (**1042**) ->
+`DvripClient::setConfig('Detect.MotionDetect.[0]', merged full branch)`
+(**1040**) -> `DvripClient::getConfig('Detect.MotionDetect.[0]')` (**1042**
+verification). The owned raw fields are
+`EventHandler.PtzLink[0] = ["None"|"Preset"|"Tour"|"Pattern", number]` and
+`EventHandler.PtzEnable` (set true when activating a link). Other channels,
+settings, and the existing enable flag when selecting None are preserved.
+`SystemFunction.OtherFunction.SupportPTZDirectionControl` plus action-specific
+capability flags gate the form; Door does not advertise these and has no PTZ
+controls. The generic ONVIF preset enumeration is *not* used as evidence of
+saved presets. On 2026-10-08, live Balcon `Preset/1`, `Tour/1`, and `Pattern/1`
+writes through this route each survived a fresh camera read with Human Detection
+temporarily disabled. The original `None/0` link and detection state were
+restored and verified. No alert-triggered PTZ movement was tested; a known
+saved slot is still required for that test.
+The vendor's [configuration format](https://git.pblr-nyk.pro/mirror/python-dvr/raw/commit/81acf8845d7892be5b9ecb1ee92ebbe0a1c3ef5a/doc/%E9%85%8D%E7%BD%AE%E4%BA%A4%E6%8D%A2%E6%A0%BC%E5%BC%8FV2.0.pdf)
+lists all four action strings and describes the second element as the
+corresponding preset, tour, or pattern number. It gives no 255 limit; the
+web form therefore requires a positive number for newly selected active
+actions without asserting an upper bound. None normalizes to `["None", 0]`.
 
 ## Wi-Fi access-point search
 

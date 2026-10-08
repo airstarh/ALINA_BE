@@ -124,19 +124,33 @@ export function renderServiceForm(model, handlers, documentRef = document) {
 
     append(form, 'h3', {text: 'Settings'});
     const grid = append(form, 'div', {className: 'form-grid'});
+    const ptzSection = model.id === 'human_detection' && model.fields.ptzAction
+        ? append(form, 'details', {className: 'form-subsection'})
+        : null;
+    if (ptzSection) {
+        append(ptzSection, 'summary', {text: 'PTZ activation'});
+        append(ptzSection, 'p', {
+            className: 'form-note',
+            text: 'Requires an existing saved preset, tour, or pattern on a motorized camera. The camera’s generic preset list does not confirm that one is saved.',
+        });
+    }
+    const ptzGrid = ptzSection ? append(ptzSection, 'div', {className: 'form-grid'}) : null;
     const controls = new Map();
+    let ptzNumberLabel = null;
+    let ptzNumberHelp = null;
     for (const [name, field] of entries) {
         if (enableEntry?.[0] === name) continue;
         if (model.id === 'human_detection' && model.ruleGeometry && ['ruleEnabled', 'ruleType'].includes(name)) continue;
+        const fieldParent = ptzGrid && ['ptzAction', 'ptzNumber'].includes(name) ? ptzGrid : grid;
         if (isSwitch(field)) {
-            const label = append(grid, 'label', {className: 'form-switch-field'});
+            const label = append(fieldParent, 'label', {className: 'form-switch-field'});
             const input = append(label, 'input', {attributes: {type: 'checkbox', name}});
             input.checked = Boolean(model.values[name]);
             controls.set(name, input);
             append(label, 'span', {text: field.label});
             continue;
         }
-        const label = append(grid, 'label', {className: 'form-field'});
+        const label = append(fieldParent, 'label', {className: 'form-field'});
         append(label, 'span', {className: 'form-label', text: field.label});
         if (field.options) {
             const select = append(label, 'select', {className: 'form-input', attributes: {name}});
@@ -147,15 +161,44 @@ export function renderServiceForm(model, handlers, documentRef = document) {
                 });
                 option.selected = String(value) === String(model.values[name]);
             }
+            select.value = String(model.values[name] ?? '');
             controls.set(name, select);
             continue;
         }
         const attributes = {name, type: inputTypeForServiceField(field)};
         if (field.min !== undefined) attributes.min = String(field.min);
         if (field.max !== undefined) attributes.max = String(field.max);
+        if (field.required) attributes.required = '';
         const input = append(label, 'input', {className: 'form-input', attributes});
         input.value = model.values[name] ?? '';
         controls.set(name, input);
+        if (name === 'ptzNumber' && ptzGrid) {
+            ptzNumberLabel = label;
+            ptzNumberHelp = append(label, 'small', {className: 'form-help'});
+        }
+    }
+
+    if (controls.has('ptzAction') && controls.has('ptzNumber') && ptzNumberLabel) {
+        const action = controls.get('ptzAction');
+        const number = controls.get('ptzNumber');
+        const help = {
+            Preset: 'Enter the saved preset number from the camera’s PTZ settings. A preset is one stored view; use its exact slot number.',
+            Tour: 'Enter the saved tour number from the camera’s PTZ settings. A tour visits stored views in sequence; use its exact slot number.',
+            Pattern: 'Enter the saved pattern number from the camera’s PTZ settings. Record a PTZ movement path there first; Balcon pattern playback has not been verified.',
+        };
+        const refreshPtzNumber = (changed) => {
+            const inactive = action.value === 'None';
+            ptzNumberLabel.hidden = inactive;
+            number.disabled = inactive;
+            if (inactive) number.value = '0';
+            else if (changed && Number(number.value) < 1) number.value = '';
+            const legacyZero = !changed && action.value === model.values.ptzAction
+                && model.values.ptzNumber === 0;
+            number.setAttribute('min', legacyZero || inactive ? '0' : '1');
+            if (!inactive) ptzNumberHelp.textContent = `${help[action.value]} This app cannot verify which slots are saved.`;
+        };
+        action.addEventListener('change', () => refreshPtzNumber(true));
+        refreshPtzNumber(false);
     }
 
     const ruleSection = model.id === 'human_detection' && model.ruleGeometry && handlers.cameraId
@@ -172,7 +215,8 @@ export function renderServiceForm(model, handlers, documentRef = document) {
             if (field.type === 'boolean') values[name] = input.checked;
         }
         for (const [name, input] of controls) {
-            input.disabled = Boolean(isServiceFieldDisabled(model.fields[name], values));
+            input.disabled = Boolean(isServiceFieldDisabled(model.fields[name], values)
+                || (name === 'ptzNumber' && controls.get('ptzAction')?.value === 'None'));
         }
     };
     for (const [name, input] of controls) {
@@ -246,6 +290,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         }
         list.replaceChildren();
         for (const [name, field] of entries) {
+            if (name === 'ptzNumber' && pending.ptzAction === 'None') continue;
             let display = pending[name];
             if (isSwitch(field)) display = display ? 'Enabled' : 'Disabled';
             else if (field.options) display = serviceOptionLabel(field, String(display));

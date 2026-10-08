@@ -392,7 +392,7 @@ final class NetworkServiceEditor
         ],
         'human_detection' => [
             'label' => 'Human detection', 'branch' => 'Detect.HumanDetection',
-            'warning' => 'Send Email, App Push, FTP upload, Write log, event snapshots, Alarm Sound, and active periods use the camera’s shared motion-alert settings. Email and FTP destinations are configured on their separate pages. Attaching an event snapshot to email also requires Send Email. Alarm Sound is shown only when additional voice-tip control is advertised. PTZ activation is not mapped; its existing value is preserved.',
+            'warning' => 'Send Email, App Push, FTP upload, Write log, event snapshots, Alarm Sound, active periods, and PTZ activation use the camera’s shared motion-alert settings. Email and FTP destinations are configured on their separate pages. Attaching an event snapshot to email also requires Send Email. Alarm Sound and PTZ activation appear only when their corresponding device capabilities are advertised. A camera-reported preset list does not prove that a preset has been saved; Pattern playback has not been verified on Balcon.',
             'fields' => [
                 'enable' => ['label' => 'Human detection', 'type' => 'boolean', 'path' => [0, 'Enable']],
                 'pushInterval' => ['label' => 'Push interval', 'type' => 'integer', 'min' => 0, 'max' => 3600000, 'path' => [0, 'PushInterval']],
@@ -655,7 +655,7 @@ final class NetworkServiceEditor
         $humanActions = $id === 'human_detection' ? $this->readHumanActions() : null;
         $optionalHumanActions = $humanActions === null ? [] : $this->availableHumanOptionalActions($humanActions);
         if ($id === 'human_detection') {
-            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'snapshot', 'alarmSound', 'soundType', 'ftpUpload', 'writeLog', 'periodChanges'], array_keys($input)) !== []) {
+            if ($humanActions === null && array_intersect(['appPush', 'sendEmail', 'snapshot', 'alarmSound', 'soundType', 'ftpUpload', 'writeLog', 'periodChanges', 'ptzAction', 'ptzNumber'], array_keys($input)) !== []) {
                 throw new DvripException('device_config_missing', 'Camera does not expose alert action settings.');
             }
             if ($humanActions !== null) {
@@ -696,6 +696,31 @@ final class NetworkServiceEditor
                         throw new InvalidArgumentException("Field {$name} is not available on this camera.");
                     }
                 }
+                $ptz = $this->humanPtzLink($humanActions);
+                if ($ptz === null) {
+                    if (array_key_exists('ptzAction', $input) || array_key_exists('ptzNumber', $input)) {
+                        throw new InvalidArgumentException('PTZ activation is not available on this camera.');
+                    }
+                } else {
+                    $options = $this->humanPtzOptions();
+                    $ptzAction = $input['ptzAction'] ?? null;
+                    $submittedNumber = $input['ptzNumber'] ?? null;
+                    if (!is_string($ptzAction) || !in_array($ptzAction, $options, true)) {
+                        throw new InvalidArgumentException('PTZ activation action is not available on this camera.');
+                    }
+                    if ($ptzAction === 'None') {
+                        if ($submittedNumber !== null && $submittedNumber !== 0) {
+                            throw new InvalidArgumentException('No PTZ activation must not specify a saved slot number.');
+                        }
+                        $ptzNumber = 0;
+                    } else {
+                        if (!is_int($submittedNumber)
+                            || ($submittedNumber < 1 && !([$ptzAction, $submittedNumber] === $ptz))) {
+                            throw new InvalidArgumentException('Enter the number of an existing saved PTZ action.');
+                        }
+                        $ptzNumber = $submittedNumber;
+                    }
+                }
             }
         }
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
@@ -719,6 +744,15 @@ final class NetworkServiceEditor
             }
             if ($snapshotCurrent !== null && $input['snapshot'] !== $snapshotCurrent) {
                 $this->applyHumanSnapshotChange($updatedActions, $input['snapshot']);
+            }
+            if ($ptz !== null) {
+                $selected = [$input['ptzAction'], $ptzNumber];
+                if ($selected !== $ptz) {
+                    $updatedActions['EventHandler']['PtzLink'][0] = $selected;
+                    if ($input['ptzAction'] !== 'None') {
+                        $updatedActions['EventHandler']['PtzEnable'] = true;
+                    }
+                }
             }
         }
 
@@ -998,11 +1032,65 @@ final class NetworkServiceEditor
             ];
             $model['values']['snapshot'] = $snapshot;
         }
+        $ptz = $this->humanPtzLink($branch);
+        if ($ptz !== null) {
+            $model['fields']['ptzAction'] = [
+                'label' => 'PTZ activation action',
+                'type' => 'string',
+                'options' => $this->humanPtzOptions(),
+                'optionLabels' => [
+                    'None' => 'No PTZ activation',
+                    'Preset' => 'Move to saved preset',
+                    'Tour' => 'Start saved tour',
+                    'Pattern' => 'Replay saved movement pattern',
+                ],
+            ];
+            $model['fields']['ptzNumber'] = [
+                'label' => 'Saved PTZ action number',
+                'type' => 'integer', 'min' => 0, 'required' => true,
+            ];
+            $model['values']['ptzAction'] = $ptz[0];
+            $model['values']['ptzNumber'] = $ptz[1];
+        }
         $periods = $this->humanPeriods($branch);
         if ($periods !== null) {
             $model['periods'] = $periods;
         }
         return $model;
+    }
+
+    private function humanPtzOptions(): array
+    {
+        $features = $this->reader->getSystemFunction()['OtherFunction'] ?? [];
+        $options = ['None'];
+        if (($features['SupportSetPTZPresetAttribute'] ?? false) === true) {
+            $options[] = 'Preset';
+        }
+        if (($features['SupportPTZTour'] ?? false) === true) {
+            $options[] = 'Tour';
+        }
+        if (count($options) > 1) {
+            $options[] = 'Pattern';
+        }
+        return $options;
+    }
+
+    private function humanPtzLink(array $branch): ?array
+    {
+        $features = $this->reader->getSystemFunction()['OtherFunction'] ?? [];
+        $event = $branch['EventHandler'] ?? null;
+        $link = $event['PtzLink'] ?? null;
+        if (($features['SupportPTZDirectionControl'] ?? false) !== true
+            || count($this->humanPtzOptions()) < 2
+            || !is_array($event) || !is_bool($event['PtzEnable'] ?? null)
+            || !is_array($link) || !array_is_list($link) || count($link) < 1
+            || !is_array($link[0]) || !array_is_list($link[0]) || count($link[0]) !== 2
+            || !is_string($link[0][0]) || !is_int($link[0][1])
+            || $link[0][1] < 0
+            || !in_array($link[0][0], $this->humanPtzOptions(), true)) {
+            return null;
+        }
+        return $link[0];
     }
 
     private function availableHumanOptionalActions(array $branch): array

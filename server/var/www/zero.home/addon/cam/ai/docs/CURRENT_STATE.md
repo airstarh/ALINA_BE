@@ -134,12 +134,31 @@ edits carry their original points so a concurrent camera change is rejected
 before writing. The Period section edits the camera's seven-day,
 six-slot `EventHandler.TimeSection` on the same page. It submits only changed
 slots, rejects stale slots, and preserves every other slot during the
-fresh-read merge. PTZ activation is not yet mapped. No probe
-endpoint remains in the app. See
+fresh-read merge. PTZ activation now appears as a collapsed subsection only
+when the camera advertises direction control and a usable preset/tour capability.
+It also offers the documented Pattern wire action, clearly noting that
+Balcon's pattern playback has not been verified. The saved-slot number input
+appears only for Preset, Tour, or Pattern, with action-specific guidance; it
+has no invented upper bound. Existing Pattern/0 is preserved when other alert
+settings are saved.
+Balcon's motor was verified with short four-direction ONVIF moves and explicit
+stops; Door has no PTZ capability flags, is physically static, and its PTZ
+controls stay hidden. The editor owns only shared alert `PtzLink[0]` and sets
+`PtzEnable` when an action is selected, preserving all other channels. A live
+A live PTZ-link write test found `Preset/1`, `Tour/1`, and `Pattern/1` accepted and
+fresh-read verified on Balcon with Human Detection temporarily disabled;
+the original detection and `None/0` link settings were restored and verified.
+The owner subsequently saved Presets 1–5; direct recall
+confirmed distinct balcony-facing and city-facing views. Two timed alert-link
+tests observed no transition or new Balcon FTP snapshot. The owner later
+confirmed they did not walk into view during either window, so these tests
+did not exercise event-to-PTZ linkage. Direct preset recall works; an
+alert-triggered recall remains unverified.
+The original alert settings and city-facing view were restored. Generic ONVIF
+preset enumeration is identical on both cameras and is not considered evidence
+of a saved preset. No probe endpoint remains in the app. See
 [`human-detection-discovery.md`](human-detection-discovery.md) for exact
-observations. PTZ activation is not part of this editor; Door's PTZ must remain
-hidden because it does not advertise PTZ capabilities and is physically static.
-Future PTZ activation should appear only when actual device support is verified.
+observations.
 
 On 2026-10-07 the owner tested the polygon and Tripwire editors in the browser:
 mouse manipulation worked, both saved shapes appeared exactly the same in the

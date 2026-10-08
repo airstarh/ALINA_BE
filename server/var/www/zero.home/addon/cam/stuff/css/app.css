@@ -118,6 +118,7 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .form-switch-field { display: flex; align-items: center; gap: .65rem; min-height: 2.6rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface-raised); }
 .form-switch-field input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); }
 .form-label { color: #aebbc7; font-size: .8rem; }
+.form-help { color: var(--muted); font-size: .78rem; line-height: 1.45; }
 .form-input { width: 100%; min-height: 2.6rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface-raised); color: inherit; }
 .period-section { margin-top: 1.5rem; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface); }
 .period-summary { padding: 1rem; color: var(--accent); cursor: pointer; font-weight: 700; }
@@ -141,6 +142,9 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
 }
 .form-note { margin: 1.25rem 0 0; padding: .85rem 1rem; border-left: .2rem solid var(--accent); background: var(--surface-raised); color: var(--muted); font-size: .84rem; line-height: 1.5; }
 .form-warning { margin: 0 0 1rem; padding: .85rem 1rem; border-left: .2rem solid #e7bd77; background: #302817; color: #f1d69f; font-size: .84rem; line-height: 1.5; }
+.form-subsection { margin: 1rem 0; padding: .9rem; border: 1px solid var(--line); border-radius: .6rem; }
+.form-subsection > summary { color: var(--accent); cursor: pointer; font-weight: bold; }
+.form-subsection .form-grid { margin-top: 1rem; }
 .form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
 .primary-button { border-color: #4ba990; background: var(--accent-dark); }
 .smtp-review { margin-top: 1.25rem; padding: 1rem; border: 1px solid #4ba990; border-radius: .65rem; background: #14241f; }

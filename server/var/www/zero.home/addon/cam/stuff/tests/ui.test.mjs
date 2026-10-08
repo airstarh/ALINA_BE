@@ -276,6 +276,69 @@ test('FTP editor renders a test button that invokes its separate test action', a
     assert.equal(tested, 1);
 });
 
+test('human detection keeps PTZ activation in a collapsed section when camera offers it', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    const model = {
+        id: 'human_detection', branch: 'Detect.HumanDetection', label: 'Human detection',
+        fields: {
+            enable: {label: 'Human detection', type: 'boolean'},
+            ptzAction: {label: 'PTZ activation action', type: 'string', options: ['None', 'Preset', 'Tour', 'Pattern']},
+            ptzNumber: {label: 'Saved PTZ action number', type: 'integer', min: 0, required: true},
+        },
+        values: {enable: true, ptzAction: 'None', ptzNumber: 0},
+    };
+    const root = renderServiceForm(model, {cameraId: 'balcon', onReload: () => {}, onSave: async () => {}}, new FakeDocument());
+    const ptz = descendants(root).find((node) => node.type === 'details'
+        && descendants(node).some((child) => child.value === 'PTZ activation'));
+    assert.ok(ptz);
+    assert.equal(ptz.attributes.open, undefined);
+    assert.ok(descendants(ptz).some((node) => node.attributes.name === 'ptzAction'));
+    assert.ok(descendants(ptz).some((node) => node.attributes.name === 'ptzNumber'));
+    const action = descendants(ptz).find((node) => node.attributes.name === 'ptzAction');
+    const number = descendants(ptz).find((node) => node.attributes.name === 'ptzNumber');
+    const numberLabel = descendants(ptz).find((node) => node.type === 'label' && descendants(node).includes(number));
+    assert.equal(numberLabel.hidden, true);
+    assert.equal(number.disabled, true);
+    action.value = 'Preset';
+    action.listeners.change();
+    assert.equal(numberLabel.hidden, false);
+    assert.equal(number.disabled, false);
+    assert.equal(number.value, '');
+    assert.equal(number.attributes.min, '1');
+    assert.equal(number.attributes.required, '');
+    const help = descendants(numberLabel).find((node) => node.type === 'small');
+    assert.match(help.children[0].value, /saved preset number/i);
+    action.value = 'Pattern';
+    action.listeners.change();
+    assert.match(help.children[0].value, /saved pattern number/i);
+    assert.match(help.children[0].value, /record.*PTZ/i);
+    action.value = 'None';
+    action.listeners.change();
+    assert.equal(numberLabel.hidden, true);
+    assert.equal(number.disabled, true);
+    assert.equal(number.value, '0');
+});
+
+test('existing PTZ Pattern zero stays visible for correction rather than hiding the editor', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    const model = {
+        id: 'human_detection', branch: 'Detect.HumanDetection', label: 'Human detection',
+        fields: {
+            enable: {label: 'Human detection', type: 'boolean'},
+            ptzAction: {label: 'PTZ activation action', type: 'string', options: ['None', 'Preset', 'Tour', 'Pattern']},
+            ptzNumber: {label: 'Saved PTZ action number', type: 'integer', min: 0, required: true},
+        },
+        values: {enable: true, ptzAction: 'Pattern', ptzNumber: 0},
+    };
+    const root = renderServiceForm(model, {cameraId: 'balcon', onReload: () => {}, onSave: async () => {}}, new FakeDocument());
+    const number = descendants(root).find((node) => node.attributes.name === 'ptzNumber');
+    const numberLabel = descendants(root).find((node) => node.type === 'label' && descendants(node).includes(number));
+    assert.equal(numberLabel.hidden, false);
+    assert.equal(number.value, 0);
+    assert.equal(number.attributes.min, '0');
+});
+
+
 test('FTP editor shows the camera test outcome beside the button', async () => {
     const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
     const model = {

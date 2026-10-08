@@ -8,7 +8,7 @@ import {
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261007-1';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
-import {renderServiceForm} from './service-form.js?v=20261007-3';
+import {renderServiceForm} from './service-form.js?v=20261008-2';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();

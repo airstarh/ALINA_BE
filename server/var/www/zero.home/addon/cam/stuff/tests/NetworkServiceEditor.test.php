@@ -431,6 +431,113 @@ test('network_editor_human_detection_reads_and_writes_native_alert_actions', fun
     assertSameValue(false, in_array(['get', 'NetWork.NetMail'], $reader->calls, true));
 });
 
+test('human_detection_ptz_link_is_shown_only_with_real_ptz_capability_and_preserves_other_channels', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $links = array_fill(0, 64, ['None', 0]);
+    $links[1] = ['Tour', 3];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'PtzEnable' => false, 'PtzLink' => $links,
+    ]];
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+        'SupportPTZTour' => true,
+    ]];
+    $model = $editor->get('human_detection');
+    assertSameValue('None', $model['values']['ptzAction']);
+    assertSameValue(0, $model['values']['ptzNumber']);
+    assertSameValue(['None', 'Preset', 'Tour', 'Pattern'], $model['fields']['ptzAction']['options']);
+    $input = $model['values'];
+    $input['ptzAction'] = 'Preset';
+    $input['ptzNumber'] = 7;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue('Preset', $saved['values']['ptzAction']);
+    assertSameValue(['Preset', 7], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][0]);
+    assertSameValue(['Tour', 3], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][1]);
+    assertSameValue(true, $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzEnable']);
+});
+
+test('human_detection_ptz_link_rejects_forged_or_invalid_controls', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'PtzEnable' => true, 'PtzLink' => array_fill(0, 64, ['None', 0]),
+    ]];
+    $model = $editor->get('human_detection');
+    assertSameValue(false, isset($model['fields']['ptzAction']));
+    $input = $model['values'] + ['ptzAction' => 'Preset', 'ptzNumber' => 1];
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+    ]];
+    $input = $editor->get('human_detection')['values'];
+    $input['ptzAction'] = 'Pattern';
+    $input['ptzNumber'] = 0;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    $input['ptzAction'] = 'Preset';
+    $input['ptzNumber'] = 0;
+    assertThrows(fn () => $editor->update('human_detection', $input), InvalidArgumentException::class);
+    $reader->systemFunction = ['OtherFunction' => ['SupportPTZDirectionControl' => true]];
+    assertSameValue(false, isset($editor->get('human_detection')['fields']['ptzAction']));
+    assertSameValue([], array_values(array_filter($reader->calls, fn ($call) => $call[0] === 'set')));
+});
+
+test('human_detection_accepts_documented_pattern_link_and_preserves_legacy_zero_on_unrelated_save', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $links = array_fill(0, 64, ['None', 0]);
+    $links[0] = ['Pattern', 0];
+    $links[1] = ['Tour', 3];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'PtzEnable' => true, 'PtzLink' => $links,
+    ]];
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+        'SupportPTZTour' => true,
+    ]];
+    $model = $editor->get('human_detection');
+    assertSameValue(['None', 'Preset', 'Tour', 'Pattern'], $model['fields']['ptzAction']['options']);
+    assertSameValue('Pattern', $model['values']['ptzAction']);
+    assertSameValue(0, $model['values']['ptzNumber']);
+    assertSameValue(false, isset($model['fields']['ptzNumber']['max']));
+    $editor->update('human_detection', $model['values']);
+    assertSameValue(['Pattern', 0], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][0]);
+
+    $input = $model['values'];
+    $input['ptzNumber'] = 300;
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(['Pattern', 300], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][0]);
+    assertSameValue(['Tour', 3], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][1]);
+    assertSameValue(300, $saved['values']['ptzNumber']);
+});
+
+test('human_detection_none_link_does_not_require_a_number_and_writes_zero', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
+    $links = array_fill(0, 64, ['None', 0]);
+    $links[0] = ['Preset', 4];
+    $reader->values['Detect.MotionDetect.[0]'] = ['EventHandler' => [
+        'MailEnable' => false, 'MessageEnable' => false, 'VoiceEnable' => false,
+        'PtzEnable' => true, 'PtzLink' => $links,
+    ]];
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+    ]];
+    $input = $editor->get('human_detection')['values'];
+    $input['ptzAction'] = 'None';
+    unset($input['ptzNumber']);
+    $saved = $editor->update('human_detection', $input);
+    assertSameValue(['None', 0], $reader->values['Detect.MotionDetect.[0]']['EventHandler']['PtzLink'][0]);
+    assertSameValue(0, $saved['values']['ptzNumber']);
+});
+
 test('human_detection_discovers_ftp_and_log_actions_and_saves_only_their_shared_flags', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values['Detect.HumanDetection'] = networkBranchFixtures()['Detect.HumanDetection'];
