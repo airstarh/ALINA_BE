@@ -17,6 +17,15 @@ assert_line() {
     fi
 }
 
+assert_absent_line() {
+    local file="$1"
+    local unexpected="$2"
+    if grep -Fqx "$unexpected" "$file"; then
+        printf 'FAIL: %s must not contain: %s\n' "$file" "$unexpected" >&2
+        exit 1
+    fi
+}
+
 assert_line "$PHP_INI" "upload_max_filesize = 5000M"
 assert_line "$PHP_INI" "post_max_size = 5120M"
 assert_line "$PHP_INI" "max_file_uploads = 100"
@@ -39,8 +48,11 @@ assert_line "$NGINX_CONF" "    client_body_timeout 14400s;"
 assert_line "$NGINX_LOCATION" "    fastcgi_request_buffering off;"
 assert_line "$NGINX_LOCATION" "    fastcgi_send_timeout 14400s;"
 assert_line "$NGINX_LOCATION" "    fastcgi_read_timeout 14400s;"
+assert_line "$NGINX_LOCATION" 'location ~* \.(mp3|mp4|m4v|webm|mov|avi|wav|flac|m4a|ogg|oga|aac)$ {'
 assert_line "$NGINX_LOCATION" "    limit_rate_after 2m;"
 assert_line "$NGINX_LOCATION" "    limit_rate 10m;"
+assert_absent_line "$NGINX_LOCATION" "    add_header Accept-Ranges bytes;"
+assert_absent_line "$NGINX_LOCATION" '    add_header Cache-Control "public, immutable, max-age=31536000";'
 assert_line "$COMPOSE_CONF" "        mem_limit: 768M"
 assert_line "$COMPOSE_CONF" "            - ./server/var/tmp/php-upload/:/var/tmp/php-upload/:rw"
 

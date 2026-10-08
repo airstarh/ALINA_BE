@@ -89,6 +89,8 @@ location ~ \.php$ {
     fastcgi_param HTTP_X_FORWARDED_PROTO    $scheme;
 
     fastcgi_intercept_errors on;
+
+    fastcgi_connect_timeout 75s;
 }
 
 location @phpfallback {
@@ -128,8 +130,7 @@ location ~* \.(js|css|html|woff2|ttf|eot|otf|map)$ {
     try_files $uri @notfound;
 }
 
-location ~* \.(mp3|mp4|wav|flac|avi)$ {
-    add_header Accept-Ranges bytes;
+location ~* \.(mp3|mp4|m4v|webm|mov|avi|wav|flac|m4a|ogg|oga|aac)$ {
     add_header Content-Disposition "inline";
     add_header X-Content-Type-Options nosniff always;
 
@@ -139,7 +140,6 @@ location ~* \.(mp3|mp4|wav|flac|avi)$ {
     directio 1m;
 
     expires 1y;
-    add_header Cache-Control "public, immutable, max-age=31536000";
 
     gzip off;
 
