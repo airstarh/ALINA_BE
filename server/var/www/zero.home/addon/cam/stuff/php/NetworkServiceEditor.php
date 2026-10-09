@@ -497,6 +497,7 @@ final class NetworkServiceEditor
         $definition = $this->definition($id);
         $branch = $this->readBranch($definition);
         $model = $this->model($id, $definition, $branch);
+        $model = $this->withConfirmedSelects($model);
         if ($id === 'human_detection') {
             $model['ruleGeometry'] = $this->humanRuleGeometry($branch);
             $actions = $this->readHumanActions();
@@ -509,6 +510,78 @@ final class NetworkServiceEditor
         return $dhcpIndex === null
             ? $model
             : $this->withDhcp($model, $this->readDhcpInterface($dhcpIndex), $dhcpIndex);
+    }
+
+    private function withConfirmedSelects(array $model): array
+    {
+        // SDK values, not inferred from the order of translated CMS labels.
+        $lists = match ($model['id']) {
+            'locale_formats' => [
+                'language' => ['English' => 'English'],
+                'dateFormat' => ['YYMMDD' => 'Year / Month / Day', 'MMDDYY' => 'Month / Day / Year', 'DDMMYY' => 'Day / Month / Year'],
+                'dateSeparator' => ['.' => 'Dot (.)', '-' => 'Hyphen (-)', '/' => 'Slash (/)'],
+                'timeFormat' => ['12' => '12-hour', '24' => '24-hour'],
+                'videoFormat' => ['PAL' => 'PAL', 'NTSC' => 'NTSC'],
+            ],
+            'image_basic' => [
+                'dayNightMode' => ['0x00000000' => 'Star IR', '0x00000001' => 'Full color', '0x00000002' => 'Black and white', '0x00000003' => 'Smart Alert'],
+                'autoIris' => ['0x00000000' => 'Close', '0x00000001' => 'Open'],
+                'backlightCompensation' => ['0x00000000' => 'Close', '0x00000001' => 'Open'],
+                'whiteBalance' => ['0x00000000' => 'Automatic', '0x00000001' => 'Indoor', '0x00000002' => 'Outdoor'],
+                'slowShutter' => ['0x00000000' => 'None', '0x00000002' => 'Low', '0x00000004' => 'Medium', '0x00000006' => 'High'],
+                'irCutMode' => [0 => 'IR synchronous switch', 1 => 'Automatic switch'],
+                'dayNoiseFilter' => [0 => '0 — No filtering', 1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5 — Strongest filtering'],
+                'nightNoiseFilter' => [0 => '0 — No filtering', 1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5 — Strongest filtering'],
+            ],
+            'image_advanced' => ['dwdr' => [0 => 'Close', 1 => 'Open']],
+            default => [],
+        };
+        foreach ($lists as $name => $labels) {
+            if (!isset($model['fields'][$name])) continue;
+            $current = $model['values'][$name];
+            if (!array_key_exists($current, $labels)) $labels[$current] = 'Current camera value (' . $current . ')';
+            $options = array_keys($labels);
+            if ($model['fields'][$name]['type'] !== 'integer') $options = array_map('strval', $options);
+            $model['fields'][$name]['options'] = $options;
+            $model['fields'][$name]['optionLabels'] = $labels;
+        }
+        if ($model['id'] === 'locale_formats') {
+            $model['fields']['language']['help'] = 'English only for now. Any existing different language is preserved until you choose English.';
+            $model['fields']['videoFormat']['help'] = 'Changing PAL/NTSC can affect available frame rates and interrupt the stream.';
+            $model['fields']['dstRule']['help'] = 'DST mode and transition dates remain unchanged; their complete wire-value mapping is not yet confirmed.';
+        }
+        return $model['id'] === 'image_basic' ? $this->withExposureOptions($model) : $model;
+    }
+
+    private function withExposureOptions(array $model): array
+    {
+        if (!isset($model['fields']['exposureMode'])) return $model;
+        $labels = [0 => 'Automatic'];
+        $capability = null;
+        if (method_exists($this->reader, 'getCameraCapability')) {
+            try {
+                $capability = $this->reader->getCameraCapability();
+            } catch (DvripException $exception) {
+                if (!in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) throw $exception;
+            }
+        }
+        if (is_array($capability) && is_array($capability['Speeds'] ?? null)) {
+            $count = min(64, max(0, (int) ($capability['Count'] ?? 0)), count($capability['Speeds']));
+            for ($i = 0; $i < $count; $i++) {
+                $speed = $capability['Speeds'][$i];
+                if (!is_string($speed) || !preg_match('/^0x[0-9a-fA-F]{8}$/D', $speed) || hexdec($speed) <= 0) break;
+                $labels[$i + 1] = 'Manual 1/' . (int) round(1000000 / hexdec($speed));
+            }
+        }
+        $current = $model['values']['exposureMode'];
+        if (!array_key_exists($current, $labels)) $labels[$current] = 'Current camera mode (' . $current . ')';
+        $model['fields']['exposureMode']['options'] = array_keys($labels);
+        $model['fields']['exposureMode']['optionLabels'] = $labels;
+        $model['fields']['exposureMode']['disabled'] = !is_array($capability);
+        $model['fields']['exposureMode']['help'] = is_array($capability)
+            ? 'Manual presets come from this camera. Choosing a different manual preset clears automatic timing limits, as in CMS.'
+            : 'Exposure presets could not be retrieved; the current mode is preserved.';
+        return $model;
     }
 
     private function withStreamOptions(array $model): array
@@ -681,6 +754,21 @@ final class NetworkServiceEditor
         $clean = $this->validate($definition, $input);
         $parentBranch = null;
         $current = $this->readBranch($definition, $parentBranch);
+        if ($id === 'image_basic' && isset($clean['exposureMode'])) {
+            $exposure = $this->withExposureOptions($this->model($id, $definition, $current));
+            $oldMode = $exposure['values']['exposureMode'];
+            if ($clean['exposureMode'] !== $oldMode
+                && ($exposure['fields']['exposureMode']['disabled'] || !in_array($clean['exposureMode'], $exposure['fields']['exposureMode']['options'], true))) {
+                throw new InvalidArgumentException('Choose a camera-provided exposure preset.');
+            }
+            if ($clean['exposureMode'] !== 0) {
+                foreach (['exposureMinimumUs' => 'LeastTime', 'exposureMaximumUs' => 'MostTime'] as $name => $key) {
+                    if (isset($clean[$name])) $clean[$name] = $clean['exposureMode'] !== $oldMode ? 0 : (int) hexdec($current[0]['ExposureParam'][$key]);
+                }
+            } elseif (isset($clean['exposureMinimumUs'], $clean['exposureMaximumUs']) && $clean['exposureMinimumUs'] > $clean['exposureMaximumUs']) {
+                throw new InvalidArgumentException('Minimum exposure must not exceed maximum exposure.');
+            }
+        }
         $humanActions = $id === 'human_detection' ? $this->readHumanActions() : null;
         $optionalHumanActions = $humanActions === null ? [] : $this->availableHumanOptionalActions($humanActions);
         if ($id === 'human_detection') {
@@ -786,10 +874,15 @@ final class NetworkServiceEditor
         }
 
         foreach ($definition['fields'] as $name => $field) {
+            if (!array_key_exists($name, $clean)) continue;
             if (($field['writable'] ?? true) !== true) {
                 continue;
             }
             $wireValue = $field['wireMap'][$clean[$name]] ?? $clean[$name];
+            if ($field['hexString'] ?? false) {
+                $original = $this->getPath($current, $field['path']);
+                $wireValue = (int) hexdec($original) === $clean[$name] ? $original : sprintf('0x%08X', $clean[$name]);
+            }
             $this->setPath($updated, $field['path'], $wireValue);
         }
 
@@ -815,6 +908,7 @@ final class NetworkServiceEditor
             $verified = $this->readBranch($definition);
         }
         $model = $this->model($id, $definition, $verified);
+        $model = $this->withConfirmedSelects($model);
         if ($id === 'human_detection') {
             $model['ruleGeometry'] = $this->humanRuleGeometry($verified);
         }
@@ -1377,15 +1471,24 @@ final class NetworkServiceEditor
         $fields = [];
         $values = [];
         foreach ($definition['fields'] as $name => $field) {
-            $value = $this->getPath($branch, $field['path']);
+            try {
+                $value = $this->getPath($branch, $field['path']);
+            } catch (DvripException $exception) {
+                if ($field['optional'] ?? false) continue;
+                throw $exception;
+            }
             $public = $field;
+            unset($public['optional'], $public['hexString']);
             unset($public['path']);
             unset($public['writable']);
             unset($public['byteMap']);
             unset($public['readMap']);
             unset($public['wireMap']);
             unset($public['strictOptions']);
-            if (isset($field['readMap'][$value])) {
+            if ($field['hexString'] ?? false) {
+                if (!is_string($value) || !preg_match('/^0x[0-9a-fA-F]{8}$/D', $value)) throw new DvripException('device_config_missing', 'Camera returned an invalid exposure time.');
+                $values[$name] = (int) hexdec($value);
+            } elseif (isset($field['readMap'][$value])) {
                 $values[$name] = $field['readMap'][$value];
             } elseif ($field['type'] === 'password') {
                 $values[$name] = $value;
@@ -1424,6 +1527,7 @@ final class NetworkServiceEditor
         $clean = [];
         foreach ($definition['fields'] as $name => $field) {
             if (!array_key_exists($name, $input)) {
+                if ($field['optional'] ?? false) continue;
                 throw new InvalidArgumentException("Field {$name} is required.");
             }
             $value = $input[$name];

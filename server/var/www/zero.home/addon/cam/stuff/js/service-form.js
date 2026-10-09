@@ -173,6 +173,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         const input = append(label, 'input', {className: 'form-input', attributes});
         input.value = model.values[name] ?? '';
         controls.set(name, input);
+        if (field.help) append(label, 'small', {className: 'form-help', text: field.help});
         if (name === 'ptzNumber' && ptzGrid) {
             ptzNumberLabel = label;
             ptzNumberHelp = append(label, 'small', {className: 'form-help'});
@@ -214,6 +215,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         for (const [name, input] of controls) {
             const field = model.fields[name];
             if (field.type === 'boolean') values[name] = input.checked;
+            else if (field.type === 'integer') values[name] = Number(input.value);
         }
         for (const [name, input] of controls) {
             input.disabled = Boolean(isServiceFieldDisabled(model.fields[name], values)
@@ -221,7 +223,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         }
     };
     for (const [name, input] of controls) {
-        if (model.fields[name].type === 'boolean') input.addEventListener('change', refreshDisabledFields);
+        if (['boolean', 'integer'].includes(model.fields[name].type)) input.addEventListener('change', refreshDisabledFields);
     }
     refreshDisabledFields();
 

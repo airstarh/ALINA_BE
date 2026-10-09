@@ -9,7 +9,7 @@ import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261009-9';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
-import {renderServiceForm} from './service-form.js?v=20261009-7';
+import {renderServiceForm} from './service-form.js?v=20261009-11';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();

@@ -63,6 +63,24 @@ class FakeDocument {
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 
+test('exposure timing inputs follow Automatic and Manual selection', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    const model = {id: 'image_basic', branch: 'Camera.Param', fields: {
+        exposureMode: {label: 'Exposure mode', type: 'integer', options: [0, 1]},
+        exposureMinimumUs: {label: 'Minimum', type: 'integer', disableWhen: 'exposureMode'},
+    }, values: {exposureMode: 0, exposureMinimumUs: 256}};
+    const root = renderServiceForm(model, {onReload() {}, onSave() {}}, new FakeDocument());
+    const mode = descendants(root).find(n => n.attributes.name === 'exposureMode');
+    const minimum = descendants(root).find(n => n.attributes.name === 'exposureMinimumUs');
+    assert.equal(minimum.disabled, false);
+    mode.value = '1';
+    mode.listeners.change?.();
+    assert.equal(minimum.disabled, true);
+    mode.value = '0';
+    mode.listeners.change?.();
+    assert.equal(minimum.disabled, false);
+});
+
 const response = (data, ok = true, status = 200) => ({
     ok,
     status,

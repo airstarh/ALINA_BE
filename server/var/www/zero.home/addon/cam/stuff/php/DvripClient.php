@@ -204,6 +204,11 @@ final class DvripClient implements DvripReader
         return $this->getNamed(1360, 'EncodeCapability');
     }
 
+    public function getCameraCapability(): mixed
+    {
+        return $this->getNamed(1360, 'Camera');
+    }
+
     public function testMail(array $settings): bool
     {
         $this->ensureLoggedIn();

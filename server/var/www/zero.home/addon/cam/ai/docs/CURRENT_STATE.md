@@ -21,6 +21,22 @@ entered in the browser.
 
 ## Architecture
 
+Confirmed English CMS dropdowns now cover locale formats and image white
+balance, slow shutter, IR-cut mode and noise-filter levels. Unknown current
+values are preserved. See [mapping and limited positive verification](cms-select-mapping.md).
+
+Image controls also exposes Day/Night mode, Auto iris, BLC and camera-provided
+exposure presets (`Camera` capability request 1360). Automatic exposure limits
+use clearly labelled microseconds; manual presets disable timing inputs and
+clear automatic limits when the selected preset changes, matching CMS.
+Advanced image controls exposes DWDR and its separate gain limit. Newly added
+fields are optional so missing fields do not suppress an otherwise usable form.
+DST editing remains unchanged. Focused positive checks passed; the live Balcon
+BLC check restored the entire original Camera.Param branch exactly.
+Image orientation is presented as Mirror horizontally and Flip vertically
+checkboxes, translating 0/1 to the camera's hexadecimal flags. The UI change
+does not change existing camera orientation.
+
 - `index.php` renders the shell and camera selector.
 - `stuff/js/app.js` controls connection, navigation, forms, and reboot UI.
 - `stuff/js/rule-form.js` overlays the editable first human-detection rule on a
@@ -45,6 +61,13 @@ with the camera using DVRIP over a separate raw TCP socket. JavaScript cannot
 directly open this arbitrary TCP protocol from a normal browser.
 
 ## Implemented functionality
+
+### Language scope
+
+For now, only English UI text, option labels and language resources are in scope.
+Other translations will be added later on explicit demand. Do not spend discovery
+or implementation effort on additional translations unless requested. This does
+not authorize changing the camera's existing language setting automatically.
 
 - Main/extra stream editors use camera-reported codec/resolution options and
   app-provided dropdown choices for FPS, bitrate, CBR/VBR, quality code and
