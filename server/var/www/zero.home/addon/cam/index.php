@@ -8,7 +8,7 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Camera Configuration</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261009-6">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261009-8">
 </head>
 <body>
 <header class="app-header">
@@ -58,6 +58,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261009-4"></script>
+<script type="module" src="./stuff/js/app.js?v=20261009-9"></script>
 </body>
 </html>

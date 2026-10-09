@@ -163,6 +163,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
             }
             select.value = String(model.values[name] ?? '');
             controls.set(name, select);
+            if (field.help) append(label, 'small', {className: 'form-help', text: field.help});
             continue;
         }
         const attributes = {name, type: inputTypeForServiceField(field)};

@@ -2,7 +2,7 @@ export const EDITOR_GROUPS = [
     {heading: 'ACCESS', ids: ['access']},
     {heading: 'NETWORK', ids: [
         'wired_network', 'wifi', 'wifi_signal', 'dhcp', 'network_watchdog',
-        'ip_adaptive', 'network_order', 'serial_bridge',
+        'ip_adaptive', 'network_order', 'serial_bridge', 'rtsp',
     ]},
     {heading: 'STREAM', ids: [
         'main_stream', 'extra_stream', 'smart_h264', 'video_color_day',
@@ -22,7 +22,7 @@ export const EDITOR_GROUPS = [
     ]},
     {heading: 'SERVICES 3rd PART', ids: [
         'smtp', 'ftp', 'ntp', 'upnp', 'pms', 'das', 'multicast',
-        'pppoe', 'rtsp', 'nat', 'vendor_connections',
+        'pppoe', 'nat', 'vendor_connections',
     ]},
     {heading: 'SERVICES 3rd PART DDNS', ids: [
         'ddns_1', 'ddns_2', 'ddns_3', 'ddns_4', 'ddns_5',
@@ -42,7 +42,7 @@ export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAc
     available.set('smtp', {id: 'smtp', name: 'Email / SMTP'});
     const nodes = [];
 
-    const addButton = (editor) => {
+    const addButton = (editor, parent) => {
         const button = documentRef.createElement('button');
         button.type = 'button';
         button.className = 'section-button section-button-editor';
@@ -53,23 +53,37 @@ export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAc
             else if (editor.id === 'smtp') onSmtp();
             else onEditor(editor.id, editor.name);
         });
-        nodes.push(button);
+        parent.append(button);
+    };
+
+    const addGroup = (title) => {
+        const section = documentRef.createElement('details');
+        section.className = 'section-menu-group';
+        const heading = documentRef.createElement('summary');
+        heading.className = 'section-group-heading';
+        heading.textContent = title;
+        section.append(heading);
+        const items = documentRef.createElement('div');
+        items.className = 'section-group-items';
+        section.append(items);
+        nodes.push(section);
+        return items;
     };
 
     for (const group of EDITOR_GROUPS) {
         const visible = group.ids.filter((id) => available.has(id));
         if (visible.length === 0) continue;
-        const heading = documentRef.createElement('h3');
-        heading.className = 'section-group-heading';
-        heading.textContent = group.heading;
-        nodes.push(heading);
+        const items = addGroup(group.heading);
         for (const id of visible) {
-            addButton(available.get(id));
+            addButton(available.get(id), items);
             available.delete(id);
         }
     }
 
     // Keep future camera-supported editors accessible until they are grouped.
-    for (const editor of available.values()) addButton(editor);
+    if (available.size) {
+        const items = addGroup('OTHER');
+        for (const editor of available.values()) addButton(editor, items);
+    }
     return nodes;
 };

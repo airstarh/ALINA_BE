@@ -46,6 +46,11 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ## Implemented functionality
 
+- Main/extra stream editors use camera-reported codec/resolution options and
+  app-provided dropdown choices for FPS, bitrate, CBR/VBR, quality code and
+  I-frame interval (GOP). Current values are retained; bitrate presets are
+  filtered by the camera's reported MaxBitrate. Help text distinguishes presets
+  from advertised capabilities. This UI change was not tested, at user request.
 - **ACCESS → All points** is first in the menu. It discovers per-camera DVRIP,
   web/JPEG, ONVIF services and RTSP addresses, distinguishes verified listeners
   from configured/unverified ports. It manages actual camera accounts used by

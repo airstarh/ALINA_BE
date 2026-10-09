@@ -514,7 +514,7 @@ final class NetworkServiceEditor
     private function withStreamOptions(array $model): array
     {
         if (!method_exists($this->reader, 'getEncodeCapability')) {
-            return $model;
+            return $this->withStreamPresets($model, []);
         }
 
         try {
@@ -523,7 +523,7 @@ final class NetworkServiceEditor
             if (in_array($exception->publicCode(), [
                 'device_unsupported', 'device_config_missing', 'device_error',
             ], true)) {
-                return $model;
+                return $this->withStreamPresets($model, []);
             }
             throw $exception;
         }
@@ -543,7 +543,36 @@ final class NetworkServiceEditor
             }
             $model['fields'][$field]['options'] = array_keys($options);
             $model['fields'][$field]['optionLabels'] = $options;
+            $model['fields'][$field]['help'] = 'Supported options reported by this camera for this stream.';
         }
+        return $this->withStreamPresets($model, is_array($capability) ? $capability : []);
+    }
+
+    private function withStreamPresets(array $model, array $capability): array
+    {
+        $choices = [
+            'fps' => range(1, 120),
+            'bitRate' => [64, 128, 256, 384, 512, 535, 743, 768, 1024, 1072, 1536, 1608, 2048, 2145, 3072, 3217, 4096, 4290, 6144, 8192, 12288, 16384, 24576, 32768, 49152, 61440],
+            'bitRateControl' => ['CBR', 'VBR'],
+            'quality' => range(0, 10),
+            'gop' => range(1, 300),
+        ];
+        foreach ($choices as $name => $values) {
+            if (!isset($model['fields'][$name])) continue;
+            if ($name === 'bitRate' && is_int($capability['MaxBitrate'] ?? null)) {
+                $values = array_values(array_filter($values, fn ($value) => $value <= $capability['MaxBitrate']));
+            }
+            $current = $model['values'][$name];
+            if (!in_array($current, $values, true)) $values[] = $current;
+            if ($name !== 'bitRateControl') sort($values, SORT_NUMERIC);
+            $model['fields'][$name]['options'] = $values;
+            $model['fields'][$name]['help'] = 'App-provided choices, not a camera-advertised list. The current camera value is retained.';
+            if ($name === 'bitRate' && is_int($capability['MaxBitrate'] ?? null)) {
+                $model['fields'][$name]['help'] .= ' Camera-reported maximum: ' . $capability['MaxBitrate'] . ' kbps.';
+            }
+        }
+        $model['fields']['bitRateControl']['optionLabels'] = ['CBR' => 'CBR — Constant bit rate', 'VBR' => 'VBR — Variable bit rate'];
+        $model['fields']['gop']['label'] = 'I-frame interval (GOP)';
         return $model;
     }
 

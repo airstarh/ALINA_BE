@@ -6,10 +6,10 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderEditableMenu} from './menu.js?v=20261008-4';
+import {renderEditableMenu} from './menu.js?v=20261009-9';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
-import {renderServiceForm} from './service-form.js?v=20261008-2';
+import {renderServiceForm} from './service-form.js?v=20261009-7';
 
 const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
@@ -240,10 +240,16 @@ const renderSections = (editors, sections) => {
         onSmtp: () => loadSmtp(guard.begin(activeCamera)),
         onEditor: (id, name) => loadEditor(id, name, guard.begin(activeCamera)),
     }));
-    const divider = document.createElement('div');
-    divider.className = 'section-divider';
+    const readOnly = document.createElement('details');
+    readOnly.className = 'section-menu-group section-menu-readonly';
+    const divider = document.createElement('summary');
+    divider.className = 'section-group-heading';
     divider.textContent = 'Read-only configuration';
-    elements.sections.append(divider);
+    readOnly.append(divider);
+    const items = document.createElement('div');
+    items.className = 'section-group-items';
+    readOnly.append(items);
+    elements.sections.append(readOnly);
     for (const section of sections) {
         const button = document.createElement('button');
         button.type = 'button';
@@ -253,7 +259,7 @@ const renderSections = (editors, sections) => {
         button.addEventListener('click', () => {
             loadSection(section.id, section.name, guard.begin(activeCamera));
         });
-        elements.sections.append(button);
+        items.append(button);
     }
 };
 

@@ -97,7 +97,9 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .section-button:hover { background: var(--surface-raised); }
 .section-button.is-active { border-color: #4ba990; background: var(--accent-dark); color: #d9fff5; box-shadow: inset .2rem 0 0 var(--accent); }
 .section-button-editor { color: #d9fff5; }
-.section-group-heading { margin: 1rem .7rem .3rem; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.section-group-heading { margin: .6rem .7rem; color: #fff; font-size: .85rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.section-group-items { display: grid; }
+.section-menu-readonly { margin-top: 2rem; padding-top: .5rem; border-top: 1px solid var(--line); }
 .section-divider { margin: 2rem -.45rem .25rem; padding: .65rem 1.15rem .35rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .section-content { min-width: 0; min-height: 24rem; overflow-x: auto; overflow-wrap: anywhere; }
 
