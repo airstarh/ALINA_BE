@@ -38,7 +38,7 @@ final class Api
             $action = $query['action'] ?? null;
             if (!is_string($action) || !in_array($action, [
                 'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save', 'smtp-test', 'ftp-test',
-                'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot',
+                'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot', 'access', 'access-save',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
@@ -65,12 +65,13 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
-            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot'], true)
+            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot', 'access-save'], true)
                 && strtoupper($method) !== 'POST'
             ) {
                 return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
             }
 
+            if ($action === 'access-save' && (isset($body['revision']) || ($body['service'] ?? null) === 'dvrip')) $this->config->prepareCredentialSave($cameraId);
             $service = ($this->serviceFactory)($cameraId, $camera);
             if (!$service instanceof CameraService) {
                 throw new DvripException('service_error', 'Camera service factory returned an invalid service.');
@@ -79,6 +80,8 @@ final class Api
             try {
                 $data = match ($action) {
                     'status' => $service->status(),
+                    'access' => $service->accessPoints(),
+                    'access-save' => $this->saveAccess($service, $cameraId, $body ?? []),
                     'sections' => $service->sections(),
                     'config' => $this->handleConfig($service, $query),
                     'smtp' => $service->smtp(),
@@ -115,6 +118,12 @@ final class Api
             throw new InvalidArgumentException('Configuration section is required.');
         }
         return $section === 'all' ? $service->all() : $service->config($section);
+    }
+
+    private function saveAccess(CameraService $service, string $id, array $input): array
+    {
+        if (isset($input['revision'])) return $service->saveAccessChanges($input, fn (array $state) => $this->config->saveAccessState($id, $state));
+        return $service->updateAccess($input, fn (string $password) => $this->config->saveAccountPassword($id, $password));
     }
 
     private function editorId(array $query): string
@@ -240,7 +249,7 @@ function runProductionApi(
         $action = $query['action'] ?? null;
         $cameraId = $query['camera'] ?? null;
         if (in_array($action, [
-            'status', 'config', 'smtp', 'smtp-save', 'smtp-test', 'editors', 'editor', 'editor-save', 'reboot',
+            'status', 'config', 'smtp', 'smtp-save', 'smtp-test', 'editors', 'editor', 'editor-save', 'reboot', 'access', 'access-save',
         ], true)
             && is_string($cameraId)
             && $cameraId !== ''

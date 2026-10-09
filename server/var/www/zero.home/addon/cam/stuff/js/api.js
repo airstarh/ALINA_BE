@@ -25,6 +25,14 @@ export class CameraApi {
         return this.#request({action: 'status', camera: cameraId});
     }
 
+    accessPoints(cameraId) {
+        return this.#request({action: 'access', camera: cameraId});
+    }
+
+    saveAccess(cameraId, values) {
+        return this.#request({action: 'access-save', camera: cameraId}, {method: 'POST', body: values});
+    }
+
     sections(cameraId) {
         return this.#request({action: 'sections', camera: cameraId});
     }

@@ -19,6 +19,7 @@ into this directory, application source, command examples, or browser-side code.
 ## Investigations
 
 - [Current implementation and hand-off state](CURRENT_STATE.md)
+- [Access points: protocols, discovery and credentials](access-points.md)
 - [JavaScript → PHP → raw DVRIP call map](DVRIP_CALL_MAP.md)
 - [Balcon camera](balcon-discovery.md)
 - [Door camera and automatic editor discovery](door-discovery.md)

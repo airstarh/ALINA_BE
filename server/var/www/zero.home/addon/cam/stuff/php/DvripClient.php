@@ -58,6 +58,99 @@ final class DvripClient implements DvripReader
         return $this->getNamed(1042, $command);
     }
 
+    public function getUsers(): array
+    {
+        $this->ensureLoggedIn();
+        $response = $this->request(1472, ['SessionID' => sprintf('0x%08X', $this->session)]);
+        $this->assertSuccess($response);
+        return is_array($response['Users'] ?? null) ? $response['Users'] : [];
+    }
+
+    public function changePassword(string $username, string $oldPassword, string $newPassword): void
+    {
+        $this->changePasswordFromHash($username, self::sofiaHash($oldPassword), $newPassword);
+    }
+
+    public function changePasswordFromHash(string $username, string $oldHash, string $newPassword): void
+    {
+        $this->setPasswordHashes($username, $oldHash, self::sofiaHash($newPassword));
+        if ($username === $this->username) $this->password = $newPassword;
+    }
+
+    public function setPasswordHashes(string $username, string $oldHash, string $newHash): void
+    {
+        $this->ensureLoggedIn();
+        $response = $this->request(1488, ['EncryptType' => 'MD5',
+            'NewPassWord' => $newHash, 'PassWord' => $oldHash,
+            'SessionID' => sprintf('0x%08X', $this->session), 'UserName' => $username]);
+        $this->assertSuccess($response);
+    }
+
+    public function getGroups(): array
+    {
+        $this->ensureLoggedIn();
+        $response = $this->request(1474, ['SessionID' => sprintf('0x%08X', $this->session)]);
+        $this->assertSuccess($response);
+        return is_array($response['Groups'] ?? null) ? $response['Groups'] : [];
+    }
+
+    public function getAuthorities(): array
+    {
+        $this->ensureLoggedIn();
+        $response = $this->request(1470, ['SessionID' => sprintf('0x%08X', $this->session)]);
+        $this->assertSuccess($response);
+        return is_array($response['AuthorityList'] ?? null) ? $response['AuthorityList'] : [];
+    }
+
+    public function writeGroup(?string $originalName, array $group): void
+    {
+        $this->ensureLoggedIn();
+        $payload = ['Group' => $group, 'SessionID' => sprintf('0x%08X', $this->session)];
+        if ($originalName === null) {
+            $payload = ['Name' => 'AddGroup', 'AddGroup' => ['Group' => $group]] + $payload;
+        } else $payload['GroupName'] = $originalName;
+        $this->assertSuccess($this->request($originalName === null ? 1476 : 1478, $payload));
+    }
+
+    public function deleteGroup(string $name): void
+    {
+        $this->ensureLoggedIn();
+        $this->assertSuccess($this->request(1480, ['Name' => $name, 'SessionID' => sprintf('0x%08X', $this->session)]));
+    }
+
+    public function writeUser(?string $originalName, array $user, ?string $password = null): void
+    {
+        $this->ensureLoggedIn();
+        $user['Password'] = $password === null ? ($originalName === null ? ($user['Password'] ?? '') : '') : self::sofiaHash($password);
+        $payload = ['User' => $user, 'SessionID' => sprintf('0x%08X', $this->session)];
+        if ($originalName === null) $payload['Name'] = 'User';
+        else $payload['UserName'] = $originalName;
+        $this->assertSuccess($this->request($originalName === null ? 1482 : 1484, $payload));
+    }
+
+    public static function passwordHash(string $password): string { return self::sofiaHash($password); }
+
+    public function addUser(string $name, string $password, string $group): void
+    {
+        $groups = array_column($this->getGroups(), null, 'Name');
+        if (!isset($groups[$group])) throw new \InvalidArgumentException('Camera account group is not available.');
+        $response = $this->request(1482, ['Name' => 'User', 'SessionID' => sprintf('0x%08X', $this->session),
+            'User' => ['AuthorityList' => $groups[$group]['AuthorityList'], 'Group' => $group,
+                'Memo' => 'Camera access manager', 'Name' => $name, 'Password' => self::sofiaHash($password),
+                'Reserved' => false, 'Sharable' => true]]);
+        $this->assertSuccess($response);
+    }
+
+    public function deleteUser(string $name): void
+    {
+        $users = array_column($this->getUsers(), null, 'Name');
+        if (!isset($users[$name]) || ($users[$name]['Reserved'] ?? true) || $name === $this->username) {
+            throw new \InvalidArgumentException('Reserved or active camera accounts cannot be deleted.');
+        }
+        $response = $this->request(1486, ['Name' => $name, 'SessionID' => sprintf('0x%08X', $this->session)]);
+        $this->assertSuccess($response);
+    }
+
     public function setConfig(string $command, mixed $value): bool
     {
         $this->ensureLoggedIn();
@@ -68,7 +161,9 @@ final class DvripClient implements DvripReader
                 'SessionID' => sprintf('0x%08X', $this->session),
                 $command => $value,
             ]);
-            $this->assertSuccess($response);
+            // CMS capture: this OEM port save returns 603 but stores the value.
+            // The access manager must still verify readback and the live listener.
+            if ($command !== 'OEMcfg.Correspondent' || ($response['Ret'] ?? null) !== 603) $this->assertSuccess($response);
             if (isset($response['Name']) && $response['Name'] !== $command) {
                 throw new DvripException('protocol_identity', 'DVRIP response name does not match.');
             }

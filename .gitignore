@@ -17,6 +17,7 @@ _DEV_DOCS/
 _GITOUT/
 .superpowers/
 server/var/www/zero.home/addon/cam/config.php
+server/var/www/zero.home/addon/cam/.access-*.php
 server/var/www/.bash_history
 server/var/www/.composer/
 **/var/www/.cache/

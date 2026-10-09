@@ -1,6 +1,6 @@
 # Camera application current state
 
-Last updated: 2026-10-07 (Europe/Moscow)
+Last updated: 2026-10-09 (Europe/Moscow)
 
 This is the hand-off document for continuing work on the camera application.
 It describes the implementation and verified Balcon behaviour without storing
@@ -46,6 +46,20 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ## Implemented functionality
 
+- **ACCESS → All points** is first in the menu. It discovers per-camera DVRIP,
+  web/JPEG, ONVIF services and RTSP addresses, distinguishes verified listeners
+  from configured/unverified ports. It manages actual camera accounts used by
+  DVRIP and RTSP through one native USERS table, plus collapsible GROUPS and
+  SERVICES tables. Visible new-password inputs, explicit Set empty, Multilogin,
+  per-user permissions and supported Memo are editable. One bottom Save changes
+  button writes only changed rows; partial failures retain pending edits. Only inbound listening services are
+  shown; URLs appear directly under service headings. Balcon's RTSP password
+  enforcement is defective and this is explicitly shown in its service notes.
+  See [access-points.md](access-points.md) for live findings, limits and optional
+  per-service config overrides, provenance limits and verified port rollback.
+- Follow-up cross-check: Balcon ONVIF-created users also appear in the native
+  DVRIP/CMS user list, with individual permissions. The previous separate-store
+  conclusion was incorrect; see access-points.md for verified role mappings.
 - Camera catalogue with Balcon selected by default.
 - Connection/status check and read-only explorer.
 - Fourteen read-only families: General, NetWork, Camera, Detect,

@@ -55,6 +55,15 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
         public int $mailTests = 0;
         public int $ftpTests = 0;
         public bool $ftpTestAccepted = true;
+        public array $passwordChanges = [];
+        public array $logins = [];
+        public function changePassword(string $username, string $old, string $new): void {
+            $this->passwordChanges[] = [$username, $old, $new];
+        }
+        public function login(string $username, string $password): array {
+            $this->logins[] = [$username, $password];
+            return [];
+        }
         public array $configValues = [];
         public array $smtp = [
             'Enable' => false,
@@ -147,6 +156,66 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
     );
     return [$api, $path];
 }
+
+test('access_api_returns_selected_camera_details_without_cache_or_camera_writes', function (): void {
+    [$unused, $path] = fixtureApi($count, $reader);
+    try {
+        $api = new Api(Config::load($path), static function (string $id, array $camera) use ($reader): CameraService {
+            return new CameraService($reader, $id, $camera['name'], $camera,
+                static fn (string $host, array $ports, array $roles): array => ['tcp' => [], 'http' => []]);
+        });
+        $result = $api->handle(['action' => 'access', 'camera' => 'balcon']);
+        assertSameValue(200, $result['status']);
+        assertSameValue('no-store, max-age=0', $result['headers']['Cache-Control']);
+        assertSameValue('192.0.2.10', $result['body']['data']['host']);
+        assertTrueValue(!array_key_exists('username', $result['body']['data']['points'][0]));
+        assertTrueValue(!array_key_exists('password', $result['body']['data']['points'][0]));
+        assertSameValue([], $result['body']['data']['users']);
+        assertTrueValue(isset($result['body']['data']['managementError']));
+        assertTrueValue($reader->closed);
+        assertSameValue([], $reader->configValues);
+        assertSameValue(false, $reader->rebooted);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('access_password_save_requires_post_and_persists_verified_account_for_next_connection', function (): void {
+    [$unused, $path] = fixtureApi($count, $reader);
+    $state = dirname($path) . '/.access-balcon-' . substr(hash('sha256', $path), 0, 12) . '.php';
+    try {
+        $api = new Api(Config::load($path), fn ($id, $camera) => new CameraService($reader, $id, $camera['name'], $camera));
+        $input = ['service' => 'dvrip', 'previousPassword' => 'fixture-secret', 'password' => 'updated-secret'];
+        assertSameValue(405, $api->handle(['action' => 'access-save', 'camera' => 'balcon'], $input)['status']);
+        assertSameValue([], $reader->passwordChanges);
+        $response = $api->handle(['action' => 'access-save', 'camera' => 'balcon'], $input, 'POST');
+        assertSameValue(200, $response['status']);
+        assertSameValue([['fixture-user', 'fixture-secret', 'updated-secret']], $reader->passwordChanges);
+        assertSameValue([['fixture-user', 'updated-secret']], $reader->logins);
+        assertSameValue('updated-secret', Config::load($path)->camera('balcon')['dvrip']['password']);
+        assertSameValue(400, $api->handle(['action' => 'access-save', 'camera' => 'balcon'], $input, 'POST')['status']);
+        assertSameValue(1, count($reader->passwordChanges));
+    } finally {
+        if (is_file($state)) unlink($state);
+        unlink($path);
+    }
+});
+
+test('access_password_save_rolls_back_if_application_cannot_persist_new_credentials', function (): void {
+    [$unused, $path] = fixtureApi($count, $reader);
+    try {
+        $camera = Config::load($path)->camera('balcon');
+        $service = new CameraService($reader, 'balcon', 'Balcon', $camera);
+        try {
+            $service->updateAccess(['service' => 'dvrip', 'previousPassword' => 'fixture-secret', 'password' => 'updated-secret'],
+                static function () { throw new RuntimeException('fixture persistence failure'); });
+            throw new RuntimeException('Expected persistence failure');
+        } catch (RuntimeException $error) {
+            assertSameValue('fixture persistence failure', $error->getMessage());
+        }
+        assertSameValue([['fixture-user', 'fixture-secret', 'updated-secret'], ['fixture-user', 'updated-secret', 'fixture-secret']], $reader->passwordChanges);
+    } finally { unlink($path); }
+});
 
 test('api_lists_public_cameras_without_connecting', function (): void {
     [$api, $path] = fixtureApi($calls);

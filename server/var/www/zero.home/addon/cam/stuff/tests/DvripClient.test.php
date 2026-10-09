@@ -172,6 +172,13 @@ test('dvrip_set_config_sends_complete_named_value_with_message_1040', function (
     assertSameValue($value, $payload['NetWork.NetEmail']);
 });
 
+test('dvrip_onvif_oem_save_accepts_captured_603_for_followup_verification', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $transport->queue(responsePacket(26, 1041, ['Ret' => 603, 'Name' => 'OEMcfg.Correspondent', 'SessionID' => '0x0000001A'], 1));
+    assertTrueValue($client->setConfig('OEMcfg.Correspondent', ['Port' => 9988]));
+});
 test('dvrip_set_config_surfaces_camera_rejection', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

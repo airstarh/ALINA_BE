@@ -164,3 +164,24 @@ test('config_rejects_invalid_alarm_sound_override_or_wire_code', function (): vo
         }
     }
 });
+
+test('config_validates_private_per_service_access_overrides', function (): void {
+    loadConfigClass();
+    $fixture = validConfigFixture();
+    $fixture['cameras']['balcon']['access'] = [
+        'ports' => ['onvif' => 9000], 'credentials' => ['onvif' => ['username' => 'viewer', 'password' => 'private-value']],
+    ];
+    $path = configFixture($fixture);
+    try {
+        $config = Config::load($path);
+        assertSameValue(9000, $config->camera('balcon')['access']['ports']['onvif']);
+        assertTrueValue(!str_contains(json_encode($config->publicCameras()), 'private-value'));
+    } finally { unlink($path); }
+    foreach ([['ports' => ['onvif' => 70000]], ['ports' => ['dvrip' => 100]],
+        ['credentials' => ['rtsp' => ['username' => 'viewer']]], ['ports' => 'invalid']] as $access) {
+        $fixture['cameras']['balcon']['access'] = $access;
+        $path = configFixture($fixture);
+        try { assertThrows(static fn () => Config::load($path), UnexpectedValueException::class); }
+        finally { unlink($path); }
+    }
+});

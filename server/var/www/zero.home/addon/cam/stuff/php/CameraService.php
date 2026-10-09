@@ -7,6 +7,10 @@ namespace Cam;
 use InvalidArgumentException;
 use Throwable;
 
+require_once __DIR__ . '/CameraAccess.php';
+require_once __DIR__ . '/OnvifAccounts.php';
+require_once __DIR__ . '/AccessManager.php';
+
 final class CameraService
 {
     private const SECTIONS = [
@@ -31,6 +35,7 @@ final class CameraService
         private string $cameraId,
         private string $cameraName,
         private array $cameraSettings = [],
+        private ?\Closure $accessProbe = null,
     ) {
     }
 
@@ -77,6 +82,138 @@ final class CameraService
             'camera' => ['id' => $this->cameraId, 'name' => $this->cameraName],
             'system' => $this->sanitize($this->reader->getSystemInfo()),
         ];
+    }
+
+    public function accessPoints(): array
+    {
+        try {
+            $network = $this->reader->getConfig('NetWork');
+        } catch (DvripException $error) {
+            if (!in_array($error->publicCode(), ['device_unsupported', 'device_config_missing'], true)) throw $error;
+            $network = [];
+        }
+        $network = is_array($network) ? $network : [];
+        $roles = CameraAccess::ports($this->cameraSettings, $network, CameraAccess::correspondent($this->reader));
+        $ports = array_values(array_unique(array_merge([21, 22, 23, 80, 443, 554, 8000, 8080, 8443, 8899, 34567, 34599, 37777], array_values($roles))));
+        $observed = $this->accessProbe !== null
+            ? ($this->accessProbe)($this->cameraSettings['host'], $ports, $roles)
+            : (new AccessProbe())->discover($this->cameraSettings['host'], $ports, $roles);
+        $model = CameraAccess::model($this->cameraSettings, $network, $observed);
+        if (isset($observed['onvif']['url']) && $this->accessProbe === null) {
+            try {
+                $model['onvifUsers'] = $this->onvifAccounts($observed['onvif']['url'])->users();
+            } catch (Throwable $error) {
+                $model['onvifAccountError'] = $error->getMessage();
+            }
+        }
+        try {
+            $users = method_exists($this->reader, 'getUsers') ? $this->reader->getUsers() : [];
+        } catch (DvripException $error) {
+            if (!in_array($error->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) throw $error;
+            $users = [];
+        }
+        foreach ($model['points'] as &$point) {
+            $mapped = $point['id'] === 'dvrip' || in_array($point['id'], $this->cameraSettings['access']['account_services'] ?? [], true);
+            $point['accountManager'] = $mapped && method_exists($this->reader, 'changePassword')
+                && in_array($this->cameraSettings['dvrip']['username'], array_column($users, 'Name'), true);
+            if ($point['accountManager']) {
+                $point['username'] = $this->cameraSettings['dvrip']['username'];
+                $point['password'] = $this->cameraSettings['dvrip']['password'];
+            }
+        }
+        unset($point);
+        $model['accounts'] = array_map(fn ($user) => ['username' => $user['Name'] ?? '',
+            'reserved' => (bool) ($user['Reserved'] ?? false),
+            'password' => ($user['Name'] ?? null) === $this->cameraSettings['dvrip']['username']
+                ? $this->cameraSettings['dvrip']['password'] : null], $users);
+        try {
+            $model['groups'] = method_exists($this->reader, 'getGroups') ? array_column($this->reader->getGroups(), 'Name') : [];
+        } catch (DvripException $error) {
+            if (!in_array($error->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) throw $error;
+            $model['groups'] = [];
+        }
+        return (new AccessManager($this->reader, $this->cameraSettings))->model($model);
+    }
+
+    public function saveAccessChanges(array $input, \Closure $persist): array
+    {
+        $manager = new AccessManager($this->reader, $this->cameraSettings);
+        $result = $manager->save($input, $persist);
+        $this->cameraSettings = $manager->settings();
+        $result['model'] = $this->accessPoints();
+        return $result;
+    }
+
+    public function updateAccess(array $input, \Closure $persist): array
+    {
+        if (($input['service'] ?? null) === 'onvif') {
+            $network = $this->reader->getConfig('NetWork');
+            $roles = CameraAccess::ports($this->cameraSettings, $network);
+            $observed = (new AccessProbe())->discover($this->cameraSettings['host'], array_values($roles), $roles);
+            if (!isset($observed['onvif']['url'])) throw new InvalidArgumentException('ONVIF device service is not available.');
+            return $this->onvifAccounts($observed['onvif']['url'])->save($input);
+        }
+        if (($input['service'] ?? null) === 'device-user-create') {
+            if (array_diff(array_keys($input), ['service', 'username', 'password', 'group']) !== []
+                || !is_string($input['username'] ?? null) || !preg_match('/^[a-zA-Z0-9_.-]{1,32}$/D', $input['username'])
+                || !is_string($input['password'] ?? null) || strlen($input['password']) > 64
+                || preg_match('/[\x00-\x1f\x7f]/', $input['password']) || !is_string($input['group'] ?? null)
+                || !method_exists($this->reader, 'addUser')) throw new InvalidArgumentException('Invalid camera user creation request.');
+            $this->reader->addUser($input['username'], $input['password'], $input['group']);
+            if (!in_array($input['username'], array_column($this->reader->getUsers(), 'Name'), true)) {
+                throw new InvalidArgumentException('Camera did not return the created account.');
+            }
+            return ['saved' => true, 'message' => 'Camera account created and read back. Refresh to see it in the account list.'];
+        }
+        if (($input['service'] ?? null) === 'device-user-password') {
+            if (array_diff(array_keys($input), ['service', 'username', 'password', 'previousPassword']) !== []
+                || !is_string($input['username'] ?? null) || !is_string($input['previousPassword'] ?? null)
+                || !is_string($input['password'] ?? null) || strlen($input['password']) > 64
+                || preg_match('/[\x00-\x1f\x7f]/', $input['password']) || !method_exists($this->reader, 'changePassword')
+                || !in_array($input['username'], array_column($this->reader->getUsers(), 'Name'), true)
+                || $input['username'] === $this->cameraSettings['dvrip']['username']) {
+                throw new InvalidArgumentException('Invalid camera account password request.');
+            }
+            $this->reader->changePassword($input['username'], $input['previousPassword'], $input['password']);
+            return ['saved' => true, 'message' => 'Camera accepted this account password change.'];
+        }
+        if (array_diff(array_keys($input), ['service', 'password', 'previousPassword']) !== []
+            || ($input['service'] ?? null) !== 'dvrip' || !is_string($input['password'] ?? null)
+            || !is_string($input['previousPassword'] ?? null) || strlen($input['password']) > 64
+            || preg_match('/[\x00-\x1f\x7f]/', $input['password'])) {
+            throw new InvalidArgumentException('Invalid camera account password change.');
+        }
+        $account = $this->cameraSettings['dvrip'];
+        if (!hash_equals($account['password'], $input['previousPassword'])) {
+            throw new InvalidArgumentException('Camera account changed since this form was loaded. Refresh before saving.');
+        }
+        if (!method_exists($this->reader, 'changePassword') || !method_exists($this->reader, 'login')) {
+            throw new InvalidArgumentException('Camera account changes are unavailable for this connection.');
+        }
+        if ($input['password'] !== $account['password']) {
+            $this->reader->changePassword($account['username'], $account['password'], $input['password']);
+            try {
+                if ($this->reader instanceof DvripClient) {
+                    $verify = new DvripClient(new StreamDvripTransport($this->cameraSettings['host'], $account['port'], (float) ($account['timeout'] ?? 5)));
+                    try { $verify->login($account['username'], $input['password']); }
+                    finally { $verify->close(); }
+                } else {
+                    $this->reader->login($account['username'], $input['password']);
+                }
+                $persist($input['password']);
+            } catch (Throwable $error) {
+                // Retain application access if verification or local credential persistence fails.
+                $this->reader->changePassword($account['username'], $input['password'], $account['password']);
+                throw $error;
+            }
+            $this->cameraSettings['dvrip']['password'] = $input['password'];
+        }
+        return ['saved' => true, 'message' => 'Camera account password saved; a fresh DVRIP login succeeded.'];
+    }
+
+    private function onvifAccounts(string $url): OnvifAccounts
+    {
+        return new OnvifAccounts($url, $this->cameraSettings['access']['credentials']['onvif'] ?? $this->cameraSettings['dvrip']);
     }
 
     public function reboot(): array

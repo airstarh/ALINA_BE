@@ -102,6 +102,39 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .section-content { min-width: 0; min-height: 24rem; overflow-x: auto; overflow-wrap: anywhere; }
 
 .smtp-editor, .service-editor { max-width: 52rem; }
+.access-overview { max-width: 64rem; }
+.access-point { margin: 1rem 0 150px; padding: 1rem; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface); }
+.access-point h3 { margin: 0 0 .5rem; }
+.access-url { overflow-wrap: anywhere; color: var(--accent); font-family: monospace; }
+.access-point form button { margin-top: 1rem; }
+.access-state { color: var(--accent); }
+.access-point > .form-help { margin-top: .8rem; }
+.access-endpoint { margin-top: .8rem; }
+.access-manager { max-width: none; }
+.access-section { margin: 1rem 0 150px; border: 1px solid var(--line); border-radius: .65rem; padding: 1rem; background: var(--surface); }
+.access-section summary { cursor: pointer; font-weight: 700; letter-spacing: .08em; margin-bottom: 1rem; }
+.access-table-scroll { width: 100%; overflow-x: auto; margin: 1rem 0; }
+.access-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.access-table th { text-align: left; color: var(--muted); padding: .65rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.access-table td { padding: .65rem; vertical-align: top; border-bottom: 1px solid var(--line); }
+.access-table input[type=text] { min-width: 8rem; }
+.access-table select:not([multiple]) { min-width: 7rem; }
+.access-table button { white-space: nowrap; }
+.access-section[data-section-id=users] .access-table td:nth-child(1) { min-width: 6rem; }
+.access-section[data-section-id=users] .access-table td:nth-child(2) { min-width: 8rem; }
+.access-section[data-section-id=users] .access-table td:nth-child(3) input[type=text] { min-width: 10.5rem; }
+.access-table select[multiple] { min-width: 13rem; padding: .35rem; }
+.access-table select[multiple] option { padding: .15rem .3rem; }
+.access-table input[type=checkbox] { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+.access-table small { display: block; margin-top: .5rem; max-width: 16rem; }
+.access-empty { display: flex; align-items: center; gap: .4rem; margin-top: .5rem; white-space: nowrap; }
+.access-deleted { opacity: .55; background: var(--surface-raised); }
+.access-service-info { min-width: 16rem; }
+.access-service-name { display: block; font-weight: 700; margin-bottom: .5rem; }
+.access-service-url { display: flex; align-items: flex-start; gap: .6rem; }
+.access-service-url .access-url { min-width: 0; }
+.access-service-url button { flex: 0 0 auto; }
+.access-save { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding-bottom: 1rem; }
 .smtp-form h3 { margin: 1.5rem 0 .75rem; font-size: .92rem; }
 .smtp-toggle { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-radius: .65rem; background: var(--surface-raised); }
 .smtp-toggle span { display: grid; gap: .2rem; }

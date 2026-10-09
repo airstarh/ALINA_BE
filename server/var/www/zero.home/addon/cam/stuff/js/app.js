@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261007-2';
+import {CameraApi, CameraApiError} from './api.js?v=20261009-3';
 import {
     chooseDefaultCamera,
     markActiveSection,
@@ -6,7 +6,8 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderEditableMenu} from './menu.js?v=20261007-1';
+import {renderEditableMenu} from './menu.js?v=20261008-4';
+import {renderAccessForm} from './access-form.js?v=20261009-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261008-2';
 
@@ -77,6 +78,42 @@ const loadSection = async (sectionId, sectionName, token) => {
         showStatus(`${sectionName} loaded.`, 'ok');
     } catch (error) {
         if (guard.isCurrent(token)) showError(error);
+    } finally {
+        if (guard.isCurrent(token)) setBusy(false);
+    }
+};
+
+const loadAccess = async (token) => {
+    setActiveSection('access');
+    elements.title.textContent = 'All points';
+    elements.content.textContent = 'Discovering camera access points…';
+    setBusy(true);
+    try {
+        const data = await api.accessPoints(activeCamera);
+        if (!guard.isCurrent(token)) return;
+        const cameraId = activeCamera;
+        elements.content.replaceChildren(renderAccessForm(data, document, {
+            onSave: async (values) => {
+                if (cameraId !== activeCamera || !guard.isCurrent(token)) throw new Error('Camera selection changed. Reload this form.');
+                setBusy(true);
+                try {
+                    const saved = await api.saveAccess(cameraId, values);
+                    if (cameraId === activeCamera && guard.isCurrent(token)) showStatus(saved.message, saved.complete === false ? 'error' : 'ok');
+                    return saved;
+                } catch (error) {
+                    showError(error);
+                    throw error;
+                } finally {
+                    if (cameraId === activeCamera) setBusy(false);
+                }
+            },
+        }));
+        showStatus('Camera access points discovered.', 'ok');
+    } catch (error) {
+        if (guard.isCurrent(token)) {
+            elements.content.textContent = 'Access discovery failed. Use Refresh to try again.';
+            showError(error);
+        }
     } finally {
         if (guard.isCurrent(token)) setBusy(false);
     }
@@ -199,6 +236,7 @@ const loadEditor = async (editorId, editorName, token) => {
 const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
     elements.sections.append(...renderEditableMenu(editors, document, {
+        onAccess: () => loadAccess(guard.begin(activeCamera)),
         onSmtp: () => loadSmtp(guard.begin(activeCamera)),
         onEditor: (id, name) => loadEditor(id, name, guard.begin(activeCamera)),
     }));
@@ -272,6 +310,10 @@ elements.reboot.addEventListener('click', async () => {
 });
 
 elements.refresh.addEventListener('click', () => {
+    if (activeSection === 'access') {
+        loadAccess(guard.begin(activeCamera));
+        return;
+    }
     if (activeSection === 'smtp') {
         loadSmtp(guard.begin(activeCamera));
         return;

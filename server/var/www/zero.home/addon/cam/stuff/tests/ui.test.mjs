@@ -31,6 +31,8 @@ class FakeNode {
         this.children.push(...nodes);
     }
 
+    replaceChildren(...nodes) { this.children = [...nodes]; }
+
     setAttribute(name, value) {
         this.attributes[name] = value;
     }
@@ -69,6 +71,70 @@ const response = (data, ok = true, status = 200) => ({
             ? {ok: true, data, error: null}
             : {ok: false, data: null, error: data};
     },
+});
+
+function accessModelFixture() {
+    return {revision: 'revision-1', note: 'Manage', users: [{name: 'admin', group: 'admin', memo: '', memoEditable: true,
+        reserved: true, active: true, multilogin: true, permissions: ['Account', 'NetConfig'], createdVia: 'Unknown'}],
+        groupRows: [{name: 'admin', memo: '', memoEditable: true, active: true, permissions: ['Account', 'NetConfig']}],
+        permissions: ['Account', 'NetConfig'], points: [{id: 'dvrip', name: 'DVRIP', url: 'dvrip://192.0.2.1:34567/', port: 34567, portEditable: true, note: '', portReason: ''}]};
+}
+
+test('access manager requests selected camera and submits one changed user with visible password', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    let requested;
+    const api = new CameraApi('/api.php', async (url) => { requested = url; return response({points: []}); });
+    await api.accessPoints('door');
+    assert.equal(requested, '/api.php?action=access&camera=door');
+    const {renderAccessForm} = await import(await moduleUrl('access-form.js'));
+    let saved;
+    const tree = renderAccessForm(accessModelFixture(), new FakeDocument(),
+        {onSave: async (payload) => { saved = payload; return {message: 'Saved'}; }});
+    const password = descendants(tree).find(n => n.attributes['aria-label'] === 'New password for admin');
+    assert.equal(password.type, 'text');
+    assert.equal(password.placeholder, 'set new password');
+    assert.ok(!password.readOnly);
+    password.value = 'replacement';
+    password.listeners.input();
+    await tree.listeners.submit({preventDefault() {}});
+    assert.equal(saved.users.length, 1); assert.equal(saved.users[0].password, 'replacement');
+    assert.deepEqual(saved.groups, []); assert.deepEqual(saved.services, []);
+    assert.equal(descendants(tree).filter(n => n.type === 'submit').length, 1);
+    assert.ok(descendants(tree).every((n) => !n.innerHtmlWasSet));
+});
+
+test('All points is first and opens its own access page', async () => {
+    const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
+    let opened = false;
+    const nodes = renderEditableMenu([], new FakeDocument(), {onAccess() { opened = true; }, onSmtp() {}, onEditor() {}});
+    assert.equal(nodes[0].children[0].value, 'ACCESS');
+    assert.equal(nodes[1].dataset.sectionId, 'access');
+    nodes[1].listeners.click();
+    assert.equal(opened, true);
+});
+
+test('access manager Set empty disables password input and blank fields otherwise preserve passwords', async () => {
+    const {renderAccessForm, createAccessDraft, accessChanges} = await import(await moduleUrl('access-form.js'));
+    const model = accessModelFixture(); const draft = createAccessDraft(model);
+    assert.deepEqual(accessChanges(draft).users, []);
+    const tree = renderAccessForm(model, new FakeDocument());
+    const empty = descendants(tree).find(n => n.attributes['aria-label'] === 'Set empty password for admin');
+    const password = descendants(tree).find(n => n.attributes['aria-label'] === 'New password for admin');
+    empty.checked = true; empty.listeners.change(); assert.equal(password.disabled, true);
+    empty.checked = false; empty.listeners.change(); assert.equal(password.disabled, false);
+    draft.users[0].setEmpty = true;
+    assert.equal(accessChanges(draft).users[0].setEmpty, true);
+});
+
+test('access manager partial save rebases successful rows while retaining pending edits', async () => {
+    const {createAccessDraft, accessChanges, rebaseAccessDraft} = await import(await moduleUrl('access-form.js'));
+    const model = accessModelFixture(), draft = createAccessDraft(model);
+    draft.groups[0].memo = 'Saved'; draft.users[0].password = 'Pending'; draft.services[0].port = '34569';
+    const fresh = structuredClone(model); fresh.revision = 'revision-2'; fresh.groupRows[0].memo = 'Saved';
+    const rebased = rebaseAccessDraft(fresh, draft, [{kind: 'group', key: 'groups:admin'}]);
+    const changes = accessChanges(rebased);
+    assert.equal(changes.revision, 'revision-2'); assert.deepEqual(changes.groups, []);
+    assert.equal(changes.users[0].password, 'Pending'); assert.deepEqual(changes.services, [{id: 'dvrip', port: 34569}]);
 });
 
 test('camera API normalizes camera list and default', async () => {
@@ -138,6 +204,8 @@ test('editable menu shows supported forms in the requested groups and order', as
     ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
 
     assert.deepEqual(nodes.map((node) => [node.type, node.children[0]?.value ?? '']), [
+        ['h3', 'ACCESS'],
+        ['button', 'All points'],
         ['h3', 'NETWORK'],
         ['button', 'Wired network'],
         ['button', 'Wi-Fi'],
@@ -148,7 +216,7 @@ test('editable menu shows supported forms in the requested groups and order', as
         ['button', 'FTP'],
     ]);
     assert.deepEqual(nodes.filter((node) => node.type === 'button').map((node) => node.dataset.sectionId), [
-        'editor:wired_network', 'editor:wifi', 'editor:human_detection', 'smtp', 'editor:ftp',
+        'access', 'editor:wired_network', 'editor:wifi', 'editor:human_detection', 'smtp', 'editor:ftp',
     ]);
 });
 
@@ -159,7 +227,7 @@ test('editable menu keeps newly discovered forms reachable', async () => {
     ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
     const buttons = nodes.filter((node) => node.type === 'button');
     assert.deepEqual(buttons.map((button) => button.dataset.sectionId), [
-        'smtp', 'editor:future_camera_option',
+        'access', 'smtp', 'editor:future_camera_option',
     ]);
 });
 
