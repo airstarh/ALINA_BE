@@ -167,13 +167,6 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .period-slot-toggle { display: flex; align-items: center; gap: .45rem; }
 .period-slot-toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
 .period-arrow { color: var(--muted); text-align: center; }
-input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
-    background: #c7ccd1;
-    border-color: #aeb5bd;
-    color: #34404a;
-    cursor: not-allowed;
-    opacity: 1;
-}
 .form-note { margin: 1.25rem 0 0; padding: .85rem 1rem; border-left: .2rem solid var(--accent); background: var(--surface-raised); color: var(--muted); font-size: .84rem; line-height: 1.5; }
 .form-warning { margin: 0 0 1rem; padding: .85rem 1rem; border-left: .2rem solid #e7bd77; background: #302817; color: #f1d69f; font-size: .84rem; line-height: 1.5; }
 .form-subsection { margin: 1rem 0; padding: .9rem; border: 1px solid var(--line); border-radius: .6rem; }
@@ -223,6 +216,50 @@ input:disabled:not([type="checkbox"]), select:disabled, textarea:disabled {
 
 .is-loading .connection-status::before { content: "● "; color: var(--accent); animation: pulse .9s infinite alternate; }
 @keyframes pulse { to { opacity: .25; } }
+
+/* Shared control colours across all camera forms. */
+input:not([type="checkbox"]), select, textarea {
+    background: #000;
+    color: #fff;
+}
+select option { background: #000; color: #fff; }
+input[type="checkbox"] {
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid #fff;
+    border-radius: .15rem;
+    background: #fff;
+    cursor: pointer;
+}
+input[type="checkbox"]:checked { background: #0f0; border-color: #0f0; }
+input[type="checkbox"]::after {
+    content: "";
+    width: .35rem;
+    height: .65rem;
+    border: solid #000;
+    border-width: 0 .15rem .15rem 0;
+    transform: translateY(-.08rem) rotate(45deg);
+    visibility: hidden;
+}
+input[type="checkbox"]:checked::after { visibility: visible; }
+input:disabled, select:disabled, textarea:disabled, button:disabled,
+#connect-button:disabled, select option:disabled {
+    background: #ccc;
+    border-color: #ccc;
+    color: #555;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 1;
+}
+select option:checked, select option:checked:disabled {
+    background: #00008b;
+    color: #fff;
+    box-shadow: inset 0 0 0 1000px #00008b;
+}
 
 @media (max-width: 780px) {
     .app-header { align-items: stretch; flex-direction: column; }
