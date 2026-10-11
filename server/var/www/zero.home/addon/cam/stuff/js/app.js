@@ -6,7 +6,7 @@ import {
     setSectionButtonsBusy,
 } from './state.js?v=20261005-4';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderEditableMenu} from './menu.js?v=20261009-9';
+import {renderEditableMenu} from './menu.js?v=20261009-10';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
@@ -237,6 +237,7 @@ const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
     elements.sections.append(...renderEditableMenu(editors, document, {
         onAccess: () => loadAccess(guard.begin(activeCamera)),
+        onLive: () => window.open(`http://127.0.0.1:18765/life-prototype.php?camera=${encodeURIComponent(activeCamera)}`, '_blank', 'noopener'),
         onSmtp: () => loadSmtp(guard.begin(activeCamera)),
         onEditor: (id, name) => loadEditor(id, name, guard.begin(activeCamera)),
     }));

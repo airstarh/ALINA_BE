@@ -1,5 +1,5 @@
 export const EDITOR_GROUPS = [
-    {heading: 'ACCESS', ids: ['access']},
+    {heading: 'ACCESS', ids: ['access', 'live']},
     {heading: 'NETWORK', ids: [
         'wired_network', 'wifi', 'wifi_signal', 'dhcp', 'network_watchdog',
         'ip_adaptive', 'network_order', 'serial_bridge', 'rtsp',
@@ -36,9 +36,10 @@ export const EDITOR_GROUPS = [
     ]},
 ];
 
-export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAccess}) => {
+export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAccess, onLive}) => {
     const available = new Map(editors.map((editor) => [editor.id, editor]));
     available.set('access', {id: 'access', name: 'All points'});
+    available.set('live', {id: 'live', name: 'live'});
     available.set('smtp', {id: 'smtp', name: 'Email / SMTP'});
     const nodes = [];
 
@@ -46,10 +47,11 @@ export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAc
         const button = documentRef.createElement('button');
         button.type = 'button';
         button.className = 'section-button section-button-editor';
-        button.dataset.sectionId = ['smtp', 'access'].includes(editor.id) ? editor.id : `editor:${editor.id}`;
+        button.dataset.sectionId = ['smtp', 'access', 'live'].includes(editor.id) ? editor.id : `editor:${editor.id}`;
         button.textContent = editor.name;
         button.addEventListener('click', () => {
             if (editor.id === 'access') onAccess();
+            else if (editor.id === 'live') onLive?.();
             else if (editor.id === 'smtp') onSmtp();
             else onEditor(editor.id, editor.name);
         });

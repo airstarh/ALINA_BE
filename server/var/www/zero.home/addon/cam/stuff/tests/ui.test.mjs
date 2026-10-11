@@ -63,6 +63,17 @@ class FakeDocument {
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 
+test('ACCESS live menu item opens the native prototype', async () => {
+    const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
+    let opened = false;
+    const nodes = renderEditableMenu([], new FakeDocument(), {onAccess() {}, onSmtp() {}, onEditor() {}, onLive() { opened = true; }});
+    const access = nodes[0];
+    const live = descendants(access).find(n => n.type === 'button' && n.children[0]?.value === 'live');
+    assert.ok(live);
+    live.listeners.click();
+    assert.equal(opened, true);
+});
+
 test('exposure timing inputs follow Automatic and Manual selection', async () => {
     const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
     const model = {id: 'image_basic', branch: 'Camera.Param', fields: {
