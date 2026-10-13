@@ -134,17 +134,27 @@ location ~* \.(mp3|mp4|m4v|webm|mov|avi|wav|flac|m4a|ogg|oga|aac)$ {
     add_header Content-Disposition "inline";
     add_header X-Content-Type-Options nosniff always;
 
-    aio threads;
+    # offered DS
+    add_header Accept-Ranges bytes always;
+
+    # offered DS
+    ### aio threads;
+
     sendfile on;
-    sendfile_max_chunk 512k;
-    directio 1m;
+    sendfile_max_chunk 150m;
+
+    # offered DS
+    tcp_nopush on;
+
+    # offered DS
+    ### directio 1m;
 
     expires 1y;
-
     gzip off;
 
-    limit_rate 10m;
-    limit_rate_after 2m;
+    # offered DS
+    ### limit_rate 10m;
+    ### limit_rate_after 2m;
 }
 
 location @notfound {

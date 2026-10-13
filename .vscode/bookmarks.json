@@ -64,6 +64,26 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "server/etc/nginx/conf.d/default.conf",
+			"bookmarks": [
+				{
+					"line": 20,
+					"column": 12,
+					"label": ""
+				},
+				{
+					"line": 21,
+					"column": 13,
+					"label": ""
+				},
+				{
+					"line": 22,
+					"column": 7,
+					"label": ""
+				}
+			]
 		}
 	]
 }
