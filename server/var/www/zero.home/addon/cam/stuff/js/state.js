@@ -4,11 +4,19 @@ export function chooseDefaultCamera(catalogue) {
     return configured ? catalogue.default : (cameras[0]?.id || '');
 }
 
+export function defaultConnectedSection() {
+    return 'live';
+}
+
 export function markActiveSection(buttons, activeSection) {
     for (const button of buttons) {
         const isActive = button.dataset.sectionId === activeSection;
         button.classList.toggle('is-active', isActive);
-        if (isActive) button.setAttribute('aria-current', 'page');
+        if (isActive) {
+            button.setAttribute('aria-current', 'page');
+            const group = button.closest?.('details');
+            if (group) group.open = true;
+        }
         else button.removeAttribute('aria-current');
     }
 }

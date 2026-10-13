@@ -39,7 +39,7 @@ export const EDITOR_GROUPS = [
 export const renderEditableMenu = (editors, documentRef, {onSmtp, onEditor, onAccess, onLive}) => {
     const available = new Map(editors.map((editor) => [editor.id, editor]));
     available.set('access', {id: 'access', name: 'All points'});
-    available.set('live', {id: 'live', name: 'live'});
+    available.set('live', {id: 'live', name: 'Live'});
     available.set('smtp', {id: 'smtp', name: 'Email / SMTP'});
     const nodes = [];
 

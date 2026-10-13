@@ -26,6 +26,7 @@ RUN apt-get update && \
         pkg-config \
         libssl-dev \
         libcurl4-openssl-dev \
+        ffmpeg \
         git \
         curl \
         libtool \

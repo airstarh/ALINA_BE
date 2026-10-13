@@ -1,13 +1,15 @@
 import {CameraApi, CameraApiError} from './api.js?v=20261009-3';
 import {
     chooseDefaultCamera,
+    defaultConnectedSection,
     markActiveSection,
     SelectionGuard,
     setSectionButtonsBusy,
-} from './state.js?v=20261005-4';
+} from './state.js?v=20261014-1';
 import {renderTree} from './tree.js?v=20261005-4';
-import {renderEditableMenu} from './menu.js?v=20261009-10';
+import {renderEditableMenu} from './menu.js?v=20261013-1';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
+import {renderLiveForm} from './live-form.js?v=20261014-1';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
 
@@ -31,6 +33,12 @@ const elements = {
 
 let activeCamera = '';
 let activeSection = '';
+let disposeActiveView = () => {};
+
+const clearActiveView = () => {
+    disposeActiveView();
+    disposeActiveView = () => {};
+};
 
 const setActiveSection = (sectionId) => {
     activeSection = sectionId;
@@ -67,6 +75,7 @@ const renderIdentity = (status) => {
 };
 
 const loadSection = async (sectionId, sectionName, token) => {
+    clearActiveView();
     setActiveSection(sectionId);
     elements.title.textContent = sectionName;
     elements.content.textContent = 'Loading configuration…';
@@ -84,6 +93,7 @@ const loadSection = async (sectionId, sectionName, token) => {
 };
 
 const loadAccess = async (token) => {
+    clearActiveView();
     setActiveSection('access');
     elements.title.textContent = 'All points';
     elements.content.textContent = 'Discovering camera access points…';
@@ -120,6 +130,7 @@ const loadAccess = async (token) => {
 };
 
 const loadSmtp = async (token) => {
+    clearActiveView();
     setActiveSection('smtp');
     elements.title.textContent = 'Email / SMTP';
     elements.content.textContent = 'Loading SMTP configuration…';
@@ -170,6 +181,7 @@ const loadSmtp = async (token) => {
 };
 
 const loadEditor = async (editorId, editorName, token) => {
+    clearActiveView();
     const sectionId = `editor:${editorId}`;
     setActiveSection(sectionId);
     elements.title.textContent = editorName;
@@ -233,11 +245,31 @@ const loadEditor = async (editorId, editorName, token) => {
     }
 };
 
+const loadLive = () => {
+    clearActiveView();
+    setActiveSection('live');
+    elements.title.textContent = 'Live';
+    const view = renderLiveForm({
+        cameraId: activeCamera,
+        endpoint: './stuff/php/live-stream.php',
+        autoStart: true,
+    });
+    disposeActiveView = view.destroy;
+    elements.content.replaceChildren(view.element);
+    elements.refresh.disabled = false;
+    showStatus(
+        activeCamera === 'balcon'
+            ? 'Balcon live-video page loaded.'
+            : 'Live video is currently available for Balcon only.',
+        activeCamera === 'balcon' ? 'ok' : 'neutral'
+    );
+};
+
 const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
     elements.sections.append(...renderEditableMenu(editors, document, {
         onAccess: () => loadAccess(guard.begin(activeCamera)),
-        onLive: () => window.open(`http://127.0.0.1:18765/life-prototype.php?camera=${encodeURIComponent(activeCamera)}`, '_blank', 'noopener'),
+        onLive: loadLive,
         onSmtp: () => loadSmtp(guard.begin(activeCamera)),
         onEditor: (id, name) => loadEditor(id, name, guard.begin(activeCamera)),
     }));
@@ -265,6 +297,7 @@ const renderSections = (editors, sections) => {
 };
 
 const connect = async () => {
+    clearActiveView();
     const cameraId = elements.select.value;
     const token = guard.begin(cameraId);
     api.abortActive();
@@ -284,7 +317,7 @@ const connect = async () => {
         if (!guard.isCurrent(token)) return;
         renderSections(editors, sections);
         elements.dashboard.hidden = false;
-        showStatus('Connected. Choose a configuration section.', 'ok');
+        if (defaultConnectedSection() === 'live') loadLive();
     } catch (error) {
         if (guard.isCurrent(token)) showError(error);
     } finally {
@@ -317,6 +350,10 @@ elements.reboot.addEventListener('click', async () => {
 });
 
 elements.refresh.addEventListener('click', () => {
+    if (activeSection === 'live') {
+        loadLive();
+        return;
+    }
     if (activeSection === 'access') {
         loadAccess(guard.begin(activeCamera));
         return;
@@ -341,6 +378,7 @@ elements.refresh.addEventListener('click', () => {
 });
 
 elements.loadAll.addEventListener('click', async () => {
+    clearActiveView();
     const token = guard.begin(activeCamera);
     setActiveSection('all');
     elements.title.textContent = 'All sections';

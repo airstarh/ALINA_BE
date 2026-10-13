@@ -62,6 +62,19 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ## Implemented functionality
 
+### Live video
+
+**ACCESS -> Live** provides inline Balcon playback. PHP starts FFprobe to learn
+the current RTSP video format, then FFmpeg copies that compressed stream into a
+fragmented MP4 response. Browser JavaScript feeds it to native Media Source
+Extensions; no transcoding, permanent worker, localhost helper, or camera
+setting change is involved. Credentials stay server-side. Stop/navigation/page
+hiding terminate the request and FFmpeg process, old browser buffers are
+trimmed, and one concurrent Balcon viewer is allowed. Live is the default page
+after connecting and Balcon playback starts automatically whenever it opens.
+Other cameras remain
+disabled until positively verified. See [live-video.md](live-video.md).
+
 ### Language scope
 
 For now, only English UI text, option labels and language resources are in scope.

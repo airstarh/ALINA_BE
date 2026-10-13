@@ -63,15 +63,63 @@ class FakeDocument {
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 
-test('ACCESS live menu item opens the native prototype', async () => {
+test('ACCESS Live menu item opens the inline player callback', async () => {
     const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
     let opened = false;
     const nodes = renderEditableMenu([], new FakeDocument(), {onAccess() {}, onSmtp() {}, onEditor() {}, onLive() { opened = true; }});
     const access = nodes[0];
-    const live = descendants(access).find(n => n.type === 'button' && n.children[0]?.value === 'live');
+    const live = descendants(access).find(n => n.type === 'button' && n.children[0]?.value === 'Live');
     assert.ok(live);
     live.listeners.click();
     assert.equal(opened, true);
+});
+
+test('live page renders an inline Balcon player with explicit start and stop controls', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php'}, new FakeDocument());
+    const nodes = descendants(view.element);
+    const video = nodes.find((node) => node.type === 'video');
+    const start = nodes.find((node) => node.type === 'button' && node.children[0]?.value === 'Start live video');
+    const stop = nodes.find((node) => node.type === 'button' && node.children[0]?.value === 'Stop');
+
+    assert.ok(video);
+    assert.equal(video.attributes.autoplay, '');
+    assert.equal(video.attributes.muted, '');
+    assert.ok(start);
+    assert.ok(stop);
+    assert.equal(start.disabled, false);
+    assert.equal(stop.disabled, true);
+    view.destroy();
+});
+
+test('live page clearly disables cameras outside the Balcon first release', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php'}, new FakeDocument());
+    const nodes = descendants(view.element);
+    const start = nodes.find((node) => node.type === 'button' && node.children[0]?.value === 'Start live video');
+    const status = nodes.find((node) => node.attributes.role === 'status');
+
+    assert.equal(start.disabled, true);
+    assert.match(status.children[0].value, /Balcon only/i);
+    view.destroy();
+});
+
+test('live page starts playback automatically when opened as the connected-camera landing page', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm(
+        {cameraId: 'balcon', endpoint: '/live-stream.php', autoStart: true},
+        new FakeDocument(),
+        {MediaSource: null}
+    );
+    const status = descendants(view.element).find((node) => node.attributes.role === 'status');
+
+    assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
+    view.destroy();
+});
+
+test('a connected camera lands on the Live section', async () => {
+    const {defaultConnectedSection} = await import(await moduleUrl('state.js'));
+    assert.equal(defaultConnectedSection?.(), 'live');
 });
 
 test('exposure timing inputs follow Automatic and Manual selection', async () => {
@@ -136,9 +184,12 @@ test('All points is first and opens its own access page', async () => {
     const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
     let opened = false;
     const nodes = renderEditableMenu([], new FakeDocument(), {onAccess() { opened = true; }, onSmtp() {}, onEditor() {}});
-    assert.equal(nodes[0].children[0].value, 'ACCESS');
-    assert.equal(nodes[1].dataset.sectionId, 'access');
-    nodes[1].listeners.click();
+    const accessGroup = nodes[0];
+    const accessButtons = descendants(accessGroup).filter((node) => node.type === 'button');
+    assert.equal(accessGroup.children[0].children[0].value, 'ACCESS');
+    assert.equal(accessButtons[0].dataset.sectionId, 'access');
+    assert.equal(accessButtons[1].dataset.sectionId, 'live');
+    accessButtons[0].listeners.click();
     assert.equal(opened, true);
 });
 
@@ -214,6 +265,22 @@ test('section menu marks exactly one item as current', async () => {
     assert.equal(buttons[1].attributes.get('aria-current'), 'page');
 });
 
+test('the active section expands its collapsed menu group', async () => {
+    const {markActiveSection} = await import(await moduleUrl('state.js'));
+    const group = {open: false};
+    const button = {
+        dataset: {sectionId: 'live'},
+        classList: {toggle() {}},
+        setAttribute() {},
+        removeAttribute() {},
+        closest(selector) { return selector === 'details' ? group : null; },
+    };
+
+    markActiveSection([button], 'live');
+
+    assert.equal(group.open, true);
+});
+
 test('section menu buttons follow camera request busy state', async () => {
     const {setSectionButtonsBusy} = await import(await moduleUrl('state.js'));
     const buttons = [{disabled: false}, {disabled: false}];
@@ -232,20 +299,14 @@ test('editable menu shows supported forms in the requested groups and order', as
         {id: 'wired_network', name: 'Wired network'},
     ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
 
-    assert.deepEqual(nodes.map((node) => [node.type, node.children[0]?.value ?? '']), [
-        ['h3', 'ACCESS'],
-        ['button', 'All points'],
-        ['h3', 'NETWORK'],
-        ['button', 'Wired network'],
-        ['button', 'Wi-Fi'],
-        ['h3', 'DETECTION'],
-        ['button', 'Human detection'],
-        ['h3', 'SERVICES 3rd PART'],
-        ['button', 'Email / SMTP'],
-        ['button', 'FTP'],
+    assert.deepEqual(nodes.map((node) => [node.type, node.children[0]?.children[0]?.value ?? '']), [
+        ['details', 'ACCESS'],
+        ['details', 'NETWORK'],
+        ['details', 'DETECTION'],
+        ['details', 'SERVICES 3rd PART'],
     ]);
-    assert.deepEqual(nodes.filter((node) => node.type === 'button').map((node) => node.dataset.sectionId), [
-        'access', 'editor:wired_network', 'editor:wifi', 'editor:human_detection', 'smtp', 'editor:ftp',
+    assert.deepEqual(nodes.flatMap(descendants).filter((node) => node.type === 'button').map((node) => node.dataset.sectionId), [
+        'access', 'live', 'editor:wired_network', 'editor:wifi', 'editor:human_detection', 'smtp', 'editor:ftp',
     ]);
 });
 
@@ -254,9 +315,9 @@ test('editable menu keeps newly discovered forms reachable', async () => {
     const nodes = renderEditableMenu([
         {id: 'future_camera_option', name: 'Future camera option'},
     ], new FakeDocument(), {onSmtp() {}, onEditor() {}});
-    const buttons = nodes.filter((node) => node.type === 'button');
+    const buttons = nodes.flatMap(descendants).filter((node) => node.type === 'button');
     assert.deepEqual(buttons.map((button) => button.dataset.sectionId), [
-        'access', 'smtp', 'editor:future_camera_option',
+        'access', 'live', 'smtp', 'editor:future_camera_option',
     ]);
 });
 
