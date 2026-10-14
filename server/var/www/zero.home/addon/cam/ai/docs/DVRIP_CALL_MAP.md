@@ -201,6 +201,7 @@ Editor ID to true DVRIP `Name` mapping:
 | `video_loss_detection` | `Detect.LossDetect` |
 | `vehicle_detection` | `Detect.CarShapeDetection` |
 | `main_stream`, `extra_stream` | `Simplify.Encode` (one format/stream owned per page) |
+| `snapshot_image` | `AVEnc.Encode[0].SnapFormat[0..2]`: regular, motion-detection, and alarm snapshot profiles. The editor owns only `VideoEnable` plus video `Resolution`, `Quality`, `BitRate`, and `BitRateControl`; codec, FPS, GOP, audio, and vendor-specific fields are preserved. Resolution choices are the union of camera-advertised main/extra encoder resolution masks, with each current snapshot value retained as a fallback. |
 | `smart_h264` | `AVEnc.SmartH264` |
 | `video_color_day`, `video_color_night` | `AVEnc.VideoColor` (one profile owned per page) |
 | `video_widget` | `AVEnc.VideoWidget` |

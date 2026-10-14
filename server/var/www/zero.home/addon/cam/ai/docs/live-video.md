@@ -1,11 +1,12 @@
 # Live video
 
-The camera application provides an inline **ACCESS -> Live** page. The first
-supported camera is Balcon.
+The camera application provides an inline **ACCESS -> Live** page for each
+configured camera whose RTSP stream uses a browser-supported H.264 or HEVC
+codec. Balcon and Door are currently verified.
 
 ## Data path
 
-Balcon RTSP -> FFmpeg in the PHP 8.2 container -> fragmented MP4 over HTTPS ->
+Selected-camera RTSP -> FFmpeg in the PHP 8.2 container -> fragmented MP4 over HTTPS ->
 the browser's native Media Source Extensions player.
 
 FFmpeg copies the compressed video stream (`-c:v copy`); it does not decode or
@@ -14,23 +15,23 @@ re-encode it. Audio is omitted. Camera credentials remain in server-side
 
 The endpoint probes the selected stream with FFprobe, reports the codec and
 dimensions, and starts playback only when the browser confirms native support.
-The current Balcon main stream is HEVC, so playback depends on the browser and
-host system supporting HEVC through Media Source Extensions.
+The current Balcon main stream is HEVC, so its playback depends on the browser
+and host system supporting HEVC through Media Source Extensions. Door currently
+reports H.264 Baseline at 1920 × 1080 through the deployed HTTPS probe.
 
 ## Runtime behaviour
 
-- Live is the default page after a camera connects, and Balcon playback starts
-  automatically when the page is opened. Stop remains explicit, while Start
+- Live is the default page after a camera connects, and selected-camera playback
+  starts automatically when the page is opened. Stop remains explicit, while Start
   allows a manual reconnect after a stop, timeout, or error.
 - Leaving the page, changing camera, refreshing the form, or hiding the page
   aborts the browser request and terminates its FFmpeg child process.
-- One Balcon viewer is permitted at a time in this PHP runtime.
+- One viewer per camera is permitted at a time in this PHP runtime.
 - The player follows the newest buffered data and removes old buffered media to
   keep delay and browser memory bounded.
 - A stream has a server-side safety deadline just below the PHP/FastCGI timeout;
   press Start again if that deadline is reached.
-- Door and other cameras are intentionally disabled until their stream is
-  positively verified.
+- Unknown camera identifiers remain rejected by the central configuration.
 
 The former workstation-only `127.0.0.1:18765` prototype and all of its files
 were removed. Live video now runs through the installed FFmpeg and FFprobe

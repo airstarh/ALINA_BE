@@ -25,6 +25,7 @@ function networkEditorFixture(?object &$reader = null, array $alarmSound = []): 
         public bool $persistWrites = true;
         public bool $normalizeBalconWifiWrites = false;
         public array $systemFunction = [];
+        public array $encodeCapability = [];
 
         public function getConfig(string $command): mixed
         {
@@ -51,6 +52,7 @@ function networkEditorFixture(?object &$reader = null, array $alarmSound = []): 
         public function getSystemInfo(): array { return []; }
         public function getInfo(string $command): mixed { return null; }
         public function getSystemFunction(): array { return $this->systemFunction; }
+        public function getEncodeCapability(): array { return $this->encodeCapability; }
         public function testMail(array $settings): bool { return true; }
         public function testFtp(array $settings): bool { return true; }
         public function reboot(): bool { return true; }
@@ -59,7 +61,7 @@ function networkEditorFixture(?object &$reader = null, array $alarmSound = []): 
     return new NetworkServiceEditor($reader, $alarmSound);
 }
 
-test('network_editor_lists_exact_sixty_eight_allowlisted_forms', function (): void {
+test('network_editor_lists_exact_sixty_nine_allowlisted_forms', function (): void {
     $editor = networkEditorFixture();
     assertSameValue(
         [
@@ -72,7 +74,7 @@ test('network_editor_lists_exact_sixty_eight_allowlisted_forms', function (): vo
             'alarm_server_1', 'alarm_server_2', 'alarm_server_3', 'alarm_server_4', 'alarm_server_5',
             'distortion', 'fisheye', 'image_basic', 'image_advanced',
             'motion_detection', 'blind_detection', 'video_loss_detection', 'vehicle_detection',
-            'main_stream', 'extra_stream', 'smart_h264', 'video_color_day', 'video_color_night', 'video_widget',
+            'main_stream', 'extra_stream', 'snapshot_image', 'smart_h264', 'video_color_day', 'video_color_night', 'video_widget',
             'snapshot', 'recording', 'storage_failure', 'storage_low_space', 'storage_missing',
             'alarm_output', 'local_alarm', 'network_abort_alarm', 'network_alarm', 'ip_conflict_alarm',
             'uart_comm_1', 'ptz_serial', 'rs485',
@@ -80,6 +82,71 @@ test('network_editor_lists_exact_sixty_eight_allowlisted_forms', function (): vo
         array_column($editor->list(), 'id')
     );
     assertThrows(static fn () => $editor->get('netcommon'), InvalidArgumentException::class);
+});
+
+test('snapshot_image_editor_updates_three_profiles_and_preserves_unowned_encoding_fields', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['AVEnc.Encode'] = snapshotImageBranchFixture();
+    $reader->encodeCapability = [
+        'EncodeInfo' => [
+            ['StreamType' => 'MainStream', 'ResolutionMask' => '0x00004001'],
+            ['StreamType' => 'ExtraStream2', 'ResolutionMask' => '0x00000002'],
+        ],
+    ];
+
+    $model = $editor->get('snapshot_image');
+    assertSameValue('Snapshot image', $model['label']);
+    assertSameValue('Regular snapshot', $model['fields']['regularResolution']['group']);
+    assertSameValue('Motion-detection snapshot', $model['fields']['motionResolution']['group']);
+    assertSameValue('Alarm snapshot', $model['fields']['alarmResolution']['group']);
+    assertSameValue('D1', $model['values']['regularResolution']);
+    assertTrueValue(in_array('1080P', $model['fields']['regularResolution']['options'], true));
+    assertSameValue([1, 2, 3, 4, 5, 6], $model['fields']['regularQuality']['options']);
+
+    $saved = $editor->update('snapshot_image', [
+        'regularEnabled' => true,
+        'regularResolution' => '1080P',
+        'regularQuality' => 6,
+        'regularBitRate' => 2048,
+        'regularBitRateControl' => 'VBR',
+        'motionEnabled' => false,
+        'motionResolution' => '1080P',
+        'motionQuality' => 6,
+        'motionBitRate' => 2048,
+        'motionBitRateControl' => 'VBR',
+        'alarmEnabled' => true,
+        'alarmResolution' => '1080P',
+        'alarmQuality' => 6,
+        'alarmBitRate' => 2048,
+        'alarmBitRateControl' => 'VBR',
+    ]);
+
+    $written = array_values(array_filter($reader->calls, static fn (array $call): bool => $call[0] === 'set'))[0];
+    assertSameValue('AVEnc.Encode', $written[1]);
+    assertSameValue('1080P', $written[2][0]['SnapFormat'][0]['Video']['Resolution']);
+    assertSameValue(false, $written[2][0]['SnapFormat'][1]['VideoEnable']);
+    assertSameValue(true, $written[2][0]['SnapFormat'][2]['VideoEnable']);
+    assertSameValue('H.264', $written[2][0]['SnapFormat'][0]['Video']['Compression']);
+    assertSameValue(1, $written[2][0]['SnapFormat'][0]['Video']['FPS']);
+    assertSameValue('keep-profile', $written[2][0]['SnapFormat'][0]['VendorPrivate']);
+    assertSameValue('keep-encode', $written[2][0]['VendorPrivate']);
+    assertSameValue(6, $saved['values']['alarmQuality']);
+});
+
+test('snapshot_image_editor_rejects_quality_outside_documented_range', function (): void {
+    $editor = networkEditorFixture($reader);
+    $reader->values['AVEnc.Encode'] = snapshotImageBranchFixture();
+    $input = [];
+    foreach (['regular', 'motion', 'alarm'] as $profile) {
+        $input[$profile . 'Enabled'] = true;
+        $input[$profile . 'Resolution'] = 'D1';
+        $input[$profile . 'Quality'] = $profile === 'alarm' ? 7 : 4;
+        $input[$profile . 'BitRate'] = 512;
+        $input[$profile . 'BitRateControl'] = 'VBR';
+    }
+
+    assertThrows(static fn () => $editor->update('snapshot_image', $input), InvalidArgumentException::class);
+    assertSameValue([], array_values(array_filter($reader->calls, static fn (array $call): bool => $call[0] === 'set')));
 });
 
 test('network_editor_combines_wired_static_address_with_eth0_dhcp', function (): void {
@@ -978,6 +1045,35 @@ function networkBranchFixtures(): array
             'PushInterval' => 3000, 'Sensitivity' => 1, 'ShowRule' => 0, 'ShowTrack' => 1,
         ]],
     ];
+}
+
+function snapshotImageBranchFixture(): array
+{
+    $profile = static fn (bool $enabled, string $private): array => [
+        'Audio' => ['BitRate' => 64, 'Compression' => 'G711A'],
+        'AudioEnable' => false,
+        'VideoEnable' => $enabled,
+        'Video' => [
+            'BitRate' => 512,
+            'BitRateControl' => 'VBR',
+            'Compression' => 'H.264',
+            'FPS' => 1,
+            'GOP' => 2,
+            'Quality' => 4,
+            'Resolution' => 'D1',
+            'VirtualGOP' => 1,
+        ],
+        'VendorPrivate' => $private,
+    ];
+    return [[
+        'MainFormat' => ['preserve-main-stream'],
+        'SnapFormat' => [
+            $profile(true, 'keep-profile'),
+            $profile(false, 'keep-motion-profile'),
+            $profile(false, 'keep-alarm-profile'),
+        ],
+        'VendorPrivate' => 'keep-encode',
+    ]];
 }
 
 function rootFamilyFixtures(array $branches): array

@@ -125,6 +125,7 @@ final class ExtendedEditorDefinitions
             ]),
             'main_stream' => self::stream('Main video stream', 'MainFormat'),
             'extra_stream' => self::stream('Extra video stream', 'ExtraFormat'),
+            'snapshot_image' => self::snapshotImage(),
             'smart_h264' => self::definition('Smart H.264', 'AVEnc.SmartH264', [
                 'enable' => self::boolean('Smart H.264', [0, 'SmartH264']),
             ], 'Encoding changes can interrupt or make video incompatible with MotionEye.'),
@@ -217,6 +218,39 @@ final class ExtendedEditorDefinitions
             'gop' => self::integer('GOP', [...$base, 'Video', 'GOP'], 1, 300),
             'virtualGop' => self::integer('Virtual GOP', [...$base, 'Video', 'VirtualGOP'], 0, 300),
         ], 'Encoding changes can interrupt MotionEye or make the stream incompatible with existing clients.');
+    }
+
+    private static function snapshotImage(): array
+    {
+        $fields = [];
+        foreach ([
+            ['regular', 0, 'Regular snapshot'],
+            ['motion', 1, 'Motion-detection snapshot'],
+            ['alarm', 2, 'Alarm snapshot'],
+        ] as [$prefix, $index, $group]) {
+            $base = [0, 'SnapFormat', $index];
+            $video = [...$base, 'Video'];
+            $fields[$prefix . 'Enabled'] = self::boolean('Enabled', [...$base, 'VideoEnable']) + ['group' => $group];
+            $fields[$prefix . 'Resolution'] = self::string('Resolution', [...$video, 'Resolution']) + ['group' => $group];
+            $fields[$prefix . 'Quality'] = self::integer('Quality', [...$video, 'Quality'], 1, 6) + [
+                'group' => $group,
+                'options' => range(1, 6),
+                'optionLabels' => [1 => '1 — Lowest', 6 => '6 — Highest'],
+            ];
+            $fields[$prefix . 'BitRate'] = self::integer('Bit rate (kbps)', [...$video, 'BitRate'], 16, 100000) + ['group' => $group];
+            $fields[$prefix . 'BitRateControl'] = self::string('Bit-rate control', [...$video, 'BitRateControl']) + [
+                'group' => $group,
+                'options' => ['CBR', 'VBR'],
+                'optionLabels' => ['CBR' => 'CBR — Constant bit rate', 'VBR' => 'VBR — Variable bit rate'],
+                'strictOptions' => true,
+            ];
+        }
+        return self::definition(
+            'Snapshot image',
+            'AVEnc.Encode',
+            $fields,
+            'These profiles control the images produced for regular, motion-detection, and alarm snapshots. Codec, frame rate, GOP, audio, and vendor-specific values are preserved.'
+        );
     }
 
     private static function videoColor(string $label, int $profile): array

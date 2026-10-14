@@ -97,12 +97,9 @@ final class LiveStream
 
     private function camera(string $cameraId): array
     {
-        if ($cameraId !== 'balcon') {
-            throw new InvalidArgumentException('Live video is currently available for Balcon only.');
-        }
         $camera = $this->config->camera($cameraId);
         if (filter_var($camera['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-            throw new RuntimeException('The configured Balcon camera address is invalid.');
+            throw new RuntimeException('The configured camera address is invalid.');
         }
 
         return $camera;

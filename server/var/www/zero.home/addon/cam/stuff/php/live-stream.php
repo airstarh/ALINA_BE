@@ -33,7 +33,7 @@ try {
         }
         $lock = fopen(sys_get_temp_dir() . '/alina-cam-live-' . $live->lockKey($cameraId) . '.lock', 'c');
         if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
-            throw new RuntimeException('Balcon already has a live viewer. Stop the other player first.');
+            throw new RuntimeException('This camera already has a live viewer. Stop the other player first.');
         }
         $command = $live->streamCommand($cameraId, $codec);
     }
@@ -103,13 +103,13 @@ try {
         $data = json_decode($output, true);
         $video = $data['streams'][0] ?? null;
         if (!is_array($video) || !in_array($video['codec_name'] ?? null, ['h264', 'hevc'], true)) {
-            throw new RuntimeException('Balcon did not provide a supported video stream.');
+            throw new RuntimeException('The camera did not provide a supported video stream.');
         }
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store, max-age=0');
         echo json_encode(['ok' => true, 'video' => $video], JSON_THROW_ON_ERROR);
     } elseif (!$started) {
-        throw new RuntimeException('Balcon did not produce live video.');
+        throw new RuntimeException('The camera did not produce live video.');
     }
 } catch (Throwable $error) {
     if (!headers_sent()) {

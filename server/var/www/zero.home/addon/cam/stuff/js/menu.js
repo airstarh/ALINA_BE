@@ -5,7 +5,7 @@ export const EDITOR_GROUPS = [
         'ip_adaptive', 'network_order', 'serial_bridge', 'rtsp',
     ]},
     {heading: 'STREAM', ids: [
-        'main_stream', 'extra_stream', 'smart_h264', 'video_color_day',
+        'main_stream', 'extra_stream', 'snapshot_image', 'smart_h264', 'video_color_day',
         'video_color_night', 'video_widget', 'snapshot', 'recording',
     ]},
     {heading: 'PTZ', ids: ['ptz_resume', 'ptz_serial']},

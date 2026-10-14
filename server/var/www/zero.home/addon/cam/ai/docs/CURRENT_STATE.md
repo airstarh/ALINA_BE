@@ -1,6 +1,6 @@
 # Camera application current state
 
-Last updated: 2026-10-09 (Europe/Moscow)
+Last updated: 2026-10-14 (Europe/Moscow)
 
 This is the hand-off document for continuing work on the camera application.
 It describes the implementation and verified Balcon behaviour without storing
@@ -37,6 +37,15 @@ Image orientation is presented as Mirror horizontally and Flip vertically
 checkboxes, translating 0/1 to the camera's hexadecimal flags. The UI change
 does not change existing camera orientation.
 
+The STREAM menu has a separate **Snapshot image** editor backed by
+`AVEnc.Encode[0].SnapFormat[0..2]`. It exposes regular, motion-detection, and
+alarm profiles with independent enable flags and editable resolution, quality
+(1–6), bit rate, and rate control. An explicit synchronization option copies
+only those image settings from Regular to Motion and Alarm; it never copies
+their enable flags. Saving fresh-reads and rewrites the complete
+`AVEnc.Encode` branch, then verifies readback while preserving every unowned
+encoding and vendor field.
+
 - `index.php` renders the shell and camera selector.
 - `stuff/js/app.js` controls connection, navigation, forms, and reboot UI.
 - `stuff/js/rule-form.js` overlays the editable first human-detection rule on a
@@ -64,16 +73,16 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ### Live video
 
-**ACCESS -> Live** provides inline Balcon playback. PHP starts FFprobe to learn
+**ACCESS -> Live** provides inline playback for configured cameras. PHP starts FFprobe to learn
 the current RTSP video format, then FFmpeg copies that compressed stream into a
 fragmented MP4 response. Browser JavaScript feeds it to native Media Source
 Extensions; no transcoding, permanent worker, localhost helper, or camera
 setting change is involved. Credentials stay server-side. Stop/navigation/page
 hiding terminate the request and FFmpeg process, old browser buffers are
-trimmed, and one concurrent Balcon viewer is allowed. Live is the default page
-after connecting and Balcon playback starts automatically whenever it opens.
-Other cameras remain
-disabled until positively verified. See [live-video.md](live-video.md).
+trimmed, and one concurrent viewer per camera is allowed. Live is the default
+page after connecting and playback starts automatically whenever it opens.
+Balcon is verified with HEVC; Door's deployed endpoint probe is verified with
+H.264 Baseline at 1920 × 1080. See [live-video.md](live-video.md).
 
 ### Language scope
 

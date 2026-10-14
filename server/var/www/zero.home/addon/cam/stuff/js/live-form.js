@@ -15,7 +15,7 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
         signal.removeEventListener('abort', aborted);
     };
     const success = () => { clear(); resolve(); };
-    const failure = () => { clear(); reject(new Error('The browser could not decode Balcon video.')); };
+    const failure = () => { clear(); reject(new Error('The browser could not decode the camera video.')); };
     const aborted = () => { clear(); reject(new DOMException('Stopped', 'AbortError')); };
     target.addEventListener(name, success, {once: true});
     target.addEventListener('error', failure, {once: true});
@@ -33,7 +33,7 @@ export const renderLiveForm = (
 
     const intro = documentRef.createElement('p');
     intro.className = 'form-note';
-    intro.append(text(documentRef, 'Balcon RTSP is copied into fragmented MP4 by FFmpeg and decoded by this browser. No re-encoding or camera setting changes.'));
+    intro.append(text(documentRef, 'Camera RTSP is copied into fragmented MP4 by FFmpeg and decoded by this browser. No re-encoding or camera setting changes.'));
     root.append(intro);
 
     const controls = documentRef.createElement('div');
@@ -53,9 +53,7 @@ export const renderLiveForm = (
     status.className = 'live-status';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    status.textContent = cameraId === 'balcon'
-        ? 'Press Start live video.'
-        : 'Live video is currently available for Balcon only.';
+    status.textContent = 'Press Start live video.';
     root.append(status);
 
     const player = documentRef.createElement('video');
@@ -262,7 +260,7 @@ export const renderLiveForm = (
         player.load?.();
         if (objectUrl) environment.URL?.revokeObjectURL?.(objectUrl);
         objectUrl = null;
-        start.disabled = cameraId !== 'balcon' || destroyed;
+        start.disabled = destroyed;
         stop.disabled = true;
         if (message && !destroyed) status.textContent = message;
     };
@@ -279,13 +277,13 @@ export const renderLiveForm = (
         stop.disabled = false;
         const query = `camera=${encodeURIComponent(cameraId)}`;
         try {
-            status.textContent = 'Checking Balcon video format…';
+            status.textContent = 'Checking camera video format…';
             const response = await environment.fetch(`${endpoint}?${query}&action=info`, {
                 signal: current.signal,
                 cache: 'no-store',
             });
             const info = await response.json();
-            if (!response.ok || !info.ok) throw new Error(info.error || 'Balcon stream probe failed.');
+            if (!response.ok || !info.ok) throw new Error(info.error || 'Camera stream probe failed.');
             const mime = mimeCandidates(info.video)
                 .find((candidate) => environment.MediaSource.isTypeSupported(candidate));
             if (!mime) {
@@ -305,7 +303,7 @@ export const renderLiveForm = (
             );
             if (!stream.ok) {
                 const error = await stream.json();
-                throw new Error(error.error || 'Could not start Balcon live video.');
+                throw new Error(error.error || 'Could not start camera live video.');
             }
             status.textContent = `${info.video.codec_name.toUpperCase()} · ${info.video.width}×${info.video.height} · native browser playback`;
             const reader = stream.body.getReader();
@@ -335,7 +333,7 @@ export const renderLiveForm = (
         }
     };
 
-    start.disabled = cameraId !== 'balcon';
+    start.disabled = false;
     start.addEventListener('click', startPlayback);
     stop.addEventListener('click', () => cleanup('Stopped.'));
     const visibility = () => {
@@ -354,7 +352,7 @@ export const renderLiveForm = (
             }
         });
     }
-    if (autoStart && cameraId === 'balcon') startPlayback();
+    if (autoStart) startPlayback();
 
     return {
         element: root,

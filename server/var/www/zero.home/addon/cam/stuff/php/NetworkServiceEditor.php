@@ -506,6 +506,9 @@ final class NetworkServiceEditor
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
             $model = $this->withStreamOptions($model);
         }
+        if ($id === 'snapshot_image') {
+            $model = $this->withSnapshotImageOptions($model);
+        }
         $dhcpIndex = $this->dhcpIndex($id);
         return $dhcpIndex === null
             ? $model
@@ -647,6 +650,47 @@ final class NetworkServiceEditor
         $model['fields']['bitRateControl']['optionLabels'] = ['CBR' => 'CBR — Constant bit rate', 'VBR' => 'VBR — Variable bit rate'];
         $model['fields']['gop']['label'] = 'I-frame interval (GOP)';
         return $model;
+    }
+
+    private function withSnapshotImageOptions(array $model): array
+    {
+        $supported = $this->snapshotResolutionOptions();
+        foreach (['regularResolution', 'motionResolution', 'alarmResolution'] as $name) {
+            $options = $supported;
+            $current = (string) $model['values'][$name];
+            if (!array_key_exists($current, $options)) {
+                $options[$current] = $supported === []
+                    ? 'Current camera value'
+                    : 'Current camera value (not listed as supported)';
+            }
+            $model['fields'][$name]['options'] = array_keys($options);
+            $model['fields'][$name]['optionLabels'] = $options;
+            $model['fields'][$name]['help'] = $supported === []
+                ? 'The camera did not advertise alternatives; the current resolution can be retained.'
+                : 'Supported resolutions reported by this camera’s video encoder.';
+        }
+        foreach (['regularBitRate', 'motionBitRate', 'alarmBitRate'] as $name) {
+            $values = [64, 128, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096, 6144, 8192, 12288, 16384];
+            $current = $model['values'][$name];
+            if (!in_array($current, $values, true)) $values[] = $current;
+            sort($values, SORT_NUMERIC);
+            $model['fields'][$name]['options'] = $values;
+            $model['fields'][$name]['help'] = 'App-provided bit-rate choices; the current camera value is always retained.';
+        }
+        return $model;
+    }
+
+    private function snapshotResolutionOptions(): array
+    {
+        if (!method_exists($this->reader, 'getEncodeCapability')) return [];
+        try {
+            $capability = $this->reader->getEncodeCapability();
+        } catch (DvripException $exception) {
+            if (in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) return [];
+            throw $exception;
+        }
+        return self::resolutionNames($capability, 'MainStream')
+            + self::resolutionNames($capability, 'ExtraStream2');
     }
 
     private static function encodeInfo(mixed $capability, string $streamType): ?array
@@ -843,6 +887,9 @@ final class NetworkServiceEditor
         if (in_array($id, ['main_stream', 'extra_stream'], true)) {
             $this->validateStreamOptions($id, $definition, $current, $clean);
         }
+        if ($id === 'snapshot_image') {
+            $this->validateSnapshotImageOptions($definition, $current, $clean);
+        }
         $dhcp = $dhcpIndex === null ? null : $this->readDhcpInterface($dhcpIndex);
         $updated = $current;
         $updatedActions = $humanActions;
@@ -909,6 +956,9 @@ final class NetworkServiceEditor
         }
         $model = $this->model($id, $definition, $verified);
         $model = $this->withConfirmedSelects($model);
+        if ($id === 'snapshot_image') {
+            $model = $this->withSnapshotImageOptions($model);
+        }
         if ($id === 'human_detection') {
             $model['ruleGeometry'] = $this->humanRuleGeometry($verified);
         }
@@ -978,6 +1028,17 @@ final class NetworkServiceEditor
             $currentValue = $this->getPath($current, $definition['fields'][$name]['path']);
             if ($input[$name] !== $currentValue && !array_key_exists($input[$name], $supported)) {
                 throw new InvalidArgumentException("Field {$name} is not supported by this camera stream.");
+            }
+        }
+    }
+
+    private function validateSnapshotImageOptions(array $definition, array $current, array $input): void
+    {
+        $supported = $this->snapshotResolutionOptions();
+        foreach (['regularResolution', 'motionResolution', 'alarmResolution'] as $name) {
+            $currentValue = $this->getPath($current, $definition['fields'][$name]['path']);
+            if ($input[$name] !== $currentValue && !array_key_exists($input[$name], $supported)) {
+                throw new InvalidArgumentException("Field {$name} is not advertised by this camera encoder.");
             }
         }
     }

@@ -49,9 +49,11 @@ final class OnvifPtz
         $token = $this->profileToken();
         [$x, $y, $zoom] = self::VECTORS[$direction];
         $factor = self::SPEEDS[$speed];
+        $velocity = $zoom === 0.0
+            ? '<tt:PanTilt x="' . self::number($x * $factor) . '" y="' . self::number($y * $factor) . '"/>'
+            : '<tt:Zoom x="' . self::number($zoom * $factor) . '"/>';
         $content = '<tptz:ProfileToken>' . self::escape($token) . '</tptz:ProfileToken>'
-            . '<tptz:Velocity><tt:PanTilt x="' . self::number($x * $factor) . '" y="' . self::number($y * $factor) . '"/>'
-            . '<tt:Zoom x="' . self::number($zoom * $factor) . '"/></tptz:Velocity>'
+            . '<tptz:Velocity>' . $velocity . '</tptz:Velocity>'
             . '<tptz:Timeout>PT' . self::number($durationMs / 1000) . 'S</tptz:Timeout>';
         $movementError = null;
         try {

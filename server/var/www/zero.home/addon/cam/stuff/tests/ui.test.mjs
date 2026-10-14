@@ -73,6 +73,65 @@ class FakeDocument {
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 
+test('STREAM menu places Snapshot image directly after Extra video stream', async () => {
+    const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
+    const editors = [
+        {id: 'main_stream', name: 'Main video stream'},
+        {id: 'extra_stream', name: 'Extra video stream'},
+        {id: 'snapshot_image', name: 'Snapshot image'},
+        {id: 'smart_h264', name: 'Smart H.264'},
+    ];
+    const nodes = renderEditableMenu(editors, new FakeDocument(), {onAccess() {}, onSmtp() {}, onEditor() {}, onLive() {}});
+    const stream = descendants({children: nodes}).find(node => node.type === 'summary' && node.children[0]?.value === 'STREAM');
+    const group = nodes.find(node => descendants(node).includes(stream));
+    const labels = descendants(group).filter(node => node.type === 'button').map(node => node.children[0]?.value);
+    assert.deepEqual(labels, ['Main video stream', 'Extra video stream', 'Snapshot image', 'Smart H.264']);
+});
+
+test('snapshot image form groups all three profiles and offers explicit profile synchronization', async () => {
+    const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
+    const fields = {};
+    const values = {};
+    for (const [prefix, group, enabled] of [
+        ['regular', 'Regular snapshot', true],
+        ['motion', 'Motion-detection snapshot', false],
+        ['alarm', 'Alarm snapshot', false],
+    ]) {
+        fields[`${prefix}Enabled`] = {label: 'Enabled', type: 'boolean', group};
+        fields[`${prefix}Resolution`] = {label: 'Resolution', type: 'string', group, options: ['D1', '1080P']};
+        fields[`${prefix}Quality`] = {label: 'Quality', type: 'integer', group, options: ['1', '2', '3', '4', '5', '6']};
+        fields[`${prefix}BitRate`] = {label: 'Bit rate (kbps)', type: 'integer', group};
+        fields[`${prefix}BitRateControl`] = {label: 'Bit-rate control', type: 'string', group, options: ['CBR', 'VBR']};
+        values[`${prefix}Enabled`] = enabled;
+        values[`${prefix}Resolution`] = 'D1';
+        values[`${prefix}Quality`] = 4;
+        values[`${prefix}BitRate`] = 512;
+        values[`${prefix}BitRateControl`] = 'VBR';
+    }
+    const root = renderServiceForm({id: 'snapshot_image', label: 'Snapshot image', branch: 'AVEnc.Encode', fields, values},
+        {onReload() {}, onSave() {}}, new FakeDocument());
+    const nodes = descendants(root);
+    assert.deepEqual(nodes.filter(node => node.type === 'legend').map(node => node.children[0]?.value),
+        ['Regular snapshot', 'Motion-detection snapshot', 'Alarm snapshot']);
+    assert.equal(nodes.filter(node => node.type === 'input' && node.attributes.name?.endsWith('Enabled')).length, 3);
+    assert.ok(nodes.find(node => node.type === 'input' && node.attributes.name === 'synchronizeSnapshotProfiles'));
+});
+
+test('snapshot synchronization copies image encoding without changing per-profile enabled state', async () => {
+    const {synchronizeSnapshotImageValues} = await import(await moduleUrl('service-form.js'));
+    const input = {
+        regularEnabled: true, regularResolution: '1080P', regularQuality: 6, regularBitRate: 2048, regularBitRateControl: 'VBR',
+        motionEnabled: false, motionResolution: 'D1', motionQuality: 4, motionBitRate: 512, motionBitRateControl: 'CBR',
+        alarmEnabled: true, alarmResolution: 'D1', alarmQuality: 3, alarmBitRate: 256, alarmBitRateControl: 'CBR',
+    };
+    assert.deepEqual(synchronizeSnapshotImageValues(input, true), {
+        ...input,
+        motionResolution: '1080P', motionQuality: 6, motionBitRate: 2048, motionBitRateControl: 'VBR',
+        alarmResolution: '1080P', alarmQuality: 6, alarmBitRate: 2048, alarmBitRateControl: 'VBR',
+    });
+    assert.deepEqual(synchronizeSnapshotImageValues(input, false), input);
+});
+
 test('ACCESS Live menu item opens the inline player callback', async () => {
     const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
     let opened = false;
@@ -102,15 +161,15 @@ test('live page renders an inline Balcon player with explicit start and stop con
     view.destroy();
 });
 
-test('live page clearly disables cameras outside the Balcon first release', async () => {
+test('live page enables configured Door camera playback', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php'}, new FakeDocument());
     const nodes = descendants(view.element);
     const start = nodes.find((node) => node.type === 'button' && node.children[0]?.value === 'Start live video');
     const status = nodes.find((node) => node.attributes.role === 'status');
 
-    assert.equal(start.disabled, true);
-    assert.match(status.children[0].value, /Balcon only/i);
+    assert.equal(start.disabled, false);
+    assert.equal(status.children[0].value, 'Press Start live video.');
     view.destroy();
 });
 
@@ -118,6 +177,19 @@ test('live page starts playback automatically when opened as the connected-camer
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const view = renderLiveForm(
         {cameraId: 'balcon', endpoint: '/live-stream.php', autoStart: true},
+        new FakeDocument(),
+        {MediaSource: null}
+    );
+    const status = descendants(view.element).find((node) => node.attributes.role === 'status');
+
+    assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
+    view.destroy();
+});
+
+test('Door live page also autostarts when opened as the connected-camera landing page', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm(
+        {cameraId: 'door', endpoint: '/live-stream.php', autoStart: true},
         new FakeDocument(),
         {MediaSource: null}
     );

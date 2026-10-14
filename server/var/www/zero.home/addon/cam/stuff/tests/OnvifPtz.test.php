@@ -31,7 +31,7 @@ test('onvif_ptz_maps_physical_directions_and_always_stops', function (): void {
     assertSameValue(['GetProfiles', 'ContinuousMove', 'Stop'], array_column($calls, 'operation'));
     assertTrueValue(str_contains($calls[1]['content'], 'ProfileToken>000<'));
     assertTrueValue(str_contains($calls[1]['content'], 'x="-0.5" y="0.5"'));
-    assertTrueValue(str_contains($calls[1]['content'], '<tt:Zoom x="0"'));
+    assertTrueValue(!str_contains($calls[1]['content'], '<tt:Zoom'));
     assertSameValue([180000], $slept);
     assertTrueValue(str_contains($calls[2]['content'], '<tptz:PanTilt>true</tptz:PanTilt>'));
     assertTrueValue(str_contains($calls[2]['content'], '<tptz:Zoom>true</tptz:Zoom>'));
@@ -51,7 +51,7 @@ test('onvif_ptz_zoom_uses_zoom_axis_and_stop_runs_after_move_failure', function 
 
     assertSameValue('move failed', $error->getMessage());
     assertSameValue(['GetProfiles', 'ContinuousMove', 'Stop'], array_column($calls, 'operation'));
-    assertTrueValue(str_contains($calls[1]['content'], 'x="0" y="0"'));
+    assertTrueValue(!str_contains($calls[1]['content'], '<tt:PanTilt'));
     assertTrueValue(str_contains($calls[1]['content'], '<tt:Zoom x="1"'));
 });
 

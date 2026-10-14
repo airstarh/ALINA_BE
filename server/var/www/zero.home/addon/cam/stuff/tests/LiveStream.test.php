@@ -60,15 +60,16 @@ test('live stream builds a Balcon HEVC stream-copy pipeline', function (): void 
     }
 });
 
-test('live stream rejects cameras not enabled for the first release', function (): void {
+test('live stream builds a configured Door stream with DVRIP credential fallback', function (): void {
     $path = liveStreamConfigFixture();
     try {
         $live = new LiveStream(Config::load($path), '/opt/ffmpeg', '/opt/ffprobe');
-        $error = assertThrows(
-            static fn () => $live->probeCommand('door'),
-            InvalidArgumentException::class
-        );
-        assertSameValue('Live video is currently available for Balcon only.', $error->getMessage());
+        $probe = $live->probeCommand('door');
+        $stream = $live->streamCommand('door', 'h264');
+
+        assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $probe, true));
+        assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $stream, true));
+        assertTrueValue(!in_array('hvc1', $stream, true));
     } finally {
         unlink($path);
     }

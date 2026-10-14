@@ -39,6 +39,17 @@ export function inputTypeForServiceField(field) {
     return field.type === 'integer' ? 'number' : 'text';
 }
 
+export function synchronizeSnapshotImageValues(values, enabled) {
+    if (!enabled) return {...values};
+    const synchronized = {...values};
+    for (const target of ['motion', 'alarm']) {
+        for (const suffix of ['Resolution', 'Quality', 'BitRate', 'BitRateControl']) {
+            synchronized[`${target}${suffix}`] = values[`regular${suffix}`];
+        }
+    }
+    return synchronized;
+}
+
 const append = (parent, tag, options = {}) => {
     const node = parent.ownerDocument.createElement(tag);
     if (options.className) node.className = options.className;
@@ -57,7 +68,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     const entries = Object.entries(model.fields);
     const isSwitch = (field) => field.type === 'boolean' || field.type === 'boolean-integer';
     const enableEntry = entries.find(([name, field]) => name === 'enable' && isSwitch(field))
-        || entries.find(([, field]) => isSwitch(field));
+        || entries.find(([, field]) => isSwitch(field) && !field.group);
 
     if (model.warning) {
         const warning = append(form, 'p', {className: 'form-warning', text: model.warning});
@@ -124,6 +135,20 @@ export function renderServiceForm(model, handlers, documentRef = document) {
 
     append(form, 'h3', {text: 'Settings'});
     const grid = append(form, 'div', {className: 'form-grid'});
+    const groupedFields = new Map();
+    for (const [, field] of entries) {
+        if (!field.group || groupedFields.has(field.group)) continue;
+        const profile = append(form, 'fieldset', {className: 'snapshot-profile'});
+        append(profile, 'legend', {text: field.group});
+        groupedFields.set(field.group, append(profile, 'div', {className: 'form-grid'}));
+    }
+    let synchronizeSnapshots = null;
+    if (model.id === 'snapshot_image') {
+        const label = append(grid, 'label', {className: 'form-switch-field form-field-full'});
+        synchronizeSnapshots = append(label, 'input', {attributes: {type: 'checkbox', name: 'synchronizeSnapshotProfiles'}});
+        synchronizeSnapshots.checked = false;
+        append(label, 'span', {text: 'Apply regular image settings to motion and alarm profiles when saving'});
+    }
     const ptzSection = model.id === 'human_detection' && model.fields.ptzAction
         ? append(form, 'details', {className: 'form-subsection'})
         : null;
@@ -141,7 +166,8 @@ export function renderServiceForm(model, handlers, documentRef = document) {
     for (const [name, field] of entries) {
         if (enableEntry?.[0] === name) continue;
         if (model.id === 'human_detection' && model.ruleGeometry && ['ruleEnabled', 'ruleType'].includes(name)) continue;
-        const fieldParent = ptzGrid && ['ptzAction', 'ptzNumber'].includes(name) ? ptzGrid : grid;
+        const fieldParent = groupedFields.get(field.group)
+            || (ptzGrid && ['ptzAction', 'ptzNumber'].includes(name) ? ptzGrid : grid);
         if (isSwitch(field)) {
             const label = append(fieldParent, 'label', {className: 'form-switch-field'});
             const input = append(label, 'input', {attributes: {type: 'checkbox', name}});
@@ -281,6 +307,9 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         event.preventDefault();
         if (!form.reportValidity()) return;
         pending = servicePayloadFromFormData(model, new FormData(form));
+        if (model.id === 'snapshot_image') {
+            pending = synchronizeSnapshotImageValues(pending, synchronizeSnapshots.checked);
+        }
         if (ruleSection) {
             const changes = ruleSection.collectChanges();
             if (changes === null) return;
@@ -298,7 +327,7 @@ export function renderServiceForm(model, handlers, documentRef = document) {
             if (isSwitch(field)) display = display ? 'Enabled' : 'Disabled';
             else if (field.options) display = serviceOptionLabel(field, String(display));
             if (display === '') display = '(empty)';
-            append(list, 'li', {text: `${field.label}: ${display}`});
+            append(list, 'li', {text: `${field.group ? `${field.group} — ` : ''}${field.label}: ${display}`});
         }
         for (const change of pending.periodChanges || []) {
             append(list, 'li', {text: periodSection.describe(change)});

@@ -9,7 +9,7 @@ import {
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261013-1';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
-import {renderLiveForm} from './live-form.js?v=20261014-2';
+import {renderLiveForm} from './live-form.js?v=20261014-3';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
 
@@ -259,12 +259,7 @@ const loadLive = () => {
     disposeActiveView = view.destroy;
     elements.content.replaceChildren(view.element);
     elements.refresh.disabled = false;
-    showStatus(
-        activeCamera === 'balcon'
-            ? 'Balcon live-video page loaded.'
-            : 'Live video is currently available for Balcon only.',
-        activeCamera === 'balcon' ? 'ok' : 'neutral'
-    );
+    showStatus(`${activeCamera} live-video page loaded.`, 'ok');
 };
 
 const renderSections = (editors, sections) => {
