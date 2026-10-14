@@ -143,14 +143,19 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 .live-view video { display: block; width: 100%; max-height: 72vh; border: 1px solid var(--line); border-radius: .65rem; background: #000; }
 .live-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(15rem, 19rem); gap: 1rem; align-items: start; }
 .live-ptz { padding: 1rem; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface); }
-.live-ptz h3 { margin-top: 0; }
-.live-ptz-content { display: grid; gap: 1rem; }
+.live-ptz-content { display: grid; gap: 50px; }
 .live-ptz-content label { display: grid; gap: .35rem; }
 .ptz-direction-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
 .ptz-move-button, .ptz-stop-button { min-height: 3rem; font-size: 1.25rem; touch-action: none; user-select: none; }
 .ptz-zoom-controls, .ptz-preset-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
 .ptz-zoom-controls button { flex: 1 1 6rem; }
-.ptz-presets { display: grid; gap: .6rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+.ptz-presets { display: grid; gap: .6rem; }
+.ptz-preset-field { display: grid; gap: .45rem; }
+.ptz-quick-presets { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; }
+.ptz-quick-presets button { min-height: 2.25rem; font-weight: 700; }
+.ptz-preset-buttons button { flex: 1 1 4rem; min-height: 2.75rem; font-size: 1.15rem; font-weight: 700; }
+.ptz-preset-buttons .ptz-preset-goto { flex-basis: 100%; min-height: 3.25rem; font-size: 1.25rem; }
+.ptz-speed-block { display: grid; gap: .75rem; }
 .live-ptz-status { min-height: 2.6rem; margin: 0; color: var(--accent); }
 @media (max-width: 70rem) { .live-workspace { grid-template-columns: 1fr; } }
 .smtp-form h3 { margin: 1.5rem 0 .75rem; font-size: .92rem; }

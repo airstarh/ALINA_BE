@@ -71,12 +71,10 @@ export const renderLiveForm = (
 
     const ptzPanel = documentRef.createElement('aside');
     ptzPanel.className = 'live-ptz';
-    const ptzTitle = documentRef.createElement('h3');
-    ptzTitle.append(text(documentRef, 'PTZ control'));
     const ptzContent = documentRef.createElement('div');
     ptzContent.className = 'live-ptz-content';
     ptzContent.append(text(documentRef, loadPtz ? 'Checking camera PTZ capability…' : 'PTZ control is not available.'));
-    ptzPanel.append(ptzTitle, ptzContent);
+    ptzPanel.append(ptzContent);
     workspace.append(ptzPanel);
     root.append(workspace);
 
@@ -102,7 +100,7 @@ export const renderLiveForm = (
         ptzStatus.className = 'live-ptz-status';
         ptzStatus.setAttribute('role', 'status');
         ptzStatus.setAttribute('aria-live', 'polite');
-        ptzStatus.textContent = 'Hold a direction or zoom button for repeated short movements.';
+        ptzStatus.textContent = '';
 
         const speedLabel = documentRef.createElement('label');
         speedLabel.append(text(documentRef, 'Speed'));
@@ -117,6 +115,9 @@ export const renderLiveForm = (
         }
         speed.value = capabilities.defaultSpeed || capabilities.speeds?.[0] || 'medium';
         speedLabel.append(speed);
+        const speedBlock = documentRef.createElement('div');
+        speedBlock.className = 'ptz-speed-block';
+        speedBlock.append(speedLabel, ptzStatus);
 
         const directionGrid = documentRef.createElement('div');
         directionGrid.className = 'ptz-direction-grid';
@@ -201,55 +202,77 @@ export const renderLiveForm = (
             zoom.append(makeMovementButton('zoom-in', 'Zoom +'), makeMovementButton('zoom-out', 'Zoom −'));
         }
 
-        ptzContent.append(speedLabel, directionGrid, zoom, ptzStatus);
-
         if (capabilities.presets) {
             const presets = documentRef.createElement('div');
             presets.className = 'ptz-presets';
+            const presetField = documentRef.createElement('div');
+            presetField.className = 'ptz-preset-field';
             const presetLabel = documentRef.createElement('label');
+            presetLabel.setAttribute('for', 'ptz-preset-number');
             presetLabel.append(text(documentRef, 'Preset slot'));
             const preset = documentRef.createElement('input');
             preset.type = 'number';
+            preset.id = 'ptz-preset-number';
             preset.min = String(capabilities.presetMinimum || 1);
             preset.max = String(capabilities.presetMaximum || 255);
             preset.value = String(capabilities.presetMinimum || 1);
             preset.setAttribute('aria-label', 'PTZ preset number');
-            presetLabel.append(preset);
             const presetButtons = documentRef.createElement('div');
             presetButtons.className = 'ptz-preset-buttons';
-            const presetAction = (caption, operation, confirmation = '') => {
+            const runPresetAction = async (operation, confirmation = '') => {
+                const number = Number(preset.value);
+                if (!Number.isInteger(number) || number < Number(preset.min) || number > Number(preset.max)) {
+                    ptzStatus.textContent = `Enter a preset number from ${preset.min} to ${preset.max}.`;
+                    return;
+                }
+                if (confirmation && (!environment.confirm || !environment.confirm(`${confirmation} preset ${number}?`))) return;
+                try {
+                    await onPtzCommand({operation, preset: number});
+                    ptzStatus.textContent = operation === 'goto'
+                        ? `Moving to preset ${number}.`
+                        : operation === 'save' ? `Preset ${number} saved.` : `Preset ${number} deleted.`;
+                } catch (error) {
+                    ptzStatus.textContent = describeError(error);
+                }
+            };
+            const presetAction = (caption, operation, confirmation = '', ariaLabel = '', className = '') => {
                 const button = documentRef.createElement('button');
                 button.type = 'button';
+                button.className = className;
+                if (ariaLabel) {
+                    button.setAttribute('aria-label', ariaLabel);
+                    button.setAttribute('title', ariaLabel);
+                }
                 button.append(text(documentRef, caption));
-                button.addEventListener('click', async () => {
-                    const number = Number(preset.value);
-                    if (!Number.isInteger(number) || number < Number(preset.min) || number > Number(preset.max)) {
-                        ptzStatus.textContent = `Enter a preset number from ${preset.min} to ${preset.max}.`;
-                        return;
-                    }
-                    if (confirmation && (!environment.confirm || !environment.confirm(`${confirmation} preset ${number}?`))) return;
-                    try {
-                        await onPtzCommand({operation, preset: number});
-                        ptzStatus.textContent = operation === 'goto'
-                            ? `Moving to preset ${number}.`
-                            : operation === 'save' ? `Preset ${number} saved.` : `Preset ${number} deleted.`;
-                    } catch (error) {
-                        ptzStatus.textContent = describeError(error);
-                    }
-                });
+                button.addEventListener('click', () => runPresetAction(operation, confirmation));
                 return button;
             };
+            const quickPresets = documentRef.createElement('div');
+            quickPresets.className = 'ptz-quick-presets';
+            for (let number = 1; number <= 5; number++) {
+                if (number < Number(preset.min) || number > Number(preset.max)) continue;
+                const quick = documentRef.createElement('button');
+                quick.type = 'button';
+                quick.setAttribute('data-ptz-quick-preset', String(number));
+                quick.setAttribute('aria-label', `Go to preset ${number}`);
+                quick.append(text(documentRef, String(number)));
+                quick.addEventListener('click', async () => {
+                    preset.value = String(number);
+                    await runPresetAction('goto');
+                });
+                quickPresets.append(quick);
+            }
             presetButtons.append(
-                presetAction('Go to', 'goto'),
-                presetAction('Save current position', 'save', 'Overwrite'),
-                presetAction('Delete preset', 'delete', 'Delete'),
+                presetAction('GoTo', 'goto', '', 'Go to preset', 'ptz-preset-goto'),
+                presetAction('+', 'save', 'Overwrite', 'Save current position to preset'),
+                presetAction('−', 'delete', 'Delete', 'Delete preset'),
             );
-            const note = documentRef.createElement('p');
-            note.className = 'field-help';
-            note.append(text(documentRef, 'The camera cannot reliably list saved slots. Use a number you deliberately saved.'));
-            presets.append(presetLabel, presetButtons, note);
+            presetField.append(presetLabel, quickPresets, preset);
+            presets.append(presetField, presetButtons);
             ptzContent.append(presets);
         }
+
+        ptzContent.append(directionGrid, zoom, speedBlock);
     };
 
     const cleanup = (message = '') => {

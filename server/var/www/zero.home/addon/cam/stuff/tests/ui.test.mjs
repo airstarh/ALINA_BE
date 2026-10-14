@@ -207,9 +207,31 @@ test('live page renders capability-gated PTZ directions zoom speed and presets',
     assert.equal(nodes.filter(n => n.attributes['data-ptz-direction']).length, 10);
     assert.ok(nodes.find(n => n.attributes['aria-label'] === 'PTZ speed'));
     assert.ok(nodes.find(n => n.attributes['aria-label'] === 'PTZ preset number'));
-    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Go to'));
-    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Save current position'));
-    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Delete preset'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'GoTo'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === '+'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === '−'));
+    view.destroy();
+});
+
+test('PTZ panel orders presets joystick zoom and speed with compact preset actions', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php',
+        loadPtz: async () => ptzCapabilities, onPtzCommand: async () => ({accepted: true})}, new FakeDocument());
+    await flushPromises();
+    const nodes = descendants(view.element);
+    const content = nodes.find(n => n.className === 'live-ptz-content');
+
+    assert.deepEqual(content.children.slice(0, 4).map(node => node.className),
+        ['ptz-presets', 'ptz-direction-grid', 'ptz-zoom-controls', 'ptz-speed-block']);
+    assert.equal(nodes.some(n => n.type === 'h3' && n.children[0]?.value === 'PTZ control'), false);
+    assert.equal(nodes.some(n => n.type === 'text' && /cannot reliably list|hold a direction/i.test(n.value)), false);
+
+    const goTo = nodes.find(n => n.type === 'button' && n.children[0]?.value === 'GoTo');
+    const save = nodes.find(n => n.type === 'button' && n.children[0]?.value === '+');
+    const remove = nodes.find(n => n.type === 'button' && n.children[0]?.value === '−');
+    assert.equal(goTo.className, 'ptz-preset-goto');
+    assert.equal(save.attributes['aria-label'], 'Save current position to preset');
+    assert.equal(remove.attributes['aria-label'], 'Delete preset');
     view.destroy();
 });
 
@@ -298,12 +320,31 @@ test('PTZ preset save and delete require confirmation but recall does not', asyn
     const nodes = descendants(view.element);
     const slot = nodes.find(n => n.attributes['aria-label'] === 'PTZ preset number');
     slot.value = '5';
-    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Go to').listeners.click();
-    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Save current position').listeners.click();
-    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Delete preset').listeners.click();
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'GoTo').listeners.click();
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === '+').listeners.click();
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === '−').listeners.click();
     await flushPromises();
     assert.deepEqual(commands, [{operation: 'goto', preset: 5}, {operation: 'delete', preset: 5}]);
     assert.equal(confirmations.length, 2);
+    view.destroy();
+});
+
+test('PTZ quick preset buttons select and immediately recall slots one through five', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const commands = [];
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php', loadPtz: async () => ptzCapabilities,
+        onPtzCommand: async command => { commands.push(command); return {accepted: true}; }}, new FakeDocument());
+    await flushPromises();
+    const nodes = descendants(view.element);
+    const slot = nodes.find(n => n.attributes['aria-label'] === 'PTZ preset number');
+    const quick = nodes.filter(n => n.attributes['data-ptz-quick-preset']);
+    assert.deepEqual(quick.map(button => button.children[0]?.value), ['1', '2', '3', '4', '5']);
+
+    quick[3].listeners.click();
+    await flushPromises();
+
+    assert.equal(slot.value, '4');
+    assert.deepEqual(commands, [{operation: 'goto', preset: 4}]);
     view.destroy();
 });
 
