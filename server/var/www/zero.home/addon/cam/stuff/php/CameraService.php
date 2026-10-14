@@ -9,6 +9,7 @@ use Throwable;
 
 require_once __DIR__ . '/CameraAccess.php';
 require_once __DIR__ . '/OnvifAccounts.php';
+require_once __DIR__ . '/OnvifPtz.php';
 require_once __DIR__ . '/AccessManager.php';
 
 final class CameraService
@@ -36,6 +37,7 @@ final class CameraService
         private string $cameraName,
         private array $cameraSettings = [],
         private ?\Closure $accessProbe = null,
+        private ?\Closure $ptzPulse = null,
     ) {
     }
 
@@ -220,6 +222,74 @@ final class CameraService
     {
         $this->reader->reboot();
         return ['accepted' => true];
+    }
+
+    public function ptzCapabilities(): array
+    {
+        $other = $this->reader->getSystemFunction()['OtherFunction'] ?? [];
+        $available = is_array($other) && ($other['SupportPTZDirectionControl'] ?? false) === true;
+        return [
+            'available' => $available,
+            'directions' => $available
+                ? ['up', 'up-right', 'right', 'down-right', 'down', 'down-left', 'left', 'up-left'] : [],
+            'zoom' => $available,
+            'speeds' => $available ? ['low', 'medium', 'high'] : [],
+            'defaultSpeed' => 'medium',
+            'pulseDurationMs' => 180,
+            'presets' => $available && ($other['SupportSetPTZPresetAttribute'] ?? false) === true,
+            'presetMinimum' => 1,
+            'presetMaximum' => 255,
+        ];
+    }
+
+    public function ptzCommand(array $input): array
+    {
+        $capabilities = $this->ptzCapabilities();
+        if (!$capabilities['available']) {
+            throw new InvalidArgumentException('PTZ movement is not available on this camera.');
+        }
+        $operation = $input['operation'] ?? null;
+        if ($operation === 'move') {
+            if (array_diff(array_keys($input), ['operation', 'direction', 'speed', 'durationMs']) !== []
+                || !is_string($input['direction'] ?? null)
+                || !in_array($input['direction'], $capabilities['directions'], true)
+                || !is_string($input['speed'] ?? null)
+                || !in_array($input['speed'], $capabilities['speeds'], true)
+                || !is_int($input['durationMs'] ?? null)
+                || $input['durationMs'] < 80 || $input['durationMs'] > 400) {
+                throw new InvalidArgumentException('Invalid PTZ movement command.');
+            }
+            $pulse = $this->ptzPulse ?? function (string $direction, string $speed, int $durationMs): void {
+                $this->onvifPtz()->pulse($direction, $speed, $durationMs);
+            };
+            $pulse($input['direction'], $input['speed'], $input['durationMs']);
+            return ['accepted' => true];
+        }
+
+        if (!in_array($operation, ['goto', 'save', 'delete'], true)
+            || array_diff(array_keys($input), ['operation', 'preset']) !== []
+            || !$capabilities['presets'] || !is_int($input['preset'] ?? null)
+            || $input['preset'] < 1 || $input['preset'] > 255
+            || !method_exists($this->reader, 'ptzPreset')) {
+            throw new InvalidArgumentException('Invalid or unavailable PTZ preset command.');
+        }
+        $this->reader->ptzPreset($operation, $input['preset']);
+        return ['accepted' => true];
+    }
+
+    private function onvifPtz(): OnvifPtz
+    {
+        $host = $this->cameraSettings['host'] ?? '';
+        if (!is_string($host) || $host === '' || !isset($this->cameraSettings['dvrip'])) {
+            throw new InvalidArgumentException('ONVIF PTZ connection is not configured.');
+        }
+        $ports = CameraAccess::ports($this->cameraSettings, [], CameraAccess::correspondent($this->reader));
+        $port = $ports['onvif'] ?? null;
+        if (!is_int($port)) throw new InvalidArgumentException('ONVIF PTZ port is not configured.');
+        $address = str_contains($host, ':') ? '[' . trim($host, '[]') . ']' : $host;
+        $base = 'http://' . $address . ':' . $port . '/onvif/';
+        $credentials = $this->cameraSettings['access']['credentials']['onvif'] ?? $this->cameraSettings['dvrip'];
+        return new OnvifPtz($base . 'Media', $base . 'PTZ', $credentials);
     }
 
     public function wifiAccessPoints(): array

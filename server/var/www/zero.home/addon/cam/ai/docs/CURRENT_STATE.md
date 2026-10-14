@@ -198,9 +198,16 @@ has no invented upper bound. Existing Pattern/0 is preserved when other alert
 settings are saved.
 Balcon's motor was verified with short four-direction ONVIF moves and explicit
 stops; Door has no PTZ capability flags, is physically static, and its PTZ
-controls stay hidden. The editor owns only shared alert `PtzLink[0]` and sets
+controls stay hidden. The **ACCESS -> Live** page now provides capability-gated
+eight-direction movement, zoom, three speeds, and numeric preset recall/save/
+delete beside the live video. Movement is a series of serialized bounded ONVIF
+pulses with server-side Stop in a `finally` path. Presets use DVRIP message 1400.
+The app does not claim to enumerate preset slots because the camera's ONVIF list
+is generic and unreliable. Automated tests do not move motors; the owner must
+perform the checklist in [`live-video.md`](live-video.md). The Human Detection
+editor owns only shared alert `PtzLink[0]` and sets
 `PtzEnable` when an action is selected, preserving all other channels. A live
-A live PTZ-link write test found `Preset/1`, `Tour/1`, and `Pattern/1` accepted and
+PTZ-link write test found `Preset/1`, `Tour/1`, and `Pattern/1` accepted and
 fresh-read verified on Balcon with Human Detection temporarily disabled;
 the original detection and `None/0` link settings were restored and verified.
 The owner subsequently saved Presets 1–5; direct recall

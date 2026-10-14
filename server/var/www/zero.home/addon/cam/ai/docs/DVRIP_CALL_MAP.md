@@ -271,6 +271,34 @@ corresponding preset, tour, or pattern number. It gives no 255 limit; the
 web form therefore requires a positive number for newly selected active
 actions without asserting an upper bound. None normalizes to `["None", 0]`.
 
+## Live PTZ control
+
+`ACCESS -> Live` -> `CameraApi.ptzCapabilities(camera)` ->
+`Api::handle('ptz')` -> `CameraService::ptzCapabilities()` ->
+`DvripClient::getSystemFunction()` (**1360**, `Name=SystemFunction`). Real
+controls appear only for `OtherFunction.SupportPTZDirectionControl=true`;
+generic ONVIF service or preset responses are not sufficient.
+
+A held direction or zoom button sends one POST at a time:
+`CameraApi.ptzCommand(camera, {operation:"move", ...})` ->
+`Api::handle('ptz-command')` -> `CameraService::ptzCommand()` ->
+`OnvifPtz::pulse()`. The pulse performs authenticated Media `GetProfiles`, PTZ
+`ContinuousMove`, a bounded wait, and PTZ `Stop` from `finally`. The current
+camera-reported ONVIF port and the Balcon-advertised `/onvif/Media` and
+`/onvif/PTZ` paths are used. The browser never receives camera credentials.
+
+Preset POSTs use the same API route and `DvripClient::ptzPreset()`:
+
+```text
+DVRIP request message: 1400
+Name: OPPTZControl
+Command: GotoPreset | SetPreset | ClearPreset
+Parameter.Preset: 1..255
+```
+
+The camera accepts numeric slots but cannot reliably enumerate which ones are
+saved. Save and delete require browser confirmation; recall does not.
+
 ## Wi-Fi access-point search
 
 `CameraApi.wifiAccessPoints(camera)` -> `CameraService::wifiAccessPoints()` ->

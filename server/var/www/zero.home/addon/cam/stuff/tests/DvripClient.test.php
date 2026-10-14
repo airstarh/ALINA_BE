@@ -213,6 +213,35 @@ test('dvrip_reboot_sends_opmachine_with_message_1450', function (): void {
     assertSameValue(['Action' => 'Reboot'], $payload['OPMachine']);
 });
 
+test('dvrip_ptz_presets_use_message_1400_and_exact_vendor_commands', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    foreach (['goto' => 'GotoPreset', 'save' => 'SetPreset', 'delete' => 'ClearPreset'] as $operation => $command) {
+        $sequence = count($transport->writes);
+        $transport->queue(responsePacket(26, 1401, [
+            'Ret' => 100, 'Name' => 'OPPTZControl', 'SessionID' => '0x0000001A',
+        ], $sequence));
+        assertSameValue(true, $client->ptzPreset($operation, 2));
+        [$header, $payload] = decodedPacket($transport->writes[$sequence]);
+        assertSameValue(1400, $header['message']);
+        assertSameValue($command, $payload['OPPTZControl']['Command']);
+        assertSameValue(2, $payload['OPPTZControl']['Parameter']['Preset']);
+        assertSameValue(0, $payload['OPPTZControl']['Parameter']['Channel']);
+        assertSameValue(5, $payload['OPPTZControl']['Parameter']['Step']);
+    }
+});
+
+test('dvrip_ptz_presets_reject_unknown_operations_and_nonpositive_slots', function (): void {
+    loadDvripClientClasses();
+    $transport = new FixtureDvripTransport();
+    $client = loggedInClient($transport, 26);
+    $written = count($transport->writes);
+    assertThrows(static fn () => $client->ptzPreset('tour', 1), InvalidArgumentException::class);
+    assertThrows(static fn () => $client->ptzPreset('goto', 0), InvalidArgumentException::class);
+    assertSameValue($written, count($transport->writes));
+});
+
 test('dvrip_mail_test_sends_current_email_config_with_message_1636', function (): void {
     loadDvripClientClasses();
     $transport = new FixtureDvripTransport();

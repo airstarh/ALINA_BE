@@ -29,6 +29,17 @@ export class CameraApi {
         return this.#request({action: 'access', camera: cameraId});
     }
 
+    ptzCapabilities(cameraId) {
+        return this.#request({action: 'ptz', camera: cameraId});
+    }
+
+    ptzCommand(cameraId, command) {
+        return this.#request(
+            {action: 'ptz-command', camera: cameraId},
+            {method: 'POST', body: command}
+        );
+    }
+
     saveAccess(cameraId, values) {
         return this.#request({action: 'access-save', camera: cameraId}, {method: 'POST', body: values});
     }

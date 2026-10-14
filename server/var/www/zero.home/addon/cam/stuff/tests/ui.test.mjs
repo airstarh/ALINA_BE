@@ -52,12 +52,22 @@ class FakeNode {
 }
 
 class FakeDocument {
+    constructor() {
+        this.listeners = {};
+        this.hidden = false;
+    }
+
     createElement(name) {
         return new FakeNode(name, '', this);
     }
 
     createTextNode(value) {
         return new FakeNode('text', String(value));
+    }
+
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+    removeEventListener(name, callback) {
+        if (this.listeners[name] === callback) delete this.listeners[name];
     }
 }
 
@@ -114,6 +124,129 @@ test('live page starts playback automatically when opened as the connected-camer
     const status = descendants(view.element).find((node) => node.attributes.role === 'status');
 
     assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
+    view.destroy();
+});
+
+const ptzCapabilities = {
+    available: true,
+    directions: ['up', 'up-right', 'right', 'down-right', 'down', 'down-left', 'left', 'up-left'],
+    zoom: true,
+    speeds: ['low', 'medium', 'high'],
+    defaultSpeed: 'medium',
+    pulseDurationMs: 180,
+    presets: true,
+    presetMinimum: 1,
+    presetMaximum: 255,
+};
+
+const flushPromises = async () => { await new Promise(resolve => setImmediate(resolve)); };
+
+test('live page renders capability-gated PTZ directions zoom speed and presets', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php',
+        loadPtz: async () => ptzCapabilities, onPtzCommand: async () => ({accepted: true})}, new FakeDocument());
+    await flushPromises();
+    const nodes = descendants(view.element);
+    assert.equal(nodes.filter(n => n.attributes['data-ptz-direction']).length, 10);
+    assert.ok(nodes.find(n => n.attributes['aria-label'] === 'PTZ speed'));
+    assert.ok(nodes.find(n => n.attributes['aria-label'] === 'PTZ preset number'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Go to'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Save current position'));
+    assert.ok(nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Delete preset'));
+    view.destroy();
+});
+
+test('live page hides actionable PTZ controls when camera capability is absent', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php',
+        loadPtz: async () => ({available: false}), onPtzCommand: async () => ({accepted: true})}, new FakeDocument());
+    await flushPromises();
+    const nodes = descendants(view.element);
+    assert.equal(nodes.filter(n => n.attributes['data-ptz-direction']).length, 0);
+    assert.ok(nodes.some(n => n.type === 'text' && /not available/i.test(n.value)));
+    view.destroy();
+});
+
+test('PTZ hold serializes pulses and pointer release prevents another request', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const pending = [], commands = [];
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php', loadPtz: async () => ptzCapabilities,
+        onPtzCommand: (command) => { commands.push(command); return new Promise(resolve => pending.push(resolve)); }}, new FakeDocument());
+    await flushPromises();
+    const left = descendants(view.element).find(n => n.attributes['data-ptz-direction'] === 'left');
+    left.listeners.pointerdown({preventDefault() {}, pointerId: 1});
+    await flushPromises();
+    assert.equal(commands.length, 1);
+    pending.shift()({accepted: true});
+    await flushPromises();
+    assert.equal(commands.length, 2);
+    left.listeners.pointerup({preventDefault() {}, pointerId: 1});
+    pending.shift()({accepted: true});
+    await flushPromises();
+    assert.equal(commands.length, 2);
+    assert.deepEqual(commands[0], {operation: 'move', direction: 'left', speed: 'medium', durationMs: 180});
+    view.destroy();
+});
+
+test('PTZ Stop failure disables every movement control until reload', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    let calls = 0;
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php', loadPtz: async () => ptzCapabilities,
+        onPtzCommand: async () => { calls++; throw new Error('PTZ Stop failed. Reload PTZ controls before moving again.'); }},
+    new FakeDocument());
+    await flushPromises();
+    const buttons = descendants(view.element).filter(n => n.attributes['data-ptz-direction']);
+    buttons[0].listeners.pointerdown({preventDefault() {}, pointerId: 1});
+    await flushPromises();
+    assert.ok(buttons.every(button => button.disabled === true));
+    buttons[1].listeners.pointerdown({preventDefault() {}, pointerId: 2});
+    await flushPromises();
+    assert.equal(calls, 1);
+    view.destroy();
+});
+
+test('PTZ hold stops on pointer cancellation visibility loss blur and destroy', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const environment = {listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+        removeEventListener(name, callback) { if (this.listeners[name] === callback) delete this.listeners[name]; }};
+    const documentRef = new FakeDocument();
+    const pending = [];
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php', loadPtz: async () => ptzCapabilities,
+        onPtzCommand: () => new Promise(resolve => pending.push(resolve))}, documentRef, environment);
+    await flushPromises();
+    const up = descendants(view.element).find(n => n.attributes['data-ptz-direction'] === 'up');
+    for (const cancel of [
+        () => up.listeners.pointercancel({}),
+        () => { documentRef.hidden = true; documentRef.listeners.visibilitychange(); documentRef.hidden = false; },
+        () => environment.listeners.blur(),
+        () => view.destroy(),
+    ]) {
+        up.listeners.pointerdown({preventDefault() {}, pointerId: 1});
+        await flushPromises();
+        const before = pending.length;
+        cancel();
+        pending.shift()({accepted: true});
+        await flushPromises();
+        assert.equal(pending.length, before - 1);
+    }
+});
+
+test('PTZ preset save and delete require confirmation but recall does not', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const commands = [], confirmations = [];
+    const environment = {confirm(message) { confirmations.push(message); return confirmations.length > 1; }};
+    const view = renderLiveForm({cameraId: 'balcon', endpoint: '/live-stream.php', loadPtz: async () => ptzCapabilities,
+        onPtzCommand: async command => { commands.push(command); return {accepted: true}; }}, new FakeDocument(), environment);
+    await flushPromises();
+    const nodes = descendants(view.element);
+    const slot = nodes.find(n => n.attributes['aria-label'] === 'PTZ preset number');
+    slot.value = '5';
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Go to').listeners.click();
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Save current position').listeners.click();
+    nodes.find(n => n.type === 'button' && n.children[0]?.value === 'Delete preset').listeners.click();
+    await flushPromises();
+    assert.deepEqual(commands, [{operation: 'goto', preset: 5}, {operation: 'delete', preset: 5}]);
+    assert.equal(confirmations.length, 2);
     view.destroy();
 });
 
@@ -227,6 +360,21 @@ test('camera API normalizes camera list and default', async () => {
         cameras: [{id: 'balcon', name: 'Balcon'}],
         default: 'balcon',
     });
+});
+
+test('camera API reads PTZ capability and posts one command payload', async () => {
+    const {CameraApi} = await import(await moduleUrl('api.js'));
+    const requests = [];
+    const api = new CameraApi('/api.php', async (url, options) => {
+        requests.push([url, options]);
+        return response({accepted: true});
+    });
+    await api.ptzCapabilities('balcon');
+    await api.ptzCommand('balcon', {operation: 'goto', preset: 2});
+    assert.equal(requests[0][0], '/api.php?action=ptz&camera=balcon');
+    assert.equal(requests[1][0], '/api.php?action=ptz-command&camera=balcon');
+    assert.equal(requests[1][1].method, 'POST');
+    assert.equal(requests[1][1].body, JSON.stringify({operation: 'goto', preset: 2}));
 });
 
 test('state chooses Balcon default when present', async () => {

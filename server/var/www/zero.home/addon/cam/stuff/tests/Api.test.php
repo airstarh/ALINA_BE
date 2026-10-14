@@ -55,6 +55,10 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
         public int $mailTests = 0;
         public int $ftpTests = 0;
         public bool $ftpTestAccepted = true;
+        public array $systemFunction = ['NetServerFunction' => [], 'OtherFunction' => [
+            'SupportMailTest' => true, 'SupportFTPTest' => true,
+        ]];
+        public array $ptzPresetCalls = [];
         public array $passwordChanges = [];
         public array $logins = [];
         public function changePassword(string $username, string $old, string $new): void {
@@ -118,9 +122,7 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
 
         public function getSystemFunction(): array
         {
-            return ['NetServerFunction' => [], 'OtherFunction' => [
-                'SupportMailTest' => true, 'SupportFTPTest' => true,
-            ]];
+            return $this->systemFunction;
         }
 
         public function testMail(array $settings): bool
@@ -141,6 +143,12 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
             return true;
         }
 
+        public function ptzPreset(string $operation, int $preset): bool
+        {
+            $this->ptzPresetCalls[] = [$operation, $preset];
+            return true;
+        }
+
         public function close(): void
         {
             $this->closed = true;
@@ -156,6 +164,53 @@ function fixtureApi(?int &$factoryCalls = null, ?object &$reader = null): array
     );
     return [$api, $path];
 }
+
+test('ptz_api_exposes_capabilities_and_requires_post_for_commands', function (): void {
+    [$unused, $path] = fixtureApi($calls, $reader);
+    try {
+        $reader->systemFunction['OtherFunction']['SupportPTZDirectionControl'] = true;
+        $reader->systemFunction['OtherFunction']['SupportSetPTZPresetAttribute'] = true;
+        $pulses = [];
+        $api = new Api(Config::load($path), static function (string $id, array $camera) use ($reader, &$pulses): CameraService {
+            return new CameraService($reader, $id, $camera['name'], $camera, null,
+                static function (string $direction, string $speed, int $durationMs) use (&$pulses): void {
+                    $pulses[] = [$direction, $speed, $durationMs];
+                });
+        });
+        $capabilities = $api->handle(['action' => 'ptz', 'camera' => 'balcon']);
+        assertSameValue(200, $capabilities['status']);
+        assertSameValue(true, $capabilities['body']['data']['available']);
+        assertSameValue(405, $api->handle(['action' => 'ptz-command', 'camera' => 'balcon'], [
+            'operation' => 'move', 'direction' => 'right', 'speed' => 'low', 'durationMs' => 180,
+        ])['status']);
+        $move = $api->handle(['action' => 'ptz-command', 'camera' => 'balcon'], [
+            'operation' => 'move', 'direction' => 'right', 'speed' => 'low', 'durationMs' => 180,
+        ], 'POST');
+        assertSameValue(200, $move['status']);
+        assertSameValue([['right', 'low', 180]], $pulses);
+        $invalid = $api->handle(['action' => 'ptz-command', 'camera' => 'balcon'], [
+            'operation' => 'move', 'direction' => 'spin', 'speed' => 'low', 'durationMs' => 180,
+        ], 'POST');
+        assertSameValue(400, $invalid['status']);
+        assertSameValue(1, count($pulses));
+    } finally { unlink($path); }
+});
+
+test('ptz_api_preserves_stop_failure_message_for_browser_lockout', function (): void {
+    [$unused, $path] = fixtureApi($calls, $reader);
+    try {
+        $reader->systemFunction['OtherFunction']['SupportPTZDirectionControl'] = true;
+        $api = new Api(Config::load($path), static fn (string $id, array $camera): CameraService =>
+            new CameraService($reader, $id, $camera['name'], $camera, null,
+                static function (): void { throw new DvripException('ptz_stop_failed', 'fixture'); }));
+        $response = $api->handle(['action' => 'ptz-command', 'camera' => 'balcon'], [
+            'operation' => 'move', 'direction' => 'right', 'speed' => 'low', 'durationMs' => 180,
+        ], 'POST');
+        assertSameValue(502, $response['status']);
+        assertSameValue('ptz_stop_failed', $response['body']['error']['code']);
+        assertTrueValue(str_contains($response['body']['error']['message'], 'Stop failed'));
+    } finally { unlink($path); }
+});
 
 test('access_api_returns_selected_camera_details_without_cache_or_camera_writes', function (): void {
     [$unused, $path] = fixtureApi($count, $reader);

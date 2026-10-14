@@ -15,6 +15,7 @@ require_once __DIR__ . '/StreamDvripTransport.php';
 require_once __DIR__ . '/DvripPacketCodec.php';
 require_once __DIR__ . '/DvripReader.php';
 require_once __DIR__ . '/DvripClient.php';
+require_once __DIR__ . '/OnvifPtz.php';
 require_once __DIR__ . '/ExtendedEditorDefinitions.php';
 require_once __DIR__ . '/NetworkServiceEditor.php';
 require_once __DIR__ . '/CameraService.php';
@@ -39,6 +40,7 @@ final class Api
             if (!is_string($action) || !in_array($action, [
                 'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save', 'smtp-test', 'ftp-test',
                 'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot', 'access', 'access-save',
+                'ptz', 'ptz-command',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
@@ -65,7 +67,7 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
-            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot', 'access-save'], true)
+            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot', 'access-save', 'ptz-command'], true)
                 && strtoupper($method) !== 'POST'
             ) {
                 return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
@@ -93,6 +95,8 @@ final class Api
                     'editor-save' => $service->updateEditor($this->editorId($query), $body ?? []),
                     'wifi-aps' => $service->wifiAccessPoints(),
                     'reboot' => $service->reboot(),
+                    'ptz' => $service->ptzCapabilities(),
+                    'ptz-command' => $service->ptzCommand($body ?? []),
                 };
                 return $this->success($data);
             } finally {
@@ -175,6 +179,7 @@ final class Api
             'device_unsupported' => 'Camera does not support this operation.',
             'device_config_missing' => 'Camera configuration section does not exist.',
             'ftp_test_failed' => 'Camera reported the FTP test failed.',
+            'ptz_stop_failed' => 'PTZ Stop failed. Reload PTZ controls before moving again.',
             default => 'Camera communication failed.',
         };
     }
@@ -250,6 +255,7 @@ function runProductionApi(
         $cameraId = $query['camera'] ?? null;
         if (in_array($action, [
             'status', 'config', 'smtp', 'smtp-save', 'smtp-test', 'editors', 'editor', 'editor-save', 'reboot', 'access', 'access-save',
+            'ptz', 'ptz-command',
         ], true)
             && is_string($cameraId)
             && $cameraId !== ''

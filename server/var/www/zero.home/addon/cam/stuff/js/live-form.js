@@ -24,7 +24,7 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
 });
 
 export const renderLiveForm = (
-    {cameraId, endpoint, autoStart = false},
+    {cameraId, endpoint, autoStart = false, loadPtz = null, onPtzCommand = null},
     documentRef = document,
     environment = globalThis,
 ) => {
@@ -64,11 +64,195 @@ export const renderLiveForm = (
     player.setAttribute('playsinline', '');
     player.setAttribute('controls', '');
     player.muted = true;
-    root.append(player);
+    const workspace = documentRef.createElement('div');
+    workspace.className = 'live-workspace';
+    const videoPanel = documentRef.createElement('div');
+    videoPanel.className = 'live-video-panel';
+    videoPanel.append(player);
+    workspace.append(videoPanel);
+
+    const ptzPanel = documentRef.createElement('aside');
+    ptzPanel.className = 'live-ptz';
+    const ptzTitle = documentRef.createElement('h3');
+    ptzTitle.append(text(documentRef, 'PTZ control'));
+    const ptzContent = documentRef.createElement('div');
+    ptzContent.className = 'live-ptz-content';
+    ptzContent.append(text(documentRef, loadPtz ? 'Checking camera PTZ capability…' : 'PTZ control is not available.'));
+    ptzPanel.append(ptzTitle, ptzContent);
+    workspace.append(ptzPanel);
+    root.append(workspace);
 
     let controller = null;
     let objectUrl = null;
     let destroyed = false;
+    let holdGeneration = 0;
+    let movementLocked = false;
+    let movementButtons = [];
+
+    const cancelMovement = () => { holdGeneration++; };
+
+    const describeError = (error) => error?.message || 'PTZ command failed.';
+
+    const renderPtz = (capabilities) => {
+        ptzContent.replaceChildren();
+        if (!capabilities?.available || typeof onPtzCommand !== 'function') {
+            ptzContent.append(text(documentRef, 'PTZ control is not available on this camera.'));
+            return;
+        }
+
+        const ptzStatus = documentRef.createElement('p');
+        ptzStatus.className = 'live-ptz-status';
+        ptzStatus.setAttribute('role', 'status');
+        ptzStatus.setAttribute('aria-live', 'polite');
+        ptzStatus.textContent = 'Hold a direction or zoom button for repeated short movements.';
+
+        const speedLabel = documentRef.createElement('label');
+        speedLabel.append(text(documentRef, 'Speed'));
+        const speed = documentRef.createElement('select');
+        speed.setAttribute('aria-label', 'PTZ speed');
+        for (const value of capabilities.speeds || []) {
+            const option = documentRef.createElement('option');
+            option.value = value;
+            option.textContent = value[0].toUpperCase() + value.slice(1);
+            option.selected = value === capabilities.defaultSpeed;
+            speed.append(option);
+        }
+        speed.value = capabilities.defaultSpeed || capabilities.speeds?.[0] || 'medium';
+        speedLabel.append(speed);
+
+        const directionGrid = documentRef.createElement('div');
+        directionGrid.className = 'ptz-direction-grid';
+        const directionSymbols = {
+            'up-left': '↖', up: '↑', 'up-right': '↗', left: '←', right: '→',
+            'down-left': '↙', down: '↓', 'down-right': '↘',
+        };
+
+        const lockMovement = (message) => {
+            movementLocked = true;
+            cancelMovement();
+            for (const button of movementButtons) button.disabled = true;
+            ptzStatus.textContent = message;
+        };
+
+        const sendPulse = async (direction, generation) => {
+            while (!destroyed && !movementLocked && generation === holdGeneration) {
+                try {
+                    await onPtzCommand({operation: 'move', direction, speed: speed.value,
+                        durationMs: capabilities.pulseDurationMs});
+                    if (generation === holdGeneration) ptzStatus.textContent = `Moving ${direction} · ${speed.value}`;
+                } catch (error) {
+                    const message = describeError(error);
+                    if (/stop failed/i.test(message)) lockMovement(`${message} Movement is disabled until this page is reloaded.`);
+                    else {
+                        cancelMovement();
+                        ptzStatus.textContent = message;
+                    }
+                }
+            }
+        };
+
+        const makeMovementButton = (direction, caption) => {
+            const button = documentRef.createElement('button');
+            button.type = 'button';
+            button.className = 'ptz-move-button';
+            button.setAttribute('data-ptz-direction', direction);
+            button.setAttribute('aria-label', `Move ${direction}`);
+            button.append(text(documentRef, caption));
+            const begin = (event) => {
+                event?.preventDefault?.();
+                if (destroyed || movementLocked) return;
+                button.setPointerCapture?.(event?.pointerId);
+                const generation = ++holdGeneration;
+                void sendPulse(direction, generation);
+            };
+            const end = (event) => { event?.preventDefault?.(); cancelMovement(); };
+            button.addEventListener('pointerdown', begin);
+            button.addEventListener('pointerup', end);
+            button.addEventListener('pointercancel', end);
+            button.addEventListener('lostpointercapture', end);
+            button.addEventListener('keydown', (event) => {
+                if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) begin(event);
+            });
+            button.addEventListener('keyup', (event) => {
+                if (event.key === ' ' || event.key === 'Enter') end(event);
+            });
+            movementButtons.push(button);
+            return button;
+        };
+
+        for (const direction of ['up-left', 'up', 'up-right', 'left']) {
+            directionGrid.append(makeMovementButton(direction, directionSymbols[direction]));
+        }
+        const stopMovement = documentRef.createElement('button');
+        stopMovement.type = 'button';
+        stopMovement.className = 'ptz-stop-button';
+        stopMovement.append(text(documentRef, '■'));
+        stopMovement.setAttribute('aria-label', 'Stop repeated PTZ movement');
+        stopMovement.addEventListener('click', () => {
+            cancelMovement();
+            ptzStatus.textContent = 'Movement stopped.';
+        });
+        directionGrid.append(stopMovement);
+        for (const direction of ['right', 'down-left', 'down', 'down-right']) {
+            directionGrid.append(makeMovementButton(direction, directionSymbols[direction]));
+        }
+
+        const zoom = documentRef.createElement('div');
+        zoom.className = 'ptz-zoom-controls';
+        if (capabilities.zoom) {
+            zoom.append(makeMovementButton('zoom-in', 'Zoom +'), makeMovementButton('zoom-out', 'Zoom −'));
+        }
+
+        ptzContent.append(speedLabel, directionGrid, zoom, ptzStatus);
+
+        if (capabilities.presets) {
+            const presets = documentRef.createElement('div');
+            presets.className = 'ptz-presets';
+            const presetLabel = documentRef.createElement('label');
+            presetLabel.append(text(documentRef, 'Preset slot'));
+            const preset = documentRef.createElement('input');
+            preset.type = 'number';
+            preset.min = String(capabilities.presetMinimum || 1);
+            preset.max = String(capabilities.presetMaximum || 255);
+            preset.value = String(capabilities.presetMinimum || 1);
+            preset.setAttribute('aria-label', 'PTZ preset number');
+            presetLabel.append(preset);
+            const presetButtons = documentRef.createElement('div');
+            presetButtons.className = 'ptz-preset-buttons';
+            const presetAction = (caption, operation, confirmation = '') => {
+                const button = documentRef.createElement('button');
+                button.type = 'button';
+                button.append(text(documentRef, caption));
+                button.addEventListener('click', async () => {
+                    const number = Number(preset.value);
+                    if (!Number.isInteger(number) || number < Number(preset.min) || number > Number(preset.max)) {
+                        ptzStatus.textContent = `Enter a preset number from ${preset.min} to ${preset.max}.`;
+                        return;
+                    }
+                    if (confirmation && (!environment.confirm || !environment.confirm(`${confirmation} preset ${number}?`))) return;
+                    try {
+                        await onPtzCommand({operation, preset: number});
+                        ptzStatus.textContent = operation === 'goto'
+                            ? `Moving to preset ${number}.`
+                            : operation === 'save' ? `Preset ${number} saved.` : `Preset ${number} deleted.`;
+                    } catch (error) {
+                        ptzStatus.textContent = describeError(error);
+                    }
+                });
+                return button;
+            };
+            presetButtons.append(
+                presetAction('Go to', 'goto'),
+                presetAction('Save current position', 'save', 'Overwrite'),
+                presetAction('Delete preset', 'delete', 'Delete'),
+            );
+            const note = documentRef.createElement('p');
+            note.className = 'field-help';
+            note.append(text(documentRef, 'The camera cannot reliably list saved slots. Use a number you deliberately saved.'));
+            presets.append(presetLabel, presetButtons, note);
+            ptzContent.append(presets);
+        }
+    };
 
     const cleanup = (message = '') => {
         controller?.abort();
@@ -155,17 +339,31 @@ export const renderLiveForm = (
     start.addEventListener('click', startPlayback);
     stop.addEventListener('click', () => cleanup('Stopped.'));
     const visibility = () => {
+        if (documentRef.hidden) cancelMovement();
         if (documentRef.hidden && controller) cleanup('Stopped because this page became hidden.');
     };
     documentRef.addEventListener?.('visibilitychange', visibility);
+    const blur = () => cancelMovement();
+    environment.addEventListener?.('blur', blur);
+    if (loadPtz) {
+        Promise.resolve().then(loadPtz).then((capabilities) => {
+            if (!destroyed) renderPtz(capabilities);
+        }).catch((error) => {
+            if (!destroyed) {
+                ptzContent.replaceChildren(text(documentRef, `PTZ controls could not be loaded: ${describeError(error)}`));
+            }
+        });
+    }
     if (autoStart && cameraId === 'balcon') startPlayback();
 
     return {
         element: root,
         destroy() {
             destroyed = true;
+            cancelMovement();
             cleanup();
             documentRef.removeEventListener?.('visibilitychange', visibility);
+            environment.removeEventListener?.('blur', blur);
         },
     };
 };

@@ -275,6 +275,36 @@ final class DvripClient implements DvripReader
         }
     }
 
+    public function ptzPreset(string $operation, int $preset): bool
+    {
+        $commands = ['goto' => 'GotoPreset', 'save' => 'SetPreset', 'delete' => 'ClearPreset'];
+        if (!isset($commands[$operation]) || $preset < 1 || $preset > 255) {
+            throw new \InvalidArgumentException('Invalid PTZ preset command.');
+        }
+        $this->ensureLoggedIn();
+        $response = $this->request(1400, [
+            'Name' => 'OPPTZControl',
+            'SessionID' => sprintf('0x%08X', $this->session),
+            'OPPTZControl' => [
+                'Command' => $commands[$operation],
+                'Parameter' => [
+                    'AUX' => ['Number' => 0, 'Status' => 'On'],
+                    'Channel' => 0,
+                    'MenuOpts' => 'Enter',
+                    'Pattern' => 'Start',
+                    'Preset' => $preset,
+                    'Step' => 5,
+                    'Tour' => 0,
+                ],
+            ],
+        ]);
+        $this->assertSuccess($response);
+        if (isset($response['Name']) && $response['Name'] !== 'OPPTZControl') {
+            throw new DvripException('protocol_identity', 'DVRIP PTZ response does not match.');
+        }
+        return true;
+    }
+
     public function close(): void
     {
         $this->loggedIn = false;

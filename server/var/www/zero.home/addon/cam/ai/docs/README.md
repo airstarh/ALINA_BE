@@ -20,6 +20,7 @@ into this directory, application source, command examples, or browser-side code.
 
 - [Current implementation and hand-off state](CURRENT_STATE.md)
 - [Live video through container FFmpeg and native browser playback](live-video.md)
+- [Live PTZ control design](2026-10-14-live-ptz-design.md)
 - [CMS selects: screenshot mapping and confirmed wire values](cms-select-mapping.md)
 - [Access points: protocols, discovery and credentials](access-points.md)
 - [JavaScript → PHP → raw DVRIP call map](DVRIP_CALL_MAP.md)

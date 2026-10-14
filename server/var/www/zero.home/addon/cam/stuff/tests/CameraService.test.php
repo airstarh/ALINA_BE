@@ -31,6 +31,7 @@ function fixtureCameraService(?object &$reader = null, array $cameraSettings = [
         public array $testMailCalls = [];
         public array $testFtpCalls = [];
         public bool $ftpTestAccepted = true;
+        public array $ptzPresetCalls = [];
 
         public function getConfig(string $command): mixed
         {
@@ -88,12 +89,77 @@ function fixtureCameraService(?object &$reader = null, array $cameraSettings = [
             return true;
         }
 
+        public function ptzPreset(string $operation, int $preset): bool
+        {
+            $this->ptzPresetCalls[] = [$operation, $preset];
+            return true;
+        }
+
         public function close(): void
         {
         }
     };
     return new CameraService($reader, 'balcon', 'Balcon', $cameraSettings);
 }
+
+test('camera_service_exposes_only_live_advertised_ptz_controls', function (): void {
+    loadCameraServiceClasses();
+    $service = fixtureCameraService($reader);
+    assertSameValue(false, $service->ptzCapabilities()['available']);
+
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+    ]];
+    $capabilities = $service->ptzCapabilities();
+    assertSameValue(true, $capabilities['available']);
+    assertSameValue(true, $capabilities['presets']);
+    assertSameValue(['low', 'medium', 'high'], $capabilities['speeds']);
+    assertSameValue(['up', 'up-right', 'right', 'down-right', 'down', 'down-left', 'left', 'up-left'], $capabilities['directions']);
+});
+
+test('camera_service_validates_and_dispatches_ptz_movement_and_presets', function (): void {
+    loadCameraServiceClasses();
+    $pulses = [];
+    $service = fixtureCameraService($reader, ['host' => '192.0.2.10', 'dvrip' => [
+        'port' => 34567, 'username' => 'admin', 'password' => 'secret',
+    ]]);
+    $reader->systemFunction = ['OtherFunction' => [
+        'SupportPTZDirectionControl' => true,
+        'SupportSetPTZPresetAttribute' => true,
+    ]];
+    $service = new CameraService($reader, 'balcon', 'Balcon', [
+        'host' => '192.0.2.10', 'dvrip' => ['port' => 34567, 'username' => 'admin', 'password' => 'secret'],
+    ], null, static function (string $direction, string $speed, int $durationMs) use (&$pulses): void {
+        $pulses[] = [$direction, $speed, $durationMs];
+    });
+
+    assertSameValue(['accepted' => true], $service->ptzCommand([
+        'operation' => 'move', 'direction' => 'left', 'speed' => 'medium', 'durationMs' => 180,
+    ]));
+    assertSameValue([['left', 'medium', 180]], $pulses);
+    assertSameValue(['accepted' => true], $service->ptzCommand(['operation' => 'goto', 'preset' => 5]));
+    assertSameValue([['goto', 5]], $reader->ptzPresetCalls);
+
+    assertThrows(static fn () => $service->ptzCommand([
+        'operation' => 'move', 'direction' => 'spin', 'speed' => 'medium', 'durationMs' => 180,
+    ]), InvalidArgumentException::class);
+    assertThrows(static fn () => $service->ptzCommand(['operation' => 'goto', 'preset' => 0]), InvalidArgumentException::class);
+    assertSameValue(1, count($pulses));
+    assertSameValue(1, count($reader->ptzPresetCalls));
+});
+
+test('camera_service_rejects_ptz_commands_when_motor_capability_is_absent', function (): void {
+    loadCameraServiceClasses();
+    $called = false;
+    $service = fixtureCameraService($reader);
+    $service = new CameraService($reader, 'door', 'Door', [], null,
+        static function () use (&$called): void { $called = true; });
+    assertThrows(static fn () => $service->ptzCommand([
+        'operation' => 'move', 'direction' => 'left', 'speed' => 'low', 'durationMs' => 180,
+    ]), InvalidArgumentException::class);
+    assertSameValue(false, $called);
+});
 
 test('camera_service_passes_per_camera_sound_fallback_to_human_detection_editor', function (): void {
     loadCameraServiceClasses();
