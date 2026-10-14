@@ -39,17 +39,6 @@ export function inputTypeForServiceField(field) {
     return field.type === 'integer' ? 'number' : 'text';
 }
 
-export function synchronizeSnapshotImageValues(values, enabled) {
-    if (!enabled) return {...values};
-    const synchronized = {...values};
-    for (const target of ['motion', 'alarm']) {
-        for (const suffix of ['Resolution', 'Quality', 'BitRate', 'BitRateControl']) {
-            synchronized[`${target}${suffix}`] = values[`regular${suffix}`];
-        }
-    }
-    return synchronized;
-}
-
 const append = (parent, tag, options = {}) => {
     const node = parent.ownerDocument.createElement(tag);
     if (options.className) node.className = options.className;
@@ -141,13 +130,6 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         const profile = append(form, 'fieldset', {className: 'snapshot-profile'});
         append(profile, 'legend', {text: field.group});
         groupedFields.set(field.group, append(profile, 'div', {className: 'form-grid'}));
-    }
-    let synchronizeSnapshots = null;
-    if (model.id === 'snapshot_image') {
-        const label = append(grid, 'label', {className: 'form-switch-field form-field-full'});
-        synchronizeSnapshots = append(label, 'input', {attributes: {type: 'checkbox', name: 'synchronizeSnapshotProfiles'}});
-        synchronizeSnapshots.checked = false;
-        append(label, 'span', {text: 'Apply regular image settings to motion and alarm profiles when saving'});
     }
     const ptzSection = model.id === 'human_detection' && model.fields.ptzAction
         ? append(form, 'details', {className: 'form-subsection'})
@@ -307,9 +289,6 @@ export function renderServiceForm(model, handlers, documentRef = document) {
         event.preventDefault();
         if (!form.reportValidity()) return;
         pending = servicePayloadFromFormData(model, new FormData(form));
-        if (model.id === 'snapshot_image') {
-            pending = synchronizeSnapshotImageValues(pending, synchronizeSnapshots.checked);
-        }
         if (ruleSection) {
             const changes = ruleSection.collectChanges();
             if (changes === null) return;

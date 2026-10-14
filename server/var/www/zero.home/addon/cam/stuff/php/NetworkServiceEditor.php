@@ -630,7 +630,7 @@ final class NetworkServiceEditor
             'fps' => range(1, 120),
             'bitRate' => [64, 128, 256, 384, 512, 535, 743, 768, 1024, 1072, 1536, 1608, 2048, 2145, 3072, 3217, 4096, 4290, 6144, 8192, 12288, 16384, 24576, 32768, 49152, 61440],
             'bitRateControl' => ['CBR', 'VBR'],
-            'quality' => range(0, 10),
+            'quality' => range(1, 6),
             'gop' => range(1, 300),
         ];
         foreach ($choices as $name => $values) {
@@ -648,6 +648,8 @@ final class NetworkServiceEditor
             }
         }
         $model['fields']['bitRateControl']['optionLabels'] = ['CBR' => 'CBR — Constant bit rate', 'VBR' => 'VBR — Variable bit rate'];
+        $model['fields']['quality']['optionLabels'] = [1 => '1 — Lowest', 6 => '6 — Highest'];
+        $model['fields']['quality']['help'] = 'Documented camera range. This setting affects encoding only when bit-rate control is VBR.';
         $model['fields']['gop']['label'] = 'I-frame interval (GOP)';
         return $model;
     }
@@ -655,27 +657,40 @@ final class NetworkServiceEditor
     private function withSnapshotImageOptions(array $model): array
     {
         $supported = $this->snapshotResolutionOptions();
+        $maximumResolution = self::maximumResolution(array_keys($supported));
         foreach (['regularResolution', 'motionResolution', 'alarmResolution'] as $name) {
-            $options = $supported;
             $current = (string) $model['values'][$name];
-            if (!array_key_exists($current, $options)) {
-                $options[$current] = $supported === []
-                    ? 'Current camera value'
-                    : 'Current camera value (not listed as supported)';
+            if ($supported === []) {
+                $options = [$current => 'Current camera value; capability unavailable'];
+            } else {
+                $options = $supported;
+                if (!array_key_exists($current, $supported) && $maximumResolution !== null) {
+                    $model['values'][$name] = $maximumResolution;
+                }
             }
             $model['fields'][$name]['options'] = array_keys($options);
             $model['fields'][$name]['optionLabels'] = $options;
             $model['fields'][$name]['help'] = $supported === []
-                ? 'The camera did not advertise alternatives; the current resolution can be retained.'
-                : 'Supported resolutions reported by this camera’s video encoder.';
+                ? 'The camera did not report its JPEG snapshot resolutions; the stored value is preserved.'
+                : 'JPEG snapshot resolutions advertised by this camera. An unsupported stored value is replaced only when you save.';
         }
-        foreach (['regularBitRate', 'motionBitRate', 'alarmBitRate'] as $name) {
-            $values = [64, 128, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096, 6144, 8192, 12288, 16384];
+        $bitRates = $this->snapshotBitRateTable();
+        foreach (['regular', 'motion', 'alarm'] as $prefix) {
+            $name = $prefix . 'BitRate';
+            $resolution = (string) $model['values'][$prefix . 'Resolution'];
+            $values = $bitRates[$resolution] ?? [];
             $current = $model['values'][$name];
-            if (!in_array($current, $values, true)) $values[] = $current;
-            sort($values, SORT_NUMERIC);
+            if ($values === []) {
+                $values = [$current];
+                $help = 'The camera did not report bit-rate choices for this resolution; the stored value is preserved.';
+            } else {
+                if (!in_array($current, $values, true)) $model['values'][$name] = max($values);
+                $help = 'Bit rates advertised by this camera for the selected resolution. An unsupported stored value is replaced only when you save.';
+            }
             $model['fields'][$name]['options'] = $values;
-            $model['fields'][$name]['help'] = 'App-provided bit-rate choices; the current camera value is always retained.';
+            $model['fields'][$name]['help'] = $help;
+            $model['fields'][$prefix . 'Quality']['help'] = '1 is lowest and 6 is highest. Quality affects encoding only when bit-rate control is VBR.';
+            $model['fields'][$prefix . 'BitRateControl']['help'] = 'VBR enables the Quality setting; camera firmware may normalize saved encoding values.';
         }
         return $model;
     }
@@ -689,8 +704,40 @@ final class NetworkServiceEditor
             if (in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) return [];
             throw $exception;
         }
-        return self::resolutionNames($capability, 'MainStream')
-            + self::resolutionNames($capability, 'ExtraStream2');
+        return self::resolutionNames($capability, 'JPEGStream');
+    }
+
+    private function snapshotBitRateTable(): array
+    {
+        try {
+            $avEnc = $this->reader->getConfig('AVEnc');
+        } catch (DvripException $exception) {
+            if (in_array($exception->publicCode(), ['device_unsupported', 'device_config_missing', 'device_error'], true)) return [];
+            throw $exception;
+        }
+        $table = is_array($avEnc) ? ($avEnc['DefinitionCfgTable']['Table'] ?? null) : null;
+        if (!is_array($table)) return [];
+        $options = [];
+        foreach ($table as $resolution => $definition) {
+            $values = is_array($definition) ? ($definition['BitrateMap'] ?? null) : null;
+            if (!is_string($resolution) || !is_array($values)) continue;
+            $values = array_values(array_unique(array_filter($values, static fn ($value): bool => is_int($value) && $value > 0)));
+            sort($values, SORT_NUMERIC);
+            if ($values !== []) $options[$resolution] = $values;
+        }
+        return $options;
+    }
+
+    private static function maximumResolution(array $options): ?string
+    {
+        if ($options === []) return null;
+        $priority = array_flip([
+            'QQVGA', 'QCIF', 'QVGA', 'CIF', 'BCIF', 'HD1', 'NHD', 'VGA', 'WSVGA', '650TVL', 'D1', 'SVCD',
+            '720N', '720P', '1080N', '1_3M', 'UXGA', '1080P', 'WUXGA', '2_5M', '3M_N', '3M', '4M_N',
+            '4M', '5M_N', '5M', '6M', '8M', '4K_N', '4K', '12M',
+        ]);
+        usort($options, static fn (string $left, string $right): int => ($priority[$right] ?? -1) <=> ($priority[$left] ?? -1));
+        return $options[0];
     }
 
     private static function encodeInfo(mixed $capability, string $streamType): ?array
@@ -1035,10 +1082,17 @@ final class NetworkServiceEditor
     private function validateSnapshotImageOptions(array $definition, array $current, array $input): void
     {
         $supported = $this->snapshotResolutionOptions();
-        foreach (['regularResolution', 'motionResolution', 'alarmResolution'] as $name) {
-            $currentValue = $this->getPath($current, $definition['fields'][$name]['path']);
-            if ($input[$name] !== $currentValue && !array_key_exists($input[$name], $supported)) {
-                throw new InvalidArgumentException("Field {$name} is not advertised by this camera encoder.");
+        $bitRates = $this->snapshotBitRateTable();
+        foreach (['regular', 'motion', 'alarm'] as $prefix) {
+            $resolutionName = $prefix . 'Resolution';
+            $currentValue = $this->getPath($current, $definition['fields'][$resolutionName]['path']);
+            if ($input[$resolutionName] !== $currentValue && !array_key_exists($input[$resolutionName], $supported)) {
+                throw new InvalidArgumentException("Field {$resolutionName} is not advertised by this camera JPEG encoder.");
+            }
+            $allowedBitRates = $bitRates[$input[$resolutionName]] ?? [];
+            $bitRateName = $prefix . 'BitRate';
+            if ($allowedBitRates !== [] && !in_array($input[$bitRateName], $allowedBitRates, true)) {
+                throw new InvalidArgumentException("Field {$bitRateName} is not advertised for the selected resolution.");
             }
         }
     }

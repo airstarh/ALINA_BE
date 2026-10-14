@@ -214,7 +214,7 @@ final class ExtendedEditorDefinitions
             'fps' => self::integer('Frames per second', [...$base, 'Video', 'FPS'], 1, 120),
             'bitRate' => self::integer('Bit rate (kbps)', [...$base, 'Video', 'BitRate'], 16, 100000),
             'bitRateControl' => self::string('Bit-rate control', [...$base, 'Video', 'BitRateControl']),
-            'quality' => self::integer('Quality code', [...$base, 'Video', 'Quality'], 0, 10),
+            'quality' => self::integer('Quality', [...$base, 'Video', 'Quality'], 1, 6),
             'gop' => self::integer('GOP', [...$base, 'Video', 'GOP'], 1, 300),
             'virtualGop' => self::integer('Virtual GOP', [...$base, 'Video', 'VirtualGOP'], 0, 300),
         ], 'Encoding changes can interrupt MotionEye or make the stream incompatible with existing clients.');
@@ -249,7 +249,7 @@ final class ExtendedEditorDefinitions
             'Snapshot image',
             'AVEnc.Encode',
             $fields,
-            'These profiles control the images produced for regular, motion-detection, and alarm snapshots. Codec, frame rate, GOP, audio, and vendor-specific values are preserved.'
+            'These profiles independently control regular, motion-detection, and alarm snapshots. Unsupported stored resolutions or bit rates are shown as the highest camera-supported choice, but nothing changes until Save changes is pressed. Codec, frame rate, GOP, audio, and vendor-specific values are preserved.'
         );
     }
 

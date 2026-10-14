@@ -88,7 +88,7 @@ test('STREAM menu places Snapshot image directly after Extra video stream', asyn
     assert.deepEqual(labels, ['Main video stream', 'Extra video stream', 'Snapshot image', 'Smart H.264']);
 });
 
-test('snapshot image form groups all three profiles and offers explicit profile synchronization', async () => {
+test('snapshot image form groups independent profiles without a synchronization control', async () => {
     const {renderServiceForm} = await import(await moduleUrl('service-form.js'));
     const fields = {};
     const values = {};
@@ -114,22 +114,7 @@ test('snapshot image form groups all three profiles and offers explicit profile 
     assert.deepEqual(nodes.filter(node => node.type === 'legend').map(node => node.children[0]?.value),
         ['Regular snapshot', 'Motion-detection snapshot', 'Alarm snapshot']);
     assert.equal(nodes.filter(node => node.type === 'input' && node.attributes.name?.endsWith('Enabled')).length, 3);
-    assert.ok(nodes.find(node => node.type === 'input' && node.attributes.name === 'synchronizeSnapshotProfiles'));
-});
-
-test('snapshot synchronization copies image encoding without changing per-profile enabled state', async () => {
-    const {synchronizeSnapshotImageValues} = await import(await moduleUrl('service-form.js'));
-    const input = {
-        regularEnabled: true, regularResolution: '1080P', regularQuality: 6, regularBitRate: 2048, regularBitRateControl: 'VBR',
-        motionEnabled: false, motionResolution: 'D1', motionQuality: 4, motionBitRate: 512, motionBitRateControl: 'CBR',
-        alarmEnabled: true, alarmResolution: 'D1', alarmQuality: 3, alarmBitRate: 256, alarmBitRateControl: 'CBR',
-    };
-    assert.deepEqual(synchronizeSnapshotImageValues(input, true), {
-        ...input,
-        motionResolution: '1080P', motionQuality: 6, motionBitRate: 2048, motionBitRateControl: 'VBR',
-        alarmResolution: '1080P', alarmQuality: 6, alarmBitRate: 2048, alarmBitRateControl: 'VBR',
-    });
-    assert.deepEqual(synchronizeSnapshotImageValues(input, false), input);
+    assert.equal(nodes.find(node => node.type === 'input' && node.attributes.name === 'synchronizeSnapshotProfiles'), undefined);
 });
 
 test('ACCESS Live menu item opens the inline player callback', async () => {

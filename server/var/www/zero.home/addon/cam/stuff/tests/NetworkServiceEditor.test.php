@@ -87,10 +87,18 @@ test('network_editor_lists_exact_sixty_nine_allowlisted_forms', function (): voi
 test('snapshot_image_editor_updates_three_profiles_and_preserves_unowned_encoding_fields', function (): void {
     $editor = networkEditorFixture($reader);
     $reader->values['AVEnc.Encode'] = snapshotImageBranchFixture();
+    foreach ([0, 1, 2] as $index) {
+        $reader->values['AVEnc.Encode'][0]['SnapFormat'][$index]['Video']['Resolution'] = '1080P';
+        $reader->values['AVEnc.Encode'][0]['SnapFormat'][$index]['Video']['BitRate'] = 1024;
+    }
+    $reader->values['AVEnc'] = ['DefinitionCfgTable' => ['Table' => [
+        'D1' => ['BitrateMap' => [96, 192, 256, 384, 448, 512]],
+    ]]];
     $reader->encodeCapability = [
         'EncodeInfo' => [
             ['StreamType' => 'MainStream', 'ResolutionMask' => '0x00004001'],
             ['StreamType' => 'ExtraStream2', 'ResolutionMask' => '0x00000002'],
+            ['StreamType' => 'JPEGStream', 'ResolutionMask' => '0x0000004B'],
         ],
     ];
 
@@ -100,30 +108,33 @@ test('snapshot_image_editor_updates_three_profiles_and_preserves_unowned_encodin
     assertSameValue('Motion-detection snapshot', $model['fields']['motionResolution']['group']);
     assertSameValue('Alarm snapshot', $model['fields']['alarmResolution']['group']);
     assertSameValue('D1', $model['values']['regularResolution']);
-    assertTrueValue(in_array('1080P', $model['fields']['regularResolution']['options'], true));
+    assertSameValue(['D1', 'HD1', 'CIF', 'QVGA'], $model['fields']['regularResolution']['options']);
+    assertSameValue(512, $model['values']['regularBitRate']);
+    assertSameValue([96, 192, 256, 384, 448, 512], $model['fields']['regularBitRate']['options']);
     assertSameValue([1, 2, 3, 4, 5, 6], $model['fields']['regularQuality']['options']);
 
     $saved = $editor->update('snapshot_image', [
         'regularEnabled' => true,
-        'regularResolution' => '1080P',
+        'regularResolution' => 'D1',
         'regularQuality' => 6,
-        'regularBitRate' => 2048,
+        'regularBitRate' => 512,
         'regularBitRateControl' => 'VBR',
         'motionEnabled' => false,
-        'motionResolution' => '1080P',
+        'motionResolution' => 'D1',
         'motionQuality' => 6,
-        'motionBitRate' => 2048,
+        'motionBitRate' => 512,
         'motionBitRateControl' => 'VBR',
         'alarmEnabled' => true,
-        'alarmResolution' => '1080P',
+        'alarmResolution' => 'D1',
         'alarmQuality' => 6,
-        'alarmBitRate' => 2048,
+        'alarmBitRate' => 512,
         'alarmBitRateControl' => 'VBR',
     ]);
 
     $written = array_values(array_filter($reader->calls, static fn (array $call): bool => $call[0] === 'set'))[0];
     assertSameValue('AVEnc.Encode', $written[1]);
-    assertSameValue('1080P', $written[2][0]['SnapFormat'][0]['Video']['Resolution']);
+    assertSameValue('D1', $written[2][0]['SnapFormat'][0]['Video']['Resolution']);
+    assertSameValue(512, $written[2][0]['SnapFormat'][0]['Video']['BitRate']);
     assertSameValue(false, $written[2][0]['SnapFormat'][1]['VideoEnable']);
     assertSameValue(true, $written[2][0]['SnapFormat'][2]['VideoEnable']);
     assertSameValue('H.264', $written[2][0]['SnapFormat'][0]['Video']['Compression']);
