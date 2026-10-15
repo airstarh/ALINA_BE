@@ -103,12 +103,23 @@ on internal port 8081 and the same-origin `/cam-talk` WebSocket; the existing
 text-chat container and `/ws` route are unchanged. A 30-second camera-bound HMAC
 token authorizes one owner per camera. Browser audio is resampled to signed
 16-bit mono 8 kHz PCM, FFmpeg converts it to G.711 A-law, and the captured DVRIP
-`OPTalk` framing sends 320-byte frames. No talk audio is stored. The shared
-private environment must define `ALINA_CAM_TALK_SECRET` with at least 32 bytes.
-The browser owns one WebSocket to `alina_cam`; `alina_cam` owns two simultaneous
-TCP sockets to camera port 34567: authenticated Start/Stop control and claimed
-G.711 A-law media. See [live-video.md](live-video.md) for deployment details and
+two-socket sequence sends it to Balcon's speaker. `OPTalk` framing sends
+320-byte frames. No talk audio is stored. The shared private environment must
+define `ALINA_CAM_TALK_SECRET` with at least 32 bytes. The browser owns one
+WebSocket to `alina_cam`; `alina_cam` owns two simultaneous TCP sockets to
+camera port 34567: authenticated Start/Stop control and claimed G.711 A-law
+media. See [live-video.md](live-video.md) for deployment details and
 [talkback-protocol.md](talkback-protocol.md) for the full verified lifecycle.
+
+`alina_cam` remains intentional rather than obsolete. Although go2rtc advertises
+DVRIP two-way audio, using it from a browser requires WebRTC signaling/ICE and a
+DVRIP backchannel source, while this deployment currently enables only its MSE
+playback path. The pinned go2rtc backchannel uses one DVRIP client connection;
+Balcon was positively verified only with separate control and media sockets.
+Replacing the working service would therefore add networking and compatibility
+risk for little resource benefit. Any future consolidation must first prove
+audible output in an isolated go2rtc WebRTC/DVRIP test while retaining
+`alina_cam` as the fallback.
 
 ### Language scope
 

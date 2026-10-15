@@ -26,6 +26,18 @@ HEVC through Media Source Extensions. Door currently uses H.264 Baseline at
 1920 × 1080. Camera credentials remain in server-side `config.php`; they are
 sent only from PHP to go2rtc's private API and never appear in browser URLs.
 
+### Runtime responsibilities
+
+| Component | Long-lived media responsibility |
+| --- | --- |
+| `alina_go2rtc` | Shares each camera's RTSP video and incoming microphone audio between browser viewers, then packages it as fragmented MP4 for MSE. |
+| `alina_cam` | Carries outgoing browser microphone audio to a speaker-capable camera through the verified DVRIP `OPTalk` protocol. |
+| PHP-FPM | Performs short configuration, authorization, PTZ, and stream-preparation requests only; it does not remain occupied by live media. |
+
+The two media containers are deliberately independent. Closing or failing a
+talkback session does not stop live viewing, and a go2rtc playback failure does
+not alter camera configuration or the talkback service.
+
 ## Runtime behaviour
 
 - Live is the default page after a camera connects, and selected-camera playback
@@ -110,6 +122,40 @@ Both PHP-FPM and `alina_cam` must receive the same private
 `ALINA_CAM_TALK_SECRET` (at least 32 bytes) through `_GITOUT/env/.env`. API tokens
 are camera-bound HMAC-SHA256 values valid for 30 seconds. The WebSocket also
 requires an exact same-origin Host/Origin match.
+
+### Why talkback remains in `alina_cam`
+
+go2rtc supports browser two-way audio in principle, including a DVRIP
+backchannel, but it is not a drop-in replacement for this verified Balcon
+implementation. Browser microphone input in go2rtc uses WebRTC; the current
+camera integration intentionally enables MSE playback only and disables the
+go2rtc WebRTC listener. A migration would therefore require enabling and
+securing WebRTC signaling and ICE networking, adding a credential-bearing
+`dvrip://...?...backchannel=1` source, and replacing the current browser
+microphone client.
+
+More importantly, the pinned go2rtc 1.9.14 DVRIP backchannel owns one TCP
+connection and sends `OPTalk Claim`, `OPTalk Start`, and audio data through that
+client. Packet capture and positive speaker tests established that Balcon needs
+the two concurrent connections described above: a control connection for
+Start/Stop and a distinct media connection for Claim/audio. A standard go2rtc
+backchannel has therefore not been shown to be protocol-equivalent for this
+camera and could fail silently even though generic DVRIP talkback is supported.
+
+The project decision is to retain `alina_cam`. It is a small, bounded, optional
+service, starts FFmpeg only for an active talker, and already implements the
+camera-specific sequence reliably. Consolidation into go2rtc should be
+reconsidered only after an isolated WebRTC/DVRIP experiment proves audible
+Balcon output without changing or removing the working fallback. If that test
+requires a custom go2rtc fork, retaining `alina_cam` is preferred to carrying
+the fork.
+
+Upstream references used for this decision:
+
+- [go2rtc two-way-audio capabilities](https://github.com/AlexxIT/go2rtc#two-way-audio)
+- [go2rtc DVRIP configuration and backchannel](https://github.com/AlexxIT/go2rtc/blob/master/internal/dvrip/README.md)
+- [pinned v1.9.14 DVRIP client sequence](https://github.com/AlexxIT/go2rtc/blob/v1.9.14/pkg/dvrip/client.go)
+- [pinned v1.9.14 DVRIP audio framing](https://github.com/AlexxIT/go2rtc/blob/v1.9.14/pkg/dvrip/backchannel.go)
 
 ## Live PTZ controls
 

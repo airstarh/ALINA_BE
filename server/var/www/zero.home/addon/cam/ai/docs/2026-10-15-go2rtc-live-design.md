@@ -66,7 +66,9 @@ The client:
 - uses go2rtc's returned MP4 MIME type to create the `SourceBuffer`;
 - appends binary WebSocket messages as fragmented MP4;
 - preserves bounded buffering and live-edge correction;
-- closes the WebSocket on Stop, camera change, page hide, or view destruction;
+- closes the WebSocket on Stop, camera change, or view destruction;
+- keeps playback connected while its tab is hidden, but cancels any active PTZ
+  movement immediately;
 - reports relay, authorization, codec, and camera failures in the existing Live
   status area.
 
@@ -119,7 +121,9 @@ Focused verification is limited to:
 3. one positive Balcon playback and one positive Door playback;
 4. two simultaneous browser viewers of one camera, confirming one upstream
    producer and two consumers in internal go2rtc stream statistics;
-5. Stop/page-leave cleanup and existing PTZ/talkback smoke checks.
+5. simultaneous same-camera and different-camera tabs, including a background
+   tab, without one viewer stopping another;
+6. Stop/page-leave cleanup and existing PTZ/talkback smoke checks.
 
 No camera settings, motor positions, credentials, or recording settings are
 changed by this migration.

@@ -152,7 +152,7 @@ Run `docker compose -f dc.all.yml -f dc.all.php82.yml -f dc.cam.yml -f dc.all.si
 
 - [ ] **Step 1: Add failing UI transport tests**
 
-Use a fake WebSocket and MediaSource to assert preparation before connection, correct camera/src/token URL encoding, MSE codec negotiation, queued binary append order, autostart, Stop cleanup, destroy/page-hide cleanup, token/relay failures, unsupported MIME handling, and no HTTP streaming fetch.
+Use a fake WebSocket and MediaSource to assert preparation before connection, correct camera/src/token URL encoding, MSE codec negotiation, queued binary append order, autostart, Stop/destroy cleanup, background-tab retention, token/relay failures, unsupported MIME handling, and no HTTP streaming fetch.
 
 - [ ] **Step 2: Run the focused UI tests and confirm failure**
 
