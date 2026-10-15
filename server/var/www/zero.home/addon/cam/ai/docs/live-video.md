@@ -33,6 +33,9 @@ reports H.264 Baseline at 1920 × 1080 through the deployed HTTPS probe.
 - One viewer per camera is permitted at a time in this PHP runtime.
 - The player follows the newest buffered data and removes old buffered media to
   keep delay and browser memory bounded.
+- Playback waits for one second of media before its initial start. This prevents
+  real-time-paced cameras such as Door from entering permanent decoder
+  underflow after starting on the first tiny fragment.
 - A stream has a server-side safety deadline just below the PHP/FastCGI timeout;
   press Start again if that deadline is reached.
 - Unknown camera identifiers remain rejected by the central configuration.

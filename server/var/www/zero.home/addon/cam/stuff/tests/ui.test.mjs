@@ -182,12 +182,20 @@ test('live playback keeps a stable decode cushion while correcting large latency
     assert.equal(liveEdgeCorrection(0, 2, 1.8), 1.8);
 });
 
+test('live playback waits for one second of media before its initial start', async () => {
+    const {hasStartupBuffer} = await import(await moduleUrl('live-form.js'));
+
+    assert.equal(hasStartupBuffer(0, 0.999), false);
+    assert.equal(hasStartupBuffer(0, 1), true);
+    assert.equal(hasStartupBuffer(4.5, 5.6), true);
+});
+
 test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261015-2/);
-    assert.match(app, /live-form\.js\?v=20261015-2/);
+    assert.match(index, /app\.js\?v=20261015-3/);
+    assert.match(app, /live-form\.js\?v=20261015-3/);
 });
 
 test('live page enables configured Door camera playback', async () => {

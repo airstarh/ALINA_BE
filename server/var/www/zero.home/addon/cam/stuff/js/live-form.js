@@ -20,6 +20,8 @@ export const mediaMimeCandidates = (video, audio = {available: false}) => {
 export const liveEdgeCorrection = (currentTime, liveEdge, bufferedStart) =>
     liveEdge - currentTime > 1.5 ? Math.max(bufferedStart, liveEdge - .3) : null;
 
+export const hasStartupBuffer = (bufferedStart, liveEdge) => liveEdge - bufferedStart >= 1;
+
 const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => {
     const clear = () => {
         target.removeEventListener(name, success);
@@ -375,6 +377,7 @@ export const renderLiveForm = (
             }
             status.textContent = `${info.video.codec_name.toUpperCase()} · ${info.video.width}×${info.video.height} · ${includeAudio ? 'camera audio available · ' : ''}native browser playback`;
             const reader = stream.body.getReader();
+            let playbackStarted = false;
             while (!current.signal.aborted) {
                 const {done, value} = await reader.read();
                 if (done) break;
@@ -382,15 +385,16 @@ export const renderLiveForm = (
                 buffer.appendBuffer(value);
                 await appended;
                 if (buffer.buffered.length) {
+                    const bufferedStart = buffer.buffered.start(0);
                     const end = buffer.buffered.end(buffer.buffered.length - 1);
-                    const correction = liveEdgeCorrection(
-                        player.currentTime,
-                        end,
-                        buffer.buffered.start(0)
-                    );
-                    if (correction !== null) player.currentTime = correction;
-                    if (player.paused) await player.play();
-                    if (player.currentTime > 15 && buffer.buffered.start(0) < player.currentTime - 10) {
+                    if (!playbackStarted && hasStartupBuffer(bufferedStart, end)) {
+                        await player.play();
+                        playbackStarted = true;
+                    } else if (playbackStarted) {
+                        const correction = liveEdgeCorrection(player.currentTime, end, bufferedStart);
+                        if (correction !== null) player.currentTime = correction;
+                    }
+                    if (player.currentTime > 15 && bufferedStart < player.currentTime - 10) {
                         const removed = waitForEvent(buffer, 'updateend', current.signal);
                         buffer.remove(0, player.currentTime - 10);
                         await removed;
