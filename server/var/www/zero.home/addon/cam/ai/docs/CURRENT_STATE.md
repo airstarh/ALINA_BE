@@ -1,6 +1,6 @@
 # Camera application current state
 
-Last updated: 2026-10-14 (Europe/Moscow)
+Last updated: 2026-10-15 (Europe/Moscow)
 
 This is the hand-off document for continuing work on the camera application.
 It describes the implementation and verified Balcon behaviour without storing
@@ -73,18 +73,28 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ### Live video
 
-**ACCESS -> Live** provides inline playback for configured cameras. PHP starts FFprobe to learn
-the current RTSP media formats, then FFmpeg copies compressed video and, when
-present, converts G.711 camera audio to mono AAC-LC in the fragmented MP4
-response. Browser JavaScript feeds it to native Media Source Extensions; video
-is not transcoded and no localhost helper or camera setting change is involved.
-Playback starts muted and listening uses the native player's volume control.
-Credentials stay server-side. Stop/navigation/page
-hiding terminate the request and FFmpeg process, old browser buffers are
-trimmed, and one concurrent viewer per camera is allowed. Live is the default
-page after connecting and playback starts automatically whenever it opens.
-Balcon is verified with HEVC; Door's deployed endpoint probe is verified with
-H.264 Baseline at 1920 × 1080. See [live-video.md](live-video.md).
+**ACCESS -> Live** provides inline playback for configured cameras through the
+optional go2rtc service. PHP performs only a short prepare operation: it
+registers the private per-camera RTSP source with go2rtc and returns a
+short-lived authorization token. Nginx exposes one exact authenticated
+`/cam-stream/api/ws` route, and browser JavaScript consumes go2rtc's fragmented
+MP4 through native Media Source Extensions. Video is not re-encoded and no
+localhost helper or camera setting change is involved. Playback starts muted;
+listening uses the native player's volume control. Stop, navigation, or changing
+camera closes only that viewer's WebSocket and buffers; hiding a tab keeps its
+stream connected while cancelling any active PTZ movement. go2rtc shares one
+upstream camera connection among multiple simultaneous browser viewers, so live
+viewing does not occupy PHP-FPM workers. Live is the default page after connecting
+and playback starts automatically whenever it opens. Balcon uses HEVC over UDP;
+Door uses H.264 Baseline at 1920 × 1080 over TCP. See
+[live-video.md](live-video.md).
+
+`alina_go2rtc` and the existing talkback `alina_cam` live together in optional
+`dc.cam.yml`, included by the local (`aaa`) and `bbb` start/stop scripts but not
+by `sss`. go2rtc has no published host port. Its WebUI, configuration, and
+mutation API remain private to the Docker network; only the token-protected MSE
+WebSocket is proxied. The old PHP/FFmpeg stream actions remain as a rollback
+implementation but are not used by the current Live page.
 
 Balcon is configured as speaker-capable and now receives a click-only `🎙` / red
 `■` talkback toggle below the player. Door has no speaker and receives no talk

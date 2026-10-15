@@ -2,19 +2,29 @@ import {createTalkClient} from './talk-client.js?v=20261014-1';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 
-export const mediaMimeCandidates = (video, audio = {available: false}) => {
-    const codec = video.codec_name;
-    const level = Number(video.level) || (codec === 'hevc' ? 150 : 40);
-    const videoCodecs = codec === 'hevc'
-        ? [`hvc1.1.6.L${level}.B0`, 'hvc1']
-        : (() => {
-            const profile = /High/.test(video.profile) ? '64' : /Main/.test(video.profile) ? '4D' : '42';
-            return [`avc1.${profile}00${level.toString(16).padStart(2, '0')}`, 'avc1'];
-        })();
-    const videoOnly = videoCodecs.map(value => `video/mp4; codecs="${value}"`);
-    return audio?.available
-        ? [...videoCodecs.map(value => `video/mp4; codecs="${value}, mp4a.40.2"`), ...videoOnly]
-        : videoOnly;
+const MSE_CODECS = [
+    'avc1.640029',
+    'avc1.64002A',
+    'avc1.640033',
+    'hvc1.1.6.L153.B0',
+    'mp4a.40.2',
+    'mp4a.40.5',
+    'flac',
+    'opus',
+];
+
+export const mseCodecList = (isTypeSupported) => MSE_CODECS
+    .filter(codec => isTypeSupported(`video/mp4; codecs="${codec}"`))
+    .join();
+
+export const relayWebSocketUrl = (path, {camera, stream, token}, locationRef = globalThis.location) => {
+    const base = locationRef?.href || `${locationRef?.protocol || 'http:'}//${locationRef?.host || 'localhost'}/`;
+    const url = new URL(path, base);
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    url.searchParams.set('camera', camera);
+    url.searchParams.set('src', stream);
+    url.searchParams.set('token', token);
+    return url.toString();
 };
 
 export const liveEdgeCorrection = (currentTime, liveEdge, bufferedStart) =>
@@ -38,7 +48,8 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
 });
 
 export const renderLiveForm = (
-    {cameraId, endpoint, autoStart = false, loadPtz = null, onPtzCommand = null,
+    {cameraId, endpoint = null, prepareEndpoint = endpoint, relaySocketPath = '/cam-stream/api/ws',
+        autoStart = false, loadPtz = null, onPtzCommand = null,
         talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient},
     documentRef = document,
     environment = globalThis,
@@ -48,7 +59,7 @@ export const renderLiveForm = (
 
     const intro = documentRef.createElement('p');
     intro.className = 'form-note';
-    intro.append(text(documentRef, 'Camera RTSP is copied into fragmented MP4 by FFmpeg and decoded by this browser. No re-encoding or camera setting changes.'));
+    intro.append(text(documentRef, 'Camera RTSP is shared by go2rtc and decoded by this browser through Media Source Extensions. No video re-encoding or camera setting changes.'));
     root.append(intro);
 
     const controls = documentRef.createElement('div');
@@ -125,6 +136,8 @@ export const renderLiveForm = (
     root.append(workspace);
 
     let controller = null;
+    let socket = null;
+    let mediaSource = null;
     let objectUrl = null;
     let destroyed = false;
     let holdGeneration = 0;
@@ -322,8 +335,16 @@ export const renderLiveForm = (
     };
 
     const cleanup = (message = '') => {
-        controller?.abort();
+        const activeController = controller;
         controller = null;
+        activeController?.abort();
+        const activeSocket = socket;
+        socket = null;
+        activeSocket?.close?.();
+        if (mediaSource?.readyState === 'open') {
+            try { mediaSource.endOfStream(); } catch {}
+        }
+        mediaSource = null;
         player.pause?.();
         player.removeAttribute?.('src');
         player.load?.();
@@ -336,7 +357,7 @@ export const renderLiveForm = (
 
     const startPlayback = async () => {
         cleanup();
-        if (!environment.MediaSource) {
+        if (!environment.MediaSource || !environment.WebSocket) {
             status.textContent = 'This browser does not provide MediaSource video playback.';
             return;
         }
@@ -346,63 +367,117 @@ export const renderLiveForm = (
         stop.disabled = false;
         const query = `camera=${encodeURIComponent(cameraId)}`;
         try {
-            status.textContent = 'Checking camera video format…';
-            const response = await environment.fetch(`${endpoint}?${query}&action=info`, {
+            status.textContent = 'Preparing shared camera stream…';
+            const response = await environment.fetch(`${prepareEndpoint}?${query}&action=prepare`, {
                 signal: current.signal,
                 cache: 'no-store',
             });
-            const info = await response.json();
-            if (!response.ok || !info.ok) throw new Error(info.error || 'Camera stream probe failed.');
-            const mime = mediaMimeCandidates(info.video, info.audio)
-                .find((candidate) => environment.MediaSource.isTypeSupported(candidate));
-            if (!mime) {
-                throw new Error(`${info.video.codec_name.toUpperCase()} ${info.video.width}×${info.video.height} is not supported by this browser.`);
+            const prepared = await response.json();
+            if (!response.ok || !prepared.ok) {
+                throw new Error(prepared.error || 'Could not prepare the shared camera stream.');
+            }
+            if (typeof prepared.stream !== 'string' || typeof prepared.token !== 'string') {
+                throw new Error('Camera relay returned invalid authorization data.');
             }
 
+            const codecs = mseCodecList(environment.MediaSource.isTypeSupported);
+            if (!codecs) throw new Error('This browser does not support the camera relay codecs.');
+
             const source = new environment.MediaSource();
+            mediaSource = source;
             const opened = waitForEvent(source, 'sourceopen', current.signal);
             objectUrl = environment.URL.createObjectURL(source);
             player.src = objectUrl;
             await opened;
-            const buffer = source.addSourceBuffer(mime);
-            buffer.mode = 'segments';
-            const includeAudio = mime.includes('mp4a.40.2');
-            const stream = await environment.fetch(
-                `${endpoint}?${query}&action=stream&codec=${encodeURIComponent(info.video.codec_name)}&audio=${includeAudio ? '1' : '0'}`,
-                {signal: current.signal, cache: 'no-store'}
-            );
-            if (!stream.ok) {
-                const error = await stream.json();
-                throw new Error(error.error || 'Could not start camera live video.');
-            }
-            status.textContent = `${info.video.codec_name.toUpperCase()} · ${info.video.width}×${info.video.height} · ${includeAudio ? 'camera audio available · ' : ''}native browser playback`;
-            const reader = stream.body.getReader();
+
+            const currentSocket = new environment.WebSocket(relayWebSocketUrl(relaySocketPath, {
+                camera: cameraId,
+                stream: prepared.stream,
+                token: prepared.token,
+            }, environment.location));
+            socket = currentSocket;
+            currentSocket.binaryType = 'arraybuffer';
+            const pending = [];
+            let buffer = null;
             let playbackStarted = false;
-            while (!current.signal.aborted) {
-                const {done, value} = await reader.read();
-                if (done) break;
-                const appended = waitForEvent(buffer, 'updateend', current.signal);
-                buffer.appendBuffer(value);
-                await appended;
-                if (buffer.buffered.length) {
-                    const bufferedStart = buffer.buffered.start(0);
-                    const end = buffer.buffered.end(buffer.buffered.length - 1);
-                    if (!playbackStarted && hasStartupBuffer(bufferedStart, end)) {
-                        await player.play();
-                        playbackStarted = true;
-                    } else if (playbackStarted) {
-                        const correction = liveEdgeCorrection(player.currentTime, end, bufferedStart);
-                        if (correction !== null) player.currentTime = correction;
-                    }
-                    if (player.currentTime > 15 && bufferedStart < player.currentTime - 10) {
-                        const removed = waitForEvent(buffer, 'updateend', current.signal);
-                        buffer.remove(0, player.currentTime - 10);
-                        await removed;
-                    }
+
+            const fail = (message) => {
+                if (controller === current && !current.signal.aborted) cleanup(message);
+            };
+            const pump = () => {
+                if (!buffer || buffer.updating || pending.length === 0 || current.signal.aborted) return;
+                try {
+                    buffer.appendBuffer(pending.shift());
+                } catch {
+                    fail('The browser could not decode the camera video.');
                 }
-            }
-            if (source.readyState === 'open') source.endOfStream();
-            if (!current.signal.aborted) cleanup('Live video ended. Press Start to reconnect.');
+            };
+            const updatePlayback = () => {
+                if (!buffer?.buffered?.length) {
+                    pump();
+                    return;
+                }
+                const bufferedStart = buffer.buffered.start(0);
+                const end = buffer.buffered.end(buffer.buffered.length - 1);
+                if (!playbackStarted && hasStartupBuffer(bufferedStart, end)) {
+                    playbackStarted = true;
+                    Promise.resolve(player.play()).catch(() => fail('The browser could not start camera playback.'));
+                } else if (playbackStarted) {
+                    const correction = liveEdgeCorrection(player.currentTime, end, bufferedStart);
+                    if (correction !== null) player.currentTime = correction;
+                }
+                if (player.currentTime > 15 && bufferedStart < player.currentTime - 10 && !buffer.updating) {
+                    buffer.remove(0, player.currentTime - 10);
+                    return;
+                }
+                pump();
+            };
+
+            currentSocket.addEventListener('open', () => {
+                if (!current.signal.aborted) currentSocket.send(JSON.stringify({type: 'mse', value: codecs}));
+            });
+            currentSocket.addEventListener('message', (event) => {
+                if (current.signal.aborted) return;
+                if (typeof event.data !== 'string') {
+                    pending.push(event.data);
+                    pump();
+                    return;
+                }
+                let message;
+                try {
+                    message = JSON.parse(event.data);
+                } catch {
+                    fail('Camera relay returned an invalid response.');
+                    return;
+                }
+                if (message.type === 'error') {
+                    fail(typeof message.value === 'string' ? message.value : 'Camera relay failed.');
+                    return;
+                }
+                if (message.type !== 'mse') return;
+                if (typeof message.value !== 'string' || !environment.MediaSource.isTypeSupported(message.value)) {
+                    fail('The camera stream format is not supported by this browser.');
+                    return;
+                }
+                try {
+                    buffer = source.addSourceBuffer(message.value);
+                    buffer.mode = 'segments';
+                    buffer.addEventListener('updateend', updatePlayback);
+                    const videoCodec = message.value.includes('hvc1') ? 'HEVC' : message.value.includes('avc1') ? 'H264' : 'video';
+                    const hasAudio = /mp4a|flac|opus/.test(message.value);
+                    status.textContent = `${videoCodec}${hasAudio ? ' · camera audio available' : ''} · shared relay · native browser playback`;
+                    pump();
+                } catch {
+                    fail('The camera stream format is not supported by this browser.');
+                }
+            });
+            currentSocket.addEventListener('error', () => fail('Camera relay connection failed.'));
+            currentSocket.addEventListener('close', () => {
+                if (socket === currentSocket) socket = null;
+                if (controller === current && !current.signal.aborted) {
+                    cleanup('Live video ended. Press Start to reconnect.');
+                }
+            });
         } catch (error) {
             if (error?.name !== 'AbortError' && controller === current) cleanup(error.message);
         }
@@ -413,7 +488,6 @@ export const renderLiveForm = (
     stop.addEventListener('click', () => cleanup('Stopped.'));
     const visibility = () => {
         if (documentRef.hidden) cancelMovement();
-        if (documentRef.hidden && controller) cleanup('Stopped because this page became hidden.');
     };
     documentRef.addEventListener?.('visibilitychange', visibility);
     const blur = () => cancelMovement();

@@ -6,43 +6,49 @@ codec. Balcon and Door are currently verified.
 
 ## Data path
 
-Selected-camera RTSP -> FFmpeg in the PHP 8.2 container -> fragmented MP4 over HTTPS ->
-the browser's native Media Source Extensions player.
+Selected-camera RTSP -> go2rtc in the optional camera stack -> the exact
+same-origin Nginx WebSocket endpoint -> the browser's native Media Source
+Extensions player.
 
-FFmpeg copies the compressed video stream (`-c:v copy`); it does not decode or
-re-encode it. When the camera exposes an audio stream, FFmpeg converts only that
-audio from the camera's G.711 format to mono AAC-LC at 48 kHz/64 kbit for the
-native browser player. Playback still starts muted; the user enables listening
-with the player's own volume control. If the browser cannot accept the combined
-video/AAC MIME type, the page selects its video-only candidate. Camera credentials remain in server-side
-`config.php` and are never included in browser URLs or FFmpeg error output.
+PHP performs only a short preparation request: it resolves the selected camera,
+registers its private RTSP source with go2rtc, and returns a short-lived,
+camera-bound authorization token. PHP-FPM does not carry video bytes and no
+PHP worker remains occupied while the user watches. go2rtc owns one upstream
+RTSP producer per active camera and shares it between all browser consumers.
+Each browser receives fragmented MP4 over its own WebSocket connection.
 
-The endpoint probes the selected stream with FFprobe, reports the codec and
-dimensions, and starts playback only when the browser confirms native support.
-The current Balcon main stream is HEVC, so its playback depends on the browser
-and host system supporting HEVC through Media Source Extensions. Door currently
-reports H.264 Baseline at 1920 × 1080 through the deployed HTTPS probe.
+The browser advertises only the MSE codecs it can decode and accepts only the
+matching MIME type returned by go2rtc. Video remains in the camera's source
+codec; it is not re-encoded. Playback starts muted, and the user enables
+listening with the native player's own volume control. The current Balcon main
+stream is HEVC, so playback depends on the browser and host system supporting
+HEVC through Media Source Extensions. Door currently uses H.264 Baseline at
+1920 × 1080. Camera credentials remain in server-side `config.php`; they are
+sent only from PHP to go2rtc's private API and never appear in browser URLs.
 
 ## Runtime behaviour
 
 - Live is the default page after a camera connects, and selected-camera playback
   starts automatically when the page is opened. Stop remains explicit, while Start
   allows a manual reconnect after a stop, timeout, or error.
-- Leaving the page, changing camera, refreshing the form, or hiding the page
-  aborts the browser request and terminates its FFmpeg child process.
-- One viewer per camera is permitted at a time in this PHP runtime.
+- Leaving the page, changing camera, refreshing the form, or pressing Stop
+  closes that browser's WebSocket and releases its Media Source buffers.
+- Hiding a browser tab keeps its live stream connected, so several tabs can
+  continue watching simultaneously. Any active PTZ movement is still cancelled
+  as soon as its tab becomes hidden.
+- Multiple viewers may watch the same camera simultaneously. They have separate
+  downstream WebSockets but share one upstream camera connection in go2rtc.
 - The player follows the newest buffered data and removes old buffered media to
   keep delay and browser memory bounded.
 - Playback waits for one second of media before its initial start. This prevents
   real-time-paced cameras such as Door from entering permanent decoder
   underflow after starting on the first tiny fragment.
-- A stream has a server-side safety deadline just below the PHP/FastCGI timeout;
-  press Start again if that deadline is reached.
 - Unknown camera identifiers remain rejected by the central configuration.
 
 The former workstation-only `127.0.0.1:18765` prototype and all of its files
-were removed. Live video now runs through the installed FFmpeg and FFprobe
-binaries in the PHP 8.2 container; it does not require a separate local helper.
+were removed. The older PHP/FFmpeg streaming actions remain temporarily in
+`live-stream.php` as a rollback path, but the normal Live page does not call
+them. It uses the go2rtc relay exclusively.
 
 ## Latency tuning
 
@@ -59,13 +65,11 @@ network. Cameras without this setting, including Door, retain the safer TCP
 default. UDP may show a damaged or skipped frame during packet loss, while TCP
 waits to recover lost data and can therefore accumulate more latency.
 
-FFprobe and FFmpeg use a 32 KiB probe and 100 ms analysis duration so stream
-discovery does not add a long startup pause. The UDP stream additionally uses a
-100 ms maximum demuxer delay and a 16-packet reorder queue. Video remains stream
-copied, so this tuning adds no video encoder load. The browser corrects toward
-the live edge whenever it falls more than 1.5 seconds behind, targeting about
-300 ms behind the newest buffered media. The larger correction threshold avoids
-repeated seeks that starve Chrome's audio/video decoder and leave it buffering.
+The private go2rtc source URL carries each camera's configured RTSP transport.
+The browser corrects toward the live edge whenever it falls more than 1.5
+seconds behind, targeting about 300 ms behind the newest buffered media. The
+larger correction threshold avoids repeated seeks that starve Chrome's
+audio/video decoder and leave it buffering.
 
 Balcon's main-stream GOP is set to 6 at 20 frames per second, placing an
 intra-frame approximately every 300 ms. This shortens initial picture and
@@ -150,10 +154,29 @@ Automated tests never move the motors. While watching Live, the owner should:
 
 ## Resource implications
 
-Each active viewer occupies one PHP-FPM worker and one FFmpeg process. Video is
-copied, while camera audio alone is transcoded to AAC, so CPU use should remain
-modest. Each active talker additionally occupies one small FFmpeg process and
-two DVRIP TCP sockets in `alina_cam`, but
-the long-lived request still consumes worker capacity. This is suitable for the
-application's small-admin usage model and should be revisited before supporting
-many concurrent viewers.
+Each active camera occupies one upstream RTSP connection in go2rtc. Additional
+viewers add a WebSocket and fragmented-MP4 muxing work, but they do not add a
+PHP-FPM worker or another camera connection. Each active talker still occupies
+one small FFmpeg process and two DVRIP TCP sockets in `alina_cam`.
+
+## Optional deployment and security boundary
+
+`dc.cam.yml` contains both `alina_cam` and `alina_go2rtc`. The local (`aaa`) and
+`bbb` Docker start/stop scripts include this optional Compose file. The `sss`
+scripts do not include it. The shared Nginx file still contains the exact
+`/cam-stream/api/ws` location on `sss`, but it is dormant without go2rtc and the
+camera application.
+
+go2rtc publishes no host port. Nginx exposes only the exact MSE WebSocket path;
+the go2rtc WebUI, configuration endpoint, and stream-mutation API remain
+available only inside the Docker network. Every WebSocket upgrade first passes
+through the internal PHP authorization endpoint, which verifies the camera,
+relay name, signature, and expiry. The browser cannot register a source or
+supply an arbitrary RTSP URL. The tracked base configuration is mounted
+read-only; at startup the container copies it into a private `/config` tmpfs so
+runtime stream registrations, including credential-bearing source URLs, never
+write back to the repository or survive a container recreation.
+
+For rollback, remove `dc.cam.yml` from the applicable Docker composition and
+restore the Live page to the retained PHP `info`/`stream` actions. Do not expose
+go2rtc port 1984 directly.

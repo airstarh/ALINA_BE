@@ -41,6 +41,15 @@ class FakeNode {
         this.listeners[name] = callback;
     }
 
+    removeEventListener(name, callback) {
+        if (this.listeners[name] === callback) delete this.listeners[name];
+    }
+
+    removeAttribute(name) { delete this.attributes[name]; }
+    pause() { this.pauseCalls = (this.pauseCalls || 0) + 1; }
+    load() { this.loadCalls = (this.loadCalls || 0) + 1; }
+    async play() { this.playCalls = (this.playCalls || 0) + 1; }
+
     set textContent(value) {
         this.children = [new FakeNode('text', String(value))];
     }
@@ -72,6 +81,7 @@ class FakeDocument {
 }
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
+const flushMedia = async () => { await new Promise(resolve => setImmediate(resolve)); };
 
 test('STREAM menu places Snapshot image directly after Extra video stream', async () => {
     const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
@@ -162,15 +172,11 @@ test('live page shows a talk toggle only for a speaker-capable camera', async ()
     door.destroy();
 });
 
-test('live player prefers AAC audio when supported and retains a video-only fallback', async () => {
-    const {mediaMimeCandidates} = await import(await moduleUrl('live-form.js'));
-    const candidates = mediaMimeCandidates(
-        {codec_name: 'hevc', level: 150, width: 1920, height: 1080},
-        {available: true, codec_name: 'pcm_alaw'},
-    );
+test('live player offers go2rtc only MSE codecs supported by this browser', async () => {
+    const {mseCodecList} = await import(await moduleUrl('live-form.js'));
+    const codecs = mseCodecList((mime) => /avc1|flac/.test(mime));
 
-    assert.match(candidates[0], /mp4a\.40\.2/);
-    assert.equal(candidates.some(candidate => !candidate.includes('mp4a.40.2')), true);
+    assert.equal(codecs, 'avc1.640029,avc1.64002A,avc1.640033,flac');
 });
 
 test('live playback keeps a stable decode cushion while correcting large latency', async () => {
@@ -194,8 +200,8 @@ test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261015-3/);
-    assert.match(app, /live-form\.js\?v=20261015-3/);
+    assert.match(index, /app\.js\?v=20261015-5/);
+    assert.match(app, /live-form\.js\?v=20261015-5/);
 });
 
 test('live page enables configured Door camera playback', async () => {
@@ -234,6 +240,181 @@ test('Door live page also autostarts when opened as the connected-camera landing
 
     assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
     view.destroy();
+});
+
+class FakeSourceBuffer {
+    constructor() {
+        this.listeners = {};
+        this.appended = [];
+        this.updating = false;
+        this.seconds = 0;
+        this.buffered = {
+            get length() { return this.owner.seconds > 0 ? 1 : 0; },
+            start: () => 0,
+            end: () => this.seconds,
+            owner: this,
+        };
+    }
+
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+    appendBuffer(data) {
+        this.updating = true;
+        this.appended.push([...new Uint8Array(data)]);
+        this.seconds += .6;
+        setImmediate(() => {
+            this.updating = false;
+            this.listeners.updateend?.();
+        });
+    }
+    remove() {
+        this.updating = true;
+        setImmediate(() => {
+            this.updating = false;
+            this.listeners.updateend?.();
+        });
+    }
+}
+
+class FakeMediaSource {
+    static supported = true;
+    static isTypeSupported() { return FakeMediaSource.supported; }
+    constructor() {
+        this.listeners = {};
+        this.readyState = 'closed';
+        this.buffers = [];
+        FakeMediaSource.instances.push(this);
+    }
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+    removeEventListener(name, callback) {
+        if (this.listeners[name] === callback) delete this.listeners[name];
+    }
+    open() {
+        this.readyState = 'open';
+        this.listeners.sourceopen?.();
+    }
+    addSourceBuffer(mime) {
+        this.mime = mime;
+        const buffer = new FakeSourceBuffer();
+        this.buffers.push(buffer);
+        return buffer;
+    }
+    endOfStream() { this.readyState = 'ended'; }
+}
+FakeMediaSource.instances = [];
+
+class FakeWebSocket {
+    constructor(url) {
+        this.url = url;
+        this.listeners = {};
+        this.sent = [];
+        this.closed = false;
+        FakeWebSocket.instances.push(this);
+    }
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+    send(value) { this.sent.push(value); }
+    close() {
+        this.closed = true;
+        this.listeners.close?.({});
+    }
+    open() { this.listeners.open?.({}); }
+    receive(data) { this.listeners.message?.({data}); }
+}
+FakeWebSocket.instances = [];
+
+const relayEnvironment = (fetchImpl) => ({
+    MediaSource: FakeMediaSource,
+    WebSocket: FakeWebSocket,
+    fetch: fetchImpl,
+    location: {href: 'https://zero.home:50443/addon/cam/', protocol: 'https:', host: 'zero.home:50443'},
+    URL: {
+        createObjectURL(source) {
+            setImmediate(() => source.open());
+            return 'blob:relay';
+        },
+        revokeObjectURL(value) { this.revoked = value; },
+    },
+    addEventListener() {},
+    removeEventListener() {},
+});
+
+test('live page prepares then consumes ordered go2rtc MSE WebSocket fragments', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    FakeMediaSource.instances = [];
+    FakeWebSocket.instances = [];
+    const requests = [];
+    const environment = relayEnvironment(async (url) => {
+        requests.push(url);
+        return {ok: true, async json() {
+            return {ok: true, stream: 'alina-balcon', token: 'signed.token', expiresAt: 1030};
+        }};
+    });
+    const documentRef = new FakeDocument();
+    const view = renderLiveForm({
+        cameraId: 'balcon', prepareEndpoint: '/live-stream.php', relaySocketPath: '/cam-stream/api/ws', autoStart: true,
+    }, documentRef, environment);
+
+    await flushMedia();
+    await flushMedia();
+    assert.deepEqual(requests, ['/live-stream.php?camera=balcon&action=prepare']);
+    assert.equal(FakeWebSocket.instances.length, 1);
+    const socket = FakeWebSocket.instances[0];
+    assert.equal(socket.url,
+        'wss://zero.home:50443/cam-stream/api/ws?camera=balcon&src=alina-balcon&token=signed.token');
+    socket.open();
+    assert.deepEqual(JSON.parse(socket.sent[0]), {
+        type: 'mse',
+        value: 'avc1.640029,avc1.64002A,avc1.640033,hvc1.1.6.L153.B0,mp4a.40.2,mp4a.40.5,flac,opus',
+    });
+    socket.receive(JSON.stringify({type: 'mse', value: 'video/mp4; codecs="hvc1.1.6.L153.B0,flac"'}));
+    socket.receive(Uint8Array.from([1]).buffer);
+    socket.receive(Uint8Array.from([2]).buffer);
+    await flushMedia();
+    await flushMedia();
+
+    const buffer = FakeMediaSource.instances[0].buffers[0];
+    assert.deepEqual(buffer.appended, [[1], [2]]);
+    const nodes = descendants(view.element);
+    const video = nodes.find(node => node.type === 'video');
+    assert.equal(video.playCalls, 1);
+    assert.match(nodes.find(node => node.className === 'live-status').children[0].value, /shared relay/i);
+    assert.equal(requests.length, 1, 'no long-running HTTP media fetch is made');
+
+    nodes.find(node => node.type === 'button' && node.children[0]?.value === 'Stop').listeners.click();
+    assert.equal(socket.closed, true);
+    assert.equal(environment.URL.revoked, 'blob:relay');
+    view.destroy();
+});
+
+test('live relay rejects unsupported MSE responses but stays connected in a background tab', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    FakeMediaSource.instances = [];
+    FakeWebSocket.instances = [];
+    const environment = relayEnvironment(async () => ({ok: true, async json() {
+        return {ok: true, stream: 'alina-door', token: 'door-token', expiresAt: 1030};
+    }}));
+    const documentRef = new FakeDocument();
+    const view = renderLiveForm({cameraId: 'door', prepareEndpoint: '/live-stream.php', relaySocketPath: '/cam-stream/api/ws', autoStart: true},
+        documentRef, environment);
+    await flushMedia();
+    await flushMedia();
+    const socket = FakeWebSocket.instances[0];
+    socket.open();
+    FakeMediaSource.supported = false;
+    socket.receive(JSON.stringify({type: 'mse', value: 'video/mp4; codecs="unsupported"'}));
+    await flushMedia();
+    assert.match(descendants(view.element).find(node => node.className === 'live-status').children[0].value, /not supported/i);
+    assert.equal(socket.closed, true);
+
+    FakeMediaSource.supported = true;
+    descendants(view.element).find(node => node.type === 'button' && node.children[0]?.value === 'Start live video').listeners.click();
+    await flushMedia();
+    await flushMedia();
+    const second = FakeWebSocket.instances.at(-1);
+    documentRef.hidden = true;
+    documentRef.listeners.visibilitychange();
+    assert.equal(second.closed, false);
+    view.destroy();
+    assert.equal(second.closed, true);
 });
 
 const ptzCapabilities = {

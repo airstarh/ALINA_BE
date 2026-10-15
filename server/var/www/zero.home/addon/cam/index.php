@@ -58,6 +58,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261015-3"></script>
+<script type="module" src="./stuff/js/app.js?v=20261015-5"></script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+app:
+    modules: [api, ws, rtsp, mp4, ffmpeg]
+
+api:
+    listen: ":1984"
+    base_path: "/cam-stream"
+    allow_paths: ["/cam-stream/api/streams", "/cam-stream/api/ws"]
+
+rtsp:
+    listen: ""
+
+webrtc:
+    listen: ""

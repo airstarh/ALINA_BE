@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use Cam\Config;
+use Cam\Go2rtcClient;
 use Cam\LiveStream;
+use Cam\TalkToken;
 
 require_once __DIR__ . '/Config.php';
+require_once __DIR__ . '/Go2rtcClient.php';
 require_once __DIR__ . '/LiveStream.php';
+require_once __DIR__ . '/TalkToken.php';
 
 $process = null;
 $pipes = [];
@@ -18,11 +22,31 @@ try {
     if (!is_string($cameraId) || $cameraId === '') {
         throw new InvalidArgumentException('Camera is required.');
     }
-    if (!is_string($action) || !in_array($action, ['info', 'stream'], true)) {
+    if (!is_string($action) || !in_array($action, ['prepare', 'info', 'stream'], true)) {
         throw new InvalidArgumentException('Unknown live-video action.');
     }
 
-    $live = new LiveStream(Config::load(dirname(__DIR__, 2) . '/config.php'));
+    $config = Config::load(dirname(__DIR__, 2) . '/config.php');
+    $live = new LiveStream($config);
+    if ($action === 'prepare') {
+        $stream = $live->relayName($cameraId);
+        (new Go2rtcClient())->upsert($stream, $live->relaySource($cameraId));
+        try {
+            $authorization = TalkToken::fromEnvironment()->issue($cameraId, time());
+        } catch (RuntimeException) {
+            throw new RuntimeException('Camera relay authorization is unavailable.');
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, max-age=0');
+        echo json_encode([
+            'ok' => true,
+            'stream' => $stream,
+            'token' => $authorization['token'],
+            'expiresAt' => $authorization['expiresAt'],
+        ], JSON_THROW_ON_ERROR);
+        return;
+    }
+
     $live->assertRuntimeAvailable();
     if ($action === 'info') {
         $command = $live->probeCommand($cameraId);

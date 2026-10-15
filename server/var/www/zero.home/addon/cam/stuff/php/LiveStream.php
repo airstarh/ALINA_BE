@@ -98,6 +98,21 @@ final class LiveStream
         return $command;
     }
 
+    public function relayName(string $cameraId): string
+    {
+        $this->camera($cameraId);
+        if (preg_match('/^[a-z][a-z0-9_-]*$/D', $cameraId) !== 1) {
+            throw new InvalidArgumentException('Camera identifier is invalid.');
+        }
+
+        return 'alina-' . $cameraId;
+    }
+
+    public function relaySource(string $cameraId): string
+    {
+        return $this->rtspUrl($cameraId) . '#transport=' . $this->transport($cameraId);
+    }
+
     public function lockKey(string $cameraId): string
     {
         $camera = $this->camera($cameraId);

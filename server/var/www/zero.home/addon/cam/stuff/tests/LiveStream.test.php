@@ -75,6 +75,21 @@ test('live stream builds a Balcon HEVC stream-copy pipeline', function (): void 
     }
 });
 
+test('live stream builds a stable Balcon go2rtc relay source', function (): void {
+    $path = liveStreamConfigFixture();
+    try {
+        $live = new LiveStream(Config::load($path), '/opt/ffmpeg', '/opt/ffprobe');
+
+        assertSameValue('alina-balcon', $live->relayName('balcon'));
+        assertSameValue(
+            'rtsp://viewer%20name:p%40ss%2Fword@192.0.2.21:8554/#transport=udp',
+            $live->relaySource('balcon')
+        );
+    } finally {
+        unlink($path);
+    }
+});
+
 test('live stream builds a configured Door stream with DVRIP credential fallback', function (): void {
     $path = liveStreamConfigFixture();
     try {
@@ -89,6 +104,21 @@ test('live stream builds a configured Door stream with DVRIP credential fallback
         assertTrueValue(!in_array('hvc1', $stream, true));
         assertTrueValue(in_array('-an', $stream, true));
         assertTrueValue(!in_array('aac', $stream, true));
+    } finally {
+        unlink($path);
+    }
+});
+
+test('live stream builds a TCP go2rtc relay source with DVRIP credential fallback', function (): void {
+    $path = liveStreamConfigFixture();
+    try {
+        $live = new LiveStream(Config::load($path), '/opt/ffmpeg', '/opt/ffprobe');
+
+        assertSameValue('alina-door', $live->relayName('door'));
+        assertSameValue(
+            'rtsp://admin:secret@192.0.2.22:554/#transport=tcp',
+            $live->relaySource('door')
+        );
     } finally {
         unlink($path);
     }

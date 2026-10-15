@@ -41,3 +41,37 @@ services:
         cap_drop:
             - ALL
         init: true
+
+    go2rtc:
+        image: alexxit/go2rtc:1.9.14
+        container_name: alina_go2rtc
+        restart: unless-stopped
+        mem_limit: 256M
+        expose:
+            - "1984"
+        volumes:
+            - ./server/etc/go2rtc/go2rtc.yaml:/etc/go2rtc/go2rtc.yaml:ro
+        read_only: true
+        tmpfs:
+            - /tmp
+            - /config
+        command:
+            - sh
+            - -c
+            - cp /etc/go2rtc/go2rtc.yaml /config/go2rtc.yaml && exec go2rtc -config /config/go2rtc.yaml
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "wget -q -O /dev/null http://127.0.0.1:1984/cam-stream/api/streams || exit 1",
+                ]
+            timeout: 5s
+            retries: 3
+            interval: 10s
+            start_period: 10s
+        networks:
+            - alina_network
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
