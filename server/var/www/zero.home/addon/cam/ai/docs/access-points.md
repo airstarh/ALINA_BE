@@ -49,6 +49,20 @@ original real credentials and ports were retained. No motor movement occurred.
 
 ## Verified listeners
 
+### How exact RTSP stream URLs are discovered
+
+Exact profile stream URLs come from ONVIF rather than DVRIP. `AccessProbe`
+calls ONVIF `GetServices`, selects the Media service, obtains its profile tokens
+with `GetProfiles`, and calls `GetStreamUri` for each token using RTP unicast
+over RTSP. Only RTSP(S) URIs belonging to the same camera are retained. These
+discovered addresses are informational entries on **ACCESS -> All points**.
+
+The Home and Live players currently use the separately verified Xiongmai root
+address assembled from `config.php`—host, RTSP port and either dedicated RTSP
+or fallback DVRIP credentials. They do not yet select an ONVIF profile URI.
+See [Live video: RTSP URL discovery versus the current dashboard URL](live-video.md#rtsp-url-discovery-versus-the-current-dashboard-url)
+for the complete data path and the reason for this distinction.
+
 | Camera | Verified camera access |
 | --- | --- |
 | Door, 192.168.1.115 | DVRIP TCP34567, HTTP TCP80, HTTP JPEG snapshots, RTSP TCP554, ONVIF TCP8899 |

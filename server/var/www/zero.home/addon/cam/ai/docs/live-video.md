@@ -26,6 +26,44 @@ HEVC through Media Source Extensions. Door currently uses H.264 Baseline at
 1920 × 1080. Camera credentials remain in server-side `config.php`; they are
 sent only from PHP to go2rtc's private API and never appear in browser URLs.
 
+### RTSP URL discovery versus the current dashboard URL
+
+The protocol-standard way to discover a camera's exact RTSP stream addresses
+is ONVIF, not DVRIP. The access probe performs this sequence:
+
+1. Connect to the camera's configured or detected ONVIF device-service URL.
+2. Call `GetServices` and select the service whose namespace is
+   `http://www.onvif.org/ver10/media/wsdl`.
+3. Call `GetProfiles` on that Media service.
+4. For each returned profile token, call `GetStreamUri` with an
+   `RTP-Unicast` stream setup and `RTSP` transport.
+5. Accept only `rtsp://` or `rtsps://` addresses that still point to the same
+   camera, and expose their profile-to-URL mapping on **ACCESS -> All points**.
+
+This discovery is implemented in `stuff/php/AccessProbe.php`. DVRIP provides
+related network configuration, capabilities and account management, but exact
+stream-URI discovery comes from ONVIF `GetStreamUri`.
+
+The Home dashboard and individual Live page currently do **not** consume the
+discovered profile URLs. Both verified cameras accept the Xiongmai RTSP root,
+so `stuff/php/LiveStream.php` constructs it from private configuration:
+
+```text
+rtsp://<username>:<password>@<camera-host>:<rtsp-port>/
+```
+
+It uses `access.credentials.rtsp` when explicitly configured, otherwise the
+camera's DVRIP credentials; it uses `access.ports.rtsp` when configured,
+otherwise port 554. `live.rtsp_transport` selects UDP or TCP. PHP registers
+this server-side URL with go2rtc, while the browser receives only the safe
+relay name and a short-lived token.
+
+A future true auto-discovery path for Live would run the ONVIF sequence above,
+choose the intended profile (normally the main stream), safely add server-side
+credentials when the returned URI omits them, and register that discovered URI
+with go2rtc. Until that selection policy is implemented, Live deliberately uses
+the known working root rather than silently choosing an arbitrary ONVIF profile.
+
 ### Runtime responsibilities
 
 | Component | Long-lived media responsibility |
