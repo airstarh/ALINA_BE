@@ -25,6 +25,15 @@ class FakeNode {
         this.attributes = {};
         this.listeners = {};
         this.innerHtmlWasSet = false;
+        this.hidden = false;
+        this.classList = {
+            toggle: (name, force) => {
+                const names = new Set(this.className.split(/\s+/).filter(Boolean));
+                const enabled = force === undefined ? !names.has(name) : force;
+                enabled ? names.add(name) : names.delete(name);
+                this.className = [...names].join(' ');
+            },
+        };
     }
 
     append(...nodes) {
@@ -46,6 +55,11 @@ class FakeNode {
     }
 
     removeAttribute(name) { delete this.attributes[name]; }
+    querySelectorAll(selector) {
+        if (!selector.startsWith('.')) return [];
+        const name = selector.slice(1);
+        return descendants(this).filter(node => node !== this && node.className.split(/\s+/).includes(name));
+    }
     pause() { this.pauseCalls = (this.pauseCalls || 0) + 1; }
     load() { this.loadCalls = (this.loadCalls || 0) + 1; }
     async play() { this.playCalls = (this.playCalls || 0) + 1; }
@@ -64,6 +78,8 @@ class FakeDocument {
     constructor() {
         this.listeners = {};
         this.hidden = false;
+        this.nodes = new Map();
+        Object.defineProperty(this, 'body', {value: this.createElement('body'), enumerable: false});
     }
 
     createElement(name) {
@@ -78,6 +94,8 @@ class FakeDocument {
     removeEventListener(name, callback) {
         if (this.listeners[name] === callback) delete this.listeners[name];
     }
+
+    querySelector(selector) { return this.nodes.get(selector) || null; }
 }
 
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
@@ -136,6 +154,99 @@ test('ACCESS Live menu item opens the inline player callback', async () => {
     assert.ok(live);
     live.listeners.click();
     assert.equal(opened, true);
+});
+
+test('home dashboard renders every configured camera with compact live controls', async () => {
+    const {renderHomeForm} = await import(await moduleUrl('home-form.js'));
+    const opened = [];
+    const environment = {
+        MediaSource: null,
+        fetch: async () => ({ok: true, async json() {
+            return {ok: true, recording: {active: false, stopping: false}};
+        }}),
+        addEventListener() {},
+        removeEventListener() {},
+        setInterval() { return 21; },
+        clearInterval() {},
+    };
+    const view = renderHomeForm({
+        cameras: [
+            {id: 'balcon', name: 'Balcon', talkback: true},
+            {id: 'door', name: 'Door', talkback: false},
+        ],
+        prepareEndpoint: '/live-stream.php',
+        recordEndpoint: '/live-stream.php',
+        requestTalkToken: async () => ({token: 'fixture'}),
+        onGoLive: cameraId => opened.push(cameraId),
+    }, new FakeDocument(), environment);
+    await flushMedia();
+
+    const nodes = descendants(view.element);
+    assert.equal(nodes.filter(node => node.className === 'home-camera-card').length, 2);
+    assert.deepEqual(nodes.filter(node => node.type === 'h3').map(node => node.children[0]?.value), ['Balcon', 'Door']);
+    assert.equal(nodes.filter(node => node.type === 'video').length, 2);
+    assert.equal(nodes.filter(node => node.children[0]?.value === 'RECORD').length, 2);
+    assert.equal(nodes.filter(node => node.attributes['aria-label'] === 'Start camera talkback').length, 1);
+    assert.equal(nodes.find(node => node.children[0]?.value === 'Start live video'), undefined);
+    assert.equal(nodes.find(node => node.className === 'live-ptz'), undefined);
+
+    const goLive = nodes.filter(node => node.type === 'button' && node.children[0]?.value === 'Go Live');
+    assert.equal(goLive.length, 2);
+    goLive[1].listeners.click();
+    assert.deepEqual(opened, ['door']);
+    view.destroy();
+});
+
+test('camera application opens Home with an empty camera selection', async () => {
+    const documentRef = new FakeDocument();
+    for (const [selector, type] of [
+        ['#home-button', 'button'], ['#camera-form', 'form'], ['#camera-select', 'select'],
+        ['#connect-button', 'button'], ['#reboot-button', 'button'], ['#connection-status', 'p'],
+        ['#dashboard', 'section'], ['#camera-identity', 'div'], ['#section-list', 'div'],
+        ['#section-title', 'h2'], ['#section-content', 'div'], ['#refresh-section', 'button'],
+        ['#load-all', 'button'], ['#camera-sidebar', 'aside'],
+    ]) documentRef.nodes.set(selector, documentRef.createElement(type));
+    documentRef.nodes.get('#dashboard').hidden = true;
+    const requests = [];
+    const original = {
+        document: globalThis.document, window: globalThis.window, fetch: globalThis.fetch,
+        MediaSource: globalThis.MediaSource, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval,
+    };
+    globalThis.document = documentRef;
+    globalThis.window = {confirm: () => true};
+    globalThis.MediaSource = null;
+    globalThis.setInterval = () => 41;
+    globalThis.clearInterval = () => {};
+    globalThis.fetch = async (url) => {
+        requests.push(url);
+        if (String(url).includes('action=cameras')) return {ok: true, status: 200, async json() { return {
+            ok: true, data: {default: 'balcon', cameras: [
+                {id: 'balcon', name: 'Balcon', talkback: true},
+                {id: 'door', name: 'Door', talkback: false},
+            ]},
+        }; }};
+        return {ok: true, status: 200, async json() {
+            return {ok: true, recording: {active: false, stopping: false}};
+        }};
+    };
+
+    try {
+        await import(`${await moduleUrl('app.js')}?home-test=${Date.now()}`);
+        await flushMedia();
+        await flushMedia();
+        const select = documentRef.nodes.get('#camera-select');
+        assert.deepEqual(select.children.map(option => option.value), ['', 'balcon', 'door']);
+        assert.equal(select.children[0].children[0].value, 'Select a camera');
+        assert.equal(select.value, '');
+        assert.equal(documentRef.nodes.get('#dashboard').hidden, false);
+        assert.equal(documentRef.nodes.get('#camera-sidebar').hidden, true);
+        assert.equal(documentRef.nodes.get('#section-title').children[0].value, 'Home');
+        assert.equal(descendants(documentRef.nodes.get('#section-content')).filter(node => node.type === 'video').length, 2);
+        assert.ok(requests.some(url => String(url).includes('action=cameras')));
+        assert.equal(requests.some(url => String(url).includes('action=status')), false);
+    } finally {
+        Object.assign(globalThis, original);
+    }
 });
 
 test('live page renders an inline Balcon player with explicit start and stop controls', async () => {
@@ -215,6 +326,37 @@ test('live page RECORD button starts and stops server-side recording below the v
     view.destroy();
 });
 
+test('record button discovers recording changes made in another view while inactive', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    let active = false;
+    let poll = null;
+    const environment = {
+        fetch: async () => ({ok: true, async json() {
+            return {ok: true, recording: active
+                ? {active: true, stopping: false, filename: 'external-door.mp4'}
+                : {active: false, stopping: false}};
+        }}),
+        addEventListener() {},
+        removeEventListener() {},
+        setInterval(callback) { poll = callback; return 31; },
+        clearInterval() {},
+    };
+    const view = renderLiveForm({
+        cameraId: 'door', endpoint: '/live-stream.php', recordEndpoint: '/live-stream.php',
+    }, new FakeDocument(), environment);
+    await flushMedia();
+    const record = descendants(view.element).find(node => node.children[0]?.value === 'RECORD');
+    assert.equal(record.attributes['aria-pressed'], 'false');
+    assert.equal(typeof poll, 'function');
+
+    active = true;
+    await poll();
+    await flushMedia();
+    assert.equal(record.attributes['aria-pressed'], 'true');
+    assert.match(record.className, /is-active/);
+    view.destroy();
+});
+
 test('live player offers go2rtc only MSE codecs supported by this browser', async () => {
     const {mseCodecList} = await import(await moduleUrl('live-form.js'));
     const codecs = mseCodecList((mime) => /avc1|flac/.test(mime));
@@ -243,8 +385,8 @@ test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261015-6/);
-    assert.match(app, /live-form\.js\?v=20261015-6/);
+    assert.match(index, /app\.js\?v=20261015-7/);
+    assert.match(app, /live-form\.js\?v=20261015-7/);
 });
 
 test('live page enables configured Door camera playback', async () => {

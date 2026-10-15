@@ -1,6 +1,5 @@
 import {CameraApi, CameraApiError} from './api.js?v=20261014-2';
 import {
-    chooseDefaultCamera,
     defaultConnectedSection,
     markActiveSection,
     SelectionGuard,
@@ -9,7 +8,8 @@ import {
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261013-1';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
-import {renderLiveForm} from './live-form.js?v=20261015-6';
+import {renderLiveForm} from './live-form.js?v=20261015-7';
+import {renderHomeForm} from './home-form.js?v=20261015-1';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
 
@@ -17,6 +17,7 @@ const api = new CameraApi('./stuff/php/api.php');
 const guard = new SelectionGuard();
 
 const elements = {
+    home: document.querySelector('#home-button'),
     form: document.querySelector('#camera-form'),
     select: document.querySelector('#camera-select'),
     connect: document.querySelector('#connect-button'),
@@ -29,12 +30,14 @@ const elements = {
     content: document.querySelector('#section-content'),
     refresh: document.querySelector('#refresh-section'),
     loadAll: document.querySelector('#load-all'),
+    sidebar: document.querySelector('#camera-sidebar'),
 };
 
 let activeCamera = '';
 let activeSection = '';
 let disposeActiveView = () => {};
 let cameraCatalogue = new Map();
+let cameraList = [];
 
 const clearActiveView = () => {
     disposeActiveView();
@@ -267,6 +270,35 @@ const loadLive = () => {
     showStatus(`${activeCamera} live-video page loaded.`, 'ok');
 };
 
+const loadHome = () => {
+    clearActiveView();
+    api.abortActive();
+    guard.begin('');
+    activeCamera = '';
+    activeSection = 'home';
+    elements.select.value = '';
+    elements.reboot.disabled = true;
+    elements.sidebar.hidden = true;
+    elements.dashboard.hidden = false;
+    elements.dashboard.classList.toggle('is-home', true);
+    elements.title.textContent = 'Home';
+    const view = renderHomeForm({
+        cameras: cameraList,
+        prepareEndpoint: './stuff/php/live-stream.php',
+        recordEndpoint: './stuff/php/live-stream.php',
+        relaySocketPath: '/cam-stream/api/ws',
+        requestTalkToken: cameraId => api.talkToken(cameraId),
+        onGoLive: cameraId => {
+            elements.select.value = cameraId;
+            void connect();
+        },
+    });
+    disposeActiveView = view.destroy;
+    elements.content.replaceChildren(view.element);
+    elements.refresh.disabled = false;
+    showStatus('All configured cameras loaded.', 'ok');
+};
+
 const renderSections = (editors, sections) => {
     elements.sections.replaceChildren();
     elements.sections.append(...renderEditableMenu(editors, document, {
@@ -301,11 +333,17 @@ const renderSections = (editors, sections) => {
 const connect = async () => {
     clearActiveView();
     const cameraId = elements.select.value;
+    if (!cameraId) {
+        loadHome();
+        return;
+    }
     const token = guard.begin(cameraId);
     api.abortActive();
     activeCamera = cameraId;
     setActiveSection('');
     elements.dashboard.hidden = true;
+    elements.dashboard.classList.toggle('is-home', false);
+    elements.sidebar.hidden = false;
     showStatus('Connecting to camera…');
     setBusy(true);
 
@@ -332,6 +370,8 @@ elements.form.addEventListener('submit', (event) => {
     connect();
 });
 
+elements.home.addEventListener('click', loadHome);
+
 elements.reboot.addEventListener('click', async () => {
     if (!activeCamera || !window.confirm('Reboot the selected camera now? It will be unavailable temporarily.')) {
         return;
@@ -352,6 +392,10 @@ elements.reboot.addEventListener('click', async () => {
 });
 
 elements.refresh.addEventListener('click', () => {
+    if (activeSection === 'home') {
+        loadHome();
+        return;
+    }
     if (activeSection === 'live') {
         loadLive();
         return;
@@ -402,16 +446,21 @@ const initialize = async () => {
     setBusy(true);
     try {
         const catalogue = await api.listCameras();
+        cameraList = catalogue.cameras;
         cameraCatalogue = new Map(catalogue.cameras.map(camera => [camera.id, camera]));
         elements.select.replaceChildren();
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select a camera';
+        elements.select.append(placeholder);
         for (const camera of catalogue.cameras) {
             const option = document.createElement('option');
             option.value = camera.id;
             option.textContent = camera.name;
             elements.select.append(option);
         }
-        elements.select.value = chooseDefaultCamera(catalogue);
-        showStatus('Select a camera and connect.');
+        elements.select.value = '';
+        loadHome();
     } catch (error) {
         showError(error);
     } finally {

@@ -40,6 +40,16 @@ not alter camera configuration or the talkback service.
 
 ## Runtime behaviour
 
+- Opening `/addon/cam/` lands on the multi-camera **Home** dashboard. It starts
+  one compact player for every camera in `config.php`, while leaving the
+  top-right selector on **Select a camera** and hiding the per-camera sidebar.
+  The responsive card grid gives the available width to the configured
+  cameras. **Borg Tech Service** in the page header is the Home link.
+- Each Home card provides **Talk** only when the camera is explicitly marked
+  speaker-capable, the shared server-side **RECORD** toggle, and **Go Live**.
+  Go Live selects that camera and opens its full Live/configuration view.
+  Returning Home closes only the dashboard browser playback and talkback
+  sessions; an active server-side recording continues.
 - Live is the default page after a camera connects, and selected-camera playback
   starts automatically when the page is opened. Stop remains explicit, while Start
   allows a manual reconnect after a stop, timeout, or error.
@@ -65,7 +75,10 @@ selected camera; the active red button and filename confirm the server-side
 state. Pressing it again requests Stop. Recording is independent of the browser
 player: stopping playback, navigating away, closing the tab, or opening another
 viewer does not discard an active recording. Returning to Live reads the shared
-per-camera state, and multiple tabs see the same active recording.
+per-camera state, and multiple tabs see the same active recording. Both Home
+cards and individual Live views refresh this backend state every two seconds,
+including while recording is inactive, so a recording started or stopped in a
+different view is reflected by the button's active styling.
 
 Recording settings are private top-level `config.php` values:
 

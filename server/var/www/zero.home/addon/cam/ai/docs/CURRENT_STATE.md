@@ -73,6 +73,13 @@ directly open this arbitrary TCP protocol from a normal browser.
 
 ### Live video
 
+Opening the camera application now shows a responsive **Home** dashboard with
+one automatically started compact player per camera configured in `config.php`.
+No camera is selected and the per-camera sidebar is hidden on Home. The header
+title **Borg Tech Service** returns to this dashboard. Each card exposes Talk
+only for a speaker-capable camera, the shared RECORD toggle, and Go Live; Go
+Live selects its camera and enters the existing full Live/configuration view.
+
 **ACCESS -> Live** provides inline playback for configured cameras through the
 optional go2rtc service. PHP performs only a short prepare operation: it
 registers the private per-camera RTSP source with go2rtc and returns a
@@ -129,6 +136,9 @@ camera audio is retained, and browser talkback is not mixed. A second press
 stops the shared per-camera recording; leaving the page does not. `lengthMax`
 defaults to 60 seconds, positive values stop at that duration, and zero remains
 bounded by manual/container stop or PHP-FPM's existing four-hour safety limit.
+Home and individual Live controls poll the same per-camera backend recording
+state every two seconds even while inactive, keeping their highlighted toggle
+state synchronized with recordings started or stopped elsewhere.
 See [live-video.md](live-video.md) for storage, resource, and failure details.
 
 ### Language scope

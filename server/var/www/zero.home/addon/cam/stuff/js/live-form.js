@@ -51,17 +51,18 @@ export const renderLiveForm = (
     {cameraId, endpoint = null, prepareEndpoint = endpoint, relaySocketPath = '/cam-stream/api/ws',
         recordEndpoint = null,
         autoStart = false, loadPtz = null, onPtzCommand = null,
-        talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient},
+        talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient,
+        compact = false, onGoLive = null},
     documentRef = document,
     environment = globalThis,
 ) => {
     const root = documentRef.createElement('section');
-    root.className = 'live-view';
+    root.className = compact ? 'live-view live-view-compact' : 'live-view';
 
     const intro = documentRef.createElement('p');
     intro.className = 'form-note';
     intro.append(text(documentRef, 'Camera RTSP is shared by go2rtc and decoded by this browser through Media Source Extensions. No video re-encoding or camera setting changes.'));
-    root.append(intro);
+    if (!compact) root.append(intro);
 
     const controls = documentRef.createElement('div');
     controls.className = 'live-controls';
@@ -74,14 +75,14 @@ export const renderLiveForm = (
     stop.append(text(documentRef, 'Stop'));
     stop.disabled = true;
     controls.append(start, stop);
-    root.append(controls);
+    if (!compact) root.append(controls);
 
     const status = documentRef.createElement('p');
     status.className = 'live-status';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     status.textContent = 'Press Start live video.';
-    root.append(status);
+    if (!compact) root.append(status);
 
     const player = documentRef.createElement('video');
     player.setAttribute('autoplay', '');
@@ -153,12 +154,6 @@ export const renderLiveForm = (
                     : recordingActive
                         ? `Recording${recording.filename ? ` · ${recording.filename}` : '…'}`
                         : 'Not recording.';
-                if (recordingActive && recordingPoll === null && typeof environment.setInterval === 'function') {
-                    recordingPoll = environment.setInterval(() => { void requestRecording('record-status'); }, 1000);
-                } else if (!recordingActive && recordingPoll !== null) {
-                    environment.clearInterval?.(recordingPoll);
-                    recordingPoll = null;
-                }
             };
             const requestRecording = async (action) => {
                 const query = new URLSearchParams({camera: cameraId, action});
@@ -173,6 +168,9 @@ export const renderLiveForm = (
                 if (!destroyed) applyRecording(payload.recording);
                 return payload.recording;
             };
+            if (typeof environment.setInterval === 'function') {
+                recordingPoll = environment.setInterval(() => requestRecording('record-status').catch(() => {}), 2000);
+            }
             recordButton.addEventListener('click', async () => {
                 recordButton.disabled = true;
                 try {
@@ -191,6 +189,14 @@ export const renderLiveForm = (
                 }
             });
         }
+        if (typeof onGoLive === 'function') {
+            const goLive = documentRef.createElement('button');
+            goLive.type = 'button';
+            goLive.className = 'go-live-button';
+            goLive.append(text(documentRef, 'Go Live'));
+            goLive.addEventListener('click', () => onGoLive(cameraId));
+            mediaControls.append(goLive);
+        }
         videoPanel.append(mediaControls);
     }
     workspace.append(videoPanel);
@@ -201,7 +207,7 @@ export const renderLiveForm = (
     ptzContent.className = 'live-ptz-content';
     ptzContent.append(text(documentRef, loadPtz ? 'Checking camera PTZ capability…' : 'PTZ control is not available.'));
     ptzPanel.append(ptzContent);
-    workspace.append(ptzPanel);
+    if (!compact) workspace.append(ptzPanel);
     root.append(workspace);
 
     let controller = null;

@@ -7,14 +7,14 @@ declare(strict_types=1);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
-    <title>Camera Configuration</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261015-1">
+    <title>Borg Tech Service</title>
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261015-2">
 </head>
 <body>
 <header class="app-header">
     <div>
         <p class="eyebrow">ALINA · local camera tools</p>
-        <h1>Camera configuration</h1>
+        <h1><button id="home-button" class="home-button" type="button">Borg Tech Service</button></h1>
         <p class="subtitle">DVRIP configuration explorer</p>
     </div>
     <form id="camera-form" class="camera-picker">
@@ -31,7 +31,7 @@ declare(strict_types=1);
     </p>
 
     <section id="dashboard" class="dashboard" hidden>
-        <aside class="sidebar">
+        <aside id="camera-sidebar" class="sidebar">
             <section class="panel identity-panel" aria-labelledby="identity-heading">
                 <h2 id="identity-heading">Device</h2>
                 <div id="camera-identity"></div>
@@ -58,6 +58,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261015-6"></script>
+<script type="module" src="./stuff/js/app.js?v=20261015-7"></script>
 </body>
 </html>
