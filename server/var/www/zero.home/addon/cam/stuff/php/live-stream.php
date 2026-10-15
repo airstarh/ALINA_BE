@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use Cam\Config;
 use Cam\Go2rtcClient;
+use Cam\LiveRecorder;
 use Cam\LiveStream;
 use Cam\TalkToken;
 
 require_once __DIR__ . '/Config.php';
 require_once __DIR__ . '/Go2rtcClient.php';
+require_once __DIR__ . '/LiveRecorder.php';
 require_once __DIR__ . '/LiveStream.php';
 require_once __DIR__ . '/TalkToken.php';
 
@@ -22,12 +24,46 @@ try {
     if (!is_string($cameraId) || $cameraId === '') {
         throw new InvalidArgumentException('Camera is required.');
     }
-    if (!is_string($action) || !in_array($action, ['prepare', 'info', 'stream'], true)) {
+    if (!is_string($action) || !in_array($action, [
+        'prepare', 'info', 'stream', 'record-status', 'record-start', 'record-stop',
+    ], true)) {
         throw new InvalidArgumentException('Unknown live-video action.');
     }
 
     $config = Config::load(dirname(__DIR__, 2) . '/config.php');
     $live = new LiveStream($config);
+    if (str_starts_with($action, 'record-')) {
+        $recorder = new LiveRecorder($config, $live, new Go2rtcClient());
+        if ($action !== 'record-status' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            throw new InvalidArgumentException('Recording changes require POST.');
+        }
+        if ($action === 'record-start') {
+            $session = $recorder->start($cameraId);
+            $recording = $session->metadata();
+        } elseif ($action === 'record-stop') {
+            $recording = $recorder->stop($cameraId);
+        } else {
+            $recording = $recorder->status($cameraId);
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, max-age=0');
+        echo json_encode(['ok' => true, 'recording' => $recording], JSON_THROW_ON_ERROR);
+        if ($action === 'record-start') {
+            ignore_user_abort(true);
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            } else {
+                flush();
+            }
+            try {
+                $session->capture();
+            } catch (Throwable $error) {
+                error_log('Camera recording failed: ' . $error->getMessage());
+            }
+        }
+        return;
+    }
     if ($action === 'prepare') {
         $stream = $live->relayName($cameraId);
         (new Go2rtcClient())->upsert($stream, $live->relaySource($cameraId));

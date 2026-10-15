@@ -13,6 +13,7 @@ final class Config
         private array $cameras,
         private string $defaultCameraId,
         private string $configPath,
+        private ?array $recording,
     ) {
     }
 
@@ -59,7 +60,7 @@ final class Config
             }
         }
         unset($camera);
-        return new self($cameras, $default, $path);
+        return new self($cameras, $default, $path, self::normalizeRecording($data['record'] ?? null));
     }
 
     public function prepareCredentialSave(string $id): void
@@ -125,6 +126,12 @@ final class Config
     public function defaultCameraId(): string
     {
         return $this->defaultCameraId;
+    }
+
+    /** @return array{storage: string, lengthMax: int}|null */
+    public function recording(): ?array
+    {
+        return $this->recording;
     }
 
     public function camera(string $id): array
@@ -250,5 +257,31 @@ final class Config
                 throw new UnexpectedValueException("Camera {$id} live-stream settings are invalid.");
             }
         }
+    }
+
+    /** @return array{storage: string, lengthMax: int}|null */
+    private static function normalizeRecording(mixed $recording): ?array
+    {
+        if ($recording === null) {
+            return null;
+        }
+        if (!is_array($recording) || array_diff(array_keys($recording), ['storage', 'lengthMax']) !== []) {
+            throw new UnexpectedValueException('Camera recording settings are invalid.');
+        }
+        $storage = $recording['storage'] ?? null;
+        $length = $recording['lengthMax'] ?? 60;
+        if (!is_string($storage) || $storage === '' || $storage[0] !== '/') {
+            throw new UnexpectedValueException('Camera recording storage must be an absolute directory path.');
+        }
+        if ((is_string($length) && preg_match('/^\d+$/D', $length) === 1) || is_int($length)) {
+            $length = (int) $length;
+        } else {
+            throw new UnexpectedValueException('Camera recording maximum length must be a non-negative number of seconds.');
+        }
+        if ($length < 0) {
+            throw new UnexpectedValueException('Camera recording maximum length must be a non-negative number of seconds.');
+        }
+
+        return ['storage' => rtrim($storage, '/'), 'lengthMax' => $length];
     }
 }

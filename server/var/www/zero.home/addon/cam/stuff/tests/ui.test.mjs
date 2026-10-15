@@ -172,6 +172,49 @@ test('live page shows a talk toggle only for a speaker-capable camera', async ()
     door.destroy();
 });
 
+test('live page RECORD button starts and stops server-side recording below the video', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const requests = [];
+    const environment = {
+        fetch: async (url, options = {}) => {
+            requests.push({url, method: options.method || 'GET'});
+            const action = new URL(url, 'https://zero.home/').searchParams.get('action');
+            const recording = action === 'record-start'
+                ? {active: true, stopping: false, filename: '2026-12-31---22-55---balcon.mp4', lengthMax: 300}
+                : action === 'record-stop'
+                    ? {active: true, stopping: true}
+                    : {active: false, stopping: false};
+            return {ok: true, async json() { return {ok: true, recording}; }};
+        },
+        addEventListener() {},
+        removeEventListener() {},
+        setInterval() { return 17; },
+        clearInterval() {},
+    };
+    const view = renderLiveForm({
+        cameraId: 'balcon', endpoint: '/live-stream.php', recordEndpoint: '/live-stream.php',
+    }, new FakeDocument(), environment);
+    await flushMedia();
+    const nodes = descendants(view.element);
+    const videoPanel = nodes.find(node => node.className === 'live-video-panel');
+    const record = nodes.find(node => node.attributes['aria-label'] === 'Start camera recording');
+
+    assert.ok(record);
+    assert.ok(descendants(videoPanel).includes(record));
+    assert.equal(record.children[0].value, 'RECORD');
+    assert.equal(record.attributes['aria-pressed'], 'false');
+    await record.listeners.click();
+    assert.equal(record.attributes['aria-pressed'], 'true');
+    assert.match(record.className, /is-active/);
+    await record.listeners.click();
+    assert.deepEqual(requests, [
+        {url: '/live-stream.php?camera=balcon&action=record-status', method: 'GET'},
+        {url: '/live-stream.php?camera=balcon&action=record-start', method: 'POST'},
+        {url: '/live-stream.php?camera=balcon&action=record-stop', method: 'POST'},
+    ]);
+    view.destroy();
+});
+
 test('live player offers go2rtc only MSE codecs supported by this browser', async () => {
     const {mseCodecList} = await import(await moduleUrl('live-form.js'));
     const codecs = mseCodecList((mime) => /avc1|flac/.test(mime));
@@ -200,8 +243,8 @@ test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261015-5/);
-    assert.match(app, /live-form\.js\?v=20261015-5/);
+    assert.match(index, /app\.js\?v=20261015-6/);
+    assert.match(app, /live-form\.js\?v=20261015-6/);
 });
 
 test('live page enables configured Door camera playback', async () => {

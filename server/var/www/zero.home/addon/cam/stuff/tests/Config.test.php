@@ -103,6 +103,48 @@ test('config_selects_balcon_by_default', function (): void {
     }
 });
 
+test('config_normalizes_server-side recording settings and defaults the maximum length', function (): void {
+    loadConfigClass();
+    $storage = sys_get_temp_dir() . '/cam-record-config-' . bin2hex(random_bytes(6));
+    mkdir($storage);
+
+    try {
+        $fixture = validConfigFixture();
+        $fixture['record'] = ['storage' => $storage, 'lengthMax' => '300'];
+        $path = configFixture($fixture);
+        try {
+            assertSameValue(
+                ['storage' => $storage, 'lengthMax' => 300],
+                Config::load($path)->recording()
+            );
+        } finally {
+            unlink($path);
+        }
+
+        $fixture['record'] = ['storage' => $storage];
+        $path = configFixture($fixture);
+        try {
+            assertSameValue(60, Config::load($path)->recording()['lengthMax']);
+        } finally {
+            unlink($path);
+        }
+    } finally {
+        rmdir($storage);
+    }
+});
+
+test('config keeps the camera app available when recording storage is not mounted yet', function (): void {
+    loadConfigClass();
+    $fixture = validConfigFixture();
+    $fixture['record'] = ['storage' => '/camera-storage-not-mounted'];
+    $path = configFixture($fixture);
+    try {
+        assertSameValue('/camera-storage-not-mounted', Config::load($path)->recording()['storage']);
+    } finally {
+        unlink($path);
+    }
+});
+
 test('config_rejects_unknown_camera', function (): void {
     loadConfigClass();
     $path = configFixture(validConfigFixture());

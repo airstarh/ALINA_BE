@@ -121,6 +121,16 @@ risk for little resource benefit. Any future consolidation must first prove
 audible output in an isolated go2rtc WebRTC/DVRIP test while retaining
 `alina_cam` as the fallback.
 
+The Live page also has a server-side **RECORD** toggle. It copies the selected
+camera's shared go2rtc MP4 output into the private configured `record.storage`
+directory, using `YYYY-MM-DD---HH-MM---camera.mp4` and collision suffixes rather
+than overwriting. Files are staged as `.part`, video is not re-encoded, incoming
+camera audio is retained, and browser talkback is not mixed. A second press
+stops the shared per-camera recording; leaving the page does not. `lengthMax`
+defaults to 60 seconds, positive values stop at that duration, and zero remains
+bounded by manual/container stop or PHP-FPM's existing four-hour safety limit.
+See [live-video.md](live-video.md) for storage, resource, and failure details.
+
 ### Language scope
 
 For now, only English UI text, option labels and language resources are in scope.

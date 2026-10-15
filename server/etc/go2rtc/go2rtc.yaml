@@ -4,7 +4,7 @@ app:
 api:
     listen: ":1984"
     base_path: "/cam-stream"
-    allow_paths: ["/cam-stream/api/streams", "/cam-stream/api/ws"]
+    allow_paths: ["/cam-stream/api/streams", "/cam-stream/api/ws", "/cam-stream/api/stream.mp4"]
 
 rtsp:
     listen: ""

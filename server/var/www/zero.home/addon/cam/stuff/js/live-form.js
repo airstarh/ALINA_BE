@@ -49,6 +49,7 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
 
 export const renderLiveForm = (
     {cameraId, endpoint = null, prepareEndpoint = endpoint, relaySocketPath = '/cam-stream/api/ws',
+        recordEndpoint = null,
         autoStart = false, loadPtz = null, onPtzCommand = null,
         talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient},
     documentRef = document,
@@ -88,40 +89,108 @@ export const renderLiveForm = (
     player.setAttribute('playsinline', '');
     player.setAttribute('controls', '');
     player.muted = true;
+    let destroyed = false;
     const workspace = documentRef.createElement('div');
     workspace.className = 'live-workspace';
     const videoPanel = documentRef.createElement('div');
     videoPanel.className = 'live-video-panel';
     videoPanel.append(player);
     let talkClient = null;
-    if (talkback && typeof requestTalkToken === 'function') {
+    let recordingPoll = null;
+    if ((talkback && typeof requestTalkToken === 'function') || recordEndpoint) {
         const mediaControls = documentRef.createElement('div');
         mediaControls.className = 'live-media-controls';
-        const talkButton = documentRef.createElement('button');
-        talkButton.type = 'button';
-        talkButton.className = 'talk-toggle';
-        talkButton.setAttribute('aria-label', 'Start camera talkback');
-        talkButton.setAttribute('title', 'Start camera talkback');
-        talkButton.append(text(documentRef, '🎙'));
-        const talkStatus = documentRef.createElement('span');
-        talkStatus.className = 'talk-status';
-        talkStatus.setAttribute('role', 'status');
-        talkStatus.setAttribute('aria-live', 'polite');
-        talkStatus.textContent = 'Talkback off.';
-        talkClient = talkClientFactory({
-            requestToken: requestTalkToken,
-            onState: ({state: talkState, message}) => {
-                const active = talkState === 'active';
-                talkButton.textContent = active ? '■' : '🎙';
-                talkButton.className = active ? 'talk-toggle is-active' : 'talk-toggle';
-                talkButton.disabled = talkState === 'connecting';
-                talkButton.setAttribute('aria-label', active ? 'Stop camera talkback' : 'Start camera talkback');
-                talkButton.setAttribute('title', active ? 'Stop camera talkback' : 'Start camera talkback');
-                talkStatus.textContent = message || (active ? 'Microphone live.' : 'Talkback off.');
-            },
-        }, environment);
-        talkButton.addEventListener('click', () => talkClient.toggle());
-        mediaControls.append(talkButton, talkStatus);
+        if (talkback && typeof requestTalkToken === 'function') {
+            const talkButton = documentRef.createElement('button');
+            talkButton.type = 'button';
+            talkButton.className = 'talk-toggle';
+            talkButton.setAttribute('aria-label', 'Start camera talkback');
+            talkButton.setAttribute('title', 'Start camera talkback');
+            talkButton.append(text(documentRef, '🎙'));
+            const talkStatus = documentRef.createElement('span');
+            talkStatus.className = 'talk-status';
+            talkStatus.setAttribute('role', 'status');
+            talkStatus.setAttribute('aria-live', 'polite');
+            talkStatus.textContent = 'Talkback off.';
+            talkClient = talkClientFactory({
+                requestToken: requestTalkToken,
+                onState: ({state: talkState, message}) => {
+                    const active = talkState === 'active';
+                    talkButton.textContent = active ? '■' : '🎙';
+                    talkButton.className = active ? 'talk-toggle is-active' : 'talk-toggle';
+                    talkButton.disabled = talkState === 'connecting';
+                    talkButton.setAttribute('aria-label', active ? 'Stop camera talkback' : 'Start camera talkback');
+                    talkButton.setAttribute('title', active ? 'Stop camera talkback' : 'Start camera talkback');
+                    talkStatus.textContent = message || (active ? 'Microphone live.' : 'Talkback off.');
+                },
+            }, environment);
+            talkButton.addEventListener('click', () => talkClient.toggle());
+            mediaControls.append(talkButton, talkStatus);
+        }
+        if (recordEndpoint) {
+            const recordButton = documentRef.createElement('button');
+            recordButton.type = 'button';
+            recordButton.className = 'record-toggle';
+            recordButton.setAttribute('aria-label', 'Start camera recording');
+            recordButton.setAttribute('aria-pressed', 'false');
+            recordButton.append(text(documentRef, 'RECORD'));
+            const recordStatus = documentRef.createElement('span');
+            recordStatus.className = 'record-status';
+            recordStatus.setAttribute('role', 'status');
+            recordStatus.setAttribute('aria-live', 'polite');
+            recordStatus.textContent = 'Not recording.';
+            let recordingActive = false;
+
+            const applyRecording = (recording) => {
+                recordingActive = recording?.active === true;
+                const stopping = recording?.stopping === true;
+                recordButton.className = recordingActive ? 'record-toggle is-active' : 'record-toggle';
+                recordButton.setAttribute('aria-pressed', recordingActive ? 'true' : 'false');
+                recordButton.setAttribute('aria-label', recordingActive ? 'Stop camera recording' : 'Start camera recording');
+                recordButton.disabled = stopping;
+                recordStatus.textContent = stopping
+                    ? 'Stopping recording…'
+                    : recordingActive
+                        ? `Recording${recording.filename ? ` · ${recording.filename}` : '…'}`
+                        : 'Not recording.';
+                if (recordingActive && recordingPoll === null && typeof environment.setInterval === 'function') {
+                    recordingPoll = environment.setInterval(() => { void requestRecording('record-status'); }, 1000);
+                } else if (!recordingActive && recordingPoll !== null) {
+                    environment.clearInterval?.(recordingPoll);
+                    recordingPoll = null;
+                }
+            };
+            const requestRecording = async (action) => {
+                const query = new URLSearchParams({camera: cameraId, action});
+                const response = await environment.fetch(`${recordEndpoint}?${query}`, {
+                    method: action === 'record-status' ? 'GET' : 'POST',
+                    cache: 'no-store',
+                });
+                const payload = await response.json();
+                if (!response.ok || payload?.ok !== true || !payload.recording) {
+                    throw new Error(payload?.error || 'Camera recording request failed.');
+                }
+                if (!destroyed) applyRecording(payload.recording);
+                return payload.recording;
+            };
+            recordButton.addEventListener('click', async () => {
+                recordButton.disabled = true;
+                try {
+                    await requestRecording(recordingActive ? 'record-stop' : 'record-start');
+                } catch (error) {
+                    if (!destroyed) recordStatus.textContent = error?.message || 'Camera recording request failed.';
+                } finally {
+                    if (!destroyed && !recordingActive) recordButton.disabled = false;
+                }
+            });
+            mediaControls.append(recordButton, recordStatus);
+            void requestRecording('record-status').catch((error) => {
+                if (!destroyed) {
+                    recordButton.disabled = true;
+                    recordStatus.textContent = error?.message || 'Camera recording is unavailable.';
+                }
+            });
+        }
         videoPanel.append(mediaControls);
     }
     workspace.append(videoPanel);
@@ -139,7 +208,6 @@ export const renderLiveForm = (
     let socket = null;
     let mediaSource = null;
     let objectUrl = null;
-    let destroyed = false;
     let holdGeneration = 0;
     let movementLocked = false;
     let movementButtons = [];
@@ -509,6 +577,7 @@ export const renderLiveForm = (
             destroyed = true;
             cancelMovement();
             talkClient?.destroy();
+            if (recordingPoll !== null) environment.clearInterval?.(recordingPoll);
             cleanup();
             documentRef.removeEventListener?.('visibilitychange', visibility);
             environment.removeEventListener?.('blur', blur);

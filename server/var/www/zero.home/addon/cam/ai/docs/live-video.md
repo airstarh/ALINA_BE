@@ -57,6 +57,57 @@ not alter camera configuration or the talkback service.
   underflow after starting on the first tiny fragment.
 - Unknown camera identifiers remain rejected by the central configuration.
 
+## Manual server-side recording
+
+The Live page shows a **RECORD** button below the native video player whenever
+the recording endpoint is configured. The first press starts recording the
+selected camera; the active red button and filename confirm the server-side
+state. Pressing it again requests Stop. Recording is independent of the browser
+player: stopping playback, navigating away, closing the tab, or opening another
+viewer does not discard an active recording. Returning to Live reads the shared
+per-camera state, and multiple tabs see the same active recording.
+
+Recording settings are private top-level `config.php` values:
+
+```php
+'record' => [
+    'storage' => '/var/www/zero.home/_GITOUT/cam',
+    'lengthMax' => '300',
+],
+```
+
+`storage` must be an existing absolute directory writable by PHP-FPM. Missing
+storage disables only recording attempts; it does not prevent the rest of the
+camera application from loading. `lengthMax` accepts a non-negative integer or
+decimal integer string. If omitted it defaults to 60 seconds. A positive value
+is passed to go2rtc as the exact recording duration. Zero omits the go2rtc
+duration and means manual Stop, container termination, or the existing PHP-FPM
+four-hour request safety limit ends the recording; it is not a durable recording
+daemon.
+
+PHP registers the same private camera relay used by Live playback, opens
+go2rtc's internal `/cam-stream/api/stream.mp4` output with `mp4=flac`, and copies
+the fragmented MP4 bytes directly to storage. Video is not re-encoded and no
+additional RTSP connection is opened for another FFmpeg process. One recording
+consumer is added to the shared producer and one PHP-FPM worker remains occupied
+for the recording's lifetime. Incoming camera microphone audio is included when
+available; outgoing browser talkback audio from `alina_cam` is not mixed into
+the file.
+
+Files use the configured camera ID and server-local start time:
+
+```text
+2026-12-31---22-55---balcon.mp4
+```
+
+The recorder writes `*.mp4.part` first and atomically renames it after a
+non-empty stream closes. An immediate Stop before any bytes arrive removes the
+empty partial file. If the same camera starts more than once in one minute,
+later files receive `---2`, `---3`, and so on rather than overwriting an earlier
+recording. Only one recording may own a camera at a time, but different cameras
+may record concurrently. Storage and filenames always come from trusted server
+configuration and validated camera IDs; the browser cannot submit either path.
+
 The former workstation-only `127.0.0.1:18765` prototype and all of its files
 were removed. The older PHP/FFmpeg streaming actions remain temporarily in
 `live-stream.php` as a rollback path, but the normal Live page does not call
@@ -203,7 +254,9 @@ Automated tests never move the motors. While watching Live, the owner should:
 Each active camera occupies one upstream RTSP connection in go2rtc. Additional
 viewers add a WebSocket and fragmented-MP4 muxing work, but they do not add a
 PHP-FPM worker or another camera connection. Each active talker still occupies
-one small FFmpeg process and two DVRIP TCP sockets in `alina_cam`.
+one small FFmpeg process and two DVRIP TCP sockets in `alina_cam`. Each active
+manual recording adds one go2rtc MP4 consumer, one PHP-FPM worker, and the
+camera bit rate in disk writes, without video transcoding.
 
 ## Optional deployment and security boundary
 
