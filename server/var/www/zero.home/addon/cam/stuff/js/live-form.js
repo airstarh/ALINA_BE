@@ -17,6 +17,9 @@ export const mediaMimeCandidates = (video, audio = {available: false}) => {
         : videoOnly;
 };
 
+export const liveEdgeCorrection = (currentTime, liveEdge, bufferedStart) =>
+    liveEdge - currentTime > 1.5 ? Math.max(bufferedStart, liveEdge - .3) : null;
+
 const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => {
     const clear = () => {
         target.removeEventListener(name, success);
@@ -380,9 +383,12 @@ export const renderLiveForm = (
                 await appended;
                 if (buffer.buffered.length) {
                     const end = buffer.buffered.end(buffer.buffered.length - 1);
-                    if (end - player.currentTime > 1.5) {
-                        player.currentTime = Math.max(buffer.buffered.start(0), end - .3);
-                    }
+                    const correction = liveEdgeCorrection(
+                        player.currentTime,
+                        end,
+                        buffer.buffered.start(0)
+                    );
+                    if (correction !== null) player.currentTime = correction;
                     if (player.paused) await player.play();
                     if (player.currentTime > 15 && buffer.buffered.start(0) < player.currentTime - 10) {
                         const removed = waitForEvent(buffer, 'updateend', current.signal);

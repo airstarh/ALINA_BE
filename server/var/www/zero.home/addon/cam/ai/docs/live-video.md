@@ -41,6 +41,39 @@ The former workstation-only `127.0.0.1:18765` prototype and all of its files
 were removed. Live video now runs through the installed FFmpeg and FFprobe
 binaries in the PHP 8.2 container; it does not require a separate local helper.
 
+## Latency tuning
+
+RTSP transport is selected per camera in its private `config.php` entry:
+
+```php
+'live' => [
+    'rtsp_transport' => 'udp', // or 'tcp'; TCP is the default
+],
+```
+
+Balcon uses UDP to avoid TCP retransmission delays on the reliable local
+network. Cameras without this setting, including Door, retain the safer TCP
+default. UDP may show a damaged or skipped frame during packet loss, while TCP
+waits to recover lost data and can therefore accumulate more latency.
+
+FFprobe and FFmpeg use a 32 KiB probe and 100 ms analysis duration so stream
+discovery does not add a long startup pause. The UDP stream additionally uses a
+100 ms maximum demuxer delay and a 16-packet reorder queue. Video remains stream
+copied, so this tuning adds no video encoder load. The browser corrects toward
+the live edge whenever it falls more than 1.5 seconds behind, targeting about
+300 ms behind the newest buffered media. The larger correction threshold avoids
+repeated seeks that starve Chrome's audio/video decoder and leave it buffering.
+
+Balcon's main-stream GOP is set to 6 at 20 frames per second, placing an
+intra-frame approximately every 300 ms. This shortens initial picture and
+recovery delay at the cost of a modest bit-rate increase. The GOP is a camera
+setting rather than an FFmpeg re-encode option.
+
+Do not add FFmpeg's `nobuffer` input flag to this fragmented-MP4 pipeline. A
+positive runtime comparison against Balcon showed that `+genpts+nobuffer`
+suppressed the copied HEVC video frames, while `+genpts` alone delivered both
+HEVC video and AAC audio successfully.
+
 ## Camera audio and talkback
 
 Balcon is explicitly configured as speaker-capable. Its Live page therefore

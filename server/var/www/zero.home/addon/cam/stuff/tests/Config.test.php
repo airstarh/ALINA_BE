@@ -159,6 +159,31 @@ test('config_accepts_missing_optional_timeout', function (): void {
     }
 });
 
+test('config_accepts_only_tcp_or_udp_for_the_private_live_transport', function (): void {
+    loadConfigClass();
+    foreach (['tcp', 'udp'] as $transport) {
+        $fixture = validConfigFixture();
+        $fixture['cameras']['balcon']['live'] = ['rtsp_transport' => $transport];
+        $path = configFixture($fixture);
+        try {
+            assertSameValue($transport, Config::load($path)->camera('balcon')['live']['rtsp_transport']);
+        } finally {
+            unlink($path);
+        }
+    }
+
+    foreach ([['rtsp_transport' => 'http'], ['rtsp_transport' => 'udp', 'unknown' => true], 'udp'] as $live) {
+        $fixture = validConfigFixture();
+        $fixture['cameras']['balcon']['live'] = $live;
+        $path = configFixture($fixture);
+        try {
+            assertThrows(static fn () => Config::load($path), UnexpectedValueException::class);
+        } finally {
+            unlink($path);
+        }
+    }
+});
+
 test('config_accepts_per_camera_alarm_sound_labels_without_exposing_them', function (): void {
     loadConfigClass();
     $fixture = validConfigFixture();

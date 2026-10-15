@@ -21,6 +21,7 @@ function liveStreamConfigFixture(): string
             'balcon' => [
                 'name' => 'Balcon',
                 'host' => '192.0.2.21',
+                'live' => ['rtsp_transport' => 'udp'],
                 'access' => [
                     'ports' => ['rtsp' => 8554],
                     'credentials' => [
@@ -49,6 +50,7 @@ test('live stream builds a Balcon HEVC stream-copy pipeline', function (): void 
         $stream = $live->streamCommand('balcon', 'hevc', true);
 
         assertSameValue('/opt/ffprobe', $probe[0]);
+        assertSameValue('udp', $probe[array_search('-rtsp_transport', $probe, true) + 1]);
         assertTrueValue(in_array('rtsp://viewer%20name:p%40ss%2Fword@192.0.2.21:8554/', $probe, true));
         assertSameValue('/opt/ffmpeg', $stream[0]);
         assertTrueValue(in_array('copy', $stream, true));
@@ -57,6 +59,14 @@ test('live stream builds a Balcon HEVC stream-copy pipeline', function (): void 
         assertTrueValue(in_array('aac', $stream, true));
         assertTrueValue(in_array('48000', $stream, true));
         assertTrueValue(in_array('64k', $stream, true));
+        assertSameValue('udp', $stream[array_search('-rtsp_transport', $stream, true) + 1]);
+        assertSameValue('100000', $stream[array_search('-max_delay', $stream, true) + 1]);
+        assertSameValue('16', $stream[array_search('-reorder_queue_size', $stream, true) + 1]);
+        assertSameValue('32768', $probe[array_search('-probesize', $probe, true) + 1]);
+        assertSameValue('100000', $probe[array_search('-analyzeduration', $probe, true) + 1]);
+        assertTrueValue(!in_array('-probesize', $stream, true));
+        assertTrueValue(!in_array('-analyzeduration', $stream, true));
+        assertSameValue('+genpts', $stream[array_search('-fflags', $stream, true) + 1]);
         assertTrueValue((bool) array_filter($probe, static fn (string $argument): bool => str_contains($argument, 'codec_type')));
         assertTrueValue(in_array('frag_keyframe+empty_moov+default_base_moof', $stream, true));
         assertTrueValue(!in_array('libx264', $stream, true));
@@ -74,6 +84,8 @@ test('live stream builds a configured Door stream with DVRIP credential fallback
 
         assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $probe, true));
         assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $stream, true));
+        assertSameValue('tcp', $probe[array_search('-rtsp_transport', $probe, true) + 1]);
+        assertSameValue('tcp', $stream[array_search('-rtsp_transport', $stream, true) + 1]);
         assertTrueValue(!in_array('hvc1', $stream, true));
         assertTrueValue(in_array('-an', $stream, true));
         assertTrueValue(!in_array('aac', $stream, true));

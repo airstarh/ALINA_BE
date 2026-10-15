@@ -26,11 +26,15 @@ final class LiveStream
 
     public function probeCommand(string $cameraId): array
     {
+        $transport = $this->transport($cameraId);
+
         return [
             $this->ffprobe,
             '-v', 'quiet',
-            '-rtsp_transport', 'tcp',
+            '-rtsp_transport', $transport,
             '-rw_timeout', '5000000',
+            '-probesize', '32768',
+            '-analyzeduration', '100000',
             '-show_entries', 'stream=index,codec_type,codec_name,profile,level,width,height,channels,sample_rate',
             '-of', 'json',
             $this->rtspUrl($cameraId),
@@ -43,18 +47,29 @@ final class LiveStream
             throw new InvalidArgumentException('This camera video codec is not supported.');
         }
 
+        $transport = $this->transport($cameraId);
         $command = [
             $this->ffmpeg,
             '-nostdin',
             '-hide_banner',
             '-loglevel', 'error',
-            '-rtsp_transport', 'tcp',
+            '-rtsp_transport', $transport,
             '-timeout', '5000000',
             '-fflags', '+genpts',
+        ];
+        if ($transport === 'udp') {
+            array_push(
+                $command,
+                '-max_delay', '100000',
+                '-reorder_queue_size', '16'
+            );
+        }
+        array_push(
+            $command,
             '-i', $this->rtspUrl($cameraId),
             '-map', '0:v:0',
             '-c:v', 'copy',
-        ];
+        );
         if ($audio) {
             array_push(
                 $command,
@@ -104,6 +119,11 @@ final class LiveStream
             . ':'
             . $port
             . '/';
+    }
+
+    private function transport(string $cameraId): string
+    {
+        return $this->camera($cameraId)['live']['rtsp_transport'] ?? 'tcp';
     }
 
     private function camera(string $cameraId): array

@@ -240,5 +240,15 @@ final class Config
                 throw new UnexpectedValueException("Camera {$id} talkback settings are invalid.");
             }
         }
+
+        if (array_key_exists('live', $camera)) {
+            $live = $camera['live'];
+            if (!is_array($live)
+                || array_diff(array_keys($live), ['rtsp_transport']) !== []
+                || !in_array($live['rtsp_transport'] ?? null, ['tcp', 'udp'], true)
+            ) {
+                throw new UnexpectedValueException("Camera {$id} live-stream settings are invalid.");
+            }
+        }
     }
 }

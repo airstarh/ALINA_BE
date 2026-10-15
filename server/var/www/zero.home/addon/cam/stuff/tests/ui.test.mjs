@@ -173,6 +173,23 @@ test('live player prefers AAC audio when supported and retains a video-only fall
     assert.equal(candidates.some(candidate => !candidate.includes('mp4a.40.2')), true);
 });
 
+test('live playback keeps a stable decode cushion while correcting large latency', async () => {
+    const {liveEdgeCorrection} = await import(await moduleUrl('live-form.js'));
+
+    assert.equal(liveEdgeCorrection(8.4, 10, 0), 9.7);
+    assert.equal(liveEdgeCorrection(8.5, 10, 0), null);
+    assert.equal(liveEdgeCorrection(0, 0.1, 0.05), null);
+    assert.equal(liveEdgeCorrection(0, 2, 1.8), 1.8);
+});
+
+test('live latency changes use fresh browser module cache keys', async () => {
+    const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
+    const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
+
+    assert.match(index, /app\.js\?v=20261015-2/);
+    assert.match(app, /live-form\.js\?v=20261015-2/);
+});
+
 test('live page enables configured Door camera playback', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php'}, new FakeDocument());
