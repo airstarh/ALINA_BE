@@ -65,7 +65,7 @@ export const createTalkClient = ({
             if (generation === current && socket?.readyState === 1 && data instanceof ArrayBuffer) socket.send(data);
         };
         source.connect(worklet);
-        report('active', 'Microphone is live through the camera speaker.');
+        report('active', 'ON AIR');
     };
 
     const start = async () => {
