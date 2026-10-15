@@ -56,7 +56,15 @@ persistent FFmpeg process converts it to G.711 A-law, and the service sends
 captured 320-byte DVRIP `OPTalk` frames to the camera. Audio is neither recorded
 nor stored. Only one browser may own a camera's talk channel at once, idle talk
 sessions close after 60 seconds without microphone frames, and leaving Live or
-changing camera closes the microphone, WebSocket, FFmpeg, DVRIP socket, and lock.
+changing camera closes the microphone, WebSocket, FFmpeg, both camera TCP
+sockets, and lock.
+
+The browser opens one WebSocket to `alina_cam`; it never connects directly to
+the camera's DVRIP port. For each active talk session, `alina_cam` opens two TCP
+sockets to camera port `34567`: an authenticated control socket for `OPTalk
+Start/Stop`, and a media socket for `OPTalk Claim` plus G.711 A-law frames. Both
+remain open concurrently until talkback stops. See the detailed
+[talkback protocol and two-socket lifecycle](talkback-protocol.md).
 
 Both PHP-FPM and `alina_cam` must receive the same private
 `ALINA_CAM_TALK_SECRET` (at least 32 bytes) through `_GITOUT/env/.env`. API tokens
@@ -109,7 +117,7 @@ Automated tests never move the motors. While watching Live, the owner should:
 Each active viewer occupies one PHP-FPM worker and one FFmpeg process. Video is
 copied, while camera audio alone is transcoded to AAC, so CPU use should remain
 modest. Each active talker additionally occupies one small FFmpeg process and
-one DVRIP socket in `alina_cam`, but
+two DVRIP TCP sockets in `alina_cam`, but
 the long-lived request still consumes worker capacity. This is suitable for the
 application's small-admin usage model and should be revisited before supporting
 many concurrent viewers.

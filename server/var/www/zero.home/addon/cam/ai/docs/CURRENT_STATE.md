@@ -95,7 +95,10 @@ token authorizes one owner per camera. Browser audio is resampled to signed
 16-bit mono 8 kHz PCM, FFmpeg converts it to G.711 A-law, and the captured DVRIP
 `OPTalk` framing sends 320-byte frames. No talk audio is stored. The shared
 private environment must define `ALINA_CAM_TALK_SECRET` with at least 32 bytes.
-See [live-video.md](live-video.md) for lifecycle and deployment details.
+The browser owns one WebSocket to `alina_cam`; `alina_cam` owns two simultaneous
+TCP sockets to camera port 34567: authenticated Start/Stop control and claimed
+G.711 A-law media. See [live-video.md](live-video.md) for deployment details and
+[talkback-protocol.md](talkback-protocol.md) for the full verified lifecycle.
 
 ### Language scope
 

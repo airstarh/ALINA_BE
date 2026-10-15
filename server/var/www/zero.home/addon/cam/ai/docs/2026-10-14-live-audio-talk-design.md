@@ -35,7 +35,7 @@ Video and incoming audio remain on the current HTTP/MSE live-stream path. Video 
 
 Outgoing browser microphone audio uses a new, dedicated WebSocket service named `alina_cam`. The existing `alina_php82chat` container, its `/ws` route, and the text-chat implementation remain untouched.
 
-The browser sends microphone PCM to `alina_cam`. A persistent FFmpeg conversion process produces mono 8 kHz G.711 A-law. The service authenticates to the selected camera, opens the capture-proven DVRIP `OPTalk` session, frames the converted audio like the observed CMS packets, and writes it to the camera.
+The browser sends microphone PCM to `alina_cam`. A persistent FFmpeg conversion process produces mono 8 kHz G.711 A-law. The service authenticates to the selected camera and opens two simultaneous TCP sockets to DVRIP port `34567`: an authenticated control socket for `OPTalk Start/Stop`, and a separate media socket for `OPTalk Claim` and audio frames. The browser itself opens only the WebSocket to `alina_cam`; it never opens either camera socket. See [talkback-protocol.md](talkback-protocol.md) for the capture-confirmed lifecycle, packet IDs, framing, cleanup, and the silent one-socket failure mode.
 
 ## Incoming camera audio
 
@@ -90,7 +90,7 @@ No microphone or talk audio is recorded or stored. It exists only in bounded buf
 - Input message size, frame size, queue length, connection timeout, and idle timeout are bounded.
 - When conversion falls behind, stale queued audio is dropped rather than increasing latency without limit.
 - Talkback does not automatically reconnect or restart the microphone.
-- Failure or exit of FFmpeg closes the WebSocket, DVRIP connection, browser microphone track, and per-camera lock.
+- Failure or exit of FFmpeg closes the WebSocket, both DVRIP TCP sockets, browser microphone track, and per-camera lock.
 - Closing the browser connection releases every associated resource even when a normal stop message was not received.
 
 ## Docker and Nginx integration
@@ -115,7 +115,7 @@ Add a distinct same-origin WebSocket location to `server/etc/nginx/conf.d/locati
 - Microphone permission denied: keep talk closed and preserve playback.
 - DVRIP login or `OPTalk` rejected: return the button to its closed state and show the specific reason.
 - Talk channel already owned: reject the new session with a clear busy message.
-- WebSocket, FFmpeg, camera socket, or browser lifecycle failure: close the whole talk session and release its lock.
+- WebSocket, FFmpeg, either camera socket, or browser lifecycle failure: close the whole talk session and release its lock.
 - Door camera: allow incoming audio when functional, but never show a talk control.
 
 ## Verification
