@@ -10,7 +10,11 @@ Selected-camera RTSP -> FFmpeg in the PHP 8.2 container -> fragmented MP4 over H
 the browser's native Media Source Extensions player.
 
 FFmpeg copies the compressed video stream (`-c:v copy`); it does not decode or
-re-encode it. Audio is omitted. Camera credentials remain in server-side
+re-encode it. When the camera exposes an audio stream, FFmpeg converts only that
+audio from the camera's G.711 format to mono AAC-LC at 48 kHz/64 kbit for the
+native browser player. Playback still starts muted; the user enables listening
+with the player's own volume control. If the browser cannot accept the combined
+video/AAC MIME type, the page selects its video-only candidate. Camera credentials remain in server-side
 `config.php` and are never included in browser URLs or FFmpeg error output.
 
 The endpoint probes the selected stream with FFprobe, reports the codec and
@@ -36,6 +40,28 @@ reports H.264 Baseline at 1920 × 1080 through the deployed HTTPS probe.
 The former workstation-only `127.0.0.1:18765` prototype and all of its files
 were removed. Live video now runs through the installed FFmpeg and FFprobe
 binaries in the PHP 8.2 container; it does not require a separate local helper.
+
+## Camera audio and talkback
+
+Balcon is explicitly configured as speaker-capable. Its Live page therefore
+shows one talk toggle below the video: `🎙` opens the channel after a click and
+the active red `■` closes it. Microphone permission is never requested on page
+load. Door can provide incoming RTSP audio, but it has no speaker and receives
+no talk control.
+
+Outgoing microphone audio uses the optional dedicated `alina_cam` container and
+same-origin `/cam-talk` WebSocket. It does not reuse the text-chat `/ws` service.
+The browser resamples mono microphone input to signed 16-bit 8 kHz PCM; a
+persistent FFmpeg process converts it to G.711 A-law, and the service sends
+captured 320-byte DVRIP `OPTalk` frames to the camera. Audio is neither recorded
+nor stored. Only one browser may own a camera's talk channel at once, idle talk
+sessions close after 60 seconds without microphone frames, and leaving Live or
+changing camera closes the microphone, WebSocket, FFmpeg, DVRIP socket, and lock.
+
+Both PHP-FPM and `alina_cam` must receive the same private
+`ALINA_CAM_TALK_SECRET` (at least 32 bytes) through `_GITOUT/env/.env`. API tokens
+are camera-bound HMAC-SHA256 values valid for 30 seconds. The WebSocket also
+requires an exact same-origin Host/Origin match.
 
 ## Live PTZ controls
 
@@ -80,8 +106,10 @@ Automated tests never move the motors. While watching Live, the owner should:
 
 ## Resource implications
 
-Each active viewer occupies one PHP-FPM worker and one FFmpeg process. Because
-the video is copied rather than transcoded, CPU use should remain modest, but
+Each active viewer occupies one PHP-FPM worker and one FFmpeg process. Video is
+copied, while camera audio alone is transcoded to AAC, so CPU use should remain
+modest. Each active talker additionally occupies one small FFmpeg process and
+one DVRIP socket in `alina_cam`, but
 the long-lived request still consumes worker capacity. This is suitable for the
 application's small-admin usage model and should be revisited before supporting
 many concurrent viewers.

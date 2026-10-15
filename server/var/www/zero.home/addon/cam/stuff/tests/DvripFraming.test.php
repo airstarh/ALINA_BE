@@ -55,7 +55,7 @@ final class FragmentedFixtureStream
 function loadDvripFramingClasses(): void
 {
     $directory = dirname(__DIR__) . '/php';
-    foreach (['DvripException.php', 'DvripTransport.php', 'StreamDvripTransport.php', 'DvripPacketCodec.php'] as $file) {
+    foreach (['DvripException.php', 'DvripTransport.php', 'DvripDuplexTransport.php', 'StreamDvripTransport.php', 'DvripPacketCodec.php'] as $file) {
         $path = $directory . '/' . $file;
         if (!is_file($path)) {
             throw new RuntimeException("DVRIP framing class {$file} does not exist");

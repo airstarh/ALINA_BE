@@ -46,13 +46,18 @@ test('live stream builds a Balcon HEVC stream-copy pipeline', function (): void 
     try {
         $live = new LiveStream(Config::load($path), '/opt/ffmpeg', '/opt/ffprobe');
         $probe = $live->probeCommand('balcon');
-        $stream = $live->streamCommand('balcon', 'hevc');
+        $stream = $live->streamCommand('balcon', 'hevc', true);
 
         assertSameValue('/opt/ffprobe', $probe[0]);
         assertTrueValue(in_array('rtsp://viewer%20name:p%40ss%2Fword@192.0.2.21:8554/', $probe, true));
         assertSameValue('/opt/ffmpeg', $stream[0]);
         assertTrueValue(in_array('copy', $stream, true));
         assertTrueValue(in_array('hvc1', $stream, true));
+        assertTrueValue(in_array('0:a:0?', $stream, true));
+        assertTrueValue(in_array('aac', $stream, true));
+        assertTrueValue(in_array('48000', $stream, true));
+        assertTrueValue(in_array('64k', $stream, true));
+        assertTrueValue((bool) array_filter($probe, static fn (string $argument): bool => str_contains($argument, 'codec_type')));
         assertTrueValue(in_array('frag_keyframe+empty_moov+default_base_moof', $stream, true));
         assertTrueValue(!in_array('libx264', $stream, true));
     } finally {
@@ -65,11 +70,13 @@ test('live stream builds a configured Door stream with DVRIP credential fallback
     try {
         $live = new LiveStream(Config::load($path), '/opt/ffmpeg', '/opt/ffprobe');
         $probe = $live->probeCommand('door');
-        $stream = $live->streamCommand('door', 'h264');
+        $stream = $live->streamCommand('door', 'h264', false);
 
         assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $probe, true));
         assertTrueValue(in_array('rtsp://admin:secret@192.0.2.22:554/', $stream, true));
         assertTrueValue(!in_array('hvc1', $stream, true));
+        assertTrueValue(in_array('-an', $stream, true));
+        assertTrueValue(!in_array('aac', $stream, true));
     } finally {
         unlink($path);
     }

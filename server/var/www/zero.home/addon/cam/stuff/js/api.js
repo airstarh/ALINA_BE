@@ -40,6 +40,13 @@ export class CameraApi {
         );
     }
 
+    talkToken(cameraId) {
+        return this.#request(
+            {action: 'talk-token', camera: cameraId},
+            {method: 'POST', body: {}}
+        );
+    }
+
     saveAccess(cameraId, values) {
         return this.#request({action: 'access-save', camera: cameraId}, {method: 'POST', body: values});
     }

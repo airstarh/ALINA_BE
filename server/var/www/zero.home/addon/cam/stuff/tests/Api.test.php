@@ -7,11 +7,12 @@ use Cam\CameraService;
 use Cam\Config;
 use Cam\DvripException;
 use Cam\DvripReader;
+use Cam\TalkToken;
 
 function loadApiClasses(): void
 {
     $directory = dirname(__DIR__) . '/php';
-    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'ExtendedEditorDefinitions.php', 'NetworkServiceEditor.php', 'CameraService.php', 'api.php'] as $file) {
+    foreach (['Config.php', 'DvripException.php', 'DvripReader.php', 'ExtendedEditorDefinitions.php', 'NetworkServiceEditor.php', 'CameraService.php', 'TalkToken.php', 'api.php'] as $file) {
         $path = $directory . '/' . $file;
         if (!is_file($path)) {
             throw new RuntimeException("API class {$file} does not exist");
@@ -32,6 +33,7 @@ function apiConfigFixture(): string
             'balcon' => [
                 'name' => 'Balcon',
                 'host' => '192.0.2.10',
+                'talkback' => ['speaker' => true],
                 'dvrip' => [
                     'port' => 34567,
                     'username' => 'fixture-user',
@@ -280,12 +282,47 @@ test('api_lists_public_cameras_without_connecting', function (): void {
         assertSameValue([
             'ok' => true,
             'data' => [
-                'cameras' => [['id' => 'balcon', 'name' => 'Balcon']],
+                'cameras' => [['id' => 'balcon', 'name' => 'Balcon', 'talkback' => true]],
                 'default' => 'balcon',
             ],
             'error' => null,
         ], $response['body']);
         assertSameValue(0, $calls);
+    } finally {
+        unlink($path);
+    }
+});
+
+test('talk_token_api_is_post_only_camera_scoped_and_does_not_connect', function (): void {
+    [$unused, $path] = fixtureApi($factoryCalls);
+    try {
+        $api = new Api(
+            Config::load($path),
+            static function () use (&$factoryCalls): CameraService {
+                $factoryCalls++;
+                throw new RuntimeException('factory must not be called');
+            },
+            new TalkToken(str_repeat('t', 32), 30),
+            static fn (): int => 1_000,
+        );
+
+        assertSameValue(405, $api->handle(
+            ['action' => 'talk-token', 'camera' => 'balcon'], null, 'GET'
+        )['status']);
+
+        $response = $api->handle(
+            ['action' => 'talk-token', 'camera' => 'balcon'], [], 'POST'
+        );
+        assertSameValue(200, $response['status']);
+        assertSameValue(1_030, $response['body']['data']['expiresAt']);
+        assertSameValue(
+            'balcon',
+            (new TalkToken(str_repeat('t', 32), 30))->verify(
+                $response['body']['data']['token'],
+                1_000,
+            ),
+        );
+        assertSameValue(0, $factoryCalls);
     } finally {
         unlink($path);
     }

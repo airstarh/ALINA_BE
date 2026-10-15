@@ -1,0 +1,43 @@
+services:
+    cam:
+        build:
+            context: ./Dockerfile.d/php82
+            args:
+                INSTALL_XDEBUG: "false"
+        container_name: alina_cam
+        restart: unless-stopped
+        mem_limit: 128M
+        expose:
+            - "8081"
+        env_file: _GITOUT/env/.env
+        environment:
+            - ALINA_MODE=PROD
+        volumes:
+            - ./server/srv/:/srv/:ro
+            - ./server/var/www/:/var/www/:ro
+            - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
+            - ./server/var/log/php/:/var/log/php/:rw
+        working_dir: /srv/alina
+        read_only: true
+        tmpfs:
+            - /tmp
+        command: php /var/www/zero.home/addon/cam/stuff/php/talk-server.php
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "php",
+                    "-r",
+                    '$$found = false; foreach (["/proc/net/tcp", "/proc/net/tcp6"] as $$file) { foreach (@file($$file) ?: [] as $$line) { $$fields = preg_split("/\\s+/", trim($$line)); if (($$fields[3] ?? "") === "0A" && str_ends_with($$fields[1] ?? "", ":1F91")) { $$found = true; break 2; } } } exit($$found ? 0 : 1);',
+                ]
+            timeout: 5s
+            retries: 3
+            interval: 10s
+            start_period: 10s
+        networks:
+            - alina_network
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        init: true

@@ -1,11 +1,20 @@
+import {createTalkClient} from './talk-client.js?v=20261014-1';
+
 const text = (documentRef, value) => documentRef.createTextNode(value);
 
-const mimeCandidates = (video) => {
+export const mediaMimeCandidates = (video, audio = {available: false}) => {
     const codec = video.codec_name;
     const level = Number(video.level) || (codec === 'hevc' ? 150 : 40);
-    if (codec === 'hevc') return [`video/mp4; codecs="hvc1.1.6.L${level}.B0"`, 'video/mp4; codecs="hvc1"'];
-    const profile = /High/.test(video.profile) ? '64' : /Main/.test(video.profile) ? '4D' : '42';
-    return [`video/mp4; codecs="avc1.${profile}00${level.toString(16).padStart(2, '0')}"`, 'video/mp4; codecs="avc1"'];
+    const videoCodecs = codec === 'hevc'
+        ? [`hvc1.1.6.L${level}.B0`, 'hvc1']
+        : (() => {
+            const profile = /High/.test(video.profile) ? '64' : /Main/.test(video.profile) ? '4D' : '42';
+            return [`avc1.${profile}00${level.toString(16).padStart(2, '0')}`, 'avc1'];
+        })();
+    const videoOnly = videoCodecs.map(value => `video/mp4; codecs="${value}"`);
+    return audio?.available
+        ? [...videoCodecs.map(value => `video/mp4; codecs="${value}, mp4a.40.2"`), ...videoOnly]
+        : videoOnly;
 };
 
 const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => {
@@ -24,7 +33,8 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
 });
 
 export const renderLiveForm = (
-    {cameraId, endpoint, autoStart = false, loadPtz = null, onPtzCommand = null},
+    {cameraId, endpoint, autoStart = false, loadPtz = null, onPtzCommand = null,
+        talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient},
     documentRef = document,
     environment = globalThis,
 ) => {
@@ -67,6 +77,37 @@ export const renderLiveForm = (
     const videoPanel = documentRef.createElement('div');
     videoPanel.className = 'live-video-panel';
     videoPanel.append(player);
+    let talkClient = null;
+    if (talkback && typeof requestTalkToken === 'function') {
+        const mediaControls = documentRef.createElement('div');
+        mediaControls.className = 'live-media-controls';
+        const talkButton = documentRef.createElement('button');
+        talkButton.type = 'button';
+        talkButton.className = 'talk-toggle';
+        talkButton.setAttribute('aria-label', 'Start camera talkback');
+        talkButton.setAttribute('title', 'Start camera talkback');
+        talkButton.append(text(documentRef, '🎙'));
+        const talkStatus = documentRef.createElement('span');
+        talkStatus.className = 'talk-status';
+        talkStatus.setAttribute('role', 'status');
+        talkStatus.setAttribute('aria-live', 'polite');
+        talkStatus.textContent = 'Talkback off.';
+        talkClient = talkClientFactory({
+            requestToken: requestTalkToken,
+            onState: ({state: talkState, message}) => {
+                const active = talkState === 'active';
+                talkButton.textContent = active ? '■' : '🎙';
+                talkButton.className = active ? 'talk-toggle is-active' : 'talk-toggle';
+                talkButton.disabled = talkState === 'connecting';
+                talkButton.setAttribute('aria-label', active ? 'Stop camera talkback' : 'Start camera talkback');
+                talkButton.setAttribute('title', active ? 'Stop camera talkback' : 'Start camera talkback');
+                talkStatus.textContent = message || (active ? 'Microphone live.' : 'Talkback off.');
+            },
+        }, environment);
+        talkButton.addEventListener('click', () => talkClient.toggle());
+        mediaControls.append(talkButton, talkStatus);
+        videoPanel.append(mediaControls);
+    }
     workspace.append(videoPanel);
 
     const ptzPanel = documentRef.createElement('aside');
@@ -307,7 +348,7 @@ export const renderLiveForm = (
             });
             const info = await response.json();
             if (!response.ok || !info.ok) throw new Error(info.error || 'Camera stream probe failed.');
-            const mime = mimeCandidates(info.video)
+            const mime = mediaMimeCandidates(info.video, info.audio)
                 .find((candidate) => environment.MediaSource.isTypeSupported(candidate));
             if (!mime) {
                 throw new Error(`${info.video.codec_name.toUpperCase()} ${info.video.width}×${info.video.height} is not supported by this browser.`);
@@ -320,15 +361,16 @@ export const renderLiveForm = (
             await opened;
             const buffer = source.addSourceBuffer(mime);
             buffer.mode = 'segments';
+            const includeAudio = mime.includes('mp4a.40.2');
             const stream = await environment.fetch(
-                `${endpoint}?${query}&action=stream&codec=${encodeURIComponent(info.video.codec_name)}`,
+                `${endpoint}?${query}&action=stream&codec=${encodeURIComponent(info.video.codec_name)}&audio=${includeAudio ? '1' : '0'}`,
                 {signal: current.signal, cache: 'no-store'}
             );
             if (!stream.ok) {
                 const error = await stream.json();
                 throw new Error(error.error || 'Could not start camera live video.');
             }
-            status.textContent = `${info.video.codec_name.toUpperCase()} · ${info.video.width}×${info.video.height} · native browser playback`;
+            status.textContent = `${info.video.codec_name.toUpperCase()} · ${info.video.width}×${info.video.height} · ${includeAudio ? 'camera audio available · ' : ''}native browser playback`;
             const reader = stream.body.getReader();
             while (!current.signal.aborted) {
                 const {done, value} = await reader.read();
@@ -382,6 +424,7 @@ export const renderLiveForm = (
         destroy() {
             destroyed = true;
             cancelMovement();
+            talkClient?.destroy();
             cleanup();
             documentRef.removeEventListener?.('visibilitychange', visibility);
             environment.removeEventListener?.('blur', blur);

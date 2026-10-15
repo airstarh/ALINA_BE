@@ -1,4 +1,4 @@
-import {CameraApi, CameraApiError} from './api.js?v=20261014-1';
+import {CameraApi, CameraApiError} from './api.js?v=20261014-2';
 import {
     chooseDefaultCamera,
     defaultConnectedSection,
@@ -9,7 +9,7 @@ import {
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261013-1';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
-import {renderLiveForm} from './live-form.js?v=20261014-3';
+import {renderLiveForm} from './live-form.js?v=20261014-4';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
 
@@ -34,6 +34,7 @@ const elements = {
 let activeCamera = '';
 let activeSection = '';
 let disposeActiveView = () => {};
+let cameraCatalogue = new Map();
 
 const clearActiveView = () => {
     disposeActiveView();
@@ -255,6 +256,8 @@ const loadLive = () => {
         autoStart: true,
         loadPtz: () => api.ptzCapabilities(activeCamera),
         onPtzCommand: (command) => api.ptzCommand(activeCamera, command),
+        talkback: cameraCatalogue.get(activeCamera)?.talkback === true,
+        requestTalkToken: () => api.talkToken(activeCamera),
     });
     disposeActiveView = view.destroy;
     elements.content.replaceChildren(view.element);
@@ -397,6 +400,7 @@ const initialize = async () => {
     setBusy(true);
     try {
         const catalogue = await api.listCameras();
+        cameraCatalogue = new Map(catalogue.cameras.map(camera => [camera.id, camera]));
         elements.select.replaceChildren();
         for (const camera of catalogue.cameras) {
             const option = document.createElement('option');

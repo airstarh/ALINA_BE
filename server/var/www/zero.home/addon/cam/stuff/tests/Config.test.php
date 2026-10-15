@@ -37,6 +37,7 @@ function validConfigFixture(): array
             'balcon' => [
                 'name' => 'Balcon',
                 'host' => '192.0.2.10',
+                'talkback' => ['speaker' => true],
                 'dvrip' => [
                     'port' => 34567,
                     'username' => 'fixture-user',
@@ -55,11 +56,39 @@ test('config_returns_only_public_camera_metadata', function (): void {
     try {
         $config = Config::load($path);
         assertSameValue(
-            [['id' => 'balcon', 'name' => 'Balcon']],
+            [['id' => 'balcon', 'name' => 'Balcon', 'talkback' => true]],
             $config->publicCameras()
         );
     } finally {
         unlink($path);
+    }
+});
+
+test('config_defaults_talkback_to_unavailable_and_validates_its_shape', function (): void {
+    loadConfigClass();
+    $fixture = validConfigFixture();
+    unset($fixture['cameras']['balcon']['talkback']);
+    $path = configFixture($fixture);
+
+    try {
+        assertSameValue(false, Config::load($path)->publicCameras()[0]['talkback']);
+    } finally {
+        unlink($path);
+    }
+
+    foreach ([
+        ['speaker' => 'yes'],
+        ['speaker' => true, 'unknown' => true],
+        true,
+    ] as $talkback) {
+        $fixture = validConfigFixture();
+        $fixture['cameras']['balcon']['talkback'] = $talkback;
+        $path = configFixture($fixture);
+        try {
+            assertThrows(static fn () => Config::load($path), UnexpectedValueException::class);
+        } finally {
+            unlink($path);
+        }
     }
 });
 

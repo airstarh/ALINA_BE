@@ -146,6 +146,33 @@ test('live page renders an inline Balcon player with explicit start and stop con
     view.destroy();
 });
 
+test('live page shows a talk toggle only for a speaker-capable camera', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const balcon = renderLiveForm({
+        cameraId: 'balcon', endpoint: '/live-stream.php', talkback: true,
+        requestTalkToken: async () => ({token: 'fixture'}),
+    }, new FakeDocument());
+    const door = renderLiveForm({
+        cameraId: 'door', endpoint: '/live-stream.php', talkback: false,
+    }, new FakeDocument());
+
+    assert.ok(descendants(balcon.element).find(node => node.attributes['aria-label'] === 'Start camera talkback'));
+    assert.equal(descendants(door.element).find(node => node.attributes['aria-label'] === 'Start camera talkback'), undefined);
+    balcon.destroy();
+    door.destroy();
+});
+
+test('live player prefers AAC audio when supported and retains a video-only fallback', async () => {
+    const {mediaMimeCandidates} = await import(await moduleUrl('live-form.js'));
+    const candidates = mediaMimeCandidates(
+        {codec_name: 'hevc', level: 150, width: 1920, height: 1080},
+        {available: true, codec_name: 'pcm_alaw'},
+    );
+
+    assert.match(candidates[0], /mp4a\.40\.2/);
+    assert.equal(candidates.some(candidate => !candidate.includes('mp4a.40.2')), true);
+});
+
 test('live page enables configured Door camera playback', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php'}, new FakeDocument());

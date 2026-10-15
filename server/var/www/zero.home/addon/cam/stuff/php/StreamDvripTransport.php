@@ -6,7 +6,7 @@ namespace Cam;
 
 use Closure;
 
-final class StreamDvripTransport implements DvripTransport
+final class StreamDvripTransport implements DvripDuplexTransport
 {
     /** @var resource|null */
     private $stream = null;
@@ -86,6 +86,36 @@ final class StreamDvripTransport implements DvripTransport
         }
 
         return $buffer;
+    }
+
+    public function readAvailable(int $maximumBytes = 65536): string
+    {
+        if ($maximumBytes < 1) {
+            throw new DvripException('transport_length', 'Invalid read length.');
+        }
+
+        $stream = $this->requireStream();
+        $chunk = @fread($stream, $maximumBytes);
+        if ($chunk === false) {
+            $this->throwStreamFailure('read');
+        }
+        if ($chunk === '' && feof($stream)) {
+            $this->throwStreamFailure('read');
+        }
+
+        return $chunk;
+    }
+
+    public function setBlocking(bool $blocking): void
+    {
+        if (!stream_set_blocking($this->requireStream(), $blocking)) {
+            throw new DvripException('transport_io', 'Could not change camera socket mode.');
+        }
+    }
+
+    public function stream()
+    {
+        return $this->requireStream();
     }
 
     public function close(): void

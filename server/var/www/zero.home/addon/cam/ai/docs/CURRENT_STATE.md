@@ -74,15 +74,28 @@ directly open this arbitrary TCP protocol from a normal browser.
 ### Live video
 
 **ACCESS -> Live** provides inline playback for configured cameras. PHP starts FFprobe to learn
-the current RTSP video format, then FFmpeg copies that compressed stream into a
-fragmented MP4 response. Browser JavaScript feeds it to native Media Source
-Extensions; no transcoding, permanent worker, localhost helper, or camera
-setting change is involved. Credentials stay server-side. Stop/navigation/page
+the current RTSP media formats, then FFmpeg copies compressed video and, when
+present, converts G.711 camera audio to mono AAC-LC in the fragmented MP4
+response. Browser JavaScript feeds it to native Media Source Extensions; video
+is not transcoded and no localhost helper or camera setting change is involved.
+Playback starts muted and listening uses the native player's volume control.
+Credentials stay server-side. Stop/navigation/page
 hiding terminate the request and FFmpeg process, old browser buffers are
 trimmed, and one concurrent viewer per camera is allowed. Live is the default
 page after connecting and playback starts automatically whenever it opens.
 Balcon is verified with HEVC; Door's deployed endpoint probe is verified with
 H.264 Baseline at 1920 × 1080. See [live-video.md](live-video.md).
+
+Balcon is configured as speaker-capable and now receives a click-only `🎙` / red
+`■` talkback toggle below the player. Door has no speaker and receives no talk
+control. Talkback is isolated in the optional `alina_cam` PHP/Ratchet container
+on internal port 8081 and the same-origin `/cam-talk` WebSocket; the existing
+text-chat container and `/ws` route are unchanged. A 30-second camera-bound HMAC
+token authorizes one owner per camera. Browser audio is resampled to signed
+16-bit mono 8 kHz PCM, FFmpeg converts it to G.711 A-law, and the captured DVRIP
+`OPTalk` framing sends 320-byte frames. No talk audio is stored. The shared
+private environment must define `ALINA_CAM_TALK_SECRET` with at least 32 bytes.
+See [live-video.md](live-video.md) for lifecycle and deployment details.
 
 ### Language scope
 

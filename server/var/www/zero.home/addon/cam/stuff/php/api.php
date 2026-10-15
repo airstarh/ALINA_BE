@@ -11,6 +11,7 @@ use Throwable;
 require_once __DIR__ . '/Config.php';
 require_once __DIR__ . '/DvripException.php';
 require_once __DIR__ . '/DvripTransport.php';
+require_once __DIR__ . '/DvripDuplexTransport.php';
 require_once __DIR__ . '/StreamDvripTransport.php';
 require_once __DIR__ . '/DvripPacketCodec.php';
 require_once __DIR__ . '/DvripReader.php';
@@ -19,6 +20,7 @@ require_once __DIR__ . '/OnvifPtz.php';
 require_once __DIR__ . '/ExtendedEditorDefinitions.php';
 require_once __DIR__ . '/NetworkServiceEditor.php';
 require_once __DIR__ . '/CameraService.php';
+require_once __DIR__ . '/TalkToken.php';
 
 final class Api
 {
@@ -30,6 +32,8 @@ final class Api
     public function __construct(
         private Config $config,
         private Closure $serviceFactory,
+        private ?TalkToken $talkToken = null,
+        private ?Closure $clock = null,
     ) {
     }
 
@@ -41,6 +45,7 @@ final class Api
                 'cameras', 'status', 'sections', 'config', 'smtp', 'smtp-save', 'smtp-test', 'ftp-test',
                 'editors', 'editor', 'editor-save', 'wifi-aps', 'reboot', 'access', 'access-save',
                 'ptz', 'ptz-command',
+                'talk-token',
             ], true)) {
                 return $this->error(400, 'invalid_action', 'Unknown API action.');
             }
@@ -67,10 +72,24 @@ final class Api
                 return $this->success(CameraService::sectionList());
             }
 
-            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot', 'access-save', 'ptz-command'], true)
+            if (in_array($action, ['smtp-save', 'smtp-test', 'ftp-test', 'editor-save', 'reboot', 'access-save', 'ptz-command', 'talk-token'], true)
                 && strtoupper($method) !== 'POST'
             ) {
                 return $this->error(405, 'method_not_allowed', 'Configuration changes require POST.');
+            }
+
+            if ($action === 'talk-token') {
+                if (($camera['talkback']['speaker'] ?? false) !== true) {
+                    return $this->error(422, 'talk_unsupported', 'This camera does not support talkback.');
+                }
+                try {
+                    $tokens = $this->talkToken ?? TalkToken::fromEnvironment();
+                    $clock = $this->clock;
+                    $now = $clock === null ? time() : $clock();
+                    return $this->success($tokens->issue($cameraId, $now));
+                } catch (\RuntimeException) {
+                    return $this->error(503, 'talk_unavailable', 'Camera talkback service is not configured.');
+                }
             }
 
             if ($action === 'access-save' && (isset($body['revision']) || ($body['service'] ?? null) === 'dvrip')) $this->config->prepareCredentialSave($cameraId);

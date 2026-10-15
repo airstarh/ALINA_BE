@@ -112,7 +112,11 @@ final class Config
     {
         $public = [];
         foreach ($this->cameras as $id => $camera) {
-            $public[] = ['id' => $id, 'name' => $camera['name']];
+            $public[] = [
+                'id' => $id,
+                'name' => $camera['name'],
+                'talkback' => ($camera['talkback']['speaker'] ?? false) === true,
+            ];
         }
 
         return $public;
@@ -224,6 +228,16 @@ final class Config
                         throw new UnexpectedValueException("Camera {$id} alarm sound {$name} entry is invalid.");
                     }
                 }
+            }
+        }
+
+        if (array_key_exists('talkback', $camera)) {
+            $talkback = $camera['talkback'];
+            if (!is_array($talkback)
+                || array_diff(array_keys($talkback), ['speaker']) !== []
+                || !is_bool($talkback['speaker'] ?? null)
+            ) {
+                throw new UnexpectedValueException("Camera {$id} talkback settings are invalid.");
             }
         }
     }

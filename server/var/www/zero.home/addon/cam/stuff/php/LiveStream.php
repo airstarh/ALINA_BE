@@ -31,14 +31,13 @@ final class LiveStream
             '-v', 'quiet',
             '-rtsp_transport', 'tcp',
             '-rw_timeout', '5000000',
-            '-select_streams', 'v:0',
-            '-show_entries', 'stream=codec_name,profile,level,width,height',
+            '-show_entries', 'stream=index,codec_type,codec_name,profile,level,width,height,channels,sample_rate',
             '-of', 'json',
             $this->rtspUrl($cameraId),
         ];
     }
 
-    public function streamCommand(string $cameraId, string $codec): array
+    public function streamCommand(string $cameraId, string $codec, bool $audio = false): array
     {
         if (!in_array($codec, ['h264', 'hevc'], true)) {
             throw new InvalidArgumentException('This camera video codec is not supported.');
@@ -54,9 +53,21 @@ final class LiveStream
             '-fflags', '+genpts',
             '-i', $this->rtspUrl($cameraId),
             '-map', '0:v:0',
-            '-an',
             '-c:v', 'copy',
         ];
+        if ($audio) {
+            array_push(
+                $command,
+                '-map', '0:a:0?',
+                '-c:a', 'aac',
+                '-profile:a', 'aac_low',
+                '-ac', '1',
+                '-ar', '48000',
+                '-b:a', '64k'
+            );
+        } else {
+            $command[] = '-an';
+        }
         if ($codec === 'hevc') {
             array_push($command, '-tag:v', 'hvc1');
         }
