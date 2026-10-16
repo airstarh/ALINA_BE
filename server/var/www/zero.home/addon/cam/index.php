@@ -1,7 +1,8 @@
 <?php
 
 declare(strict_types=1);
-?><!doctype html>
+?>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -15,10 +16,8 @@ declare(strict_types=1);
     <div>
         <p class="eyebrow">ALINA · local camera tools</p>
         <h1><button id="home-button" class="home-button" type="button">Borg Tech Service</button></h1>
-        <p class="subtitle">DVRIP configuration explorer</p>
     </div>
     <form id="camera-form" class="camera-picker">
-        <label for="camera-select">Camera</label>
         <select id="camera-select" name="camera" aria-describedby="connection-status"></select>
         <button id="connect-button" type="submit">Connect</button>
         <button id="reboot-button" class="danger-button" type="button" disabled>Reboot camera</button>
