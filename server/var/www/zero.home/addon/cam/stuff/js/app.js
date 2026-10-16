@@ -8,8 +8,8 @@ import {
 import {renderTree} from './tree.js?v=20261005-4';
 import {renderEditableMenu} from './menu.js?v=20261013-1';
 import {renderAccessForm} from './access-form.js?v=20261009-4';
-import {renderLiveForm} from './live-form.js?v=20261016-4';
-import {renderHomeForm} from './home-form.js?v=20261016-4';
+import {renderLiveForm} from './live-form.js?v=20261016-5';
+import {renderHomeForm} from './home-form.js?v=20261016-5';
 import {renderSmtpForm} from './smtp-form.js?v=20261006-1';
 import {renderServiceForm} from './service-form.js?v=20261009-11';
 
@@ -23,6 +23,7 @@ const elements = {
     connect: document.querySelector('#connect-button'),
     reboot: document.querySelector('#reboot-button'),
     status: document.querySelector('#connection-status'),
+    operationStatuses: document.querySelector('#operation-statuses'),
     dashboard: document.querySelector('#dashboard'),
     identity: document.querySelector('#camera-identity'),
     sections: document.querySelector('#section-list'),
@@ -39,6 +40,7 @@ let activeSection = '';
 let disposeActiveView = () => {};
 let cameraCatalogue = new Map();
 let cameraList = [];
+const operationStatusRows = new Map();
 const narrowSidebarQuery = window.matchMedia?.('(max-width: 780px)') ?? {
     matches: false,
     addEventListener() {},
@@ -92,8 +94,28 @@ const setBusy = (busy) => {
 };
 
 const showStatus = (message, kind = 'neutral') => {
-    elements.status.textContent = message;
+    elements.status.textContent = `App: ${message}`;
     elements.status.dataset.kind = kind;
+};
+
+const clearOperationStatuses = () => {
+    operationStatusRows.clear();
+    elements.operationStatuses.replaceChildren();
+};
+
+const showOperationStatus = ({cameraId, key, label, message, kind = 'neutral'}) => {
+    const rowKey = `${cameraId}:${key}`;
+    let row = operationStatusRows.get(rowKey);
+    if (!row) {
+        row = document.createElement('p');
+        row.className = 'operation-status';
+        operationStatusRows.set(rowKey, row);
+        elements.operationStatuses.append(row);
+    }
+    const camera = cameraCatalogue.get(cameraId);
+    const prefix = activeSection === 'home' && camera ? `${camera.name} / ` : '';
+    row.textContent = `${prefix}${label}: ${message}`;
+    row.dataset.kind = kind;
 };
 
 const showError = (error) => {
@@ -289,6 +311,7 @@ const loadLive = () => {
     collapseSidebarOnNarrowScreen();
     clearActiveView();
     setActiveSection('live');
+    clearOperationStatuses();
     elements.title.textContent = 'Live';
     const view = renderLiveForm({
         cameraId: activeCamera,
@@ -301,6 +324,7 @@ const loadLive = () => {
         onPtzCommand: (command) => api.ptzCommand(activeCamera, command),
         talkback: cameraCatalogue.get(activeCamera)?.talkback === true,
         requestTalkToken: () => api.talkToken(activeCamera),
+        onStatus: showOperationStatus,
     });
     disposeActiveView = view.destroy;
     elements.content.replaceChildren(view.element);
@@ -310,6 +334,7 @@ const loadLive = () => {
 
 const loadHome = () => {
     clearActiveView();
+    clearOperationStatuses();
     api.abortActive();
     guard.begin('');
     activeCamera = '';
@@ -331,6 +356,7 @@ const loadHome = () => {
             elements.select.value = cameraId;
             void connect();
         },
+        onStatus: showOperationStatus,
     });
     disposeActiveView = view.destroy;
     elements.content.replaceChildren(view.element);

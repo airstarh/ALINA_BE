@@ -216,6 +216,7 @@ test('ACCESS Live menu item opens the inline player callback', async () => {
 test('home dashboard renders every configured camera with compact live controls', async () => {
     const {renderHomeForm} = await import(await moduleUrl('home-form.js'));
     const opened = [];
+    const statuses = [];
     const environment = {
         MediaSource: null,
         fetch: async () => ({ok: true, async json() {
@@ -236,6 +237,7 @@ test('home dashboard renders every configured camera with compact live controls'
         snapshotEndpoint: '/live-stream.php',
         requestTalkToken: async () => ({token: 'fixture'}),
         onGoLive: cameraId => opened.push(cameraId),
+        onStatus: status => statuses.push(status),
     }, new FakeDocument(), environment);
     await flushMedia();
 
@@ -243,16 +245,18 @@ test('home dashboard renders every configured camera with compact live controls'
     assert.equal(nodes.filter(node => node.className === 'home-camera-card').length, 2);
     assert.deepEqual(nodes.filter(node => node.type === 'h3').map(node => node.children[0]?.value), ['Balcon', 'Door']);
     assert.equal(nodes.filter(node => node.type === 'video').length, 2);
-    assert.equal(nodes.filter(node => node.children[0]?.value === 'RECORD').length, 2);
-    assert.equal(nodes.filter(node => node.children[0]?.value === 'PrintScreen').length, 2);
+    assert.equal(nodes.filter(node => node.children[0]?.value === '⏺').length, 2);
+    assert.equal(nodes.filter(node => node.children[0]?.value === '📷').length, 2);
     assert.equal(nodes.filter(node => node.attributes['aria-label'] === 'Start camera talkback').length, 1);
     assert.equal(nodes.find(node => node.children[0]?.value === 'Start live video'), undefined);
     assert.equal(nodes.find(node => node.className === 'live-ptz'), undefined);
 
-    const goLive = nodes.filter(node => node.type === 'button' && node.children[0]?.value === 'Go Live');
+    const goLive = nodes.filter(node => node.type === 'button' && node.children[0]?.value === '🖥️');
     assert.equal(goLive.length, 2);
     goLive[1].listeners.click();
     assert.deepEqual(opened, ['door']);
+    assert.ok(statuses.some(status => status.cameraId === 'balcon' && status.label === 'RECORD'));
+    assert.equal(nodes.some(node => ['talk-status', 'record-status', 'snapshot-status'].includes(node.className)), false);
     view.destroy();
 });
 
@@ -261,6 +265,7 @@ test('camera application keeps Home menu-free and collapses camera navigation on
     for (const [selector, type] of [
         ['#home-button', 'button'], ['#camera-form', 'form'], ['#camera-select', 'select'],
         ['#connect-button', 'button'], ['#reboot-button', 'button'], ['#connection-status', 'p'],
+        ['#operation-statuses', 'div'],
         ['#dashboard', 'section'], ['#camera-identity', 'div'], ['#section-list', 'div'],
         ['#section-title', 'h2'], ['#section-content', 'div'], ['#refresh-section', 'button'],
         ['#load-all', 'button'], ['#camera-sidebar', 'aside'], ['#sidebar-toggle', 'button'],
@@ -384,6 +389,7 @@ test('live page shows a talk toggle only for a speaker-capable camera', async ()
 test('live page RECORD button starts and stops server-side recording below the video', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const requests = [];
+    const statuses = [];
     const environment = {
         fetch: async (url, options = {}) => {
             requests.push({url, method: options.method || 'GET'});
@@ -402,6 +408,7 @@ test('live page RECORD button starts and stops server-side recording below the v
     };
     const view = renderLiveForm({
         cameraId: 'balcon', endpoint: '/live-stream.php', recordEndpoint: '/live-stream.php',
+        onStatus: status => statuses.push(status),
     }, new FakeDocument(), environment);
     await flushMedia();
     const nodes = descendants(view.element);
@@ -410,11 +417,12 @@ test('live page RECORD button starts and stops server-side recording below the v
 
     assert.ok(record);
     assert.ok(descendants(videoPanel).includes(record));
-    assert.equal(record.children[0].value, 'RECORD');
+    assert.equal(record.children[0].value, '⏺');
     assert.equal(record.attributes['aria-pressed'], 'false');
     await record.listeners.click();
     assert.equal(record.attributes['aria-pressed'], 'true');
     assert.match(record.className, /is-active/);
+    assert.match(statuses.at(-1).message, /Recording/);
     await record.listeners.click();
     assert.deepEqual(requests, [
         {url: '/live-stream.php?camera=balcon&action=record-status', method: 'GET'},
@@ -427,6 +435,7 @@ test('live page RECORD button starts and stops server-side recording below the v
 test('PrintScreen saves a native camera snapshot and reports its filename', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     const requests = [];
+    const statuses = [];
     const environment = {
         fetch: async (url, options = {}) => {
             requests.push({url, method: options.method || 'GET'});
@@ -440,19 +449,19 @@ test('PrintScreen saves a native camera snapshot and reports its filename', asyn
     };
     const view = renderLiveForm({
         cameraId: 'door', snapshotEndpoint: '/live-stream.php',
+        onStatus: status => statuses.push(status),
     }, new FakeDocument(), environment);
     const nodes = descendants(view.element);
     const button = nodes.find(node => node.attributes['aria-label'] === 'Save camera snapshot');
 
     assert.ok(button);
-    assert.equal(button.children[0].value, 'PrintScreen');
+    assert.equal(button.children[0].value, '📷');
     await button.listeners.click();
     assert.deepEqual(requests, [{
         url: '/live-stream.php?camera=door&action=snapshot-save',
         method: 'POST',
     }]);
-    const status = nodes.find(node => node.className === 'snapshot-status');
-    assert.equal(status.children[0].value, 'Saved · 2026-12-31---22-55---1798757700123456---door.jpg');
+    assert.equal(statuses.at(-1).message, 'Saved · 2026-12-31---22-55---1798757700123456---door.jpg');
     view.destroy();
 });
 
@@ -475,7 +484,7 @@ test('record button discovers recording changes made in another view while inact
         cameraId: 'door', endpoint: '/live-stream.php', recordEndpoint: '/live-stream.php',
     }, new FakeDocument(), environment);
     await flushMedia();
-    const record = descendants(view.element).find(node => node.children[0]?.value === 'RECORD');
+    const record = descendants(view.element).find(node => node.children[0]?.value === '⏺');
     assert.equal(record.attributes['aria-pressed'], 'false');
     assert.equal(typeof poll, 'function');
 
@@ -516,47 +525,74 @@ test('live changes use fresh browser module cache keys', async () => {
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
     const live = await readFile(new URL('../js/live-form.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261016-4/);
-    assert.match(app, /live-form\.js\?v=20261016-4/);
-    assert.match(app, /home-form\.js\?v=20261016-4/);
-    assert.match(live, /talk-client\.js\?v=20261016-4/);
+    assert.match(index, /app\.js\?v=20261016-5/);
+    assert.match(index, /app\.css\?v=20261016-6/);
+    assert.match(app, /live-form\.js\?v=20261016-5/);
+    assert.match(app, /home-form\.js\?v=20261016-5/);
+    assert.match(live, /talk-client\.js\?v=20261016-5/);
+});
+
+test('application shell exposes compact controls and keeps status output after the dashboard', async () => {
+    const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
+    assert.doesNotMatch(index, /ALINA · local camera tools/);
+    assert.match(index, /id="connect-button"[^>]*aria-label="Connect selected camera"[^>]*>✔</);
+    assert.match(index, /id="reboot-button"[^>]*aria-label="Reboot selected camera"[^>]*>🗘</);
+    assert.ok(index.indexOf('id="connection-status"') > index.indexOf('id="dashboard"'));
+    assert.match(index, /id="operation-statuses"/);
+});
+
+test('mobile layout uses fluid shared spacing without stacking the camera picker', async () => {
+    const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
+    assert.match(css, /--space-panel:\s*min\([^;]+,\s*1vw\)/);
+    assert.match(css, /\.camera-picker\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto\s+auto/s);
+    assert.doesNotMatch(css, /@media\s*\(max-width:\s*780px\)[\s\S]*?\.camera-picker\s*\{[^}]*grid-template-columns:\s*1fr/);
+    assert.match(css, /@media\s*\(max-width:\s*780px\)[\s\S]*\.content-panel\s*\{[^}]*padding:\s*0/s);
+    assert.match(css, /@media\s*\(max-width:\s*780px\)[\s\S]*\.home-camera-card\s*\{[^}]*padding:\s*0/s);
+});
+
+test('all buttons and shared control groups keep touch-safe dimensions and spacing', async () => {
+    const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
+    assert.match(css, /button\s*\{[^}]*min-width:\s*7mm[^}]*min-height:\s*7mm/s);
+    assert.match(css, /--control-gap:\s*max\(3mm,/);
+    assert.match(css, /\.live-media-controls\s*\{[^}]*gap:\s*var\(--control-gap\)/s);
+    assert.match(css, /\.ptz-direction-grid\s*\{[^}]*gap:\s*var\(--control-gap\)/s);
+    assert.match(css, /\.home-camera-grid\s*\{[^}]*row-gap:\s*7mm/s);
+    assert.match(css, /input:not\(\[type="checkbox"\]\),\s*select,\s*textarea\s*\{[^}]*min-height:\s*7mm[^}]*margin-block:\s*3mm/s);
 });
 
 test('live page enables configured Door camera playback', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
-    const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php'}, new FakeDocument());
+    const statuses = [];
+    const view = renderLiveForm({cameraId: 'door', endpoint: '/live-stream.php', onStatus: status => statuses.push(status)}, new FakeDocument());
     const nodes = descendants(view.element);
     const start = nodes.find((node) => node.type === 'button' && node.children[0]?.value === 'Start live video');
-    const status = nodes.find((node) => node.attributes.role === 'status');
 
     assert.equal(start.disabled, false);
-    assert.equal(status.children[0].value, 'Press Start live video.');
+    assert.equal(statuses.at(-1).message, 'Press Start live video.');
     view.destroy();
 });
 
 test('live page starts playback automatically when opened as the connected-camera landing page', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const statuses = [];
     const view = renderLiveForm(
-        {cameraId: 'balcon', endpoint: '/live-stream.php', autoStart: true},
+        {cameraId: 'balcon', endpoint: '/live-stream.php', autoStart: true, onStatus: status => statuses.push(status)},
         new FakeDocument(),
         {MediaSource: null}
     );
-    const status = descendants(view.element).find((node) => node.attributes.role === 'status');
-
-    assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
+    assert.equal(statuses.at(-1).message, 'This browser does not provide MediaSource video playback.');
     view.destroy();
 });
 
 test('Door live page also autostarts when opened as the connected-camera landing page', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const statuses = [];
     const view = renderLiveForm(
-        {cameraId: 'door', endpoint: '/live-stream.php', autoStart: true},
+        {cameraId: 'door', endpoint: '/live-stream.php', autoStart: true, onStatus: status => statuses.push(status)},
         new FakeDocument(),
         {MediaSource: null}
     );
-    const status = descendants(view.element).find((node) => node.attributes.role === 'status');
-
-    assert.equal(status.children[0].value, 'This browser does not provide MediaSource video playback.');
+    assert.equal(statuses.at(-1).message, 'This browser does not provide MediaSource video playback.');
     view.destroy();
 });
 
@@ -667,8 +703,10 @@ test('live page prepares then consumes ordered go2rtc MSE WebSocket fragments', 
         }};
     });
     const documentRef = new FakeDocument();
+    const statuses = [];
     const view = renderLiveForm({
         cameraId: 'balcon', prepareEndpoint: '/live-stream.php', relaySocketPath: '/cam-stream/api/ws', autoStart: true,
+        onStatus: status => statuses.push(status),
     }, documentRef, environment);
 
     await flushMedia();
@@ -694,7 +732,7 @@ test('live page prepares then consumes ordered go2rtc MSE WebSocket fragments', 
     const nodes = descendants(view.element);
     const video = nodes.find(node => node.type === 'video');
     assert.equal(video.playCalls, 1);
-    assert.match(nodes.find(node => node.className === 'live-status').children[0].value, /shared relay/i);
+    assert.match(statuses.at(-1).message, /shared relay/i);
     assert.equal(requests.length, 1, 'no long-running HTTP media fetch is made');
 
     nodes.find(node => node.type === 'button' && node.children[0]?.value === 'Stop').listeners.click();
@@ -711,7 +749,9 @@ test('live relay rejects unsupported MSE responses but stays connected in a back
         return {ok: true, stream: 'alina-door', token: 'door-token', expiresAt: 1030};
     }}));
     const documentRef = new FakeDocument();
-    const view = renderLiveForm({cameraId: 'door', prepareEndpoint: '/live-stream.php', relaySocketPath: '/cam-stream/api/ws', autoStart: true},
+    const statuses = [];
+    const view = renderLiveForm({cameraId: 'door', prepareEndpoint: '/live-stream.php', relaySocketPath: '/cam-stream/api/ws', autoStart: true,
+        onStatus: status => statuses.push(status)},
         documentRef, environment);
     await flushMedia();
     await flushMedia();
@@ -720,7 +760,7 @@ test('live relay rejects unsupported MSE responses but stays connected in a back
     FakeMediaSource.supported = false;
     socket.receive(JSON.stringify({type: 'mse', value: 'video/mp4; codecs="unsupported"'}));
     await flushMedia();
-    assert.match(descendants(view.element).find(node => node.className === 'live-status').children[0].value, /not supported/i);
+    assert.match(statuses.at(-1).message, /not supported/i);
     assert.equal(socket.closed, true);
 
     FakeMediaSource.supported = true;

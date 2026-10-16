@@ -1,4 +1,4 @@
-import {createTalkClient} from './talk-client.js?v=20261016-4';
+import {createTalkClient} from './talk-client.js?v=20261016-5';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 
@@ -52,12 +52,24 @@ export const renderLiveForm = (
         recordEndpoint = null, snapshotEndpoint = null,
         autoStart = false, loadPtz = null, onPtzCommand = null,
         talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient,
-        compact = false, onGoLive = null},
+        compact = false, onGoLive = null, onStatus = () => {}},
     documentRef = document,
     environment = globalThis,
 ) => {
     const root = documentRef.createElement('section');
     root.className = compact ? 'live-view live-view-compact' : 'live-view';
+    const reportStatus = (key, label, message, kind = 'neutral') => onStatus({
+        cameraId,
+        key,
+        label,
+        message,
+        kind,
+    });
+    const setLiveStatus = (message, kind = 'neutral') => reportStatus('live', 'Live', message, kind);
+    const setTalkStatus = (message, kind = 'neutral') => reportStatus('microphone', 'Microphone', message, kind);
+    const setRecordStatus = (message, kind = 'neutral') => reportStatus('record', 'RECORD', message, kind);
+    const setSnapshotStatus = (message, kind = 'neutral') => reportStatus('snapshot', 'PrintScreen', message, kind);
+    const setPtzStatus = (message, kind = 'neutral') => reportStatus('ptz', 'PTZ', message, kind);
 
     const intro = documentRef.createElement('p');
     intro.className = 'form-note';
@@ -77,12 +89,7 @@ export const renderLiveForm = (
     controls.append(start, stop);
     if (!compact) root.append(controls);
 
-    const status = documentRef.createElement('p');
-    status.className = 'live-status';
-    status.setAttribute('role', 'status');
-    status.setAttribute('aria-live', 'polite');
-    status.textContent = 'Press Start live video.';
-    if (!compact) root.append(status);
+    setLiveStatus('Press Start live video.');
 
     const player = documentRef.createElement('video');
     player.setAttribute('autoplay', '');
@@ -108,11 +115,7 @@ export const renderLiveForm = (
             talkButton.setAttribute('aria-label', 'Start camera talkback');
             talkButton.setAttribute('title', 'Start camera talkback');
             talkButton.append(text(documentRef, '🎙'));
-            const talkStatus = documentRef.createElement('span');
-            talkStatus.className = 'talk-status';
-            talkStatus.setAttribute('role', 'status');
-            talkStatus.setAttribute('aria-live', 'polite');
-            talkStatus.textContent = 'Talkback off.';
+            setTalkStatus('Talkback off.');
             talkClient = talkClientFactory({
                 requestToken: requestTalkToken,
                 onState: ({state: talkState, message}) => {
@@ -122,11 +125,11 @@ export const renderLiveForm = (
                     talkButton.disabled = talkState === 'connecting';
                     talkButton.setAttribute('aria-label', active ? 'Stop camera talkback' : 'Start camera talkback');
                     talkButton.setAttribute('title', active ? 'Stop camera talkback' : 'Start camera talkback');
-                    talkStatus.textContent = message || (active ? 'Microphone live.' : 'Talkback off.');
+                    setTalkStatus(active ? 'ON AIR' : (message || 'Talkback off.'), active ? 'ok' : 'neutral');
                 },
             }, environment);
             talkButton.addEventListener('click', () => talkClient.toggle());
-            mediaControls.append(talkButton, talkStatus);
+            mediaControls.append(talkButton);
         }
         if (recordEndpoint) {
             const recordButton = documentRef.createElement('button');
@@ -134,12 +137,9 @@ export const renderLiveForm = (
             recordButton.className = 'record-toggle';
             recordButton.setAttribute('aria-label', 'Start camera recording');
             recordButton.setAttribute('aria-pressed', 'false');
-            recordButton.append(text(documentRef, 'RECORD'));
-            const recordStatus = documentRef.createElement('span');
-            recordStatus.className = 'record-status';
-            recordStatus.setAttribute('role', 'status');
-            recordStatus.setAttribute('aria-live', 'polite');
-            recordStatus.textContent = 'Not recording.';
+            recordButton.setAttribute('title', 'Start camera recording');
+            recordButton.append(text(documentRef, '⏺'));
+            setRecordStatus('Not recording.');
             let recordingActive = false;
 
             const applyRecording = (recording) => {
@@ -148,12 +148,14 @@ export const renderLiveForm = (
                 recordButton.className = recordingActive ? 'record-toggle is-active' : 'record-toggle';
                 recordButton.setAttribute('aria-pressed', recordingActive ? 'true' : 'false');
                 recordButton.setAttribute('aria-label', recordingActive ? 'Stop camera recording' : 'Start camera recording');
+                recordButton.setAttribute('title', recordingActive ? 'Stop camera recording' : 'Start camera recording');
                 recordButton.disabled = stopping;
-                recordStatus.textContent = stopping
+                const message = stopping
                     ? 'Stopping recording…'
                     : recordingActive
                         ? `Recording${recording.filename ? ` · ${recording.filename}` : '…'}`
                         : 'Not recording.';
+                setRecordStatus(message, recordingActive ? 'recording' : 'neutral');
             };
             const requestRecording = async (action) => {
                 const query = new URLSearchParams({camera: cameraId, action});
@@ -176,16 +178,16 @@ export const renderLiveForm = (
                 try {
                     await requestRecording(recordingActive ? 'record-stop' : 'record-start');
                 } catch (error) {
-                    if (!destroyed) recordStatus.textContent = error?.message || 'Camera recording request failed.';
+                    if (!destroyed) setRecordStatus(error?.message || 'Camera recording request failed.', 'error');
                 } finally {
                     if (!destroyed && !recordingActive) recordButton.disabled = false;
                 }
             });
-            mediaControls.append(recordButton, recordStatus);
+            mediaControls.append(recordButton);
             void requestRecording('record-status').catch((error) => {
                 if (!destroyed) {
                     recordButton.disabled = true;
-                    recordStatus.textContent = error?.message || 'Camera recording is unavailable.';
+                    setRecordStatus(error?.message || 'Camera recording is unavailable.', 'error');
                 }
             });
         }
@@ -194,14 +196,11 @@ export const renderLiveForm = (
             snapshotButton.type = 'button';
             snapshotButton.className = 'snapshot-button';
             snapshotButton.setAttribute('aria-label', 'Save camera snapshot');
-            snapshotButton.append(text(documentRef, 'PrintScreen'));
-            const snapshotStatus = documentRef.createElement('span');
-            snapshotStatus.className = 'snapshot-status';
-            snapshotStatus.setAttribute('role', 'status');
-            snapshotStatus.setAttribute('aria-live', 'polite');
+            snapshotButton.setAttribute('title', 'Save camera snapshot');
+            snapshotButton.append(text(documentRef, '📷'));
             snapshotButton.addEventListener('click', async () => {
                 snapshotButton.disabled = true;
-                snapshotStatus.textContent = 'Saving snapshot…';
+                setSnapshotStatus('Saving snapshot…');
                 try {
                     const query = new URLSearchParams({camera: cameraId, action: 'snapshot-save'});
                     const response = await environment.fetch(`${snapshotEndpoint}?${query}`, {
@@ -212,20 +211,22 @@ export const renderLiveForm = (
                     if (!response.ok || payload?.ok !== true || typeof payload.snapshot?.filename !== 'string') {
                         throw new Error(payload?.error || 'Camera snapshot request failed.');
                     }
-                    if (!destroyed) snapshotStatus.textContent = `Saved · ${payload.snapshot.filename}`;
+                    if (!destroyed) setSnapshotStatus(`Saved · ${payload.snapshot.filename}`, 'ok');
                 } catch (error) {
-                    if (!destroyed) snapshotStatus.textContent = error?.message || 'Camera snapshot request failed.';
+                    if (!destroyed) setSnapshotStatus(error?.message || 'Camera snapshot request failed.', 'error');
                 } finally {
                     if (!destroyed) snapshotButton.disabled = false;
                 }
             });
-            mediaControls.append(snapshotButton, snapshotStatus);
+            mediaControls.append(snapshotButton);
         }
         if (typeof onGoLive === 'function') {
             const goLive = documentRef.createElement('button');
             goLive.type = 'button';
             goLive.className = 'go-live-button';
-            goLive.append(text(documentRef, 'Go Live'));
+            goLive.setAttribute('aria-label', 'Open camera live view');
+            goLive.setAttribute('title', 'Open camera live view');
+            goLive.append(text(documentRef, '🖥️'));
             goLive.addEventListener('click', () => onGoLive(cameraId));
             mediaControls.append(goLive);
         }
@@ -261,12 +262,6 @@ export const renderLiveForm = (
             return;
         }
 
-        const ptzStatus = documentRef.createElement('p');
-        ptzStatus.className = 'live-ptz-status';
-        ptzStatus.setAttribute('role', 'status');
-        ptzStatus.setAttribute('aria-live', 'polite');
-        ptzStatus.textContent = '';
-
         const speedLabel = documentRef.createElement('label');
         speedLabel.append(text(documentRef, 'Speed'));
         const speed = documentRef.createElement('select');
@@ -282,7 +277,7 @@ export const renderLiveForm = (
         speedLabel.append(speed);
         const speedBlock = documentRef.createElement('div');
         speedBlock.className = 'ptz-speed-block';
-        speedBlock.append(speedLabel, ptzStatus);
+        speedBlock.append(speedLabel);
 
         const directionGrid = documentRef.createElement('div');
         directionGrid.className = 'ptz-direction-grid';
@@ -295,7 +290,7 @@ export const renderLiveForm = (
             movementLocked = true;
             cancelMovement();
             for (const button of movementButtons) button.disabled = true;
-            ptzStatus.textContent = message;
+            setPtzStatus(message, 'error');
         };
 
         const sendPulse = async (direction, generation) => {
@@ -303,13 +298,13 @@ export const renderLiveForm = (
                 try {
                     await onPtzCommand({operation: 'move', direction, speed: speed.value,
                         durationMs: capabilities.pulseDurationMs});
-                    if (generation === holdGeneration) ptzStatus.textContent = `Moving ${direction} · ${speed.value}`;
+                    if (generation === holdGeneration) setPtzStatus(`Moving ${direction} · ${speed.value}`);
                 } catch (error) {
                     const message = describeError(error);
                     if (/stop failed/i.test(message)) lockMovement(`${message} Movement is disabled until this page is reloaded.`);
                     else {
                         cancelMovement();
-                        ptzStatus.textContent = message;
+                        setPtzStatus(message, 'error');
                     }
                 }
             }
@@ -354,7 +349,7 @@ export const renderLiveForm = (
         stopMovement.setAttribute('aria-label', 'Stop repeated PTZ movement');
         stopMovement.addEventListener('click', () => {
             cancelMovement();
-            ptzStatus.textContent = 'Movement stopped.';
+            setPtzStatus('Movement stopped.');
         });
         directionGrid.append(stopMovement);
         for (const direction of ['right', 'down-left', 'down', 'down-right']) {
@@ -387,17 +382,17 @@ export const renderLiveForm = (
             const runPresetAction = async (operation, confirmation = '') => {
                 const number = Number(preset.value);
                 if (!Number.isInteger(number) || number < Number(preset.min) || number > Number(preset.max)) {
-                    ptzStatus.textContent = `Enter a preset number from ${preset.min} to ${preset.max}.`;
+                    setPtzStatus(`Enter a preset number from ${preset.min} to ${preset.max}.`, 'error');
                     return;
                 }
                 if (confirmation && (!environment.confirm || !environment.confirm(`${confirmation} preset ${number}?`))) return;
                 try {
                     await onPtzCommand({operation, preset: number});
-                    ptzStatus.textContent = operation === 'goto'
+                    setPtzStatus(operation === 'goto'
                         ? `Moving to preset ${number}.`
-                        : operation === 'save' ? `Preset ${number} saved.` : `Preset ${number} deleted.`;
+                        : operation === 'save' ? `Preset ${number} saved.` : `Preset ${number} deleted.`, 'ok');
                 } catch (error) {
-                    ptzStatus.textContent = describeError(error);
+                    setPtzStatus(describeError(error), 'error');
                 }
             };
             const presetAction = (caption, operation, confirmation = '', ariaLabel = '', className = '') => {
@@ -458,13 +453,13 @@ export const renderLiveForm = (
         objectUrl = null;
         start.disabled = destroyed;
         stop.disabled = true;
-        if (message && !destroyed) status.textContent = message;
+        if (message && !destroyed) setLiveStatus(message);
     };
 
     const startPlayback = async () => {
         cleanup();
         if (!environment.MediaSource || !environment.WebSocket) {
-            status.textContent = 'This browser does not provide MediaSource video playback.';
+            setLiveStatus('This browser does not provide MediaSource video playback.', 'error');
             return;
         }
         const current = new AbortController();
@@ -473,7 +468,7 @@ export const renderLiveForm = (
         stop.disabled = false;
         const query = `camera=${encodeURIComponent(cameraId)}`;
         try {
-            status.textContent = 'Preparing shared camera stream…';
+            setLiveStatus('Preparing shared camera stream…');
             const response = await environment.fetch(`${prepareEndpoint}?${query}&action=prepare`, {
                 signal: current.signal,
                 cache: 'no-store',
@@ -571,7 +566,7 @@ export const renderLiveForm = (
                     buffer.addEventListener('updateend', updatePlayback);
                     const videoCodec = message.value.includes('hvc1') ? 'HEVC' : message.value.includes('avc1') ? 'H264' : 'video';
                     const hasAudio = /mp4a|flac|opus/.test(message.value);
-                    status.textContent = `${videoCodec}${hasAudio ? ' · camera audio available' : ''} · shared relay · native browser playback`;
+                    setLiveStatus(`${videoCodec}${hasAudio ? ' · camera audio available' : ''} · shared relay · native browser playback`, 'ok');
                     pump();
                 } catch {
                     fail('The camera stream format is not supported by this browser.');
@@ -604,6 +599,7 @@ export const renderLiveForm = (
         }).catch((error) => {
             if (!destroyed) {
                 ptzContent.replaceChildren(text(documentRef, `PTZ controls could not be loaded: ${describeError(error)}`));
+                setPtzStatus(`PTZ controls could not be loaded: ${describeError(error)}`, 'error');
             }
         });
     }

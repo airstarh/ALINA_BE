@@ -1,10 +1,10 @@
-import {renderLiveForm} from './live-form.js?v=20261016-4';
+import {renderLiveForm} from './live-form.js?v=20261016-5';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 
 export const renderHomeForm = (
     {cameras, prepareEndpoint, recordEndpoint, snapshotEndpoint, relaySocketPath = '/cam-stream/api/ws',
-        requestTalkToken, onGoLive},
+        requestTalkToken, onGoLive, onStatus},
     documentRef = document,
     environment = globalThis,
 ) => {
@@ -31,6 +31,7 @@ export const renderHomeForm = (
                 ? () => requestTalkToken(camera.id)
                 : null,
             onGoLive,
+            onStatus,
         }, documentRef, environment);
         views.push(view);
         card.append(view.element);

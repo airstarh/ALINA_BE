@@ -9,26 +9,19 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Borg Tech Service</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261016-2">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261016-6">
 </head>
 <body>
 <header class="app-header">
-    <div>
-        <p class="eyebrow">ALINA · local camera tools</p>
-        <h1><button id="home-button" class="home-button" type="button">Borg Tech Service</button></h1>
-    </div>
+    <h1><button id="home-button" class="home-button" type="button">Borg Tech Service</button></h1>
     <form id="camera-form" class="camera-picker">
         <select id="camera-select" name="camera" aria-describedby="connection-status"></select>
-        <button id="connect-button" type="submit">Connect</button>
-        <button id="reboot-button" class="danger-button" type="button" disabled>Reboot camera</button>
+        <button id="connect-button" type="submit" aria-label="Connect selected camera" title="Connect selected camera">✔</button>
+        <button id="reboot-button" class="danger-button" type="button" aria-label="Reboot selected camera" title="Reboot selected camera" disabled>🗘</button>
     </form>
 </header>
 
 <main>
-    <p id="connection-status" class="connection-status" role="status" aria-live="polite">
-        Loading camera list…
-    </p>
-
     <section id="dashboard" class="dashboard" hidden>
         <button
             id="sidebar-toggle"
@@ -64,8 +57,15 @@ declare(strict_types=1);
             </div>
         </section>
     </section>
+
+    <section class="app-status-panel" aria-label="Application status">
+        <p id="connection-status" class="connection-status" role="status" aria-live="polite">
+            App: Loading camera list…
+        </p>
+        <div id="operation-statuses" class="operation-statuses" aria-live="polite"></div>
+    </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261016-4"></script>
+<script type="module" src="./stuff/js/app.js?v=20261016-5"></script>
 </body>
 </html>
