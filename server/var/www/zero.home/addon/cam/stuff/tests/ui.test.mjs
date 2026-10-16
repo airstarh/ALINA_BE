@@ -176,6 +176,7 @@ test('home dashboard renders every configured camera with compact live controls'
         ],
         prepareEndpoint: '/live-stream.php',
         recordEndpoint: '/live-stream.php',
+        snapshotEndpoint: '/live-stream.php',
         requestTalkToken: async () => ({token: 'fixture'}),
         onGoLive: cameraId => opened.push(cameraId),
     }, new FakeDocument(), environment);
@@ -186,6 +187,7 @@ test('home dashboard renders every configured camera with compact live controls'
     assert.deepEqual(nodes.filter(node => node.type === 'h3').map(node => node.children[0]?.value), ['Balcon', 'Door']);
     assert.equal(nodes.filter(node => node.type === 'video').length, 2);
     assert.equal(nodes.filter(node => node.children[0]?.value === 'RECORD').length, 2);
+    assert.equal(nodes.filter(node => node.children[0]?.value === 'PrintScreen').length, 2);
     assert.equal(nodes.filter(node => node.attributes['aria-label'] === 'Start camera talkback').length, 1);
     assert.equal(nodes.find(node => node.children[0]?.value === 'Start live video'), undefined);
     assert.equal(nodes.find(node => node.className === 'live-ptz'), undefined);
@@ -365,6 +367,38 @@ test('live page RECORD button starts and stops server-side recording below the v
     view.destroy();
 });
 
+test('PrintScreen saves a native camera snapshot and reports its filename', async () => {
+    const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
+    const requests = [];
+    const environment = {
+        fetch: async (url, options = {}) => {
+            requests.push({url, method: options.method || 'GET'});
+            return {ok: true, async json() { return {
+                ok: true,
+                snapshot: {filename: '2026-12-31---22-55---1798757700123456---door.jpg'},
+            }; }};
+        },
+        addEventListener() {},
+        removeEventListener() {},
+    };
+    const view = renderLiveForm({
+        cameraId: 'door', snapshotEndpoint: '/live-stream.php',
+    }, new FakeDocument(), environment);
+    const nodes = descendants(view.element);
+    const button = nodes.find(node => node.attributes['aria-label'] === 'Save camera snapshot');
+
+    assert.ok(button);
+    assert.equal(button.children[0].value, 'PrintScreen');
+    await button.listeners.click();
+    assert.deepEqual(requests, [{
+        url: '/live-stream.php?camera=door&action=snapshot-save',
+        method: 'POST',
+    }]);
+    const status = nodes.find(node => node.className === 'snapshot-status');
+    assert.equal(status.children[0].value, 'Saved · 2026-12-31---22-55---1798757700123456---door.jpg');
+    view.destroy();
+});
+
 test('record button discovers recording changes made in another view while inactive', async () => {
     const {renderLiveForm} = await import(await moduleUrl('live-form.js'));
     let active = false;
@@ -424,8 +458,8 @@ test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261016-1/);
-    assert.match(app, /live-form\.js\?v=20261015-7/);
+    assert.match(index, /app\.js\?v=20261016-2/);
+    assert.match(app, /live-form\.js\?v=20261016-2/);
 });
 
 test('live page enables configured Door camera playback', async () => {

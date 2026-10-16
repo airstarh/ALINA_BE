@@ -147,6 +147,14 @@ state every two seconds even while inactive, keeping their highlighted toggle
 state synchronized with recordings started or stopped elsewhere.
 See [live-video.md](live-video.md) for storage, resource, and failure details.
 
+Live and Home camera cards also expose **PrintScreen**. This requests a new JPEG
+from the camera's native HTTP `/webcapture.jpg?command=snap&channel=0` endpoint,
+validates it, and stores it in the same `record.storage` directory. It captures
+the camera's current moment rather than the browser player's delayed frame, and
+therefore retains the camera firmware's observed snapshot-resolution limit.
+Names use `YYYY-MM-DD---HH-MM---Unix-microseconds---camera.jpg`, so rapid
+captures do not overwrite one another.
+
 ### Language scope
 
 For now, only English UI text, option labels and language resources are in scope.

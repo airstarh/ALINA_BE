@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Cam\Config;
+use Cam\CameraSnapshot;
 use Cam\Go2rtcClient;
 use Cam\LiveRecorder;
 use Cam\LiveStream;
 use Cam\TalkToken;
 
 require_once __DIR__ . '/Config.php';
+require_once __DIR__ . '/CameraSnapshot.php';
 require_once __DIR__ . '/Go2rtcClient.php';
 require_once __DIR__ . '/LiveRecorder.php';
 require_once __DIR__ . '/LiveStream.php';
@@ -25,12 +27,22 @@ try {
         throw new InvalidArgumentException('Camera is required.');
     }
     if (!is_string($action) || !in_array($action, [
-        'prepare', 'info', 'stream', 'record-status', 'record-start', 'record-stop',
+        'prepare', 'info', 'stream', 'record-status', 'record-start', 'record-stop', 'snapshot-save',
     ], true)) {
         throw new InvalidArgumentException('Unknown live-video action.');
     }
 
     $config = Config::load(dirname(__DIR__, 2) . '/config.php');
+    if ($action === 'snapshot-save') {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            throw new InvalidArgumentException('Saving a camera snapshot requires POST.');
+        }
+        $snapshot = (new CameraSnapshot($config))->save($cameraId);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, max-age=0');
+        echo json_encode(['ok' => true, 'snapshot' => $snapshot], JSON_THROW_ON_ERROR);
+        return;
+    }
     $live = new LiveStream($config);
     if (str_starts_with($action, 'record-')) {
         $recorder = new LiveRecorder($config, $live, new Go2rtcClient());

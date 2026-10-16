@@ -254,6 +254,28 @@ recording. Only one recording may own a camera at a time, but different cameras
 may record concurrently. Storage and filenames always come from trusted server
 configuration and validated camera IDs; the browser cannot submit either path.
 
+### Native camera PrintScreen
+
+Both Home cards and the individual Live view show **PrintScreen** beside their
+media controls. A press sends `POST action=snapshot-save` to `live-stream.php`.
+PHP then requests the configured camera's native HTTP JPEG at
+`/webcapture.jpg?command=snap&channel=0`; it does not extract a frame from the
+go2rtc stream or from the browser. Consequently, the result represents the
+camera's current moment and can be newer than the delayed frame visible in the
+player. It also retains the firmware's observed snapshot-resolution limit.
+
+The response must be a valid JPEG no larger than 4 MiB. It is stored in the
+same existing, writable `record.storage` directory as manual video recordings:
+
+```text
+YYYY-MM-DD---HH-MM---Unix-microseconds---camera.jpg
+```
+
+The microsecond Unix timestamp makes rapid captures distinct. The UI disables
+the button while the request is active and reports either the saved filename or
+the camera/storage error below the frame. No FFmpeg process, go2rtc consumer,
+or browser image upload is involved.
+
 The former workstation-only `127.0.0.1:18765` prototype and all of its files
 were removed. The older PHP/FFmpeg streaming actions remain temporarily in
 `live-stream.php` as a rollback path, but the normal Live page does not call

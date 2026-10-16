@@ -49,7 +49,7 @@ const waitForEvent = (target, name, signal) => new Promise((resolve, reject) => 
 
 export const renderLiveForm = (
     {cameraId, endpoint = null, prepareEndpoint = endpoint, relaySocketPath = '/cam-stream/api/ws',
-        recordEndpoint = null,
+        recordEndpoint = null, snapshotEndpoint = null,
         autoStart = false, loadPtz = null, onPtzCommand = null,
         talkback = false, requestTalkToken = null, talkClientFactory = createTalkClient,
         compact = false, onGoLive = null},
@@ -98,7 +98,7 @@ export const renderLiveForm = (
     videoPanel.append(player);
     let talkClient = null;
     let recordingPoll = null;
-    if ((talkback && typeof requestTalkToken === 'function') || recordEndpoint) {
+    if ((talkback && typeof requestTalkToken === 'function') || recordEndpoint || snapshotEndpoint) {
         const mediaControls = documentRef.createElement('div');
         mediaControls.className = 'live-media-controls';
         if (talkback && typeof requestTalkToken === 'function') {
@@ -188,6 +188,38 @@ export const renderLiveForm = (
                     recordStatus.textContent = error?.message || 'Camera recording is unavailable.';
                 }
             });
+        }
+        if (snapshotEndpoint) {
+            const snapshotButton = documentRef.createElement('button');
+            snapshotButton.type = 'button';
+            snapshotButton.className = 'snapshot-button';
+            snapshotButton.setAttribute('aria-label', 'Save camera snapshot');
+            snapshotButton.append(text(documentRef, 'PrintScreen'));
+            const snapshotStatus = documentRef.createElement('span');
+            snapshotStatus.className = 'snapshot-status';
+            snapshotStatus.setAttribute('role', 'status');
+            snapshotStatus.setAttribute('aria-live', 'polite');
+            snapshotButton.addEventListener('click', async () => {
+                snapshotButton.disabled = true;
+                snapshotStatus.textContent = 'Saving snapshot…';
+                try {
+                    const query = new URLSearchParams({camera: cameraId, action: 'snapshot-save'});
+                    const response = await environment.fetch(`${snapshotEndpoint}?${query}`, {
+                        method: 'POST',
+                        cache: 'no-store',
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || payload?.ok !== true || typeof payload.snapshot?.filename !== 'string') {
+                        throw new Error(payload?.error || 'Camera snapshot request failed.');
+                    }
+                    if (!destroyed) snapshotStatus.textContent = `Saved · ${payload.snapshot.filename}`;
+                } catch (error) {
+                    if (!destroyed) snapshotStatus.textContent = error?.message || 'Camera snapshot request failed.';
+                } finally {
+                    if (!destroyed) snapshotButton.disabled = false;
+                }
+            });
+            mediaControls.append(snapshotButton, snapshotStatus);
         }
         if (typeof onGoLive === 'function') {
             const goLive = documentRef.createElement('button');

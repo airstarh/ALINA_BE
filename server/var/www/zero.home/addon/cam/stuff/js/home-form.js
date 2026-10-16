@@ -1,9 +1,9 @@
-import {renderLiveForm} from './live-form.js?v=20261015-7';
+import {renderLiveForm} from './live-form.js?v=20261016-2';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 
 export const renderHomeForm = (
-    {cameras, prepareEndpoint, recordEndpoint, relaySocketPath = '/cam-stream/api/ws',
+    {cameras, prepareEndpoint, recordEndpoint, snapshotEndpoint, relaySocketPath = '/cam-stream/api/ws',
         requestTalkToken, onGoLive},
     documentRef = document,
     environment = globalThis,
@@ -22,6 +22,7 @@ export const renderHomeForm = (
             cameraId: camera.id,
             prepareEndpoint,
             recordEndpoint,
+            snapshotEndpoint,
             relaySocketPath,
             autoStart: true,
             compact: true,

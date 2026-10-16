@@ -9,7 +9,7 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Borg Tech Service</title>
-    <link rel="stylesheet" href="./stuff/css/app.css?v=20261016-1">
+    <link rel="stylesheet" href="./stuff/css/app.css?v=20261016-2">
 </head>
 <body>
 <header class="app-header">
@@ -66,6 +66,6 @@ declare(strict_types=1);
     </section>
 </main>
 
-<script type="module" src="./stuff/js/app.js?v=20261016-1"></script>
+<script type="module" src="./stuff/js/app.js?v=20261016-2"></script>
 </body>
 </html>
