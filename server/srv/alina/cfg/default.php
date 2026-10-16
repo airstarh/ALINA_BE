@@ -93,7 +93,7 @@ return [
         'meta' => [],
     ],
     'frontend' => [
-        'path'                  => '/apps/vue',
+        'path'                  => '/#',
         'login'                 => '/auth/login',
         'register'              => '/auth/register',
         'profile'               => '/auth/profile',
