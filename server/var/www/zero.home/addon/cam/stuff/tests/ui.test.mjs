@@ -526,7 +526,7 @@ test('live changes use fresh browser module cache keys', async () => {
     const live = await readFile(new URL('../js/live-form.js', import.meta.url), 'utf8');
 
     assert.match(index, /app\.js\?v=20261016-5/);
-    assert.match(index, /app\.css\?v=20261016-6/);
+    assert.match(index, /app\.css\?v=20261016-7/);
     assert.match(app, /live-form\.js\?v=20261016-5/);
     assert.match(app, /home-form\.js\?v=20261016-5/);
     assert.match(live, /talk-client\.js\?v=20261016-5/);
@@ -1590,6 +1590,21 @@ test('menu group headers stay static and read-only settings have a larger gap', 
     const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
     assert.match(css, /\.section-group-heading\s*\{/);
     assert.match(css, /\.section-divider\s*\{[^}]*margin:\s*2rem\s+-\.45rem\s+\.25rem/s);
+});
+
+test('branding and application footer expose the requested contact details', async () => {
+    const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
+    const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
+    assert.match(index, /<title>Borg WebCam<\/title>/);
+    assert.match(index, />Borg WebCam<\/button>/);
+    assert.match(index, /id="app-footer"/);
+    assert.match(index, /Powered by Vsevolod Azovsky/);
+    assert.match(index, /vsevolod\.azovsky@gmail\.com/);
+    assert.match(index, /\+79601061565/);
+    assert.match(index, /Telegram:[\s\S]*@BorgSeva/);
+    assert.match(index, /href="\.\/dvrip-api\.html"/);
+    assert.match(css, /\.app-status-panel\s*\{[^}]*margin-block:\s*200px/s);
+    assert.match(css, /\.app-footer\s*\{[^}]*margin-bottom:\s*200px/s);
 });
 
 test('standalone DVRIP reference documents the current protocol boundary', async () => {
