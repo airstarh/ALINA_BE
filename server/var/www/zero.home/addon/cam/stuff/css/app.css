@@ -85,6 +85,7 @@ main { padding: 1.25rem clamp(1rem, 4vw, 4rem) 4rem; }
 }
 .dashboard.is-home { grid-template-columns: minmax(0, 1fr); }
 
+.sidebar-toggle { display: none; }
 .sidebar { display: grid; gap: 1rem; position: sticky; top: 1rem; z-index: 1; min-width: 0; }
 .panel { border: 1px solid var(--line); border-radius: .8rem; background: rgb(25 32 40 / 92%); box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 20%); }
 .identity-panel, .content-panel { padding: 1rem; }
@@ -307,6 +308,8 @@ select option:checked, select option:checked:disabled {
     .app-header { align-items: stretch; flex-direction: column; }
     .camera-picker { grid-template-columns: 1fr; }
     .dashboard { grid-template-columns: 1fr; }
+    .sidebar-toggle:not([hidden]) { display: block; width: 100%; }
+    .dashboard.sidebar-collapsed .sidebar { display: none; }
     .sidebar { position: static; }
     .identity-panel #camera-identity > .tree-list > dd > .tree-branch[open] { width: 100%; }
     .tree-list { grid-template-columns: 1fr; }

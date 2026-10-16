@@ -79,6 +79,11 @@ No camera is selected and the per-camera sidebar is hidden on Home. The header
 title **Borg Tech Service** returns to this dashboard. Each card exposes Talk
 only for a speaker-capable camera, the shared RECORD toggle, and Go Live; Go
 Live selects its camera and enters the existing full Live/configuration view.
+On screens up to 780 pixels wide, the complete per-camera sidebar starts
+collapsed behind a full-width **Show menu** button. The button toggles the
+Device and Configuration panels together, and choosing a configuration item
+collapses them again so the selected page receives the available phone width.
+Home continues to hide both the sidebar and this toggle.
 
 **ACCESS -> Live** provides inline playback for configured cameras through the
 optional go2rtc service. PHP performs only a short prepare operation: it

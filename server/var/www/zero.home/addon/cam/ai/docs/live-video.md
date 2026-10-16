@@ -174,6 +174,10 @@ not alter camera configuration or the talkback service.
   top-right selector on **Select a camera** and hiding the per-camera sidebar.
   The responsive card grid gives the available width to the configured
   cameras. **Borg Tech Service** in the page header is the Home link.
+- In the full per-camera view, screens up to 780 pixels wide show the Device
+  and Configuration sidebar through a full-width **Show menu / Hide menu**
+  control. It starts collapsed and collapses again after a menu destination is
+  selected. The Home dashboard hides both the sidebar and its toggle.
 - Each Home card provides **Talk** only when the camera is explicitly marked
   speaker-capable, the shared server-side **RECORD** toggle, and **Go Live**.
   Go Live selects that camera and opens its full Live/configuration view.

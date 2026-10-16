@@ -31,6 +31,7 @@ const elements = {
     refresh: document.querySelector('#refresh-section'),
     loadAll: document.querySelector('#load-all'),
     sidebar: document.querySelector('#camera-sidebar'),
+    sidebarToggle: document.querySelector('#sidebar-toggle'),
 };
 
 let activeCamera = '';
@@ -38,6 +39,37 @@ let activeSection = '';
 let disposeActiveView = () => {};
 let cameraCatalogue = new Map();
 let cameraList = [];
+const narrowSidebarQuery = window.matchMedia?.('(max-width: 780px)') ?? {
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+};
+let sidebarExpanded = true;
+
+const setSidebarExpanded = (expanded) => {
+    sidebarExpanded = expanded;
+    const toggleAvailable = activeCamera !== '' && narrowSidebarQuery.matches;
+    elements.sidebarToggle.hidden = !toggleAvailable;
+    elements.sidebarToggle.setAttribute('aria-expanded', String(toggleAvailable && expanded));
+    elements.sidebarToggle.textContent = expanded ? 'Hide menu' : 'Show menu';
+    elements.dashboard.classList.toggle('sidebar-collapsed', toggleAvailable && !expanded);
+};
+
+const showCameraSidebar = () => {
+    elements.sidebar.hidden = false;
+    setSidebarExpanded(!narrowSidebarQuery.matches);
+};
+
+const hideCameraSidebar = () => {
+    elements.sidebar.hidden = true;
+    elements.sidebarToggle.hidden = true;
+    elements.sidebarToggle.setAttribute('aria-expanded', 'false');
+    elements.dashboard.classList.toggle('sidebar-collapsed', false);
+};
+
+const collapseSidebarOnNarrowScreen = () => {
+    if (activeCamera && narrowSidebarQuery.matches) setSidebarExpanded(false);
+};
 
 const clearActiveView = () => {
     disposeActiveView();
@@ -79,6 +111,7 @@ const renderIdentity = (status) => {
 };
 
 const loadSection = async (sectionId, sectionName, token) => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     setActiveSection(sectionId);
     elements.title.textContent = sectionName;
@@ -97,6 +130,7 @@ const loadSection = async (sectionId, sectionName, token) => {
 };
 
 const loadAccess = async (token) => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     setActiveSection('access');
     elements.title.textContent = 'All points';
@@ -134,6 +168,7 @@ const loadAccess = async (token) => {
 };
 
 const loadSmtp = async (token) => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     setActiveSection('smtp');
     elements.title.textContent = 'Email / SMTP';
@@ -185,6 +220,7 @@ const loadSmtp = async (token) => {
 };
 
 const loadEditor = async (editorId, editorName, token) => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     const sectionId = `editor:${editorId}`;
     setActiveSection(sectionId);
@@ -250,6 +286,7 @@ const loadEditor = async (editorId, editorName, token) => {
 };
 
 const loadLive = () => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     setActiveSection('live');
     elements.title.textContent = 'Live';
@@ -278,7 +315,7 @@ const loadHome = () => {
     activeSection = 'home';
     elements.select.value = '';
     elements.reboot.disabled = true;
-    elements.sidebar.hidden = true;
+    hideCameraSidebar();
     elements.dashboard.hidden = false;
     elements.dashboard.classList.toggle('is-home', true);
     elements.title.textContent = 'Home';
@@ -343,7 +380,7 @@ const connect = async () => {
     setActiveSection('');
     elements.dashboard.hidden = true;
     elements.dashboard.classList.toggle('is-home', false);
-    elements.sidebar.hidden = false;
+    showCameraSidebar();
     showStatus('Connecting to camera…');
     setBusy(true);
 
@@ -371,6 +408,18 @@ elements.form.addEventListener('submit', (event) => {
 });
 
 elements.home.addEventListener('click', loadHome);
+
+elements.sidebarToggle.addEventListener('click', () => {
+    setSidebarExpanded(!sidebarExpanded);
+});
+
+narrowSidebarQuery.addEventListener?.('change', () => {
+    if (!activeCamera) {
+        hideCameraSidebar();
+        return;
+    }
+    setSidebarExpanded(!narrowSidebarQuery.matches);
+});
 
 elements.reboot.addEventListener('click', async () => {
     if (!activeCamera || !window.confirm('Reboot the selected camera now? It will be unavailable temporarily.')) {
@@ -424,6 +473,7 @@ elements.refresh.addEventListener('click', () => {
 });
 
 elements.loadAll.addEventListener('click', async () => {
+    collapseSidebarOnNarrowScreen();
     clearActiveView();
     const token = guard.begin(activeCamera);
     setActiveSection('all');

@@ -197,23 +197,27 @@ test('home dashboard renders every configured camera with compact live controls'
     view.destroy();
 });
 
-test('camera application opens Home with an empty camera selection', async () => {
+test('camera application keeps Home menu-free and collapses camera navigation on narrow screens', async () => {
     const documentRef = new FakeDocument();
     for (const [selector, type] of [
         ['#home-button', 'button'], ['#camera-form', 'form'], ['#camera-select', 'select'],
         ['#connect-button', 'button'], ['#reboot-button', 'button'], ['#connection-status', 'p'],
         ['#dashboard', 'section'], ['#camera-identity', 'div'], ['#section-list', 'div'],
         ['#section-title', 'h2'], ['#section-content', 'div'], ['#refresh-section', 'button'],
-        ['#load-all', 'button'], ['#camera-sidebar', 'aside'],
+        ['#load-all', 'button'], ['#camera-sidebar', 'aside'], ['#sidebar-toggle', 'button'],
     ]) documentRef.nodes.set(selector, documentRef.createElement(type));
     documentRef.nodes.get('#dashboard').hidden = true;
+    documentRef.nodes.get('#sidebar-toggle').hidden = true;
     const requests = [];
     const original = {
         document: globalThis.document, window: globalThis.window, fetch: globalThis.fetch,
         MediaSource: globalThis.MediaSource, setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval,
     };
     globalThis.document = documentRef;
-    globalThis.window = {confirm: () => true};
+    globalThis.window = {
+        confirm: () => true,
+        matchMedia: () => ({matches: true, addEventListener() {}, removeEventListener() {}}),
+    };
     globalThis.MediaSource = null;
     globalThis.setInterval = () => 41;
     globalThis.clearInterval = () => {};
@@ -225,6 +229,15 @@ test('camera application opens Home with an empty camera selection', async () =>
                 {id: 'door', name: 'Door', talkback: false},
             ]},
         }; }};
+        if (String(url).includes('action=status')) return {ok: true, status: 200, async json() {
+            return {ok: true, data: {name: 'door'}, error: null};
+        }};
+        if (String(url).includes('action=editors') || String(url).includes('action=sections')) {
+            return {ok: true, status: 200, async json() { return {ok: true, data: [], error: null}; }};
+        }
+        if (String(url).includes('action=ptz')) return {ok: true, status: 200, async json() {
+            return {ok: true, data: {available: false}, error: null};
+        }};
         return {ok: true, status: 200, async json() {
             return {ok: true, recording: {active: false, stopping: false}};
         }};
@@ -244,6 +257,32 @@ test('camera application opens Home with an empty camera selection', async () =>
         assert.equal(descendants(documentRef.nodes.get('#section-content')).filter(node => node.type === 'video').length, 2);
         assert.ok(requests.some(url => String(url).includes('action=cameras')));
         assert.equal(requests.some(url => String(url).includes('action=status')), false);
+
+        select.value = 'door';
+        documentRef.nodes.get('#camera-form').listeners.submit({preventDefault() {}});
+        await flushMedia();
+        await flushMedia();
+        await flushMedia();
+        const toggle = documentRef.nodes.get('#sidebar-toggle');
+        assert.equal(toggle.hidden, false);
+        assert.equal(toggle.attributes['aria-expanded'], 'false');
+        assert.equal(toggle.children[0].value, 'Show menu');
+        assert.match(documentRef.nodes.get('#dashboard').className, /sidebar-collapsed/);
+
+        toggle.listeners.click();
+        assert.equal(toggle.attributes['aria-expanded'], 'true');
+        assert.equal(toggle.children[0].value, 'Hide menu');
+        assert.doesNotMatch(documentRef.nodes.get('#dashboard').className, /sidebar-collapsed/);
+
+        const liveButton = descendants(documentRef.nodes.get('#section-list'))
+            .find(node => node.type === 'button' && node.children[0]?.value === 'Live');
+        liveButton.listeners.click();
+        assert.equal(toggle.attributes['aria-expanded'], 'false');
+        assert.match(documentRef.nodes.get('#dashboard').className, /sidebar-collapsed/);
+
+        documentRef.nodes.get('#home-button').listeners.click();
+        assert.equal(toggle.hidden, true);
+        assert.equal(select.value, '');
     } finally {
         Object.assign(globalThis, original);
     }
@@ -385,7 +424,7 @@ test('live latency changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261015-7/);
+    assert.match(index, /app\.js\?v=20261016-1/);
     assert.match(app, /live-form\.js\?v=20261015-7/);
 });
 
