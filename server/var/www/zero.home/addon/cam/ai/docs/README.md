@@ -25,6 +25,7 @@ into this directory, application source, command examples, or browser-side code.
 - [CMS selects: screenshot mapping and confirmed wire values](cms-select-mapping.md)
 - [Access points: protocols, discovery and credentials](access-points.md)
 - [JavaScript → PHP → raw DVRIP call map](DVRIP_CALL_MAP.md)
+- [Standalone Swagger-like DVRIP / NETIP reference](../../dvrip-api.html)
 - [Balcon camera](balcon-discovery.md)
 - [Door camera and automatic editor discovery](door-discovery.md)
 - [Balcon vendor configuration inventory](balcon-vendor-config.md)

@@ -1591,3 +1591,15 @@ test('menu group headers stay static and read-only settings have a larger gap', 
     assert.match(css, /\.section-group-heading\s*\{/);
     assert.match(css, /\.section-divider\s*\{[^}]*margin:\s*2rem\s+-\.45rem\s+\.25rem/s);
 });
+
+test('standalone DVRIP reference documents the current protocol boundary', async () => {
+    const html = await readFile(new URL('../../dvrip-api.html', import.meta.url), 'utf8');
+    assert.match(html, /DVRIP \/ NETIP API Reference/);
+    assert.match(html, /message 1000/);
+    assert.match(html, /1042.*read configuration/s);
+    assert.match(html, /1040.*write configuration/s);
+    assert.match(html, /1472.*users/s);
+    assert.match(html, /RTSP.*ONVIF.*WebSocket/s);
+    assert.match(html, /api\.php\?action=cameras/);
+    assert.doesNotMatch(html, /admin:admin|deden|1234/);
+});
