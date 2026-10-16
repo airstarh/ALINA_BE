@@ -1,4 +1,4 @@
-import {renderLiveForm} from './live-form.js?v=20261016-2';
+import {renderLiveForm} from './live-form.js?v=20261016-4';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 

@@ -168,7 +168,7 @@
 - Modify: `server/etc/nginx/conf.d/location.alina.php82`
 
 **Interfaces:**
-- Produces: container `alina_cam`, internal port 8081, healthcheck, and same-origin `/cam-talk` WebSocket route.
+- Produces: container `alina_cam`, internal port 8081, healthcheck, and `/cam-talk` WebSocket route. The current deployment intentionally accepts valid signed tokens from every Origin.
 
 - [ ] Define `alina_cam` from the existing PHP 8.2 build with Xdebug disabled, 128 MiB limit, read-only code mounts, writable log mount, `/tmp` tmpfs, `ALINA_MODE=PROD`, existing env file, and the camera talk runner command.
 - [ ] Add exactly `-f dc.cam.yml` to the four approved local/`bbb` up/down Compose invocations; make no `sss` change.

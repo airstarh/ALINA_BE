@@ -87,8 +87,10 @@ Home continues to hide both the sidebar and this toggle.
 
 **ACCESS -> Live** provides inline playback for configured cameras through the
 optional go2rtc service. PHP performs only a short prepare operation: it
-registers the private per-camera RTSP source with go2rtc and returns a
-short-lived authorization token. Nginx exposes one exact authenticated
+looks up the stable private per-camera RTSP relay, creates it only when absent,
+and returns a short-lived authorization token. It never replaces an existing
+relay when another viewer opens; a per-camera lock serializes simultaneous
+first creation. Nginx exposes one exact authenticated
 `/cam-stream/api/ws` route, and browser JavaScript consumes go2rtc's fragmented
 MP4 through native Media Source Extensions. Video is not re-encoded and no
 localhost helper or camera setting change is involved. Playback starts muted;
@@ -96,7 +98,9 @@ listening uses the native player's volume control. Stop, navigation, or changing
 camera closes only that viewer's WebSocket and buffers; hiding a tab keeps its
 stream connected while cancelling any active PTZ movement. go2rtc shares one
 upstream camera connection among multiple simultaneous browser viewers, so live
-viewing does not occupy PHP-FPM workers. Live is the default page after connecting
+viewing does not occupy PHP-FPM workers. Each tab or device owns an independent
+WebSocket consumer, and there is no viewer-count or browser-Origin/domain
+allowlist in the video path. Live is the default page after connecting
 and playback starts automatically whenever it opens. Balcon uses HEVC and Door
 uses H.264 Baseline at 1920 × 1080; both currently use RTSP with RTP media over
 UDP. See
@@ -112,7 +116,7 @@ implementation but are not used by the current Live page.
 Balcon is configured as speaker-capable and now receives a click-only `🎙` / red
 `■` talkback toggle below the player. Door has no speaker and receives no talk
 control. Talkback is isolated in the optional `alina_cam` PHP/Ratchet container
-on internal port 8081 and the same-origin `/cam-talk` WebSocket; the existing
+on internal port 8081 and the `/cam-talk` WebSocket; the existing
 text-chat container and `/ws` route are unchanged. A 30-second camera-bound HMAC
 token authorizes one owner per camera. Browser audio is resampled to signed
 16-bit mono 8 kHz PCM, FFmpeg converts it to G.711 A-law, and the captured DVRIP
@@ -123,6 +127,15 @@ WebSocket to `alina_cam`; `alina_cam` owns two simultaneous TCP sockets to
 camera port 34567: authenticated Start/Stop control and claimed G.711 A-law
 media. See [live-video.md](live-video.md) for deployment details and
 [talkback-protocol.md](talkback-protocol.md) for the full verified lifecycle.
+The WebSocket intentionally accepts valid camera-bound tokens from every
+browser Origin, without a Host/Origin match or domain allowlist, so public and
+reverse-proxied frontends can use the same backend.
+For mobile compatibility, microphone permission and Web Audio activation begin
+inside the original talk-button tap, before any authorization or socket wait;
+Safari's prefixed audio-context constructor is supported as a fallback.
+The capture worklet remains connected to the device output through a muted gain
+node because mobile Chrome may suspend a detached Web Audio processing graph;
+the zero gain prevents microphone playback and echo.
 
 `alina_cam` remains intentional rather than obsolete. Although go2rtc advertises
 DVRIP two-way audio, using it from a browser requires WebRTC signaling/ICE and a

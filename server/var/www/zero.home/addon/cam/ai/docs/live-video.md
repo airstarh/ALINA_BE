@@ -58,6 +58,16 @@ otherwise port 554. `live.rtsp_transport` selects UDP or TCP. PHP registers
 this server-side URL with go2rtc, while the browser receives only the safe
 relay name and a short-lived token.
 
+Stream preparation is deliberately non-destructive. PHP checks whether the
+stable per-camera relay name already exists and reuses it when present. Only a
+missing relay name is created with go2rtc's `PUT /api/streams`; opening another
+tab, browser, phone, or PC must never PUT over the active name. A per-camera
+lock also serializes simultaneous first creation. Consequently each viewer has
+an independent WebSocket consumer while all viewers share one RTSP producer.
+There is no viewer-count policy or browser-Origin/domain allowlist in this
+video path; practical concurrency is limited by network, relay, browser, and
+camera capacity.
+
 A future true auto-discovery path for Live would run the ONVIF sequence above,
 choose the intended profile (normally the main stream), safely add server-side
 credentials when the returned URI omits them, and register that discovered URI
@@ -320,8 +330,20 @@ the active red `■` closes it. Microphone permission is never requested on page
 load. Door can provide incoming RTSP audio, but it has no speaker and receives
 no talk control.
 
+Mobile browsers require microphone/Web Audio activation to occur during the
+original user gesture. The talk client therefore requests microphone access,
+creates the standard or Safari-prefixed audio context, and resumes it directly
+inside the talk-button action, before awaiting PHP authorization or the
+WebSocket/camera handshake. Moving capture back behind either network wait can
+make the control fail on a phone even though the same page works on desktop.
+The AudioWorklet is connected to the audio destination through a zero-volume
+gain node. This keeps the pull-driven graph alive on mobile Chrome while
+preventing local microphone echo.
+Microphone capture also requires the HTTPS application origin to be trusted by
+the phone and permission to be granted for that origin.
+
 Outgoing microphone audio uses the optional dedicated `alina_cam` container and
-same-origin `/cam-talk` WebSocket. It does not reuse the text-chat `/ws` service.
+the `/cam-talk` WebSocket. It does not reuse the text-chat `/ws` service.
 The browser resamples mono microphone input to signed 16-bit 8 kHz PCM; a
 persistent FFmpeg process converts it to G.711 A-law, and the service sends
 captured 320-byte DVRIP `OPTalk` frames to the camera. Audio is neither recorded
@@ -339,8 +361,9 @@ remain open concurrently until talkback stops. See the detailed
 
 Both PHP-FPM and `alina_cam` must receive the same private
 `ALINA_CAM_TALK_SECRET` (at least 32 bytes) through `_GITOUT/env/.env`. API tokens
-are camera-bound HMAC-SHA256 values valid for 30 seconds. The WebSocket also
-requires an exact same-origin Host/Origin match.
+are camera-bound HMAC-SHA256 values valid for 30 seconds. Per the current
+deployment requirement, the WebSocket accepts a valid token from every browser
+Origin; no Host/Origin match or allowlist is applied.
 
 ### Why talkback remains in `alina_cam`
 

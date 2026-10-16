@@ -1,4 +1,4 @@
-import {createTalkClient} from './talk-client.js?v=20261014-1';
+import {createTalkClient} from './talk-client.js?v=20261016-4';
 
 const text = (documentRef, value) => documentRef.createTextNode(value);
 

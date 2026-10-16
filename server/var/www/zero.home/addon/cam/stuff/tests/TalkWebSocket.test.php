@@ -97,7 +97,7 @@ test('talk websocket preserves binary frame metadata through the Ratchet adapter
     }
 });
 
-test('talk websocket activates one same-origin owner and reports a second as busy', function (): void {
+test('talk websocket activates one valid-token owner and reports a second as busy', function (): void {
     [$handler, $tokens, $path, $sessions] = talkWebSocketFixture();
     try {
         $token = $tokens->issue('balcon', time())['token'];
@@ -121,7 +121,7 @@ test('talk websocket activates one same-origin owner and reports a second as bus
     }
 });
 
-test('talk websocket rejects a cross-origin connection before opening a camera', function (): void {
+test('talk websocket accepts a valid camera token from any browser origin', function (): void {
     [$handler, $tokens, $path, $sessions] = talkWebSocketFixture();
     try {
         $connection = new TalkTestConnection(
@@ -129,9 +129,9 @@ test('talk websocket rejects a cross-origin connection before opening a camera',
             'https://attacker.test',
         );
         $handler->onOpen($connection);
-        assertSameValue('error', $connection->messages[0]['state']);
-        assertSameValue(true, $connection->closed);
-        assertSameValue([], $sessions);
+        assertSameValue(['ready', 'active'], array_column($connection->messages, 'state'));
+        assertSameValue(false, $connection->closed);
+        $handler->onClose($connection);
     } finally {
         unlink($path);
     }

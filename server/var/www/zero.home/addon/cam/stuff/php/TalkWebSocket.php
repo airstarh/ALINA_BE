@@ -35,7 +35,6 @@ final class TalkWebSocket implements MessageComponentInterface
     {
         $cameraId = null;
         try {
-            if (!$this->sameOrigin($conn)) throw new \InvalidArgumentException('Camera talkback origin was rejected.');
             $query = [];
             parse_str($conn->httpRequest->getUri()->getQuery(), $query);
             $token = $query['token'] ?? null;
@@ -146,19 +145,6 @@ final class TalkWebSocket implements MessageComponentInterface
         try { $state['session']?->close(); } catch (Throwable) {}
         $this->registry->release($state['camera'], $conn);
         if ($notify) $this->sendState($conn, 'closed');
-    }
-
-    private function sameOrigin(ConnectionInterface $conn): bool
-    {
-        $origin = trim($conn->httpRequest->getHeaderLine('Origin'));
-        $host = strtolower(trim($conn->httpRequest->getHeaderLine('Host')));
-        if ($origin === '' || $host === '') return false;
-        $parts = parse_url($origin);
-        if (!is_array($parts) || !in_array($parts['scheme'] ?? null, ['http', 'https'], true)
-            || !is_string($parts['host'] ?? null)) return false;
-        $originHost = strtolower($parts['host']);
-        if (isset($parts['port'])) $originHost .= ':' . $parts['port'];
-        return hash_equals($host, $originHost);
     }
 
     private function sendState(ConnectionInterface $conn, string $state, string $message = ''): void

@@ -29,25 +29,53 @@ final class Go2rtcClient
             throw new InvalidArgumentException('Camera relay source is required.');
         }
 
-        $url = $this->baseUrl . '/api/streams?' . http_build_query(
+        $lookupUrl = $this->baseUrl . '/api/streams?' . http_build_query(
+            ['src' => $name],
+            '',
+            '&',
+            PHP_QUERY_RFC3986
+        );
+        $createUrl = $this->baseUrl . '/api/streams?' . http_build_query(
             ['name' => $name, 'src' => $source],
             '',
             '&',
             PHP_QUERY_RFC3986
         );
 
-        try {
-            $response = $this->request === null
-                ? $this->send('PUT', $url, self::TIMEOUT_SECONDS)
-                : ($this->request)('PUT', $url, self::TIMEOUT_SECONDS);
-        } catch (Throwable) {
+        $lock = @fopen(sys_get_temp_dir() . '/alina-go2rtc-' . hash('sha256', $name) . '.lock', 'c');
+        if ($lock === false || !flock($lock, LOCK_EX)) {
+            if (is_resource($lock)) fclose($lock);
             throw new RuntimeException('Camera relay is unavailable.');
         }
 
-        $status = is_array($response) ? ($response['status'] ?? null) : null;
-        if (!is_int($status) || $status < 200 || $status >= 300) {
+        try {
+            $response = $this->call('GET', $lookupUrl);
+            $status = is_array($response) ? ($response['status'] ?? null) : null;
+            if (is_int($status) && $status >= 200 && $status < 300) {
+                return;
+            }
+            if ($status !== 404) {
+                throw new RuntimeException('Relay lookup failed.');
+            }
+
+            $response = $this->call('PUT', $createUrl);
+            $status = is_array($response) ? ($response['status'] ?? null) : null;
+            if (!is_int($status) || $status < 200 || $status >= 300) {
+                throw new RuntimeException('Relay creation failed.');
+            }
+        } catch (Throwable) {
             throw new RuntimeException('Camera relay is unavailable.');
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
+    }
+
+    private function call(string $method, string $url): array
+    {
+        return $this->request === null
+            ? $this->send($method, $url, self::TIMEOUT_SECONDS)
+            : ($this->request)($method, $url, self::TIMEOUT_SECONDS);
     }
 
     /** @return array{status: int, body: string} */

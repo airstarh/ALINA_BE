@@ -101,6 +101,63 @@ class FakeDocument {
 const descendants = (node) => [node, ...node.children.flatMap(descendants)];
 const flushMedia = async () => { await new Promise(resolve => setImmediate(resolve)); };
 
+test('talkback primes mobile Safari audio synchronously before awaiting backend authorization', async () => {
+    const {createTalkClient} = await import(await moduleUrl('talk-client.js'));
+    const calls = [];
+    let resolveAuthorization;
+    const authorization = new Promise(resolve => { resolveAuthorization = resolve; });
+
+    class FakeAudioContext {
+        constructor() {
+            calls.push('audio-context');
+            this.state = 'suspended';
+            this.destination = {kind: 'destination'};
+            this.audioWorklet = {addModule: async () => { calls.push('audio-worklet'); }};
+        }
+        resume() { calls.push('resume-audio'); this.state = 'running'; return Promise.resolve(); }
+        createMediaStreamSource() { return {connect() {}, disconnect() {}}; }
+        createGain() {
+            return {
+                gain: {value: 1},
+                connect: (target) => calls.push(target === this.destination ? 'silent-destination' : 'wrong-destination'),
+                disconnect() {},
+            };
+        }
+        close() { this.state = 'closed'; return Promise.resolve(); }
+    }
+    class FakeAudioWorkletNode {
+        constructor() { this.port = {}; }
+        connect(target) { calls.push(target?.gain?.value === 0 ? 'silent-worklet' : 'audible-worklet'); }
+        disconnect() {}
+    }
+    class FakeWebSocket {
+        constructor() { this.readyState = 1; }
+        close() { this.readyState = 3; }
+    }
+    const environment = {
+        location: {href: 'https://zero.home:50443/addon/cam/'},
+        navigator: {mediaDevices: {getUserMedia: async () => {
+            calls.push('microphone');
+            return {getTracks: () => [{stop() {}}]};
+        }}},
+        webkitAudioContext: FakeAudioContext,
+        AudioWorkletNode: FakeAudioWorkletNode,
+        WebSocket: FakeWebSocket,
+    };
+    const client = createTalkClient({
+        requestToken: () => { calls.push('authorization'); return authorization; },
+    }, environment);
+
+    const starting = client.toggle();
+    assert.deepEqual(calls.slice(0, 4), ['audio-context', 'resume-audio', 'microphone', 'authorization']);
+
+    resolveAuthorization({token: 'fixture'});
+    await starting;
+    assert.ok(calls.includes('silent-worklet'));
+    assert.ok(calls.includes('silent-destination'));
+    await client.destroy();
+});
+
 test('STREAM menu places Snapshot image directly after Extra video stream', async () => {
     const {renderEditableMenu} = await import(await moduleUrl('menu.js'));
     const editors = [
@@ -454,12 +511,15 @@ test('live playback waits for one second of media before its initial start', asy
     assert.equal(hasStartupBuffer(4.5, 5.6), true);
 });
 
-test('live latency changes use fresh browser module cache keys', async () => {
+test('live changes use fresh browser module cache keys', async () => {
     const index = await readFile(new URL('../../index.php', import.meta.url), 'utf8');
     const app = await readFile(new URL('../js/app.js', import.meta.url), 'utf8');
+    const live = await readFile(new URL('../js/live-form.js', import.meta.url), 'utf8');
 
-    assert.match(index, /app\.js\?v=20261016-2/);
-    assert.match(app, /live-form\.js\?v=20261016-2/);
+    assert.match(index, /app\.js\?v=20261016-4/);
+    assert.match(app, /live-form\.js\?v=20261016-4/);
+    assert.match(app, /home-form\.js\?v=20261016-4/);
+    assert.match(live, /talk-client\.js\?v=20261016-4/);
 });
 
 test('live page enables configured Door camera playback', async () => {

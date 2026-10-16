@@ -48,14 +48,18 @@ does not put video on the WebSocket.
 
 1. The user presses the closed microphone button. Talkback never starts merely
    because the Live page was opened.
-2. The browser requests a short-lived token from the PHP API with action
-   `talk-token` and the selected camera ID.
+2. In that same click handler, the browser simultaneously requests microphone
+   permission, constructs/resumes Web Audio, and requests a short-lived token
+   from the PHP API with action `talk-token` and the selected camera ID. This
+   ordering is required by mobile browser user-gesture rules.
 3. The browser opens `wss://<current-host>/cam-talk?token=<token>`.
 4. Nginx upgrades and proxies the WebSocket to the optional `alina_cam`
    container on internal port `8081`.
-5. `alina_cam` validates the same-origin Host/Origin pair, verifies the
-   camera-bound HMAC token, verifies that the camera is configured with a
-   speaker, and obtains the per-camera exclusive talk lock.
+5. `alina_cam` accepts the browser from any Origin, verifies the camera-bound
+   HMAC token, verifies that the camera is configured with a speaker, and
+   obtains the per-camera exclusive talk lock. The absent Origin restriction
+   is an explicit deployment decision for frontends served through arbitrary
+   public domain names and reverse proxies.
 6. `alina_cam` sends WebSocket state `ready`.
 7. `alina_cam` opens the **control TCP socket** to camera port `34567`.
 8. On the control socket it sends the normal DVRIP login request, message
@@ -73,7 +77,8 @@ does not put video on the WebSocket.
 14. The camera accepts Start with message `0x0597`, `Ret: 100`.
 15. Only after both Claim and Start succeed does `alina_cam` start its persistent
     FFmpeg converter and report WebSocket state `active`.
-16. The browser then requests microphone access and begins sending binary PCM.
+16. The already-authorized browser microphone supplies binary PCM through the
+    open WebSocket.
 
 The important distinction is that `Claim` and media use the second socket,
 while `Start` and `Stop` use the authenticated control socket. A successful
@@ -89,6 +94,12 @@ and automatic gain control. An AudioWorklet resamples it to:
 - 8,000 samples per second;
 - 16 bits per sample;
 - 320 samples (40 ms) per browser frame.
+
+The microphone source feeds the AudioWorklet, which feeds a gain node fixed at
+zero and then the browser audio destination. The silent destination connection
+is intentional: Web Audio processing is pull-driven, and mobile Chrome may
+stop a detached worklet graph. Keeping the graph complete makes PCM processing
+continue without playing the local microphone through the phone speaker.
 
 The browser sends that PCM as binary WebSocket messages. Text messages and odd
 or oversized binary frames are rejected.

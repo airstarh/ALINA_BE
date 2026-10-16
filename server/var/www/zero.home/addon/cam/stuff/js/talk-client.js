@@ -16,6 +16,7 @@ export const createTalkClient = ({
     let context = null;
     let source = null;
     let worklet = null;
+    let silence = null;
     let generation = 0;
     let state = 'closed';
 
@@ -27,10 +28,12 @@ export const createTalkClient = ({
     const releaseMedia = async () => {
         worklet?.port?.postMessage?.('stop');
         worklet?.disconnect?.();
+        silence?.disconnect?.();
         source?.disconnect?.();
         for (const track of stream?.getTracks?.() || []) track.stop();
         if (context && context.state !== 'closed') await context.close();
         worklet = null;
+        silence = null;
         source = null;
         stream = null;
         context = null;
@@ -46,26 +49,44 @@ export const createTalkClient = ({
     };
 
     const beginCapture = async (current) => {
-        if (!environment.navigator?.mediaDevices?.getUserMedia || !environment.AudioContext || !environment.AudioWorkletNode) {
+        const AudioContext = environment.AudioContext || environment.webkitAudioContext;
+        if (!environment.navigator?.mediaDevices?.getUserMedia || !AudioContext || !environment.AudioWorkletNode) {
             throw new Error('This browser cannot capture microphone audio for talkback.');
         }
-        stream = await environment.navigator.mediaDevices.getUserMedia({
+        const activeContext = new AudioContext();
+        context = activeContext;
+        const resume = activeContext.state === 'suspended' && typeof activeContext.resume === 'function'
+            ? activeContext.resume()
+            : Promise.resolve();
+        const capture = environment.navigator.mediaDevices.getUserMedia({
             video: false,
             audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true},
         });
+        const [activeStream] = await Promise.all([capture, resume]);
+        if (generation !== current) {
+            for (const track of activeStream?.getTracks?.() || []) track.stop();
+            if (activeContext.state !== 'closed') await activeContext.close();
+            return;
+        }
+        stream = activeStream;
+        await activeContext.audioWorklet.addModule(workletUrl);
         if (generation !== current) return releaseMedia();
-        context = new environment.AudioContext();
-        await context.audioWorklet.addModule(workletUrl);
-        if (generation !== current) return releaseMedia();
-        source = context.createMediaStreamSource(stream);
-        worklet = new environment.AudioWorkletNode(context, 'alina-cam-pcm', {
+        source = activeContext.createMediaStreamSource(activeStream);
+        worklet = new environment.AudioWorkletNode(activeContext, 'alina-cam-pcm', {
             processorOptions: {targetSampleRate: 8000, frameSamples: 320},
         });
         worklet.port.onmessage = ({data}) => {
             if (generation === current && socket?.readyState === 1 && data instanceof ArrayBuffer) socket.send(data);
         };
         source.connect(worklet);
-        report('active', 'ON AIR');
+        // AudioWorklet processing is pull-driven. Desktop browsers often keep a
+        // detached microphone graph running, but mobile Chrome may suspend it.
+        // Keep the graph connected to the output through a silent gain node so
+        // PCM frames continue to reach the talkback socket without local echo.
+        silence = activeContext.createGain();
+        silence.gain.value = 0;
+        worklet.connect(silence);
+        silence.connect(activeContext.destination);
     };
 
     const start = async () => {
@@ -73,7 +94,11 @@ export const createTalkClient = ({
         const current = ++generation;
         report('connecting', 'Opening camera talkback…');
         try {
-            const authorization = await requestToken();
+            // Mobile browsers only unlock microphone/Web Audio while handling
+            // the original tap. Prime capture before awaiting network setup.
+            const capture = beginCapture(current);
+            const authorizationRequest = requestToken();
+            const [authorization] = await Promise.all([authorizationRequest, capture]);
             if (generation !== current) return;
             socket = new environment.WebSocket(websocketUrl(socketPath, authorization.token, environment.location));
             socket.binaryType = 'arraybuffer';
@@ -83,12 +108,7 @@ export const createTalkClient = ({
                 try { event = JSON.parse(data); } catch { return; }
                 if (event.state === 'ready') report('connecting', 'Camera accepted the talk request…');
                 if (event.state === 'active') {
-                    try {
-                        await beginCapture(current);
-                    } catch (error) {
-                        await close('', false);
-                        report('error', error?.message || 'Microphone access failed.');
-                    }
+                    report('active', 'ON AIR');
                 }
                 if (event.state === 'busy' || event.state === 'error') {
                     await close('', false);

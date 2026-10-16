@@ -33,9 +33,11 @@ camera URLs. Streams are registered at runtime by PHP from the existing ignored
 ## Request and media flow
 
 1. The browser opens **ACCESS -> Live**.
-2. PHP validates the selected camera, constructs its RTSP URL entirely on the
-   server, and idempotently creates or updates a stable go2rtc stream name over
-   the private Docker network.
+2. PHP validates the selected camera and constructs its RTSP URL entirely on
+   the server. It first looks up the stable go2rtc stream name and reuses an
+   existing stream unchanged. It sends `PUT /api/streams` only when that name
+   is absent; preparation must never replace a stream underneath connected
+   viewers. A per-camera process lock serializes simultaneous first creation.
 3. PHP returns only public stream metadata, the non-secret stream name, and a
    short-lived camera-bound signed token.
 4. The browser opens the same-origin WebSocket endpoint
@@ -43,8 +45,9 @@ camera URLs. Streams are registered at runtime by PHP from the existing ignored
 5. Nginx performs a PHP authorization subrequest for the WebSocket handshake,
    then proxies the accepted connection to go2rtc.
 6. go2rtc opens the camera RTSP producer on demand and fans its packets out to
-   every connected browser consumer. When the last consumer leaves, go2rtc may
-   close the idle producer.
+   every connected browser consumer. Every tab/device has an independent MSE
+   WebSocket consumer, while all of them reuse the same named producer. When
+   the last consumer leaves, go2rtc may close the idle producer.
 
 Balcon retains its configured UDP RTSP transport by appending go2rtc's
 `#transport=udp` source option. Door retains TCP. Compressed H.264/HEVC video is

@@ -85,7 +85,8 @@ No microphone or talk audio is recorded or stored. It exists only in bounded buf
 - Camera credentials stay server-side and are never sent to browser JavaScript.
 - A short-lived signed authorization value is required to open a talk WebSocket.
 - Only camera identifiers from the server configuration are accepted.
-- The WebSocket verifies the expected same-origin request.
+- Current deployment override: the WebSocket accepts valid signed tokens from
+  every Origin so arbitrary public and reverse-proxied frontends can connect.
 - At most one talk session may own a camera at a time.
 - Input message size, frame size, queue length, connection timeout, and idle timeout are bounded.
 - When conversion falls behind, stale queued audio is dropped rather than increasing latency without limit.
