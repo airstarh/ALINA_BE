@@ -84,6 +84,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "server/srv/alina/cfg/default.php",
+			"bookmarks": [
+				{
+					"line": 95,
+					"column": 38,
+					"label": ""
+				}
+			]
 		}
 	]
 }
