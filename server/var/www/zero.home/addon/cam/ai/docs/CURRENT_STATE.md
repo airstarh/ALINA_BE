@@ -92,8 +92,9 @@ camera closes only that viewer's WebSocket and buffers; hiding a tab keeps its
 stream connected while cancelling any active PTZ movement. go2rtc shares one
 upstream camera connection among multiple simultaneous browser viewers, so live
 viewing does not occupy PHP-FPM workers. Live is the default page after connecting
-and playback starts automatically whenever it opens. Balcon uses HEVC over UDP;
-Door uses H.264 Baseline at 1920 × 1080 over TCP. See
+and playback starts automatically whenever it opens. Balcon uses HEVC and Door
+uses H.264 Baseline at 1920 × 1080; both currently use RTSP with RTP media over
+UDP. See
 [live-video.md](live-video.md).
 
 `alina_go2rtc` and the existing talkback `alina_cam` live together in optional

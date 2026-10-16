@@ -64,6 +64,97 @@ credentials when the returned URI omits them, and register that discovered URI
 with go2rtc. Until that selection policy is implemented, Live deliberately uses
 the known working root rather than silently choosing an arbitrary ONVIF profile.
 
+### Media protocols and the actual browser data path
+
+Both Balcon and Door use RTSP as the camera-side live-video protocol. More
+precisely, RTSP controls the session with operations such as `DESCRIBE`,
+`SETUP`, `PLAY`, and `TEARDOWN`, while RTP carries the encoded H.264/HEVC video
+and camera microphone audio. Both cameras currently set
+`live.rtsp_transport=udp`, so their RTP media packets use UDP. The RTSP control
+listener itself remains TCP port 554.
+
+The browser does not connect to RTSP directly because normal browsers do not
+provide a native RTSP player. The complete implemented path is:
+
+```text
+camera -- RTSP control + RTP/UDP media --> go2rtc
+       -- fragmented MP4 over WebSocket --> browser MediaSource player
+```
+
+Thus the application can accurately be described as using RTSP for both
+cameras, while its browser-facing delivery protocol is an authenticated
+same-origin WebSocket carrying fragmented MP4.
+
+Other camera/media mechanisms must not be confused with another proven live
+stream:
+
+| Mechanism | Meaning for these cameras |
+| --- | --- |
+| DVRIP/NETIP on TCP 34567 | Proprietary Xiongmai protocol. Configuration, authentication, alarms, PTZ, and talkback are verified. It may carry vendor live media, but this project has not positively verified that video path. |
+| ONVIF | Discovers services and profiles and returns RTSP addresses through `GetStreamUri`; ONVIF does not itself carry the video frames in our implementation. |
+| HTTP JPEG | Returns one current JPEG image. It is a snapshot endpoint, not continuous video. |
+| HTTP MJPEG | Would send a continuous sequence of JPEG images, but no such endpoint has been discovered on either camera. |
+| HLS / MPEG-DASH | Browser-oriented segmented HTTP video; not discovered on either camera. |
+| WebRTC | Browser-native low-latency video/audio; not provided directly by either camera and disabled in the current go2rtc deployment. |
+| Vendor cloud/NAT | Vendor-specific remote access exists in configuration but is disabled or unverified as a media path. |
+
+Common video-streaming protocols outside these specific cameras include
+RTSP/RTP for surveillance systems, WebRTC for low-latency browser viewing and
+two-way audio, HLS or MPEG-DASH for scalable browser/CDN playback, MJPEG for
+simple but bandwidth-heavy viewing, RTMP for media-server ingest, and SRT or
+RIST for reliable contribution across unreliable networks. For Balcon and
+Door, RTSP remains the best verified source because it supplies continuous
+encoded video and audio to go2rtc without video transcoding.
+
+### Why the video element has a `blob:` URL
+
+Browser inspection shows a source similar to:
+
+```html
+<video src="blob:https://zero.home:50443/4e35bc43-..."></video>
+```
+
+This is not an HTTP URL, Nginx location, server file, or go2rtc endpoint. It is
+an opaque browser-local handle created for a JavaScript `MediaSource` object:
+
+```javascript
+const source = new MediaSource();
+const objectUrl = URL.createObjectURL(source);
+video.src = objectUrl;
+```
+
+The origin embedded after `blob:` identifies the security origin allowed to use
+the object. The UUID identifies an entry in that browser page's in-memory object
+registry. Nginx never receives a request for it, and it generally cannot be
+reused from another browser session. When playback is cleaned up, the app calls
+`URL.revokeObjectURL()` and releases the temporary handle.
+
+The real network requests behind that element are:
+
+1. `GET /addon/cam/stuff/php/live-stream.php?camera=...&action=prepare` — a
+   short request handled by the normal PHP/FastCGI Nginx location. It validates
+   the camera, registers the private RTSP source with go2rtc, and returns a safe
+   relay name plus a short-lived token.
+2. `wss://.../cam-stream/api/ws?...` — the long-lived media WebSocket. The exact
+   Nginx `location = /cam-stream/api/ws` first performs an internal
+   `auth_request` to `/addon/cam/stuff/php/live-auth.php`, then proxies the
+   authorized WebSocket to `go2rtc:1984`.
+3. JavaScript receives fragmented-MP4 binary messages, appends them in order to
+   the `MediaSource` `SourceBuffer`, and the `<video>` element decodes that
+   in-memory media through its `blob:` handle.
+
+The practical data flow is therefore:
+
+```text
+/cam-stream/api/ws -> Nginx -> go2rtc -> WebSocket binary messages
+                    -> JavaScript SourceBuffer -> MediaSource -> blob: URL
+                    -> <video>
+```
+
+In browser developer tools, inspect **Network -> WS -> cam-stream/api/ws** and
+its Messages panel to see the real stream connection. There is intentionally no
+Network entry that resolves the `blob:` address.
+
 ### Runtime responsibilities
 
 | Component | Long-lived media responsibility |
@@ -174,10 +265,10 @@ RTSP transport is selected per camera in its private `config.php` entry:
 ],
 ```
 
-Balcon uses UDP to avoid TCP retransmission delays on the reliable local
-network. Cameras without this setting, including Door, retain the safer TCP
-default. UDP may show a damaged or skipped frame during packet loss, while TCP
-waits to recover lost data and can therefore accumulate more latency.
+Balcon and Door use UDP to avoid TCP retransmission delays on the reliable
+local network. Cameras without this setting retain the safer TCP default. UDP
+may show a damaged or skipped frame during packet loss, while TCP waits to
+recover lost data and can therefore accumulate more latency.
 
 The private go2rtc source URL carries each camera's configured RTSP transport.
 The browser corrects toward the live edge whenever it falls more than 1.5
