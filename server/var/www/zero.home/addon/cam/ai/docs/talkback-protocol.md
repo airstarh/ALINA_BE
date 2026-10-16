@@ -183,6 +183,37 @@ were the cause.
 - The current implementation follows the capture-proven DVRIP behavior. It does
   not use an assumed ONVIF audio-backchannel implementation.
 
+## Mobile-browser and deployment troubleshooting
+
+Two independent problems were confirmed while enabling smartphone talkback:
+
+1. **The phone opened the channel but produced no microphone frames.** Web Audio
+   processing is pull-driven. Desktop Chrome continued running the detached
+   microphone-to-AudioWorklet graph, but mobile Chrome could suspend it. The
+   browser now completes the graph as microphone -> AudioWorklet -> zero-gain
+   node -> audio destination. The zero-gain node keeps processing alive without
+   playing the local microphone through the phone speaker. Microphone access,
+   AudioContext construction, and `resume()` also start synchronously from the
+   original talk-button tap, before token or WebSocket waits.
+2. **The phone displayed `Camera talkback origin was rejected.` after the
+   restriction had been removed from source.** This message came from an old
+   resident `alina_cam` PHP process. `dc.cam.yml` bind-mounts the current PHP
+   files, but the Ratchet server loads its classes once at process startup; a
+   source deployment does not reload the running process. Restart `alina_cam`
+   after changing its PHP server classes:
+
+   ```bash
+   docker restart alina_cam
+   ```
+
+   Rebuilding is unnecessary when only bind-mounted application source changed.
+   The current handler has no Origin/Host comparison: any frontend domain may
+   connect when it presents a valid, unexpired, camera-bound token.
+
+After browser JavaScript changes, deploy the updated module cache keys and
+refresh the phone page. Restarting `alina_cam` is required for PHP WebSocket
+server changes, but not for browser-only JavaScript changes.
+
 ## Relevant implementation files
 
 - Browser lifecycle: `stuff/js/talk-client.js`

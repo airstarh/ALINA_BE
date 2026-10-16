@@ -136,6 +136,12 @@ Safari's prefixed audio-context constructor is supported as a fallback.
 The capture worklet remains connected to the device output through a muted gain
 node because mobile Chrome may suspend a detached Web Audio processing graph;
 the zero gain prevents microphone playback and echo.
+This mobile path was positively restored after restarting `alina_cam`. That
+restart is operationally significant: the PHP/Ratchet WebSocket server is a
+resident process and does not reload bind-mounted class changes. If the UI
+still reports the removed `Camera talkback origin was rejected.` message after
+deployment, the running container still has the old handler loaded; run
+`docker restart alina_cam`. A rebuild is not required for source-only changes.
 
 `alina_cam` remains intentional rather than obsolete. Although go2rtc advertises
 DVRIP two-way audio, using it from a browser requires WebRTC signaling/ICE and a

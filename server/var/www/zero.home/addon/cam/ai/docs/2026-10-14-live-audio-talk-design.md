@@ -69,7 +69,8 @@ The UI displays short state-specific messages for microphone denial, connection 
 
 The implementation is split into focused responsibilities:
 
-1. WebSocket connection, origin checking, and short-lived authorization.
+1. WebSocket connection, unrestricted frontend-Origin policy, and short-lived
+   camera-bound authorization.
 2. Browser microphone capture and bounded PCM delivery.
 3. Persistent FFmpeg input/output lifecycle.
 4. DVRIP authentication and `OPTalk` lifecycle.

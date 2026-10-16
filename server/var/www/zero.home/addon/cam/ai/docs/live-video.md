@@ -457,6 +457,16 @@ scripts do not include it. The shared Nginx file still contains the exact
 `/cam-stream/api/ws` location on `sss`, but it is dormant without go2rtc and the
 camera application.
 
+`alina_cam` is a long-running Ratchet PHP process. Although its application
+source is bind-mounted, it loads PHP classes only when the process starts.
+Deploying a changed `TalkWebSocket.php` or another talk-server class therefore
+requires `docker restart alina_cam`; no image rebuild is needed for those
+source-only changes. Without that restart, the browser can receive behavior and
+messages from the previous implementation—for example the removed
+`Camera talkback origin was rejected.` check—even while the file on disk is
+already correct. Browser-only JavaScript changes do not require this restart,
+but their versioned module cache keys must be deployed and the page refreshed.
+
 go2rtc publishes no host port. Nginx exposes only the exact MSE WebSocket path;
 the go2rtc WebUI, configuration endpoint, and stream-mutation API remain
 available only inside the Docker network. Every WebSocket upgrade first passes
