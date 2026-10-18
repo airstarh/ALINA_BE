@@ -12,6 +12,6 @@ export A_R_VAR_WWW="server/var/www"
 export A_R_GITOUT="_GITOUT"
 export A_R_STORAGE="${A_R_BE}/${A_STORAGE}"
 
-export ALINA_BASES=("zero")
+export ALINA_BASES=("zero" "vov")
 export A_LIST_PROJECTS=("zero.home")
 export ALINA_DEFAULT_PROJECT="zero.home"
