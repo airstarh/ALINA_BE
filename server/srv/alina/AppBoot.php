@@ -3,8 +3,7 @@
 namespace alina;
 
 /**
- * This File exists mostly for Unit Test needs.
- *This file DOES NOT participate in Application usage!!!
+ * Bootstraps ALINA for long-running CLI applications such as the chat server.
  */
 final class AppBoot
 {

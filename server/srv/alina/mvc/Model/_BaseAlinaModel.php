@@ -991,7 +991,7 @@ class _BaseAlinaModel
     }
 
     /**
-     * @param string $alias
+     * @param string|int<min, -1> $alias
      * @return BuilderAlias|false
      */
     public function q($alias = null)

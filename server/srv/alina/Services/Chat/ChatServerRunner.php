@@ -47,7 +47,7 @@ class ChatServerRunner
             // Создаём цикл событий
             $loop = Factory::create();
 
-            $chatHandler = new ChatServer($loop);
+            $chatHandler = new ChatServer(new DatabaseChatStorage(), $loop);
             $webSocket   = new WsServer($chatHandler);
             // Protocol ping/pong keeps idle proxy tunnels active; browsers reply
             // automatically, including when the chat tab has no new messages.
