@@ -119,6 +119,7 @@ final class DatabaseChatStorage implements ChatStorage
             'senderType' => (string) $row->sender_type,
             'senderId' => (string) $row->sender_id,
             'senderName' => (string) $row->sender_name,
+            'senderEmblem' => (string) $row->sender_emblem,
             'text' => (string) $row->message_text,
             'createdAt' => (int) $row->created_at,
             'clientMessageId' => (string) $row->client_message_id,

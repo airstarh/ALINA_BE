@@ -386,6 +386,7 @@ class ChatServer implements MessageComponentInterface
             'senderType' => 'bot',
             'senderId' => 'robocop',
             'senderName' => 'Robocop',
+            'senderEmblem' => '',
             'text' => 'Robocop removed ' . $targetName . ' from the chat.',
             'createdAt' => $this->nowMilliseconds(),
             'clientMessageId' => 'robocop-kick-' . bin2hex(random_bytes(16)),
@@ -506,6 +507,7 @@ class ChatServer implements MessageComponentInterface
             'senderType' => $senderType,
             'senderId' => $senderId,
             'senderName' => $state['user']['name'],
+            'senderEmblem' => $state['user']['emblem'],
             'text' => trim($text),
             'createdAt' => $this->nowMilliseconds(),
             'clientMessageId' => $clientMessageId,
@@ -581,7 +583,7 @@ class ChatServer implements MessageComponentInterface
             'firstname' => '',
             'lastname' => '',
             'nickname' => $stored['senderName'],
-            'emblem' => '',
+            'emblem' => $stored['senderEmblem'],
             'name' => $stored['senderName'],
         ];
 

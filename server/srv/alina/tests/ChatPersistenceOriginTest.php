@@ -26,6 +26,11 @@ chatSend($server, $zero, 'message', [
     'channel' => '1',
     'msg' => 'zero only',
     'clientMessageId' => 'zero-1',
+    'CurrentUser' => [
+        'id' => 17,
+        'nickname' => 'Alice',
+        'emblem' => 'https://zero.home:50443/uploads/alice.webp',
+    ],
 ]);
 chatExpectSame($beforeVovMessages, count($vov->events('message')), 'messages must not cross origins');
 $zeroMessage = $zero->lastEvent('message')['message'] ?? null;
@@ -70,6 +75,11 @@ chatExpectSame(
     ['zero only', 'server survived'],
     array_column($returning->lastEvent('history')['messages'] ?? [], 'msg'),
     'history must survive server reconstruction',
+);
+chatExpectSame(
+    'https://zero.home:50443/uploads/alice.webp',
+    $returning->lastEvent('history')['messages'][0]['CurrentUser']['emblem'] ?? null,
+    'persisted history must retain the sender avatar after the live participant leaves',
 );
 
 $missingOrigin = new ChatTestClient(4, null);
