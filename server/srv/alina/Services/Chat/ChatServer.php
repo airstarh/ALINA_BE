@@ -83,7 +83,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'typing', 'approve', 'rename', 'kick'], true)) {
+        if (! in_array($type, ['join', 'message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -139,6 +139,18 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'rename') {
                 $this->rename($from, $data);
+
+                return;
+            }
+
+            if ($type === 'set_anonymous') {
+                $this->setAnonymousAllowed($from, $data);
+
+                return;
+            }
+
+            if ($type === 'set_confirmation') {
+                $this->setConfirmationRequired($from, $data);
 
                 return;
             }
@@ -342,6 +354,38 @@ class ChatServer implements MessageComponentInterface
 
         $state = $this->clients[$client];
         $chat = $this->storage->renameChat($state['chatId'], $name, $this->nowMilliseconds());
+        $this->rooms[$state['roomKey']]['chat'] = $chat;
+        $this->broadcast($state['roomKey'], fn (): array => $this->chatStateEvent($state['roomKey']));
+    }
+
+    private function setAnonymousAllowed(ConnectionInterface $client, array $data): void
+    {
+        $allowed = $data['allowed'] ?? null;
+
+        if (! is_bool($allowed)) {
+            $this->error($client, 'Anonymous access must be true or false.');
+
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $chat = $this->storage->setAnonymousAllowed($state['chatId'], $allowed, $this->nowMilliseconds());
+        $this->rooms[$state['roomKey']]['chat'] = $chat;
+        $this->broadcast($state['roomKey'], fn (): array => $this->chatStateEvent($state['roomKey']));
+    }
+
+    private function setConfirmationRequired(ConnectionInterface $client, array $data): void
+    {
+        $required = $data['required'] ?? null;
+
+        if (! is_bool($required)) {
+            $this->error($client, 'Confirmation requirement must be true or false.');
+
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $chat = $this->storage->setConfirmationRequired($state['chatId'], $required, $this->nowMilliseconds());
         $this->rooms[$state['roomKey']]['chat'] = $chat;
         $this->broadcast($state['roomKey'], fn (): array => $this->chatStateEvent($state['roomKey']));
     }

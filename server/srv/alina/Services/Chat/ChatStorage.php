@@ -21,5 +21,9 @@ interface ChatStorage
 
     public function renameChat(int $chatId, string $name, int $updatedAt): array;
 
+    public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array;
+
+    public function setConfirmationRequired(int $chatId, bool $required, int $updatedAt): array;
+
     public function deleteParticipantMessages(int $chatId, string $senderType, string $senderId): int;
 }

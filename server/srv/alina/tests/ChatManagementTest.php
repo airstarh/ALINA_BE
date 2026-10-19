@@ -99,6 +99,33 @@ chatSend($server, $targetOne, 'rename', ['channel' => 'managed', 'name' => 'Fina
 chatExpectSame('Final write', $admin->lastEvent('chat_state')['chat']['name'] ?? null, 'latest rename must win for every participant');
 chatExpectSame('Final write', $storage->openChat($origin, 'managed')['name'], 'latest rename must be persisted');
 
+chatSend($server, $admin, 'set_anonymous', [
+    'channel' => 'managed',
+    'allowed' => false,
+]);
+chatExpectSame(false, $targetOne->lastEvent('chat_state')['chat']['isAnionAllowed'] ?? null, 'anonymous policy change must be broadcast');
+chatExpectSame(false, $storage->openChat($origin, 'managed')['isAnionAllowed'], 'anonymous policy change must be persisted');
+
+$anonymous = new ChatTestClient(6, $origin);
+$server->onOpen($anonymous);
+chatSend($server, $anonymous, 'join', [
+    'channel' => 'managed',
+    'CurrentUser' => ['guestId' => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'nickname' => 'Anonymous'],
+]);
+chatExpect($anonymous->lastEvent('error') !== null, 'disabled anonymous access must reject a new guest');
+
+chatSend($server, $admin, 'set_confirmation', [
+    'channel' => 'managed',
+    'required' => false,
+]);
+chatExpectSame(false, $targetOne->lastEvent('chat_state')['chat']['isConfirmationRequired'] ?? null, 'confirmation policy change must be broadcast');
+chatExpectSame(false, $storage->openChat($origin, 'managed')['isConfirmationRequired'], 'confirmation policy change must be persisted');
+chatSend($server, $admin, 'set_confirmation', [
+    'channel' => 'managed',
+    'required' => true,
+]);
+chatExpectSame(true, $storage->openChat($origin, 'managed')['isConfirmationRequired'], 'confirmation policy must toggle back to closed');
+
 chatSend($server, $admin, 'kick', [
     'channel' => 'managed',
     'participantId' => 'user:2',

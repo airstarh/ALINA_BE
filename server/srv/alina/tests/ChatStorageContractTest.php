@@ -93,6 +93,34 @@ final class ContractMemoryChatStorage implements ChatStorage
         throw new RuntimeException('Unknown chat.');
     }
 
+    public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array
+    {
+        foreach ($this->chats as &$chat) {
+            if ($chat['id'] === $chatId) {
+                $chat['isAnionAllowed'] = $allowed;
+                $chat['updatedAt'] = $updatedAt;
+
+                return $chat;
+            }
+        }
+
+        throw new RuntimeException('Unknown chat.');
+    }
+
+    public function setConfirmationRequired(int $chatId, bool $required, int $updatedAt): array
+    {
+        foreach ($this->chats as &$chat) {
+            if ($chat['id'] === $chatId) {
+                $chat['isConfirmationRequired'] = $required;
+                $chat['updatedAt'] = $updatedAt;
+
+                return $chat;
+            }
+        }
+
+        throw new RuntimeException('Unknown chat.');
+    }
+
     public function deleteParticipantMessages(int $chatId, string $senderType, string $senderId): int
     {
         $before = count($this->messages[$chatId] ?? []);

@@ -69,6 +69,30 @@ class chat extends _BaseAlinaModel
         return $this->q()->where('id', '=', $chatId)->first();
     }
 
+    public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): stdClass
+    {
+        $this->q(-1)
+            ->where('id', '=', $chatId)
+            ->update([
+                'is_anion_allowed' => $allowed ? 1 : 0,
+                'updated_at' => $updatedAt,
+            ]);
+
+        return $this->q()->where('id', '=', $chatId)->first();
+    }
+
+    public function setConfirmationRequired(int $chatId, bool $required, int $updatedAt): stdClass
+    {
+        $this->q(-1)
+            ->where('id', '=', $chatId)
+            ->update([
+                'is_confirmation_required' => $required ? 1 : 0,
+                'updated_at' => $updatedAt,
+            ]);
+
+        return $this->q()->where('id', '=', $chatId)->first();
+    }
+
     public static function nowMilliseconds(): int
     {
         return (int) floor(microtime(true) * 1000);

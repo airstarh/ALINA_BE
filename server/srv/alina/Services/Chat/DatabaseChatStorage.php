@@ -93,6 +93,28 @@ final class DatabaseChatStorage implements ChatStorage
         return $this->normalizeChat($row);
     }
 
+    public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array
+    {
+        $row = (new chat())->setAnonymousAllowed($chatId, $allowed, $updatedAt);
+
+        if (! $row) {
+            throw new RuntimeException('Chat not found.');
+        }
+
+        return $this->normalizeChat($row);
+    }
+
+    public function setConfirmationRequired(int $chatId, bool $required, int $updatedAt): array
+    {
+        $row = (new chat())->setConfirmationRequired($chatId, $required, $updatedAt);
+
+        if (! $row) {
+            throw new RuntimeException('Chat not found.');
+        }
+
+        return $this->normalizeChat($row);
+    }
+
     public function deleteParticipantMessages(int $chatId, string $senderType, string $senderId): int
     {
         return (new chat_message())->deleteParticipant($chatId, $senderType, $senderId);
