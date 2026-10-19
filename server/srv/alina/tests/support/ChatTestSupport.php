@@ -36,6 +36,78 @@ final class MemoryChatStorage implements ChatStorage
         return $this->chats[$key];
     }
 
+    public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array
+    {
+        $this->maybeFail();
+        $mine = [];
+        $others = [];
+
+        foreach ($this->chats as $chat) {
+            if ($chat['origin'] !== $origin) {
+                continue;
+            }
+
+            $participants = [];
+            $latestMessageAt = null;
+            $participated = false;
+
+            foreach ($this->messages[$chat['id']] ?? [] as $message) {
+                $latestMessageAt = max($latestMessageAt ?? $message['createdAt'], $message['createdAt']);
+
+                if ($message['senderType'] === 'bot') {
+                    continue;
+                }
+
+                $participants[$message['senderType'] . "\0" . $message['senderId']] = true;
+                $participated = $participated || (
+                    $message['senderType'] === $senderType
+                    && $message['senderId'] === $senderId
+                );
+            }
+
+            $row = [
+                'id' => $chat['id'],
+                'channel' => $chat['channel'],
+                'chatName' => $chat['name'],
+                'participantCount' => count($participants),
+                'latestMessageAt' => $latestMessageAt,
+            ];
+            if ($participated) {
+                $mine[] = $row;
+            }
+            else {
+                $others[] = $row;
+            }
+        }
+
+        $sort = static function (array $left, array $right): int {
+            if ($left['latestMessageAt'] === null || $right['latestMessageAt'] === null) {
+                return $left['latestMessageAt'] === $right['latestMessageAt']
+                    ? $right['id'] <=> $left['id']
+                    : ($left['latestMessageAt'] === null ? 1 : -1);
+            }
+
+            return ($right['latestMessageAt'] <=> $left['latestMessageAt'])
+                ?: ($right['id'] <=> $left['id']);
+        };
+        usort($mine, $sort);
+        usort($others, $sort);
+
+        $section = static function (array $rows, array $page): array {
+            return [
+                'rows' => array_slice($rows, $page['offset'], $page['limit']),
+                'total' => count($rows),
+                'limit' => $page['limit'],
+                'offset' => $page['offset'],
+            ];
+        };
+
+        return [
+            'mine' => $section($mine, $pagination['mine']),
+            'others' => $section($others, $pagination['others']),
+        ];
+    }
+
     public function configureChat(string $origin, string $channel, array $changes): array
     {
         $this->openChat($origin, $channel);

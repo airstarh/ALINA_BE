@@ -33,6 +33,33 @@ final class DatabaseChatStorage implements ChatStorage
         return $this->normalizeChat($row);
     }
 
+    public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array
+    {
+        $model = new chat();
+        $result = [];
+
+        foreach (['mine' => true, 'others' => false] as $name => $participated) {
+            $page = $pagination[$name];
+            $result[$name] = [
+                'rows' => array_map(
+                    fn (stdClass $row): array => [
+                        'id' => (int) $row->id,
+                        'channel' => (string) $row->channel_name_pseudo_id,
+                        'chatName' => (string) $row->chat_name_human,
+                        'participantCount' => (int) ($row->participant_count ?? 0),
+                        'latestMessageAt' => $row->latest_message_at === null ? null : (int) $row->latest_message_at,
+                    ],
+                    $model->directoryRows($origin, $senderType, $senderId, $participated, $page['limit'], $page['offset']),
+                ),
+                'total' => $model->directoryCount($origin, $senderType, $senderId, $participated),
+                'limit' => $page['limit'],
+                'offset' => $page['offset'],
+            ];
+        }
+
+        return $result;
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_map(

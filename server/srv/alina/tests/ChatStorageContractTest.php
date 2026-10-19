@@ -35,6 +35,59 @@ final class ContractMemoryChatStorage implements ChatStorage
         return $this->chats[$key];
     }
 
+    public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array
+    {
+        $sections = ['mine' => [], 'others' => []];
+
+        foreach ($this->chats as $chat) {
+            if ($chat['origin'] !== $origin) {
+                continue;
+            }
+
+            $participants = [];
+            $latest = null;
+            $participated = false;
+
+            foreach ($this->messages[$chat['id']] ?? [] as $message) {
+                $latest = max($latest ?? $message['createdAt'], $message['createdAt']);
+
+                if ($message['senderType'] === 'bot') {
+                    continue;
+                }
+
+                $participants[$message['senderType'] . "\0" . $message['senderId']] = true;
+                $participated = $participated || ($message['senderType'] === $senderType && $message['senderId'] === $senderId);
+            }
+
+            $sections[$participated ? 'mine' : 'others'][] = [
+                'id' => $chat['id'],
+                'channel' => $chat['channel'],
+                'chatName' => $chat['name'],
+                'participantCount' => count($participants),
+                'latestMessageAt' => $latest,
+            ];
+        }
+
+        $result = [];
+
+        foreach ($sections as $name => $rows) {
+            usort($rows, static fn (array $a, array $b): int =>
+                ($a['latestMessageAt'] === null) <=> ($b['latestMessageAt'] === null)
+                ?: (($b['latestMessageAt'] ?? 0) <=> ($a['latestMessageAt'] ?? 0))
+                ?: ($b['id'] <=> $a['id'])
+            );
+            $page = $pagination[$name];
+            $result[$name] = [
+                'rows' => array_slice($rows, $page['offset'], $page['limit']),
+                'total' => count($rows),
+                'limit' => $page['limit'],
+                'offset' => $page['offset'],
+            ];
+        }
+
+        return $result;
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_slice($this->messages[$chatId] ?? [], -$limit);
@@ -169,6 +222,10 @@ $storage = new ContractMemoryChatStorage();
 $chat = $storage->openChat('https://zero.home:50443', 'general');
 expectSame('general', $chat['name'], 'new chat name must default to its channel');
 expectSame(false, $storage->hasAnyMessage($chat['id']), 'new chat must have no history');
+expectSame(1, $storage->listRooms('https://zero.home:50443', 'user', '17', [
+    'mine' => ['limit' => 10, 'offset' => 0],
+    'others' => ['limit' => 10, 'offset' => 0],
+])['others']['total'], 'storage contract must expose room directory sections');
 
 $first = $storage->appendMessage($chat['id'], storageMessage('first', 'one', createdAt: 100));
 $second = $storage->appendMessage($chat['id'], storageMessage('second', 'two', createdAt: 200));

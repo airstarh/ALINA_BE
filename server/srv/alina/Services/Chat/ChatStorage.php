@@ -8,6 +8,8 @@ interface ChatStorage
 {
     public function openChat(string $origin, string $channel): array;
 
+    public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array;
+
     public function history(int $chatId, int $limit = 50): array;
 
     public function hasAnyMessage(int $chatId): bool;

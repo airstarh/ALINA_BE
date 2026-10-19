@@ -83,8 +83,20 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick'], true)) {
+        if (! in_array($type, ['join', 'message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
             $this->error($from, 'Unknown chat event.');
+
+            return;
+        }
+
+        if ($type === 'list_rooms') {
+            try {
+                $this->listRooms($from, $data);
+            }
+            catch (Throwable $error) {
+                error_log('Chat storage failed: ' . $error->getMessage());
+                $this->error($from, 'Unable to store chat data.');
+            }
 
             return;
         }
@@ -265,6 +277,72 @@ class ChatServer implements MessageComponentInterface
 
         $history = $this->storage->history($chat['id'], 50);
         $this->admit($client, $history, $sendJoinEvents ? 'joined' : null);
+    }
+
+    private function listRooms(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+
+        if ($state['origin'] === null) {
+            $this->error($client, 'A valid HTTP Origin header is required.');
+
+            return;
+        }
+
+        $user = $this->publicUser($data['CurrentUser'] ?? null, $client->resourceId);
+
+        if ($user['id'] !== null) {
+            $senderType = 'user';
+            $senderId = $user['id'];
+        }
+        elseif (isset($user['guestId'])) {
+            $senderType = 'guest';
+            $senderId = $user['guestId'];
+        }
+        else {
+            $this->error($client, 'A valid persistent user or guest identity is required.');
+
+            return;
+        }
+
+        $pagination = $this->roomPagination($data['pagination'] ?? null);
+
+        if ($pagination === null) {
+            $this->error($client, 'Valid independent room pagination is required.');
+
+            return;
+        }
+
+        $rooms = $this->storage->listRooms($state['origin'], $senderType, $senderId, $pagination);
+        $this->send($client, [
+            'version' => 2,
+            'type' => 'rooms',
+            'mine' => $rooms['mine'],
+            'others' => $rooms['others'],
+        ]);
+    }
+
+    private function roomPagination(mixed $pagination): ?array
+    {
+        if (! is_array($pagination) || array_is_list($pagination)) {
+            return null;
+        }
+
+        $result = [];
+
+        foreach (['mine', 'others'] as $name) {
+            $page = $pagination[$name] ?? null;
+            $limit = is_array($page) ? ($page['limit'] ?? null) : null;
+            $offset = is_array($page) ? ($page['offset'] ?? null) : null;
+
+            if (! is_int($limit) || $limit < 1 || ! is_int($offset) || $offset < 0) {
+                return null;
+            }
+
+            $result[$name] = ['limit' => min(1000, $limit), 'offset' => $offset];
+        }
+
+        return $result;
     }
 
     private function approve(ConnectionInterface $client, array $data): void
