@@ -9,6 +9,7 @@ use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
+use RuntimeException;
 use SplObjectStorage;
 use Throwable;
 
@@ -83,7 +84,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
+        if (! in_array($type, ['join', 'message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -169,6 +170,18 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'kick') {
                 $this->kick($from, $data);
+
+                return;
+            }
+
+            if ($type === 'edit_message') {
+                $this->editMessage($from, $data);
+
+                return;
+            }
+
+            if ($type === 'delete_message') {
+                $this->deleteMessage($from, $data);
 
                 return;
             }
@@ -589,6 +602,70 @@ class ChatServer implements MessageComponentInterface
         $state['typingUntil'] = $typing ? microtime(true) + 6 : 0;
         $this->clients[$client] = $state;
         $this->broadcastPresence($state['roomKey']);
+    }
+
+    private function editMessage(ConnectionInterface $client, array $data): void
+    {
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+
+        if ($messageId === null) {
+            $this->error($client, 'A valid positive message ID is required.');
+
+            return;
+        }
+
+        $text = $data['text'] ?? null;
+
+        if (! is_string($text) || trim($text) === '' || strlen($text) > 16000) {
+            $this->error($client, 'Enter a message of at most 16000 bytes.');
+
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $stored = $this->storage->editMessage($state['chatId'], $messageId, trim($text));
+        $message = $this->protocolMessage($stored, $state['channel']);
+        $this->broadcast($state['roomKey'], fn (): array => [
+            'version' => 2,
+            'type' => 'message_edited',
+            'channel' => $state['channel'],
+            'message' => $message,
+        ]);
+    }
+
+    private function deleteMessage(ConnectionInterface $client, array $data): void
+    {
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+
+        if ($messageId === null) {
+            $this->error($client, 'A valid positive message ID is required.');
+
+            return;
+        }
+
+        $state = $this->clients[$client];
+
+        if (! $this->storage->deleteMessage($state['chatId'], $messageId)) {
+            throw new RuntimeException('Message not found.');
+        }
+
+        $this->broadcast($state['roomKey'], fn (): array => [
+            'version' => 2,
+            'type' => 'message_deleted',
+            'channel' => $state['channel'],
+            'messageId' => (string) $messageId,
+        ]);
+    }
+
+    private function positiveMessageId(mixed $value): ?int
+    {
+        if (! (is_int($value) || is_string($value)) || ! ctype_digit((string) $value)) {
+            return null;
+        }
+
+        $messageId = (int) $value;
+
+        return $messageId > 0 ? $messageId : null;
     }
 
     private function message(ConnectionInterface $client, array $data, mixed $text, int $version): void

@@ -21,6 +21,10 @@ interface ChatStorage
      */
     public function appendMessage(int $chatId, array $message): array;
 
+    public function editMessage(int $chatId, int $messageId, string $text): array;
+
+    public function deleteMessage(int $chatId, int $messageId): bool;
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array;
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array;

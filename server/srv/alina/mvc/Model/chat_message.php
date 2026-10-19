@@ -87,6 +87,27 @@ class chat_message extends _BaseAlinaModel
         return $this->q()->where('id', '=', $id)->first();
     }
 
+    public function updateMessageText(int $chatId, int $messageId, string $text): ?stdClass
+    {
+        $this->q(-1)
+            ->where('chat_id', '=', $chatId)
+            ->where('id', '=', $messageId)
+            ->update(['message_text' => $text]);
+
+        return $this->q()
+            ->where('chat_id', '=', $chatId)
+            ->where('id', '=', $messageId)
+            ->first();
+    }
+
+    public function deleteMessage(int $chatId, int $messageId): bool
+    {
+        return $this->q(-1)
+            ->where('chat_id', '=', $chatId)
+            ->where('id', '=', $messageId)
+            ->delete() === 1;
+    }
+
     public function pruneChat(int $chatId, int $maximum = 1000): int
     {
         $oldestRetainedId = $this->q()

@@ -109,6 +109,22 @@ final class DatabaseChatStorage implements ChatStorage
         }
     }
 
+    public function editMessage(int $chatId, int $messageId, string $text): array
+    {
+        $row = (new chat_message())->updateMessageText($chatId, $messageId, $text);
+
+        if ($row === null) {
+            throw new RuntimeException('Message not found.');
+        }
+
+        return $this->normalizeMessage($row);
+    }
+
+    public function deleteMessage(int $chatId, int $messageId): bool
+    {
+        return (new chat_message())->deleteMessage($chatId, $messageId);
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         $row = (new chat())->rename($chatId, $name, $updatedAt);

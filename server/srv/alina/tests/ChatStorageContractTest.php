@@ -132,6 +132,32 @@ final class ContractMemoryChatStorage implements ChatStorage
         return ['message' => $stored, 'inserted' => true];
     }
 
+    public function editMessage(int $chatId, int $messageId, string $text): array
+    {
+        foreach ($this->messages[$chatId] ?? [] as $index => $message) {
+            if ($message['id'] === $messageId) {
+                $this->messages[$chatId][$index]['text'] = $text;
+
+                return $this->messages[$chatId][$index];
+            }
+        }
+
+        throw new RuntimeException('Message not found.');
+    }
+
+    public function deleteMessage(int $chatId, int $messageId): bool
+    {
+        foreach ($this->messages[$chatId] ?? [] as $index => $message) {
+            if ($message['id'] === $messageId) {
+                array_splice($this->messages[$chatId], $index, 1);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         foreach ($this->chats as &$chat) {
