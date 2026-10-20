@@ -1,5 +1,10 @@
 # Chat Mentions Implementation Plan
 
+> **Historical plan:** The initial literal service text described below was
+> superseded after implementation. New rows store a language-neutral `MENTION:`
+> payload and Vue localizes the display. See
+> `docs/superpowers/chat-current-state.md` for current behavior.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add origin-wide, searchable chat mentions that persist one `user_service` notification per target and make mentioned creatures participants without adding a table or column.

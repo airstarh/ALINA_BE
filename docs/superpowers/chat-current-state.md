@@ -1,6 +1,6 @@
 # Text chat: current implemented state
 
-Last reviewed: 2026-10-20
+Last reviewed against backend and frontend source: 2026-10-21
 
 This is the current operational reference for the Vue 3 text chat. The dated
 designs and plans under `docs/superpowers/specs/` and `docs/superpowers/plans/`
@@ -81,6 +81,15 @@ tunnels active. A deliberate kick suppresses automatic reconnect.
 ## Messages and composer
 
 - Send with the button or Ctrl+Enter; Enter inserts a new line.
+- The Send button uses the single localized `i_save` symbol `✔` and is round.
+- Message cards have 20px vertical spacing. Their timestamp shares the author
+  row, uses 24-hour time, and displays `HH:mm` today or `yyyy-MM-dd HH:mm` for
+  older messages.
+- Registered author names link to the origin-local `/#/auth/profile/{id}` in a
+  new tab. Guest names are not profile links.
+- Ordinary eligible message headings expose TAG and PRIVATE. TAG inserts the
+  same structured mention as the composer selector; PRIVATE opens the existing
+  deterministic private room in a new tab.
 - Message bodies are rendered as escaped text. Complete fenced code blocks use
   `pre`/`code` with a black background, green monospace text and horizontal
   scrolling without wrapping.
@@ -171,6 +180,18 @@ the room, and appends a Robocop removal message.
 
 These management controls are exposed according to frontend role helpers. The
 socket currently performs no independent application-role authorization.
+
+The current Vue role matrix is:
+
+- chat rename and `ANON`/`OPENED` policy controls: admin, moderator, privileged;
+- ordinary message Edit/Delete: owner, admin, moderator, privileged;
+- mention-service Delete: mentioned target, admin, moderator, privileged;
+- participant Kick: admin or moderator;
+- admission approval: any admitted participant.
+
+These are display/action rules in Vue, not trusted authorization. A custom
+client can still submit commands accepted by the socket's payload and room
+validation.
 
 ## Presence and layout
 
