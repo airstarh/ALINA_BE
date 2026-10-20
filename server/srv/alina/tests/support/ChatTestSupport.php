@@ -137,6 +137,23 @@ final class MemoryChatStorage implements ChatStorage
         return array_slice($result, 0, $limit);
     }
 
+    public function participantSnapshots(int $chatId): array
+    {
+        $result = [];
+        foreach (array_reverse($this->messages[$chatId] ?? []) as $message) {
+            if (! in_array($message['senderType'], ['user', 'guest', 'user_service'], true)) continue;
+            $type = $message['senderType'] === 'user_service'
+                ? (ctype_digit($message['senderId']) ? 'user' : 'guest')
+                : $message['senderType'];
+            $key = $type . ':' . $message['senderId'];
+            $result[$key] ??= [
+                'senderType' => $type, 'senderId' => $message['senderId'],
+                'senderName' => $message['senderName'], 'senderEmblem' => $message['senderEmblem'],
+            ];
+        }
+        return array_values($result);
+    }
+
     public function configureChat(string $origin, string $channel, array $changes): array
     {
         $this->openChat($origin, $channel);
@@ -339,11 +356,12 @@ final class MemoryChatStorage implements ChatStorage
     public function deleteParticipantMessages(int $chatId, string $senderType, string $senderId): int
     {
         $this->maybeFail();
+        $types = $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'];
         $before = count($this->messages[$chatId] ?? []);
         $this->messages[$chatId] = array_values(array_filter(
             $this->messages[$chatId] ?? [],
             static fn (array $message): bool => ! (
-                $message['senderType'] === $senderType
+                in_array($message['senderType'], $types, true)
                 && $message['senderId'] === $senderId
             ),
         ));

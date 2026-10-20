@@ -12,6 +12,8 @@ interface ChatStorage
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array;
 
+    public function participantSnapshots(int $chatId): array;
+
     public function history(int $chatId, int $limit = 50): array;
 
     public function hasAnyMessage(int $chatId): bool;

@@ -99,6 +99,26 @@ final class DatabaseChatStorage implements ChatStorage
         return array_slice($result, 0, $limit);
     }
 
+    public function participantSnapshots(int $chatId): array
+    {
+        $result = [];
+        foreach (array_reverse((new chat_message())->latestForChat($chatId, 1000)) as $row) {
+            if (! in_array($row->sender_type, ['user', 'guest', 'user_service'], true)) continue;
+            $senderId = (string) $row->sender_id;
+            $senderType = $row->sender_type === 'user_service'
+                ? (ctype_digit($senderId) ? 'user' : 'guest')
+                : (string) $row->sender_type;
+            $key = $senderType . ':' . $senderId;
+            $result[$key] ??= [
+                'senderType' => $senderType,
+                'senderId' => $senderId,
+                'senderName' => (string) $row->sender_name,
+                'senderEmblem' => (string) $row->sender_emblem,
+            ];
+        }
+        return array_values($result);
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_map(

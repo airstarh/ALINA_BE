@@ -466,7 +466,7 @@ class ChatServer implements MessageComponentInterface
             $this->send($client, $this->chatStateEvent($roomKey));
         }
 
-        $this->broadcastPresence($roomKey);
+        $this->broadcastOriginPresence($state['origin']);
         $this->sendPendingRequestsTo($client);
     }
 
@@ -1021,30 +1021,47 @@ class ChatServer implements MessageComponentInterface
 
     private function broadcastPresence(string $roomKey): void
     {
-        if (! isset($this->channels[$roomKey])) {
+        if (! isset($this->channels[$roomKey], $this->rooms[$roomKey])) {
             return;
         }
 
         $people = [];
+        $room = $this->rooms[$roomKey];
+        foreach ($this->storage->participantSnapshots($room['chatId']) as $snapshot) {
+            $id = $snapshot['senderType'] . ':' . $snapshot['senderId'];
+            $people[$id] = [
+                'id' => $id,
+                'user' => $snapshot['senderType'] === 'user'
+                    ? ['id' => $snapshot['senderId'], 'nickname' => $snapshot['senderName'], 'name' => $snapshot['senderName'], 'emblem' => $snapshot['senderEmblem']]
+                    : ['id' => null, 'guestId' => $snapshot['senderId'], 'nickname' => $snapshot['senderName'], 'name' => $snapshot['senderName'], 'emblem' => $snapshot['senderEmblem']],
+                'online' => false,
+                'inChat' => false,
+                'typing' => false,
+            ];
+        }
 
-        foreach ($this->channels[$roomKey] as $client) {
+        foreach ($this->clients as $client) {
             $state = $this->clients[$client];
+            if ($state['origin'] !== $room['origin'] || $state['admission'] !== 'admitted' || $state['participantId'] === null) continue;
             $id = $state['participantId'];
-            $typing = $state['typingUntil'] > microtime(true);
-
+            $inChat = $state['roomKey'] === $roomKey;
+            if (! isset($people[$id]) && ! $inChat) continue;
             if (! isset($people[$id])) {
                 $people[$id] = [
                     'id' => $id,
                     'user' => $state['user'],
-                    'status' => 'online',
+                    'online' => true,
+                    'inChat' => true,
                     'typing' => false,
                 ];
             }
-
-            $people[$id]['typing'] = $people[$id]['typing'] || $typing;
+            $people[$id]['user'] = $state['user'];
+            $people[$id]['online'] = true;
+            $people[$id]['inChat'] = $people[$id]['inChat'] || $inChat;
+            $people[$id]['typing'] = $people[$id]['typing'] || ($inChat && $state['typingUntil'] > microtime(true));
         }
 
-        $channel = $this->rooms[$roomKey]['channel'];
+        $channel = $room['channel'];
         $this->broadcast($roomKey, fn ($client) => $this->clients[$client]['version'] === 2
             ? [
                 'version' => 2,
@@ -1054,6 +1071,15 @@ class ChatServer implements MessageComponentInterface
                 'participants' => array_values($people),
             ]
             : null);
+    }
+
+    private function broadcastOriginPresence(string $origin): void
+    {
+        foreach ($this->rooms as $roomKey => $room) {
+            if ($room['origin'] === $origin) {
+                $this->broadcastPresence((string) $roomKey);
+            }
+        }
     }
 
     private function expireTyping(): void
@@ -1117,8 +1143,8 @@ class ChatServer implements MessageComponentInterface
                 }
             });
         }
-        elseif ($admission === 'admitted') {
-            $this->broadcastPresence($roomKey);
+        if ($admission === 'admitted') {
+            $this->broadcastOriginPresence($state['origin']);
         }
     }
 

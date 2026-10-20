@@ -94,6 +94,20 @@ final class ContractMemoryChatStorage implements ChatStorage
         return [];
     }
 
+    public function participantSnapshots(int $chatId): array
+    {
+        $result = [];
+        foreach (array_reverse($this->messages[$chatId] ?? []) as $message) {
+            if (! in_array($message['senderType'], ['user', 'guest', 'user_service'], true)) continue;
+            $type = $message['senderType'] === 'user_service' ? (ctype_digit($message['senderId']) ? 'user' : 'guest') : $message['senderType'];
+            $result[$type . ':' . $message['senderId']] ??= [
+                'senderType' => $type, 'senderId' => $message['senderId'],
+                'senderName' => $message['senderName'], 'senderEmblem' => $message['senderEmblem'] ?? '',
+            ];
+        }
+        return array_values($result);
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_slice($this->messages[$chatId] ?? [], -$limit);
@@ -247,11 +261,12 @@ final class ContractMemoryChatStorage implements ChatStorage
 
     public function deleteParticipantMessages(int $chatId, string $senderType, string $senderId): int
     {
+        $types = $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'];
         $before = count($this->messages[$chatId] ?? []);
         $this->messages[$chatId] = array_values(array_filter(
             $this->messages[$chatId] ?? [],
             static fn (array $message): bool => ! (
-                $message['senderType'] === $senderType
+                in_array($message['senderType'], $types, true)
                 && $message['senderId'] === $senderId
             ),
         ));
@@ -312,6 +327,8 @@ expectSame(2, count($storage->history($chat['id'])), 'duplicate must not grow hi
 
 $storage->appendMessage($chat['id'], storageMessage('robot', 'system', 'bot', 'robocop', 400));
 expectSame(false, $storage->hasParticipantMessage($chat['id'], 'bot', 'robocop'), 'bot message must never establish participation');
+$storage->appendMessage($chat['id'], storageMessage('service-22', 'mention', 'user_service', '22', 450));
+expectSame(['user:22', 'user:17'], array_map(fn (array $person): string => $person['senderType'] . ':' . $person['senderId'], $storage->participantSnapshots($chat['id'])), 'service mention must establish retained participation alongside ordinary authors');
 
 $renamed = $storage->renameChat($chat['id'], 'Humans only', 500);
 expectSame('Humans only', $renamed['name'], 'rename must return the new name');
@@ -319,7 +336,9 @@ expectSame(500, $renamed['updatedAt'], 'rename must return the supplied timestam
 
 $deleted = $storage->deleteParticipantMessages($chat['id'], 'user', '17');
 expectSame(2, $deleted, 'participant deletion must remove only that participant messages');
-expectSame(['system'], array_column($storage->history($chat['id']), 'text'), 'participant deletion must retain bot messages');
+expectSame(['system', 'mention'], array_column($storage->history($chat['id']), 'text'), 'participant deletion must retain bot and other participant messages');
+$deletedMention = $storage->deleteParticipantMessages($chat['id'], 'user', '22');
+expectSame(1, $deletedMention, 'participant deletion must remove service mention evidence belonging to the target');
 
 for ($index = 0; $index < 1001; $index++) {
     $storage->appendMessage($chat['id'], storageMessage('bulk-' . $index, 'bulk ' . $index, createdAt: 1000 + $index));

@@ -153,9 +153,10 @@ class chat_message extends _BaseAlinaModel
 
     public function deleteParticipant(int $chatId, string $senderType, string $senderId): int
     {
+        $types = $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'];
         return $this->q(-1)
             ->where('chat_id', '=', $chatId)
-            ->where('sender_type', '=', $senderType)
+            ->whereIn('sender_type', $types)
             ->where('sender_id', '=', $senderId)
             ->delete();
     }

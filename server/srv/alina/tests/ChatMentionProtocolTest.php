@@ -50,6 +50,10 @@ chatExpectSame('user_service', $events[0]['message']['senderType'] ?? null, 'ser
 chatExpectSame('22', $events[0]['message']['senderId'] ?? null, 'service row belongs to target');
 chatExpectSame('Alice mentions Codex', $events[0]['message']['msg'] ?? null, 'socket uses canonical target name');
 chatExpectSame('user', $events[1]['message']['senderType'] ?? null, 'ordinary initiator message broadcasts last');
+$presence = $alice->lastEvent('presence');
+$mentionedPeople = array_column($presence['participants'] ?? [], null, 'id');
+chatExpectSame(false, $mentionedPeople['user:22']['online'] ?? null, 'mentioned offline creature appears in the participant list');
+chatExpectSame(false, $mentionedPeople['user:22']['inChat'] ?? null, 'mentioned offline creature is not marked in-chat');
 
 chatSend($server, $alice, 'message', [
     'msg' => '@Codex hello', 'clientMessageId' => 'mention-group-1',
