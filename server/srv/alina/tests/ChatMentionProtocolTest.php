@@ -48,7 +48,10 @@ $events = array_values(array_filter($alice->events('message'), static fn (array 
 chatExpectSame(2, count($events), 'one target creates one service message and one ordinary message');
 chatExpectSame('user_service', $events[0]['message']['senderType'] ?? null, 'service message broadcasts first');
 chatExpectSame('22', $events[0]['message']['senderId'] ?? null, 'service row belongs to target');
-chatExpectSame('Alice mentions Codex', $events[0]['message']['msg'] ?? null, 'socket uses canonical target name');
+$mentionText = (string) ($events[0]['message']['msg'] ?? '');
+chatExpect(str_starts_with($mentionText, 'MENTION:'), 'socket stores a structured mention notification');
+$mentionPayload = json_decode(rawurldecode(substr($mentionText, strlen('MENTION:'))), true);
+chatExpectSame(['target' => 'Codex', 'caller' => 'Alice'], $mentionPayload, 'notification keeps canonical target first and caller second');
 chatExpectSame('user', $events[1]['message']['senderType'] ?? null, 'ordinary initiator message broadcasts last');
 $presence = $alice->lastEvent('presence');
 $mentionedPeople = array_column($presence['participants'] ?? [], null, 'id');

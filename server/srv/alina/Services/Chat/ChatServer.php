@@ -853,7 +853,10 @@ class ChatServer implements MessageComponentInterface
                 $targets[] = [
                     'senderType' => 'user_service', 'senderId' => $candidate['senderId'],
                     'senderName' => $candidate['senderName'], 'senderEmblem' => $candidate['senderEmblem'],
-                    'text' => $state['user']['name'] . ' mentions ' . $candidate['senderName'],
+                    'text' => 'MENTION:' . rawurlencode((string) json_encode([
+                        'target' => $candidate['senderName'],
+                        'caller' => $state['user']['name'],
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)),
                     'createdAt' => $this->nowMilliseconds(), 'clientMessageId' => $clientMessageId,
                 ];
             }
