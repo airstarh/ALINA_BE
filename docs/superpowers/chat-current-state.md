@@ -58,6 +58,20 @@ and reconnect retries idempotent. Mention operations use the composite unique
 key `(chat_id, client_message_id, sender_type, sender_id)` so one client action
 can safely store several target service rows plus the ordinary message.
 
+For mentions, `client_message_id` is also a deliberate relationship key. Each
+`user_service` row represents one mentioned target: its `sender_id`, retained
+name and emblem belong to that target. The ordinary non-`user_service` row with
+the same `(chat_id, client_message_id)` belongs to the participant who initiated
+the mention. Future behavior can therefore recover the initiator by loading the
+shared group and selecting its ordinary row. Current UI behavior does not yet
+consume this relationship, but it must be preserved by later changes.
+
+This relationship exists only while the corresponding rows remain retained.
+Deleting the initiator row or allowing retention to prune it can leave a target
+service row without its initiator row. Any future feature that requires a
+permanent initiator relationship must define deletion and retention behavior or
+move the relationship into explicit durable metadata.
+
 The client reconnects after unexpected closure with capped exponential delay,
 preserves unsent per-channel drafts, and logs WebSocket close code, reason and
 `wasClean`. A manual reconnect control is also available. Ratchet sends protocol

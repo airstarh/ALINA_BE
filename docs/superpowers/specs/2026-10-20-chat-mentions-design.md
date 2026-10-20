@@ -28,7 +28,20 @@ client_message_id = the initiator message's client_message_id
 
 The socket then stores the initiator's ordinary message unchanged, using the same `client_message_id` and the initiator's ordinary `user` or `guest` sender type.
 
-The shared ID defines one atomic client operation. The initiator can be discovered later as the non-`user_service` row in that group, but initiator identity grants no mention-management power in this version.
+The shared ID defines one atomic client operation and intentionally preserves
+the relationship between every target notification and its initiator. A
+`user_service` row describes the mentioned target; the non-`user_service` row
+with the same `(chat_id, client_message_id)` identifies the participant who
+initiated the mention. This relationship is not consumed by the current UI, but
+it is part of the storage contract for future mention features and must not be
+discarded as incidental retry metadata. Initiator identity grants no
+mention-management power in this version.
+
+The relationship is retention-bound with the current schema. If the ordinary
+initiator row is deleted or pruned while a service row remains, that remaining
+row cannot recover its initiator from the group. A future feature requiring a
+permanent relationship must define group-aware deletion/retention semantics or
+introduce explicit durable metadata.
 
 The unique database key is:
 
