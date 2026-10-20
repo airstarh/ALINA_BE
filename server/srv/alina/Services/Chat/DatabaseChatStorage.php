@@ -60,6 +60,45 @@ final class DatabaseChatStorage implements ChatStorage
         return $result;
     }
 
+    public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
+    {
+        $pattern = '%' . addcslashes($query, '%_\\') . '%';
+        $rows = Dal::table('chat_message')
+            ->join('chat', 'chat.id', '=', 'chat_message.chat_id')
+            ->where('chat.origin', '=', $origin)
+            ->whereIn('chat_message.sender_type', ['user', 'guest', 'user_service'])
+            ->when($query !== '', function ($outer) use ($origin, $pattern): void {
+                $outer->whereIn('chat_message.sender_id', function ($matching) use ($origin, $pattern): void {
+                    $matching->select('mention_search.sender_id')->from('chat_message AS mention_search')
+                        ->join('chat AS mention_chat', 'mention_chat.id', '=', 'mention_search.chat_id')
+                        ->where('mention_chat.origin', '=', $origin)
+                        ->whereIn('mention_search.sender_type', ['user', 'guest', 'user_service'])
+                        ->whereRaw("mention_search.sender_name LIKE ? ESCAPE '\\\\'", [$pattern]);
+                });
+            })
+            ->orderBy('chat_message.created_at', 'DESC')
+            ->orderBy('chat_message.id', 'DESC')
+            ->get(['chat_message.sender_type', 'chat_message.sender_id', 'chat_message.sender_name', 'chat_message.sender_emblem', 'chat_message.created_at']);
+        $result = [];
+        foreach ($rows as $row) {
+            $id = (string) $row->sender_id;
+            if ($id === $senderId) continue;
+            $type = $row->sender_type === 'user_service' ? (ctype_digit($id) ? 'user' : 'guest') : (string) $row->sender_type;
+            if (! isset($result[$id])) {
+                $result[$id] = ['senderType' => $type, 'senderId' => $id, 'senderName' => (string) $row->sender_name, 'senderEmblem' => (string) $row->sender_emblem, 'latestActivityAt' => (int) $row->created_at, '_genuine' => $row->sender_type !== 'user_service'];
+            }
+            elseif (! $result[$id]['_genuine'] && $row->sender_type !== 'user_service') {
+                $result[$id]['senderType'] = $type;
+                $result[$id]['senderName'] = (string) $row->sender_name;
+                $result[$id]['senderEmblem'] = (string) $row->sender_emblem;
+                $result[$id]['_genuine'] = true;
+            }
+        }
+        $result = array_values(array_filter($result, fn ($candidate) => $query === '' || mb_stripos($candidate['senderName'], $query) !== false));
+        foreach ($result as &$candidate) unset($candidate['_genuine']);
+        return array_slice($result, 0, $limit);
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_map(
@@ -82,6 +121,7 @@ final class DatabaseChatStorage implements ChatStorage
     {
         try {
             return Dal::connection()->transaction(function () use ($chatId, $message): array {
+                Dal::table('chat')->where('id', '=', $chatId)->lockForUpdate()->first();
                 $model = new chat_message();
                 $row = $model->findByClientMessageId($chatId, $message['clientMessageId']);
 
@@ -109,10 +149,28 @@ final class DatabaseChatStorage implements ChatStorage
         }
     }
 
+    public function appendMessageGroup(int $chatId, array $message, array $targets): array
+    {
+        return Dal::connection()->transaction(function () use ($chatId, $message, $targets): array {
+            Dal::table('chat')->where('id', '=', $chatId)->lockForUpdate()->first();
+            $model = new chat_message();
+            $existing = $model->findByClientMessageId($chatId, $message['clientMessageId']);
+            if ($existing !== null) {
+                return ['messages' => array_map(fn ($row) => $this->normalizeMessage($row), $model->findGroup($chatId, $message['clientMessageId'])), 'inserted' => false];
+            }
+            $stored = [];
+            foreach ($targets as $target) $stored[] = $this->normalizeMessage($model->insertMessage($chatId, $target));
+            $stored[] = $this->normalizeMessage($model->insertMessage($chatId, $message));
+            $model->pruneChat($chatId, 1000);
+            return ['messages' => $stored, 'inserted' => true];
+        });
+    }
+
     public function appendReply(int $chatId, int $parentMessageId, array $message): array
     {
         try {
             return Dal::connection()->transaction(function () use ($chatId, $parentMessageId, $message): array {
+                Dal::table('chat')->where('id', '=', $chatId)->lockForUpdate()->first();
                 $model = new chat_message();
                 $existing = $model->findByClientMessageId($chatId, $message['clientMessageId']);
 
@@ -187,6 +245,11 @@ final class DatabaseChatStorage implements ChatStorage
         }
 
         return $this->normalizeChat($row);
+    }
+
+    public function renameGuest(int $chatId, string $guestId, string $name): int
+    {
+        return (new chat_message())->renameGuest($chatId, $guestId, $name);
     }
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array

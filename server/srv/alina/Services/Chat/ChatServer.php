@@ -84,7 +84,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
+        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -156,6 +156,12 @@ class ChatServer implements MessageComponentInterface
                 return;
             }
 
+            if ($type === 'rename_guest') {
+                $this->renameGuest($from, $data);
+
+                return;
+            }
+
             if ($type === 'set_anonymous') {
                 $this->setAnonymousAllowed($from, $data);
 
@@ -195,6 +201,11 @@ class ChatServer implements MessageComponentInterface
             if ($type === 'typing') {
                 $this->typing($from, ($data['typing'] ?? false) === true);
 
+                return;
+            }
+
+            if ($type === 'mentions_directory' || $type === 'mentions_search') {
+                $this->mentionCandidates($from, $data, $type === 'mentions_search');
                 return;
             }
 
@@ -262,6 +273,7 @@ class ChatServer implements MessageComponentInterface
             unset($this->roomCleanupTimers[$roomKey]);
         }
 
+        $previousUser = $state['user'];
         $state['roomKey'] = $roomKey;
         $state['chatId'] = $chat['id'];
         $state['channel'] = $channel;
@@ -271,6 +283,17 @@ class ChatServer implements MessageComponentInterface
         $state['typingUntil'] = 0;
         $alreadyAdmitted = $state['admission'] === 'admitted';
         $this->clients[$client] = $state;
+        if (
+            $alreadyAdmitted
+            && str_starts_with($participantId, 'guest:')
+            && ($previousUser['name'] ?? '') !== $user['name']
+        ) {
+            $nickname = trim($user['nickname']);
+            $guestId = substr($participantId, 6);
+            $this->storage->renameGuest($chat['id'], $guestId, $user['name']);
+            $this->applyLiveGuestRename($roomKey, $guestId, $nickname, $user['name']);
+            $this->broadcastGuestRename($roomKey, $channel, $guestId, $nickname, $user['name']);
+        }
         [$senderType, $senderId] = explode(':', $participantId, 2);
         $hasAnyMessage = $this->storage->hasAnyMessage($chat['id']);
         $isFirstLiveParticipant = ! $hasAnyMessage && $this->channels[$roomKey]->count() === 0;
@@ -364,6 +387,22 @@ class ChatServer implements MessageComponentInterface
         return $result;
     }
 
+    private function mentionCandidates(ConnectionInterface $client, array $data, bool $search): void
+    {
+        $state = $this->clients[$client];
+        $query = $search ? trim((string) ($data['query'] ?? '')) : '';
+        if ($search && mb_strlen($query) < ChatMentions::SEARCH_MINIMUM) {
+            $this->error($client, 'Enter at least 3 characters to search mentions.');
+            return;
+        }
+        [$senderType, $senderId] = explode(':', $state['participantId'], 2);
+        $candidates = $this->storage->mentionCandidates(
+            $state['origin'], $senderType, $senderId, $query,
+            $search ? ChatMentions::SEARCH_LIMIT : ChatMentions::DIRECTORY_LIMIT,
+        );
+        $this->send($client, ['version' => 2, 'type' => $search ? 'mentions_search' : 'mentions_directory', 'channel' => $state['channel'], 'query' => $query, 'candidates' => $candidates]);
+    }
+
     private function approve(ConnectionInterface $client, array $data): void
     {
         $participantId = $data['participantId'] ?? null;
@@ -453,6 +492,62 @@ class ChatServer implements MessageComponentInterface
         $chat = $this->storage->renameChat($state['chatId'], $name, $this->nowMilliseconds());
         $this->rooms[$state['roomKey']]['chat'] = $chat;
         $this->broadcast($state['roomKey'], fn (): array => $this->chatStateEvent($state['roomKey']));
+    }
+
+    private function renameGuest(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        $guestId = $data['guestId'] ?? '';
+        $nickname = trim(is_string($data['name'] ?? null) ? $data['name'] : '');
+
+        if (! preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iD', (string) $guestId)) {
+            $this->error($client, 'A valid guest identity is required.');
+            return;
+        }
+        if ($nickname === '' || mb_strlen($nickname) > 25) {
+            $this->error($client, 'A guest nickname of 1–25 characters is required.');
+            return;
+        }
+
+        $guestId = strtolower((string) $guestId);
+        $name = $this->guestDisplayName($guestId, $nickname);
+        $this->storage->renameGuest($state['chatId'], $guestId, $name);
+        $this->applyLiveGuestRename($state['roomKey'], $guestId, $nickname, $name);
+        $this->broadcastGuestRename($state['roomKey'], $state['channel'], $guestId, $nickname, $name);
+        $this->broadcastPresence($state['roomKey']);
+    }
+
+    private function broadcastGuestRename(string $roomKey, string $channel, string $guestId, string $nickname, string $name): void
+    {
+        $this->broadcast($roomKey, fn () => [
+            'version' => 2,
+            'type' => 'guest_renamed',
+            'channel' => $channel,
+            'participantId' => 'guest:' . $guestId,
+            'guestId' => $guestId,
+            'nickname' => $nickname,
+            'name' => $name,
+        ]);
+    }
+
+    private function applyLiveGuestRename(string $roomKey, string $guestId, string $nickname, string $name): void
+    {
+        foreach ([$this->channels[$roomKey] ?? null, $this->pending[$roomKey] ?? null] as $clients) {
+            if (! $clients instanceof SplObjectStorage) continue;
+            foreach ($clients as $participant) {
+                $participantState = $this->clients[$participant];
+                if ($participantState['participantId'] !== 'guest:' . $guestId) continue;
+                $participantState['user']['nickname'] = $nickname;
+                $participantState['user']['name'] = $name;
+                $this->clients[$participant] = $participantState;
+            }
+        }
+    }
+
+    private function guestDisplayName(string $guestId, string $nickname): string
+    {
+        $base = 'Guest ' . substr($guestId, 0, 8);
+        return $nickname !== $base ? $nickname . ' (' . $base . ')' : $base;
     }
 
     private function setAnonymousAllowed(ConnectionInterface $client, array $data): void
@@ -724,7 +819,7 @@ class ChatServer implements MessageComponentInterface
         }
 
         [$senderType, $senderId] = explode(':', $state['participantId'], 2);
-        $stored = $this->storage->appendMessage($state['chatId'], [
+        $ordinary = [
             'senderType' => $senderType,
             'senderId' => $senderId,
             'senderName' => $state['user']['name'],
@@ -732,16 +827,54 @@ class ChatServer implements MessageComponentInterface
             'text' => $text,
             'createdAt' => $this->nowMilliseconds(),
             'clientMessageId' => $clientMessageId,
-        ]);
+        ];
+
+        $requested = ChatMentions::requested($data['mentions'] ?? null);
+        if ($requested === null) {
+            $this->error($client, 'Provide at most 22 valid mention targets.');
+            return;
+        }
+        $targets = [];
+        if ($requested !== []) {
+            $available = $this->storage->mentionCandidates($state['origin'], $senderType, $senderId, '', 100000);
+            $byIdentity = [];
+            foreach ($available as $candidate) $byIdentity[$candidate['senderType'] . ':' . $candidate['senderId']] = $candidate;
+            foreach ($requested as $target) {
+                $key = $target['senderType'] . ':' . $target['senderId'];
+                if ($key === $state['participantId']) {
+                    $this->error($client, 'You cannot mention yourself.');
+                    return;
+                }
+                if (! isset($byIdentity[$key])) {
+                    $this->error($client, 'Mention target was not found in this origin.');
+                    return;
+                }
+                $candidate = $byIdentity[$key];
+                $targets[] = [
+                    'senderType' => 'user_service', 'senderId' => $candidate['senderId'],
+                    'senderName' => $candidate['senderName'], 'senderEmblem' => $candidate['senderEmblem'],
+                    'text' => $state['user']['name'] . ' mentions ' . $candidate['senderName'],
+                    'createdAt' => $this->nowMilliseconds(), 'clientMessageId' => $clientMessageId,
+                ];
+            }
+        }
+
+        $stored = $targets === []
+            ? $this->storage->appendMessage($state['chatId'], $ordinary)
+            : $this->storage->appendMessageGroup($state['chatId'], $ordinary, $targets);
 
         if (! $stored['inserted']) {
             return;
         }
 
-        $message = $this->protocolMessage($stored['message'], $state['channel'], $state['user']);
-        $this->broadcast($state['roomKey'], fn ($recipient) => $this->clients[$recipient]['version'] === 2
-            ? ['version' => 2, 'type' => 'message', 'channel' => $state['channel'], 'message' => $message]
-            : $message);
+        $storedMessages = $targets === [] ? [$stored['message']] : $stored['messages'];
+        foreach ($storedMessages as $storedMessage) {
+            $liveUser = $storedMessage['senderType'] === $senderType && $storedMessage['senderId'] === $senderId ? $state['user'] : null;
+            $message = $this->protocolMessage($storedMessage, $state['channel'], $liveUser);
+            $this->broadcast($state['roomKey'], fn ($recipient) => $this->clients[$recipient]['version'] === 2
+                ? ['version' => 2, 'type' => 'message', 'channel' => $state['channel'], 'message' => $message]
+                : $message);
+        }
         $this->broadcastPresence($state['roomKey']);
     }
 
@@ -881,6 +1014,8 @@ class ChatServer implements MessageComponentInterface
             'participantId' => $participantId,
             'timestamp' => $stored['createdAt'],
             'clientMessageId' => $stored['clientMessageId'],
+            'senderType' => $stored['senderType'],
+            'senderId' => $stored['senderId'],
         ];
     }
 

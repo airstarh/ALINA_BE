@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../Services/Chat/ChatReply.php';
+require_once __DIR__ . '/../../Services/Chat/ChatMentions.php';
 
 use alina\Services\Chat\ChatStorage;
 use GuzzleHttp\Psr7\Request;
@@ -60,9 +61,9 @@ final class MemoryChatStorage implements ChatStorage
                     continue;
                 }
 
-                $participants[$message['senderType'] . "\0" . $message['senderId']] = true;
+                $participants[$message['senderId']] = true;
                 $participated = $participated || (
-                    $message['senderType'] === $senderType
+                    in_array($message['senderType'], $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'], true)
                     && $message['senderId'] === $senderId
                 );
             }
@@ -110,6 +111,32 @@ final class MemoryChatStorage implements ChatStorage
         ];
     }
 
+    public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
+    {
+        $rows = [];
+        foreach ($this->chats as $chat) {
+            if ($chat['origin'] !== $origin) continue;
+            foreach ($this->messages[$chat['id']] ?? [] as $message) {
+                if (! in_array($message['senderType'], ['user', 'guest', 'user_service'], true) || $message['senderId'] === $senderId) continue;
+                $rows[] = $message;
+            }
+        }
+        usort($rows, fn ($a, $b) => $b['createdAt'] <=> $a['createdAt']);
+        $result = [];
+        foreach ($rows as $row) {
+            $type = $row['senderType'] === 'user_service' ? (ctype_digit($row['senderId']) ? 'user' : 'guest') : $row['senderType'];
+            if (! isset($result[$row['senderId']])) {
+                $result[$row['senderId']] = ['senderType' => $type, 'senderId' => $row['senderId'], 'senderName' => $row['senderName'], 'senderEmblem' => $row['senderEmblem'], 'latestActivityAt' => $row['createdAt'], '_genuine' => $row['senderType'] !== 'user_service'];
+            }
+            elseif (! $result[$row['senderId']]['_genuine'] && $row['senderType'] !== 'user_service') {
+                $result[$row['senderId']] = array_replace($result[$row['senderId']], ['senderType' => $type, 'senderName' => $row['senderName'], 'senderEmblem' => $row['senderEmblem'], '_genuine' => true]);
+            }
+        }
+        $result = array_values(array_filter($result, fn ($candidate) => $query === '' || str_contains(mb_strtolower($candidate['senderName']), mb_strtolower($query))));
+        foreach ($result as &$candidate) unset($candidate['_genuine']);
+        return array_slice($result, 0, $limit);
+    }
+
     public function configureChat(string $origin, string $channel, array $changes): array
     {
         $this->openChat($origin, $channel);
@@ -143,8 +170,7 @@ final class MemoryChatStorage implements ChatStorage
 
         foreach ($this->messages[$chatId] ?? [] as $message) {
             if (
-                $message['senderType'] !== 'bot'
-                && $message['senderType'] === $senderType
+                in_array($message['senderType'], $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'], true)
                 && $message['senderId'] === $senderId
             ) {
                 return true;
@@ -169,6 +195,23 @@ final class MemoryChatStorage implements ChatStorage
         $this->messages[$chatId] = array_slice($this->messages[$chatId], -1000);
 
         return ['message' => $stored, 'inserted' => true];
+    }
+
+    public function appendMessageGroup(int $chatId, array $message, array $targets): array
+    {
+        foreach ($this->messages[$chatId] ?? [] as $stored) {
+            if ($stored['clientMessageId'] === $message['clientMessageId'] && $stored['senderType'] !== 'user_service') {
+                return ['messages' => array_values(array_filter($this->messages[$chatId], fn ($row) => $row['clientMessageId'] === $message['clientMessageId'])), 'inserted' => false];
+            }
+        }
+        $messages = [];
+        foreach ([...$targets, $message] as $item) {
+            $stored = ['id' => $this->nextMessageId++] + $item;
+            $this->messages[$chatId][] = $stored;
+            $messages[] = $stored;
+        }
+        $this->messages[$chatId] = array_slice($this->messages[$chatId], -1000);
+        return ['messages' => $messages, 'inserted' => true];
     }
 
     public function appendReply(int $chatId, int $parentMessageId, array $message): array
@@ -246,6 +289,19 @@ final class MemoryChatStorage implements ChatStorage
         }
 
         throw new RuntimeException('Unknown chat.');
+    }
+
+    public function renameGuest(int $chatId, string $guestId, string $name): int
+    {
+        $updated = 0;
+        foreach ($this->messages[$chatId] as &$message) {
+            if (in_array($message['senderType'], ['guest', 'user_service'], true) && $message['senderId'] === $guestId) {
+                $message['senderName'] = $name;
+                $updated++;
+            }
+        }
+        unset($message);
+        return $updated;
     }
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array

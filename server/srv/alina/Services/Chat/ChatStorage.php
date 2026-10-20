@@ -10,6 +10,8 @@ interface ChatStorage
 
     public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array;
 
+    public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array;
+
     public function history(int $chatId, int $limit = 50): array;
 
     public function hasAnyMessage(int $chatId): bool;
@@ -21,6 +23,8 @@ interface ChatStorage
      */
     public function appendMessage(int $chatId, array $message): array;
 
+    public function appendMessageGroup(int $chatId, array $message, array $targets): array;
+
     /**
      * @return array{message: array, inserted: bool}
      */
@@ -31,6 +35,8 @@ interface ChatStorage
     public function deleteMessage(int $chatId, int $messageId): bool;
 
     public function renameChat(int $chatId, string $name, int $updatedAt): array;
+
+    public function renameGuest(int $chatId, string $guestId, string $name): int;
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array;
 

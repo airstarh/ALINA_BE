@@ -89,6 +89,11 @@ final class ContractMemoryChatStorage implements ChatStorage
         return $result;
     }
 
+    public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
+    {
+        return [];
+    }
+
     public function history(int $chatId, int $limit = 50): array
     {
         return array_slice($this->messages[$chatId] ?? [], -$limit);
@@ -131,6 +136,13 @@ final class ContractMemoryChatStorage implements ChatStorage
         $this->messages[$chatId] = array_slice($this->messages[$chatId], -1000);
 
         return ['message' => $stored, 'inserted' => true];
+    }
+
+    public function appendMessageGroup(int $chatId, array $message, array $targets): array
+    {
+        $messages = [];
+        foreach ([...$targets, $message] as $item) $messages[] = $this->appendMessage($chatId, $item)['message'];
+        return ['messages' => $messages, 'inserted' => true];
     }
 
     public function appendReply(int $chatId, int $parentMessageId, array $message): array
@@ -190,6 +202,19 @@ final class ContractMemoryChatStorage implements ChatStorage
         }
 
         throw new RuntimeException('Unknown chat.');
+    }
+
+    public function renameGuest(int $chatId, string $guestId, string $name): int
+    {
+        $updated = 0;
+        foreach ($this->messages[$chatId] as &$message) {
+            if (in_array($message['senderType'], ['guest', 'user_service'], true) && $message['senderId'] === $guestId) {
+                $message['senderName'] = $name;
+                $updated++;
+            }
+        }
+        unset($message);
+        return $updated;
     }
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array

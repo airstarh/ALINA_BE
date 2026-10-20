@@ -69,7 +69,7 @@ class chat extends _BaseAlinaModel
     ): array {
         $aggregate = Dal::table('chat_message')
             ->select('chat_id')
-            ->selectRaw("COUNT(DISTINCT CASE WHEN sender_type != 'bot' THEN CONCAT(LENGTH(sender_type), ':', sender_type, LENGTH(sender_id), ':', sender_id) END) AS participant_count")
+            ->selectRaw("COUNT(DISTINCT CASE WHEN sender_type != 'bot' THEN sender_id END) AS participant_count")
             ->selectRaw('MAX(created_at) AS latest_message_at')
             ->groupBy('chat_id');
 
@@ -106,8 +106,7 @@ class chat extends _BaseAlinaModel
                 ->selectRaw('1')
                 ->from('chat_message AS identity_message')
                 ->whereColumn('identity_message.chat_id', 'chat.id')
-                ->where('identity_message.sender_type', '!=', 'bot')
-                ->where('identity_message.sender_type', '=', $senderType)
+                ->whereIn('identity_message.sender_type', $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'])
                 ->where('identity_message.sender_id', '=', $senderId);
         });
     }
