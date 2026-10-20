@@ -253,7 +253,80 @@ final class DatabaseChatStorage implements ChatStorage
 
     public function deleteMessage(int $chatId, int $messageId): bool
     {
+        if ((new chat())->findByDiscussionMessageId($messageId) !== null) {
+            throw new RuntimeException('A message with a discussion cannot be deleted.');
+        }
+        $room = Dal::table('chat')->where('id', '=', $chatId)->first();
+        if ($room !== null && $room->discussion_of_message_id !== null) {
+            $seedId = Dal::table('chat_message')->where('chat_id', '=', $chatId)->min('id');
+            if ((int) $seedId === $messageId) throw new RuntimeException('A discussion seed cannot be deleted.');
+        }
         return (new chat_message())->deleteMessage($chatId, $messageId);
+    }
+
+    public function createDiscussion(int $chatId, int $messageId): array
+    {
+        return Dal::connection()->transaction(function () use ($chatId, $messageId): array {
+            $parent = Dal::table('chat')->where('id', '=', $chatId)->lockForUpdate()->first();
+            $source = (new chat_message())->findForChat($chatId, $messageId);
+            if ($parent === null || $source === null) throw new RuntimeException('Message not found.');
+
+            $model = new chat();
+            $child = $model->findByDiscussionMessageId($messageId);
+            $created = false;
+            if ($child === null) {
+                $child = $model->insertDiscussion(
+                    (string) $parent->origin,
+                    'discussion_' . $messageId,
+                    ChatDiscussion::title($messageId, (string) $source->message_text),
+                    $messageId,
+                );
+                (new chat_message())->insertMessage((int) $child->id, [
+                    'senderType' => (string) $source->sender_type,
+                    'senderId' => (string) $source->sender_id,
+                    'senderName' => (string) $source->sender_name,
+                    'senderEmblem' => (string) $source->sender_emblem,
+                    'text' => (string) $source->message_text,
+                    'createdAt' => (int) $source->created_at,
+                    'clientMessageId' => 'discussion-seed-' . $messageId,
+                ]);
+                $created = true;
+            }
+            $seed = Dal::table('chat_message')->where('chat_id', '=', $child->id)->orderBy('id')->first();
+            return [
+                'chat' => $this->normalizeChat($child),
+                'seedMessage' => $this->normalizeMessage($seed),
+                'responseCount' => max(0, Dal::table('chat_message')->where('chat_id', '=', $child->id)->count() - 1),
+                'created' => $created,
+            ];
+        });
+    }
+
+    public function discussionForMessage(int $chatId, int $messageId): ?array
+    {
+        if ((new chat_message())->findForChat($chatId, $messageId) === null) return null;
+        $child = (new chat())->findByDiscussionMessageId($messageId);
+        if ($child === null) return null;
+        return [
+            'channel' => (string) $child->channel_name_pseudo_id,
+            'responseCount' => max(0, Dal::table('chat_message')->where('chat_id', '=', $child->id)->count() - 1),
+        ];
+    }
+
+    public function discussionParent(int $chatId): ?array
+    {
+        $child = Dal::table('chat')->where('id', '=', $chatId)->first();
+        if ($child === null || $child->discussion_of_message_id === null) return null;
+        $parent = Dal::table('chat_message')->join('chat', 'chat.id', '=', 'chat_message.chat_id')
+            ->where('chat_message.id', '=', $child->discussion_of_message_id)
+            ->first(['chat.origin', 'chat.channel_name_pseudo_id']);
+        if ($parent === null) return null;
+        return [
+            'origin' => (string) $parent->origin,
+            'channel' => (string) $parent->channel_name_pseudo_id,
+            'sourceMessageId' => (int) $child->discussion_of_message_id,
+            'responseCount' => max(0, Dal::table('chat_message')->where('chat_id', '=', $chatId)->count() - 1),
+        ];
     }
 
     public function renameChat(int $chatId, string $name, int $updatedAt): array
@@ -308,6 +381,7 @@ final class DatabaseChatStorage implements ChatStorage
             'name' => (string) $row->chat_name_human,
             'isAnionAllowed' => (bool) $row->is_anion_allowed,
             'isConfirmationRequired' => (bool) $row->is_confirmation_required,
+            'discussionOfMessageId' => $row->discussion_of_message_id === null ? null : (int) $row->discussion_of_message_id,
             'createdAt' => (int) $row->created_at,
             'updatedAt' => (int) $row->updated_at,
         ];

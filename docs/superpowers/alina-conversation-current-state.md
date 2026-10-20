@@ -72,6 +72,8 @@ Key implemented behavior:
 - message edit/delete, non-persistent edited highlighting, one-level replies,
   profile links in new tabs, native media, file uploads, and five-minute voice
   recording with automatic stop/send;
+- one child discussion per eligible message, with an editable protected seed,
+  protected source, response count, generated title, and dark-yellow link;
 - mentions with up to 22 targets, cached/searchable candidates, one
   `user_service` row per target, grouped by the ordinary message's
   `client_message_id`, and participation inferred from retained rows;

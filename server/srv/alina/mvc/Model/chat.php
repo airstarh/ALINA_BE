@@ -23,6 +23,7 @@ class chat extends _BaseAlinaModel
             'chat_name_human' => [],
             'is_anion_allowed' => ['default' => 1],
             'is_confirmation_required' => ['default' => 0],
+            'discussion_of_message_id' => ['default' => null],
             'created_at' => ['default' => $now],
             'updated_at' => ['default' => $now],
         ];
@@ -32,7 +33,29 @@ class chat extends _BaseAlinaModel
     {
         return [
             ['origin', 'channel_name_pseudo_id'],
+            ['discussion_of_message_id'],
         ];
+    }
+
+    public function findByDiscussionMessageId(int $messageId): ?stdClass
+    {
+        return $this->q()->where('discussion_of_message_id', '=', $messageId)->first();
+    }
+
+    public function insertDiscussion(string $origin, string $channel, string $name, int $messageId): stdClass
+    {
+        $now = self::nowMilliseconds();
+        $id = $this->q(-1)->insertGetId([
+            'origin' => $origin,
+            'channel_name_pseudo_id' => $channel,
+            'chat_name_human' => $name,
+            'is_anion_allowed' => 1,
+            'is_confirmation_required' => 0,
+            'discussion_of_message_id' => $messageId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        return $this->q()->where('id', '=', $id)->first();
     }
 
     public function findByOriginAndChannel(string $origin, string $channel): ?stdClass

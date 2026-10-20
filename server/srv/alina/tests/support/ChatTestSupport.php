@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../Services/Chat/ChatReply.php';
 require_once __DIR__ . '/../../Services/Chat/ChatMentions.php';
+require_once __DIR__ . '/../../Services/Chat/ChatDiscussion.php';
 
 use alina\Services\Chat\ChatStorage;
 use GuzzleHttp\Psr7\Request;
@@ -31,6 +32,7 @@ final class MemoryChatStorage implements ChatStorage
                 'name' => $channel,
                 'isAnionAllowed' => true,
                 'isConfirmationRequired' => false,
+                'discussionOfMessageId' => null,
                 'createdAt' => $now,
                 'updatedAt' => $now,
             ];
@@ -166,7 +168,6 @@ final class MemoryChatStorage implements ChatStorage
     public function history(int $chatId, int $limit = 50): array
     {
         $this->maybeFail();
-
         return array_slice($this->messages[$chatId] ?? [], -$limit);
     }
 
@@ -209,7 +210,13 @@ final class MemoryChatStorage implements ChatStorage
 
         $stored = ['id' => $this->nextMessageId++] + $message;
         $this->messages[$chatId][] = $stored;
-        $this->messages[$chatId] = array_slice($this->messages[$chatId], -1000);
+        $discussion = false;
+        foreach ($this->chats as $chat) if ($chat['id'] === $chatId) $discussion = $chat['discussionOfMessageId'] !== null;
+        if ($discussion && count($this->messages[$chatId]) > 1000) {
+            $this->messages[$chatId] = [$this->messages[$chatId][0], ...array_slice($this->messages[$chatId], -999)];
+        } else {
+            $this->messages[$chatId] = array_slice($this->messages[$chatId], -1000);
+        }
 
         return ['message' => $stored, 'inserted' => true];
     }
@@ -281,6 +288,16 @@ final class MemoryChatStorage implements ChatStorage
     {
         $this->maybeFail();
 
+        foreach ($this->chats as $chat) {
+            if ($chat['discussionOfMessageId'] === $messageId) {
+                throw new RuntimeException('A message with a discussion cannot be deleted.');
+            }
+            if ($chat['id'] === $chatId && $chat['discussionOfMessageId'] !== null) {
+                $seedId = $this->messages[$chatId][0]['id'] ?? null;
+                if ($seedId === $messageId) throw new RuntimeException('A discussion seed cannot be deleted.');
+            }
+        }
+
         foreach ($this->messages[$chatId] ?? [] as $index => $message) {
             if ($message['id'] === $messageId) {
                 array_splice($this->messages[$chatId], $index, 1);
@@ -290,6 +307,74 @@ final class MemoryChatStorage implements ChatStorage
         }
 
         return false;
+    }
+
+    public function createDiscussion(int $chatId, int $messageId): array
+    {
+        $this->maybeFail();
+        $source = null;
+        foreach ($this->messages[$chatId] ?? [] as $message) {
+            if ($message['id'] === $messageId) $source = $message;
+        }
+        if ($source === null) throw new RuntimeException('Message not found.');
+
+        foreach ($this->chats as $chat) {
+            if ($chat['discussionOfMessageId'] === $messageId) {
+                return [
+                    'chat' => $chat,
+                    'seedMessage' => $this->messages[$chat['id']][0],
+                    'responseCount' => max(0, count($this->messages[$chat['id']] ?? []) - 1),
+                    'created' => false,
+                ];
+            }
+        }
+
+        $parent = null;
+        foreach ($this->chats as $chat) if ($chat['id'] === $chatId) $parent = $chat;
+        if ($parent === null) throw new RuntimeException('Chat not found.');
+        $child = $this->openChat($parent['origin'], 'discussion_' . $messageId);
+        $key = $this->chatKey($parent['origin'], $child['channel']);
+        $this->chats[$key]['name'] = \alina\Services\Chat\ChatDiscussion::title($messageId, $source['text']);
+        $this->chats[$key]['discussionOfMessageId'] = $messageId;
+        $child = $this->chats[$key];
+        $seed = $this->appendMessage($child['id'], array_replace($source, [
+            'clientMessageId' => 'discussion-seed-' . $messageId,
+        ]))['message'];
+
+        return ['chat' => $child, 'seedMessage' => $seed, 'responseCount' => 0, 'created' => true];
+    }
+
+    public function discussionForMessage(int $chatId, int $messageId): ?array
+    {
+        foreach ($this->messages[$chatId] ?? [] as $message) {
+            if ($message['id'] !== $messageId) continue;
+            foreach ($this->chats as $chat) {
+                if ($chat['discussionOfMessageId'] === $messageId) {
+                    return [
+                        'channel' => $chat['channel'],
+                        'responseCount' => max(0, count($this->messages[$chat['id']] ?? []) - 1),
+                    ];
+                }
+            }
+        }
+        return null;
+    }
+
+    public function discussionParent(int $chatId): ?array
+    {
+        $child = null;
+        foreach ($this->chats as $chat) if ($chat['id'] === $chatId) $child = $chat;
+        if (($child['discussionOfMessageId'] ?? null) === null) return null;
+        foreach ($this->chats as $parent) {
+            foreach ($this->messages[$parent['id']] ?? [] as $message) {
+                if ($message['id'] === $child['discussionOfMessageId']) return [
+                    'origin' => $parent['origin'], 'channel' => $parent['channel'],
+                    'sourceMessageId' => $message['id'],
+                    'responseCount' => max(0, count($this->messages[$chatId] ?? []) - 1),
+                ];
+            }
+        }
+        return null;
     }
 
     public function renameChat(int $chatId, string $name, int $updatedAt): array

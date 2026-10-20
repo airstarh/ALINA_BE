@@ -129,6 +129,24 @@ The socket validates room scoping and payload shape for mutations, but it does
 not validate application roles or message ownership. Role and ownership powers
 are currently a frontend trust decision, not a security boundary.
 
+## Message discussions
+
+Every loaded message except the first message in a room can create one child
+discussion. The child is linked by nullable, unique
+`chat.discussion_of_message_id`; no foreign key is used. Creating a discussion
+copies the source as the child room's seed, opens the child in a new tab, and is
+idempotent under repeated or concurrent requests.
+
+Every newly created discussion title begins with `DISCUSS OF: `. Plain-text
+titles then use up to the first 100 characters, trimmed at a word boundary.
+Replies, voice messages and messages containing image/audio/video URLs use
+`DISCUSS OF: message <id>`. The title is not synchronized after later edits.
+
+The source and copied seed remain editable but cannot be deleted. The seed
+never has a Discuss control. Once a child exists, its source displays a
+dark-yellow, black-text `...in discussion (N)` control, where `N` excludes the
+seed. Discussion retention preserves the seed plus the newest 999 responses.
+
 ## Mentions
 
 A message may mention up to 22 distinct registered users or guests retained in
@@ -217,14 +235,14 @@ launch controls.
 
 Version 2 client commands currently include:
 
-`join`, `message`, `reply_message`, `edit_message`, `delete_message`, `typing`,
+`join`, `message`, `reply_message`, `edit_message`, `delete_message`, `discuss_message`, `typing`,
 `approve`, `rename`, `rename_guest`, `set_anonymous`, `set_confirmation`,
 `kick`, `list_rooms`, `mentions_directory`, and `mentions_search`.
 
 Important server events include:
 
 `history`, `joined`, `join_pending`, `join_approved`, `message`,
-`message_edited`, `message_deleted`, `presence`, `chat_state`, `join_request`,
+`message_edited`, `message_deleted`, `discussion_ready`, `presence`, `chat_state`, `join_request`,
 `participant_kicked`, `guest_renamed`, `rooms`, `mentions_directory`,
 `mentions_search`, and `error`.
 

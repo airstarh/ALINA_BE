@@ -36,6 +36,12 @@ interface ChatStorage
 
     public function deleteMessage(int $chatId, int $messageId): bool;
 
+    public function createDiscussion(int $chatId, int $messageId): array;
+
+    public function discussionForMessage(int $chatId, int $messageId): ?array;
+
+    public function discussionParent(int $chatId): ?array;
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array;
 
     public function renameGuest(int $chatId, string $guestId, string $name): int;

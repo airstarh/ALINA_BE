@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace alina\mvc\Model;
 
+use Illuminate\Database\Capsule\Manager as Dal;
 use stdClass;
 
 class chat_message extends _BaseAlinaModel
@@ -134,6 +135,16 @@ class chat_message extends _BaseAlinaModel
 
     public function pruneChat(int $chatId, int $maximum = 1000): int
     {
+        $room = Dal::table('chat')->where('id', '=', $chatId)->first();
+        if ($room !== null && $room->discussion_of_message_id !== null) {
+            $seedId = $this->q()->where('chat_id', '=', $chatId)->orderBy('id')->value('id');
+            $oldestResponseId = $this->q()->where('chat_id', '=', $chatId)->where('id', '!=', $seedId)
+                ->orderBy('id', 'DESC')->offset($maximum - 2)->limit(1)->value('id');
+            if ($oldestResponseId === null) return 0;
+            return $this->q(-1)->where('chat_id', '=', $chatId)->where('id', '!=', $seedId)
+                ->where('id', '<', $oldestResponseId)->delete();
+        }
+
         $oldestRetainedId = $this->q()
             ->where('chat_id', '=', $chatId)
             ->orderBy('id', 'DESC')

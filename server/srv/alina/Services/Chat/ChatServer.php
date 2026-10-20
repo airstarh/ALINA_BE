@@ -84,7 +84,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
+        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -195,6 +195,11 @@ class ChatServer implements MessageComponentInterface
             if ($type === 'delete_message') {
                 $this->deleteMessage($from, $data);
 
+                return;
+            }
+
+            if ($type === 'discuss_message') {
+                $this->discussMessage($from, $data);
                 return;
             }
 
@@ -764,6 +769,29 @@ class ChatServer implements MessageComponentInterface
             'channel' => $state['channel'],
             'messageId' => (string) $messageId,
         ]);
+        $this->notifyDiscussionParent($state['chatId']);
+    }
+
+    private function discussMessage(ConnectionInterface $client, array $data): void
+    {
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+        if ($messageId === null) {
+            $this->error($client, 'A valid positive message ID is required.');
+            return;
+        }
+        $state = $this->clients[$client];
+        $result = $this->storage->createDiscussion($state['chatId'], $messageId);
+        $discussion = [
+            'channel' => $result['chat']['channel'],
+            'responseCount' => $result['responseCount'],
+        ];
+        $this->broadcast($state['roomKey'], fn (): array => [
+            'version' => 2,
+            'type' => 'discussion_ready',
+            'channel' => $state['channel'],
+            'sourceMessageId' => (string) $messageId,
+            'discussion' => $discussion,
+        ]);
     }
 
     private function positiveMessageId(mixed $value): ?int
@@ -879,6 +907,7 @@ class ChatServer implements MessageComponentInterface
                 : $message);
         }
         $this->broadcastPresence($state['roomKey']);
+        $this->notifyDiscussionParent($state['chatId']);
     }
 
     private function replyMessage(ConnectionInterface $client, array $data): void
@@ -940,6 +969,24 @@ class ChatServer implements MessageComponentInterface
             ? ['version' => 2, 'type' => 'message', 'channel' => $state['channel'], 'message' => $message]
             : $message);
         $this->broadcastPresence($state['roomKey']);
+        $this->notifyDiscussionParent($state['chatId']);
+    }
+
+    private function notifyDiscussionParent(int $chatId): void
+    {
+        $parent = $this->storage->discussionParent($chatId);
+        if ($parent === null) return;
+        $roomKey = $this->roomKey($parent['origin'], $parent['channel']);
+        $this->broadcast($roomKey, fn (): array => [
+            'version' => 2,
+            'type' => 'discussion_ready',
+            'channel' => $parent['channel'],
+            'sourceMessageId' => (string) $parent['sourceMessageId'],
+            'discussion' => [
+                'channel' => 'discussion_' . $parent['sourceMessageId'],
+                'responseCount' => $parent['responseCount'],
+            ],
+        ]);
     }
 
     private function publicUser($user, $connectionId): array
@@ -983,8 +1030,13 @@ class ChatServer implements MessageComponentInterface
 
     private function sendHistory(ConnectionInterface $client, string $channel, array $storedMessages): void
     {
+        $chatId = $this->clients[$client]['chatId'];
         $messages = array_map(
-            fn (array $message): array => $this->protocolMessage($message, $channel),
+            function (array $message) use ($channel, $chatId): array {
+                $wire = $this->protocolMessage($message, $channel);
+                $wire['discussion'] = $this->storage->discussionForMessage($chatId, $message['id']);
+                return $wire;
+            },
             $storedMessages,
         );
 

@@ -204,6 +204,21 @@ final class ContractMemoryChatStorage implements ChatStorage
         return false;
     }
 
+    public function createDiscussion(int $chatId, int $messageId): array
+    {
+        throw new RuntimeException('Discussion behavior is covered by ChatDiscussionStorageTest.');
+    }
+
+    public function discussionForMessage(int $chatId, int $messageId): ?array
+    {
+        return null;
+    }
+
+    public function discussionParent(int $chatId): ?array
+    {
+        return null;
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         foreach ($this->chats as &$chat) {
