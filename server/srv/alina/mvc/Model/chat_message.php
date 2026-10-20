@@ -71,6 +71,14 @@ class chat_message extends _BaseAlinaModel
             ->first();
     }
 
+    public function findForChat(int $chatId, int $messageId): ?stdClass
+    {
+        return $this->q()
+            ->where('chat_id', '=', $chatId)
+            ->where('id', '=', $messageId)
+            ->first();
+    }
+
     public function insertMessage(int $chatId, array $message): stdClass
     {
         $id = $this->q(-1)->insertGetId([

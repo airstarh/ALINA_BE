@@ -84,7 +84,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
+        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'typing', 'approve', 'rename', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -176,6 +176,12 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'edit_message') {
                 $this->editMessage($from, $data);
+
+                return;
+            }
+
+            if ($type === 'reply_message') {
+                $this->replyMessage($from, $data);
 
                 return;
             }
@@ -622,8 +628,16 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
+        $text = trim($text);
+
+        if (ChatReply::hasCanonicalPrefix($text)) {
+            $this->error($client, 'Reserved reply markup is not allowed.');
+
+            return;
+        }
+
         $state = $this->clients[$client];
-        $stored = $this->storage->editMessage($state['chatId'], $messageId, trim($text));
+        $stored = $this->storage->editMessage($state['chatId'], $messageId, $text);
         $message = $this->protocolMessage($stored, $state['channel']);
         $this->broadcast($state['roomKey'], fn (): array => [
             'version' => 2,
@@ -676,6 +690,14 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
+        $text = trim($text);
+
+        if (ChatReply::hasCanonicalPrefix($text)) {
+            $this->error($client, 'Reserved reply markup is not allowed.');
+
+            return;
+        }
+
         $clientMessageId = $data['clientMessageId'] ?? null;
 
         if ($version === 1) {
@@ -703,6 +725,67 @@ class ChatServer implements MessageComponentInterface
 
         [$senderType, $senderId] = explode(':', $state['participantId'], 2);
         $stored = $this->storage->appendMessage($state['chatId'], [
+            'senderType' => $senderType,
+            'senderId' => $senderId,
+            'senderName' => $state['user']['name'],
+            'senderEmblem' => $state['user']['emblem'],
+            'text' => $text,
+            'createdAt' => $this->nowMilliseconds(),
+            'clientMessageId' => $clientMessageId,
+        ]);
+
+        if (! $stored['inserted']) {
+            return;
+        }
+
+        $message = $this->protocolMessage($stored['message'], $state['channel'], $state['user']);
+        $this->broadcast($state['roomKey'], fn ($recipient) => $this->clients[$recipient]['version'] === 2
+            ? ['version' => 2, 'type' => 'message', 'channel' => $state['channel'], 'message' => $message]
+            : $message);
+        $this->broadcastPresence($state['roomKey']);
+    }
+
+    private function replyMessage(ConnectionInterface $client, array $data): void
+    {
+        $parentMessageId = $this->positiveMessageId($data['replyToMessageId'] ?? null);
+
+        if ($parentMessageId === null) {
+            $this->error($client, 'A valid positive reply message ID is required.');
+
+            return;
+        }
+
+        $text = $data['msg'] ?? null;
+
+        if (! is_string($text) || trim($text) === '' || strlen($text) > 16000) {
+            $this->error($client, 'Enter a message of at most 16000 bytes.');
+
+            return;
+        }
+
+        $clientMessageId = $data['clientMessageId'] ?? null;
+
+        if (
+            ! is_string($clientMessageId)
+            || $clientMessageId === ''
+            || strlen($clientMessageId) > 64
+            || ! preg_match('/^[A-Za-z0-9._:-]+$/D', $clientMessageId)
+        ) {
+            $this->error($client, 'A valid client message ID of at most 64 characters is required.');
+
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $candidateUser = $this->publicUser($data['CurrentUser'] ?? null, $client->resourceId);
+
+        if ($this->participantId($candidateUser, $client->resourceId) === $state['participantId']) {
+            $state['user'] = $candidateUser;
+            $this->clients[$client] = $state;
+        }
+
+        [$senderType, $senderId] = explode(':', $state['participantId'], 2);
+        $stored = $this->storage->appendReply($state['chatId'], $parentMessageId, [
             'senderType' => $senderType,
             'senderId' => $senderId,
             'senderName' => $state['user']['name'],

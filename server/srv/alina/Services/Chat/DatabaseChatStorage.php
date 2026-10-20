@@ -109,9 +109,62 @@ final class DatabaseChatStorage implements ChatStorage
         }
     }
 
+    public function appendReply(int $chatId, int $parentMessageId, array $message): array
+    {
+        try {
+            return Dal::connection()->transaction(function () use ($chatId, $parentMessageId, $message): array {
+                $model = new chat_message();
+                $existing = $model->findByClientMessageId($chatId, $message['clientMessageId']);
+
+                if ($existing !== null) {
+                    return ['message' => $this->normalizeMessage($existing), 'inserted' => false];
+                }
+
+                $parent = $model->findForChat($chatId, $parentMessageId);
+
+                if ($parent === null) {
+                    throw new RuntimeException('Message not found.');
+                }
+
+                $message['text'] = ChatReply::compose($this->normalizeMessage($parent), $message['text']);
+
+                if (strlen($message['text']) > 16000) {
+                    throw new RuntimeException('Message is too large.');
+                }
+
+                $row = $model->insertMessage($chatId, $message);
+                (new chat_message())->pruneChat($chatId, 1000);
+
+                return ['message' => $this->normalizeMessage($row), 'inserted' => true];
+            });
+        }
+        catch (Throwable $error) {
+            $row = (new chat_message())->findByClientMessageId($chatId, $message['clientMessageId']);
+
+            if ($row === null) {
+                throw $error;
+            }
+
+            return ['message' => $this->normalizeMessage($row), 'inserted' => false];
+        }
+    }
+
     public function editMessage(int $chatId, int $messageId, string $text): array
     {
-        $row = (new chat_message())->updateMessageText($chatId, $messageId, $text);
+        $model = new chat_message();
+        $existing = $model->findForChat($chatId, $messageId);
+
+        if ($existing === null) {
+            throw new RuntimeException('Message not found.');
+        }
+
+        $text = ChatReply::replaceOwnText((string) $existing->message_text, $text);
+
+        if (strlen($text) > 16000) {
+            throw new RuntimeException('Message is too large.');
+        }
+
+        $row = $model->updateMessageText($chatId, $messageId, $text);
 
         if ($row === null) {
             throw new RuntimeException('Message not found.');

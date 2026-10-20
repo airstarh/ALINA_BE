@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../Services/Chat/ChatReply.php';
+
 use alina\Services\Chat\ChatStorage;
 use GuzzleHttp\Psr7\Request;
 use Ratchet\ConnectionInterface;
@@ -169,12 +171,43 @@ final class MemoryChatStorage implements ChatStorage
         return ['message' => $stored, 'inserted' => true];
     }
 
+    public function appendReply(int $chatId, int $parentMessageId, array $message): array
+    {
+        $this->maybeFail();
+
+        foreach ($this->messages[$chatId] ?? [] as $stored) {
+            if ($stored['clientMessageId'] === $message['clientMessageId']) {
+                return ['message' => $stored, 'inserted' => false];
+            }
+        }
+
+        foreach ($this->messages[$chatId] ?? [] as $parent) {
+            if ($parent['id'] === $parentMessageId) {
+                $message['text'] = \alina\Services\Chat\ChatReply::compose($parent, $message['text']);
+
+                if (strlen($message['text']) > 16000) {
+                    throw new RuntimeException('Message is too large.');
+                }
+
+                return $this->appendMessage($chatId, $message);
+            }
+        }
+
+        throw new RuntimeException('Message not found.');
+    }
+
     public function editMessage(int $chatId, int $messageId, string $text): array
     {
         $this->maybeFail();
 
         foreach ($this->messages[$chatId] ?? [] as $index => $message) {
             if ($message['id'] === $messageId) {
+                $text = \alina\Services\Chat\ChatReply::replaceOwnText($message['text'], $text);
+
+                if (strlen($text) > 16000) {
+                    throw new RuntimeException('Message is too large.');
+                }
+
                 $this->messages[$chatId][$index]['text'] = $text;
 
                 return $this->messages[$chatId][$index];

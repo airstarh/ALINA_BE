@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../Services/Chat/ChatStorage.php';
+require __DIR__ . '/../Services/Chat/ChatReply.php';
 
 use alina\Services\Chat\ChatStorage;
 
@@ -132,11 +133,30 @@ final class ContractMemoryChatStorage implements ChatStorage
         return ['message' => $stored, 'inserted' => true];
     }
 
+    public function appendReply(int $chatId, int $parentMessageId, array $message): array
+    {
+        foreach ($this->messages[$chatId] ?? [] as $stored) {
+            if ($stored['clientMessageId'] === $message['clientMessageId']) {
+                return ['message' => $stored, 'inserted' => false];
+            }
+        }
+
+        foreach ($this->messages[$chatId] ?? [] as $parent) {
+            if ($parent['id'] === $parentMessageId) {
+                $message['text'] = \alina\Services\Chat\ChatReply::compose($parent, $message['text']);
+
+                return $this->appendMessage($chatId, $message);
+            }
+        }
+
+        throw new RuntimeException('Message not found.');
+    }
+
     public function editMessage(int $chatId, int $messageId, string $text): array
     {
         foreach ($this->messages[$chatId] ?? [] as $index => $message) {
             if ($message['id'] === $messageId) {
-                $this->messages[$chatId][$index]['text'] = $text;
+                $this->messages[$chatId][$index]['text'] = \alina\Services\Chat\ChatReply::replaceOwnText($message['text'], $text);
 
                 return $this->messages[$chatId][$index];
             }

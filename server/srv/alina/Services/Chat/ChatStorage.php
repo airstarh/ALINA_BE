@@ -21,6 +21,11 @@ interface ChatStorage
      */
     public function appendMessage(int $chatId, array $message): array;
 
+    /**
+     * @return array{message: array, inserted: bool}
+     */
+    public function appendReply(int $chatId, int $parentMessageId, array $message): array;
+
     public function editMessage(int $chatId, int $messageId, string $text): array;
 
     public function deleteMessage(int $chatId, int $messageId): bool;
