@@ -1,5 +1,9 @@
 # Vue text chat
 
+> Historical baseline. For the implemented chat after database persistence,
+> room management, replies, voice messages and mentions, see
+> [`../chat-current-state.md`](../chat-current-state.md).
+
 Approved scope: a routed `ALINA_FE/src/views/Chat/index.vue` at `/chat?channel=1`
 using the reusable `src/components/Chat/index.vue`. Default channel is `1`.
 

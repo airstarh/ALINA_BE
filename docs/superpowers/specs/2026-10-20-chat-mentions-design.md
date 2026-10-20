@@ -22,7 +22,7 @@ sender_type       = user_service
 sender_id         = mentioned creature ID or guest UUID
 sender_name       = mentioned creature's latest known name
 sender_emblem     = mentioned creature's latest known emblem
-message_text      = <initiator name> mentions <target name>
+message_text      = MENTION:<URL-encoded JSON containing target and caller>
 client_message_id = the initiator message's client_message_id
 ```
 
@@ -133,6 +133,16 @@ A retained `user_service` row therefore:
 Participant totals count a creature only once when both ordinary and `user_service` rows exist. Bot rows remain excluded.
 
 ## Service Message UI
+
+New `user_service` mention messages contain a language-neutral structured
+payload. Vue renders the target first, in bold light-white text, followed by the
+caller and a localized action:
+
+- English: `Target!!! Caller calls you!`
+- Russian: `Target!!! Caller взывает!`
+
+Plain-text mention notifications created before this payload was introduced are
+not rewritten or reinterpreted; they remain visible exactly as stored.
 
 `user_service` messages use a dedicated compact notification presentation:
 

@@ -1,5 +1,9 @@
 # Chat session handoff — 2026-09-17
 
+> Historical handoff. Its attachment proposal and in-memory persistence notes
+> have been superseded. Continue from
+> [`chat-current-state.md`](chat-current-state.md).
+
 ## Attachment implementation update
 
 User approved the simple existing-web-upload flow: ALINA-WEB stores files and returns relative paths; the sender adds `window.location.origin` and sends ordinary URL text through chat. Socket code and CLI database configuration are unchanged.

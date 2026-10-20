@@ -1,5 +1,8 @@
 # Resume chat work — latest checkpoint, 2026-09-17
 
+> Historical resume note. For the implemented current feature set, see
+> [`chat-current-state.md`](chat-current-state.md).
+
 Read this first next session, then the earlier `chat-session-handoff-2026-09-17.md`, `chat-browser-identity.md`, and `keendns-chat-diagnostics.md` as needed.
 
 User paused to run additional tests. Latest unresolved issue is persistent guest identity activation, described below. No further implementation is requested until user returns with feedback.
