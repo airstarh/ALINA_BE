@@ -84,7 +84,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
+        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -99,6 +99,15 @@ class ChatServer implements MessageComponentInterface
                 $this->error($from, 'Unable to store chat data.');
             }
 
+            return;
+        }
+
+        if ($type === 'delete_chat') {
+            try { $this->deleteChat($from, $data); }
+            catch (Throwable $error) {
+                error_log('Chat storage failed: ' . $error->getMessage());
+                $this->error($from, 'Unable to delete chat.');
+            }
             return;
         }
 
@@ -770,6 +779,40 @@ class ChatServer implements MessageComponentInterface
             'messageId' => (string) $messageId,
         ]);
         $this->notifyDiscussionParent($state['chatId']);
+    }
+
+    private function deleteChat(ConnectionInterface $client, array $data): void
+    {
+        $channel = $data['channel'] ?? '';
+        if (!is_string($channel) || !preg_match('/^[A-Za-z0-9_-]{1,128}$/D', $channel)) {
+            $this->error($client, 'A valid channel is required.');
+            return;
+        }
+        $origin = $this->clients[$client]['origin'];
+        if ($origin === null) {
+            $this->error($client, 'A valid HTTP Origin header is required.');
+            return;
+        }
+        $result = $this->storage->deleteChat($origin, $channel);
+        $deleted = array_fill_keys($result['channels'], true);
+        $targets = [];
+        foreach ($this->clients as $connection) {
+            $state = $this->clients[$connection];
+            if ($state['origin'] === $origin && isset($deleted[$state['channel'] ?? ''])) $targets[] = $connection;
+        }
+        $event = ['version' => 2, 'type' => 'chat_deleted', 'channel' => $channel, 'deletedChannels' => array_values($result['channels'])];
+        if (($result['restored'] ?? null) !== null) {
+            $restored = $result['restored'];
+            $this->broadcast($this->roomKey($restored['origin'], $restored['channel']), fn (): array => [
+                'version' => 2, 'type' => 'discussion_removed', 'channel' => $restored['channel'],
+                'sourceMessageId' => (string) $restored['sourceMessageId'],
+            ]);
+        }
+        if (!in_array($client, $targets, true)) $this->send($client, $event);
+        foreach ($targets as $target) {
+            $this->send($target, $event);
+            $target->close();
+        }
     }
 
     private function discussMessage(ConnectionInterface $client, array $data): void

@@ -42,6 +42,8 @@ interface ChatStorage
 
     public function discussionParent(int $chatId): ?array;
 
+    public function deleteChat(string $origin, string $channel): array;
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array;
 
     public function renameGuest(int $chatId, string $guestId, string $name): int;

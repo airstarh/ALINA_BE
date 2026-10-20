@@ -329,6 +329,34 @@ final class DatabaseChatStorage implements ChatStorage
         ];
     }
 
+    public function deleteChat(string $origin, string $channel): array
+    {
+        return Dal::connection()->transaction(function () use ($origin, $channel): array {
+            $root = Dal::table('chat')->where('origin', '=', $origin)->where('channel_name_pseudo_id', '=', $channel)->lockForUpdate()->first();
+            if ($root === null) throw new RuntimeException('Chat not found.');
+            $restored = null;
+            if ($root->discussion_of_message_id !== null) {
+                $parent = Dal::table('chat_message')->join('chat', 'chat.id', '=', 'chat_message.chat_id')
+                    ->where('chat_message.id', '=', $root->discussion_of_message_id)
+                    ->first(['chat.origin', 'chat.channel_name_pseudo_id']);
+                if ($parent !== null) $restored = ['origin'=>(string)$parent->origin,'channel'=>(string)$parent->channel_name_pseudo_id,'sourceMessageId'=>(int)$root->discussion_of_message_id];
+            }
+            $channels = [];
+            $remove = function (stdClass $room) use (&$remove, &$channels): void {
+                $messageIds = Dal::table('chat_message')->where('chat_id', '=', $room->id)->pluck('id')->all();
+                if ($messageIds !== []) {
+                    $children = Dal::table('chat')->whereIn('discussion_of_message_id', $messageIds)->lockForUpdate()->get()->all();
+                    foreach ($children as $child) $remove($child);
+                }
+                Dal::table('chat_message')->where('chat_id', '=', $room->id)->delete();
+                Dal::table('chat')->where('id', '=', $room->id)->delete();
+                $channels[] = (string) $room->channel_name_pseudo_id;
+            };
+            $remove($root);
+            return ['channels' => $channels, 'restored' => $restored];
+        });
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         $row = (new chat())->rename($chatId, $name, $updatedAt);

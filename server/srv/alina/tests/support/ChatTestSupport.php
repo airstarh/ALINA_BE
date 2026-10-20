@@ -377,6 +377,30 @@ final class MemoryChatStorage implements ChatStorage
         return null;
     }
 
+    public function deleteChat(string $origin, string $channel): array
+    {
+        $key = $this->chatKey($origin, $channel);
+        if (!isset($this->chats[$key])) throw new RuntimeException('Chat not found.');
+        $restored = null;
+        $root = $this->chats[$key];
+        if ($root['discussionOfMessageId'] !== null) {
+            foreach ($this->chats as $parent) foreach ($this->messages[$parent['id']] ?? [] as $message) {
+                if ($message['id'] === $root['discussionOfMessageId']) $restored = ['origin'=>$parent['origin'],'channel'=>$parent['channel'],'sourceMessageId'=>$message['id']];
+            }
+        }
+        $channels = [];
+        $remove = function (array $room) use (&$remove, &$channels): void {
+            $messageIds = array_column($this->messages[$room['id']] ?? [], 'id');
+            foreach (array_values($this->chats) as $candidate) {
+                if ($candidate['discussionOfMessageId'] !== null && in_array($candidate['discussionOfMessageId'], $messageIds, true)) $remove($candidate);
+            }
+            $channels[] = $room['channel'];
+            unset($this->messages[$room['id']], $this->chats[$this->chatKey($room['origin'], $room['channel'])]);
+        };
+        $remove($root);
+        return ['channels' => $channels, 'restored' => $restored];
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         $this->maybeFail();

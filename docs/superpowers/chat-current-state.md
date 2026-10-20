@@ -147,6 +147,15 @@ never has a Discuss control. Once a child exists, its source displays a
 dark-yellow, black-text `...in discussion (N)` control, where `N` excludes the
 seed. Discussion retention preserves the seed plus the newest 999 responses.
 
+Administrators and moderators see native-confirmation `X` controls in both the
+room header and the final column of the room directory. Deleting a chat removes
+all of its messages and recursively removes every descendant discussion and
+its messages in one transaction. Connected clients receive `chat_deleted` and
+return to `/#/chat/rooms`. Deleting a child discussion restores its source
+message to an ordinary deletable message that can start a new discussion.
+
+Every room header also begins with a left-arrow link to `/#/chat/rooms`.
+
 ## Mentions
 
 A message may mention up to 22 distinct registered users or guests retained in
@@ -235,14 +244,14 @@ launch controls.
 
 Version 2 client commands currently include:
 
-`join`, `message`, `reply_message`, `edit_message`, `delete_message`, `discuss_message`, `typing`,
+`join`, `message`, `reply_message`, `edit_message`, `delete_message`, `discuss_message`, `delete_chat`, `typing`,
 `approve`, `rename`, `rename_guest`, `set_anonymous`, `set_confirmation`,
 `kick`, `list_rooms`, `mentions_directory`, and `mentions_search`.
 
 Important server events include:
 
 `history`, `joined`, `join_pending`, `join_approved`, `message`,
-`message_edited`, `message_deleted`, `discussion_ready`, `presence`, `chat_state`, `join_request`,
+`message_edited`, `message_deleted`, `discussion_ready`, `discussion_removed`, `chat_deleted`, `presence`, `chat_state`, `join_request`,
 `participant_kicked`, `guest_renamed`, `rooms`, `mentions_directory`,
 `mentions_search`, and `error`.
 

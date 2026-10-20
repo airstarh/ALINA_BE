@@ -219,6 +219,11 @@ final class ContractMemoryChatStorage implements ChatStorage
         return null;
     }
 
+    public function deleteChat(string $origin, string $channel): array
+    {
+        throw new RuntimeException('Chat deletion is covered by ChatDeletionStorageTest.');
+    }
+
     public function renameChat(int $chatId, string $name, int $updatedAt): array
     {
         foreach ($this->chats as &$chat) {
