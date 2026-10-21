@@ -70,7 +70,8 @@ Key implemented behavior:
 - room directory at `/#/chat/rooms`, scoped to the current origin, with My chats
   and Other chats (up to 1,000 rows each, latest activity first);
 - message edit/delete, non-persistent edited highlighting, one-level replies,
-  profile links in new tabs, native media, file uploads, and five-minute voice
+  same-context profile/private/discussion navigation, native media, file
+  uploads, and five-minute voice
   recording with automatic stop/send;
 - one child discussion per eligible message, with an editable protected seed,
   protected source, response count, generated title, and dark-yellow link;
@@ -81,6 +82,15 @@ Key implemented behavior:
   online anywhere on the same origin; text means Typing, In chat, or Not in
   chat for the current room;
 - administrators can rename guest snapshots throughout the current room;
+- logged-in users can create a named room from `/#/chat/rooms`; the technical
+  channel is generated automatically and navigation stays in the current SPA;
+- room lists use compact two-row entries and responsive 2 px page padding;
+- shared media and URLs use the global ALINA popup. Ordinary web URLs are shown
+  as `i_window URL i_copy` with 3 mm gaps: the URL opens an iframe popup,
+  `i_window` safely opens `_blank` for sites that block embedding, and `i_copy`
+  copies the URL. Popup audio controls retain an explicit visible height;
+- all other chat navigation stays in the same browsing context so mobile Back
+  returns through application history;
 - the socket validates origin, room and payload shape, but deliberately does
   not authenticate application roles or enforce owner/admin permissions.
 
@@ -96,7 +106,8 @@ The required manual schema history is in:
 
 - `admin/sql/history/0001.chat.base-tablkes.sql`
 - `admin/sql/history/0002.chat.emblem.sql`
-- `admin/sql/history/003chat.unique-key.sql`
+- `admin/sql/history/0003chat.unique-key.sql`
+- `admin/sql/history/0004.chat.discuss.sql`
 
 The final message uniqueness key is
 `(chat_id, client_message_id, sender_type, sender_id)`. Do not reapply migration

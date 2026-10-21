@@ -34,8 +34,9 @@ not the nickname or socket connection ID, remains the identity. Guest renames
 are synchronized across live tabs and update retained message snapshots in the
 current room. Administrators may rename a guest from a message row.
 
-Participant avatars and PRIVATE controls open a separate room in a new tab. The
-private channel is derived deterministically from the two stable identities:
+Participant avatars and PRIVATE controls navigate to a separate room in the
+same SPA browsing context. The private channel is derived deterministically
+from the two stable identities:
 registered IDs sort before a guest identity; like identity types sort
 canonically. Both participants therefore compute the same channel.
 
@@ -85,16 +86,25 @@ tunnels active. A deliberate kick suppresses automatic reconnect.
 - Message cards have 20px vertical spacing. Their timestamp shares the author
   row, uses 24-hour time, and displays `HH:mm` today or `yyyy-MM-dd HH:mm` for
   older messages.
-- Registered author names link to the origin-local `/#/auth/profile/{id}` in a
-  new tab. Guest names are not profile links.
+- Registered author names link to the origin-local `/#/auth/profile/{id}` in
+  the same SPA browsing context. Guest names are not profile links.
 - Ordinary eligible message headings expose TAG and PRIVATE. TAG inserts the
   same structured mention as the composer selector; PRIVATE opens the existing
-  deterministic private room in a new tab.
+  deterministic private room in the same SPA browsing context.
 - Message bodies are rendered as escaped text. Complete fenced code blocks use
   `pre`/`code` with a black background, green monospace text and horizontal
   scrolling without wrapping.
-- HTTP(S) URLs are linkified. Images, videos and audio use native preview tags;
-  other URLs remain downloadable links with a copy control.
+- HTTP(S) URLs are linkified. Images, videos and audio use native preview tags.
+  Clicking a displayed URL opens the existing global ALINA popup; ordinary web
+  URLs render an iframe there, while media URLs use the corresponding native
+  image/video/audio element.
+- Ordinary web links render controls in the exact order
+  `i_window URL i_copy`, with 3 mm between them. `i_window` (`🗔`) is the only
+  chat-message action that intentionally uses `target="_blank"`, with
+  `rel="noopener noreferrer"`; it is the fallback for sites that prohibit
+  iframe embedding. The URL itself opens the popup, and `i_copy` copies it.
+- The popup audio control has an explicit 54 px height so Chromium cannot play
+  it while collapsing its controls out of view.
 - Registered users can select several files. `/FileUpload` stores them through
   the web application, then sender-origin absolute URLs are inserted into the
   draft. Guests cannot upload because the existing HTTP upload route requires
@@ -134,7 +144,8 @@ are currently a frontend trust decision, not a security boundary.
 Every loaded message except the first message in a room can create one child
 discussion. The child is linked by nullable, unique
 `chat.discussion_of_message_id`; no foreign key is used. Creating a discussion
-copies the source as the child room's seed, opens the child in a new tab, and is
+copies the source as the child room's seed, navigates to the child in the same
+SPA browsing context, and is
 idempotent under repeated or concurrent requests.
 
 Every newly created discussion title begins with `DISCUSS OF: `. Plain-text
@@ -191,6 +202,17 @@ independent `limit`/`offset` protocol metadata; the current page requests up to
 1,000 rows per section. Mention service rows count as target participation;
 Robocop messages do not.
 
+Every room entry uses two content rows: the first contains the order number and
+linked room name with participant count; the second contains the 24-hour latest
+activity time and, where allowed, the delete control. A blank row provides
+visual separation. Header and totals rows are not shown. Room links stay in the
+same SPA browsing context.
+
+For a logged-in user, the directory shows **Create my chat:** with a room-name
+input and arrow action. Submission generates the technical channel, navigates
+in the same SPA context, creates the room through the normal join flow, and
+uses the entered value as `chat_name_human`.
+
 Room controls can:
 
 - rename a chat, up to 200 characters;
@@ -238,7 +260,14 @@ The participant sidebar collapses on small screens. Chat hides the main menu and
 footer by default through the existing `PageSettings` mechanism; a header button
 temporarily toggles them and leaving chat restores the prior setting. The header
 also exposes connection state, manual reconnect, chat-link copy and video-chat
-launch controls.
+launch controls. Sign-up, video chat, participant/private-room, profile,
+discussion, room-directory and newly created room navigation all reuse the
+current browsing context so a phone's Back action returns through SPA history.
+
+Chat-specific outer padding is reduced for small screens. The composer gives
+the textarea the remaining width; attachment and microphone controls have no
+decorative outer borders or spacing that consumes that width. The chat-name
+input is allowed to shrink beside header actions.
 
 ## Protocol and compatibility
 
@@ -264,7 +293,8 @@ The required schema history is:
 
 - `admin/sql/history/0001.chat.base-tablkes.sql` — base chat tables;
 - `admin/sql/history/0002.chat.emblem.sql` — retained sender emblem;
-- `admin/sql/history/003chat.unique-key.sql` — grouped-message unique key.
+- `admin/sql/history/0003chat.unique-key.sql` — grouped-message unique key;
+- `admin/sql/history/0004.chat.discuss.sql` — discussion-to-source relation.
 
 Schema files are historical/manual migrations; reviewing documentation does not
 execute them. Backend protocol changes require restarting the long-running chat
@@ -290,6 +320,8 @@ Frontend:
 - `src/views/Chat/index.vue`
 - `src/views/Chat/rooms.vue`
 - `src/components/Chat/`
+- `src/components/global/Popup.vue`
+- `src/locales/index.js`
 - `scripts/check-chat-contract.mjs`
 - `scripts/check-chat-rooms-contract.mjs`
 - `scripts/check-chat-voice-recorder-contract.mjs`
