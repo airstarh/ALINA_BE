@@ -263,6 +263,9 @@ also exposes connection state, manual reconnect, chat-link copy and video-chat
 launch controls. Sign-up, video chat, participant/private-room, profile,
 discussion, room-directory and newly created room navigation all reuse the
 current browsing context so a phone's Back action returns through SPA history.
+The video-chat control is nevertheless a real anchor styled as a button, so
+normal click navigates in place while middle-click/Ctrl+click can preserve the
+text chat by opening the video room in another tab.
 
 Chat-specific outer padding is reduced for small screens. The composer gives
 the textarea the remaining width; attachment and microphone controls have no

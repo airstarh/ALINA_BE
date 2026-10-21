@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DVRIP / NETIP API Reference</title>
+  <style>
+    :root{color-scheme:dark;--bg:#11161b;--panel:#1d252d;--panel2:#242f39;--line:#3d4b58;--text:#e7edf3;--muted:#a9b7c4;--cyan:#56e0c1;--blue:#73a8ff;--orange:#ffbd69;--red:#ff8b8b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#20382f 0,transparent 34rem),var(--bg);color:var(--text);font:15px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+    header{padding:2.5rem clamp(1rem,5vw,5rem) 2rem;border-bottom:1px solid var(--line)}h1{margin:0 0 .4rem;font-size:clamp(1.7rem,4vw,3rem)}h2{margin:0 0 1rem;color:var(--cyan);font-size:1.35rem}h3{margin:1.4rem 0 .5rem;color:var(--text);font-size:1rem}p{margin:.55rem 0;color:var(--muted)}a{color:var(--cyan)}
+    .layout{display:grid;grid-template-columns:minmax(11rem,16rem) minmax(0,1fr);gap:1.2rem;max-width:1500px;margin:0 auto;padding:1.2rem clamp(1rem,4vw,4rem)}nav{position:sticky;top:1rem;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.8rem}nav a{display:block;padding:.4rem .55rem;text-decoration:none;border-radius:5px}nav a:hover{background:var(--panel2)}main{min-width:0}.notice{border-left:3px solid var(--orange);background:#332b20;padding:.8rem 1rem;margin-bottom:1rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:0 0 1rem;padding:1rem 1.2rem}.endpoint{overflow:hidden}.endpoint summary{cursor:pointer;list-style:none;display:flex;gap:.65rem;align-items:center;flex-wrap:wrap}.endpoint summary::-webkit-details-marker{display:none}.endpoint summary:before{content:'▶';font-size:.7rem;color:var(--muted)}.endpoint[open] summary:before{content:'▼'}.method{font-weight:700;padding:.16rem .45rem;border-radius:4px;color:#071016}.get{background:var(--cyan)}.post{background:var(--orange)}.tcp{background:var(--blue)}.ws{background:#cf9cff}.path{color:var(--text);overflow-wrap:anywhere}.tag{color:var(--muted);font-size:.85rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.8rem}.kv{border:1px solid var(--line);border-radius:6px;padding:.7rem;background:#182027}.kv b{color:var(--cyan);display:block}.code{background:#0a0e12;border:1px solid var(--line);border-radius:6px;padding:.8rem;overflow:auto;white-space:pre-wrap;color:#d7e1eb}.small{font-size:.85rem}.warn{color:var(--red)}table{width:100%;border-collapse:collapse;margin:.7rem 0}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:.5rem}th{color:var(--cyan)}footer{color:var(--muted);padding:1rem 0 3rem}
+    @media(max-width:700px){.layout{display:block;padding:.8rem}nav{position:static;margin-bottom:1rem}.card{padding:.8rem}.endpoint summary{align-items:flex-start}table{font-size:.82rem}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>DVRIP / NETIP API Reference</h1>
+  <p>Standalone project reference for the Xiongmai-compatible camera protocol used by Borg Tech Service.</p>
+  <p class="small">English only · implementation reference · last reviewed 2026-10-16</p>
+</header>
+<div class="layout">
+  <nav aria-label="Sections">
+    <a href="#scope">Scope</a><a href="#transport">Transport</a><a href="#packet">Packet format</a><a href="#auth">Authentication</a><a href="#messages">Messages</a><a href="#accounts">Accounts</a><a href="#talk">Talkback</a><a href="#app">App HTTP API</a><a href="#media">Media matrix</a><a href="#rules">Implementation rules</a>
+  </nav>
+  <main>
+    <div class="notice"><b>Important:</b> DVRIP is a binary TCP protocol, not a browser REST API. The browser talks to the server; the server holds credentials and connects to the camera. Never place camera passwords or Sofia hashes in this page or in client-side JavaScript.</div>
+
+    <section id="scope" class="card"><h2>Scope and terminology</h2>
+      <p><b>DVRIP</b> and <b>NETIP</b> are names commonly used for the proprietary protocol implemented by these Xiongmai-family devices. This page describes operations verified in the current PHP client, not every command a particular firmware may implement.</p>
+      <div class="grid"><div class="kv"><b>Raw camera protocol</b>Binary framed TCP, normally port <code>34567</code>; JSON payload inside each frame.</div><div class="kv"><b>Application protocol</b>Same-origin HTTP JSON actions in <code>stuff/php/api.php</code>.</div><div class="kv"><b>Separate protocols</b>RTSP carries media; ONVIF supplies discovery/PTZ/accounts on supported cameras.</div></div>
+    </section>
+
+    <section id="transport" class="card"><h2>Transport</h2>
+      <table><tr><th>Property</th><th>Current behavior</th></tr><tr><td>Connection</td><td>One short-lived DVRIP TCP connection per server operation. The client connects, logs in, performs requests, then closes.</td></tr><tr><td>Default listener</td><td>Camera “Media Port”, normally TCP <code>34567</code>; read the configured camera value instead of assuming it.</td></tr><tr><td>Encryption</td><td>No TLS is provided by the raw DVRIP transport. Keep it on a trusted LAN/VPN.</td></tr><tr><td>Framing</td><td>20-byte little-endian header followed by JSON bytes ending in <code>\n\0</code>.</td></tr></table>
+    </section>
+
+    <section id="packet" class="card"><h2>Packet format</h2>
+      <p>The current codec emits this 20-byte header (C/PHP <code>pack</code> notation):</p>
+      <div class="code">CCx2VVx2vV
+marker  : 0xff
+version : 0 or 1
+session : uint32 little-endian
+sequence: uint32 little-endian
+message : uint16 little-endian
+length  : uint32 little-endian
+
+payload: UTF-8 JSON object + LF + NUL</div>
+      <p>For an ordinary request, the response keeps the sequence and uses the request message ID plus one (for example 1000 → 1001, 1040 → 1041). After login, the response session must match the assigned session ID. The implementation rejects mismatched identity, malformed JSON, missing terminators, and oversized payloads.</p>
+    </section>
+
+    <section id="auth" class="card"><h2>Authentication</h2>
+      <details class="endpoint" open><summary><span class="method tcp">TCP</span><span class="path">message 1000 — login</span><span class="tag">response 1001</span></summary>
+        <div class="code">{
+  "EncryptType": "MD5",
+  "LoginType": "DVRIP-Web",
+  "PassWord": "&lt;SofiaHash(password)&gt;",
+  "UserName": "&lt;camera user&gt;"
+}</div>
+        <p>A successful response contains <code>Ret</code> (normally 100, 150, or 515) and a hexadecimal <code>SessionID</code>, for example <code>0x00000001</code>. The clear password is never returned by the camera.</p>
+      </details>
+    </section>
+
+    <section id="messages" class="card"><h2>Verified message catalogue</h2>
+      <p>These are the message IDs currently used by the project. A firmware can reject a command even when the ID is known.</p>
+      <details class="endpoint" open><summary><span class="method tcp">TCP</span><span class="path">1020 — read information</span><span class="tag">response 1021</span></summary><p>Named reads such as <code>SystemInfo</code>. The same mechanism is used for other informational objects requested by the client.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1020 — SystemInfo</span><span class="tag">response 1021</span></summary><p>Returns the system-information branch used to identify the device and firmware.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1360 — capability read</span><span class="tag">response 1361</span></summary><p>Named capability reads: <code>SystemFunction</code>, <code>EncodeCapability</code>, and <code>Camera</code>. These values drive supported editor options and capability gating.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1042 — read configuration</span><span class="tag">response 1043</span></summary><p>Send <code>Name</code>, <code>SessionID</code>, and return the requested named branch, for example <code>Network.NetCommon</code>, <code>Simplify.Encode</code>, <code>Camera.Param</code>, or <code>Uart.PTZ</code>.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1040 — write configuration</span><span class="tag">response 1041</span></summary><p>Send the complete merged branch under the same <code>Name</code>, plus <code>SessionID</code>. The app reads the latest branch first, changes only selected fields, writes it, then reads back and verifies it. One OEM port save may return 603 while still storing the value; listener verification handles that case.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1450 — reboot</span><span class="tag">response 1451</span></summary><p><code>Name: OPMachine</code>, <code>OPMachine: {Action: Reboot}</code>. The server waits for the configured reboot hold time and closes the connection.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1400 — PTZ preset operation</span><span class="tag">response 1401</span></summary><p><code>Name: OPPTZControl</code> with <code>Command</code> <code>GotoPreset</code>, <code>SetPreset</code>, or <code>ClearPreset</code>. The current live PTZ direction/zoom implementation prefers ONVIF when available; this DVRIP preset call is retained for verified preset operations.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">1636 — email test</span><span class="tag">response 1637</span></summary><p><code>Name: OPMailTest</code> and an <code>OPMailTest</code> settings object.</p></details>
+      <details class="endpoint"><summary><span class="method tcp">TCP</span><span class="path">2008 — FTP test</span><span class="tag">response 2009</span></summary><p><code>Name: OPFTPTest</code> and an <code>OPFTPTest</code> settings object.</p></details>
+    </section>
+
+    <section id="accounts" class="card"><h2>Accounts, groups, and authorities</h2>
+      <table><tr><th>Message</th><th>Operation</th></tr><tr><td>1470 → 1471</td><td>Read <code>AuthorityList</code>.</td></tr><tr><td>1472 → 1473</td><td>Read camera users.</td></tr><tr><td>1474 → 1475</td><td>Read camera groups.</td></tr><tr><td>1476 / 1477</td><td>Add a group.</td></tr><tr><td>1478 / 1479</td><td>Update a group.</td></tr><tr><td>1480 / 1481</td><td>Delete a group.</td></tr><tr><td>1482 / 1483</td><td>Add a user.</td></tr><tr><td>1484 / 1485</td><td>Update a user.</td></tr><tr><td>1486 / 1487</td><td>Delete a user.</td></tr><tr><td>1488 / 1489</td><td>Change a user password using old/new Sofia hashes.</td></tr></table>
+      <p>These are camera-user operations. ONVIF users are a separate ONVIF account store where the device exposes one. Existing passwords are not readable; blank “new password” fields preserve them unless the explicit empty-password action is selected.</p>
+    </section>
+
+    <section id="talk" class="card"><h2>Talkback extension</h2>
+      <p>Talkback uses the same DVRIP framing but a separate control/media arrangement. One browser talk session therefore involves <b>three logical connections</b>:</p>
+      <ol><li>The browser opens one authenticated application WebSocket at <code>/cam-talk</code>.</li><li>The server opens DVRIP TCP socket 1 to log in and send <code>Start</code>/<code>Stop</code> control messages.</li><li>The server opens DVRIP TCP socket 2 to claim the talk channel and carry binary audio media.</li></ol>
+      <p>The microphone bytes travel browser → application WebSocket → server → DVRIP media socket 2. The browser does not open either DVRIP socket and never needs direct camera access. Closing the browser WebSocket closes both camera-side sockets and sends <code>Stop</code> when possible.</p>
+      <table><tr><th>Message</th><th>Purpose</th></tr><tr><td>0x059a → 0x059b</td><td>Claim the talk channel (<code>OPTalk</code>).</td></tr><tr><td>0x0596 → 0x0597</td><td>Start or stop talk control.</td></tr><tr><td>0x0598</td><td>Binary media: 320 bytes of G.711 A-law per frame, 8 kHz, 8-bit, mono.</td></tr><tr><td>0x0599</td><td>Camera media response drained by the server.</td></tr></table>
+      <p>The browser only receives a short-lived authorization token and connects to the server WebSocket <code>/cam-talk</code>; it never receives DVRIP credentials.</p>
+    </section>
+
+    <section id="app" class="card"><h2>Application HTTP API</h2>
+      <p>The PHP wrapper is <code>stuff/php/api.php</code>. Responses use <code>{ok, data, error}</code>; configuration-changing actions require POST. The <code>camera</code> query value is a configured camera ID.</p>
+      <table><tr><th>HTTP route</th><th>Purpose</th></tr><tr><td><span class="method get">GET</span> <code>api.php?action=cameras</code></td><td>List configured cameras and default camera.</td></tr><tr><td><span class="method get">GET</span> <code>api.php?action=status&amp;camera={id}</code></td><td>Connection/status summary.</td></tr><tr><td><span class="method get">GET</span> <code>api.php?action=access&amp;camera={id}</code></td><td>Access points, users, groups, and service ports.</td></tr><tr><td><span class="method get">GET</span> <code>api.php?action=config&amp;camera={id}&amp;section={id}</code></td><td>Read one configuration section; use <code>section=all</code> for the complete tree.</td></tr><tr><td><span class="method get">GET</span> <code>api.php?action=editors&amp;camera={id}</code></td><td>List supported editable forms.</td></tr><tr><td><span class="method get">GET</span> <code>api.php?action=editor&amp;camera={id}&amp;editor={id}</code></td><td>Read one editor model and current values.</td></tr><tr><td><span class="method post">POST</span> <code>api.php?action=access-save</code></td><td>Save changed access credentials/ports with readback and listener checks.</td></tr><tr><td><span class="method post">POST</span> <code>api.php?action=editor-save</code></td><td>Merge and save one named editor branch.</td></tr><tr><td><span class="method post">POST</span> <code>api.php?action=ptz-command</code></td><td>Issue live PTZ command through the configured PTZ implementation.</td></tr><tr><td><span class="method post">POST</span> <code>api.php?action=reboot</code></td><td>Reboot the selected camera.</td></tr><tr><td><span class="method post">POST</span> <code>api.php?action=talk-token</code></td><td>Issue a short-lived talkback token; actual audio uses <code>/cam-talk</code>.</td></tr></table>
+    </section>
+
+    <section id="media" class="card"><h2>Protocol and media matrix</h2>
+      <table><tr><th>Protocol</th><th>Use in this project</th><th>Typical endpoint</th></tr><tr><td>DVRIP / NETIP</td><td>Authentication, configuration, capabilities, accounts, reboot, verified preset/talk operations.</td><td>TCP camera Media Port, usually 34567</td></tr><tr><td>RTSP</td><td>Camera audio/video source for live viewing and recording.</td><td>RTSP URL discovered from camera configuration</td></tr><tr><td>ONVIF</td><td>Service discovery, ONVIF account store, and live PTZ direction/zoom where supported.</td><td>HTTP ONVIF port; camera-specific</td></tr><tr><td>HTTP snapshot</td><td>Native still image capture.</td><td><code>/webcapture.jpg?command=snap&amp;channel=0</code></td></tr><tr><td>WebSocket</td><td>Same-origin browser relay for go2rtc media and the separate talkback server.</td><td><code>/cam-stream</code>, <code>/cam-talk</code></td></tr></table>
+      <p>RTSP is not placed directly in the browser. go2rtc relays the camera stream; the browser receives browser-compatible fragmented media over WebSocket/MSE.</p>
+    </section>
+
+    <section id="rules" class="card"><h2>Implementation and safety rules</h2>
+      <ul><li>Read the latest camera branch before writing; merge only fields represented by the editor.</li><li>Write a complete branch, then read it back and verify the requested values.</li><li>For service-port changes, reconnect and verify the new listener; revert to the previous value if verification fails.</li><li>Treat camera-reported capabilities and option lists as authoritative for that camera. A known message ID does not guarantee firmware support.</li><li>Keep credentials server-side. This static reference intentionally contains no configured hostnames, passwords, hashes, or tokens.</li><li>Do not confuse camera DVRIP users with ONVIF users; the two stores can be separate and can have different roles.</li></ul>
+    </section>
+    <footer>Source of truth for implementation details: <a href="ai/docs/DVRIP_CALL_MAP.md">DVRIP call map</a>, <a href="ai/docs/access-points.md">access points</a>, and the PHP classes under <code>stuff/php/</code>.</footer>
+  </main>
+</div>
+</body>
+</html>

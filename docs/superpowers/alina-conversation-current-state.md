@@ -91,6 +91,9 @@ Key implemented behavior:
   copies the URL. Popup audio controls retain an explicit visible height;
 - all other chat navigation stays in the same browsing context so mobile Back
   returns through application history;
+- the video-chat icon is a native link styled as a button: left-click navigates
+  in place, while middle-click/Ctrl+click can open video chat separately and
+  keep text chat open;
 - the socket validates origin, room and payload shape, but deliberately does
   not authenticate application roles or enforce owner/admin permissions.
 
