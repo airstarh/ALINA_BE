@@ -926,6 +926,14 @@ class Data
     #endregion Validate
     ##################################################
     #region Pagination
+    /**
+     * Summary of paginator
+     * @param int $rowsTotal
+     * @param int|'last'|'all' $pageCurrentNumber
+     * @param int $pageSize
+     * @param bool $versa
+     * @return object
+     */
     public static function paginator($rowsTotal, $pageCurrentNumber, $pageSize, $versa = false)
     {
         ##############################

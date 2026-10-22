@@ -79,9 +79,12 @@ class _BaseAlinaModel
      * @var $sortDefault array
      *                   [['field1', 'DESC'], ['field2', 'ASC']]
      */
-    public $sortDefault       = [];
-    public $sortName          = null;
-    public $sortAsc           = 'ASC';
+    public $sortDefault = [];
+    public $sortName    = null;
+    public $sortAsc     = 'ASC';
+    /**
+     * @var int|null|'last'|'all'
+     */
     public $pageCurrentNumber = 0;
     public $pageSize          = 500;
 
@@ -587,7 +590,7 @@ class _BaseAlinaModel
     /**
      * Apply LIMIT/OFFSET to a query
      * @param int|null $backendLimit
-     * @param int|null $backendPageCurrentNumber
+     * @param int|null|'last'|'all' $backendPageCurrentNumber
      * @param bool $backendVersa
      * @return BuilderAlias object
      */
