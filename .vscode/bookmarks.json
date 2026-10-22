@@ -62,6 +62,11 @@
 					"line": 152,
 					"column": 63,
 					"label": ""
+				},
+				{
+					"line": 178,
+					"column": 25,
+					"label": ""
 				}
 			]
 		},
@@ -91,6 +96,16 @@
 				{
 					"line": 95,
 					"column": 38,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "server/srv/alina/mvc/Controller/Like.php",
+			"bookmarks": [
+				{
+					"line": 60,
+					"column": 21,
 					"label": ""
 				}
 			]

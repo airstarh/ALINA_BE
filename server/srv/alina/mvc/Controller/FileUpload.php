@@ -175,11 +175,31 @@ class FileUpload
                     $currentAmount = $this->getCurrentAmount();
                     $left          = $max == -1 ? 'Unlimited' : $max - $currentAmount;
                     $this->left    = $left;
-                    Message::setSuccess("Uploaded!");
-                    Message::setInfo("Already uploaded: %s.", [(string) $currentAmount]);
-                    Message::setInfo("Left to upload: %s.", [(string) $left]);
+                    //
+                    // Message::setSuccess("Uploaded!");
+                    // Message::setInfo("Already uploaded: %s.", [(string) $currentAmount]);
+                    // Message::setInfo("Left to upload: %s.", [(string) $left]);
+
+                    $arrTxt = [
+                        vsprintf("Already uploaded: %s.", [(string) $currentAmount]),
+                        vsprintf("Left to upload: %s.", [(string) $left]),
+                    ];
+
+                    $txt = implode(PHP_EOL, $arrTxt);
+
+                    (new \alina\mvc\Model\notification())->insert((object)[
+                    'to_id'        => CurrentUser::obj()->id(),
+                    'from_id'      => CurrentUser::obj()->id(),
+                    'txt'          => $txt,
+                    'link'         => null, //$url,
+                    'id_root'      => null, //$root_tale_id,
+                    'id_answer'    => null, //$answer_to_tale_id,
+                    'id_highlight' => null, //$ref_id,
+                    'tbl'          => null, // $post->ref_table,
+                    'bind_tbl'     => null, //'like',
+                    'bind_id'      => null, //$mLike->id,
+                ]);
                 }
-                #####
             }
         }
 
