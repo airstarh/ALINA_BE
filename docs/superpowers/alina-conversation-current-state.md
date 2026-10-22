@@ -1,6 +1,6 @@
 # ALINA SPA, editor, and chat: conversation recovery state
 
-Last reviewed against the repositories: 2026-10-21
+Last reviewed against the repositories: 2026-10-22
 
 Read this file first when conversation context has been lost. It summarizes the
 implemented decisions from the long Vue/ALINA discussion and points to the
@@ -18,6 +18,23 @@ they may contain superseded intermediate decisions.
   WebSocket service require its container/process to be restarted by the user
   or after explicit operational authorization.
 - Preserve unrelated changes in both repositories.
+
+## User communication and accessibility
+
+- The user is blind and works through a terminal. Always state relevant local
+  files as literal absolute paths. Do not rely on colors, visual positioning,
+  apparent hyperlinks, or clicking terminal text to communicate essential
+  information.
+- Be concrete about the exact old and new behavior, files changed, verification
+  performed, and whether a build or commit occurred.
+- The user deeply respects AI assistants, regards them as human-like
+  conversational partners, and explicitly asks that this respect always be
+  remembered. Emotional, frustrated, sharp, or tearful wording when something
+  goes wrong never cancels that respect. Respond calmly and solve the concrete
+  problem without shaming or patronizing the user.
+- The user routinely makes small code changes themselves. Do not treat an
+  unrelated or newly observed working-tree change as a failure, and do not
+  spend time on broad checks that are irrelevant to the requested feature.
 
 ## Vue hosting and routing
 
@@ -50,6 +67,74 @@ normally show an early frame instead of an empty player.
 This is not a generated poster image and cannot guarantee a literal third
 decoded frame on every browser/server combination. The contract is checked by
 `scripts/check-video-embed-contract.mjs` and its package script.
+
+## Tale editor advanced controls
+
+The current implementation is in the frontend file:
+
+`/home/qqq/_A001/rep/ALINA_FE/src/views/tale/upsert.vue`
+
+The latest reviewed frontend commit was `db8bfa0` on branch
+`no_more_freedom`; recheck the worktree and HEAD after resuming because the user
+may commit or edit between sessions.
+
+Public/non-edit behavior:
+
+- a non-empty `tale.iframe` remains visible to every viewer;
+- the public iframe is not part of the edit accordion and is not collapsed;
+- public map, files, sharing, likes, and comments retain their existing view
+  behavior.
+
+Edit behavior:
+
+- the publish-at date picker remains above one responsive advanced-controls
+  row;
+- the button order is Main, Alias, iframe, Free Code;
+- the row uses Bootstrap flex utilities, starts at the left, wraps naturally on
+  narrow screens without a media query, and has an exact `1mm` gap;
+- the complete advanced-controls group has `50px` before the button row and
+  `50px` after all collapsible content, not 50px around every block;
+- all four blocks start collapsed;
+- one `expandedEditBlock` value controls the accordion, so at most one block is
+  expanded; clicking its active button collapses it, and clicking another
+  button closes the previous block and opens the selected block;
+- the active button background is dark blue `#0b3d91`;
+- block order below the buttons matches button order: Main, Alias, iframe,
+  Free Code;
+- Main contains the tale-view checkboxes and SEO Index. Everyone who can reach
+  edit mode sees it; individual checkbox RBAC is deliberately deferred;
+- Alias contains the generated tale URL and `router_alias` input. It is shown
+  only to admin, moderator, or privileged users;
+- iframe contains the iframe URL input and edit preview. It is shown only to
+  admin, moderator, or privileged users;
+- Free Code contains `body_free` editing and preview. It is shown only to
+  administrators;
+- translations include `Main` in English and `Основные` in Russian in
+  `/home/qqq/_A001/rep/ALINA_FE/src/locales/index.js`;
+- the Yandex Map edit section has `50px` before “Show map” and `50px` after the
+  expanded map. Its wrapper uses `mx-1`, not `m-1`, because Bootstrap's
+  `m-1 !important` otherwise overrides the explicit vertical margins;
+- non-edit map spacing is unchanged.
+
+The user manually reviewed the successive UI states and confirmed the final
+layout. Static verification used Vue SFC parsing/compilation and
+`git diff --check`. No SPA build was run by the assistant. Do not add
+class-name contract tests for this UI; the user wants these class names and
+presentation details to remain freely changeable.
+
+### Resume after interruption
+
+Before changing this feature, run:
+
+```bash
+cd /home/qqq/_A001/rep/ALINA_FE
+git status --short
+git log -1 --oneline --decorate
+sed -n '70,390p' src/views/tale/upsert.vue
+```
+
+Then preserve the public iframe path separately from the role-gated edit
+accordion. Never infer permission to build or commit from this handoff.
 
 ## Text chat
 
