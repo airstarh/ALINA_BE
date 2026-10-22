@@ -181,8 +181,8 @@ class FileUpload
                     // Message::setInfo("Left to upload: %s.", [(string) $left]);
 
                     $arrTxt = [
-                        vsprintf("Already uploaded: %s.", [(string) $currentAmount]),
-                        vsprintf("Left to upload: %s.", [(string) $left]),
+                        ___p("Already uploaded: %s.", [(string) $currentAmount]),
+                        ___p("Left to upload: %s.", [(string) $left]),
                     ];
 
                     $txt = implode(PHP_EOL, $arrTxt);
