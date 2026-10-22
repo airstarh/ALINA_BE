@@ -29,7 +29,12 @@ $storage->appendMessage($mine['id'], [
     'senderType' => 'user', 'senderId' => '17', 'senderName' => 'Alice', 'senderEmblem' => '',
     'text' => 'hello', 'createdAt' => 100, 'clientMessageId' => 'mine-1',
 ]);
-$storage->openChat('https://zero.home:50443', 'other');
+$other = $storage->openChat('https://zero.home:50443', 'other');
+$storage->appendMessage($other['id'], [
+    'senderType' => 'user_service', 'senderId' => 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'senderName' => 'Guest bbbbbbbb', 'senderEmblem' => '', 'text' => 'mention',
+    'createdAt' => 110, 'clientMessageId' => 'guest-mention-1',
+]);
 $storage->openChat('https://vov.home:50443', 'foreign');
 
 $server = new ChatServer($storage, new StreamSelectLoop());
@@ -51,6 +56,10 @@ sendRoomList($server, $guestClient, [
     'CurrentUser' => ['id' => null, 'guestId' => 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'],
 ]);
 chatExpect($guestClient->lastEvent('rooms') !== null, 'valid persistent guest UUID must be accepted');
+$guestRooms = $guestClient->lastEvent('rooms');
+chatExpectSame(['other'], array_column($guestRooms['mine']['rows'], 'channel'), 'guest directory must retain rooms where the guest was mentioned');
+chatExpectSame([], $guestRooms['others']['rows'], 'guest directory must not disclose other rooms');
+chatExpectSame(0, $guestRooms['others']['total'], 'guest directory must report zero other rooms');
 
 $invalidGuest = new ChatTestClient(3);
 $server->onOpen($invalidGuest);

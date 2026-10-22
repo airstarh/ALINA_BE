@@ -370,6 +370,16 @@ class ChatServer implements MessageComponentInterface
         }
 
         $rooms = $this->storage->listRooms($state['origin'], $senderType, $senderId, $pagination);
+
+        if ($senderType === 'guest') {
+            $rooms['others'] = [
+                'rows' => [],
+                'total' => 0,
+                'limit' => $pagination['others']['limit'],
+                'offset' => $pagination['others']['offset'],
+            ];
+        }
+
         $this->send($client, [
             'version' => 2,
             'type' => 'rooms',
