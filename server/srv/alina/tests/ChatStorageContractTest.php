@@ -15,7 +15,7 @@ final class ContractMemoryChatStorage implements ChatStorage
     private array $chats = [];
     private array $messages = [];
 
-    public function openChat(string $origin, string $channel): array
+    public function openChat(string $origin, string $channel, ?string $initialName = null): array
     {
         $key = $origin . "\0" . $channel;
 
@@ -25,7 +25,7 @@ final class ContractMemoryChatStorage implements ChatStorage
                 'id' => $this->nextChatId++,
                 'origin' => $origin,
                 'channel' => $channel,
-                'name' => $channel,
+                'name' => $initialName ?? $channel,
                 'isAnionAllowed' => true,
                 'isConfirmationRequired' => false,
                 'createdAt' => $now,
@@ -332,6 +332,8 @@ expectSame(1, $storage->listRooms('https://zero.home:50443', 'user', '17', [
     'mine' => ['limit' => 10, 'offset' => 0],
     'others' => ['limit' => 10, 'offset' => 0],
 ])['others']['total'], 'storage contract must expose room directory sections');
+expectSame('PRIVATE: Alice & Bob', $storage->openChat('https://zero.home:50443', '1_2', 'PRIVATE: Alice & Bob')['name'], 'initial name must be used when creating a chat');
+expectSame('PRIVATE: Alice & Bob', $storage->openChat('https://zero.home:50443', '1_2', 'PRIVATE: Changed & Name')['name'], 'later initial names must not overwrite an existing chat');
 
 $first = $storage->appendMessage($chat['id'], storageMessage('first', 'one', createdAt: 100));
 $second = $storage->appendMessage($chat['id'], storageMessage('second', 'two', createdAt: 200));

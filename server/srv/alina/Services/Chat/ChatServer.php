@@ -248,7 +248,7 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
-        $chat = $this->storage->openChat($origin, $channel);
+        $chat = $this->storage->openChat($origin, $channel, $this->privateInitialName($channel, $data['chatName'] ?? null));
         $roomKey = $this->roomKey($origin, $channel);
         $user = $this->publicUser($data['CurrentUser'] ?? null, $client->resourceId);
         $participantId = $this->participantId($user, $client->resourceId);
@@ -1340,6 +1340,25 @@ class ChatServer implements MessageComponentInterface
     private function roomKey(string $origin, string $channel): string
     {
         return $origin . "\0" . $channel;
+    }
+
+    private function privateInitialName(string $channel, mixed $name): ?string
+    {
+        if (! is_string($name)) {
+            return null;
+        }
+
+        $name = trim($name);
+        $guest = '(?:[0-9]+|[0-9a-f]{8}-[0-9a-f-]{27})';
+        $privateChannel = preg_match('/^[1-9][0-9]*_[1-9][0-9]*$/', $channel) === 1
+            || preg_match('/^[1-9][0-9]*_guest_' . $guest . '$/', $channel) === 1
+            || preg_match('/^guest_' . $guest . '_guest_' . $guest . '$/', $channel) === 1;
+
+        if (! $privateChannel || ! str_starts_with($name, 'PRIVATE: ') || trim(substr($name, 9)) === '' || mb_strlen($name) > 200) {
+            return null;
+        }
+
+        return $name;
     }
 
     private function nowMilliseconds(): int

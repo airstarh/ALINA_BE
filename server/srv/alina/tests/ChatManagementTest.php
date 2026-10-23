@@ -11,6 +11,24 @@ use alina\Services\Chat\ChatServer;
 use React\EventLoop\StreamSelectLoop;
 
 $origin = 'https://zero.home:50443';
+$privateStorage = new MemoryChatStorage();
+$privateServer = new ChatServer($privateStorage, new StreamSelectLoop());
+$privateClient = new ChatTestClient(90, $origin);
+$privateServer->onOpen($privateClient);
+chatSend($privateServer, $privateClient, 'join', [
+    'channel' => '1_2',
+    'chatName' => 'PRIVATE: Alice & Bob',
+    'CurrentUser' => ['id' => 1, 'nickname' => 'Alice'],
+]);
+chatExpectSame('PRIVATE: Alice & Bob', $privateClient->lastEvent('chat_state')['chat']['name'] ?? null, 'valid private title must initialize a new private chat');
+chatSend($privateServer, $privateClient, 'rename', ['channel' => '1_2', 'name' => 'Renamed room']);
+chatSend($privateServer, $privateClient, 'join', [
+    'channel' => '1_2',
+    'chatName' => 'PRIVATE: Replacement & Name',
+    'CurrentUser' => ['id' => 1, 'nickname' => 'Alice'],
+]);
+chatExpectSame('Renamed room', $privateClient->lastEvent('chat_state')['chat']['name'] ?? null, 'join title must never overwrite an existing chat name');
+
 $storage = new MemoryChatStorage();
 $managedChat = $storage->configureChat($origin, 'managed', [
     'isConfirmationRequired' => true,

@@ -233,3 +233,11 @@ git diff --check
 At the 2026-10-21 audit, both repositories were clean before these documentation
 updates. Recheck both worktrees on every resume rather than relying on a recorded
 status.
+
+## Private chat title handoff
+
+As of 2026-10-23, avatar and PRIVATE-link navigation proposes a separate
+`PRIVATE: Name 1 & Name 2` room title without changing the private channel URL.
+The socket validates the proposal and storage applies it only when the room is
+first inserted. Existing and manually renamed titles are never overwritten.
+See `docs/superpowers/specs/2026-10-23-private-chat-title-design.md`.

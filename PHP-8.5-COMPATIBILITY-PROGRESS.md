@@ -48,7 +48,20 @@ There was a brief incorrect edit to `ChatHistoryReconnectTest.php` changing Reac
 - Chat daemon was not restarted because the user was actively testing. To load current ChatServer code when convenient:
   `docker restart alina_php82chat`
 
-## Composer dependency audit (inside `alina_php82chat`)
+## Composer dependency audit (inside `alina_php82`)
+
+Updated for PHP 8.5 compatibility:
+
+- `cboden/ratchet` from stable `v0.4.4` to `0.4.x-dev`, pinned by
+  `composer.lock` to commit `e621c6c40bf684bbbb877102416ad5303d05a9cc`.
+- `ratchet/rfc6455` from `v0.3.1` to stable `v0.4.1`.
+
+The update was deliberately constrained to these two packages. A broad
+`--with-all-dependencies` transaction was rejected because it would also have
+upgraded Symfony 6 to Symfony 8. The PHP 8.5 dependency-load regression check
+now passes with deprecations promoted to exceptions, and all directly runnable
+backend tests pass. The long-running `alina_php82chat` process must be restarted
+before it uses the updated packages.
 
 `composer outdated --direct --format=json` reported:
 
@@ -59,16 +72,11 @@ There was a brief incorrect edit to `ChatHistoryReconnectTest.php` changing Reac
 - `intervention/image` installed 3.11.8; latest 4.4.0 (major)
 - `phpunit/phpunit` installed 9.6.34; latest 13.4.3 (major)
 
-No Composer dependencies have been updated.
-
 ## Remaining known PHP 8.5 deprecations
 
-Runtime log showed seven PHP 8.5 deprecations from old Ratchet dependencies in `vendor/`:
-
-- `cboden/ratchet` v0.4.4
-- `ratchet/rfc6455` v0.3.1
-
-Examples: implicit nullable parameters and non-canonical `(boolean)` / `(double)` casts. These files must not be edited directly. `cboden/ratchet` v0.4.4 was shown by Composer as installed/latest in that environment. If addressing these, explore a maintained fork, Composer-managed patch, or replacement library; discuss before changing dependency architecture.
+The seven known Ratchet/RFC6455 deprecations were removed by the Composer
+updates above without directly editing `vendor/`. No remaining dependency
+deprecation is currently known from the audited chat startup path.
 
 Other audits found no remaining ALINA-owned uses of argumentless `get_class()` / `get_parent_class()`, `${var}` interpolation, `utf8_encode/decode`, old CSV optional signatures, or logged dynamic-property deprecations. `FILTER_SANITIZE_STRING` and deprecated PHP `SplObjectStorage` usages were corrected.
 

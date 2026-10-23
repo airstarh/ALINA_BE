@@ -18,7 +18,7 @@ final class MemoryChatStorage implements ChatStorage
     private array $messages = [];
     public ?Throwable $nextError = null;
 
-    public function openChat(string $origin, string $channel): array
+    public function openChat(string $origin, string $channel, ?string $initialName = null): array
     {
         $this->maybeFail();
         $key = $this->chatKey($origin, $channel);
@@ -29,7 +29,7 @@ final class MemoryChatStorage implements ChatStorage
                 'id' => $this->nextChatId++,
                 'origin' => $origin,
                 'channel' => $channel,
-                'name' => $channel,
+                'name' => $initialName ?? $channel,
                 'isAnionAllowed' => true,
                 'isConfirmationRequired' => false,
                 'discussionOfMessageId' => null,

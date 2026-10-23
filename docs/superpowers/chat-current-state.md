@@ -344,3 +344,13 @@ cd /home/qqq/_A001/rep/ALINA_FE
 npm run check:migration
 ```
 
+## Private room initial titles (2026-10-23)
+
+- The private room pseudo ID and `/#/chat?channel=...` URL remain canonical and unchanged.
+- ALINA_FE derives `PRIVATE: Name 1 & Name 2` in the same participant order as the pseudo ID.
+- The proposed human title travels outside the URL in Vue Router history state and then as optional `chatName` in the WebSocket `join` payload.
+- ALINA_BE accepts that proposal only for a private-channel shape and only while inserting a missing room.
+- Opening an existing room never replaces `chat_name_human`, including after a manual rename.
+- Missing or invalid proposals retain the old fallback: `chat_name_human` starts as the pseudo ID.
+- No database migration is involved.
+

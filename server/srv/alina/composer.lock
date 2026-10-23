@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b18489a5ac6cf6a756b58d010e3b0a7b",
+    "content-hash": "d2ec61867da196a01b5be750a5d972d7",
     "packages": [
         {
             "name": "brick/math",
@@ -137,30 +137,31 @@
         },
         {
             "name": "cboden/ratchet",
-            "version": "v0.4.4",
+            "version": "0.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ratchetphp/Ratchet.git",
-                "reference": "5012dc954541b40c5599d286fd40653f5716a38f"
+                "reference": "e621c6c40bf684bbbb877102416ad5303d05a9cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ratchetphp/Ratchet/zipball/5012dc954541b40c5599d286fd40653f5716a38f",
-                "reference": "5012dc954541b40c5599d286fd40653f5716a38f",
+                "url": "https://api.github.com/repos/ratchetphp/Ratchet/zipball/e621c6c40bf684bbbb877102416ad5303d05a9cc",
+                "reference": "e621c6c40bf684bbbb877102416ad5303d05a9cc",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/psr7": "^1.7|^2.0",
                 "php": ">=5.4.2",
-                "ratchet/rfc6455": "^0.3.1",
-                "react/event-loop": ">=0.4",
+                "ratchet/rfc6455": "^0.4.0 | ^0.3.1",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4",
                 "react/socket": "^1.0 || ^0.8 || ^0.7 || ^0.6 || ^0.5",
-                "symfony/http-foundation": "^2.6|^3.0|^4.0|^5.0|^6.0",
-                "symfony/routing": "^2.6|^3.0|^4.0|^5.0|^6.0"
+                "symfony/http-foundation": "^2.6|^3.0|^4.0|^5.0|^6.0|^7.0|^8.0",
+                "symfony/routing": "^2.6|^3.0|^4.0|^5.0|^6.0|^7.0|^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8"
+                "phpunit/phpunit": "^9.6 || ^8.5 || ^5.7 || ^4.8.36"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -194,9 +195,9 @@
             "support": {
                 "chat": "https://gitter.im/reactphp/reactphp",
                 "issues": "https://github.com/ratchetphp/Ratchet/issues",
-                "source": "https://github.com/ratchetphp/Ratchet/tree/v0.4.4"
+                "source": "https://github.com/ratchetphp/Ratchet/tree/0.4.x"
             },
-            "time": "2021-12-14T00:20:41+00:00"
+            "time": "2026-06-14T13:01:18+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -2231,24 +2232,26 @@
         },
         {
             "name": "ratchet/rfc6455",
-            "version": "v0.3.1",
+            "version": "v0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ratchetphp/RFC6455.git",
-                "reference": "7c964514e93456a52a99a20fcfa0de242a43ccdb"
+                "reference": "9b05f371219cbaf9748b505f139617dd0715592b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ratchetphp/RFC6455/zipball/7c964514e93456a52a99a20fcfa0de242a43ccdb",
-                "reference": "7c964514e93456a52a99a20fcfa0de242a43ccdb",
+                "url": "https://api.github.com/repos/ratchetphp/RFC6455/zipball/9b05f371219cbaf9748b505f139617dd0715592b",
+                "reference": "9b05f371219cbaf9748b505f139617dd0715592b",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/psr7": "^2 || ^1.7",
-                "php": ">=5.4.2"
+                "php": ">=7.4",
+                "psr/http-factory-implementation": "^1.0",
+                "symfony/polyfill-php80": "^1.15"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7",
+                "guzzlehttp/psr7": "^2.7",
+                "phpunit/phpunit": "^9.5",
                 "react/socket": "^1.3"
             },
             "type": "library",
@@ -2282,9 +2285,9 @@
             "support": {
                 "chat": "https://gitter.im/reactphp/reactphp",
                 "issues": "https://github.com/ratchetphp/RFC6455/issues",
-                "source": "https://github.com/ratchetphp/RFC6455/tree/v0.3.1"
+                "source": "https://github.com/ratchetphp/RFC6455/tree/v0.4.1"
             },
-            "time": "2021-12-09T23:20:49+00:00"
+            "time": "2026-06-06T14:34:23+00:00"
         },
         {
             "name": "react/cache",
@@ -5521,7 +5524,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "cboden/ratchet": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

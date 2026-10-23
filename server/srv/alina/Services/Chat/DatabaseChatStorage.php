@@ -13,13 +13,13 @@ use Throwable;
 
 final class DatabaseChatStorage implements ChatStorage
 {
-    public function openChat(string $origin, string $channel): array
+    public function openChat(string $origin, string $channel, ?string $initialName = null): array
     {
         $row = (new chat())->findByOriginAndChannel($origin, $channel);
 
         if ($row === null) {
             try {
-                $row = (new chat())->insertForChannel($origin, $channel);
+                $row = (new chat())->insertForChannel($origin, $channel, $initialName ?? $channel);
             }
             catch (Throwable $error) {
                 $row = (new chat())->findByOriginAndChannel($origin, $channel);
