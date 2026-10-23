@@ -52,6 +52,30 @@ class file extends _BaseAlinaModel
         ];
     }
 
+    public function hookRightBeforeSave(&$dataArray)
+    {
+        $size = array_key_exists('size', $dataArray)
+            ? $dataArray['size']
+            : ($this->attributes->size ?? null);
+
+        if ($size !== null && $size !== '') {
+            return;
+        }
+
+        $path = $dataArray['dir'] ?? ($this->attributes->dir ?? null);
+
+        if (! is_string($path) || ! is_file($path) || ! is_readable($path)) {
+            return;
+        }
+
+        clearstatcache(true, $path);
+        $size = filesize($path);
+
+        if ($size !== false) {
+            $dataArray['size'] = $size;
+        }
+    }
+
     #####
     public function delete(array $conditions)
     {

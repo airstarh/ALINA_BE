@@ -157,7 +157,6 @@ class FileUpload
                             $this->respv2[$i] = (object)[
                                 'name_human' => $sourceFileCleanName,
                                 'name_fs'    => $newFileName,
-                                'size'       => self::fileSizeInBytes($targetFile),
                                 'url_path'   => $webPath,
                                 'dir'        => $targetFile,
                             ];
@@ -302,18 +301,6 @@ class FileUpload
         $mFile->upsertByUniqueFields($rawObj);
 
         return $mFile->attributes;
-    }
-
-    public static function fileSizeInBytes(string $path): int
-    {
-        clearstatcache(true, $path);
-        $size = filesize($path);
-
-        if ($size === false) {
-            throw new \RuntimeException("Cannot determine file size: {$path}");
-        }
-
-        return $size;
     }
 
     protected function destinationDir($uid = null)
