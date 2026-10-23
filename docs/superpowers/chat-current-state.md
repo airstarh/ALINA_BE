@@ -354,3 +354,12 @@ npm run check:migration
 - Missing or invalid proposals retain the old fallback: `chat_name_human` starts as the pseudo ID.
 - No database migration is involved.
 
+## Persisted connection history (2026-10-24)
+
+- Every admitted socket connection stores a `user_service` message containing structured `PRESENCE:` data.
+- Entry is recorded only after admission; a pending request in a confirmation-required room records nothing until approved.
+- Every actual socket disconnect records a leave event, including network failures and automatic reconnect cycles.
+- Vue localizes these records as `Name enters` / `Name leaves` and `Name присоединяется` / `Name покидает чат`; the ordinary message timestamp supplies the event time.
+- Presence service rows use the creature's sender ID, name, and emblem, so they establish participation through the existing `user_service` rules.
+- Kicking remains special: all target rows are deleted and no replacement leave row is created, preserving the established kicked-user removal semantics.
+

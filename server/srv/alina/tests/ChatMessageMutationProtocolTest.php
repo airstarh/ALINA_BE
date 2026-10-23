@@ -82,7 +82,7 @@ chatExpectSame('after failure', $bob->lastEvent('message_edited')['message']['ms
 
 chatSend($server, $alice, 'delete_message', ['messageId' => $original['id']]);
 chatExpectSame($original['id'], $bob->lastEvent('message_deleted')['messageId'] ?? null, 'delete must broadcast string message ID');
-chatExpectSame([], $storage->history(1), 'delete must remove persisted history row');
+chatExpectSame([], array_values(array_filter($storage->history(1), fn (array $message): bool => $message['senderType'] !== 'user_service')), 'delete must remove the persisted ordinary message while retaining presence history');
 chatSend($server, $alice, 'delete_message', ['messageId' => $original['id']]);
 chatExpect(str_contains($alice->lastEvent('error')['error'] ?? '', 'store'), 'duplicate delete must be a harmless not-found error');
 

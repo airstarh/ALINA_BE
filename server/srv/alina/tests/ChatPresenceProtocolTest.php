@@ -24,6 +24,11 @@ $alice = new ChatTestClient(2, $origin);
 $server->onOpen($codex);
 $server->onOpen($alice);
 chatSend($server, $alice, 'join', ['CurrentUser' => ['id' => 17, 'nickname' => 'Alice']]);
+$presenceMessages = array_values(array_filter($storage->history($general['id']), fn (array $message): bool => str_starts_with($message['text'], 'PRESENCE:')));
+chatExpectSame(1, count($presenceMessages), 'admitted join must persist one presence entry');
+chatExpectSame('user_service', $presenceMessages[0]['senderType'], 'presence entry must use user_service sender type');
+$entryPayload = json_decode(rawurldecode(substr($presenceMessages[0]['text'], strlen('PRESENCE:'))), true);
+chatExpectSame(['action' => 'enter', 'name' => 'Alice'], $entryPayload, 'presence entry must retain action and display name');
 $people = array_column($alice->lastEvent('presence')['participants'] ?? [], null, 'id');
 chatExpectSame(false, $people['user:22']['online'] ?? null, 'retained participant starts offline');
 
@@ -42,5 +47,10 @@ chatExpectSame(true, $people['user:22']['inChat'] ?? null, 'opening the current 
 chatSend($server, $codex, 'typing', ['channel' => 'general', 'typing' => true]);
 $people = array_column($alice->lastEvent('presence')['participants'] ?? [], null, 'id');
 chatExpectSame(true, $people['user:22']['typing'] ?? null, 'typing is reported only for a live current-room participant');
+
+$server->onClose($codex);
+$presenceMessages = array_values(array_filter($storage->history($general['id']), fn (array $message): bool => str_starts_with($message['text'], 'PRESENCE:')));
+$leavePayload = json_decode(rawurldecode(substr(end($presenceMessages)['text'], strlen('PRESENCE:'))), true);
+chatExpectSame(['action' => 'leave', 'name' => 'Codex'], $leavePayload, 'disconnect must persist a presence leave event');
 
 echo "PASS: retained participants distinguish origin presence, room presence and typing\n";

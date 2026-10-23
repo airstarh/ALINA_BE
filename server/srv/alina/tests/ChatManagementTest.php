@@ -170,7 +170,8 @@ chatExpectSame(['bot', 'robocop', 'Robocop'], [
     $robocop['senderId'],
     $robocop['senderName'],
 ], 'kick must persist a Robocop bot row');
-chatExpectSame('other room message', $storage->history($otherChat['id'], 10)[0]['text'] ?? null, 'kick must not delete target messages from another chat');
+$otherOrdinary = array_values(array_filter($storage->history($otherChat['id'], 10), fn (array $message): bool => $message['senderType'] === 'user'));
+chatExpectSame('other room message', $otherOrdinary[0]['text'] ?? null, 'kick must not delete target messages from another chat');
 
 $targetReturn = new ChatTestClient(5, $origin);
 $server->onOpen($targetReturn);

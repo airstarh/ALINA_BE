@@ -82,6 +82,8 @@ chatExpect($newcomer->lastEvent('join_pending') !== null, 'new identity must wai
 chatExpectSame(null, $newcomer->lastEvent('history'), 'pending participant must not receive history');
 chatExpectSame(null, $newcomer->lastEvent('presence'), 'pending participant must not receive presence');
 chatExpectSame('user:11', $writer->lastEvent('join_request')['participant']['id'] ?? null, 'admitted participant must receive the pending join request');
+$confirmChat = $storage->openChat($origin, 'confirm');
+chatExpectSame([], array_values(array_filter($storage->history($confirmChat['id'], 50), fn (array $message): bool => $message['senderType'] === 'user_service' && $message['senderId'] === '11')), 'pending participant must not create an entry message');
 
 chatSend($server, $newcomer, 'message', [
     'channel' => 'confirm',
@@ -97,9 +99,12 @@ chatSend($server, $writer, 'approve', [
     'CurrentUser' => ['id' => 10, 'nickname' => 'Writer'],
 ]);
 chatExpect($newcomer->lastEvent('join_approved') !== null, 'any admitted participant must be able to approve a request');
+chatExpectSame(1, count(array_filter($storage->history($confirmChat['id'], 50), fn (array $message): bool => $message['senderType'] === 'user_service' && $message['senderId'] === '11' && str_starts_with($message['text'], 'PRESENCE:'))), 'approved participant must create one entry message');
 chatExpect($newcomer->lastEvent('history') !== null, 'approved participant must receive history');
 $presence = $newcomer->lastEvent('presence')['participants'] ?? [];
-chatExpectSame(['user:10', 'user:11'], array_column($presence, 'id'), 'approved participant must enter live presence');
+$participantIds = array_column($presence, 'id');
+sort($participantIds);
+chatExpectSame(['user:10', 'user:11'], $participantIds, 'approved participant must enter live presence');
 
 $server->onClose($writer);
 $server->onClose($newcomer);

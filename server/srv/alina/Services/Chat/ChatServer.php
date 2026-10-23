@@ -333,7 +333,7 @@ class ChatServer implements MessageComponentInterface
         }
 
         $history = $this->storage->history($chat['id'], 50);
-        $this->admit($client, $history, $sendJoinEvents ? 'joined' : null);
+        $this->admit($client, $history, $sendJoinEvents ? 'joined' : null, ! $alreadyAdmitted);
     }
 
     private function listRooms(ConnectionInterface $client, array $data): void
@@ -483,11 +483,11 @@ class ChatServer implements MessageComponentInterface
         foreach ($approved as $pendingClient) {
             $pendingState = $this->clients[$pendingClient];
             $history = $this->storage->history($pendingState['chatId'], 50);
-            $this->admit($pendingClient, $history, 'join_approved');
+            $this->admit($pendingClient, $history, 'join_approved', true);
         }
     }
 
-    private function admit(ConnectionInterface $client, array $history, ?string $eventType): void
+    private function admit(ConnectionInterface $client, array $history, ?string $eventType, bool $recordEntry): void
     {
         $state = $this->clients[$client];
         $roomKey = $state['roomKey'];
@@ -509,6 +509,10 @@ class ChatServer implements MessageComponentInterface
                 'participantId' => $state['participantId'],
             ]);
             $this->send($client, $this->chatStateEvent($roomKey));
+        }
+
+        if ($recordEntry) {
+            $this->storePresenceMessage($state, 'enter');
         }
 
         $this->broadcastOriginPresence($state['origin']);
@@ -684,6 +688,9 @@ class ChatServer implements MessageComponentInterface
         ]);
 
         foreach ($targets as $target) {
+            $targetState = $this->clients[$target];
+            $targetState['admission'] = 'kicked';
+            $this->clients[$target] = $targetState;
             $this->onClose($target);
             $target->close();
         }
@@ -1239,6 +1246,7 @@ class ChatServer implements MessageComponentInterface
     private function leave(ConnectionInterface $client): void
     {
         $state = $this->clients[$client];
+        $departingState = $state;
         $roomKey = $state['roomKey'];
         $state['roomKey'] = null;
         $state['chatId'] = null;
@@ -1256,8 +1264,9 @@ class ChatServer implements MessageComponentInterface
             $this->pending[$roomKey]->offsetUnset($client);
         }
 
-        if ($admission === 'admitted' && isset($this->channels[$roomKey])) {
+        if (in_array($admission, ['admitted', 'kicked'], true) && isset($this->channels[$roomKey])) {
             $this->channels[$roomKey]->offsetUnset($client);
+            if ($admission === 'admitted') $this->storePresenceMessage($departingState, 'leave', $roomKey);
         }
 
         $activeCount = isset($this->channels[$roomKey]) ? $this->channels[$roomKey]->count() : 0;
@@ -1275,9 +1284,34 @@ class ChatServer implements MessageComponentInterface
                 }
             });
         }
-        if ($admission === 'admitted') {
+        if (in_array($admission, ['admitted', 'kicked'], true)) {
             $this->broadcastOriginPresence($state['origin']);
         }
+    }
+
+    private function storePresenceMessage(array $state, string $action, ?string $roomKey = null): void
+    {
+        if ($state['chatId'] === null || $state['channel'] === null || $state['participantId'] === null || ! in_array($action, ['enter', 'leave'], true)) return;
+        [, $senderId] = explode(':', $state['participantId'], 2);
+        $createdAt = $this->nowMilliseconds();
+        $stored = $this->storage->appendMessage($state['chatId'], [
+            'senderType' => 'user_service',
+            'senderId' => $senderId,
+            'senderName' => $state['user']['name'],
+            'senderEmblem' => $state['user']['emblem'],
+            'text' => 'PRESENCE:' . rawurlencode((string) json_encode(['action' => $action, 'name' => $state['user']['name']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)),
+            'createdAt' => $createdAt,
+            'clientMessageId' => 'presence-' . $this->instanceId . '-' . ++$this->messageSequence,
+        ]);
+        if (! $stored['inserted']) return;
+        $message = $this->protocolMessage($stored['message'], $state['channel']);
+        $targetRoom = $roomKey ?? $state['roomKey'];
+        if ($targetRoom !== null) {
+            $this->broadcast($targetRoom, fn ($recipient) => $this->clients[$recipient]['version'] === 2
+                ? ['version' => 2, 'type' => 'message', 'channel' => $state['channel'], 'message' => $message]
+                : $message);
+        }
+        $this->refreshRoomDirectories($state['origin']);
     }
 
     private function broadcast(string $roomKey, callable $payload): void

@@ -30,11 +30,13 @@ chatExpectSame('New name (Guest b7c8ea87)', $renamed['name'] ?? null, 'guest ren
 
 $chat = $storage->openChat($origin, 'general');
 $history = $storage->history($chat['id'], 50);
-chatExpectSame('New name (Guest b7c8ea87)', $history[0]['senderName'] ?? null, 'guest rename persists every historical author occurrence');
-chatExpectSame('first', $history[0]['text'] ?? null, 'guest rename does not rewrite message text');
+$ordinary = array_values(array_filter($history, fn (array $message): bool => $message['senderType'] === 'guest'));
+chatExpectSame('New name (Guest b7c8ea87)', $ordinary[0]['senderName'] ?? null, 'guest rename persists every historical author occurrence');
+chatExpectSame('first', $ordinary[0]['text'] ?? null, 'guest rename does not rewrite message text');
 
 chatSend($server, $guest, 'join', ['CurrentUser' => ['guestId' => $guestId, 'nickname' => 'Self name']]);
 chatExpectSame('Self name (Guest b7c8ea87)', $admin->lastEvent('guest_renamed')['name'] ?? null, 'guest self rename uses the same persistent broadcast flow');
-chatExpectSame('Self name (Guest b7c8ea87)', $storage->history($chat['id'], 50)[0]['senderName'] ?? null, 'guest self rename persists historical occurrences');
+$ordinary = array_values(array_filter($storage->history($chat['id'], 50), fn (array $message): bool => $message['senderType'] === 'guest'));
+chatExpectSame('Self name (Guest b7c8ea87)', $ordinary[0]['senderName'] ?? null, 'guest self rename persists historical occurrences');
 
 echo "PASS: guest names persist and broadcast across the current chat\n";

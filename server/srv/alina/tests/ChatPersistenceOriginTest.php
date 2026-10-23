@@ -43,14 +43,14 @@ chatSend($server, $zero, 'message', [
     'msg' => 'duplicate body is ignored',
     'clientMessageId' => 'zero-1',
 ]);
-chatExpectSame(1, count($zero->events('message')), 'duplicate client message ID must not broadcast twice');
+chatExpectSame(1, count(array_filter($zero->events('message'), fn (array $event): bool => ($event['message']['senderType'] ?? null) === 'user')), 'duplicate client message ID must not broadcast twice');
 
 chatSend($server, $zero, 'message', [
     'channel' => 'different',
     'msg' => 'must not switch room',
     'clientMessageId' => 'wrong-room',
 ]);
-chatExpectSame(1, count($zero->events('message')), 'message event must not change the joined room');
+chatExpectSame(1, count(array_filter($zero->events('message'), fn (array $event): bool => ($event['message']['senderType'] ?? null) === 'user')), 'message event must not change the joined room');
 chatExpect($zero->lastEvent('error') !== null, 'room-changing message must receive an error');
 
 $storage->nextError = new RuntimeException('database unavailable');
@@ -71,14 +71,15 @@ $restartedServer = new ChatServer($storage, new StreamSelectLoop());
 $returning = new ChatTestClient(3, 'https://zero.home:50443');
 $restartedServer->onOpen($returning);
 chatSend($restartedServer, $returning, 'join', ['channel' => '1']);
+$ordinaryHistory = array_values(array_filter($returning->lastEvent('history')['messages'] ?? [], fn (array $message): bool => $message['senderType'] === 'user'));
 chatExpectSame(
     ['zero only', 'server survived'],
-    array_column($returning->lastEvent('history')['messages'] ?? [], 'msg'),
+    array_column($ordinaryHistory, 'msg'),
     'history must survive server reconstruction',
 );
 chatExpectSame(
     'https://zero.home:50443/uploads/alice.webp',
-    $returning->lastEvent('history')['messages'][0]['CurrentUser']['emblem'] ?? null,
+    $ordinaryHistory[0]['CurrentUser']['emblem'] ?? null,
     'persisted history must retain the sender avatar after the live participant leaves',
 );
 
