@@ -14,6 +14,8 @@ use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
 use alina\Utils\Request;
 use alina\Utils\Sys;
+use Illuminate\Database\Capsule\Manager as Dal;
+use InvalidArgumentException;
 
 class Tale
 {
@@ -75,6 +77,12 @@ class Tale
             #region CHECK iF UPDATE or INSERT
             $isNew     = $vd->is_submitted == 0 || empty($vd->is_submitted);
             $isComment = ! empty($vd->answer_to_tale_id);
+
+            // A comment pin may only be changed through actionStickComment(),
+            // where permissions are checked against the root tale owner.
+            if ($isComment || ! empty($dbResult->answer_to_tale_id)) {
+                $vd->is_sticked = (int)($dbResult->is_sticked ?? 0);
+            }
 
             /**
              * NEW
@@ -262,6 +270,80 @@ class Tale
     }
 
     ########################################
+    public static function pinnedCommentRootId(object $comment): int
+    {
+        $rootTaleId = (int)($comment->root_tale_id ?? 0);
+
+        if (
+            ($comment->type ?? null) !== 'COMMENT'
+            || (int)($comment->level ?? 0) !== 1
+            || $rootTaleId < 1
+            || (int)($comment->answer_to_tale_id ?? 0) !== $rootTaleId
+        ) {
+            throw new InvalidArgumentException('Only a first-level comment can be pinned.');
+        }
+
+        return $rootTaleId;
+    }
+
+    /**
+     * @route /tale/StickComment/1
+     */
+    public function actionStickComment($id = null)
+    {
+        AlinaRejectIfNotLoggedIn();
+
+        if (! Request::obj()->isPostPutDelete($post) || ! is_numeric($id)) {
+            AlinaReject(null, 405, 'POST request required.');
+        }
+
+        $comment = (new taleAlias())->getById((int)$id);
+
+        try {
+            $rootTaleId = static::pinnedCommentRootId($comment);
+        }
+        catch (InvalidArgumentException $e) {
+            AlinaReject(null, 400, $e->getMessage());
+        }
+
+        $rootTale = (new taleAlias())->getById($rootTaleId);
+
+        if (empty($rootTale->id) || ($rootTale->type ?? null) !== 'POST') {
+            AlinaReject(null, 400, 'Root tale not found.');
+        }
+
+        AlinaRejectIfNotAdminOrModeratorOrOwner($rootTale->owner_id);
+
+        $isSticked = empty($post->is_sticked) ? 0 : 1;
+
+        Transaction::begin(__FUNCTION__);
+
+        $pinScope = (new taleAlias())
+            ->q(-1)
+            ->where('root_tale_id', '=', $rootTaleId)
+            ->where('answer_to_tale_id', '=', $rootTaleId)
+            ->where('level', '=', 1)
+            ->where('type', '=', 'COMMENT');
+
+        if ($isSticked) {
+            $commentId = (int)$comment->id;
+            $pinScope->update([
+                'is_sticked' => Dal::raw("CASE WHEN id = {$commentId} THEN 1 ELSE 0 END"),
+            ]);
+        }
+        else {
+            $pinScope
+                ->where('id', '=', (int)$comment->id)
+                ->update(['is_sticked' => 0]);
+        }
+
+        Transaction::commit(__FUNCTION__);
+
+        $result = (new taleAlias())->getOneWithReferencesById((int)$comment->id);
+        AlinaEcho((new htmlAlias())->page($result));
+    }
+
+    ########################################
     ########################################
     ########################################
     /**
@@ -300,10 +382,36 @@ class Tale
             #endregion COMMENTS
             ####################
         }
+
+        $pinnedComment = null;
+
+        if (! empty($answer_to_tale_ids)) {
+            $answerIds = is_array($answer_to_tale_ids) ? $answer_to_tale_ids : [$answer_to_tale_ids];
+            $answerIds = array_values(array_unique(array_filter(array_map('intval', $answerIds))));
+
+            if (count($answerIds) === 1) {
+                $rootTaleId = $answerIds[0];
+                $pinnedComment = (new taleAlias())->getOneWithReferences(array_merge($conditions, [
+                    ['tale.root_tale_id', '=', $rootTaleId],
+                    ['tale.answer_to_tale_id', '=', $rootTaleId],
+                    ['tale.level', '=', 1],
+                    ['tale.type', '=', 'COMMENT'],
+                    ['tale.is_sticked', '=', 1],
+                ]));
+
+                if (empty($pinnedComment->id)) {
+                    $pinnedComment = null;
+                }
+            }
+        }
+
         $collection = $this->processResponse($conditions, $sort, $pageSze, $page, $answer_to_tale_ids);
         ########################################
         $vd->tale = $collection->toArray();
         ########################################
+        if (! empty($answer_to_tale_ids)) {
+            GlobalRequestStorage::set('pinned_comment', $pinnedComment);
+        }
         GlobalRequestStorage::set('tagRelAlternateUrl', AlinaDefineTagRelAlternateUrl());
         ########################################
         AlinaEcho((new htmlAlias())->page($vd));
@@ -322,6 +430,10 @@ class Tale
                 $answer_to_tale_ids = [$answer_to_tale_ids];
             }
             $q->whereIn('tale.answer_to_tale_id', $answer_to_tale_ids);
+            $q->where(static function ($q) {
+                $q->where('tale.is_sticked', '=', 0)
+                  ->orWhereNull('tale.is_sticked');
+            });
             $paginationVersa = true;
 
             #####
