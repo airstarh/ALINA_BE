@@ -7,7 +7,7 @@ use alina\GlobalRequestStorage;
 class file extends _BaseAlinaModel
 {
     public $table       = 'file';
-    public $sortDefault = [['name_human', 'ASC']];
+    public $sortDefault = [['created_at', 'DESC'], ['id', 'DESC']];
 
     public function fields()
     {
@@ -17,6 +17,7 @@ class file extends _BaseAlinaModel
             'entity_table' => [],
             'name_fs'      => [],
             'name_human'   => [],
+            'size'         => [],
             'url_path'     => [],
             'dir'          => [],
             'container'    => [
