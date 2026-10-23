@@ -143,18 +143,14 @@ class Arr
     #endregion Getters & Setters
     public static function firstArrayKey($array)
     {
-        reset($array);
-        [$key, $value] = each($array);
-
-        return $key;
+        return array_key_first($array);
     }
 
     public static function firstArrayValue($array)
     {
-        reset($array);
-        [$key, $value] = each($array);
+        $key = array_key_first($array);
 
-        return $value;
+        return $key === null ? null : $array[$key];
     }
 
     public static function lastArrayKey($array)

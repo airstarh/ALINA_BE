@@ -1,4 +1,4 @@
-FROM php:8.2.35-fpm
+FROM php:8.5.12-fpm
 
 ARG INSTALL_XDEBUG=false
 

@@ -125,7 +125,7 @@ final class App
      */
     public static function get()
     {
-        if (! isset(static::$instance) || ! is_a(static::$instance, get_class())) {
+        if (! isset(static::$instance) || ! is_a(static::$instance, static::class)) {
             throw new Exception("Alina App is not set");
         }
 
@@ -139,7 +139,7 @@ final class App
      */
     public static function set($config)
     {
-        if (isset(static::$instance) && is_a(static::$instance, get_class())) {
+        if (isset(static::$instance) && is_a(static::$instance, static::class)) {
             return static::$instance;
         }
         $_this = new static($config);
