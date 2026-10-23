@@ -119,8 +119,19 @@ function AlinaReject($page = null, $code = 403, $message = 'ACCESS DENIED', $mes
     AlinaResponseSuccess(0);
     Message::setDanger($message, $messageParams);
 
-    if ($page && ! Request::obj()->AJAX) {
-        Sys::redirect($page, $code);
+    if ($page) {
+        if (Request::obj()->AJAX) {
+            GlobalRequestStorage::set('client_redirect', [
+                'url'     => $page,
+                'replace' => false,
+                'status'  => $code,
+            ]);
+            Request::obj()->resetToGet();
+            Alina()->mvcGo('Root', 'AccessDenied', [200]);
+        }
+        else {
+            Sys::redirect($page, $code);
+        }
     }
     else {
         Request::obj()->resetToGet();
