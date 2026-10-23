@@ -5,5 +5,6 @@ docker compose \
     -f dc.all.php82.yml \
     -f dc.all.signal.yml \
     -f dc.all.signal.yml \
+    -f dc.cam.yml \
     -f dc.dev.yml \
     build --no-cache
