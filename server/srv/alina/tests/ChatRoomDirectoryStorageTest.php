@@ -50,6 +50,7 @@ addRoomMessage($storage, $mineNewest, 'm4', 'bot', 'robocop', 800);
 $mineTie = $storage->configureChat($origin, 'mine-tie', ['name' => 'Mine tie']);
 addRoomMessage($storage, $mineTie, 't1', 'user', '17', 400);
 addRoomMessage($storage, $mineTie, 't2', 'guest', 'guest-mine', 700);
+addRoomMessage($storage, $mineTie, 'MENTION:test', 'user_service', 'guest-mine', 690);
 
 $guestMine = $storage->configureChat($origin, 'guest-mine', ['name' => 'Guest room']);
 addRoomMessage($storage, $guestMine, 'g1', 'guest', 'guest-mine', 650);
@@ -95,5 +96,8 @@ $guest = $storage->listRooms($origin, 'guest', 'guest-mine', [
     'others' => ['limit' => 1000, 'offset' => 0],
 ]);
 chatExpectSame(['mine-tie', 'guest-mine'], array_column($guest['mine']['rows'], 'channel'), 'guest participation must use sender type and persistent ID');
+chatExpectSame(true, $guest['mine']['rows'][0]['isMentioned'], 'a room containing a mention notification for the identity must be marked');
+chatExpectSame(690, $guest['mine']['rows'][0]['latestMentionAt'], 'latest mention timestamp must be returned for acknowledgement');
+chatExpectSame(false, $guest['mine']['rows'][1]['isMentioned'], 'ordinary participation must not be marked as a mention');
 
 echo "PASS: room directory storage partitions, aggregates, paginates and isolates origins\n";

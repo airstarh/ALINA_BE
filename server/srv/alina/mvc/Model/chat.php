@@ -105,6 +105,8 @@ class chat extends _BaseAlinaModel
                 'message_aggregate.participant_count',
                 'message_aggregate.latest_message_at',
             ])
+            ->selectRaw("EXISTS (SELECT 1 FROM chat_message AS mention_message WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_message.sender_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS is_mentioned", [$senderId])
+            ->selectRaw("(SELECT MAX(mention_message.created_at) FROM chat_message AS mention_message WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_message.sender_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS latest_mention_at", [$senderId])
             ->orderByRaw('message_aggregate.latest_message_at IS NULL ASC')
             ->orderBy('message_aggregate.latest_message_at', 'DESC')
             ->orderBy('chat.id', 'DESC')

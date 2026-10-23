@@ -46,6 +46,7 @@ class ChatServer implements MessageComponentInterface
             'participantId' => 'guest:' . $conn->resourceId,
             'typingUntil' => 0,
             'admission' => null,
+            'directory' => null,
         ]);
         // The legacy client expects a plain-text handshake.
         $this->send($conn, 'Connection established.');
@@ -369,14 +370,24 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
-        $rooms = $this->storage->listRooms($state['origin'], $senderType, $senderId, $pagination);
+        $state['directory'] = ['senderType' => $senderType, 'senderId' => $senderId, 'pagination' => $pagination];
+        $this->clients[$client] = $state;
+        $this->sendRoomDirectory($client);
+    }
 
-        if ($senderType === 'guest') {
+    private function sendRoomDirectory(ConnectionInterface $client): void
+    {
+        $state = $this->clients[$client];
+        $directory = $state['directory'];
+        if (! is_array($directory) || $state['origin'] === null) return;
+        $rooms = $this->storage->listRooms($state['origin'], $directory['senderType'], $directory['senderId'], $directory['pagination']);
+
+        if ($directory['senderType'] === 'guest') {
             $rooms['others'] = [
                 'rows' => [],
                 'total' => 0,
-                'limit' => $pagination['others']['limit'],
-                'offset' => $pagination['others']['offset'],
+                'limit' => $directory['pagination']['others']['limit'],
+                'offset' => $directory['pagination']['others']['offset'],
             ];
         }
 
@@ -386,6 +397,16 @@ class ChatServer implements MessageComponentInterface
             'mine' => $rooms['mine'],
             'others' => $rooms['others'],
         ]);
+    }
+
+    private function refreshRoomDirectories(string $origin): void
+    {
+        foreach ($this->clients as $client) {
+            $state = $this->clients[$client];
+            if ($state['origin'] !== $origin || ! is_array($state['directory'])) continue;
+            try { $this->sendRoomDirectory($client); }
+            catch (Throwable $error) { error_log('Chat room directory refresh failed: ' . $error->getMessage()); }
+        }
     }
 
     private function roomPagination(mixed $pagination): ?array
@@ -516,6 +537,7 @@ class ChatServer implements MessageComponentInterface
         $chat = $this->storage->renameChat($state['chatId'], $name, $this->nowMilliseconds());
         $this->rooms[$state['roomKey']]['chat'] = $chat;
         $this->broadcast($state['roomKey'], fn (): array => $this->chatStateEvent($state['roomKey']));
+        $this->refreshRoomDirectories($state['origin']);
     }
 
     private function renameGuest(ConnectionInterface $client, array $data): void
@@ -845,6 +867,7 @@ class ChatServer implements MessageComponentInterface
             'sourceMessageId' => (string) $messageId,
             'discussion' => $discussion,
         ]);
+        $this->refreshRoomDirectories($state['origin']);
     }
 
     private function positiveMessageId(mixed $value): ?int
@@ -961,6 +984,7 @@ class ChatServer implements MessageComponentInterface
         }
         $this->broadcastPresence($state['roomKey']);
         $this->notifyDiscussionParent($state['chatId']);
+        $this->refreshRoomDirectories($state['origin']);
     }
 
     private function replyMessage(ConnectionInterface $client, array $data): void

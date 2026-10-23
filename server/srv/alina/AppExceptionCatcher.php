@@ -12,6 +12,8 @@ use Throwable;
 
 class AppExceptionCatcher
 {
+    protected static bool $handlingException = false;
+
     protected $expClassName = '';
     protected $eSeverity    = '';
     protected $eCode        = '';
@@ -50,63 +52,163 @@ class AppExceptionCatcher
      */
     public function exception($objException, $forceExit = true)
     {
-        AlinaResponseSuccess(0);
-        ##################################################
-        #region Clean buffer
-        # @link https://stackoverflow.com/a/22069460/3142281
-        $level = ob_get_level();
+        if (static::$handlingException) {
+            $this->logSecondaryFailure('recursive exception handler invocation', $objException);
 
-        while (@ob_end_clean()) {
-            $level--;
-        }
-        #endregion Clean buffer
-        ##################################################
-        mvc\Model\_baseAlinaEloquentTransaction::rollback();
-
-        $strUNKNOWN         = 'UNKNOWN';
-        $this->expClassName = get_class($objException);
-        $this->eSeverity    = method_exists($objException, 'getSeverity')
-            ? $objException->getSeverity()
-            : $strUNKNOWN;
-        $this->eCode = method_exists($objException, 'getCode')
-            ? $objException->getCode()
-            : $strUNKNOWN;
-        $this->eString = method_exists($objException, 'getMessage')
-            ? $objException->getMessage()
-            : $strUNKNOWN;
-        $this->eFile = method_exists($objException, 'getFile')
-            ? $objException->getFile()
-            : $strUNKNOWN;
-        $this->eLine = method_exists($objException, 'getLine')
-            ? $objException->getLine()
-            : $strUNKNOWN;
-        $this->eTrace = method_exists($objException, 'getTraceAsString')
-            ? $objException->getTraceAsString()
-            : $strUNKNOWN;
-
-        $this->processError();
-
-        if (! empty($_REQUEST['route_plan_b'])) {
-            $R   = (object)$_REQUEST;
-            $url = $R->route_plan_b;
-            Data::sanitizeOutputObj($R);
-            $url = Url::addGetFromObject($url, $R);
-            Sys::redirect($url, 303);
-            exit();
-        }
-
-        if ($forceExit) {
-            if (Request::obj()->isPostPutDelete()) {
-                $_POST                     = [];
-                $_FILES                    = [];
-                $_SERVER['REQUEST_METHOD'] = 'GET';
-                Request::obj()->METHOD     = 'GET';
-                Request::obj()->POST       = [];
-                Request::obj()->FILES      = [];
+            if ($forceExit) {
+                $this->renderBootstrapSafeError();
             }
 
-            return Alina()->mvcGo('Root', 'Exception', $this);
+            return null;
         }
+
+        static::$handlingException = true;
+
+        try {
+            $this->captureException($objException);
+
+            $this->runProtectedStage('prepare application error response', static function () {
+                AlinaResponseSuccess(0);
+            });
+
+            ##################################################
+            #region Clean buffer
+            # @link https://stackoverflow.com/a/22069460/3142281
+            $level = ob_get_level();
+
+            while (@ob_end_clean()) {
+                $level--;
+            }
+            #endregion Clean buffer
+            ##################################################
+
+            $this->runProtectedStage('roll back active transaction', static function () {
+                mvc\Model\_baseAlinaEloquentTransaction::rollback();
+            });
+
+            $errorWasProcessed = $this->runProtectedStage('process application error', function () {
+                $this->processError();
+            });
+
+            if (! $errorWasProcessed) {
+                $this->logOriginalException();
+            }
+
+            if (! empty($_REQUEST['route_plan_b'])) {
+                $redirected = $this->runProtectedStage('redirect after application error', static function () {
+                    $R   = (object)$_REQUEST;
+                    $url = $R->route_plan_b;
+                    Data::sanitizeOutputObj($R);
+                    $url = Url::addGetFromObject($url, $R);
+                    Sys::redirect($url, 303);
+                });
+
+                if ($redirected) {
+                    exit();
+                }
+            }
+
+            if ($forceExit) {
+                $exceptionPageResult = null;
+                $rendered            = $this->runProtectedStage('render application exception page', function () use (&$exceptionPageResult) {
+                    if (Request::obj()->isPostPutDelete()) {
+                        $_POST                     = [];
+                        $_FILES                    = [];
+                        $_SERVER['REQUEST_METHOD'] = 'GET';
+                        Request::obj()->METHOD     = 'GET';
+                        Request::obj()->POST       = [];
+                        Request::obj()->FILES      = [];
+                    }
+
+                    $exceptionPageResult = Alina()->mvcGo('Root', 'Exception', $this);
+                });
+
+                if (! $rendered) {
+                    $this->renderBootstrapSafeError();
+                }
+
+                return $exceptionPageResult;
+            }
+        }
+        finally {
+            static::$handlingException = false;
+        }
+
+        return null;
+    }
+
+    protected function captureException($objException): void
+    {
+        $strUNKNOWN         = 'UNKNOWN';
+        $this->expClassName = is_object($objException) ? get_class($objException) : gettype($objException);
+        $this->eSeverity    = is_object($objException) && method_exists($objException, 'getSeverity')
+            ? $objException->getSeverity()
+            : $strUNKNOWN;
+        $this->eCode = is_object($objException) && method_exists($objException, 'getCode')
+            ? $objException->getCode()
+            : $strUNKNOWN;
+        $this->eString = is_object($objException) && method_exists($objException, 'getMessage')
+            ? $objException->getMessage()
+            : $strUNKNOWN;
+        $this->eFile = is_object($objException) && method_exists($objException, 'getFile')
+            ? $objException->getFile()
+            : $strUNKNOWN;
+        $this->eLine = is_object($objException) && method_exists($objException, 'getLine')
+            ? $objException->getLine()
+            : $strUNKNOWN;
+        $this->eTrace = is_object($objException) && method_exists($objException, 'getTraceAsString')
+            ? $objException->getTraceAsString()
+            : $strUNKNOWN;
+    }
+
+    protected function runProtectedStage(string $stage, callable $callback): bool
+    {
+        try {
+            $callback();
+
+            return true;
+        }
+        catch (Throwable $secondaryException) {
+            $this->logSecondaryFailure($stage, $secondaryException);
+
+            return false;
+        }
+    }
+
+    protected function logSecondaryFailure(string $stage, $secondaryException): void
+    {
+        $secondaryClass   = is_object($secondaryException) ? get_class($secondaryException) : gettype($secondaryException);
+        $secondaryMessage = is_object($secondaryException) && method_exists($secondaryException, 'getMessage')
+            ? $secondaryException->getMessage()
+            : 'UNKNOWN';
+
+        error_log(sprintf(
+            'Exception handler stage "%s" failed with %s: %s. Original exception: %s: %s in %s:%s',
+            $stage,
+            $secondaryClass,
+            $secondaryMessage,
+            $this->expClassName ?: 'UNKNOWN',
+            $this->eString ?: 'UNKNOWN',
+            $this->eFile ?: 'UNKNOWN',
+            $this->eLine ?: 'UNKNOWN',
+        ));
+    }
+
+    protected function logOriginalException(): void
+    {
+        error_log(PHP_EOL . 'START ##################################################', 0);
+        error_log($this->strMessage(), 0);
+        error_log('END ##################################################' . PHP_EOL, 0);
+    }
+
+    protected function renderBootstrapSafeError(): void
+    {
+        if (! headers_sent()) {
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=UTF-8');
+        }
+
+        echo 'Internal Server Error';
     }
 
     protected function processError()

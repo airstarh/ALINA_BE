@@ -48,6 +48,8 @@ final class DatabaseChatStorage implements ChatStorage
                         'chatName' => (string) $row->chat_name_human,
                         'participantCount' => (int) ($row->participant_count ?? 0),
                         'latestMessageAt' => $row->latest_message_at === null ? null : (int) $row->latest_message_at,
+                        'isMentioned' => (bool) ($row->is_mentioned ?? false),
+                        'latestMentionAt' => $row->latest_mention_at === null ? null : (int) $row->latest_mention_at,
                     ],
                     $model->directoryRows($origin, $senderType, $senderId, $participated, $page['limit'], $page['offset']),
                 ),

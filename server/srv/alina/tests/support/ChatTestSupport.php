@@ -55,6 +55,8 @@ final class MemoryChatStorage implements ChatStorage
             $participants = [];
             $latestMessageAt = null;
             $participated = false;
+            $isMentioned = false;
+            $latestMentionAt = null;
 
             foreach ($this->messages[$chat['id']] ?? [] as $message) {
                 $latestMessageAt = max($latestMessageAt ?? $message['createdAt'], $message['createdAt']);
@@ -68,6 +70,14 @@ final class MemoryChatStorage implements ChatStorage
                     in_array($message['senderType'], $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'], true)
                     && $message['senderId'] === $senderId
                 );
+                $isMentioned = $isMentioned || (
+                    $message['senderType'] === 'user_service'
+                    && $message['senderId'] === $senderId
+                    && str_starts_with($message['text'], 'MENTION:')
+                );
+                if ($message['senderType'] === 'user_service' && $message['senderId'] === $senderId && str_starts_with($message['text'], 'MENTION:')) {
+                    $latestMentionAt = max($latestMentionAt ?? $message['createdAt'], $message['createdAt']);
+                }
             }
 
             $row = [
@@ -76,6 +86,8 @@ final class MemoryChatStorage implements ChatStorage
                 'chatName' => $chat['name'],
                 'participantCount' => count($participants),
                 'latestMessageAt' => $latestMessageAt,
+                'isMentioned' => $isMentioned,
+                'latestMentionAt' => $latestMentionAt,
             ];
             if ($participated) {
                 $mine[] = $row;
