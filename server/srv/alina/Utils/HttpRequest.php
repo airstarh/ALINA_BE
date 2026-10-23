@@ -276,14 +276,6 @@ class HttpRequest
 
     public function exe(): HttpRequest
     {
-        #####
-        $closeConnection = function () {
-            if ($this->ch && gettype($this->ch) == 'resource') {
-                curl_close($this->ch);
-                sleep(2);
-            }
-        };
-        #####
         $url     = $this->prepareUrlAndGet();
         $headers = $this->prepareHeaders();
         $cookie  = $this->prepareCookie();
@@ -291,9 +283,7 @@ class HttpRequest
 
         do {
             ++$this->attempt;
-            #####
-            $closeConnection();
-            #####
+            $this->ch = null;
             $max_execution_time = ini_get('max_execution_time');
             $CURLOPT_TIMEOUT    = $max_execution_time / $this->attemptMax - $this->attemptMax;
             #####
@@ -348,11 +338,8 @@ class HttpRequest
                 $this->respErr   = curl_error($this->ch);
             }
             else {
-                $closeConnection();
-
                 break;
             }
-            $closeConnection();
         }
         while ($this->attempt < $this->attemptMax);
 

@@ -27,7 +27,7 @@ class DbManager
     /**
      * Mostly unnecessary.
      */
-    public function setCredentials(stdClass $creds = null)
+    public function setCredentials(?stdClass $creds = null)
     {
         $creds      = (object)$creds;
         $this->host = @$creds->alina_form_db_host ?: AlinaCfg('db/host');

@@ -906,7 +906,7 @@ class _BaseAlinaModel
      * @return null
      * ToDo: Consider to delete.
      */
-    protected function addAuditInfo(stdClass $data, string $saveMode = null)
+    protected function addAuditInfo(stdClass $data, ?string $saveMode = null)
     {
         $saveMode = $saveMode ?? $this->mode;
         $userId   = CurrentUser::obj()->id();
@@ -936,7 +936,7 @@ class _BaseAlinaModel
     #endregion OLD AuditInfo approach
     ##############################
     #region NEW AuditInfo approach
-    public function addAuditInfoEventLog($eventData = null, string $eventName = null, string $tableName = null, int $tableId = null)
+    public function addAuditInfoEventLog($eventData = null, ?string $eventName = null, ?string $tableName = null, ?int $tableId = null)
     {
         ###
         //\alina\Utils\Sys::fDebug(debug_backtrace(0), FILE_APPEND, null, 'json');

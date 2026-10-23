@@ -816,7 +816,11 @@ class Data
 
     public static function filterVarStrProperName($v)
     {
-        $v = filter_var($v, FILTER_SANITIZE_STRING);
+        $v = str_replace(
+            ['\'', '"'],
+            ['&#39;', '&#34;'],
+            strip_tags((string)$v)
+        );
 
         return $v;
     }

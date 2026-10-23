@@ -36,7 +36,7 @@ class ChatServer implements MessageComponentInterface
 
     public function onOpen(ConnectionInterface $conn): void
     {
-        $this->clients->attach($conn, [
+        $this->clients->offsetSet($conn, [
             'origin' => $this->connectionOrigin($conn),
             'roomKey' => null,
             'chatId' => null,
@@ -54,7 +54,7 @@ class ChatServer implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg): void
     {
-        if (! $this->clients->contains($from)) {
+        if (! $this->clients->offsetExists($from)) {
             return;
         }
 
@@ -320,7 +320,7 @@ class ChatServer implements MessageComponentInterface
         if (! $mayEnter) {
             $state['admission'] = 'pending';
             $this->clients[$client] = $state;
-            $this->pending[$roomKey]->attach($client);
+            $this->pending[$roomKey]->offsetSet($client);
             $this->send($client, [
                 'version' => 2,
                 'type' => 'join_pending',
@@ -493,10 +493,10 @@ class ChatServer implements MessageComponentInterface
         $roomKey = $state['roomKey'];
 
         if (isset($this->pending[$roomKey])) {
-            $this->pending[$roomKey]->detach($client);
+            $this->pending[$roomKey]->offsetUnset($client);
         }
 
-        $this->channels[$roomKey]->attach($client);
+        $this->channels[$roomKey]->offsetSet($client);
         $state['admission'] = 'admitted';
         $this->clients[$client] = $state;
 
@@ -1253,11 +1253,11 @@ class ChatServer implements MessageComponentInterface
         }
 
         if ($admission === 'pending' && isset($this->pending[$roomKey])) {
-            $this->pending[$roomKey]->detach($client);
+            $this->pending[$roomKey]->offsetUnset($client);
         }
 
         if ($admission === 'admitted' && isset($this->channels[$roomKey])) {
-            $this->channels[$roomKey]->detach($client);
+            $this->channels[$roomKey]->offsetUnset($client);
         }
 
         $activeCount = isset($this->channels[$roomKey]) ? $this->channels[$roomKey]->count() : 0;
@@ -1287,7 +1287,7 @@ class ChatServer implements MessageComponentInterface
         }
 
         foreach (iterator_to_array($this->channels[$roomKey]) as $client) {
-            if ($this->clients->contains($client)) {
+            if ($this->clients->offsetExists($client)) {
                 $data = $payload($client);
 
                 if ($data !== null) {
@@ -1373,9 +1373,9 @@ class ChatServer implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $conn): void
     {
-        if ($this->clients->contains($conn)) {
+        if ($this->clients->offsetExists($conn)) {
             $this->leave($conn);
-            $this->clients->detach($conn);
+            $this->clients->offsetUnset($conn);
         }
     }
 
