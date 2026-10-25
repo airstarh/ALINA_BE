@@ -6,7 +6,7 @@ namespace alina\Services\Chat;
 
 interface ChatStorage
 {
-    public function openChat(string $origin, string $channel, ?string $initialName = null): array;
+    public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array;
 
     public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array;
 

@@ -66,15 +66,15 @@ class chat extends _BaseAlinaModel
             ->first();
     }
 
-    public function insertForChannel(string $origin, string $channel, string $name): stdClass
+    public function insertForChannel(string $origin, string $channel, string $name, bool $anonymousAllowed = true, bool $confirmationRequired = false): stdClass
     {
         $now = self::nowMilliseconds();
         $id = $this->q(-1)->insertGetId([
             'origin' => $origin,
             'channel_name_pseudo_id' => $channel,
             'chat_name_human' => $name,
-            'is_anion_allowed' => 1,
-            'is_confirmation_required' => 0,
+            'is_anion_allowed' => (int) $anonymousAllowed,
+            'is_confirmation_required' => (int) $confirmationRequired,
             'created_at' => $now,
             'updated_at' => $now,
         ]);

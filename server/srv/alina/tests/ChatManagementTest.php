@@ -21,6 +21,21 @@ chatSend($privateServer, $privateClient, 'join', [
     'CurrentUser' => ['id' => 1, 'nickname' => 'Alice'],
 ]);
 chatExpectSame('PRIVATE: Alice & Bob', $privateClient->lastEvent('chat_state')['chat']['name'] ?? null, 'valid private title must initialize a new private chat');
+$privateState = $privateClient->lastEvent('chat_state')['chat'] ?? null;
+chatExpectSame(false, $privateState['isAnionAllowed'] ?? null, 'new private chat must reject anonymous participants by default');
+chatExpectSame(true, $privateState['isConfirmationRequired'] ?? null, 'new private chat must require confirmation by default');
+$privateNewMember = new ChatTestClient(91, $origin);
+$privateServer->onOpen($privateNewMember);
+chatSend($privateServer, $privateNewMember, 'join', [
+    'channel' => '1_2', 'CurrentUser' => ['id' => 2, 'nickname' => 'Bob'],
+]);
+chatExpect($privateNewMember->lastEvent('join_pending') !== null, 'new private-chat member must await approval');
+$privateGuest = new ChatTestClient(92, $origin);
+$privateServer->onOpen($privateGuest);
+chatSend($privateServer, $privateGuest, 'join', [
+    'channel' => '1_2', 'CurrentUser' => ['guestId' => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'nickname' => 'Anon'],
+]);
+chatExpect($privateGuest->lastEvent('error') !== null, 'new private chat must reject anonymous joins');
 chatSend($privateServer, $privateClient, 'rename', ['channel' => '1_2', 'name' => 'Renamed room']);
 chatSend($privateServer, $privateClient, 'join', [
     'channel' => '1_2',

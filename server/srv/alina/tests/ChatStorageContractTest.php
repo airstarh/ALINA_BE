@@ -15,7 +15,7 @@ final class ContractMemoryChatStorage implements ChatStorage
     private array $chats = [];
     private array $messages = [];
 
-    public function openChat(string $origin, string $channel, ?string $initialName = null): array
+    public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array
     {
         $key = $origin . "\0" . $channel;
 
@@ -26,8 +26,8 @@ final class ContractMemoryChatStorage implements ChatStorage
                 'origin' => $origin,
                 'channel' => $channel,
                 'name' => $initialName ?? $channel,
-                'isAnionAllowed' => true,
-                'isConfirmationRequired' => false,
+                'isAnionAllowed' => ! $private,
+                'isConfirmationRequired' => $private,
                 'createdAt' => $now,
                 'updatedAt' => $now,
             ];
