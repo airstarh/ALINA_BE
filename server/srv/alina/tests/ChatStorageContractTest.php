@@ -108,6 +108,7 @@ final class ContractMemoryChatStorage implements ChatStorage
         }
         return array_values($result);
     }
+    public function searchUsers(string $query, int $limit): array { return []; }
 
     public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array
     {

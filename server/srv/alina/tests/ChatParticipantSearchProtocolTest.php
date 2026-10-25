@@ -1,0 +1,21 @@
+<?php
+declare(strict_types=1);
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../Services/Chat/ChatStorage.php';
+require __DIR__ . '/../Services/Chat/ChatServer.php';
+require __DIR__ . '/support/ChatTestSupport.php';
+use alina\Services\Chat\ChatServer;
+use React\EventLoop\StreamSelectLoop;
+$storage = new MemoryChatStorage();
+$server = new ChatServer($storage, new StreamSelectLoop());
+$alice = new ChatTestClient(1);
+$bob = new ChatTestClient(2);
+$server->onOpen($alice);
+chatSend($server, $alice, 'join', ['channel'=>'one','CurrentUser'=>['id'=>1,'nickname'=>'Alice Search']]);
+$server->onOpen($bob);
+chatSend($server, $bob, 'join', ['channel'=>'other','CurrentUser'=>['id'=>2,'nickname'=>'Bob Search']]);
+chatSend($server, $alice, 'participants_search', ['channel'=>'one','query'=>'Bob']);
+$event = $alice->lastEvent('participants_search');
+chatExpectSame(['user:2'], array_column($event['participants'] ?? [], 'id'), 'search must find users outside the current chat by name');
+chatExpectSame(false, $event['participants'][0]['inChat'] ?? null, 'external search result must not appear in the current chat');
+echo "PASS: participant search finds global chat users by name\n";

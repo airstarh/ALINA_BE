@@ -107,6 +107,18 @@ final class DatabaseChatStorage implements ChatStorage
         return array_values($result);
     }
 
+    public function searchUsers(string $query, int $limit): array
+    {
+        $pattern = '%' . addcslashes($query, '%_\\') . '%';
+        return array_map(static fn (stdClass $row): array => [
+            'senderType' => (string) $row->user_type,
+            'senderId' => (string) $row->user_id,
+            'senderName' => (string) $row->user_name,
+            'senderEmblem' => (string) $row->user_emblem,
+        ], Dal::table('chat_user')->whereIn('user_type', ['user', 'guest'])
+            ->whereRaw("user_name LIKE ? ESCAPE '\\\\'", [$pattern])->orderBy('user_name')->limit($limit)->get()->all());
+    }
+
     public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array
     {
         return array_map(

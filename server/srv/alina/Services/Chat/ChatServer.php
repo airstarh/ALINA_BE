@@ -86,7 +86,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -237,6 +237,11 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'mentions_directory' || $type === 'mentions_search') {
                 $this->mentionCandidates($from, $data, $type === 'mentions_search');
+                return;
+            }
+
+            if ($type === 'participants_search') {
+                $this->searchParticipants($from, $data);
                 return;
             }
 
@@ -467,6 +472,41 @@ class ChatServer implements MessageComponentInterface
             $search ? ChatMentions::SEARCH_LIMIT : ChatMentions::DIRECTORY_LIMIT,
         );
         $this->send($client, ['version' => 2, 'type' => $search ? 'mentions_search' : 'mentions_directory', 'channel' => $state['channel'], 'query' => $query, 'candidates' => $candidates]);
+    }
+
+    private function searchParticipants(ConnectionInterface $client, array $data): void
+    {
+        $query = trim((string) ($data['query'] ?? ''));
+        if ($query === '' || mb_strlen($query) > 200) {
+            $this->error($client, 'Enter a user name of at most 200 characters.');
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $participants = [];
+        foreach ($this->storage->searchUsers($query, 50) as $candidate) {
+            $id = $candidate['senderType'] . ':' . $candidate['senderId'];
+            $online = false;
+            $inChat = false;
+            $typing = false;
+            foreach ($this->clients as $other) {
+                $otherState = $this->clients[$other];
+                if ($otherState['origin'] !== $state['origin'] || $otherState['participantId'] !== $id || $otherState['admission'] !== 'admitted') {
+                    continue;
+                }
+                $online = true;
+                if ($otherState['roomKey'] === $state['roomKey']) {
+                    $inChat = true;
+                    $typing = $typing || $otherState['typingUntil'] > microtime(true);
+                }
+            }
+            $participants[] = ['id' => $id, 'user' => [
+                'id' => $candidate['senderType'] === 'user' ? $candidate['senderId'] : null,
+                'guestId' => $candidate['senderType'] === 'guest' ? $candidate['senderId'] : null,
+                'nickname' => $candidate['senderName'], 'name' => $candidate['senderName'], 'emblem' => $candidate['senderEmblem'],
+            ], 'online' => $online, 'inChat' => $inChat, 'typing' => $typing];
+        }
+        $this->send($client, ['version' => 2, 'type' => 'participants_search', 'channel' => $state['channel'], 'query' => $query, 'participants' => $participants]);
     }
 
     private function approve(ConnectionInterface $client, array $data): void

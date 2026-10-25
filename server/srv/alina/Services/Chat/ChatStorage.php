@@ -14,6 +14,8 @@ interface ChatStorage
 
     public function participantSnapshots(int $chatId): array;
 
+    public function searchUsers(string $query, int $limit): array;
+
     public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array;
 
     public function hasAnyMessage(int $chatId): bool;

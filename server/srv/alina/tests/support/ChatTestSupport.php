@@ -169,6 +169,18 @@ final class MemoryChatStorage implements ChatStorage
         return array_values($result);
     }
 
+    public function searchUsers(string $query, int $limit): array
+    {
+        $result = [];
+        foreach (array_reverse(array_merge(...array_values($this->messages ?: [[]]))) as $message) {
+            if (! in_array($message['senderType'], ['user', 'guest', 'user_service'], true)) continue;
+            $type = $message['senderType'] === 'user_service' ? (ctype_digit($message['senderId']) ? 'user' : 'guest') : $message['senderType'];
+            $key = $type . ':' . $message['senderId'];
+            if (! isset($result[$key]) && mb_stripos($message['senderName'], $query) !== false) $result[$key] = ['senderType'=>$type,'senderId'=>$message['senderId'],'senderName'=>$message['senderName'],'senderEmblem'=>$message['senderEmblem']];
+        }
+        return array_slice(array_values($result), 0, $limit);
+    }
+
     public function configureChat(string $origin, string $channel, array $changes): array
     {
         $this->openChat($origin, $channel);
