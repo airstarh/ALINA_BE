@@ -122,6 +122,35 @@ class chat extends _BaseAlinaModel
         return $this->directoryQuery($origin, $senderType, $senderId, $participated)->count();
     }
 
+    public function searchRows(string $origin, string $query, int $limit): array
+    {
+        $pattern = '%' . addcslashes($query, '%_\\') . '%';
+        $aggregate = Dal::table('chat_message')
+            ->join('chat_user', 'chat_user.id', '=', 'chat_message.chat_user_id')
+            ->select('chat_message.chat_id')
+            ->selectRaw("COUNT(DISTINCT CASE WHEN chat_user.user_type != 'bot' THEN chat_message.chat_user_id END) AS participant_count")
+            ->selectRaw('MAX(chat_message.created_at) AS latest_message_at')
+            ->groupBy('chat_message.chat_id');
+
+        return Dal::table('chat')
+            ->leftJoinSub($aggregate, 'message_aggregate', 'message_aggregate.chat_id', '=', 'chat.id')
+            ->where('chat.origin', '=', $origin)
+            ->whereRaw("chat.chat_name_human LIKE ? ESCAPE '\\\\'", [$pattern])
+            ->select([
+                'chat.id',
+                'chat.channel_name_pseudo_id',
+                'chat.chat_name_human',
+                'message_aggregate.participant_count',
+                'message_aggregate.latest_message_at',
+            ])
+            ->orderByRaw('message_aggregate.latest_message_at IS NULL ASC')
+            ->orderBy('message_aggregate.latest_message_at', 'DESC')
+            ->orderBy('chat.id', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->all();
+    }
+
     private function directoryQuery(string $origin, string $senderType, string $senderId, bool $participated): Builder
     {
         $query = Dal::table('chat')->where('chat.origin', '=', $origin);

@@ -50,6 +50,16 @@ chatExpectSame(['other'], array_column($rooms['others']['rows'], 'channel'), 'di
 chatExpectSame(1000, $rooms['mine']['limit'], 'limit must be clamped to 1000');
 chatExpectSame($chatCountBefore, $storage->chatCount(), 'listing must not create or join a room');
 
+$server->onMessage($client, json_encode([
+    'version' => 2,
+    'type' => 'search_rooms',
+    'query' => 'oth',
+], JSON_THROW_ON_ERROR));
+$search = $client->lastEvent('rooms_search');
+chatExpectSame('oth', $search['query'] ?? null, 'room search must echo its normalized query');
+chatExpectSame(['other'], array_column($search['rooms'] ?? [], 'channel'), 'room search must find all matching chats for the current origin');
+chatExpectSame(false, in_array('foreign', array_column($search['rooms'] ?? [], 'channel'), true), 'room search must not disclose chats from another origin');
+
 $guestClient = new ChatTestClient(2);
 $server->onOpen($guestClient);
 sendRoomList($server, $guestClient, [
@@ -60,6 +70,8 @@ $guestRooms = $guestClient->lastEvent('rooms');
 chatExpectSame(['other'], array_column($guestRooms['mine']['rows'], 'channel'), 'guest directory must retain rooms where the guest was mentioned');
 chatExpectSame([], $guestRooms['others']['rows'], 'guest directory must not disclose other rooms');
 chatExpectSame(0, $guestRooms['others']['total'], 'guest directory must report zero other rooms');
+$server->onMessage($guestClient, json_encode(['version' => 2, 'type' => 'search_rooms', 'query' => 'oth'], JSON_THROW_ON_ERROR));
+chatExpect(str_contains($guestClient->lastEvent('error')['error'] ?? '', 'registered'), 'guest room search must be rejected');
 
 $invalidGuest = new ChatTestClient(3);
 $server->onOpen($invalidGuest);

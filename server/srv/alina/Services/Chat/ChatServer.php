@@ -86,15 +86,16 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'search_rooms', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
         }
 
-        if ($type === 'list_rooms') {
+        if ($type === 'list_rooms' || $type === 'search_rooms') {
             try {
-                $this->listRooms($from, $data);
+                if ($type === 'list_rooms') $this->listRooms($from, $data);
+                else $this->searchRooms($from, $data);
             }
             catch (Throwable $error) {
                 error_log('Chat storage failed: ' . $error->getMessage());
@@ -422,6 +423,27 @@ class ChatServer implements MessageComponentInterface
             'type' => 'rooms',
             'mine' => $rooms['mine'],
             'others' => $rooms['others'],
+        ]);
+    }
+
+    private function searchRooms(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        $directory = $state['directory'];
+        if (! is_array($directory) || $state['origin'] === null || $directory['senderType'] !== 'user') {
+            $this->error($client, 'Room search is available to registered users only.');
+            return;
+        }
+        $query = trim((string) ($data['query'] ?? ''));
+        if ($query === '' || mb_strlen($query) > 200) {
+            $this->error($client, 'Enter a chat name of at most 200 characters.');
+            return;
+        }
+        $this->send($client, [
+            'version' => 2,
+            'type' => 'rooms_search',
+            'query' => $query,
+            'rooms' => $this->storage->searchRooms($state['origin'], $query, 1000),
         ]);
     }
 

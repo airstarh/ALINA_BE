@@ -63,6 +63,19 @@ final class DatabaseChatStorage implements ChatStorage
         return $result;
     }
 
+    public function searchRooms(string $origin, string $query, int $limit): array
+    {
+        return array_map(static fn (stdClass $row): array => [
+            'id' => (int) $row->id,
+            'channel' => (string) $row->channel_name_pseudo_id,
+            'chatName' => (string) $row->chat_name_human,
+            'participantCount' => (int) ($row->participant_count ?? 0),
+            'latestMessageAt' => $row->latest_message_at === null ? null : (int) $row->latest_message_at,
+            'isMentioned' => false,
+            'latestMentionAt' => null,
+        ], (new chat())->searchRows($origin, $query, $limit));
+    }
+
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
     {
         $pattern = '%' . addcslashes($query, '%_\\') . '%';

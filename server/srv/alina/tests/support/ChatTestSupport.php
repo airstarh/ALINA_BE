@@ -126,6 +126,28 @@ final class MemoryChatStorage implements ChatStorage
         ];
     }
 
+    public function searchRooms(string $origin, string $query, int $limit): array
+    {
+        $this->maybeFail();
+        $rows = [];
+        foreach ($this->chats as $chat) {
+            if ($chat['origin'] !== $origin || mb_stripos($chat['name'], $query) === false) continue;
+            $messages = $this->messages[$chat['id']] ?? [];
+            $participants = [];
+            foreach ($messages as $message) {
+                if ($message['senderType'] !== 'bot') $participants[$message['senderType'] . ':' . $message['senderId']] = true;
+            }
+            $rows[] = [
+                'id' => $chat['id'], 'channel' => $chat['channel'], 'chatName' => $chat['name'],
+                'participantCount' => count($participants),
+                'latestMessageAt' => $messages ? max(array_column($messages, 'createdAt')) : null,
+                'isMentioned' => false, 'latestMentionAt' => null,
+            ];
+        }
+        usort($rows, static fn (array $a, array $b): int => ($b['latestMessageAt'] ?? 0) <=> ($a['latestMessageAt'] ?? 0));
+        return array_slice($rows, 0, $limit);
+    }
+
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
     {
         $rows = [];

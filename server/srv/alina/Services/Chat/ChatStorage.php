@@ -10,6 +10,8 @@ interface ChatStorage
 
     public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array;
 
+    public function searchRooms(string $origin, string $query, int $limit): array;
+
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array;
 
     public function participantSnapshots(int $chatId): array;
