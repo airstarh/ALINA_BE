@@ -221,8 +221,19 @@ class tale extends _BaseAlinaModel
                 WHERE
                         lk.ref_id = {$this->alias}.{$this->pkName}
                     AND lk.ref_table = 'tale'
+                    AND lk.val = 1
                     AND lk.created_at > {$this->alias}.created_at
             ) AS count_like
+        "));
+        $q->addSelect(Dal::raw("
+            (SELECT COUNT(*)
+                FROM lk AS lk
+                WHERE
+                        lk.ref_id = {$this->alias}.{$this->pkName}
+                    AND lk.ref_table = 'tale'
+                    AND lk.val = -1
+                    AND lk.created_at > {$this->alias}.created_at
+            ) AS count_dislike
         "));
         $q->addSelect(Dal::raw("
             (SELECT COUNT(*)
@@ -230,9 +241,21 @@ class tale extends _BaseAlinaModel
                 WHERE
                         user_liked.ref_id = {$this->alias}.{$this->pkName}
                     AND user_liked.ref_table = 'tale'
+                    AND user_liked.val = 1
                     AND user_liked.created_at > {$this->alias}.created_at
                     AND user_liked.user_id =  {$uid}
             ) AS current_user_liked
+        "));
+        $q->addSelect(Dal::raw("
+            (SELECT COUNT(*)
+                FROM lk AS user_disliked
+                WHERE
+                        user_disliked.ref_id = {$this->alias}.{$this->pkName}
+                    AND user_disliked.ref_table = 'tale'
+                    AND user_disliked.val = -1
+                    AND user_disliked.created_at > {$this->alias}.created_at
+                    AND user_disliked.user_id =  {$uid}
+            ) AS current_user_disliked
         "));
         $q->addSelect(Dal::raw("
             (SELECT COUNT(*)

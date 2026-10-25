@@ -25,7 +25,10 @@ class Like
         if (Request::obj()->isPostPutDelete($post)) {
             $ref_table  = $post->ref_table;
             $ref_id     = $post->ref_id;
-            $val        = $post->val;
+            $val        = (int) $post->val;
+            if (! in_array($val, [-1, 1], true)) {
+                throw new \InvalidArgumentException('Reaction must be either 1 or -1.');
+            }
             $mLikeAttrs = $this->model->getOne([
                 'ref_table' => $ref_table,
                 'ref_id'    => $ref_id,
@@ -33,57 +36,50 @@ class Like
             ]);
 
             ###
-            #remove Like
-            if (! empty($mLikeAttrs->id)) {
+            # Remove the selected reaction, or switch to the opposite reaction.
+            if (! empty($mLikeAttrs->id) && (int) $mLikeAttrs->val === $val) {
                 $this->model->deleteById($mLikeAttrs->id);
                 (new notification())->delete([
                     'bind_tbl' => 'like',
                     'bind_id'  => $mLikeAttrs->id,
                 ]);
-                $CurrentUserLiked = 0;
+                $CurrentUserReaction = 0;
+            } elseif (! empty($mLikeAttrs->id)) {
+                $this->model->updateById(['id' => $mLikeAttrs->id, 'val' => $val]);
+                (new notification())->delete([
+                    'bind_tbl' => 'like',
+                    'bind_id'  => $mLikeAttrs->id,
+                ]);
+                $CurrentUserReaction = $val;
+                if ($val === 1) {
+                    $this->addNotification($post, $ref_id, $mLikeAttrs->id);
+                }
             }
             ###
-            #add Like
+            # Add the selected reaction.
             else {
                 $mLike = $this->model;
                 $mLike->insert($post);
-                $CurrentUserLiked = 1;
-                #####
-                #region Add Notification
-                $chainOfParents    = (new \alina\mvc\Model\tale())->getChainOfParents($ref_id);
-                $to_id             = $chainOfParents->owner_id;
-                $root_tale_id      = $chainOfParents->root_tale_id ?: $ref_id;
-                $answer_to_tale_id = $chainOfParents->answer_to_tale_id ?: $ref_id;
-                $highlight         = $ref_id;
-                $url               = "/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
-                $text              = "You are liked!";
-                $tag               = "<a href={$url} class='btn btn-primary mb-2'>{$text}</a>";
-                (new notification())->insert((object)[
-                    'to_id'        => $to_id,
-                    'from_id'      => CurrentUser::obj()->id(),
-                    'txt'          => $text,
-                    'link'         => $url,
-                    'id_root'      => $root_tale_id,
-                    'id_answer'    => $answer_to_tale_id,
-                    'id_highlight' => $ref_id,
-                    'tbl'          => $post->ref_table,
-                    'bind_tbl'     => 'like',
-                    'bind_id'      => $mLike->id,
-                ]);
-                #endregion Add Notification
-                #####
+                $CurrentUserReaction = $val;
+                if ($val === 1) {
+                    $this->addNotification($post, $ref_id, $mLike->id);
+                }
             }
-            $AmountLikes = (new mLike())
+            $reactionCounts = (new mLike())
                 ->q()
+                ->selectRaw('val, COUNT(*) AS amount')
                 ->where([
                     'ref_table' => $ref_table,
                     'ref_id'    => $ref_id,
-                    'val'       => $val,
                 ])
-                ->count();
+                ->whereIn('val', [-1, 1])
+                ->groupBy('val')
+                ->pluck('amount', 'val');
             $vd = (object)[
-                'CurrentUserLiked' => $CurrentUserLiked,
-                'AmountLikes'      => $AmountLikes,
+                'CurrentUserReaction' => $CurrentUserReaction,
+                'CurrentUserLiked'    => $CurrentUserReaction === 1 ? 1 : 0,
+                'AmountLikes'         => (int) ($reactionCounts[1] ?? 0),
+                'AmountDislikes'      => (int) ($reactionCounts[-1] ?? 0),
             ];
             AlinaEcho((new htmlAlias())->page($vd));
         }
@@ -101,4 +97,27 @@ class Like
 
     #endregion SELECT
     #####
+
+    private function addNotification(object $post, int $ref_id, int $likeId): void
+    {
+        $chainOfParents    = (new \alina\mvc\Model\tale())->getChainOfParents($ref_id);
+        $to_id             = $chainOfParents->owner_id;
+        $root_tale_id      = $chainOfParents->root_tale_id ?: $ref_id;
+        $answer_to_tale_id = $chainOfParents->answer_to_tale_id ?: $ref_id;
+        $highlight         = $ref_id;
+        $url               = "/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
+        $text              = "You are liked!";
+        (new notification())->insert((object)[
+            'to_id'        => $to_id,
+            'from_id'      => CurrentUser::obj()->id(),
+            'txt'          => $text,
+            'link'         => $url,
+            'id_root'      => $root_tale_id,
+            'id_answer'    => $answer_to_tale_id,
+            'id_highlight' => $ref_id,
+            'tbl'          => $post->ref_table,
+            'bind_tbl'     => 'like',
+            'bind_id'      => $likeId,
+        ]);
+    }
 }
