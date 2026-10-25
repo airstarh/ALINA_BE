@@ -362,4 +362,10 @@ npm run check:migration
 - Vue localizes these records as `Name enters` / `Name leaves` and `Name присоединяется` / `Name покидает чат`; the ordinary message timestamp supplies the event time.
 - Presence service rows use the creature's sender ID, name, and emblem, so they establish participation through the existing `user_service` rules.
 - Kicking remains special: all target rows are deleted and no replacement leave row is created, preserving the established kicked-user removal semantics.
+- The server does not delay, suppress, combine, or otherwise time presence history.
+- ALINA_FE groups every consecutive run of `user_service` rows, including
+  mentions, into a compact activity block. The block defaults to a neutral
+  collapsed summary such as `5 activity updates`; `+`/`-` expands or collapses
+  accessible individual rows. Expanded text, timestamp, and permitted delete
+  button share one compact flex row retaining the purple left border.
 
