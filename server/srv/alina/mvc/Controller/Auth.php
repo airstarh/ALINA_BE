@@ -188,6 +188,53 @@ class Auth
         AlinaEcho((new htmlAlias())->page($vd));
     }
 
+    public function actionUsers($page = 1)
+    {
+        $page       = max(1, (int) $page);
+        $pageSize   = 50;
+        $search     = trim((string) (Request::obj()->GET->query ?? ''));
+        $model      = new user();
+        $query      = $model->getAllWithReferencesPart1([
+            ['user.is_deleted', '!=', 1],
+        ]);
+
+        $query->select([
+            'user.id',
+            'user.firstname',
+            'user.lastname',
+            'user.emblem',
+            'user.about_myself',
+        ]);
+
+        if ($search !== '') {
+            $pattern = '%' . $search . '%';
+            $query->where(static function ($query) use ($pattern) {
+                $query
+                    ->where('user.firstname', 'LIKE', $pattern)
+                    ->orWhere('user.lastname', 'LIKE', $pattern)
+                    ->orWhereRaw("CONCAT_WS(' ', user.firstname, user.lastname) LIKE ?", [$pattern]);
+            });
+        }
+
+        $users = $model->getAllWithReferencesPart2([
+            ['user.id', 'ASC'],
+        ], $pageSize, $page);
+
+        $publicUsers = $users->map(static function ($user) {
+            return (object)[
+                'id'           => $user->id,
+                'firstname'    => $user->firstname,
+                'lastname'     => $user->lastname,
+                'emblem'       => $user->emblem,
+                'about_myself' => $user->about_myself,
+            ];
+        })->values()->toArray();
+
+        AlinaEcho((new htmlAlias())->page((object)[
+            'users' => $publicUsers,
+        ]));
+    }
+
     public function actionLogout()
     {
         $vd       = (object)[];
