@@ -5,6 +5,8 @@ namespace alina\mvc\Controller;
 use alina\Mailer;
 use alina\Message;
 use alina\mvc\Model\CurrentUser;
+use alina\mvc\Model\rbac_role;
+use alina\mvc\Model\rbac_user_role;
 use alina\mvc\Model\user;
 use alina\mvc\Model\watch_login;
 use alina\mvc\View\html as htmlAlias;
@@ -232,6 +234,65 @@ class Auth
 
         AlinaEcho((new htmlAlias())->page((object)[
             'users' => $publicUsers,
+        ]));
+    }
+
+    public function actionProfileAdmin($id)
+    {
+        AlinaRejectIfNotAdminOrModerator();
+        $id = (int) $id;
+        if ($id < 1) {
+            AlinaReject(null, 404);
+        }
+
+        if (Request::obj()->isPostPutDelete($post)) {
+            $updates = [];
+            foreach (['mail', 'firstname', 'lastname', 'birth', 'language', 'is_verified', 'banned_till', 'is_deleted'] as $field) {
+                if (property_exists($post, $field)) {
+                    $updates[$field] = $post->{$field};
+                }
+            }
+            if ($updates) {
+                (new user())->updateById($updates, $id);
+            }
+
+            $userRole = new rbac_user_role();
+            $userRole->delete(['user_id' => $id]);
+            if (isset($post->role_ids) && Data::isIterable($post->role_ids)) {
+                foreach (array_unique(array_map('intval', (array) $post->role_ids)) as $roleId) {
+                    if ($roleId > 0) {
+                        $userRole->upsertByUniqueFields(['user_id' => $id, 'role_id' => $roleId]);
+                    }
+                }
+            }
+        }
+
+        $userModel = new user();
+        $userData  = $userModel->getOneWithReferences(['user.id' => $id]);
+        if (empty($userData->id)) {
+            AlinaReject(null, 404);
+        }
+
+        $roleIds = array_map('intval', array_column((array) ($userData->rbac_user_role ?? []), 'id'));
+        $roles   = (new rbac_role())->q()->orderBy('id', 'ASC')->get()->map(static function ($role) {
+            return ['id' => (int) $role->id, 'name' => $role->name];
+        })->values()->toArray();
+
+        AlinaEcho((new htmlAlias())->page((object)[
+            'user' => (object)[
+                'id'          => (int) $userData->id,
+                'mail'        => $userData->mail,
+                'firstname'   => $userData->firstname,
+                'lastname'    => $userData->lastname,
+                'birth'       => $userData->birth,
+                'language'    => $userData->language,
+                'is_verified' => (int) $userData->is_verified,
+                'banned_till' => $userData->banned_till,
+                'is_deleted'  => (int) $userData->is_deleted,
+                'created_at'  => $userData->created_at,
+                'role_ids'    => $roleIds,
+            ],
+            'roles' => $roles,
         ]));
     }
 
