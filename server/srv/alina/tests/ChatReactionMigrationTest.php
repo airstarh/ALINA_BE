@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$sql = file_get_contents(__DIR__ . '/../../../../admin/sql/migrate/sql.sql');
+$sql = file_get_contents(__DIR__ . '/../../../../admin/sql/history/0007.chat.likes.sql');
 $expect = static function (bool $condition, string $message): void { if (! $condition) throw new RuntimeException($message); };
 $expect(str_contains($sql, 'CREATE TABLE IF NOT EXISTS `chat_like`'), 'migration must create chat_like');
 $expect(str_contains($sql, 'UNIQUE KEY `uq_chat_like_message_user` (`chat_message_id`, `chat_user_id`)'), 'one user reaction per message must be enforced');

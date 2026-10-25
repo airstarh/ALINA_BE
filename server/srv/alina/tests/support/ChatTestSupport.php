@@ -17,6 +17,7 @@ final class MemoryChatStorage implements ChatStorage
     private array $chats = [];
     private array $messages = [];
     private array $reactions = [];
+    private array $chatPins = [];
     public ?Throwable $nextError = null;
 
     public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array
@@ -89,8 +90,10 @@ final class MemoryChatStorage implements ChatStorage
                 'latestMessageAt' => $latestMessageAt,
                 'isMentioned' => $isMentioned,
                 'latestMentionAt' => $latestMentionAt,
+                'isPinned' => isset($this->chatPins[$senderId . ':' . $chat['id']]),
+                'messageCount' => min(5001, count(array_filter($this->messages[$chat['id']] ?? [], fn ($message) => $message['senderType'] === 'user'))),
             ];
-            if ($participated) {
+            if ($participated || $row['isPinned']) {
                 $mine[] = $row;
             }
             else {
@@ -126,7 +129,7 @@ final class MemoryChatStorage implements ChatStorage
         ];
     }
 
-    public function searchRooms(string $origin, string $query, int $limit): array
+    public function searchRooms(string $origin, string $senderId, string $query, int $limit): array
     {
         $this->maybeFail();
         $rows = [];
@@ -142,10 +145,22 @@ final class MemoryChatStorage implements ChatStorage
                 'participantCount' => count($participants),
                 'latestMessageAt' => $messages ? max(array_column($messages, 'createdAt')) : null,
                 'isMentioned' => false, 'latestMentionAt' => null,
+                'isPinned' => isset($this->chatPins[$senderId . ':' . $chat['id']]),
+                'messageCount' => min(5001, count(array_filter($messages, fn ($message) => $message['senderType'] === 'user'))),
             ];
         }
         usort($rows, static fn (array $a, array $b): int => ($b['latestMessageAt'] ?? 0) <=> ($a['latestMessageAt'] ?? 0));
         return array_slice($rows, 0, $limit);
+    }
+
+    public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool
+    {
+        $chat = $this->chats[$this->chatKey($origin, $channel)] ?? null;
+        if ($chat === null) throw new RuntimeException('Chat not found.');
+        $key = $userId . ':' . $chat['id'];
+        if (isset($this->chatPins[$key])) { unset($this->chatPins[$key]); return false; }
+        $this->chatPins[$key] = $createdAt;
+        return true;
     }
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
@@ -393,7 +408,7 @@ final class MemoryChatStorage implements ChatStorage
         }
 
         foreach ($this->messages[$chatId] ?? [] as $index => $message) {
-            if ($message['id'] === $messageId) {
+            if ($message['id'] === $messageId && !($message['isPinned'] ?? false)) {
                 array_splice($this->messages[$chatId], $index, 1);
 
                 return true;
@@ -401,6 +416,26 @@ final class MemoryChatStorage implements ChatStorage
         }
 
         return false;
+    }
+
+    public function toggleMessagePin(int $chatId, int $messageId): ?array
+    {
+        $foundIndex = null;
+        $pin = false;
+        foreach ($this->messages[$chatId] ?? [] as $index => $message) {
+            if ($message['id'] === $messageId) { $foundIndex = $index; $pin = !($message['isPinned'] ?? false); }
+        }
+        if ($foundIndex === null) return null;
+        foreach ($this->messages[$chatId] as &$message) $message['isPinned'] = false;
+        unset($message);
+        if ($pin) $this->messages[$chatId][$foundIndex]['isPinned'] = true;
+        return $pin ? $this->messages[$chatId][$foundIndex] : null;
+    }
+
+    public function pinnedMessage(int $chatId): ?array
+    {
+        foreach ($this->messages[$chatId] ?? [] as $message) if ($message['isPinned'] ?? false) return $message;
+        return null;
     }
 
     public function createDiscussion(int $chatId, int $messageId): array

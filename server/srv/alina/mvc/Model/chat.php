@@ -108,6 +108,8 @@ class chat extends _BaseAlinaModel
             ])
             ->selectRaw("EXISTS (SELECT 1 FROM chat_message AS mention_message JOIN chat_user AS mention_user ON mention_user.id = mention_message.chat_user_id WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_user.user_type = ? AND mention_user.user_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS is_mentioned", [$senderType, $senderId])
             ->selectRaw("(SELECT MAX(mention_message.created_at) FROM chat_message AS mention_message JOIN chat_user AS mention_user ON mention_user.id = mention_message.chat_user_id WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_user.user_type = ? AND mention_user.user_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS latest_mention_at", [$senderType, $senderId])
+            ->selectRaw("EXISTS (SELECT 1 FROM chat_pinned JOIN chat_user AS pin_user ON pin_user.id = chat_pinned.chat_user_id WHERE chat_pinned.chat_id = chat.id AND pin_user.user_type = 'user' AND pin_user.user_id = ?) AS is_pinned", [$senderId])
+            ->orderBy('is_pinned', 'DESC')
             ->orderByRaw('message_aggregate.latest_message_at IS NULL ASC')
             ->orderBy('message_aggregate.latest_message_at', 'DESC')
             ->orderBy('chat.id', 'DESC')
@@ -122,7 +124,7 @@ class chat extends _BaseAlinaModel
         return $this->directoryQuery($origin, $senderType, $senderId, $participated)->count();
     }
 
-    public function searchRows(string $origin, string $query, int $limit): array
+    public function searchRows(string $origin, string $senderId, string $query, int $limit): array
     {
         $pattern = '%' . addcslashes($query, '%_\\') . '%';
         $aggregate = Dal::table('chat_message')
@@ -143,6 +145,8 @@ class chat extends _BaseAlinaModel
                 'message_aggregate.participant_count',
                 'message_aggregate.latest_message_at',
             ])
+            ->selectRaw("EXISTS (SELECT 1 FROM chat_pinned JOIN chat_user AS pin_user ON pin_user.id = chat_pinned.chat_user_id WHERE chat_pinned.chat_id = chat.id AND pin_user.user_type = 'user' AND pin_user.user_id = ?) AS is_pinned", [$senderId])
+            ->orderBy('is_pinned', 'DESC')
             ->orderByRaw('message_aggregate.latest_message_at IS NULL ASC')
             ->orderBy('message_aggregate.latest_message_at', 'DESC')
             ->orderBy('chat.id', 'DESC')
@@ -154,9 +158,7 @@ class chat extends _BaseAlinaModel
     private function directoryQuery(string $origin, string $senderType, string $senderId, bool $participated): Builder
     {
         $query = Dal::table('chat')->where('chat.origin', '=', $origin);
-        $method = $participated ? 'whereExists' : 'whereNotExists';
-
-        return $query->{$method}(static function (Builder $messages) use ($senderType, $senderId): void {
+        $participation = static function (Builder $messages) use ($senderType, $senderId): void {
             $messages
                 ->selectRaw('1')
                 ->from('chat_message AS identity_message')
@@ -165,7 +167,20 @@ class chat extends _BaseAlinaModel
                 ->whereIn('identity_message.sender_type', $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'])
                 ->where('identity_user.user_type', '=', $senderType)
                 ->where('identity_user.user_id', '=', $senderId);
-        });
+        };
+        $pin = static function (Builder $pins) use ($senderType, $senderId): void {
+            $pins->selectRaw('1')->from('chat_pinned')
+                ->join('chat_user AS pinned_user', 'pinned_user.id', '=', 'chat_pinned.chat_user_id')
+                ->whereColumn('chat_pinned.chat_id', 'chat.id')
+                ->where('pinned_user.user_type', '=', $senderType)
+                ->where('pinned_user.user_id', '=', $senderId);
+        };
+        if ($senderType === 'user') {
+            return $participated
+                ? $query->where(fn (Builder $mine) => $mine->whereExists($participation)->orWhereExists($pin))
+                : $query->whereNotExists($participation)->whereNotExists($pin);
+        }
+        return $participated ? $query->whereExists($participation) : $query->whereNotExists($participation);
     }
 
     public function rename(int $chatId, string $name, int $updatedAt): stdClass

@@ -90,7 +90,8 @@ final class ContractMemoryChatStorage implements ChatStorage
         return $result;
     }
 
-    public function searchRooms(string $origin, string $query, int $limit): array { return []; }
+    public function searchRooms(string $origin, string $senderId, string $query, int $limit): array { return []; }
+    public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool { return false; }
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
     {
@@ -216,6 +217,8 @@ final class ContractMemoryChatStorage implements ChatStorage
 
         return false;
     }
+    public function toggleMessagePin(int $chatId, int $messageId): ?array { return null; }
+    public function pinnedMessage(int $chatId): ?array { return null; }
 
     public function createDiscussion(int $chatId, int $messageId): array
     {

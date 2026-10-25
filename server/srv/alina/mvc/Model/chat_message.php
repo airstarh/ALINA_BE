@@ -121,7 +121,13 @@ class chat_message extends _BaseAlinaModel
         return $this->q(-1)
             ->where('chat_id', '=', $chatId)
             ->where('id', '=', $messageId)
+            ->where('is_pinned', '=', 0)
             ->delete() === 1;
+    }
+
+    public function pinnedForChat(int $chatId): ?stdClass
+    {
+        return $this->withChatUser()->where('chat_message.chat_id', '=', $chatId)->where('chat_message.is_pinned', '=', 1)->first();
     }
 
     private function withChatUser()
@@ -143,7 +149,7 @@ class chat_message extends _BaseAlinaModel
                 ->orderBy('id', 'DESC')->offset($maximum - 2)->limit(1)->value('id');
             if ($oldestResponseId === null) return 0;
             return $this->q(-1)->where('chat_id', '=', $chatId)->where('id', '!=', $seedId)
-                ->where('id', '<', $oldestResponseId)->delete();
+                ->where('is_pinned', '=', 0)->where('id', '<', $oldestResponseId)->delete();
         }
 
         $oldestRetainedId = $this->q()
@@ -159,6 +165,7 @@ class chat_message extends _BaseAlinaModel
 
         return $this->q(-1)
             ->where('chat_id', '=', $chatId)
+            ->where('is_pinned', '=', 0)
             ->where('id', '<', $oldestRetainedId)
             ->delete();
     }
@@ -172,6 +179,7 @@ class chat_message extends _BaseAlinaModel
             ->where('chat_id', '=', $chatId)
             ->whereIn('sender_type', $types)
             ->where('chat_user_id', '=', $chatUserId)
+            ->where('is_pinned', '=', 0)
             ->delete();
     }
 

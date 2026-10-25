@@ -51,6 +51,8 @@ final class DatabaseChatStorage implements ChatStorage
                         'latestMessageAt' => $row->latest_message_at === null ? null : (int) $row->latest_message_at,
                         'isMentioned' => (bool) ($row->is_mentioned ?? false),
                         'latestMentionAt' => $row->latest_mention_at === null ? null : (int) $row->latest_mention_at,
+                        'isPinned' => (bool) ($row->is_pinned ?? false),
+                        'messageCount' => $this->userMessageCount((int) $row->id),
                     ],
                     $model->directoryRows($origin, $senderType, $senderId, $participated, $page['limit'], $page['offset']),
                 ),
@@ -63,9 +65,9 @@ final class DatabaseChatStorage implements ChatStorage
         return $result;
     }
 
-    public function searchRooms(string $origin, string $query, int $limit): array
+    public function searchRooms(string $origin, string $senderId, string $query, int $limit): array
     {
-        return array_map(static fn (stdClass $row): array => [
+        return array_map(fn (stdClass $row): array => [
             'id' => (int) $row->id,
             'channel' => (string) $row->channel_name_pseudo_id,
             'chatName' => (string) $row->chat_name_human,
@@ -73,7 +75,22 @@ final class DatabaseChatStorage implements ChatStorage
             'latestMessageAt' => $row->latest_message_at === null ? null : (int) $row->latest_message_at,
             'isMentioned' => false,
             'latestMentionAt' => null,
-        ], (new chat())->searchRows($origin, $query, $limit));
+            'isPinned' => (bool) ($row->is_pinned ?? false),
+            'messageCount' => $this->userMessageCount((int) $row->id),
+        ], (new chat())->searchRows($origin, $senderId, $query, $limit));
+    }
+
+    public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool
+    {
+        return Dal::connection()->transaction(function () use ($origin, $channel, $userId, $userName, $userEmblem, $createdAt): bool {
+            $room = (new chat())->findByOriginAndChannel($origin, $channel);
+            if ($room === null) throw new RuntimeException('Chat not found.');
+            $identity = (new chat_user())->upsertIdentity('user', $userId, $userName, $userEmblem, $createdAt);
+            $query = Dal::table('chat_pinned')->where('chat_user_id', '=', $identity->id)->where('chat_id', '=', $room->id);
+            if ($query->exists()) { $query->delete(); return false; }
+            Dal::table('chat_pinned')->insert(['chat_user_id' => $identity->id, 'chat_id' => $room->id, 'created_at' => $createdAt]);
+            return true;
+        });
     }
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array
@@ -332,6 +349,24 @@ final class DatabaseChatStorage implements ChatStorage
         return (new chat_message())->deleteMessage($chatId, $messageId);
     }
 
+    public function toggleMessagePin(int $chatId, int $messageId): ?array
+    {
+        return Dal::connection()->transaction(function () use ($chatId, $messageId): ?array {
+            $message = Dal::table('chat_message')->where('chat_id', '=', $chatId)->where('id', '=', $messageId)->lockForUpdate()->first();
+            if ($message === null) return null;
+            $pin = ! (bool) $message->is_pinned;
+            Dal::table('chat_message')->where('chat_id', '=', $chatId)->where('is_pinned', '=', 1)->update(['is_pinned' => 0]);
+            if ($pin) Dal::table('chat_message')->where('id', '=', $messageId)->update(['is_pinned' => 1]);
+            return $pin ? $this->pinnedMessage($chatId) : null;
+        });
+    }
+
+    public function pinnedMessage(int $chatId): ?array
+    {
+        $row = (new chat_message())->pinnedForChat($chatId);
+        return $row === null ? null : $this->normalizeMessage($row);
+    }
+
     public function createDiscussion(int $chatId, int $messageId): array
     {
         return Dal::connection()->transaction(function () use ($chatId, $messageId): array {
@@ -489,6 +524,11 @@ final class DatabaseChatStorage implements ChatStorage
         ];
     }
 
+    private function userMessageCount(int $chatId): int
+    {
+        return count(Dal::table('chat_message')->where('chat_id', '=', $chatId)->where('sender_type', '=', 'user')->limit(5001)->pluck('id'));
+    }
+
     private function insertMessage(chat_message $model, int $chatId, array $message): stdClass
     {
         $identity = $this->upsertChatUser($message);
@@ -517,6 +557,7 @@ final class DatabaseChatStorage implements ChatStorage
             'text' => (string) $row->message_text,
             'createdAt' => (int) $row->created_at,
             'clientMessageId' => (string) $row->client_message_id,
+            'isPinned' => (bool) ($row->is_pinned ?? false),
         ];
     }
 }

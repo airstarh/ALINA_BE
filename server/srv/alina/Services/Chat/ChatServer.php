@@ -86,16 +86,17 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'search_rooms', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'toggle_message_pin', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'search_rooms', 'toggle_chat_pin', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
         }
 
-        if ($type === 'list_rooms' || $type === 'search_rooms') {
+        if (in_array($type, ['list_rooms', 'search_rooms', 'toggle_chat_pin'], true)) {
             try {
                 if ($type === 'list_rooms') $this->listRooms($from, $data);
-                else $this->searchRooms($from, $data);
+                elseif ($type === 'search_rooms') $this->searchRooms($from, $data);
+                else $this->toggleChatPin($from, $data);
             }
             catch (Throwable $error) {
                 error_log('Chat storage failed: ' . $error->getMessage());
@@ -227,6 +228,11 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'reaction_list') {
                 $this->reactionList($from, $data);
+                return;
+            }
+
+            if ($type === 'toggle_message_pin') {
+                $this->toggleMessagePin($from, $data);
                 return;
             }
 
@@ -397,7 +403,7 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
-        $state['directory'] = ['senderType' => $senderType, 'senderId' => $senderId, 'pagination' => $pagination];
+        $state['directory'] = ['senderType' => $senderType, 'senderId' => $senderId, 'user' => $user, 'pagination' => $pagination];
         $this->clients[$client] = $state;
         $this->sendRoomDirectory($client);
     }
@@ -443,8 +449,27 @@ class ChatServer implements MessageComponentInterface
             'version' => 2,
             'type' => 'rooms_search',
             'query' => $query,
-            'rooms' => $this->storage->searchRooms($state['origin'], $query, 1000),
+            'rooms' => $this->storage->searchRooms($state['origin'], $directory['senderId'], $query, 1000),
         ]);
+    }
+
+    private function toggleChatPin(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        $directory = $state['directory'];
+        if (! is_array($directory) || $state['origin'] === null || $directory['senderType'] !== 'user') {
+            $this->error($client, 'Chat pinning is available to registered users only.');
+            return;
+        }
+        $channel = $data['channel'] ?? '';
+        if (! is_string($channel) || ! preg_match('/^[A-Za-z0-9_-]{1,128}$/D', $channel)) {
+            $this->error($client, 'A valid channel is required.');
+            return;
+        }
+        $user = $directory['user'];
+        $isPinned = $this->storage->toggleChatPin($state['origin'], $channel, $directory['senderId'], $user['name'], $user['emblem'], $this->nowMilliseconds());
+        $this->send($client, ['version' => 2, 'type' => 'chat_pin_changed', 'channel' => $channel, 'isPinned' => $isPinned]);
+        $this->sendRoomDirectory($client);
     }
 
     private function refreshRoomDirectories(string $origin): void
@@ -897,6 +922,12 @@ class ChatServer implements MessageComponentInterface
 
         $state = $this->clients[$client];
 
+        $pinned = $this->storage->pinnedMessage($state['chatId']);
+        if ($pinned !== null && (int) $pinned['id'] === $messageId) {
+            $this->error($client, 'A pinned message cannot be deleted.');
+            return;
+        }
+
         if (! $this->storage->deleteMessage($state['chatId'], $messageId)) {
             throw new RuntimeException('Message not found.');
         }
@@ -1219,7 +1250,7 @@ class ChatServer implements MessageComponentInterface
         );
 
         $this->send($client, $this->clients[$client]['version'] === 2
-            ? ['version' => 2, 'type' => 'history', 'channel' => $channel, 'messages' => $messages, 'hasOlder' => $hasOlder]
+            ? ['version' => 2, 'type' => 'history', 'channel' => $channel, 'messages' => $messages, 'hasOlder' => $hasOlder, 'pinnedMessage' => $this->wirePinnedMessage($client)]
             : array_map(fn (array $message): string => json_encode($message, JSON_INVALID_UTF8_SUBSTITUTE), $messages));
     }
 
@@ -1283,8 +1314,46 @@ class ChatServer implements MessageComponentInterface
             'clientMessageId' => $stored['clientMessageId'],
             'senderType' => $stored['senderType'],
             'senderId' => $stored['senderId'],
+            'isPinned' => (bool) ($stored['isPinned'] ?? false),
             'reactions' => ['positiveCount' => 0, 'negativeCount' => 0, 'currentReaction' => 0],
         ];
+    }
+
+    private function toggleMessagePin(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        if (! str_starts_with($state['participantId'], 'user:')) {
+            $this->error($client, 'Message pinning is available to registered users only.');
+            return;
+        }
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+        if ($messageId === null) { $this->error($client, 'A valid message ID is required.'); return; }
+        $existing = $this->storage->history($state['chatId'], 1, $messageId + 1);
+        $target = array_values(array_filter($existing, fn ($message) => (int) $message['id'] === $messageId))[0] ?? null;
+        if ($target === null) {
+            $this->error($client, 'Message not found.');
+            return;
+        }
+        if ($target['senderType'] === 'user_service') {
+            $this->error($client, 'Automated activity updates cannot be pinned.');
+            return;
+        }
+        $this->storage->toggleMessagePin($state['chatId'], $messageId);
+        $this->broadcast($state['roomKey'], fn (ConnectionInterface $recipient): array => [
+            'version' => 2, 'type' => 'message_pin_changed', 'channel' => $state['channel'],
+            'message' => $this->wirePinnedMessage($recipient),
+        ]);
+    }
+
+    private function wirePinnedMessage(ConnectionInterface $client): ?array
+    {
+        $state = $this->clients[$client];
+        $stored = $this->storage->pinnedMessage($state['chatId']);
+        if ($stored === null) return null;
+        $wire = $this->protocolMessage($stored, $state['channel']);
+        $wire['discussion'] = $this->storage->discussionForMessage($state['chatId'], $stored['id']);
+        $wire['reactions'] = $this->reactionSummaryFor($client, $stored['id']);
+        return $wire;
     }
 
     private function reactMessage(ConnectionInterface $client, array $data): void

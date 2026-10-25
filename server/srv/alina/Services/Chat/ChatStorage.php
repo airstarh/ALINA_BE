@@ -10,7 +10,9 @@ interface ChatStorage
 
     public function listRooms(string $origin, string $senderType, string $senderId, array $pagination): array;
 
-    public function searchRooms(string $origin, string $query, int $limit): array;
+    public function searchRooms(string $origin, string $senderId, string $query, int $limit): array;
+
+    public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool;
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array;
 
@@ -47,6 +49,10 @@ interface ChatStorage
     public function editMessage(int $chatId, int $messageId, string $text): array;
 
     public function deleteMessage(int $chatId, int $messageId): bool;
+
+    public function toggleMessagePin(int $chatId, int $messageId): ?array;
+
+    public function pinnedMessage(int $chatId): ?array;
 
     public function createDiscussion(int $chatId, int $messageId): array;
 
