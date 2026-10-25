@@ -51,9 +51,7 @@ class Like
                     'bind_id'  => $mLikeAttrs->id,
                 ]);
                 $CurrentUserReaction = $val;
-                if ($val === 1) {
-                    $this->addNotification($post, $ref_id, $mLikeAttrs->id);
-                }
+                $this->addNotification($post, $ref_id, $mLikeAttrs->id, $val);
             }
             ###
             # Add the selected reaction.
@@ -61,9 +59,7 @@ class Like
                 $mLike = $this->model;
                 $mLike->insert($post);
                 $CurrentUserReaction = $val;
-                if ($val === 1) {
-                    $this->addNotification($post, $ref_id, $mLike->id);
-                }
+                $this->addNotification($post, $ref_id, $mLike->id, $val);
             }
             $reactionCounts = (new mLike())
                 ->q()
@@ -98,7 +94,7 @@ class Like
     #endregion SELECT
     #####
 
-    private function addNotification(object $post, int $ref_id, int $likeId): void
+    private function addNotification(object $post, int $ref_id, int $likeId, int $reaction): void
     {
         $chainOfParents    = (new \alina\mvc\Model\tale())->getChainOfParents($ref_id);
         $to_id             = $chainOfParents->owner_id;
@@ -106,7 +102,7 @@ class Like
         $answer_to_tale_id = $chainOfParents->answer_to_tale_id ?: $ref_id;
         $highlight         = $ref_id;
         $url               = "/tale/upsert/{$root_tale_id}?highlight={$highlight}&expand={$answer_to_tale_id}";
-        $text              = "You are liked!";
+        $text              = $reaction === 1 ? "You are liked!" : "You are disliked!";
         (new notification())->insert((object)[
             'to_id'        => $to_id,
             'from_id'      => CurrentUser::obj()->id(),
