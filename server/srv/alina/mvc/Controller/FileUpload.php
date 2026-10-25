@@ -5,6 +5,7 @@ namespace alina\mvc\Controller;
 use alina\Message;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\file;
+use alina\mvc\Model\tale;
 use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
 use alina\Utils\Data;
@@ -97,6 +98,68 @@ class FileUpload
             1000
         );
         AlinaEcho((new htmlAlias())->page($vd));
+    }
+
+    public function actionGetFilesByOwner($ownerId)
+    {
+        AlinaRejectIfNotAdminOrModerator();
+        $ownerId = (int) $ownerId;
+        $files = (new file())->q()
+            ->where('owner_id', '=', $ownerId)
+            ->orderBy('order', 'ASC')
+            ->orderBy('name_human', 'ASC')
+            ->get();
+
+        $taleIds = $files
+            ->filter(static fn ($file) => $file->entity_table === 'tale')
+            ->pluck('entity_id')
+            ->map(static fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->toArray();
+        $tales = $taleIds
+            ? (new tale())->q()->whereIn('id', $taleIds)->get()->keyBy('id')
+            : [];
+
+        $result = $files->map(static function ($file) use ($tales) {
+            $sourceType = (string) $file->entity_table;
+            $sourcePath = '';
+            if ($sourceType === 'tale' && isset($tales[$file->entity_id])) {
+                $source = $tales[$file->entity_id];
+                $isComment = (int) $source->level > 0;
+                $sourceType = $isComment ? 'comment' : 'tale';
+                $rootId = $source->root_tale_id ?: $source->id;
+                $sourcePath = "/tale/upsert/{$rootId}";
+                if ($isComment) {
+                    $answerId = $source->answer_to_tale_id ?: $source->id;
+                    $sourcePath .= "?highlight={$source->id}&expand={$answerId}";
+                }
+            }
+            elseif ($sourceType === 'user') {
+                $sourcePath = "/auth/profile/{$file->entity_id}";
+            }
+
+            return (object)[
+                'id'            => $file->id,
+                'entity_id'     => $file->entity_id,
+                'entity_table'  => $file->entity_table,
+                'name_fs'       => $file->name_fs,
+                'name_human'    => $file->name_human,
+                'size'          => $file->size,
+                'url_path'      => $file->url_path,
+                'container'     => $file->container,
+                'root_id'       => $file->root_id,
+                'parent_id'     => $file->parent_id,
+                'level'         => $file->level,
+                'owner_id'      => $file->owner_id,
+                'created_at'    => $file->created_at,
+                'order'         => $file->order,
+                'source_type'   => $sourceType,
+                'source_path'   => $sourcePath,
+            ];
+        })->values()->toArray();
+
+        AlinaEcho((new htmlAlias())->page($result));
     }
 
     ##################################################

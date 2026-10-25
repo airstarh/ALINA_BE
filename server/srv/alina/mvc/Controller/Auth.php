@@ -5,6 +5,7 @@ namespace alina\mvc\Controller;
 use alina\Mailer;
 use alina\Message;
 use alina\mvc\Model\CurrentUser;
+use alina\mvc\Model\file as fileModel;
 use alina\mvc\Model\rbac_role;
 use alina\mvc\Model\rbac_user_role;
 use alina\mvc\Model\user;
@@ -252,6 +253,9 @@ class Auth
                     $updates[$field] = $post->{$field};
                 }
             }
+            if (property_exists($post, 'password') && trim((string) $post->password) !== '') {
+                $updates['password'] = $post->password;
+            }
             if ($updates) {
                 (new user())->updateById($updates, $id);
             }
@@ -291,6 +295,7 @@ class Auth
                 'is_deleted'  => (int) $userData->is_deleted,
                 'created_at'  => $userData->created_at,
                 'role_ids'    => $roleIds,
+                'count_files' => (new fileModel())->q()->where('owner_id', '=', $id)->count(),
             ],
             'roles' => $roles,
         ]));
