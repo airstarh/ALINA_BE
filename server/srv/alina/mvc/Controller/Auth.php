@@ -177,13 +177,7 @@ class Auth
             ##################################################
             if (AlinaAccessIfAdminOrModeratorOrOwner($post->id)) {
                 Request::obj()->R->route_plan_b = '/auth/profile';
-                $profileData = (object)['id' => $id];
-                foreach (['mail', 'firstname', 'lastname', 'birth', 'about_myself', 'emblem', 'language'] as $field) {
-                    if (property_exists($post, $field)) {
-                        $profileData->{$field} = $post->{$field};
-                    }
-                }
-                $u->updateById($profileData);
+                $u->updateById($post);
                 Message::setSuccess('Profile updated!');
             }
         }
@@ -253,22 +247,8 @@ class Auth
         }
 
         if (Request::obj()->isPostPutDelete($post)) {
-            $updates = ['id' => $id];
-            foreach (['mail', 'firstname', 'lastname', 'birth', 'language', 'is_verified', 'banned_till', 'is_deleted'] as $field) {
-                if (property_exists($post, $field)) {
-                    $updates[$field] = $post->{$field};
-                }
-            }
-            if (property_exists($post, 'password') && trim((string) $post->password) !== '') {
-                $updates['password'] = $post->password;
-            }
-            if (isset($post->rbac_user_role) && Data::isIterable($post->rbac_user_role)) {
-                $updates['rbac_user_role'] = array_values(array_unique(array_map(
-                    'intval',
-                    (array) $post->rbac_user_role
-                )));
-            }
-            (new user())->updateById($updates, $id);
+            $post->id = $id;
+            (new user())->updateById($post, $id);
         }
 
         $userModel = new user();

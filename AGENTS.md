@@ -4,6 +4,7 @@
 
 - Never create a Git commit unless the user explicitly asks for one.
 - Do not run a JavaScript SPA build without asking the user immediately beforehand.
+- Before changing model persistence, inspect the model's `fields()`, `referencesTo()`, `hookRightBeforeSave()`, and `hookRightAfterSave()` implementations. Pass frontend model data through the established model save path instead of duplicating field filtering, relation synchronization, password processing, or other hook behavior in controllers. Missing fields must remain untouched; extra fields are restricted by the model and may be intentionally consumed by hooks.
 - The user pre-authorizes read-only browser verification from the terminal with locally installed browsers in headless mode. This includes temporary browser profiles and bypassing local-development HTTPS certificate errors; no additional permission is needed for these checks.
 - Preserve unrelated working-tree changes.
 - Do not execute deploy, backup, restore, rsync, Docker, certificate, permission-changing, or other operational admin actions unless the user explicitly requests that operation. Static checks, dry dispatch, and `admin/test/*.test.sh` are safe.
