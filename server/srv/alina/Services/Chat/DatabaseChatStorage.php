@@ -125,6 +125,61 @@ final class DatabaseChatStorage implements ChatStorage
         return (new chat_message())->hasParticipantMessage($chatId, $senderType, $senderId);
     }
 
+    public function toggleReaction(int $chatId, int $messageId, string $senderType, string $senderId, int $reaction, int $updatedAt): void
+    {
+        Dal::connection()->transaction(function () use ($chatId, $messageId, $senderType, $senderId, $reaction, $updatedAt): void {
+            $message = Dal::table('chat_message')->where('chat_id', '=', $chatId)->where('id', '=', $messageId)->lockForUpdate()->first();
+            $user = Dal::table('chat_user')->where('user_type', '=', $senderType)->where('user_id', '=', $senderId)->first();
+            if ($message === null || $user === null) throw new RuntimeException('Message or chat user not found.');
+            $existing = Dal::table('chat_like')->where('chat_message_id', '=', $messageId)->where('chat_user_id', '=', $user->id)->first();
+            if ($existing !== null && (int) $existing->reaction === $reaction) {
+                Dal::table('chat_like')->where('id', '=', $existing->id)->delete();
+            }
+            elseif ($existing !== null) {
+                Dal::table('chat_like')->where('id', '=', $existing->id)->update(['reaction' => $reaction, 'updated_at' => $updatedAt]);
+            }
+            else {
+                Dal::table('chat_like')->insert(['chat_message_id' => $messageId, 'chat_user_id' => $user->id, 'reaction' => $reaction, 'created_at' => $updatedAt, 'updated_at' => $updatedAt]);
+            }
+        });
+    }
+
+    public function reactionSummary(int $chatId, int $messageId, string $senderType, string $senderId): array
+    {
+        return $this->reactionSummaries($chatId, [$messageId], $senderType, $senderId)[$messageId];
+    }
+
+    public function reactionSummaries(int $chatId, array $messageIds, string $senderType, string $senderId): array
+    {
+        $messageIds = array_values(array_unique(array_map('intval', $messageIds)));
+        $empty = ['positiveCount' => 0, 'negativeCount' => 0, 'currentReaction' => 0];
+        $result = array_fill_keys($messageIds, $empty);
+        if ($messageIds === []) return $result;
+        $userId = Dal::table('chat_user')->where('user_type', '=', $senderType)->where('user_id', '=', $senderId)->value('id');
+        $rows = Dal::table('chat_like')->join('chat_message', 'chat_message.id', '=', 'chat_like.chat_message_id')
+            ->where('chat_message.chat_id', '=', $chatId)->whereIn('chat_like.chat_message_id', $messageIds)
+            ->select('chat_like.chat_message_id')
+            ->selectRaw('SUM(chat_like.reaction = 1) AS positive_count, SUM(chat_like.reaction = -1) AS negative_count')
+            ->selectRaw('MAX(CASE WHEN chat_like.chat_user_id = ? THEN chat_like.reaction ELSE 0 END) AS current_reaction', [$userId ?? 0])
+            ->groupBy('chat_like.chat_message_id')->get();
+        foreach ($rows as $row) $result[(int) $row->chat_message_id] = ['positiveCount' => (int) $row->positive_count, 'negativeCount' => (int) $row->negative_count, 'currentReaction' => (int) $row->current_reaction];
+        return $result;
+    }
+
+    public function reactionPeople(int $chatId, int $messageId): array
+    {
+        $rows = Dal::table('chat_like')->join('chat_message', 'chat_message.id', '=', 'chat_like.chat_message_id')
+            ->join('chat_user', 'chat_user.id', '=', 'chat_like.chat_user_id')
+            ->where('chat_message.chat_id', '=', $chatId)->where('chat_like.chat_message_id', '=', $messageId)
+            ->orderBy('chat_like.updated_at')->get(['chat_like.reaction', 'chat_user.user_type', 'chat_user.user_id', 'chat_user.user_name', 'chat_user.user_emblem']);
+        $result = ['positive' => [], 'negative' => []];
+        foreach ($rows as $row) $result[(int) $row->reaction === 1 ? 'positive' : 'negative'][] = [
+            'senderType' => (string) $row->user_type, 'senderId' => (string) $row->user_id,
+            'name' => (string) $row->user_name, 'emblem' => (string) $row->user_emblem,
+        ];
+        return $result;
+    }
+
     public function appendMessage(int $chatId, array $message): array
     {
         try {

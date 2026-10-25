@@ -16,6 +16,7 @@ final class MemoryChatStorage implements ChatStorage
     private int $nextMessageId = 1;
     private array $chats = [];
     private array $messages = [];
+    private array $reactions = [];
     public ?Throwable $nextError = null;
 
     public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array
@@ -212,6 +213,49 @@ final class MemoryChatStorage implements ChatStorage
         }
 
         return false;
+    }
+
+    public function toggleReaction(int $chatId, int $messageId, string $senderType, string $senderId, int $reaction, int $updatedAt): void
+    {
+        $found = false;
+        foreach ($this->messages[$chatId] ?? [] as $message) if ($message['id'] === $messageId) $found = true;
+        if (! $found) throw new RuntimeException('Message not found.');
+        $key = $senderType . ':' . $senderId;
+        if (($this->reactions[$messageId][$key]['reaction'] ?? null) === $reaction) unset($this->reactions[$messageId][$key]);
+        else $this->reactions[$messageId][$key] = ['senderType' => $senderType, 'senderId' => $senderId, 'reaction' => $reaction, 'updatedAt' => $updatedAt];
+    }
+
+    public function reactionSummary(int $chatId, int $messageId, string $senderType, string $senderId): array
+    {
+        $rows = $this->reactions[$messageId] ?? [];
+        return [
+            'positiveCount' => count(array_filter($rows, fn ($row) => $row['reaction'] === 1)),
+            'negativeCount' => count(array_filter($rows, fn ($row) => $row['reaction'] === -1)),
+            'currentReaction' => $rows[$senderType . ':' . $senderId]['reaction'] ?? 0,
+        ];
+    }
+
+    public function reactionSummaries(int $chatId, array $messageIds, string $senderType, string $senderId): array
+    {
+        $result = [];
+        foreach ($messageIds as $messageId) $result[$messageId] = $this->reactionSummary($chatId, $messageId, $senderType, $senderId);
+        return $result;
+    }
+
+    public function reactionPeople(int $chatId, int $messageId): array
+    {
+        $result = ['positive' => [], 'negative' => []];
+        foreach ($this->reactions[$messageId] ?? [] as $row) {
+            $name = $row['senderType'] . ':' . $row['senderId'];
+            $emblem = '';
+            foreach (array_reverse($this->messages[$chatId] ?? []) as $message) {
+                if ($message['senderId'] === $row['senderId'] && in_array($message['senderType'], [$row['senderType'], 'user_service'], true)) {
+                    $name = $message['senderName']; $emblem = $message['senderEmblem']; break;
+                }
+            }
+            $result[$row['reaction'] === 1 ? 'positive' : 'negative'][] = ['senderType' => $row['senderType'], 'senderId' => $row['senderId'], 'name' => $name, 'emblem' => $emblem];
+        }
+        return $result;
     }
 
     public function appendMessage(int $chatId, array $message): array

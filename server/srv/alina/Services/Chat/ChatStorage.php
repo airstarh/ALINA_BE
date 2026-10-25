@@ -20,6 +20,14 @@ interface ChatStorage
 
     public function hasParticipantMessage(int $chatId, string $senderType, string $senderId): bool;
 
+    public function toggleReaction(int $chatId, int $messageId, string $senderType, string $senderId, int $reaction, int $updatedAt): void;
+
+    public function reactionSummary(int $chatId, int $messageId, string $senderType, string $senderId): array;
+
+    public function reactionSummaries(int $chatId, array $messageIds, string $senderType, string $senderId): array;
+
+    public function reactionPeople(int $chatId, int $messageId): array;
+
     /**
      * @return array{message: array, inserted: bool}
      */

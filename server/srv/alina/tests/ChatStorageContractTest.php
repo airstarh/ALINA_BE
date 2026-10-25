@@ -14,6 +14,7 @@ final class ContractMemoryChatStorage implements ChatStorage
     private int $nextMessageId = 1;
     private array $chats = [];
     private array $messages = [];
+    private array $reactions = [];
 
     public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array
     {
@@ -140,6 +141,11 @@ final class ContractMemoryChatStorage implements ChatStorage
 
         return false;
     }
+
+    public function toggleReaction(int $chatId, int $messageId, string $senderType, string $senderId, int $reaction, int $updatedAt): void { $this->reactions[$messageId][$senderType . ':' . $senderId] = $reaction; }
+    public function reactionSummary(int $chatId, int $messageId, string $senderType, string $senderId): array { $rows = $this->reactions[$messageId] ?? []; return ['positiveCount'=>count(array_filter($rows,fn($v)=>$v===1)),'negativeCount'=>count(array_filter($rows,fn($v)=>$v===-1)),'currentReaction'=>$rows[$senderType . ':' . $senderId] ?? 0]; }
+    public function reactionSummaries(int $chatId, array $messageIds, string $senderType, string $senderId): array { $result=[]; foreach($messageIds as $id)$result[$id]=$this->reactionSummary($chatId,$id,$senderType,$senderId); return $result; }
+    public function reactionPeople(int $chatId, int $messageId): array { return ['positive'=>[],'negative'=>[]]; }
 
     public function appendMessage(int $chatId, array $message): array
     {

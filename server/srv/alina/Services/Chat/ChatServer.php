@@ -86,7 +86,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -216,6 +216,16 @@ class ChatServer implements MessageComponentInterface
 
             if ($type === 'discuss_message') {
                 $this->discussMessage($from, $data);
+                return;
+            }
+
+            if ($type === 'react_message') {
+                $this->reactMessage($from, $data);
+                return;
+            }
+
+            if ($type === 'reaction_list') {
+                $this->reactionList($from, $data);
                 return;
             }
 
@@ -806,13 +816,11 @@ class ChatServer implements MessageComponentInterface
 
         $state = $this->clients[$client];
         $stored = $this->storage->editMessage($state['chatId'], $messageId, $text);
-        $message = $this->protocolMessage($stored, $state['channel']);
-        $this->broadcast($state['roomKey'], fn (): array => [
-            'version' => 2,
-            'type' => 'message_edited',
-            'channel' => $state['channel'],
-            'message' => $message,
-        ]);
+        $this->broadcast($state['roomKey'], function (ConnectionInterface $recipient) use ($stored, $state, $messageId): array {
+            $message = $this->protocolMessage($stored, $state['channel']);
+            $message['reactions'] = $this->reactionSummaryFor($recipient, $messageId);
+            return ['version' => 2, 'type' => 'message_edited', 'channel' => $state['channel'], 'message' => $message];
+        });
     }
 
     private function deleteMessage(ConnectionInterface $client, array $data): void
@@ -1137,10 +1145,12 @@ class ChatServer implements MessageComponentInterface
         $hasOlder = count($storedMessages) > self::HISTORY_PAGE_SIZE;
         if ($hasOlder) $storedMessages = array_slice($storedMessages, -self::HISTORY_PAGE_SIZE);
         $chatId = $this->clients[$client]['chatId'];
+        $reactionSummaries = $this->reactionSummariesFor($client, array_column($storedMessages, 'id'));
         $messages = array_map(
-            function (array $message) use ($channel, $chatId): array {
+            function (array $message) use ($channel, $chatId, $reactionSummaries): array {
                 $wire = $this->protocolMessage($message, $channel);
                 $wire['discussion'] = $this->storage->discussionForMessage($chatId, $message['id']);
+                $wire['reactions'] = $reactionSummaries[$message['id']];
                 return $wire;
             },
             $storedMessages,
@@ -1169,9 +1179,11 @@ class ChatServer implements MessageComponentInterface
         $hasOlder = count($storedMessages) > self::HISTORY_PAGE_SIZE;
         if ($hasOlder) $storedMessages = array_slice($storedMessages, -self::HISTORY_PAGE_SIZE);
         $chatId = $state['chatId'];
-        $messages = array_map(function (array $message) use ($state, $chatId): array {
+        $reactionSummaries = $this->reactionSummariesFor($client, array_column($storedMessages, 'id'));
+        $messages = array_map(function (array $message) use ($state, $chatId, $reactionSummaries): array {
             $wire = $this->protocolMessage($message, $state['channel']);
             $wire['discussion'] = $this->storage->discussionForMessage($chatId, $message['id']);
+            $wire['reactions'] = $reactionSummaries[$message['id']];
             return $wire;
         }, $storedMessages);
         $this->send($client, [
@@ -1209,7 +1221,48 @@ class ChatServer implements MessageComponentInterface
             'clientMessageId' => $stored['clientMessageId'],
             'senderType' => $stored['senderType'],
             'senderId' => $stored['senderId'],
+            'reactions' => ['positiveCount' => 0, 'negativeCount' => 0, 'currentReaction' => 0],
         ];
+    }
+
+    private function reactMessage(ConnectionInterface $client, array $data): void
+    {
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+        $reaction = $data['reaction'] ?? null;
+        if ($messageId === null || ! is_int($reaction) || ! in_array($reaction, [-1, 1], true)) {
+            $this->error($client, 'A valid message ID and reaction are required.');
+            return;
+        }
+        $state = $this->clients[$client];
+        [$senderType, $senderId] = explode(':', $state['participantId'], 2);
+        $this->storage->toggleReaction($state['chatId'], $messageId, $senderType, $senderId, $reaction, $this->nowMilliseconds());
+        $this->broadcast($state['roomKey'], fn (ConnectionInterface $recipient): array => [
+            'version' => 2, 'type' => 'reaction_changed', 'channel' => $state['channel'],
+            'messageId' => (string) $messageId, 'reactions' => $this->reactionSummaryFor($recipient, $messageId),
+        ]);
+    }
+
+    private function reactionList(ConnectionInterface $client, array $data): void
+    {
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+        if ($messageId === null) { $this->error($client, 'A valid message ID is required.'); return; }
+        $state = $this->clients[$client];
+        $people = $this->storage->reactionPeople($state['chatId'], $messageId);
+        $this->send($client, ['version' => 2, 'type' => 'reaction_list', 'channel' => $state['channel'], 'messageId' => (string) $messageId] + $people);
+    }
+
+    private function reactionSummaryFor(ConnectionInterface $client, int $messageId): array
+    {
+        $state = $this->clients[$client];
+        [$senderType, $senderId] = explode(':', $state['participantId'], 2);
+        return $this->storage->reactionSummary($state['chatId'], $messageId, $senderType, $senderId);
+    }
+
+    private function reactionSummariesFor(ConnectionInterface $client, array $messageIds): array
+    {
+        $state = $this->clients[$client];
+        [$senderType, $senderId] = explode(':', $state['participantId'], 2);
+        return $this->storage->reactionSummaries($state['chatId'], $messageIds, $senderType, $senderId);
     }
 
     private function broadcastPresence(string $roomKey): void
