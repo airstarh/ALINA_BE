@@ -16,10 +16,8 @@ class chat_message extends _BaseAlinaModel
         return [
             'id' => [],
             'chat_id' => [],
+            'chat_user_id' => [],
             'sender_type' => [],
-            'sender_id' => [],
-            'sender_name' => [],
-            'sender_emblem' => [],
             'message_text' => [],
             'created_at' => ['default' => self::nowMilliseconds()],
             'client_message_id' => [],
@@ -29,15 +27,17 @@ class chat_message extends _BaseAlinaModel
     public function uniqueKeys(): array
     {
         return [
-            ['chat_id', 'client_message_id', 'sender_type', 'sender_id'],
+            ['chat_id', 'client_message_id', 'sender_type', 'chat_user_id'],
         ];
     }
 
-    public function latestForChat(int $chatId, int $limit): array
+    public function latestForChat(int $chatId, int $limit, ?int $beforeMessageId = null): array
     {
-        return $this->q()
-            ->where('chat_id', '=', $chatId)
-            ->orderBy('id', 'DESC')
+        $query = $this->withChatUser()->where('chat_message.chat_id', '=', $chatId);
+        if ($beforeMessageId !== null) $query->where('chat_message.id', '<', $beforeMessageId);
+
+        return $query
+            ->orderBy('chat_message.id', 'DESC')
             ->limit($limit)
             ->get()
             ->reverse()
@@ -58,32 +58,34 @@ class chat_message extends _BaseAlinaModel
 
         $types = $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'];
 
-        return $this->q()
-            ->where('chat_id', '=', $chatId)
-            ->whereIn('sender_type', $types)
-            ->where('sender_id', '=', $senderId)
+        return $this->q('chat_message')
+            ->join('chat_user', 'chat_user.id', '=', 'chat_message.chat_user_id')
+            ->where('chat_message.chat_id', '=', $chatId)
+            ->whereIn('chat_message.sender_type', $types)
+            ->where('chat_user.user_type', '=', $senderType)
+            ->where('chat_user.user_id', '=', $senderId)
             ->exists();
     }
 
     public function findByClientMessageId(int $chatId, string $clientMessageId): ?stdClass
     {
-        return $this->q()
-            ->where('chat_id', '=', $chatId)
-            ->where('client_message_id', '=', $clientMessageId)
-            ->where('sender_type', '!=', 'user_service')
+        return $this->withChatUser()
+            ->where('chat_message.chat_id', '=', $chatId)
+            ->where('chat_message.client_message_id', '=', $clientMessageId)
+            ->where('chat_message.sender_type', '!=', 'user_service')
             ->first();
     }
 
     public function findGroup(int $chatId, string $clientMessageId): array
     {
-        return $this->q()->where('chat_id', '=', $chatId)->where('client_message_id', '=', $clientMessageId)->orderBy('id')->get()->all();
+        return $this->withChatUser()->where('chat_message.chat_id', '=', $chatId)->where('chat_message.client_message_id', '=', $clientMessageId)->orderBy('chat_message.id')->get()->all();
     }
 
     public function findForChat(int $chatId, int $messageId): ?stdClass
     {
-        return $this->q()
-            ->where('chat_id', '=', $chatId)
-            ->where('id', '=', $messageId)
+        return $this->withChatUser()
+            ->where('chat_message.chat_id', '=', $chatId)
+            ->where('chat_message.id', '=', $messageId)
             ->first();
     }
 
@@ -91,16 +93,14 @@ class chat_message extends _BaseAlinaModel
     {
         $id = $this->q(-1)->insertGetId([
             'chat_id' => $chatId,
+            'chat_user_id' => $message['chatUserId'],
             'sender_type' => $message['senderType'],
-            'sender_id' => $message['senderId'],
-            'sender_name' => $message['senderName'],
-            'sender_emblem' => $message['senderEmblem'],
             'message_text' => $message['text'],
             'created_at' => $message['createdAt'],
             'client_message_id' => $message['clientMessageId'],
         ]);
 
-        return $this->q()->where('id', '=', $id)->first();
+        return $this->withChatUser()->where('chat_message.id', '=', $id)->first();
     }
 
     public function updateMessageText(int $chatId, int $messageId, string $text): ?stdClass
@@ -110,9 +110,9 @@ class chat_message extends _BaseAlinaModel
             ->where('id', '=', $messageId)
             ->update(['message_text' => $text]);
 
-        return $this->q()
-            ->where('chat_id', '=', $chatId)
-            ->where('id', '=', $messageId)
+        return $this->withChatUser()
+            ->where('chat_message.chat_id', '=', $chatId)
+            ->where('chat_message.id', '=', $messageId)
             ->first();
     }
 
@@ -124,13 +124,14 @@ class chat_message extends _BaseAlinaModel
             ->delete() === 1;
     }
 
-    public function renameGuest(int $chatId, string $guestId, string $name): int
+    private function withChatUser()
     {
-        return $this->q(-1)
-            ->where('chat_id', '=', $chatId)
-            ->whereIn('sender_type', ['guest', 'user_service'])
-            ->where('sender_id', '=', $guestId)
-            ->update(['sender_name' => $name]);
+        return $this->q('chat_message')
+            ->leftJoin('chat_user', 'chat_user.id', '=', 'chat_message.chat_user_id')
+            ->select('chat_message.*')
+            ->addSelect('chat_user.user_id AS identity_sender_id')
+            ->addSelect('chat_user.user_name AS identity_sender_name')
+            ->addSelect('chat_user.user_emblem AS identity_sender_emblem');
     }
 
     public function pruneChat(int $chatId, int $maximum = 1000): int
@@ -165,10 +166,12 @@ class chat_message extends _BaseAlinaModel
     public function deleteParticipant(int $chatId, string $senderType, string $senderId): int
     {
         $types = $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'];
+        $chatUserId = Dal::table('chat_user')->where('user_type', '=', $senderType)->where('user_id', '=', $senderId)->value('id');
+        if ($chatUserId === null) return 0;
         return $this->q(-1)
             ->where('chat_id', '=', $chatId)
             ->whereIn('sender_type', $types)
-            ->where('sender_id', '=', $senderId)
+            ->where('chat_user_id', '=', $chatUserId)
             ->delete();
     }
 

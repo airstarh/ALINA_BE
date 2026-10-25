@@ -108,9 +108,13 @@ final class ContractMemoryChatStorage implements ChatStorage
         return array_values($result);
     }
 
-    public function history(int $chatId, int $limit = 50): array
+    public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array
     {
-        return array_slice($this->messages[$chatId] ?? [], -$limit);
+        $messages = array_values(array_filter(
+            $this->messages[$chatId] ?? [],
+            static fn (array $message): bool => $beforeMessageId === null || $message['id'] < $beforeMessageId,
+        ));
+        return array_slice($messages, -$limit);
     }
 
     public function hasAnyMessage(int $chatId): bool

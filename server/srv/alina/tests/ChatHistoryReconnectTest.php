@@ -21,7 +21,7 @@ $replacement = new ChatTestClient(3);
 $server->onOpen($a);
 chatSend($server, $a, 'join', ['channel' => 'history-review']);
 
-for ($index = 0; $index < 55; $index++) {
+for ($index = 0; $index < 255; $index++) {
     chatSend($server, $a, 'message', [
         'channel' => 'history-review',
         'msg' => "message {$index}",
@@ -34,7 +34,16 @@ chatSend($server, $b, 'join', ['channel' => 'history-review']);
 $server->onClose($a);
 $server->onOpen($replacement);
 chatSend($server, $replacement, 'join', ['channel' => 'history-review']);
-chatExpectSame(50, count($replacement->lastEvent('history')['messages'] ?? []), 'reconnect with another person online must retain latest 50 messages');
+$initialHistory = $replacement->lastEvent('history');
+chatExpectSame(200, count($initialHistory['messages'] ?? []), 'reconnect must load the latest 200 messages');
+chatExpectSame(true, $initialHistory['hasOlder'] ?? null, 'initial history must report older rows');
+$firstMessageId = $initialHistory['messages'][0]['id'] ?? null;
+chatSend($server, $replacement, 'history_before', ['channel' => 'history-review', 'beforeMessageId' => $firstMessageId]);
+$olderHistory = $replacement->lastEvent('history_older');
+chatExpect(count($olderHistory['messages'] ?? []) > 0, 'older history request must return the preceding page');
+chatExpectSame(false, $olderHistory['hasOlder'] ?? null, 'oldest history page must report completion');
+$olderMessages = $olderHistory['messages'];
+chatExpect((int) $olderMessages[array_key_last($olderMessages)]['id'] < (int) $firstMessageId, 'older page must end before its cursor');
 
 $server->onClose($b);
 $server->onClose($replacement);
@@ -46,7 +55,7 @@ chatExpect($scheduledTimers->contains($cleanup), 'cleanup timer must be schedule
 $returning = new ChatTestClient(4);
 $server->onOpen($returning);
 chatSend($server, $returning, 'join', ['channel' => 'history-review']);
-chatExpectSame(50, count($returning->lastEvent('history')['messages'] ?? []), 'brief empty-room gap must retain history');
+chatExpectSame(200, count($returning->lastEvent('history')['messages'] ?? []), 'brief empty-room gap must retain the latest 200 messages');
 chatExpect(! $scheduledTimers->contains($cleanup), 'returning connection must cancel pending cleanup');
 
 $server->onClose($returning);
@@ -59,6 +68,6 @@ $nextServer = new ChatServer($storage, new StreamSelectLoop());
 $nextVisit = new ChatTestClient(5);
 $nextServer->onOpen($nextVisit);
 chatSend($nextServer, $nextVisit, 'join', ['channel' => 'history-review']);
-chatExpectSame(50, count($nextVisit->lastEvent('history')['messages'] ?? []), 'live-room cleanup must not erase persisted history');
+chatExpectSame(200, count($nextVisit->lastEvent('history')['messages'] ?? []), 'live-room cleanup must not erase persisted history');
 
-echo "PASS: live room cleanup preserves the latest 50 persisted messages\n";
+echo "PASS: cursor pagination preserves and loads persisted chat history\n";

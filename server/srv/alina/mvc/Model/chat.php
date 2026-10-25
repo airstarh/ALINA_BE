@@ -91,10 +91,11 @@ class chat extends _BaseAlinaModel
         int $offset,
     ): array {
         $aggregate = Dal::table('chat_message')
-            ->select('chat_id')
-            ->selectRaw("COUNT(DISTINCT CASE WHEN sender_type != 'bot' THEN sender_id END) AS participant_count")
-            ->selectRaw('MAX(created_at) AS latest_message_at')
-            ->groupBy('chat_id');
+            ->join('chat_user', 'chat_user.id', '=', 'chat_message.chat_user_id')
+            ->select('chat_message.chat_id')
+            ->selectRaw("COUNT(DISTINCT CASE WHEN chat_user.user_type != 'bot' THEN chat_message.chat_user_id END) AS participant_count")
+            ->selectRaw('MAX(chat_message.created_at) AS latest_message_at')
+            ->groupBy('chat_message.chat_id');
 
         return $this->directoryQuery($origin, $senderType, $senderId, $participated)
             ->leftJoinSub($aggregate, 'message_aggregate', 'message_aggregate.chat_id', '=', 'chat.id')
@@ -105,8 +106,8 @@ class chat extends _BaseAlinaModel
                 'message_aggregate.participant_count',
                 'message_aggregate.latest_message_at',
             ])
-            ->selectRaw("EXISTS (SELECT 1 FROM chat_message AS mention_message WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_message.sender_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS is_mentioned", [$senderId])
-            ->selectRaw("(SELECT MAX(mention_message.created_at) FROM chat_message AS mention_message WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_message.sender_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS latest_mention_at", [$senderId])
+            ->selectRaw("EXISTS (SELECT 1 FROM chat_message AS mention_message JOIN chat_user AS mention_user ON mention_user.id = mention_message.chat_user_id WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_user.user_type = ? AND mention_user.user_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS is_mentioned", [$senderType, $senderId])
+            ->selectRaw("(SELECT MAX(mention_message.created_at) FROM chat_message AS mention_message JOIN chat_user AS mention_user ON mention_user.id = mention_message.chat_user_id WHERE mention_message.chat_id = chat.id AND mention_message.sender_type = 'user_service' AND mention_user.user_type = ? AND mention_user.user_id = ? AND mention_message.message_text LIKE 'MENTION:%') AS latest_mention_at", [$senderType, $senderId])
             ->orderByRaw('message_aggregate.latest_message_at IS NULL ASC')
             ->orderBy('message_aggregate.latest_message_at', 'DESC')
             ->orderBy('chat.id', 'DESC')
@@ -130,9 +131,11 @@ class chat extends _BaseAlinaModel
             $messages
                 ->selectRaw('1')
                 ->from('chat_message AS identity_message')
+                ->join('chat_user AS identity_user', 'identity_user.id', '=', 'identity_message.chat_user_id')
                 ->whereColumn('identity_message.chat_id', 'chat.id')
                 ->whereIn('identity_message.sender_type', $senderType === 'user' ? ['user', 'user_service'] : ['guest', 'user_service'])
-                ->where('identity_message.sender_id', '=', $senderId);
+                ->where('identity_user.user_type', '=', $senderType)
+                ->where('identity_user.user_id', '=', $senderId);
         });
     }
 

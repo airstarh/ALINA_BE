@@ -6,6 +6,7 @@ namespace alina\Services\Chat;
 
 use alina\mvc\Model\chat;
 use alina\mvc\Model\chat_message;
+use alina\mvc\Model\chat_user;
 use Illuminate\Database\Capsule\Manager as Dal;
 use RuntimeException;
 use stdClass;
@@ -66,38 +67,23 @@ final class DatabaseChatStorage implements ChatStorage
     {
         $pattern = '%' . addcslashes($query, '%_\\') . '%';
         $rows = Dal::table('chat_message')
+            ->join('chat_user', 'chat_user.id', '=', 'chat_message.chat_user_id')
             ->join('chat', 'chat.id', '=', 'chat_message.chat_id')
             ->where('chat.origin', '=', $origin)
             ->whereIn('chat_message.sender_type', ['user', 'guest', 'user_service'])
-            ->when($query !== '', function ($outer) use ($origin, $pattern): void {
-                $outer->whereIn('chat_message.sender_id', function ($matching) use ($origin, $pattern): void {
-                    $matching->select('mention_search.sender_id')->from('chat_message AS mention_search')
-                        ->join('chat AS mention_chat', 'mention_chat.id', '=', 'mention_search.chat_id')
-                        ->where('mention_chat.origin', '=', $origin)
-                        ->whereIn('mention_search.sender_type', ['user', 'guest', 'user_service'])
-                        ->whereRaw("mention_search.sender_name LIKE ? ESCAPE '\\\\'", [$pattern]);
-                });
-            })
+            ->when($query !== '', fn ($matching) => $matching->whereRaw("chat_user.user_name LIKE ? ESCAPE '\\\\'", [$pattern]))
             ->orderBy('chat_message.created_at', 'DESC')
             ->orderBy('chat_message.id', 'DESC')
-            ->get(['chat_message.sender_type', 'chat_message.sender_id', 'chat_message.sender_name', 'chat_message.sender_emblem', 'chat_message.created_at']);
+            ->get(['chat_message.sender_type', 'chat_user.user_type', 'chat_user.user_id', 'chat_user.user_name', 'chat_user.user_emblem', 'chat_message.created_at']);
         $result = [];
         foreach ($rows as $row) {
-            $id = (string) $row->sender_id;
-            if ($id === $senderId) continue;
-            $type = $row->sender_type === 'user_service' ? (ctype_digit($id) ? 'user' : 'guest') : (string) $row->sender_type;
-            if (! isset($result[$id])) {
-                $result[$id] = ['senderType' => $type, 'senderId' => $id, 'senderName' => (string) $row->sender_name, 'senderEmblem' => (string) $row->sender_emblem, 'latestActivityAt' => (int) $row->created_at, '_genuine' => $row->sender_type !== 'user_service'];
-            }
-            elseif (! $result[$id]['_genuine'] && $row->sender_type !== 'user_service') {
-                $result[$id]['senderType'] = $type;
-                $result[$id]['senderName'] = (string) $row->sender_name;
-                $result[$id]['senderEmblem'] = (string) $row->sender_emblem;
-                $result[$id]['_genuine'] = true;
-            }
+            $id = (string) $row->user_id;
+            $type = (string) $row->user_type;
+            if ($id === $senderId && $type === $senderType) continue;
+            $key = $type . ':' . $id;
+            $result[$key] ??= ['senderType' => $type, 'senderId' => $id, 'senderName' => (string) $row->user_name, 'senderEmblem' => (string) $row->user_emblem, 'latestActivityAt' => (int) $row->created_at];
         }
         $result = array_values(array_filter($result, fn ($candidate) => $query === '' || mb_stripos($candidate['senderName'], $query) !== false));
-        foreach ($result as &$candidate) unset($candidate['_genuine']);
         return array_slice($result, 0, $limit);
     }
 
@@ -106,26 +92,26 @@ final class DatabaseChatStorage implements ChatStorage
         $result = [];
         foreach (array_reverse((new chat_message())->latestForChat($chatId, 1000)) as $row) {
             if (! in_array($row->sender_type, ['user', 'guest', 'user_service'], true)) continue;
-            $senderId = (string) $row->sender_id;
+            $senderId = (string) $row->identity_sender_id;
             $senderType = $row->sender_type === 'user_service'
-                ? (ctype_digit($senderId) ? 'user' : 'guest')
+                ? ChatUserIdentity::type('user_service', $senderId)
                 : (string) $row->sender_type;
             $key = $senderType . ':' . $senderId;
             $result[$key] ??= [
                 'senderType' => $senderType,
                 'senderId' => $senderId,
-                'senderName' => (string) $row->sender_name,
-                'senderEmblem' => (string) $row->sender_emblem,
+                'senderName' => (string) $row->identity_sender_name,
+                'senderEmblem' => (string) $row->identity_sender_emblem,
             ];
         }
         return array_values($result);
     }
 
-    public function history(int $chatId, int $limit = 50): array
+    public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array
     {
         return array_map(
             fn (stdClass $row): array => $this->normalizeMessage($row),
-            (new chat_message())->latestForChat($chatId, $limit),
+            (new chat_message())->latestForChat($chatId, $limit, $beforeMessageId),
         );
     }
 
@@ -151,7 +137,7 @@ final class DatabaseChatStorage implements ChatStorage
                     return ['message' => $this->normalizeMessage($row), 'inserted' => false];
                 }
 
-                $row = $model->insertMessage($chatId, $message);
+                $row = $this->insertMessage($model, $chatId, $message);
                 (new chat_message())->pruneChat($chatId, 1000);
 
                 return ['message' => $this->normalizeMessage($row), 'inserted' => true];
@@ -181,8 +167,8 @@ final class DatabaseChatStorage implements ChatStorage
                 return ['messages' => array_map(fn ($row) => $this->normalizeMessage($row), $model->findGroup($chatId, $message['clientMessageId'])), 'inserted' => false];
             }
             $stored = [];
-            foreach ($targets as $target) $stored[] = $this->normalizeMessage($model->insertMessage($chatId, $target));
-            $stored[] = $this->normalizeMessage($model->insertMessage($chatId, $message));
+            foreach ($targets as $target) $stored[] = $this->normalizeMessage($this->insertMessage($model, $chatId, $target));
+            $stored[] = $this->normalizeMessage($this->insertMessage($model, $chatId, $message));
             $model->pruneChat($chatId, 1000);
             return ['messages' => $stored, 'inserted' => true];
         });
@@ -212,7 +198,7 @@ final class DatabaseChatStorage implements ChatStorage
                     throw new RuntimeException('Message is too large.');
                 }
 
-                $row = $model->insertMessage($chatId, $message);
+                $row = $this->insertMessage($model, $chatId, $message);
                 (new chat_message())->pruneChat($chatId, 1000);
 
                 return ['message' => $this->normalizeMessage($row), 'inserted' => true];
@@ -283,11 +269,11 @@ final class DatabaseChatStorage implements ChatStorage
                     ChatDiscussion::title($messageId, (string) $source->message_text),
                     $messageId,
                 );
-                (new chat_message())->insertMessage((int) $child->id, [
+                $this->insertMessage(new chat_message(), (int) $child->id, [
                     'senderType' => (string) $source->sender_type,
-                    'senderId' => (string) $source->sender_id,
-                    'senderName' => (string) $source->sender_name,
-                    'senderEmblem' => (string) $source->sender_emblem,
+                    'senderId' => (string) $source->identity_sender_id,
+                    'senderName' => (string) $source->identity_sender_name,
+                    'senderEmblem' => (string) $source->identity_sender_emblem,
                     'text' => (string) $source->message_text,
                     'createdAt' => (int) $source->created_at,
                     'clientMessageId' => 'discussion-seed-' . $messageId,
@@ -372,7 +358,13 @@ final class DatabaseChatStorage implements ChatStorage
 
     public function renameGuest(int $chatId, string $guestId, string $name): int
     {
-        return (new chat_message())->renameGuest($chatId, $guestId, $name);
+        return Dal::connection()->transaction(function () use ($guestId, $name): int {
+            $identity = Dal::table('chat_user')->where('user_type', '=', 'guest')->where('user_id', '=', $guestId)->first();
+            if ($identity === null) return 0;
+            $messageCount = Dal::table('chat_message')->where('chat_user_id', '=', $identity->id)->count();
+            (new chat_user())->rename('guest', $guestId, $name, (int) floor(microtime(true) * 1000));
+            return $messageCount;
+        });
     }
 
     public function setAnonymousAllowed(int $chatId, bool $allowed, int $updatedAt): array
@@ -417,14 +409,31 @@ final class DatabaseChatStorage implements ChatStorage
         ];
     }
 
+    private function insertMessage(chat_message $model, int $chatId, array $message): stdClass
+    {
+        $identity = $this->upsertChatUser($message);
+        return $model->insertMessage($chatId, $message + ['chatUserId' => (int) $identity->id]);
+    }
+
+    private function upsertChatUser(array $message): stdClass
+    {
+        return (new chat_user())->upsertIdentity(
+            ChatUserIdentity::type($message['senderType'], (string) $message['senderId']),
+            (string) $message['senderId'],
+            (string) $message['senderName'],
+            (string) $message['senderEmblem'],
+            (int) $message['createdAt'],
+        );
+    }
+
     private function normalizeMessage(stdClass $row): array
     {
         return [
             'id' => (int) $row->id,
             'senderType' => (string) $row->sender_type,
-            'senderId' => (string) $row->sender_id,
-            'senderName' => (string) $row->sender_name,
-            'senderEmblem' => (string) $row->sender_emblem,
+            'senderId' => (string) $row->identity_sender_id,
+            'senderName' => (string) $row->identity_sender_name,
+            'senderEmblem' => (string) $row->identity_sender_emblem,
             'text' => (string) $row->message_text,
             'createdAt' => (int) $row->created_at,
             'clientMessageId' => (string) $row->client_message_id,

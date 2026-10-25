@@ -15,6 +15,7 @@ use Throwable;
 
 class ChatServer implements MessageComponentInterface
 {
+    private const HISTORY_PAGE_SIZE = 200;
     private SplObjectStorage $clients;
     private array $channels = [];
     private array $pending = [];
@@ -85,7 +86,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'mentions_directory', 'mentions_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -157,6 +158,11 @@ class ChatServer implements MessageComponentInterface
             if ($type === 'approve') {
                 $this->approve($from, $data);
 
+                return;
+            }
+
+            if ($type === 'history_before') {
+                $this->historyBefore($from, $data);
                 return;
             }
 
@@ -332,7 +338,7 @@ class ChatServer implements MessageComponentInterface
             return;
         }
 
-        $history = $this->storage->history($chat['id'], 50);
+        $history = $this->storage->history($chat['id'], self::HISTORY_PAGE_SIZE + 1);
         $this->admit($client, $history, $sendJoinEvents ? 'joined' : null, ! $alreadyAdmitted);
     }
 
@@ -482,7 +488,7 @@ class ChatServer implements MessageComponentInterface
 
         foreach ($approved as $pendingClient) {
             $pendingState = $this->clients[$pendingClient];
-            $history = $this->storage->history($pendingState['chatId'], 50);
+            $history = $this->storage->history($pendingState['chatId'], self::HISTORY_PAGE_SIZE + 1);
             $this->admit($pendingClient, $history, 'join_approved', true);
         }
     }
@@ -661,9 +667,18 @@ class ChatServer implements MessageComponentInterface
         }
 
         if ($targets === []) {
-            $this->error($client, 'That participant is not connected to this chat.');
-
-            return;
+            $storedParticipant = null;
+            foreach ($this->storage->participantSnapshots($state['chatId']) as $participant) {
+                if ($participant['senderType'] . ':' . $participant['senderId'] === $participantId) {
+                    $storedParticipant = $participant;
+                    break;
+                }
+            }
+            if ($storedParticipant === null) {
+                $this->error($client, 'That participant does not belong to this chat.');
+                return;
+            }
+            $targetName = $storedParticipant['senderName'] ?: $participantId;
         }
 
         [$senderType, $senderId] = explode(':', $participantId, 2);
@@ -1114,6 +1129,8 @@ class ChatServer implements MessageComponentInterface
 
     private function sendHistory(ConnectionInterface $client, string $channel, array $storedMessages): void
     {
+        $hasOlder = count($storedMessages) > self::HISTORY_PAGE_SIZE;
+        if ($hasOlder) $storedMessages = array_slice($storedMessages, -self::HISTORY_PAGE_SIZE);
         $chatId = $this->clients[$client]['chatId'];
         $messages = array_map(
             function (array $message) use ($channel, $chatId): array {
@@ -1125,8 +1142,40 @@ class ChatServer implements MessageComponentInterface
         );
 
         $this->send($client, $this->clients[$client]['version'] === 2
-            ? ['version' => 2, 'type' => 'history', 'channel' => $channel, 'messages' => $messages]
+            ? ['version' => 2, 'type' => 'history', 'channel' => $channel, 'messages' => $messages, 'hasOlder' => $hasOlder]
             : array_map(fn (array $message): string => json_encode($message, JSON_INVALID_UTF8_SUBSTITUTE), $messages));
+    }
+
+    private function historyBefore(ConnectionInterface $client, array $data): void
+    {
+        $beforeMessageId = $data['beforeMessageId'] ?? null;
+        if (! is_string($beforeMessageId) && ! is_int($beforeMessageId)) {
+            $this->error($client, 'A valid message ID is required.');
+            return;
+        }
+        $beforeMessageId = (string) $beforeMessageId;
+        if (! ctype_digit($beforeMessageId) || (int) $beforeMessageId < 1) {
+            $this->error($client, 'A valid message ID is required.');
+            return;
+        }
+
+        $state = $this->clients[$client];
+        $storedMessages = $this->storage->history($state['chatId'], self::HISTORY_PAGE_SIZE + 1, (int) $beforeMessageId);
+        $hasOlder = count($storedMessages) > self::HISTORY_PAGE_SIZE;
+        if ($hasOlder) $storedMessages = array_slice($storedMessages, -self::HISTORY_PAGE_SIZE);
+        $chatId = $state['chatId'];
+        $messages = array_map(function (array $message) use ($state, $chatId): array {
+            $wire = $this->protocolMessage($message, $state['channel']);
+            $wire['discussion'] = $this->storage->discussionForMessage($chatId, $message['id']);
+            return $wire;
+        }, $storedMessages);
+        $this->send($client, [
+            'version' => 2,
+            'type' => 'history_older',
+            'channel' => $state['channel'],
+            'messages' => $messages,
+            'hasOlder' => $hasOlder,
+        ]);
     }
 
     private function protocolMessage(array $stored, string $channel, ?array $liveUser = null): array

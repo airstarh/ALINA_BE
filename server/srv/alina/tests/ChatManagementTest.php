@@ -173,6 +173,27 @@ chatExpectSame(['bot', 'robocop', 'Robocop'], [
 $otherOrdinary = array_values(array_filter($storage->history($otherChat['id'], 10), fn (array $message): bool => $message['senderType'] === 'user'));
 chatExpectSame('other room message', $otherOrdinary[0]['text'] ?? null, 'kick must not delete target messages from another chat');
 
+$offlineChat = $storage->configureChat($origin, 'offline-kick', ['isConfirmationRequired' => false]);
+$offlineAdmin = new ChatTestClient(20, $origin);
+$offlineTarget = new ChatTestClient(21, $origin);
+$server->onOpen($offlineAdmin);
+chatSend($server, $offlineAdmin, 'join', ['channel' => 'offline-kick', 'CurrentUser' => ['id' => 1, 'nickname' => 'Admin']]);
+$server->onOpen($offlineTarget);
+chatSend($server, $offlineTarget, 'join', ['channel' => 'offline-kick', 'CurrentUser' => ['id' => 3, 'nickname' => 'Offline Target']]);
+chatSend($server, $offlineTarget, 'message', [
+    'channel' => 'offline-kick', 'msg' => 'remove while offline', 'clientMessageId' => 'offline-target-message',
+    'CurrentUser' => ['id' => 3, 'nickname' => 'Offline Target'],
+]);
+$server->onClose($offlineTarget);
+chatSend($server, $offlineAdmin, 'kick', ['channel' => 'offline-kick', 'participantId' => 'user:3']);
+$offlineKick = $offlineAdmin->lastEvent('participant_kicked');
+chatExpectSame('user:3', $offlineKick['participantId'] ?? null, 'offline participant must be removable');
+chatExpect(str_contains($offlineKick['message']['msg'] ?? '', 'Offline Target'), 'offline kick must retain the participant display name');
+chatExpectSame([], array_values(array_filter(
+    $storage->history($offlineChat['id'], 100),
+    static fn (array $message): bool => $message['senderType'] === 'user' && $message['senderId'] === '3',
+)), 'offline kick must delete target messages');
+
 $targetReturn = new ChatTestClient(5, $origin);
 $server->onOpen($targetReturn);
 chatSend($server, $targetReturn, 'join', [
