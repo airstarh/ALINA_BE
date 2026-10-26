@@ -13,6 +13,12 @@ class watch_visit extends _BaseAlinaModel
     {
         #####
         $Request = Request::obj();
+        $requestData = Data::sanitizeForStorage((object) [
+            'GET'     => $Request->GET,
+            'POST'    => $Request->POST,
+            'FILES'   => $Request->FILES,
+            'REFERAL' => $Request->REFERAL,
+        ]);
 
         #####
         return [
@@ -39,12 +45,7 @@ class watch_visit extends _BaseAlinaModel
                 'default' => $Request->METHOD,
             ],
             'data' => [
-                'default' => Data::hlpGetBeautifulJsonString([
-                    'GET'     => Request::obj()->GET,
-                    'POST'    => Request::obj()->POST,
-                    'FILES'   => Request::obj()->FILES,
-                    'REFERAL' => Request::obj()->REFERAL,
-                ]),
+                'default' => Data::hlpGetBeautifulJsonString($requestData),
             ],
             'controller' => [
 

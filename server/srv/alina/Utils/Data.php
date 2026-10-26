@@ -685,27 +685,99 @@ class Data
             'dir',
         ];
 
+    protected static $arrSensitiveStorageDoUnset
+        = [
+            'password',
+            'password_confirm',
+            'confirm_password',
+            'current_password',
+            'new_password',
+            'alina_form_db_pass',
+            'inputpassword',
+            'token',
+            'user_token',
+            'reset_code',
+            'authorization',
+            'cookie',
+            'tmp_name',
+        ];
+
+    public static function sensitiveStorageFields(): array
+    {
+        return static::$arrSensitiveStorageDoUnset;
+    }
+
+    public static function sanitizeForStorage(object $object): object
+    {
+        $copy = static::copyIterable($object);
+        static::sanitizeOutputObj($copy, [], static::sensitiveStorageFields());
+
+        return $copy;
+    }
+
     public static function sanitizeOutputObj(object $object, $arrOutputDoNotTouch = null, $arrOutputDoUnset = null)
     {
-        #####
         $arrOutputDoNotTouch = ($arrOutputDoNotTouch === null) ? static::$arrOutputDoNotTouch : $arrOutputDoNotTouch;
         $arrOutputDoUnset    = ($arrOutputDoUnset === null) ? static::$arrOutputDoUnset : $arrOutputDoUnset;
 
-        #####
-        foreach ($object as $f => &$v) {
-            #####
-            if (in_array($f, $arrOutputDoNotTouch)) {
-                continue;
-            }
+        $arrOutputDoNotTouch = array_map('mb_strtolower', $arrOutputDoNotTouch);
+        $arrOutputDoUnset    = array_map('mb_strtolower', $arrOutputDoUnset);
 
-            if (in_array($f, $arrOutputDoUnset)) {
-                unset($object->{$f});
-
-                continue;
-            }
-        }
+        static::sanitizeOutputIterable($object, $arrOutputDoNotTouch, $arrOutputDoUnset);
 
         return $object;
+    }
+
+    protected static function sanitizeOutputIterable(&$iterable, array $arrOutputDoNotTouch, array $arrOutputDoUnset): void
+    {
+        foreach ($iterable as $f => &$v) {
+            $fieldName = mb_strtolower((string) $f);
+
+            if (in_array($fieldName, $arrOutputDoNotTouch, true)) {
+                continue;
+            }
+
+            if (in_array($fieldName, $arrOutputDoUnset, true)) {
+                if (is_array($iterable)) {
+                    unset($iterable[$f]);
+                }
+                else {
+                    unset($iterable->{$f});
+                }
+
+                continue;
+            }
+
+            if (static::isIterable($v)) {
+                static::sanitizeOutputIterable($v, $arrOutputDoNotTouch, $arrOutputDoUnset);
+            }
+        }
+        unset($v);
+    }
+
+    protected static function copyIterable($value)
+    {
+        if (is_array($value)) {
+            $copy = [];
+
+            foreach ($value as $key => $item) {
+                $copy[$key] = static::copyIterable($item);
+            }
+
+            return $copy;
+        }
+
+        if (is_object($value)) {
+            $copy = new stdClass();
+
+            foreach ($value as $key => $item) {
+                $copy->{$key} = static::copyIterable($item);
+            }
+
+            return $copy;
+        }
+
+        return $value;
     }
 
     ##################################################

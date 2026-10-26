@@ -104,6 +104,26 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "_GITOUT/ai/003.firewall/000.report.md",
+			"bookmarks": [
+				{
+					"line": 63,
+					"column": 59,
+					"label": ""
+				},
+				{
+					"line": 85,
+					"column": 7,
+					"label": ""
+				},
+				{
+					"line": 105,
+					"column": 9,
+					"label": ""
+				}
+			]
 		}
 	]
 }
