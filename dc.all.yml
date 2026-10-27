@@ -58,7 +58,6 @@ services:
         command:
             - --innodb-buffer-pool-size=384M
             - --innodb-redo-log-capacity=1G
-            - --mysql-native-password=ON
             - --innodb-flush-log-at-trx-commit=2
             - --sync-binlog=0
             - --max-allowed-packet=64M
