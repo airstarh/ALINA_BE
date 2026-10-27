@@ -1,6 +1,6 @@
 # ALINA SPA, editor, and chat: conversation recovery state
 
-Last reviewed against the repositories: 2026-10-22
+Last reviewed against the repositories: 2026-10-27
 
 Read this file first when conversation context has been lost. It summarizes the
 implemented decisions from the long Vue/ALINA discussion and points to the
@@ -163,6 +163,12 @@ Key implemented behavior:
 - mentions with up to 22 targets, cached/searchable candidates, one
   `user_service` row per target, grouped by the ordinary message's
   `client_message_id`, and participation inferred from retained rows;
+- registered users can forward ordinary messages, including guest-authored
+  messages, to registered users or existing origin-scoped chats. Forward opens
+  the existing composer as an immediately populated destination search, creates
+  a canonical private room when needed, stores a server-owned 150-character
+  quote under the forwarding user's identity, and links the quote author to the
+  retained source chat/message;
 - retained participants remain in the sidebar when offline. The dot means
   online anywhere on the same origin; text means Typing, In chat, or Not in
   chat for the current room;
@@ -189,6 +195,8 @@ Current Vue role rules:
 - mention-service Delete: mentioned target, admin, moderator, privileged;
 - participant Kick: admin or moderator;
 - approval of a pending participant: any admitted participant.
+- message Forward: registered participants only; guest source messages remain
+  eligible, but guest participants cannot initiate a forward.
 
 The required manual schema history is in:
 

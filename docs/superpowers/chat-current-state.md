@@ -1,6 +1,6 @@
 # Text chat: current implemented state
 
-Last reviewed against backend and frontend source: 2026-10-21
+Last reviewed against backend and frontend source: 2026-10-27
 
 This is the current operational reference for the Vue 3 text chat. The dated
 designs and plans under `docs/superpowers/specs/` and `docs/superpowers/plans/`
@@ -242,6 +242,53 @@ These are display/action rules in Vue, not trusted authorization. A custom
 client can still submit commands accepted by the socket's payload and room
 validation.
 
+## Message forwarding
+
+- Only registered participants may forward a message. Guests do not see the
+  Forward control and the socket rejects forwarding commands from a guest.
+- Any retained ordinary message may be forwarded, including a message written
+  by a guest. `user_service` activity rows use their compact activity UI and do
+  not expose the ordinary-message Forward button.
+- Forward destinations are either a registered user from the application
+  `user` table or an existing chat available within the current normalized
+  origin. Deleted users and the forwarding user are excluded from user results.
+- Clicking Forward immediately opens the destination popup above the existing
+  composer and requests the unfiltered destination directory. During loading
+  it visibly shows `Searching…`; an empty result shows `No destinations found.`
+- While forwarding is active, the selected source message reuses the existing
+  dark-orange Reply highlight. Escape exits forwarding mode and removes that
+  highlight together with the destination popup.
+- The existing textarea temporarily becomes the destination search field. Its
+  layout is unchanged. A 250 ms debounce searches registered display names and
+  origin-scoped human chat names; clearing the field restores the full list.
+  Arrow keys and Enter select a result, and Escape or the cancel button leaves
+  forwarding mode. The ordinary unsent draft is kept separately and restored.
+- Selecting an existing chat sends the forward there. Selecting a registered
+  user opens or creates the canonical private room using the established
+  numeric-ID ordering and `PRIVATE: Name 1 & Name 2` initial human title.
+- The new message belongs to the forwarding registered user. The source
+  author's identity is not reused as the sender, which prevents false mentions
+  or attribution in the destination room.
+- The backend, not the browser, resolves the source message and composes the
+  canonical forward snapshot. Ordinary and edited messages cannot submit that
+  reserved markup directly.
+- A forward is stored as one ordinary `chat_message`; no migration or relation
+  table is required. Its canonical `.forward-quote` markup stores source
+  channel, source message ID, source timestamp, escaped author display name,
+  and the first 150 Unicode characters of source text.
+- Vue strictly parses this exact canonical shape and renders the snapshot as
+  text. The displayed source author links to
+  `/#/chat?channel=<source>#chat-message-<id>`. After history loads, Vue scrolls
+  to and focuses the retained source message when it is present in that page.
+- Sending is idempotent through the normal `client_message_id` mechanism. A
+  live destination room receives the ordinary `message` broadcast; the sender
+  receives `forward_ready` and navigates to the new message in the destination.
+- The `forward_search` response must include the currently joined `channel`.
+  `chatConnection.js` intentionally drops non-error events whose channel does
+  not equal the joined room. Omitting this field makes the popup remain forever
+  in `Searching…` even though the server performed the query. This integration
+  requirement is covered by `ChatForwardProtocolTest.php`.
+
 ## Presence and layout
 
 The participant sidebar includes retained participants even when they are
@@ -276,7 +323,7 @@ input is allowed to shrink beside header actions.
 
 Version 2 client commands currently include:
 
-`join`, `message`, `reply_message`, `edit_message`, `delete_message`, `discuss_message`, `delete_chat`, `typing`,
+`join`, `message`, `reply_message`, `forward_search`, `forward_message`, `edit_message`, `delete_message`, `discuss_message`, `delete_chat`, `typing`,
 `approve`, `rename`, `rename_guest`, `set_anonymous`, `set_confirmation`,
 `kick`, `list_rooms`, `mentions_directory`, and `mentions_search`.
 
@@ -285,7 +332,7 @@ Important server events include:
 `history`, `joined`, `join_pending`, `join_approved`, `message`,
 `message_edited`, `message_deleted`, `discussion_ready`, `discussion_removed`, `chat_deleted`, `presence`, `chat_state`, `join_request`,
 `participant_kicked`, `guest_renamed`, `rooms`, `mentions_directory`,
-`mentions_search`, and `error`.
+`mentions_search`, `forward_search`, `forward_ready`, and `error`.
 
 The legacy PHP chat remains supported by the compatibility branch in
 `ChatServer`; it does not receive all version 2 presence and management events.
@@ -314,6 +361,7 @@ Backend:
 - `server/srv/alina/Services/Chat/DatabaseChatStorage.php`
 - `server/srv/alina/Services/Chat/ChatMentions.php`
 - `server/srv/alina/Services/Chat/ChatReply.php`
+- `server/srv/alina/Services/Chat/ChatForward.php`
 - `server/srv/alina/mvc/Model/chat.php`
 - `server/srv/alina/mvc/Model/chat_message.php`
 - `server/srv/alina/tests/Chat*.php`
@@ -330,6 +378,7 @@ Frontend:
 - `scripts/check-chat-voice-recorder-contract.mjs`
 - `scripts/check-chat-voice-ui-contract.mjs`
 - `scripts/check-chat-mentions-contract.mjs`
+- `scripts/check-chat-forwarding-contract.mjs`
 
 Safe verification does not require a build:
 
