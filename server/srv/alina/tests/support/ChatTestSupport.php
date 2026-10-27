@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../Services/Chat/ChatReply.php';
 require_once __DIR__ . '/../../Services/Chat/ChatMentions.php';
 require_once __DIR__ . '/../../Services/Chat/ChatDiscussion.php';
+require_once __DIR__ . '/../../Services/Chat/ChatForward.php';
 
 use alina\Services\Chat\ChatStorage;
 use GuzzleHttp\Psr7\Request;
@@ -18,6 +19,7 @@ final class MemoryChatStorage implements ChatStorage
     private array $messages = [];
     private array $reactions = [];
     private array $chatPins = [];
+    private array $registeredUsers = [];
     public ?Throwable $nextError = null;
 
     public function openChat(string $origin, string $channel, ?string $initialName = null, bool $private = false): array
@@ -216,6 +218,48 @@ final class MemoryChatStorage implements ChatStorage
             if (! isset($result[$key]) && mb_stripos($message['senderName'], $query) !== false) $result[$key] = ['senderType'=>$type,'senderId'=>$message['senderId'],'senderName'=>$message['senderName'],'senderEmblem'=>$message['senderEmblem']];
         }
         return array_slice(array_values($result), 0, $limit);
+    }
+
+    public function registerUser(string $id, string $name, string $emblem = ''): void
+    {
+        $this->registeredUsers[$id] = ['senderType'=>'user', 'senderId'=>$id, 'senderName'=>$name, 'senderEmblem'=>$emblem];
+    }
+
+    public function forwardCandidates(string $origin, string $senderId, string $query, int $limit): array
+    {
+        $users = array_values(array_filter($this->registeredUsers, fn ($user) => $user['senderId'] !== $senderId && mb_stripos($user['senderName'], $query) !== false));
+        usort($users, fn ($a, $b) => $a['senderId'] <=> $b['senderId']);
+        return ['users'=>array_slice($users, 0, $limit), 'rooms'=>$this->searchRooms($origin, $senderId, $query, $limit)];
+    }
+
+    public function forwardMessage(int $sourceChatId, int $sourceMessageId, string $origin, array $request): array
+    {
+        $source = null;
+        foreach ($this->messages[$sourceChatId] ?? [] as $message) if ($message['id'] === $sourceMessageId) $source = $message;
+        if ($source === null) throw new RuntimeException('Message not found.');
+        $sourceChat = null;
+        foreach ($this->chats as $chat) if ($chat['id'] === $sourceChatId && $chat['origin'] === $origin) $sourceChat = $chat;
+        if ($sourceChat === null) throw new RuntimeException('Message not found.');
+
+        if (($request['targetType'] ?? '') === 'user') {
+            $target = $this->registeredUsers[(string) ($request['targetId'] ?? '')] ?? null;
+            if ($target === null || $target['senderId'] === $request['senderId']) throw new RuntimeException('Forward destination not found.');
+            $ids = [(string) $request['senderId'], $target['senderId']];
+            usort($ids, fn ($a, $b) => strlen($a) <=> strlen($b) ?: strcmp($a, $b));
+            $channel = implode('_', $ids);
+            $names = [(string) $request['senderId'] => $request['senderName'], $target['senderId'] => $target['senderName']];
+            $chat = $this->openChat($origin, $channel, 'PRIVATE: ' . $names[$ids[0]] . ' & ' . $names[$ids[1]], true);
+        } else {
+            $chat = $this->chats[$this->chatKey($origin, (string) ($request['targetId'] ?? ''))] ?? null;
+            if ($chat === null) throw new RuntimeException('Forward destination not found.');
+        }
+        $stored = $this->appendMessage($chat['id'], [
+            'senderType'=>'user', 'senderId'=>(string) $request['senderId'], 'senderName'=>(string) $request['senderName'],
+            'senderEmblem'=>(string) $request['senderEmblem'],
+            'text'=>\alina\Services\Chat\ChatForward::compose($source + ['channel'=>$sourceChat['channel']]),
+            'createdAt'=>(int) $request['createdAt'], 'clientMessageId'=>(string) $request['clientMessageId'],
+        ]);
+        return $stored + ['chat'=>$chat];
     }
 
     public function configureChat(string $origin, string $channel, array $changes): array

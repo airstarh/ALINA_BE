@@ -20,6 +20,10 @@ interface ChatStorage
 
     public function searchUsers(string $query, int $limit): array;
 
+    public function forwardCandidates(string $origin, string $senderId, string $query, int $limit): array;
+
+    public function forwardMessage(int $sourceChatId, int $sourceMessageId, string $origin, array $request): array;
+
     public function history(int $chatId, int $limit = 200, ?int $beforeMessageId = null): array;
 
     public function hasAnyMessage(int $chatId): bool;

@@ -80,6 +80,77 @@ final class DatabaseChatStorage implements ChatStorage
         ], (new chat())->searchRows($origin, $senderId, $query, $limit));
     }
 
+    public function forwardCandidates(string $origin, string $senderId, string $query, int $limit): array
+    {
+        $pattern = '%' . addcslashes($query, '%_\\') . '%';
+        $users = Dal::table('user')
+            ->where('id', '!=', $senderId)
+            ->where(fn ($active) => $active->whereNull('is_deleted')->orWhere('is_deleted', '=', 0))
+            ->whereRaw("TRIM(CONCAT_WS(' ', firstname, lastname)) LIKE ? ESCAPE '\\\\'", [$pattern])
+            ->orderBy('id')
+            ->limit($limit)
+            ->get(['id', 'firstname', 'lastname', 'mail', 'emblem'])
+            ->map(static function (stdClass $row): array {
+                $name = trim(implode(' ', array_filter([(string) ($row->firstname ?? ''), (string) ($row->lastname ?? '')])));
+                return [
+                    'senderType' => 'user',
+                    'senderId' => (string) $row->id,
+                    'senderName' => $name !== '' ? $name : (string) $row->mail,
+                    'senderEmblem' => (string) ($row->emblem ?? ''),
+                ];
+            })
+            ->all();
+
+        return ['users' => $users, 'rooms' => $this->searchRooms($origin, $senderId, $query, $limit)];
+    }
+
+    public function forwardMessage(int $sourceChatId, int $sourceMessageId, string $origin, array $request): array
+    {
+        if (($request['senderType'] ?? null) !== 'user') throw new RuntimeException('Only registered users can forward messages.');
+
+        $sourceChat = Dal::table('chat')->where('id', '=', $sourceChatId)->where('origin', '=', $origin)->first();
+        $source = (new chat_message())->findForChat($sourceChatId, $sourceMessageId);
+        if ($sourceChat === null || $source === null) throw new RuntimeException('Message not found.');
+
+        $targetType = (string) ($request['targetType'] ?? '');
+        $targetId = (string) ($request['targetId'] ?? '');
+        if ($targetType === 'user') {
+            $target = Dal::table('user')
+                ->where('id', '=', $targetId)
+                ->where(fn ($active) => $active->whereNull('is_deleted')->orWhere('is_deleted', '=', 0))
+                ->first(['id', 'firstname', 'lastname', 'mail']);
+            if ($target === null || $targetId === (string) $request['senderId']) throw new RuntimeException('Forward recipient not found.');
+            $ids = [(string) $request['senderId'], $targetId];
+            usort($ids, static fn (string $a, string $b): int => strlen($a) <=> strlen($b) ?: strcmp($a, $b));
+            $targetName = trim(implode(' ', array_filter([(string) ($target->firstname ?? ''), (string) ($target->lastname ?? '')])));
+            $names = [
+                (string) $request['senderId'] => (string) $request['senderName'],
+                $targetId => $targetName !== '' ? $targetName : (string) $target->mail,
+            ];
+            $chat = $this->openChat($origin, implode('_', $ids), 'PRIVATE: ' . $names[$ids[0]] . ' & ' . $names[$ids[1]], true);
+        }
+        elseif ($targetType === 'chat') {
+            $row = (new chat())->findByOriginAndChannel($origin, $targetId);
+            if ($row === null) throw new RuntimeException('Forward chat not found.');
+            $chat = $this->normalizeChat($row);
+        }
+        else throw new RuntimeException('Invalid forward destination.');
+
+        $normalizedSource = $this->normalizeMessage($source);
+        $normalizedSource['channel'] = (string) $sourceChat->channel_name_pseudo_id;
+        $stored = $this->appendMessage((int) $chat['id'], [
+            'senderType' => 'user',
+            'senderId' => (string) $request['senderId'],
+            'senderName' => (string) $request['senderName'],
+            'senderEmblem' => (string) $request['senderEmblem'],
+            'text' => ChatForward::compose($normalizedSource),
+            'createdAt' => (int) $request['createdAt'],
+            'clientMessageId' => (string) $request['clientMessageId'],
+        ]);
+
+        return $stored + ['chat' => $chat];
+    }
+
     public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool
     {
         return Dal::connection()->transaction(function () use ($origin, $channel, $userId, $userName, $userEmblem, $createdAt): bool {

@@ -91,6 +91,8 @@ final class ContractMemoryChatStorage implements ChatStorage
     }
 
     public function searchRooms(string $origin, string $senderId, string $query, int $limit): array { return []; }
+    public function forwardCandidates(string $origin, string $senderId, string $query, int $limit): array { return ['users' => [], 'rooms' => []]; }
+    public function forwardMessage(int $sourceChatId, int $sourceMessageId, string $origin, array $request): array { throw new RuntimeException('Not used by this contract test.'); }
     public function toggleChatPin(string $origin, string $channel, string $userId, string $userName, string $userEmblem, int $createdAt): bool { return false; }
 
     public function mentionCandidates(string $origin, string $senderType, string $senderId, string $query, int $limit): array

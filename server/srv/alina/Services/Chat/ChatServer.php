@@ -86,7 +86,7 @@ class ChatServer implements MessageComponentInterface
             ? ($data['type'] ?? '')
             : (is_string($text) && str_starts_with($text, 'JOIN:') ? 'join' : 'message');
 
-        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'toggle_message_pin', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'search_rooms', 'toggle_chat_pin', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
+        if (! in_array($type, ['join', 'history_before', 'message', 'reply_message', 'forward_search', 'forward_message', 'edit_message', 'delete_message', 'discuss_message', 'react_message', 'reaction_list', 'toggle_message_pin', 'delete_chat', 'typing', 'approve', 'rename', 'rename_guest', 'set_anonymous', 'set_confirmation', 'kick', 'list_rooms', 'search_rooms', 'toggle_chat_pin', 'mentions_directory', 'mentions_search', 'participants_search'], true)) {
             $this->error($from, 'Unknown chat event.');
 
             return;
@@ -207,6 +207,16 @@ class ChatServer implements MessageComponentInterface
             if ($type === 'reply_message') {
                 $this->replyMessage($from, $data);
 
+                return;
+            }
+
+            if ($type === 'forward_search') {
+                $this->forwardSearch($from, $data);
+                return;
+            }
+
+            if ($type === 'forward_message') {
+                $this->forwardMessage($from, $data);
                 return;
             }
 
@@ -450,6 +460,84 @@ class ChatServer implements MessageComponentInterface
             'type' => 'rooms_search',
             'query' => $query,
             'rooms' => $this->storage->searchRooms($state['origin'], $directory['senderId'], $query, 1000),
+        ]);
+    }
+
+    private function forwardSearch(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        if (! str_starts_with($state['participantId'], 'user:') || $state['origin'] === null) {
+            $this->error($client, 'Message forwarding is available to registered users only.');
+            return;
+        }
+        $query = trim((string) ($data['query'] ?? ''));
+        if (mb_strlen($query) > 200) {
+            $this->error($client, 'Enter a user or chat name of at most 200 characters.');
+            return;
+        }
+        [, $senderId] = explode(':', $state['participantId'], 2);
+        $candidates = $this->storage->forwardCandidates($state['origin'], $senderId, $query, 1000);
+        $this->send($client, [
+            'version' => 2,
+            'type' => 'forward_search',
+            'channel' => $state['channel'],
+            'query' => $query,
+            'users' => $candidates['users'],
+            'rooms' => $candidates['rooms'],
+        ]);
+    }
+
+    private function forwardMessage(ConnectionInterface $client, array $data): void
+    {
+        $state = $this->clients[$client];
+        if (! str_starts_with($state['participantId'], 'user:')) {
+            $this->error($client, 'Message forwarding is available to registered users only.');
+            return;
+        }
+        $messageId = $this->positiveMessageId($data['messageId'] ?? null);
+        $targetType = $data['targetType'] ?? null;
+        $targetId = $data['targetId'] ?? null;
+        $clientMessageId = $data['clientMessageId'] ?? null;
+        if ($messageId === null) {
+            $this->error($client, 'A valid message ID is required.');
+            return;
+        }
+        if (! in_array($targetType, ['user', 'chat'], true) || ! is_string($targetId) || $targetId === '' || strlen($targetId) > 128) {
+            $this->error($client, 'A valid forwarding destination is required.');
+            return;
+        }
+        if (! is_string($clientMessageId) || $clientMessageId === '' || strlen($clientMessageId) > 64 || ! preg_match('/^[A-Za-z0-9._:-]+$/D', $clientMessageId)) {
+            $this->error($client, 'A valid client message ID of at most 64 characters is required.');
+            return;
+        }
+
+        [, $senderId] = explode(':', $state['participantId'], 2);
+        $stored = $this->storage->forwardMessage($state['chatId'], $messageId, $state['origin'], [
+            'senderType' => 'user',
+            'senderId' => $senderId,
+            'senderName' => $state['user']['name'],
+            'senderEmblem' => $state['user']['emblem'],
+            'targetType' => $targetType,
+            'targetId' => $targetId,
+            'createdAt' => $this->nowMilliseconds(),
+            'clientMessageId' => $clientMessageId,
+        ]);
+        $channel = $stored['chat']['channel'];
+        $message = $this->protocolMessage($stored['message'], $channel, $state['user']);
+        if ($stored['inserted']) {
+            $roomKey = $this->roomKey($state['origin'], $channel);
+            $this->broadcast($roomKey, fn ($recipient) => $this->clients[$recipient]['version'] === 2
+                ? ['version' => 2, 'type' => 'message', 'channel' => $channel, 'message' => $message]
+                : $message);
+            $this->refreshRoomDirectories($state['origin']);
+        }
+        $this->send($client, [
+            'version' => 2,
+            'type' => 'forward_ready',
+            'channel' => $state['channel'],
+            'sourceMessageId' => (string) $messageId,
+            'destination' => ['channel' => $channel, 'chatName' => $stored['chat']['name']],
+            'message' => $message,
         ]);
     }
 
@@ -895,8 +983,8 @@ class ChatServer implements MessageComponentInterface
 
         $text = trim($text);
 
-        if (ChatReply::hasCanonicalPrefix($text)) {
-            $this->error($client, 'Reserved reply markup is not allowed.');
+        if (ChatReply::hasCanonicalPrefix($text) || ChatForward::hasCanonicalPrefix($text)) {
+            $this->error($client, 'Reserved message markup is not allowed.');
 
             return;
         }
@@ -1019,8 +1107,8 @@ class ChatServer implements MessageComponentInterface
 
         $text = trim($text);
 
-        if (ChatReply::hasCanonicalPrefix($text)) {
-            $this->error($client, 'Reserved reply markup is not allowed.');
+        if (ChatReply::hasCanonicalPrefix($text) || ChatForward::hasCanonicalPrefix($text)) {
+            $this->error($client, 'Reserved message markup is not allowed.');
 
             return;
         }
