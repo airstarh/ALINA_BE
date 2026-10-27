@@ -23,7 +23,7 @@ services:
         restart: unless-stopped
         env_file: _GITOUT/env/.env
         container_name: alina_nginx
-        image: nginx:1.20
+        image: nginx:1.30.6
         command: nginx -g "daemon off;"
         volumes: *vol-nginx
         networks:
@@ -45,7 +45,7 @@ services:
     mysql:
         restart: unless-stopped
         env_file: _GITOUT/env/.env
-        image: mysql:8.0.27
+        image: mysql:8.4.13
         container_name: alina_mysql
         networks:
             - alina_network
@@ -57,7 +57,8 @@ services:
                     cpus: "2.0"
         command:
             - --innodb-buffer-pool-size=384M
-            - --innodb-log-file-size=512M
+            - --innodb-redo-log-capacity=1G
+            - --mysql-native-password=ON
             - --innodb-flush-log-at-trx-commit=2
             - --sync-binlog=0
             - --max-allowed-packet=64M

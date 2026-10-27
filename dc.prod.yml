@@ -1,5 +1,7 @@
 services:
     php82:
+        environment:
+            ALINA_MODE: PROD
         build:
             args:
                 INSTALL_XDEBUG: "false"
