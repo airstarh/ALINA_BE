@@ -344,7 +344,42 @@ The required schema history is:
 - `admin/sql/history/0001.chat.base-tablkes.sql` — base chat tables;
 - `admin/sql/history/0002.chat.emblem.sql` — retained sender emblem;
 - `admin/sql/history/0003chat.unique-key.sql` — grouped-message unique key;
-- `admin/sql/history/0004.chat.discuss.sql` — discussion-to-source relation.
+- `admin/sql/history/0004.chat.discuss.sql` — discussion-to-source relation;
+- `admin/sql/history/0005.file.size.sql` — persisted file size;
+- `admin/sql/history/0006.chat.normalization.sql` — canonical `chat_user`
+  identities and the `chat_message.chat_user_id` relation;
+- `admin/sql/history/0007.chat.likes.sql` — message reactions;
+- `admin/sql/history/0008.chat.pinned.sql` — pinned chats and messages.
+
+### Migration 0006 recovery (2026-10-28)
+
+`0006.chat.normalization.sql` was originally committed as a zero-byte file.
+Consequently, a fresh history run applied `0001` through `0005`, then failed in
+`0007.chat.likes.sql` with MySQL error 1824 because its foreign key referenced
+the missing `chat_user` table.
+
+The restored `0006` migration:
+
+- creates `chat_user` with a unique canonical `(user_type, user_id)` identity;
+- maps numeric `user_service` identities to `user` and other `user_service`
+  identities to `guest`, matching `ChatUserIdentity::type()`;
+- retains the newest name and emblem plus the first/latest observed timestamps;
+- backfills `chat_message.chat_user_id` without deleting existing messages;
+- replaces copied sender identity columns with the foreign-key relation; and
+- changes message uniqueness to
+  `(chat_id, client_message_id, sender_type, chat_user_id)`.
+
+`admin/do/sql/migrate.history.sh` accepts an optional migration filename as a
+resume point. On a database where `0001` through `0005` already succeeded, use:
+
+```bash
+./alina sss do/sql/migrate.history.sh 0006.chat.normalization.sql
+```
+
+Do not restart that partially migrated database at `0001`: the older ALTER
+migrations are historical, not generally idempotent. The repair and resume
+support were prepared locally and statically checked; applying them to a real
+database remains an explicit operational action.
 
 Schema files are historical/manual migrations; reviewing documentation does not
 execute them. Backend protocol changes require restarting the long-running chat

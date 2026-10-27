@@ -204,11 +204,28 @@ The required manual schema history is in:
 - `admin/sql/history/0002.chat.emblem.sql`
 - `admin/sql/history/0003chat.unique-key.sql`
 - `admin/sql/history/0004.chat.discuss.sql`
+- `admin/sql/history/0005.file.size.sql`
+- `admin/sql/history/0006.chat.normalization.sql`
+- `admin/sql/history/0007.chat.likes.sql`
+- `admin/sql/history/0008.chat.pinned.sql`
 
 The final message uniqueness key is
-`(chat_id, client_message_id, sender_type, sender_id)`. Do not reapply migration
-history blindly. `admin/sql/migrate/sql.sql` is currently the scratch location
-for future raw migrations and was empty at this review.
+`(chat_id, client_message_id, sender_type, chat_user_id)`.
+
+Migration incident recorded on 2026-10-28: `0006.chat.normalization.sql` had
+been committed empty, so a new `sss` history run applied `0001` through `0005`
+and then failed in `0007` because `chat_user` did not exist. `0006` now creates
+and backfills canonical chat identities, and the history runner accepts a
+filename resume point. For this exact partially migrated state, resume with:
+
+```bash
+./alina sss do/sql/migrate.history.sh 0006.chat.normalization.sql
+```
+
+Do not reapply migration history blindly. See the Database and activation
+section of `docs/superpowers/chat-current-state.md` for the complete recovery
+record. `admin/sql/migrate/sql.sql` remains the scratch location for future raw
+migrations.
 
 ## Documentation map
 

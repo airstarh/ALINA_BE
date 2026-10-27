@@ -1,6 +1,6 @@
 # Admin automation handoff
 
-Last updated: 2026-09-09
+Last updated: 2026-10-28
 
 ## Working agreement
 
@@ -75,6 +75,27 @@ Legacy `admin/sss.inc.sh`, `admin/bin/config/sss.sh`, legacy launchers, and `adm
 - Backup now uses `pv` when available and `cat` as a transparent fallback.
 - `pv`, `gzip`, and output redirection run on the host; `mysqldump` runs inside `alina_mysql`.
 - A successful real `zero` backup and gzip integrity check were performed with explicit user authorization.
+
+## SQL history resume and 2026-10-28 chat incident
+
+`admin/do/sql/migrate.history.sh` runs the version-sorted SQL files from
+`admin/sql/history/` for every database in the selected profile's
+`ALINA_BASES`. It now accepts an optional first filename and skips older files:
+
+```bash
+./alina sss do/sql/migrate.history.sh 0006.chat.normalization.sql
+```
+
+This resume point was added after `0006.chat.normalization.sql` was discovered
+to be an empty committed file. On `sss`, migrations `0001` through `0005` had
+already succeeded before `0007` failed because `chat_user` was absent. The
+restored `0006` creates and backfills the normalized identity relation.
+
+Historical ALTER migrations are not generally idempotent. Resume a partial run
+at the first unapplied/repaired migration instead of blindly starting at
+`0001`. Passing a nonexistent resume filename fails before any database action.
+Migration execution remains an operational action requiring explicit user
+authorization.
 
 ## Safe verification
 
