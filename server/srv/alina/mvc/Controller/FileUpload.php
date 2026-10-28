@@ -86,6 +86,41 @@ class FileUpload
         AlinaEcho((new htmlAlias())->page());
     }
 
+    public function actionDeleteBulk()
+    {
+        $deleted = 0;
+        $ids = [];
+
+        if (Request::obj()->isPostPutDelete()) {
+            $postedIds = Request::obj()->POST->list ?? [];
+
+            if (is_array($postedIds)) {
+                $ids = array_values(array_unique(array_map('intval', $postedIds)));
+
+                foreach ($ids as $id) {
+                    if ($id > 0 && (new file())->deleteOneAndUnlinkIfNoOtherLinks($id)) {
+                        $deleted++;
+                    }
+                }
+            }
+        }
+
+        $success = count($ids) > 0 && $deleted === count($ids);
+        AlinaResponseSuccess($success ? 1 : 0);
+
+        if ($success) {
+            Message::setSuccess('Deleted');
+        }
+        else {
+            Message::setDanger('Deletion failed');
+        }
+
+        AlinaEcho((new htmlAlias())->page((object)[
+            'requested' => count($ids),
+            'deleted'   => $deleted,
+        ]));
+    }
+
     public function actionGetFiles($entity_table, $entity_id)
     {
         $m  = new file();
@@ -106,6 +141,10 @@ class FileUpload
         $ownerId = (int) $ownerId;
         $files = (new file())->q()
             ->where('owner_id', '=', $ownerId)
+            ->orderBy('entity_table', 'ASC')
+            ->orderBy('root_id', 'DESC')
+            ->orderBy('parent_id', 'DESC')
+            ->orderBy('entity_id', 'DESC')
             ->orderBy('order', 'ASC')
             ->orderBy('name_human', 'ASC')
             ->get();

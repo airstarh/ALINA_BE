@@ -56,16 +56,6 @@
 			]
 		},
 		{
-			"path": "server/srv/alina/mvc/Controller/FileUpload.php",
-			"bookmarks": [
-				{
-					"line": 178,
-					"column": 25,
-					"label": ""
-				}
-			]
-		},
-		{
 			"path": "server/etc/nginx/conf.d/default.conf",
 			"bookmarks": [
 				{
