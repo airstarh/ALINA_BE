@@ -8,6 +8,7 @@ class file extends _BaseAlinaModel
 {
     public $table       = 'file';
     public $sortDefault = [['created_at', 'DESC'], ['id', 'DESC']];
+    public $addAuditInfo = true;
 
     public function fields()
     {
@@ -35,9 +36,7 @@ class file extends _BaseAlinaModel
             'owner_id' => [
                 'default' => CurrentUser::obj()->id(),
             ],
-            'created_at' => [
-                'default' => ALINA_TIME,
-            ],
+            'created_at' => [],
             'order' => [
                 'default' => 0,
             ],

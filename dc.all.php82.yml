@@ -71,3 +71,50 @@ services:
             start_period: 10s
         networks:
             - alina_network
+
+    alina_socket:
+        build:
+            context: ./Dockerfile.d/php82
+            args:
+                INSTALL_XDEBUG: "false"
+        container_name: alina_socket
+        restart: unless-stopped
+        mem_limit: 512M
+        cpus: "1.0"
+        expose:
+            - "8082"
+            - "8083"
+        env_file: _GITOUT/env/.env
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+            - ./server/srv/:/srv/:ro
+            - ./server_specific/php82/usr/local/etc/php/conf.d/99.php.ini:/usr/local/etc/php/conf.d/99.php.ini:ro
+            - ./server/var/log/php/:/var/log/php/:rw
+            - ./server/var/tmp/php-upload/:/var/tmp/php-upload/:rw
+            - ./server/var/www/:/var/www/:rw
+        working_dir: /srv/alina
+        read_only: true
+        tmpfs:
+            - /tmp
+        init: true
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        command: php /srv/alina/program/socket/p.socket.run.php
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "php",
+                    "-r",
+                    '$$found = false; foreach (["/proc/net/tcp", "/proc/net/tcp6"] as $$file) { foreach (@file($$file) ?: [] as $$line) { $$fields = preg_split("/\\s+/", trim($$line)); if (($$fields[3] ?? "") === "0A" && str_ends_with($$fields[1] ?? "", ":1F92")) { $$found = true; break 2; } } } exit($$found ? 0 : 1);',
+                ]
+            timeout: 5s
+            retries: 3
+            interval: 10s
+            start_period: 10s
+        networks:
+            - alina_network

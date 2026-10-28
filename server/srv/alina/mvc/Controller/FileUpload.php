@@ -5,6 +5,7 @@ namespace alina\mvc\Controller;
 use alina\Message;
 use alina\mvc\Model\CurrentUser;
 use alina\mvc\Model\file;
+use alina\mvc\Model\file_job;
 use alina\mvc\Model\tale;
 use alina\mvc\Model\user;
 use alina\mvc\View\html as htmlAlias;
@@ -13,6 +14,8 @@ use alina\Utils\FS;
 use alina\Utils\Request;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
+use alina\Services\FileJob\FileJobUploadRules;
+use alina\Services\FileJob\FileJobWakeClient;
 
 class FileUpload
 {
@@ -119,6 +122,57 @@ class FileUpload
             'requested' => count($ids),
             'deleted'   => $deleted,
         ]));
+    }
+
+    public function actionVideo()
+    {
+        if (!CurrentUser::obj()->isLoggedIn()) {
+            AlinaRejectIfNotLoggedIn();
+            return null;
+        }
+        $upload=$_FILES[ALINA_FILE_UPLOAD_KEY]??null;
+        $index=is_array($upload['error']??null)?array_key_first($upload['error']):null;
+        if ($index===null || ($upload['error'][$index]??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK) {
+            return $this->videoUploadFailure('Video upload failed.');
+        }
+
+        $entityTable=(string)(Request::obj()->POST->entity_table??'');
+        $entityId=(int)(Request::obj()->POST->entity_id??0);
+        if (!$this->mayAttachVideo($entityTable,$entityId)) return null;
+
+        $sourceTmp=(string)$upload['tmp_name'][$index];
+        $originalName=(string)$upload['name'][$index];
+        $mime=(string)($upload['type'][$index]??'');
+        if ($mime==='' && is_file($sourceTmp)) $mime=(string)(mime_content_type($sourceTmp)?:'application/octet-stream');
+        if (!FileJobUploadRules::isVideo($originalName,$mime)) return $this->videoUploadFailure('The selected file is not a video.');
+
+        $publicId=$this->uuidV4();$secret=bin2hex(random_bytes(32));$ownerId=(int)CurrentUser::obj()->id();
+        $stageDir='/var/tmp/php-upload/file-jobs';
+        FS::mkChainedDirIfNotExists($stageDir);
+        $sourcePath=FS::buildPathFromBlocks($stageDir,$publicId.'.'.FileJobUploadRules::safeExtension($originalName).'.uploading');
+        $targetDir=$this->destinationDir($ownerId);
+        $nameFs=hash('sha256',$publicId.$originalName).'.mp4';
+        $finalPath=FS::buildPathFromBlocks($targetDir,$nameFs);
+        $resultTmp=$finalPath.'.'.$publicId.'.part';
+        $payload=[
+            'wake_token_hash'=>hash('sha256',$secret),'final_path'=>$finalPath,
+            'name_fs'=>$nameFs,'url_path'=>$this->webPath($finalPath),
+        ];
+        $model=new file_job();
+        $model->insert([
+            'public_id'=>$publicId,'type'=>'video_transcode','status'=>'uploading','owner_id'=>$ownerId,
+            'entity_table'=>$entityTable,'entity_id'=>$entityId,'source_tmp'=>$sourcePath,'result_tmp'=>$resultTmp,
+            'original_name'=>$originalName,'mime'=>$mime,'payload'=>json_encode($payload,JSON_UNESCAPED_SLASHES),
+        ]);
+
+        if (!move_uploaded_file($sourceTmp,$sourcePath)) {
+            $model->updateById(['status'=>'failed','error'=>'Video upload failed.','finished_at'=>ALINA_TIME,'updated_at'=>ALINA_TIME],$model->id);
+            return $this->videoUploadFailure('Video upload failed.');
+        }
+        $model->updateById(['status'=>'queued','updated_at'=>ALINA_TIME],$model->id);
+        (new FileJobWakeClient())->wake($publicId,$secret);
+        AlinaResponseSuccess(1);
+        AlinaEcho((new htmlAlias())->page((object)['publicId'=>$publicId,'type'=>'video_transcode','status'=>'queued','progress'=>0]));
     }
 
     public function actionGetFiles($entity_table, $entity_id)
@@ -316,6 +370,36 @@ class FileUpload
 
         #####
         return $this->resp;
+    }
+
+    private function mayAttachVideo(string $entityTable,int $entityId):bool
+    {
+        if ($entityId<=0) { $this->videoUploadFailure('Save tale first then add video file to it.'); return false; }
+        if ($entityTable==='tale') {
+            $row=(new tale())->q()->where('id','=',$entityId)->first(['id','owner_id','is_submitted']);
+            if ($row===null || (int)$row->is_submitted!==1) { $this->videoUploadFailure('Save tale first then add video file to it.'); return false; }
+            if (!AlinaAccessIfAdminOrModeratorOrOwner($row->owner_id)) { $this->videoUploadFailure('Access denied.'); return false; }
+            return true;
+        }
+        if ($entityTable==='user') {
+            if (!AlinaAccessIfAdminOrModeratorOrOwner($entityId)) { $this->videoUploadFailure('Access denied.'); return false; }
+            return true;
+        }
+        $this->videoUploadFailure('Video upload is not supported for this object.');
+        return false;
+    }
+
+    private function videoUploadFailure(string $message)
+    {
+        AlinaResponseSuccess(0);Message::setDanger($message);
+        AlinaEcho((new htmlAlias())->page());
+        return null;
+    }
+
+    private function uuidV4():string
+    {
+        $bytes=random_bytes(16);$bytes[6]=chr((ord($bytes[6])&0x0f)|0x40);$bytes[8]=chr((ord($bytes[8])&0x3f)|0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s',str_split(bin2hex($bytes),4));
     }
 
     protected function processWatch()

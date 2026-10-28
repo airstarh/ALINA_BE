@@ -910,7 +910,7 @@ class _BaseAlinaModel
     {
         $saveMode = $saveMode ?? $this->mode;
         $userId   = CurrentUser::obj()->id();
-        $now      = ALINA_TIME;
+        $now      = $this->auditTimestamp();
 
         if ($this->tableHasField('modified_at')) {
             $data->modified_at = $now;
@@ -931,6 +931,15 @@ class _BaseAlinaModel
         }
 
         return null;
+    }
+
+    /**
+     * Audit fields must use save time rather than request/process boot time.
+     * This matters for long-running workers, where ALINA_TIME never changes.
+     */
+    protected function auditTimestamp(): int
+    {
+        return time();
     }
 
     #endregion OLD AuditInfo approach
