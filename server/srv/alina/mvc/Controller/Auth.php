@@ -186,6 +186,7 @@ class Auth
         #####
         Data::sanitizeOutputObj($u->attributes);
         #####
+        $u->attributes->roles = self::roleNames($u->attributes->rbac_user_role ?? []);
         $vd->user = $u->attributes;
         //$vd->sources = $u->getReferencesSources();
         AlinaEcho((new htmlAlias())->page($vd));
@@ -230,12 +231,29 @@ class Auth
                 'lastname'     => $user->lastname,
                 'emblem'       => $user->emblem,
                 'about_myself' => $user->about_myself,
+                'roles'        => self::roleNames($user->rbac_user_role ?? []),
             ];
         })->values()->toArray();
 
         AlinaEcho((new htmlAlias())->page((object)[
             'users' => $publicUsers,
         ]));
+    }
+
+    private static function roleNames(iterable $roles): array
+    {
+        $names = [];
+
+        foreach ($roles as $role) {
+            $name = trim((string) ($role->name ?? ''));
+            if ($name !== '') {
+                $names[$name] = $name;
+            }
+        }
+
+        natcasesort($names);
+
+        return array_values($names);
     }
 
     public function actionProfileAdmin($id)
@@ -280,6 +298,7 @@ class Auth
                 'is_deleted'  => (int) $userData->is_deleted,
                 'created_at'  => $userData->created_at,
                 'role_ids'    => $roleIds,
+                'roles'       => self::roleNames($userData->rbac_user_role ?? []),
                 'count_files' => (new fileModel())->q()->where('owner_id', '=', $id)->count(),
             ],
             'roles' => $roles,
