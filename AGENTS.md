@@ -9,6 +9,7 @@
 - When persistence requires reusable model-specific behavior, prefer an existing model hook or add an appropriate hook instead of issuing raw relation or synchronization queries from a controller. Preserve established hooks unless the user explicitly approves an architectural change.
 - The user pre-authorizes read-only browser verification from the terminal with locally installed browsers in headless mode. This includes temporary browser profiles and bypassing local-development HTTPS certificate errors; no additional permission is needed for these checks.
 - Preserve unrelated working-tree changes.
+- UI element placement and CSS class names are deliberately non-contractual. Do not add tests, source-text checks, or other contracts that enforce element placement or class names unless the user explicitly requests such a contract.
 - Do not execute deploy, backup, restore, rsync, Docker, certificate, permission-changing, or other operational admin actions unless the user explicitly requests that operation. Static checks, dry dispatch, and `admin/test/*.test.sh` are safe.
 
 ## Admin command architecture
