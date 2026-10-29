@@ -62,35 +62,59 @@ class FS
     /**
      * Remove even not empty directories.
      * PHP rmdir() cannot delete not empty directory.
+     * ToDO: needs test
      */
     public static function rmDirCompletely(string $path): void
     {
-        if (! is_dir($path) || is_link($path)) {
-            if (! @unlink($path)) {
-                throw new ErrorException("Cannot delete: $path");
+        if (! file_exists($path) && ! is_link($path)) {
+            return;
+        }
+
+        if (is_link($path)) {
+            if (DIRECTORY_SEPARATOR === '\\' && is_dir($path)) {
+                @rmdir($path);
+            }
+            else {
+                @unlink($path);
             }
 
             return;
         }
 
-        $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+        if (! is_dir($path)) {
+            @unlink($path);
+
+            return;
+        }
+
+        try {
+            $items = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+        }
+        catch (Throwable) {
+            return;
+        }
 
         foreach ($items as $item) {
             $itemPath = $item->getPathname();
+            clearstatcache(true, $itemPath);
 
-            if ($item->isDir() && ! $item->isLink()) {
+            if ($item->isLink()) {
+                if (DIRECTORY_SEPARATOR === '\\' && is_dir($itemPath)) {
+                    @rmdir($itemPath);
+                }
+                else {
+                    @unlink($itemPath);
+                }
+            }
+            elseif ($item->isDir()) {
                 static::rmDirCompletely($itemPath);
             }
             else {
-                if (! @unlink($itemPath)) {
-                    throw new ErrorException("Cannot delete: $itemPath");
-                }
+                @unlink($itemPath);
             }
         }
 
-        if (! @rmdir($path)) {
-            throw new ErrorException("Cannot remove directory: $path");
-        }
+        @rmdir($path);
     }
 
     /**
