@@ -111,7 +111,7 @@ class tale extends _BaseAlinaModel
                 'default' => 0,
             ],
             'is_for_registered' => [
-                'default' => 0,
+                'default' => 1,
             ],
             'is_comment_for_owner' => [
                 'default' => 0,
